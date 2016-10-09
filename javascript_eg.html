@@ -1,0 +1,77 @@
+<HTML>
+
+<HEAD>
+
+<script language="JavaScript">
+<!--
+
+
+document.writeln( "Hello World!" );
+document.writeln( "To be continued..." );
+
+var var1eg = "first example";
+var2eg = "second var eg";
+var3eg = var1eg + var2eg;
+document.writeln( var3eg );
+
+// var is kinda like perl, not typed.
+num_var = 5;
+num_var2 = 2 * num_var;
+document.writeln( num_var2 );
+num_var = "changing this to text";
+document.writeln( num_var );
+
+#alert( "Hola el mundo! this is an alert box.  anoying??  pay attention when HTML body text is displayed after alert box goes away..." );
+
+
+document.writeln( "<BR><HR><BR>" );
+
+// this is a comment
+// script section enclosed by HTML comments just so that 
+// non-script capable browser won't display the code.
+
+/* another comment */
+
+
+//function definition, with parameter passing
+function myPopUpWin(txt_param) {
+	alert(txt_param);
+}
+
+
+-->
+</script>
+</HEAD>
+
+
+<BODY>
+Start of HTML body<BR>
+<BR>
+
+Clicking link below will pop alert box before leaving the page: <BR>
+<A HREF="http://www.cs.brown.edu/courses/bridge/" onClick="alert('Thanks for visiting the Bridge home page!')">Bridge home page</A>
+<BR><BR>
+
+Click w/o link:
+<a href="#" onClick="alert('Ooo, do it again!');">Click on me!</a>
+(see info at <A HREF="http://www.webmonkey.com/2010/02/JavaScript_Tutorial_-_Lesson_2">http://www.webmonkey.com/2010/02/JavaScript_Tutorial_-_Lesson_2</A>
+to see how to handle browser returning to top of page from "#")
+
+<BR><BR><HR>
+<img src="http://www.wired.com/images/archiveutton_r.gif" name="the_image">
+<a href="#" onMouseOver="document.the_image.src='button_d.gif';">change</a>
+<BR><BR><HR>
+<img src="plug/iec-C13-pdu.gif" name="c13_image">
+mouse over the text to... <a href="#" onMouseOver="document.c13_image.src='plug/nema-5-15P.gif';">change</a> the image.  
+(but mouse away need another event to drive it??)
+
+<BR><BR>
+<form>
+<input type="button" onclick="myPopUpWin('String passed as parameter_to_fn_goes_here')" value="call fn with argument">
+</form>
+ref: http://www.w3schools.com/js/tryit.asp?filename=tryjs_function2
+<BR><BR>
+
+End of HTML body <BR>
+</BODY>
+</HTML>
