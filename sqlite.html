@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - SQLite</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - SQLite</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>SQLite</H1>
+
+<H2>SQLite 101</H2>
+
+<UL>
+	<LI> Meant to be an embeded DB for apps.
+	<LI> If App has lots of fopen(), SQLite would be a good replacement candidate.
+	<LI> Not good for write centric app, especially needing lot of consistency from multiple client write.
+	<LI> Good as local cache of a client/server DB
+	<LI> It is still RDBMS.
+	<LI> 
+	<LI> SQLite comes embeded in a number of programming env, eg Python, Perl.
+	<LI> Also have RPM that provides a stand alone SQL interface to manipulate the DB.
+	<LI> 
+	<LI> <A HREF="https://www.sqlite.org/whentouse.html">Where to use SQLite</A>
+</UL>
+
+
+
+
+
+<H2>Setting up the program on RHEL </H2>
+
+<H5>Install the packages</H5>
+<PRE>
+(sys admin work, require root priv)
+sudo yum install sqlite 		# this actually install sqlite3.  the older version rpm is called sqlite2
+
+
+</PRE>
+
+<H5>Initialize an example DB</H5>
+
+<PRE>
+SQLite is meant to be an embeded db, so many thing run as a user, and db is installed into the current dir of the user.
+
+sqlite3    mytest.db			# this only specify to work with a new file as db, like calling vi myfile.txt
+   .help
+   create table tb1 (			# issue command to create table 
+       f1 varchar(30) primary key,
+       f2 text
+   );
+   ^D					# end of file to terminate.  it saves and exit.
+
+</PRE>
+
+
+
+<H5>Example Script for Taxonomy DB setup</H5>
+
+<PRE class="code">
+
+-- this filename: import_taxo.sql
+-- sqlite3 db creation and loading script
+-- run as
+-- sqlite3 ncbi-taxo.db &lt; import_taxo.sql
+-- or
+-- .read import_taxo.sql
+-- essentially, commands that can be typed inside the sqlite shell can be used in the script as-is.
+
+create table gi_taxid(gi integer PRIMARY KEY, taxid integer);
+.mode list
+.separator \t
+pragma temp_store = 2;
+.import gi_taxid_prot.dmp gi_taxid
+.import gi_taxid_nucl.dmp gi_taxid
+CREATE UNIQUE INDEX gi_idx_on_gi_taxid ON gi_taxid(gi);
+CREATE INDEX taxid_idx_on_gi_taxid ON gi_taxid(taxid);
+
+-- UNIQUE keyword in index means duplicates in that column will result in error.
+
+.schema		-- show how tables are created
+.indices	-- show index(s) 
+
+</PRE>
+
+
+<PRE class="code">
+# other possible load options...
+.header on		-- maybe this only affect export to csv to add header row?
+.mode csv
+
+-- see http://www.sqlite.org/cli.html for more details.
+-- .import don't seems to have any options for specifying how to handle quotes, escape chars, etc.
+
+</PRE>
+
+<H2>SQL queries using <TT>sqlite</TT></H2>
+
+<H5>Example from a Taxonomy DB</H5>
+
+<PRE>
+   # ref http://dgg32.blogspot.com/2013/07/map-ncbi-taxonomy-and-gi-into-sqlite.html
+
+   $ sqlite3 ncbi-taxo.db	# call sqlite, giving it a file where the database is.
+
+   .tables			# show a list of tables in the DB
+   .help			# list sqlite commands
+   .mode list
+
+   SELECT taxid  FROM tree WHERE name  = "Proteobacteria";
+   SELECT name   FROM tree WHERE taxid = '2';
+   SELECT parent FROM tree WHERE taxid = '976';
+
+   SELECT taxid  FROM tree     WHERE parent = '976';
+   SELECT gi     FROM gi_taxid WHERE taxid  = '2';
+
+</PRE>
+
+Ref: 
+<A HREF="https://www.sqlite.org/cli.html">https://www.sqlite.org/cli.html</A>
+
+
+<H3>Performance, Benchmark SQLite</H3>
+
+<LI> A taxonomy db with file size of 33GB, including index, provided essentially instantataneous answer to simple SELECT queries like the one in the examples above.
+<LI> A python program querying the db with 20 simultaneous thread that retrieve 100+ elements returned in 1-2 seconds.
+<LI> Python program querying the DB 46k times took about 15 min (includes other sorting, processing in a taxonomy reporter tool), so about 50 queries per second.
+
+<LI>
+<LI> Bulk loading using .import seems to be a lot faster than running python code that use cursor to INSERT INTO TABLE one row at a time.  The fact that I was doing this inside a try/catch block may have added to the delay.  Trying to find which record that would result in Primary Key violation (table admitedly changed a bit as well, more digging TBA, as current performance is about 700 GB per 8 hours, long way to go for a DB of 89GB, but there were index there)....
+
+<H3>Datatypes</H3>
+
+<PRE>
+</PRE>
+Datatypes in SQLite3 include the usual suspects.  They are listed in 
+<A HREF="https://www.sqlite.org/datatype3.html">
+https://www.sqlite.org/datatype3.html"</A>
+<BR>
+<OL>
+<LI>TEXT is used to store stings.  
+<LI>VARCHAR is supported.  VARCHAR(10) does NOT limit string to 10 chars, and sqlite allegedly will store without trucating anything, even if 50M chars...    see 
+<A HREF="https://www.sqlite.org/faq.html#q9">https://www.sqlite.org/faq.html#q9</A>
+<LI>CLOB ... not sure if there is a point to use this if VARCHAR can store arbitrary length.  perhaps data manipulation is different... 
+
+</OL>
+
+
+<H3>Troubleshooting</H3>
+
+<PRE>
+If get an error message like:
+Error: database or disk is full
+This isn't really out of space for the database or its file, but temp space!
+
+pragma temp_store;	# display what's the value set for temp_store.  0 is the default
+pragma temp_store = 2;  # set to 2, ie use RAM
+
+			# 1 = use file?  need to define temp_store_directory = '/some/place'   
+			# is /tmp not the default?
+
+ref: http://stackoverflow.com/questions/5274202/sqlite3-database-or-disk-is-full-the-database-disk-image-is-malformed#5275022
+</PRE>
+
+
+<H2>Export</H2>
+
+To export a specific table into a comma delimited file:
+<PRE>
+.mode csv 
+-- use '.separator SOME_STRING' for something other than a comma.
+.headers on 
+.out file.dmp 
+select * from MyTable;
+</PRE>
+ref: http://stackoverflow.com/questions/75675/how-do-i-dump-the-data-of-some-sqlite3-tables
+
+<H3>Secure SQLite  Installation</H3>
+LOL =)
+<BR>
+<BR>
+<BR>
+
+
+<H3>File Formats</H3>
+
+<BR>
+<BR>
+
+<BR>
+<BR>
+
+<BR>
+<BR>
+
+<H3>DB Dump</H3>
+<PRE>
+
+</PRE>
+
+
+<BR><HR><BR>
+
+<H3>Ref</H3>
+<BR>
+<BR>
+<A HREF="https://www.sqlite.org/version3.html">SQLite3 overview</A>
+
+
+<BR>
+<BR>
+<H3>Tools</H3>
+<BR>
+<BR>
+<BR>
+
+
+
+
+
+
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+	[Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg/mysql.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg/mysql.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

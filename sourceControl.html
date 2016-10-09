@@ -1,0 +1,325 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Source Control</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://tiny.cc/tin6150">Sys Admin Pocket Survival Guide - Source Control</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="development.html">Development</a></td>
+      <td align="center"><a accesskey="p" href="php.html">PHP</a></td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a></td>
+      <td align="right"><a accesskey="a" href="shellScript.html">shellScript</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+
+<!-- forked from development.html -->
+
+<H1>Source Control</H1>
+
+<PRE>
+
+
+task:  			tool:	svn		rcs		hg/mercurial	git 
+update repo:			up		co?
+check out			co 		co				clone
+lock file for edit		not needed?	co -l
+check in			ci		ci
+
+what has changed?		status	
+diff b/w current and repo:	diff		rcsdiff		diff
+change list:			log		rcs log
+
+
+</PRE>
+
+
+<A NAME="svn"></A>
+<H4>SVN Subversion commands</H4>
+
+<PRE>
+svn checkout http://svn-server/path/to/project	localDirName
+	# download all files related to a svn project/repo
+	# storing all files in a subfolder called "localDirName"
+	# .svn/entries should have the URL of the source
+
+svn info	# tell where svn tree source info
+svn add  file	# add a file into svn repo  (this auto check in the file??)
+svn mkdir foo	# create a new dir and have it added to repo (after ci)
+
+svn ci 			# check in, ie, commit changes into svn
+svn ci file1 file2	# check in only specified file(s).  note that removing entry in the comment window does NOT remove the file from being commited!!		
+
+
+svn diff file		# diff b/w working copy and last version in repo
+svn diff file		# diff b/w working copy and last version in repo
+
+
+proxy settings.  Unfortunately don't seems to have a cli method to change it.  
+playing with exceptions maybe the trick.
+it does NOT heed environment variable http_proxy
+edit $HOME/.subversion/server 
+in the global section, there are several proxy clauses, eg
+###   http-proxy-host            Proxy host for HTTP connection$
+###   http-proxy-port            Port number of proxy host service$
+###   http-proxy-username        Username for auth to proxy service$
+###   http-proxy-password        Password for auth to proxy service$
+###   http-proxy-exceptions      List of sites that do not use proxy$
+
+If cached password has been changed, 
+rm ~/.subversion/auth
+(caching password is not recommended, svn does warn that it is not secure... 
+but didn't see cleartext password stored there, 
+maybe is is simple obfuscation rather than real encryption.  
+and file could be copied... )
+
+
+--
+svnadmin create		# these are admin commands, such as create a new svn repository.
+
+Granting user read (r) or read/write (rw) access to a svn repo, edit 
+	/etc/opt/CollabNet_Subversion/conf/svn_access_file
+be careful with typo.  a single mistake will render the file unparseable and no one would be able to use svn !!
+
+
+
+--
+svnlook info somerepo		# these will look at a repo w/o checking it out
+svnlook log  somerepo
+svnlook tree somerepo
+
+
+--
+Tortoise SVN is a simple, lightweight SVN client avail in windows.
+
+
+</PRE>
+
+
+
+<A NAME="hg"></A>
+<H4>mercurial hg commands</H4>
+
+<PRE>
+hg clone https://bitbucket.org/galaxy/galaxy-dist/
+hg update stable
+	# setup and download the galaxy repo from bitbucket
+
+</PRE>
+
+<A NAME="git"></A>
+<H4>git</H4>
+
+git is a very different beast than the other traditional source control system.  
+Instead of having a "code centric" view to create trees and branches, git is more of a "developer centric" paradigm.  As such, many actions don't have the same parallel as say SVN, even though some commands seems similar on the surface.
+
+<BR>
+<H5>git against local copy of repository</H5>
+
+
+<PRE>
+git clone			# create a local copy of a source code tree
+git commit file1 file2		# check into local copy (but other don't see this change yet)
+git commit file1 -m "comment"	# provide check in comment on cli rather than launch editor
+
+git add file			# add new file to be tracked
+git status			# show commit staatus within the local copy of repo only.  
+				# if the clone had been some time and master had seen other commits, it will NOT show up in the status command.  
+				# only another git fetch would get these changes.
+
+git fetch 			# get changes on master repo and sync them to local copy of the repo.  
+				# conflict may arise from this.  
+				# better resolve conflict here before committing/pushing.
+
+
+
+## think these are still acting on local copy.  in fact, it is likely that 
+## git act on local copy, except for few commands to interact with master repo...
+
+git log file1
+git show COMMIT_HASH		# details of the commit
+
+git checkout production		# something about production branch, what is "checkout" ?
+</PRE>
+
+<H5>git against central repository</H5>
+
+<PRE>
+git push			# get local copy pushed into "central", or source of clone.  other will get the changes now.
+				# this uses the default, which really means git push origin master # for primary source, master branch.
+git pull
+git pull --rebase		# may want to do this before commit... so conflicts are local.
+				# rebase has to do with where to insert changes into the original tree... 
+				# rebase is typically the most desirable option
+
+# it is prefered to resolve conflicts in local copy, 
+# rather than push the changes out
+# and have everyone look at changes at the global level, 
+# which may cause lot of conflict in other's code.
+
+</PRE>
+
+<H5>github</H5>
+
+Example instructions to add files as git repo into github
+
+<PRE>
+git config user.email "tin6150@gmail.com"
+git config user.name  "tin"
+# can use git config --global  if no need to use diff settings per repository
+
+git remote add origin https://github.com/tin6150/psg.git
+git push -u origin master
+
+</PRE>
+
+<A NAME="cvs"></A>
+<H4>cvs</H4>
+<!--ref.cs/cvs.ref-->
+
+<PRE>
+$CVSROOT                the source dir
+$PROJROOT               the local dir where copy of cvs is placed, this is the
+edit place till changes are commited
+
+so far, only successful by checking out files while pwd=$PROJROOT, and then spe
+cify full path for file.  if just specify dir name, the whole sub dir is checke
+d out
+
+cvs co dir/filename     check out file
+cvs add                 add file to c vs tree
+cvs commit              make changes permanenet
+
+</PRE>
+
+<A NAME="perforce"></A>
+<A NAME="p4"></A>
+<H4>perforce</H4>
+<!--ref.cs/cmd.p4.ref-->
+
+<PRE>
+
+
+if submit has problems, can do:
+
+p4 revert -a    = revert files that have not been edited (no changes)
+                                  very useful after accidental p4 edit ... !!!
+p4 revert               = note, old changes to file will be DELETED.
+p4 change -d {change#}  = remove change request
+
+p4 changes -m100        = check for list of changes, use grep to find my own.  (-m100 show last 100 changes only.  the cmd shows all historical data).
+
+
+to sync files in selected dir only.
+cd to the desired dir, then do:
+p4 sync ...
+
+or, pf sync /path/to/dir/...
+the '...' indicate the 'files in this position at the depot'.
+
+sync against a known date/time
+
+p4 sync ...@"2002/06/22 00:01"
+Time can be omitted, it will default to the beginning of that date (not the end!)
+
+sync against a label?
+
+
+p4 diff FILE
+the entries marked by '&lt;' is my own file
+and those in '&gt;' is the file in p4
+
+(diff file1 file2, &lt; is left file1, &gt; is right file2, so I guess p4 diff check
+out a file as temp and use that as file2).
+
+p4 diff FILE#1 FILE#3
+compare version 1 and 3 of FILE
+
+p4 sync -n ...          # just see changes for current dir
+p4 sync -f ...          # force all update on current dir (only force refresh of
+files not checked out, as in refresh accidental removal of non locked file.
+those that have been updated remains open, no accidental erasure cuz of
+refresh )
+
+p4 opened ...           # list of files opened
+p4 edit {file}          # open a file for editing
+
+p4 branches                     # list p4 branches that can be added to client view.
+
+p4 log... ?             # see revision history of file
+
+
+
+zmbl stuff?
+p4rename        : script to rename a file checked into P4.
+
+-t {FILETYPE}
+   FILETYPE one of symlink, etc
+
+change file to executable
+p4 edit -t kxtext FILE
+p4 submit
+
+</PRE>
+
+<!-- ###################################################### -->
+
+<H1>Git the Princess</H1>
+
+Thanks to the folks at
+<A HREF="https://toggl.com/developer-methods-infographic">toggl</A> <BR>
+ 
+<div align="CENTER">
+<A HREF="https://toggl.com/programming-princess">
+<IMG SRC="fig/toggl-how-to-save-the-princess-in-8-programming-languages.jpg"></A>
+</div>
+
+<!-- ###################################################### -->
+
+<BR><HR>
+<div align="CENTER">
+  Doc URL<BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/sourceControl.html">https://dl.dropboxusercontent.com/u/31360775/psg/sourceControl.html</A><BR>
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

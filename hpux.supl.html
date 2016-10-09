@@ -1,0 +1,478 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - HP-UX Supplement</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - HP-UX Supplement</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>HP-UX Boot</H1>
+
+
+Sample boot session (From a J6700 machine).
+
+<!--ctghpux2-->
+
+<PRE>
+
+
+
+
+Firmware Version 2.0
+
+Duplex Console IO Dependent Code (IODC) revision 1
+
+------------------------------------------------------------------------------
+   (c) Copyright 1995-2000, Hewlett-Packard Company, All rights reserved
+------------------------------------------------------------------------------
+
+  Processor   Speed            State           Coprocessor State  I/D Cache 
+  ---------  --------   ---------------------  -----------------  -------------
+      0      750 MHz    Active                 Functional         768 kB/1536 kB
+      1      750 MHz    Idle                   Functional         768 kB/1536 kB
+
+  Central Bus Speed:                   120 MHz
+
+  Available memory:             4294967296 bytes
+  Good memory required:           14512128 bytes
+
+  Primary boot path:    FWSCSI.6.0
+  Alternate boot path:  SCSI.6.0
+  Console path:         GRAPHICS(2)
+  Keyboard path:        USB
+
+CPU 0
+NOTICE:   Processor self-tests have been disabled because FASTBOOT is
+          enabled.  To enable self-tests, disable FASTBOOT with the FASTBOOT
+          command in the CONFIGURATION menu and reboot the system.
+NOTICE:   Memory has been initialized but not tested because FASTBOOT is
+          enabled.  To test memory, disable FASTBOOT with the FASTBOOT
+          command in the CONFIGURATION menu and reboot the system.
+
+CPU 1
+NOTICE:   Processor self-tests have been disabled because FASTBOOT is
+          enabled.  To enable self-tests, disable FASTBOOT with the FASTBOOT
+          command in the CONFIGURATION menu and reboot the system.
+
+
+Processor is booting from first available device.
+
+To discontinue, press any key within 10 seconds.
+
+10 seconds expired.
+Proceeding...
+
+Searching for device(s) with bootable media...
+This may take several minutes.
+
+To discontinue search, press any key (termination may not be immediate).
+
+Attempting to boot Primary Path...
+
+BOOTABLE DEVICE FOUND:
+   Path Number        Device Path              Device Type and Utilities
+   -----------        -----------------        -------------------------
+   P0                 FWSCSI.6.0               HP 36.4GST336706LC      
+                                               IPL
+
+Booting... 
+Boot IO Dependent Code (IODC) revision 0
+
+
+HARD Booted.
+
+ISL Revision A.00.43  Apr 12, 2000 
+
+ISL booting  hpux
+
+Boot
+: disk(10/0/15/1.6.0.0.0.0.0;0)/stand/vmunix
+10952704 + 1912832 + 1433976 start 0x1f8568
+gate64: sysvec_vaddr = 0xc0002000 for 2 pages
+NOTICE: nfs3_link(): File system was registered at index 3.
+NOTICE: autofs_link(): File system was registered at index 6.
+NOTICE: cachefs_link(): File system was registered at index 7.
+
+    System Console is on the Built-In Serial Interface
+Logical volume 64, 0x3 configured as ROOT
+Logical volume 64, 0x2 configured as SWAP
+Logical volume 64, 0x2 configured as DUMP
+    Swap device table:  (start & size given in 512-byte blocks)
+        entry 0 - major is 64, minor is 0x2; start = 0, size = 8388608
+Starting the STREAMS daemons-phase 1
+Checking root file system.
+file system is clean - log replay is not required
+Root check done.
+Create STCP device files
+Starting the STREAMS daemons-phase 2
+       $Revision: vmunix:    vw: -proj    selectors: CUPI80_BL2000_1108 -c 'Vw for CUPI80_BL2000_1108 build' -- cupi80_bl2000_1108 'CUPI80_BL2000_1108'  Wed Nov  8 19:24:56 PST 2000 $
+Memory Information:
+    physical page size = 4096 bytes, logical page size = 4096 bytes
+    Physical: 4194304 Kbytes, lockable: 3228972 Kbytes, available: 3709652 Kbytes
+
+/sbin/ioinitrc:
+/sbin/krs_sysinit:
+
+
+/sbin/bcheckrc:
+Checking for LVM volume groups and Activating (if any exist)
+Volume group "/dev/vg00" has been successfully changed.
+vxfs fsck: sanity check: root file system OK (mounted read/write)
+Checking hfs file systems
+/sbin/fsclean: /dev/vg00/lvol1 (mounted) ok
+HFS file systems are OK, not running fsck
+Checking vxfs file systems
+/dev/vg00/lvol8 :
+vxfs fsck: sanity check: /dev/vg00/lvol8 OK
+/dev/vg00/lvvol9 :
+vxfs fsck: sanity check: /dev/vg00/lvvol9 OK
+/dev/vg00/lvol3 :
+vxfs fsck: sanity check: root file system OK (mounted read/write)
+/dev/vg00/lvol4 :
+vxfs fsck: sanity check: /dev/vg00/lvol4 OK
+/dev/vg00/lvol5 :
+vxfs fsck: sanity check: /dev/vg00/lvol5 OK
+/dev/vg00/lvol6 :
+vxfs fsck: sanity check: /dev/vg00/lvol6 OK
+/dev/vg00/lvol7 :
+vxfs fsck: sanity check: /dev/vg00/lvol7 OK
+
+Cleaning /etc/ptmp...
+(c)Copyright 1983-2000 Hewlett-Packard Co.,  All Rights Reserved.
+(c)Copyright 1979, 1980, 1983, 1985-1993 The Regents of the Univ. of California
+(c)Copyright 1980, 1984, 1986 Novell, Inc.
+(c)Copyright 1986-1992 Sun Microsystems, Inc.
+(c)Copyright 1985, 1986, 1988 Massachusetts Institute of Technology
+(c)Copyright 1989-1993  The Open Software Foundation, Inc.
+(c)Copyright 1986 Digital Equipment Corp.
+(c)Copyright 1990 Motorola, Inc.
+(c)Copyright 1990, 1991, 1992 Cornell University
+(c)Copyright 1989-1991 The University of Maryland
+(c)Copyright 1988 Carnegie Mellon University
+(c)Copyright 1991-2000 Mentat Inc.
+(c)Copyright 1996 Morning Star Technologies, Inc.
+(c)Copyright 1996 Progressive Systems, Inc.
+(c)Copyright 1991-2000 Isogon Corporation, All Rights Reserved.
+
+
+                           RESTRICTED RIGHTS LEGEND
+Use, duplication, or disclosure by the U.S. Government is subject to
+restrictions as set forth in sub-paragraph (c)(1)(ii) of the Rights in
+Technical Data and Computer Software clause in DFARS 252.227-7013.
+
+                           Hewlett-Packard Company
+                           3000 Hanover Street
+                           Palo Alto, CA 94304 U.S.A.
+
+Rights for non-DOD U.S. Government Departments and Agencies are as set
+forth in FAR 52.227-19(c)(1,2).
+
+/sbin/auto_parms: DHCP access is disabled (see /etc/auto_parms.log)
+
+     
+     HP-UX Start-up in progress
+     __________________________
+
+     Configure system crash dumps ........................................ OK
+     VxVM device node check .............................................. OK
+     VxVM general startup ................................................ OK
+     VxVM reconfiguration recovery ....................................... OK
+     Mount file systems .................................................. OK
+     Update kernel and loadable modules .................................. N/A 
+     Initialize loadable modules ......................................... OK
+     Setting hostname .................................................... OK
+     Start Kernel Logging facility ....................................... N/A 
+     Set privilege group ................................................. N/A 
+     Display date ........................................................ N/A 
+     Copy processor logs to /var/tombstones .............................. OK
+     Save system crash dump if needed .....  olume recovery start .......................................... OK
+     Configuring all unconfigured software filesets ...................... OK
+     Recover editor crash files .......................................... OK
+     Clean UUCP .......................................................... OK
+     List and/or clear temporary files ................................... OK
+     Clean up old log files .............................................. OK
+     Start system message logging daemon ..............rnet interfaces .................................... OK
+     Create PCI FDDI device files. ....................................... OK
+     Configure HP 100BASE-T interfaces ................................... OK
+     Configure VLAN interfaces ........................................... OK
+     Configure LAN interfaces ............................................ OK
+     Start name server daemon ............................................ N/A 
+     Start NFS core subsystem ............................................ OK
+     Start NIS+ server subsystem ......................................... OK
+     Start NIS+ client subsystem ......................................... OK
+     Start NIS server subsystem .......................................... OK
+     Start NIS client subsystem .......................................... OK
+     Start NFS client subsystem .......................................... OK
+     Start the Trusted Mode with NIS+ subsystem .......................... N/A 
+     Configure pseudo device...................... N/A 
+     Start remote system status daemon ................................... N/A 
+     Configuring man pages for Internet Services ......................... OK
+     Starting mail daemon ................................................ OK
+     Starting outbound connection daemons for DDFA software .............. N/A 
+     Start SNMP Master Network Management daemon ......................... OK
+     Start OSPF MIB Network Management subAgent .......................... N/A 
+     Start SNMP HP-UNIX Network Management subAgent ...................... OK
+     Start SNMP MIB-2 Network Management subAgent ........................ OK
+     Start SNMP Trap Dest Network Management subAgent .................... OK
+     Start DCE daemons ................................................... N/A 
+     Start SNMP PCI FDDI Network Management subAgent ..................... OK
+     Start RPC daemon if needed .......................................... OK
+     Start CIM cimserver subsystem ....................................... OK
+     Start Isogon License Server Daemon .................................. N/A 
+     Initialize capacity on demand ....................................... N/A 
+     Starting ISEE hpservices mad daemon. ................................ N/A 
+     Start remote boot daemon ............................................ OK
+     Starting X Font Server at TCP port 7000 ............................. N/A 
+     Start vt daemon ..................................................... OK
+     Start  Install/Load XF86 DLKM Helper Modules ............................... OK
+     Starting the password/group assist subsystem ........................ OK
+     Starting HP Disk Array Manager daemons. ............................. OK
+     Starting disk array monitor daemons. ................................ OK
+     Start print spooler ................................................. N/A 
+     Starting HP Distributed Print Service ............................... OK
+     Start clock daemon ..................... Initialize Software Distributor agent daemon ........................ OK
+     Starting servicecontrol manager daemons ............................. OK
+     Configure HP RAID SA interfaces ..................................... N/A 
+     Copy processor logs to /var/tombstones .............................. OK
+     Starting Event Monitoring Service ................................... OK
+     Start EMS SNMP subagent ............................................. OK
+     Configure HP Fibre Channel Mass Storage interfaces .................. OK
+     Configure HP Internal RAID interfaces ............................... N/A 
+     Configuring Ultra320 SCSI Mass Storage interfaces ................... N/A 
+     Starting the RST EMS listener ....................................... N/A 
+     Configure HP Fibre Channel Tachyon TL/TS Mass Storage interfaces .... OK
+     Configuring HP Fibre Channel FCD Mass Storage interfaces ............ OK
+     VVR - Starting Communication Daemon ................................. N/A 
+     VVR - Starting VRAS daemon .......................................... N/A 
+     VVR - Starting VxRSync daemon ....................................... N/A 
+     Starting VERITAS Enterprise Administrator Service (vxsvc) ........... OK
+     Start NFS server subsystem .......................................... OK
+     Start X print server(s) ............................................. N/A 
+     Starting HP-UX Apache-based Web Server .............................. N/A 
+     Starting HP-UX Tomcat-based Servlet Engine .......................... N/A 
+     Starting HP-UX Webmin-based Admin ................................... N/A 
+     Starting the HPUX Webproxy subsystem ................................ N/A 
+     Starting HP-UX XML Web Server Tools ................................. OK
+     Start CDE login server .............................................. OK
+     Starting PRNGD (Pseudo Random Number Generator Daemon) .............. OK
+
+     * - An error has occurred !
+     * - Refer to the file /etc/rc.log for more information.
+
+
+
+The system is ready.
+
+GenericSysName [HP Release B.11.11] (see /etc/issue)
+Console Login: 
+
+*****************************************************************************
+*
+* Starting Desktop Login on display hpux2:0...
+*
+* Wait for the Desktop Login screen before logging in.
+*
+*****************************************************************************
+
+
+*****************************************************************************
+*
+* The X-server can not be started on display hpux2:0...
+ For details look into the file, Dtlogin.errorLogFile( default: /var/dt/Xerrors )
+*
+*****************************************************************************
+
+
+*****************************************************************************
+*
+* Suspending Desktop Login...
+*
+* Press [Enter] for a login prompt.
+*
+* Log in. Desktop Login will resume shortly after you log out.
+*
+*****************************************************************************
+
+
+*************************************************************************************************************
+
+
+GenericSysName [HP Release B.11.11] (see /etc/issue)
+Console Login: 
+
+</PRE>
+
+<BR><HR><BR>
+
+HP-UX CD contents.
+<BR>
+11i Foundation Operating Environment Sep 2005 4 CD set:
+
+<PRE>
+
+CD 1 ::
+
+100BT-EISA-FMT    IEther-00         PHKL_23291        PHKL_32090
+100BT-EISA-KRN    IGELAN-DRV        PHKL_23292        PHKL_32647
+100BT-EISA-RUN    IXGBE-DRV         PHKL_23293        PHKL_33338
+100BaseT-00       ImagingSubsystem  PHKL_23294        PHKL_33339
+100BaseT-01       IntegratedLogin   PHKL_23295        PHKL_33425
+10GigEthr-00      International     PHKL_23296        PHNE_23288
+Accounting        InternetSrvcs     PHKL_23297        PHNE_23289
+Asian-Core        JFS               PHKL_23298        PHNE_28799
+Asian-PRINTER     Judy-lib          PHKL_23299        PHNE_30463
+Asian-TERM        KRB-Support       PHKL_23300        PHNE_32396
+Asian-UTILITY     KRB5-Client       PHKL_23301        PHSS_22898
+B6848BA           KernDevKit        PHKL_23302        PHSS_25983
+B8465BA           Keyshell          PHKL_23303        PHSS_26799
+B9073BA           LAN100-FRMAT-COM  PHKL_23304        PHSS_29342
+BUNDLE11i         LAN100-INIT-COM   PHKL_23305        PHSS_32939
+CDE               LAN100BT-PB-KRN   PHKL_23306        PPU
+CONTENTS          LAN100BT-PB-RUN   PHKL_23307        PrinterMgmt
+CPS               LSSERV            PHKL_23308        ProgSupport
+CSI               LVM               PHKL_23309        RAID-00
+Curses-Color      Libiconv          PHKL_23310        RAID-01
+DCE-Core          MOZILLA           PHKL_23311        RAIDSA
+DiskQuota         MOZILLAsrc        PHKL_23312        SCSI-Passthru
+DistributedPrint  MSDOS-Utils       PHKL_23313        SOE
+EISA-MUX          MailUtilities     PHKL_23314        SW-DIST
+EMS-Config        Mozilla           PHKL_23315        SW-GETTOOLS
+EMS-Core          MozillaSrc        PHKL_23316        SecurityMon
+EMS-MIBMonitor    NFS               PHKL_23625        SourceControl
+FC-FCD            NPar              PHKL_23666        Spelling
+FC-TACHYON-TL     NParProvider      PHKL_23810        Streams
+FCMassStorage     Networking        PHKL_23957        Streams-TIO
+FDDI-00           NonHP-Terminfo    PHKL_24278        SystemAdmin
+FDDI-01           OBAM              PHKL_25506        SystemComm
+FDDI-02           OBSOLESCENCE      PHKL_25778        T2351AA
+FDDI-03           OS-Core           PHKL_26269        TOC
+FDDI-CMD-COM      OVSNMPAgent       PHKL_26425        TOKEN-EISA-KRN
+FDDI-EISA         ObsJ12            PHKL_26743        TOKEN-EISA-RUN
+FDDI-HSC          Obsolescence      PHKL_27096        TOKEN-FORMAT-RUN
+FDDI-INIT-COM     Obsolete          PHKL_27154        TOKEN-HPPB-KRN
+FDDI-KRN-COM      OpenSSL           PHKL_27155        TOKEN-HPPB-RUN
+FDDI-MASTER-COM   PCI-MUX           PHKL_27177        TOKEN-INIT-COM
+FDDI-PCI          PCITR             PHKL_27219        TOKEN-MASTER-COM
+FDDI-SNMP-SUBAGT  PHCO_22958        PHKL_27757        TermIO-00
+FDDI67-KRN        PHCO_23263        PHKL_28025        TermIO-01
+FDDI67-RUN        PHCO_23340        PHKL_28197        TerminalMngr
+FEATURE11-11      PHCO_24173        PHKL_28569        TextEditors
+FibrChanl-00      PHCO_25311        PHKL_28839        TextFormatters
+FibrChanl-01      PHCO_25831        PHKL_29076        TokenRing-00
+GE-DRV            PHCO_26951        PHKL_29300        TokenRing-01
+GLib              PHCO_27099        PHKL_29529        TokenRing-02
+GSS-API           PHCO_27100        PHKL_29539        UUCP
+GTK+              PHCO_27101        PHKL_29567        Update-UX
+Gettext           PHCO_27103        PHKL_29651        Upgrade
+GigEther-00       PHCO_27185        PHKL_29700        UserLicense
+GigEther-01       PHCO_27209        PHKL_30100        WBEMServices
+HP-CLIC-SAM       PHCO_27758        PHKL_30105        X11
+HPUXBase32        PHCO_28160        PHKL_30197        Xserver
+HPUXBase64        PHCO_28169        PHKL_30257        catalog
+HPUXBaseAux       PHCO_28998        PHKL_30446        iCOD
+HWEnable11i       PHCO_29379        PHKL_30512        openssl
+HYPER             PHCO_30514        PHKL_30992        scsiU320
+HyprFabrc-00      PHCO_30598        PHKL_31227        scsiU320-00
+I2ORAID           PHCO_31878        PHKL_31241
+IETHER-DRV        PHKL_23290        PHKL_32089
+
+
+CD 2 ::
+
+CDE for international Language
+LDAP-UX
+
+
+CD 3 ::
+
+Availability      Ignite-UX         NetscapeDirSvr6   VRTSvmpro
+B5725AA           Ignite-UX-11-00   Perl5-32          VRTSvxvm
+B9788AA           Ignite-UX-11-11   Perl5-64          catalog
+B9789AA           Ignite-UX-11-23   SysMgmtHomepage   hpuxwsAPACHE
+Base-VXVM         Isee_EmsListener  SysMgmtWeb        hpuxwsApache
+CONTENTS          J4258CA           T1455AA           hpuxwsWEBMIN
+Cpumap            JAVAOOB           T1458AA           hpuxwsWebmin
+ISEE              Jdk13             TOC               hpuxwsXML
+ISEE-Chorus       Joob              VRTSfspro         hpuxwsXml
+ISEE-Java         Jpi13             VRTSob            perl
+ISEE-SysInfo      Jpi14             VRTSobgui
+ISEEPlatform      Jre13             VRTSvlic
+Ignite-IA-11-22   MCPS-COMMON       VRTSvmdoc
+
+
+CD 4 ::
+
+CONTENTS          Jre15             SwPkgBuilder      TOC
+Java15JDK         NParCmds          SysMgmtAgent      VParProvider
+Java15JDKadd      NPartition        SysMgmtServer     catalog
+Java15JRE         ParMgr            T1456AA           gWLM-Agent
+Java15JREadd      PartitionManager  T1457AA           hpuxwsTOMCAT
+Jdk14             PostgreSQL        T1471AA           hpuxwsTomcat
+Jdk15             Secure_Shell      T2414BA           vparprovider
+Jre14             SwPackager        T2743AA
+
+
+
+
+</PRE>
+
+
+
+
+
+
+
+
+<BR><HR><BR>
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/hpux.supl.html">http://www.cs.fiu.edu/~tho01/psg/hpux.supl.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

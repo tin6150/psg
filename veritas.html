@@ -1,0 +1,1485 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Veritas</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - Veritas</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+
+<A NAME="Overview"></A>
+<H1>Veritas Volume Management + VCS Overview</H1>
+
+<PRE>
+Overview of creating VxFS volume on SAN LUN to be used in VCS
+(Search email on 2008-07-22 with word doc on hagui view of setup for easy ref
+and resulting /etc/VRTSvcs/conf/config/main.cf)
+
+
+Create LUN on SAN on the EMC side.
+
+Make LUN available to OS.  These need to be done on all nodes of a VCS cluster:
+	# cfgadm will make Solaris scan for new device.  
+	# -c configure will not change any of the existing devices, can be done live while in production.
+	cfgadm -c configure c2
+	cfgadm -c configure c3
+	cfgadm -c configure c4
+	cfgadm -c configure c5
+	# by now, format should see a new disk available to the system.
+
+	powermt config
+	powermt check
+	powermt save
+	powermt display dev=all | grep LUN 
+	# should display new LUN path
+        # format may need to be run to ensure disk has good VTOC
+
+Bring Disk to VxVM control
+        vxdisk list
+        vxdisk init emcpower25s2
+        or
+        vxdiskadm
+                Menu: VolumeManager/Disk/Diskrefresh
+
+                Once disk is initialized, VxVM place its own VTOC
+		so Solaris's format partitioning of the disk will be blown away.
+		[There is no need to encapsulate data (unless for root/boot disk
+		or trying to preserve data)].
+                Full disk will be utilized for fs creating in next step.
+
+Ensure disks are accessible from all nodes that will share the LUN.
+These need to be done on all nodes of VCS cluster.
+eg as in VCS setup.
+    vxdctl enable
+    vxdisk list    
+    	# this should see a new online device that is "invalid".
+    vxdisk -eo alldgs list	# -e will add OS_NATIVE_NAME column
+				# -o alldgs show all diskgroup and their name
+
+
+Create a volume.  (On node owning the disk group at the time). 
+        All volume need to belong to a disk group.
+        A disk group is typically managed as a whole for RAID grouping
+        purpose, especially when using Software RAID with VxVM.
+        But if hardware RAID is used, software RAID should be avoided.
+        But disk/volume still need to be in a Disk Group.
+        For VCS management, all disk for a Oracle use can be
+        placed in an OracleDG so that all volume in it can be
+        migrated to a second node in one single command.
+    vxdg     -g oracledg adddisk u03=emcpower25s2
+    		# add the new LUN to an existing disk group
+		# think of this as raw disk
+    vxdg     -g oracledg free
+    		# to find free space
+    vxassist -g oracledg make    u03vol   23001472  u03
+    		# assign a volume, think of this as making the partition.
+    vxprint
+
+
+Create File System, Mount
+        mkfs  -F vxfs  /dev/vx/rdsk/oracledg/u03vol
+	fsck  -F vxfs  /dev/vx/rdsk/oracledg/u03vol
+        mount -F vxfs  /dev/vx/dsk/oracledg/u03vol   /u03
+
+
+VCS, Add resource: Volume
+
+        hares -add    u03v Volume     Oracle
+        hares -modify u03v Volume     u03v
+        hares -modify u03v DiskGroup  oracledg
+	hares -modify u03v Critical   0
+	hares -modify u03v Enable     1
+
+VCS, Add resource: Mount
+
+        hares -add    u03m Mount       		Oracle
+	hares -modify u03m MountPoint                               /u03
+        hares -modify u03m BlockDevice         	/dev/vx/dsk/oracledg/u03v
+        hares -modify u03m FSType  		vxfs
+	hares -modify u03m Critical 		0
+	hares -modify u03m SnapUmount 		0
+	hares -modify u03m CkptUmount  		1
+	hares -modify u03m SecondLevelMonitor  	0
+	hares -modify u03m SecondLevelTimeout	30
+	hares -modify u03m FsckOpt %-y
+		## option is -y, but shell need the % to escape (hide) the -
+	hares -modify u03m Enable 		1
+
+	# change item to critical once everything is known to work.
+
+Add dependencies:
+        hagui  (picture helps here!)
+        Click on the "Oracle" Group, Resources.
+        click on [LINK] icon so that it is in link edit mode
+        Click on parent resource eg u01mount
+        Click on child resource  eg u01vol
+        This says u01vol   needs to be available before u01mount can do the mount.
+   	The parent is displayed at top and need to be clicked first int he linking process;
+	then the child is clicked second, and it will then be demoted to lower part of the tree in the display.
+</PRE>
+<!--
+old note had it that:
+        Click on child resource  eg u01vol
+        Click on parent resource eg u01mount
+        This says u01mount need to have u01vol to be avail before it can mount
+But this was not true when last updated u05s on jaws3 on 2009.1109.  
+items below also updated.	
+-->
+<PRE>
+        Repeat of other dependencies, 
+        click on parent object which is listed first, 
+        then secondly click on child object (listed last):
+	-- Each Volume (u0*v) becomes the parent of the share disk group (Ora_sharedg)
+   	   (dg must be online before individual volume can be online)
+	-- Each mount is a parent of corresponding volume.
+	-- The App service (eg oracleapp) is the parent of all mounts.
+
+        - MultiNICB is for IPMP link fail over, 
+          it should be setup as CHILD of oracleapp.
+
+        - The VCSweb is what respond to hagui
+          It is just making a dependency on any Virtual IP defined by a
+          MultiNICB, but not really a service related to oracleapp.
+
+	  Link: click on Ora_IP first, then Ora_NIC.  IP becomes the higher level, NIC the lower.  
+</PRE>
+<!--
+(probably got this mix up: Yet VCS call the NIC the parent.)
+other info deleted/updated above.  If verified next time to follow above, then delete this comment.  Tin 2009.1109
+        - Oracle Share Disk Group (Ora_sharedg) is child of all volumes (u0*v).
+        - Each vol is a child of a corresponding mount.
+        - All the mounts aggregate up as children of the app service
+          (oracleapp)
+-->
+<PRE>
+	  # if adding new volume to existing VCS config, check the main.cf file
+	  # to ensure resource dependencies are in correct order as done last time
+	  # ie which one is parent, which one is child.
+	  # for me, this is the most confusing part of how to do the link :(
+
+VCS open/save config
+        haconf -makerw
+        haconf -dump -makero
+
+
+
+hagui 	= X-Window app for VCS
+vea	= X-Window app for VxVM, doesn't seems too good.
+
+</PRE>
+
+<H5>Details</H5>
+
+<PRE>
+# VxVM
+    vxdctl enable
+        allow slave node in cluster to see volumes setup on master node also
+    vxdisk list
+        should o longer show error, both node see same status/config
+
+    vxedit -g sharedg rename sharedg01 u03
+                rename a DISK
+                (vxdiskadm create default name that I don't like)
+
+
+   vxdg -g sharedg adddisk u03=emcpower25s2
+        add new disk to shared-disk-group
+        u03 is the name of the disk (as listed in vxdisk list)
+
+
+    vxdg -g sharedg free
+                see free space on each vol in a disk group
+                length will be size to be used next
+
+   vxassist -g sharedg           make     u01v        125758208          u01
+               disk group name   cmd      vol name    size from length  disk to use
+        (very important to specify what disk to use, or Vx pick and span mult disks!)
+
+   vxassist -g sharedg    remove volume   u01v
+        If make error and need to remove a volume
+
+
+   mkfs -F vxfs /dev/vx/rdsk/sharedg/u01v
+        create vxfs fs on vol
+   mount -F vxfs  /dev/vx/dsk/sharedg/u01v  /u01
+
+   vxprint
+        show volumes, shared disk group and hardware info
+        after the VxVM has been setup.
+        be sure vol are created within the disk desired
+        spanning across disk is not desirable unless one is doing software
+        raid with vcs.
+
+
+
+
+
+# VCS
+haconf -makerw
+haconf -dump -makero
+
+# create volume resouce
+hares -add    u03vol  Volume  Oracle
+        u03vol is name of resource
+        Volume is VCS keyword to define the type of resource it is
+        Oracle is the name of the system group defined in VCS
+        (that def is best done via a GUI)
+        hagui = right click on Volume, add resources...
+
+# u01v
+hares -add    u01v  Volume  Oracle
+hares -modify u01v Critical 0
+hares -modify u01v Volume     u01v
+hares -modify u01v DiskGroup  sharedg
+hares -modify u01v Enabled 1
+
+
+# create mount resource:
+hares -add    u03mount   Mount       Oracle
+        u03mount is name of resource
+        Mount is VCS keyword to define the type of resource it is
+        Oracle is the name of the system group defined in VCS
+        hagui = right click on Mount, add resources...
+
+# u01m
+hares -add    u01m Mount       Oracle
+hares -modify u01m Critical    0
+hares -modify u01m SnapUmount  0
+hares -modify u01m CkptUmount  1
+hares -modify u01m SecondLevelMonitor  0
+hares -modify u01m SecondLevelTimeout  30
+hares -modify u01m MountPoint                            /u01
+hares -modify u01m BlockDevice        /dev/vx/dsk/sharedg/u01v
+hares -modify u01m FSType  vxfs
+##hares -modify u01m MountOpt
+hares -modify u01m FsckOpt  %-y
+## option is really -y, but shell need the % to "hide" - or else it won't take it
+##hares -modify u01m ContainerName
+hares -modify u01m Enabled 1
+
+
+# save changes
+haconf -dump -makero
+
+####
+vxreattach
+        VxVM command in /etc/vx/bin/
+        No options needed, it
+        reconnects veritas volume to disk that went offline...
+        -c is for test only
+
+
+</PRE>
+
+
+<A NAME="vxvm"></A>
+<H1>Veritas Volume Management</H1>
+
+<H2>Veritas VxVm cmds (4.0) for Solaris Boot Disk Management</H2>
+
+VxVM Manual ch 4, 5
+
+<PRE>
+
+The correct procedure for remirroring bootdisk from bootmirror so that 
+they are nearly identical in paritioning scheme should be:
+(after many tries):
+
+/etc/vx/bin/vxdisksetup -i c1t0d0 format=sliced
+        Add disk c1t0d0 to vertias control, using sliced format for boot-able di
+sk.
+
+vxdg -g rootdg adddisk bootdisk=c1t0d0
+
+vxmirror -g rootdg bootmirror bootdisk
+        This mirror partition and cyl in right seq.
+
+/etc/vx/bin/vxbootsetup -g rootdg rootdisk
+        just in case vtoc or boot sector info is missing.
+
+----
+
+Some more notes from the try, vxassist command used as per book suggestion.
+
+fix later, from try 2 on oaprod2
+
+  vxplex -g rootdg dis rootvol-01
+  vxplex -g rootdg dis var-01 u01-01 swapvol-01
+  vxedit -g rootdg -fr rm rootvol-01
+  vxedit -g rootdg -fr rm swapvol-01 var-01 u01-01 
+  vxdg -g rootdg rmdisk bootdisk
+  vxdisk rm c1t0d0 
+
+/etc/vx/bin/vxdisksetup -i c1t0d0 format=sliced
+	Add disk c1t0d0 to vertias control, using sliced format for boot-able disk.
+
+vxdg -g rootdg adddisk bootdisk=c1t0d0
+
+vxassist -g rootdg mirror swapvol bootdisk &
+	Mirror swap slide
+	try mirror swap first so that it will start at cyl 2
+	It won't put any partition info in vtoc yet.
+
+/etc/vx/bin/vxrootmir bootdisk
+	mirror the root partition, it will need slide 0 be avail.
+	This would probably work, except somehow var was placed in disk earlier
+	than root, so will need to do that first.  
+  vxassist -g rootdg mirror var  bootdisk &
+  vxassist -g rootdg mirror u01  bootdisk &
+
+	So instead, use vxmirror...
+vxmirror -g rootdg bootmirror bootdisk
+  	This mirror partition and cyl in right seq.
+	oaprod2 seems to be fine.
+
+
+
+vxmirror <rootdisk> <newmirror>	: mirror root disk
+
+Missing!!  Try in test "4"
+/etc/vx/bin/vxbootsetup -g rootdg rootdisk
+	Configure bootable info on vxvm boot disk in rootdg disk group.
+	This include boot sector and solaris VTOC info that match
+	location of root, swap, /usr, /var.
+	Optional media name(s) at end (rootdisk) specify action to be carried out
+	on specified disk only (if omitted, done for all disk in dg).
+
+	More info:
+	http://www.sun.com/blueprints/0800/vxvmref.pdf
+
+	vxbootsetup would be needed for vxassist, and slide indeed show up in vtoc/format.
+	but vxassist method req more work to copy partition in the right cyl 
+	manner.  Maybe if bootmirror was created using vxassist, then that 
+	would have been good.  But right now, vxmirror works great
+	and don't really need vxbootsetup (at least in 4.0)
+
+---
+
+VxVM commands on oaprod1, clean tba
+
+  544  vxmirror -g rootdg c1t1d0 c1t0d0
+  545  vxmirror c1t1d0s2 c1t0d0s2
+  546  vxdg -g rootdg c1t1d0s2 c1t0d0s2
+  547  vxmirror -g rootdg c1t1d0s2 c1t0d0s2
+  548  vxmirror -g rootdg c1t1d0s2 c1t0d0s2
+  549  vxmirror -g rootdg c1t1d0s0 c1t0d0s0
+  550  vxprint -hrt
+  556  vxdisk list
+  564  vxdmpadm -h
+  565  vxtask list
+  566  vxprint -hrt
+  567  vxdisk  list
+  576  vxdisk list
+  577  man vxdisk
+  578  
+
+vxdisk list
+	display all disk managed by Veritas
+vxdisk -s list
+	much more detailed version than above
+vxprint
+	print disk slice/mirroring info, plex,vol, etc
+vxprint -hrt 
+	diff version than above, useful to see boot disk mirroring location 
+	on disk.
+
+
+vxvol -g oracledg stopall 
+	stop all veritas volume on the specified disk group oracledg.
+	all volume must be unmounted first
+
+vxdg deport oracledg
+	export the disk group oracledg
+	this would make all the disk/volume of the said disk group
+	to be available for import by other hosts.
+	optional -h <HOST> parameter tell who is expected to do import
+	
+vxdg list
+	list all disk group
+vxdisk  -o alldgs list
+	scan all disk, incl those not currently managed by veritas.
+	those with disk group name inside () are exported dg, ready for import.
+
+vxdg import oracledg 
+	import the said disk group oracledg
+
+vxvol -g oracledg startall
+	start all disk in said disk group oracledg
+	This will make all vol in said disk group to be avail for mounting
+	and general use.
+	Veritas may have some locking mechanism based in scsi3 to fence off
+	multiple host from importing a disk group, even if forceful.
+	(as maybe problem on SAN disks shared in cluster).
+	Check this first though.
+
+----
+
+vxddladm addjbod VID=DGC pagecode=0x83 offset=8 length=16
+	disable Veritas DMP (dynamic MultiPath) and use EMC PowerPath driver instead 
+	(EMCpower pkg need to be installed).
+
+vxddladm listjbod
+	Display current settings
+
+vxddladm rmjbod vid=DGC
+	Undo use of EMC PowerPath, and let Veritas DMP do its thing again.
+
+Veritas DMP will continue to be used, PowerPath sits at lower layer and intercept the calls
+to the different disks.  Veritas will know multiple path to the LUN, and it will know they are 
+the same.  If fiber is removed, DMP won't know as power path work behind the scene.  Syslog 
+will log error.  After using vxddladm addjbod, reboot machine w/ reconfigure to ensure all devices are seen.
+ 
+
+vxdmpadm getdmpnode enclosure=Disk
+	list paths to various disks/luns
+
+
+May  3 15:05:15 oaprod1 vxio: WARNING: VxVM vxio V-5-0-181 Illegal vminor encountered
+
+The error is said due to vm disk starting up before vxconfigd, but my experience is that vxconfigd is already running.
+Other things to check:
+There is no files named:
+/VXVM<version>-UPGRADE/.start_runed 
+/etc/vx/reconfig.d/state.d/install-db 
+
+
+ls -l /dev/vx/dsk/<diskgroup>
+reminor disk group whose import is in conflict w/ existing disk group.
+
+ls -l /dev/vx/dsk/oracledg
+brw-------   1 root     root     259,52001 May  4 17:10 u02
+brw-------   1 root     root     259,52000 May  4 17:10 u03
+                                     ^^^^^
+                                     ^^^^^   52000 is the minor number, shown also in vxprint -l oracledg
+
+vxdg -g oracledg -f reminor 53011	# change the minor number of a disk group, 
+					# must be done while disk group is mounted
+					# but changes take effect only in the next import run
+					# and this minor number belongs to the disk group, which get carried to 
+					# another node when it is imported there.
+
+
+
+
+
+</PRE>
+
+<H4>Sample Troubleshooting of Unmountable Volumes</H4>
+
+<PRE>
+	# IF running in VCS, best to clear all errors from VCS before proceeding
+	# else, import may get undone by VCS!!
+	# But if you are quick, then VCS just detects things are back online
+	# and all will be good.
+
+
+vxdisk -o alldgs list
+	# list all disks, even those not imported and not shown by vxprint
+	# (diskGroupName) = not imported by any node
+	#  diskGroupName  = ie no parenthesis = imported by current node
+
+vxdg import dg00
+	# import the disk group so that they can be worked on
+	# ensure no other node have it imported.:w
+
+vxprint
+	# show lot of disk info, but only for imported disks.
+
+
+	# If vxprint shows everything is clean, can start whole diskgroup in one go:
+	# start will "enable" the disk.
+vxvol -g dg00 startall
+
+	# DISK that are CLEAN can be started for use by the Vol Manager (without -f):
+vxvol -g dg00 start ora00
+fstyp         /dev/vx/dsk/dg00/ora00	# check ensure fs is vxfs and not ufs.
+fsck  -F vxfs /dev/vx/rdsk/dg00/ora00
+mount -F vxfs /dev/vx/dsk/dg00/ora00  /ora00
+	## it is very important to check and to specify -F vxfs
+	## default fsck will do the wrong thing by treating it as ufs!!
+
+
+	# DISK that are in RECOVER mode, can start it with "-f":
+	# (be sure no other machine is using it):
+vxvol -g dg00 start orabk00
+
+
+
+</PRE>
+
+
+
+
+<H4>Other commands</H4>
+
+<PRE>
+
+vxassist
+
+/usr/sbin/modinfo | grep vx	: look for loaded veritas modules (to see if veritas was running)
+
+vxlicense -p		: list licenses available in the system
+vxlicense -c		: interactive program to enter veritas license key
+			: license files are stored in /etc/vx/elm/
+/usr/sbin/vxdisk list	: list veritas disks, status 
+
+/usr/sbin/vxprint -ht 	: show some long config, 
+/usr/sbin/vxprint -m	: 
+			: veritas setup, etc
+
+
+
+vxdiskadm		: encaptulate root disk
+vxmirror <rootdisk> <newmirror>	: mirror root disk
+vxassistmirror <vol> <newrootdiskmirror>
+
+vxrecover	: rebuild? failed vx slide
+vsedvtoc	: edit the veritas "fdisk/format" info
+
+vxvol stop	: stop all veritas volumes on root disk
+vxedit -r	: remove volume
+
+
+</PRE>
+
+<!--
+------------------------------------------------------------
+HP 11i sys admin handbook and toolkit, 
+p191 = initial setup
+p207 = mirror
+HP root sys is not really veritas???
+-->
+
+
+
+
+<A NAME="vcs"></A>
+<H1>Veritas Cluster Server</H1>
+
+<H2>Volume Management consideration under VCS</H2>
+
+<PRE>
+Disabling io fencing:
+
+/etc/rc2.d/S97vxfen stop
+echo "vxfen_mode=disabled" > /etc/vxfenmode
+/etc/rc2.d/S97vxfen start
+Above will still load driver, which allows Veritas Cluster VM to work w/o io fencing disks, 
+but driver need to be loaded.  This is supported for certain CVM config, but not for RAC.
+
+/var/adm/messages that kernel driver is loaded.
+AND error on console that it is disabled (where command was started).
+
+Best way is still to turn iofencing off completely in the init script.
+
+modinfo | egrep vx\|gab\|llt
+ 31  12490f9  26abc 258   1  vxdmp (VxVM 4.1z: DMP Driver)
+ 32 78216000 20f869 259   1  vxio (VxVM 4.1z I/O driver)
+ 34  126d9f0   1499 260   1  vxspec (VxVM 4.1z control/status driver)
+277 7859f205    c7b 261   1  vxportal (VxFS 4.1_REV-4.1B18_sol_GA_s10b)
+278 78a24000 170105   8   1  vxfs (VxFS 4.1_REV-4.1B18_sol_GA_s10b)
+282 78bc2000  22467 266   1  llt (LLT 4.1)
+283 78be6000  46a88 267   1  gab (GAB device 4.1)
+284 78c2e000  39491 268   1  vxfen (VRTS Fence 4.1)
+
+
+
+IOFencing.
+driver get loaded by kernel.
+it search for vxfendg to find which disk group to use, then 
+run vx... cmd to generate /etc/vxfentab, which has list of device path for LUN beloging to io fencing dg. 
+4.0 use /dev/rdsk/cXtXdXsX, 4.1 use the multipath devices, such as /dev/rdsk/emcpowerXc
+the driver is much more robust than the vxfentsthdw script.
+4.0 vxfentsthdw -g vxfencoorddg fails, though driver should be all good.
+4.1 vxfentsthdw -g will work correctly using emcpowerX devices and know that they may not be the 
+same device path on different nodes.  4.1 resolved all io fencing issues found in 4.0.
+
+4.1 vxdisk -o alldgs list will also show the emcpowerX as device name, instead of generic DISK_X.
+The naming now is at the mercy of PowerPath, veritas see them just as solaris format command see them.
+It may still not be persistent binding, but at least easy corss ref b/w veritas, solaris format, and info
+presented in EMC Navisphere.  No ASL (Array Support Lib) was needed.
+
+</PRE>
+
+
+<H2>VCS Cluster Config</H2>
+  
+<PRE>
+
+gabconfig -a : display link config info.  a = ??gab port, ie loaded ok by kernel.  b = iofencing port.  h = cluster port. 
+
+GAB Port Memberships
+===============================================================
+Port a gen   1ea001 membership 01                              
+Port b gen   1ea00f membership 01                              
+Port h gen   1ea012 membership 01                              
+
+
+vxfenadm -i  /dev/rdsk/emcpower0c
+		Display serial number of the device (LUN, disk)
+vxfenadm -g  /dev/rdsk/emcpower0c
+		Show IO Fencing info
+
+
+graceful shutdown of cluster
+
+hastop -all	# stop vcs for the whole cluster, ready for both machine to shutdown.
+hastop -local	# stop vcs on local machine only, it will stop the services, no migration by default.
+hastop -local -evacuate # stop vcs, migrate (evacuate) service to another node 
+			# evacuate a single node, just single node clean exit out of cluster.
+
+hastatus	# monitor cluster status, no arg act like tail -f
+	 -sum	# display summary and exit.
+
+lltstat		# general summary
+	-nvv	# see cluster interconnect link info (heartbeat).
+
+
+hares -online Mount_u02 -sys oaprod1		# online the give resource at the specified system 
+						# resource name is as per config (Main.cf)
+						# resource and group name are listed by hastatus cmd.
+hares -offline Oracle_oaprod -sys oaprod2	# offline the whole resrouce group on the specified system 
+						# migration to another node will NOT happen for -offline.
+hagrp -switch oracle_group -to oaprod1		# switch a service group to the specified system
+hares -modify Oracle_oaprod Owner oracle	# change resouce=Oracle_oaprod attribute=Owner new_value=oracle
+haconf -dump 					# save vcs config to Main.cf (edited via special command)
+						# do not edit Main.cf while cluster is up, it will be ignored.
+haconf -dump -makero				# equiv of "close config" of hagui, config still kept by conf editor
+
+
+seq of offline commands:
+hares -offline Netlsnr_oaprod -sys oaprod2
+hares -offline Oracle_oaprod  -sys oaprod2
+hares -offline Mount_u02      -sys oaprod2
+hares -offline Mount_u03      -sys oaprod2
+hares -offline Volume_u02     -sys oaprod2
+hares -offline Volume_u03     -sys oaprod2
+hares -offline DiskGroup_oracledg -sys oaprod2	# some sort of high level container wrapper.
+hares -offline IPMultiNICB_oaprod -sys oaprod2
+
+hares -clear   Oracle_oaprod  -sys oaprod1
+hares -online  Oracle_oaprod  -sys oaprod1	# bring up oracle service group, w/ all deps
+hagrp -switch  oracle_group   -to  oaprod2
+
+
+---
+config eg, for adding oracle test group.
+
+haconf -makerw
+hagrp -freeze oracle_group
+hares -modify Oracle_oaprod User veritas_monitor
+hares -modify Oracle_oaprod Pword veritas_password
+hares -modify Oracle_oaprod Table monitor
+hares -modify Oracle_oaprod MonScript "./bin/Oracle/SqlTest.pl"
+hares -modify Oracle_oaprod DetailMonitor 1 
+haconf -dump -makero 
+hagrp -unfreeze oracle_group
+
+
+---
+
+
+config commands (typically located in /opt/VRTS/bin):
+
+hacf -verify /etc/VRTSvcs/conf/config/
+	verify that the main.cf config file is correct, parseable.
+
+haconf -makerw
+	turn config to be read write, so that changes can be made via haclus
+haconf -dump -makero
+	save and close config from rw, must remember to do this, or else reboot will have issues!
+haclus ...
+	change cluster config param.  (CLI change instead of gui).
+
+hauser -add vcsuser
+	Add a new user that can use hagui, it will prompt for the new password of the new user.
+
+hauser -modify Administrators -add vcsuser
+	The new user is placed in admin group so that full control is granted.
+	Best way to add admin when password is forgotten :)
+
+hagui	GUI, java, for monitor and making changes to cluster
+
+</PRE>
+
+<H3>VCS config files</H3>
+
+<PRE>
+/etc/VRTSvcs/conf/config/main.cf
+	config file for vcs, usually changed using hagui or haclus command.
+	Once cluster is live, config is in memory, and this file is only backup.
+	Changes to it will be ignored if cluster is up.  
+	Cluster start does read this file, so easy manual chage of config if cluster is down.
+
+
+/etc/init.d/vx*
+vxvm-relocover
+	starts several deamon, which also take argument and email root at local machines.  
+	change these!
+
+
+3 files in /etc need to be copied to each of the node in the cluster
+(rsh of install should create these if doing multinode install w/ install script).
+
+
+/etc/llttab ::
+set-node oaprod1			# diff for each node, reflect local node name
+set-cluster 1
+link ce1 /dev/ce:1 - ether - -
+link ce3 /dev/ce:3 - ether - -
+link-lowpri ce0 /dev/ce:0 - ether - -
+
+/etc/llthosts ::
+0 oaprod1
+1 oaprod2
+
+/etc/gabtab ::
+/sbin/gabconfig -c -n2
+
+
+</PRE>
+
+<H3>VCS log files</H3>
+
+<PRE>
+/var/VRTSvcs/log
+	engine_A.log	# main log file that VCS write to as its does things.
+			# show more detail (eg error) than hastatus 
+
+</PRE>
+
+<A NAME="netbackup"></A>
+<H1>NetBackup</H1>
+Largely a GUI centric, enterprise level backup sotware.  Pretty complicated when compared to even Legato NetWorker.
+
+<BR>
+
+<PRE>
+
+Components:
+
+- Global Device Database Host
+- Master Servers
+- Volume Datbase Hosts
+- Media Servers
+
+SW packages:
+ICS = Infrastructure Common Service
+	VxSS = security
+		VxAT	= Authentication
+		VxAZ	= Authorization
+	PBX 	= Private Branch Exchange, wrapper to use a single TCP port for many threads
+VxIF	= ?? Interface??
+
+
+</PRE>
+
+<H2>NB 6.0 IMHO</H2>
+
+Things that help understand the big picture:
+<OL>
+	<LI> The central working item is the policy.
+		Each policy specify a backup job (typically a machine and list of folders to backup, machines may sometime be multiple if they all serve the same function).
+		Within the policy, specify when to do full backup, when to do incremental. 
+		The schedule have name but is independent of other policy schedule.  
+		Everything within this policy must have same retention period.
+		Typically have many policies.
+	<LI> For started, set a small time of start window (say 30 min)
+	Think of this as the start time for the job.
+	<LI> Try to estimate how long the job will take, and set next job start window at that time.
+	<LI> NBU allows for all job to start at same time, have a large start window, and so job will eventually run.  But then it becomes hard to predict what job run when.
+	<LI> when a job/task (in the activity monitor) is cancelled, NBU may
+	restart it again if the start window is still open.
+
+	<LI> A policy that that has start window everyday, but run at frequency of full backup with that repeats every 8 weeks, still have the job start like every other day.  weired.  Maybe because the policy was changed so it is marked as unrun and get scheduled again!
+	<LI> <BR>
+
+	<LI>NDMP backup: The Filer is an NDMP host.  The tape drive is dedicated to that NDMP host.  
+	Storage Unit is the Filer-NDMP-tape-drive.  
+	Policy type is NDMP, Client is the filer.   Server is the NBU (Media) server.
+</OL>
+
+<PRE>
+	Really wish that the scheduler is smarter.  eg capture time it took for last run when policy was executed.
+	In such absence, name the schedule (which is really specific to each policy) like:
+	FULL__Fri_1800+8hr	for Full backup, starting on Fridays at 6pm, lasting 8 hours.
+	Of course, the burden is on admin to update time in this name field.
+	This at least allow for seeing which job run when in the aggregated
+	schedule list (which only display name).
+
+
+
+</PRE>
+
+
+<H2>NB 6.0 Simple Install</H2>
+
+<PRE>
+Server side install:
+1. Use ICU CD, run ./installics
+	Install all components, even if not licensed.
+	These would include PBX, VxSS (Authentication and Authorization), 
+	Service Framework, etc.
+
+2.  Use NetBackup Server CD, run ./install
+	Install the server, enter license keys, 
+	allow it to start all services (eg bprd).
+
+	To manually start service: /etc/init.d/netbackup start
+
+
+3.  Start program as /usr/openv/netbackup/jnbSA &
+
+4.  Install clients using client cd and install script.
+	For Linux machines, always use RH 2.4, even if it is other flavor and 
+	different kernel level.  The other tends to mess up lib links.
+
+This setup will work:
+- no media server
+- no use of VxSS Security Services, which is not necessary for shops with few admins.
+- Server should have static IP, all client need to connect to it using its hostname.
+ 
+
+bp.conf 
+	Main config file, in /usr/openv/netbackup
+	for both client and server.
+
+
+Ports client side:
+	
+bpcd	13782
+bprd	13720
+vnetd	13724
+vopied	13783
+
+
+
+</PRE>
+
+<H4>Info from NB 6.0 Install Guide</H4>
+
+<PRE>
+
+Catalog can be large, can specify dir, and link it from /usr/openv.
+NFS install not recommended, need file locking, which is not reliable in NFS.
+
+For access-controlled environments:
+- You must install the VERITAS Security Software (VxSS) either before or after you 
+install or upgrade NetBackup on your server. The order does not matter, 
+however it is important that you install this software before you use NetBackup, 
+to benefit from an access controlled environment.
+- The Authorization broker must reside on the master server.
+- For initial install, add VxSS AFTER NB server install.
+- VxSS resids on ICS CD
+  (Probably need this on all machine with NB software, including client)
+
+
+NetBackup Enterprise only: If you are not adding any NetBackup media servers, ignore all references to them.
+
+NetBackup 6.0 contains features that are dependent on a new Infrastructure Core
+Services (ICS) product called VERITAS Private Branch Exchange (PBX).
+PBX helps limit the number of TCP/IP ports used by many new features in
+NetBackup. In addition, it allows all socket communication to take place while
+connecting through a single port. The PBX port number is 1556.
+
+
+NetBackup includes wizards that make installing and configuring the software easy.
+Installing and configuring NetBackup involves the following steps:
+1. Mounting the Software CD
+2. Installing NetBackup Server Software
+3. Installing Alternative Administration Interfaces
+4. Installing NetBackup Agents and Options (eg, Oracle agents, etc)
+
+
+Alternate Admin Interfaces:
+Windows 	NetBackup Remote Administration Console or
+		NetBackup-Java Administration Console for Windows
+UNIX 		NetBackup-Java Administration Console
+		Multiple versions of the NetBackup-Java Administration Console
+
+
+
+Initial config:
+
+The installation process copies the appropriate startup/shutdown script from the
+/usr/openv/netbackup/bin/goodies directory to the init.d directory and creates
+links to it from the appropriate rc directory.
+S77netbackup and K01netbackup
+
+Start:
+/usr/openv/netbackup/bin/jnbSA
+
+</PRE>
+
+
+<H4>ICS Install Guide</H4>
+
+<PRE>
+
+VERITAS Private Branch Exchange (VxPBX) 	Single-port access through a firewall
+VERITAS Service Management Framework (VxSMF) 	Service management
+VERITAS Authentication Service (VxAT) 		Security authentication
+VERITAS Authorization Service (VxAZ) 		Security authorization
+==> Not all of them is needed by NetBackup.
+
+Start/Stop (p61):
+VERITAS Private Branch Exchange 	/opt/VRTSpbx/bin/vxpbx_exchanged start
+VERITAS Service Management Framework 	/opt/VRTSsmf/bin/vxsmfd start
+VERITAS Authentication Service 		/etc/rc.d/rc2.d/S70vxatd start
+VERITAS Authorization Service 		/opt/VRTSaz/bin/vrtsaz
+
+</PRE>
+
+<H4>Security Service Install Guide</H4>
+
+<PRE>
+
+
+Basic Tasks Involved in Setting Up Authentication:
+
+In setting up VERITAS Authentication, you must install at least one Root Broker, one
+Authentication Broker, and one Client. 
+
+p15 of pdf for details.
+
+Root + AB: Installs the Root Broker and the Authentication Broker on the same
+machine. (There may or may not be a Client on this machine.) This is a single
+process listening on a single port.
+
+Alt: Root and AB in separate machines.  
+Allows windows, NIS etc to be broker for auth, more flexibility, harder to setup.
+
+
+Init script:  /opt/VRTSat/bin/vxatd
+
+VxAZ ...
+
+
+</PRE>
+
+<H2>Veritas NetBackup Basic Commands</H2>
+
+
+<H4>Administrator Utilities</H4>
+
+<PRE>
+(p 503 of admin guide vol 1)
+bpadm 			Starts character-based, menu-driven admin interface on the server.
+jnbSA			Starts Java-based, NetBackup admin interface on the server.
+</PRE>
+
+<H4>Client-User Interfaces</H4>
+
+<PRE>
+bp			Starts character-based, menu-driven client-user interface.
+jnbSA 			Starts Java-based, main admin interface.
+jbpSA			java gui for backup/restore portion only.
+
+NOTE on restore:
+Use java gui for restoring Unix clients
+Use Windows Admin Console to restore windows file to windows machines
+This provides better settings for environment specific attributes.
+
+</PRE>
+
+<H4>Daemon Control</H4>
+
+<PRE>
+initbprd 			Starts bprd (request daemon).
+bprdreq -terminate		Stops bprd (request daemon)
+initbpdbm 			Starts bpdbm (database manager).
+bpadm 				Has option for starting and stopping bprd.
+jnbSA (Activity Monitor) 	Has option for starting and stopping bprd.
+</PRE>
+
+
+<H4>Monitor Processes</H4>
+
+<PRE>
+bpps 				Lists active NetBackup processes.
+jnbSA (Activity Monitor) 	Lists active NetBackup processes.
+
+
+/usr/openv/java/auth.conf 	Authorization options.
+/usr/openv/netbackup/bp.conf 	Configuration options (server and client).
+/usr/openv/java/nbj.conf 	Configuration options for the NetBackup-Java Console
+$HOME/bp.conf 			Configuration options for user (on client).
+</PRE>
+
+<H2>Veritas NetBackup "Basic++" Commands</H2>
+
+commands in /usr/openv/netbackup/bin  <BR>
+(from Unix Admin CLI guide)
+
+
+<PRE>
+/usr/openv/volmgr/bin/tpconfig -d
+		# see tape drive status
+
+</PRE>
+
+<PRE>
+
+bplist		Lists backed up and archived files on the NetBackup server.
+
+	^@	http://www.symantec.com/business/support/index?page=content&id=TECH124960
+		each record returned by bplist has a NUL (^@, 0x00) before newline.
+		grep --text  or -a to force parsing as text instead of binary.  
+		strings cmd also do the trick.
+
+
+bplist -t 35 -R / | grep NBDB
+		type 35 = catalog backup 
+
+/usr/openv/netbackup/bin/bplist -C s6001 -t 19 -R -s 01/01/2011 /
+/usr/openv/netbackup/bin/bplist -C s6001 -S nbu -t 19 -R 1 -s 01/01/2011 00:00:00 -e 01/06/2011 17:00:00 /backup/prod/monthly/
+		# type 19 = NDMP, NDMP is very picky, w/o -R, it won't really work for NDMP, its path matching is somewhat diff than normal server backup.
+		# -R 1 means only list 1 level deeper than specified path.
+		# bplist -A would be needed for archive backup
+
+
+sudo /usr/openv/netbackup/bin/bplist -C s6001 -S s3704 -t 19 -R 6 -s 08/01/2012 00:00:00 -e 09/02/2012 17:00:00 /oracle-backup/BACKUP/USA1/MONTHLY    | strings | grep 08_04 | grep ora$ | sort
+
+
+
+bplist -C myDesktop -l -s 01/31/08 -R /nfsbackup/myDesktop/folder1
+		-C client-name - machine used to do the bacup
+		-s date  - search for backup from that date
+		-R 	 - recursive list files in dirs
+		path (it must end in correct dir name, partial name will NOT work
+
+bplist -C ns80-dm2 -t 19 -s 07/01/08 -e 05/01/09 -R /root_vdm_2 
+		# type 19 = NDMP backup
+		# client name is the ndmp client
+		# -e date  = search end date (limit number of tapes that need to retrieve)
+		
+
+sudo /usr/openv/netbackup/bin/bplist -C s6003 -S nbusrv -t 19 -s 11/01/12 -e 01/10/13 -R  /  > bplist.s6003.txt
+cat bplist.s6003.txt | strings | egrep --text 20121127\|20121115  > bplist.s6003.egrep.out
+
+</PRE>
+
+<PRE CLASS="code">
+#!/bin/sh
+
+# script to look for oracle monthly backup to confirm it went to tape.
+
+echo "bplist will be called via sudo..."
+echo "may want to run as bplist_orabk.sh | grep ora$ "
+
+# change parameters below appropriate for new search:
+
+BEGIN_DATE='11/30/2012'
+END_DATE='01/10/2013'
+
+CLIENT_HOST="ndmp-host-s6003"
+
+LOCATION=/oracle-backup-devrac/BACKUP/USA1D/MONTHLY
+
+LOOK_FOR="2013_01"
+
+
+
+AddtoString()
+{
+  var=$1
+  addme=$2
+  awkval='$1 != "'${addme?}'"{print $0}'
+  newval=`eval /bin/echo \\${$var} | /usr/bin/awk "${awkval?}" RS=:`
+  eval ${var?}=`/bin/echo $newval | sed 's/ /:/g'`:${addme?}
+  unset var addme awkval newval
+}
+
+
+NBU_HOME=/usr/openv
+
+AddtoString PATH ${NBU_HOME}/bin
+AddtoString PATH ${NBU_HOME}/netbackup/bin
+
+
+NBU_SERVER="nbu-master.eville.net"
+
+
+#sudo /usr/openv/netbackup/bin/bplist -C s6001 -S s3704 -t 19 -R 6 -s 08/01/2012 00:00:00 -e 09/02/2012 23:59:00 /oracle-backup/BACKUP/USA1/MONTHLY    | strings
+
+
+sudo /usr/openv/netbackup/bin/bplist -C ${CLIENT_HOST} -S ${NBU_SERVER} -t 19 -R 6 -s ${BEGIN_DATE} -e ${END_DATE} ${LOCATION} | strings | fgrep ${LOOK_FOR} | sort -u
+
+echo "total uniq record match: "
+sudo /usr/openv/netbackup/bin/bplist -C ${CLIENT_HOST} -S ${NBU_SERVER} -t 19 -R 6 -s ${BEGIN_DATE} -e ${END_DATE} ${LOCATION} | strings | fgrep ${LOOK_FOR} | sort -u | wc -l
+
+</PRE>
+
+
+<H4>Client Commands</H4>
+<PRE>
+bpcd		NB Client Daemon.  started by xinetd, so may not be running.
+		Listen on port 13782; telnet in to see if server is responding.
+		-debug	# print debug messages
+		NOTE: client can be at lower MP level than server (but not vice versa)
+
+bpclntcmd 	Tests the functionality of a NetBackup system
+		-gethostname
+		-bn		# see server assigned hostname, should match above
+
+
+</PRE>
+<H4>Server Commands</H4>
+<PRE>
+/usr/openv/netbackup/bin/admincmd/bpminlicense
+				# manage nb license file
+		-nb_features	# list active NB feature ID
+		-sm_features	# list active Storage Migrator feature ID
+		-verbose
+		-debug
+		-add_keys ...	# add keys.
+</PRE>
+
+
+<H5>Commands from Training Class</H5>
+<PRE>
+
+
+
+ch1
+
+
+Ch2
+bpgetconfig
+bpsetconfig
+bpps -a
+bpps -x
+
+/usr/openv/netbackup/db		catalog db
+/usr/openv/db			sybase db storing EMM DB
+
+bpbackup  $HOME			client side, backup the dir indicated
+bparchive $HOME			client side, archive the dir indicated 
+				(in NBU parlance, archive erase files when done)
+
+bparchive -p POLICY_NAME -s SCHEDULE_NAME -S NBU-SRV -t 0 -w 00:00:0 -L /path/log  /dir/to/bparch
+	-p POLICY_NAME would typically be a policy to hold such "ARCHIVE" jobs
+		Whether bparchive would copy files on NFS path depends on this
+		policy of "follow NFS mount" or not.
+	-s SCHEDULE_NAME is the important part, it specify when client can run 
+		bparchive (24x7 is okay),  and the specific retention of the backup.
+		Thus, can use a single POLICY but have the CLI specify 
+		diff SCHEDULE so that diff job can have diff retention period.
+	/dir/to/bparch	Everything in this dir will be backed up, and then deleted.
+		the bparch dir itself will be deleted!  and no option
+		to keep any of the dir, not even the top level one :(
+
+
+
+bprestore $HOME			restore files of indicated dir
+				CLI def = overwrite !!
+				GUI def = NO overwrite 
+
+				restore has option to "rename hard link" and soft link.  careful with these.  
+				think of them as "repointing the link"
+				hard link should be renamed to avoid overwritting orig file with same inode unless it was desired.
+				softlink may or may not wish to be re-directed to the version of the restore.
+				both are checked by default.
+
+
+	bprestore internally use unix path, so even restoring
+	windows c:\tmp, specify /c/tmp is okay.
+
+	when specifying diff dir to restore to, no need to create the last dir.
+	it will be created automatically.
+
+	eg restore of /nfsbackup/mydesktop/folder1/ to /nfsrestore/mydesktop 
+	   is good, it will automatically add a folder1 at the restore location.
+
+
+
+bpminlicense -verbose		display license keys and descriptions
+bplicense			display low level license info
+
+bpup -f -v			start netbackup server
+bpdown
+
+
+ch 3
+
+bpdbjobs [-M masterSvr]		activity monitor
+bptestbpcd -client ClientName	test connectivity to server
+vmoprcmd			list tape drive(s)
+
+/usr/openv/volmgr/bin/vmoprcmd -d	# display tape drive, whether they are in TLD lib
+sudo /usr/openv/volmgr/bin/tpautoconf -r	# tape library info
+
+robtest				script to test library robot
+				exclusive use of robot while running!!
+tldtest				tape drive test
+				/usr/openv/volmgr/bin/tldtest  -r /dev/sg2
+	subcommands ::
+	t			transport, use robot arm
+	d			drive
+	m s1 d1			move (tape) from slot1 to drive1
+	unload d1		unload tape from drive
+	m d1 s1
+	q			quit
+
+	s s 99			read bar code of tape in slot 99
+	s p 			read bar code of tape in (all) mail boxes 
+	m s99 p2		move tape in slot 99 to mail box 2 (media access port)
+	m p2  s203		move tape from MAP 2 to slot 203	
+
+vmchange -m mt -newMt
+
+
+ch 4
+
+bpimmedia -u
+bpimagelist
+bpstulist -U
+bperror -S 219 -r		show msg for given err code, -r = fix Recommendation 
+
+
+ch 5
+
+nbemmcmd			change volume pool ...
+vmadm				volume management admin
+vmpool
+
+vmupdate
+vmcheckxxx
+vmphinv				physical inventory, read tape header, not just bar code, so take some time
+vmquery -a -b			list all media known to EMM
+vmrule -listall			tape bar code rule
+vmadd
+vmchange
+
+bpexpdate -m MediaID -d 0	expire dates on tape
+vmdelete
+bplabel				label tape, erasing it
+
+volmgr/vm.conf			volume (tape) manager config
+
+tape drive path in solaris is def even when in robot, eg /dev/rmt/0cbn
+RHEL4 is /dev/nst0
+
+ch5
+bpmount				client side, find mount point (each produc its own stream, also cross mount options, etc)
+
+ch 7 - Scheduling
+
+nbpermreq -update policies	policy execution mgrt
+
+
+cp 9 
+
+bppllist			# list all policies
+bpplsched -L POLICYNAME 	# display schedule of a policy
+	  			# -L = human readable list
+				# this is easiest way to see backup window
+				# GUI is too tedious.
+	  -M MasterSvr		# specify master server if needed
+		
+
+bpdbjobs -jobid 210 -all_columns
+
+bperror -all		list all std err messages
+
+
+ch 10 restore
+??
+
+ch 11 media and images 
+
+bpadm			TUI			*****
+
+
+bpverify -m tape 	verify image on tape
+
+nbemmcmd -errorsdb	list all media error, see if some tape have persistent problem.
+
+
+ch 12 - catalog bk/recovery
+
+bpsyncinfo -doBackup
+bpdbbackup
+nbmail.cmd		mail script on windows, need blat
+
+bprecover -wizard	TUI recovery tool
+					
+nbpemreq -h	"undocumented" command for policy execution, see 14-5 
+
+vxlogmgr -f /mydir	copy all logs to specified dir (before they disapear)
+			it merge from multiple source and time sort them (?)
+
+		
+
+
+</PRE>
+
+List of daemons and what they are for:
+<A HREF="http://www.pcs-computing.com/support/nb_daemons.html">
+	http://www.pcs-computing.com/support/nb_daemons.html</A>
+
+<H5>TLA, Terms</H5>
+<PRE>
+
+STU	Storage Unit
+BMR	Bare Metal Recovery (reinstall OS and recover data from backup)
+EMM	Enterprise Media Manager - Server that keeps track of all tapes and what is on them.
+TIR	True Image Restore - keep track to see if files deleted/moved, so 
+	incremental restore will be aware of them and produce same result
+	need to store more meta data info during each inc bk
+
+MSCO	server side encryption option, so that crypt key is not per client node
+	Compress before Encrypt, don't recommend doing both on same node.
+	Tape hardware compression is outside veritas and done last,
+	(but that still can't do magic to encrypted data).
+
+NOM	Network Operation Manager, Web Server for day to day backup operator use
+	admin/Vxadmin	def pw
+
+
+multiplexing		place several image on same tape using interveaving writes.  Produces a single tar stream.
+
+multistreaming		create multiple write process, thus several tars created.  
+			(ie diff files if staging to disk, if write to tape, multiple tars).
+
+vault			feature to manage tape offsite/safe storage
+			xfer image from disk storage to tape, etc
+
+BMC Control M 		software that can interject backup job into NB
+			give better control of scheduling
+
+
+</PRE>
+
+<A NAME="Debbug"></A>
+<A NAME="DebbuggingNetBackup"></A>
+<H3>Debugging NetBackup</H3>
+For debbugging, enable logs.  NBU will add log of the many different process if specific log dir is created. 
+On the client machine, go to /usr/openv/netbackup/logs, 
+create dir name matching NBU daemon process, eg bpcd, bp...
+<BR>
+There should be a script that creates all directories to enable log of every detail, check out that script to see what process can be traced/logged.
+<PRE>
+
+</PRE>
+
+
+
+<A NAME="NBU-CODE"></A>
+<A NAME="NetBackupCommonErrorCodes"></A>
+<H3>NetBackup Common Error Codes</H3>
+
+For NetBackup 6.0 MP4.  <BR>
+Email does not have any useful info.  <BR>
+Using GUI console, sometime one can dig out the activity and look into the detail tab to find what is the real problem.  <BR>
+Overall, the reporting process is overly simplified and thus a chore to find out what is going on <BR>
+<BR>
+<BR>
+
+<PRE>
+0	Success.  No error.
+1	Partially successful.  
+	Typically means some files were in locked state and not backed up.
+	Usually little can be done about them, just ignore.
+48	unable to resolve hostname
+50	Client process aborted.
+58	Can't connect to client
+96	No blank tapes left to do backup.
+129 	staging disk full
+150	Cancelled by user.
+196	Backup window closed (start time window).
+
+800	resources not available (eg tape drive)
+	...
+
+
+</PRE>
+
+
+<H2>Veritas Security Services</H2>
+
+VxSS 4.2 Admin Guide.
+
+<PRE>
+
+VxSS has two modules:
+- VxAT = Authentication, required
+- VzAZ = Authorization, optional
+
+Authentication
+Working within the established authentication policy, VERITAS Authentication performs
+the following services:
+. Validates identities
+. Gives a VERITAS Credential to any entity whose identity it can validate
+. Sets up secured communications between authenticated entities
+Authorization
+Working within the established access control policy, VERITAS Authorization offers the
+following services:
+. Provides a database to record the authorization rules for security principals
+. Consults this database to make access decisions
+. Allows for the establishment of authorization groups
+. Enables the enforcement task to be performed by the VERITAS applications whose
+resources are being protected
+
+
+Authentication Broker allows for Single Sign On, auth thru windows.
+
+
+</PRE>
+
+
+<BR>
+<!-- no pre-existing notes, would need to write it up from the experience of using the GUI program -->
+
+
+<BR><HR>
+<div align="CENTER">
+	[Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/veritas.html">http://dl.dropboxusercontent.com/u/31360775/psg/veritas.html</A>]  <BR>
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/veritas.html">http://www.cs.fiu.edu/~tho01/psg/veritas.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

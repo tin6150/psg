@@ -1,0 +1,447 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - OS</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center"> <A HREF="http://www.cs.fiu.edu/~tho01/psg/dos.html">Sys 
+        Admin Pocket Survival Guide - Windows/DOS</A></th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<CENTER><IMG SRC="fig/win-error.gif"><BR><I>Ok?  Do I have a choice??</I></CENTER>
+<BR><BR>
+<H1>Windows/DOS commands</H1>
+
+<!-- content of cmd.dos.ref -->
+
+<H2>
+DOS/CLI commands
+</H2>
+
+<PRE>
+xcopy d:\ z: /s /e /c /f /z /h	# xcopy from d: to z: , include sub dir, hidden file, etc.
+
+
+robocopy s:\source\folder1 d:\destination\folder2 /e /move /copyall /tee /log+:robo.log  /w:1 /r:2
+
+	# Robust copy, lot of options, separate tool from MS?
+	# /move = move files and dirs  (hopefully not copy and delete if on same FS)
+	# /copyall = copy NTFS ACL, owner, and audit info also (these are not included by default)
+	# 		but if ACL cannot be copied, copy will fail (reported)
+	# /e	= include sub dirs, even if empty
+	# /tee /log+:robo.log will do a "T" and append to log file
+	# /w:1 /r:2 = wait 1 sec before retry, max 2 retries  
+	#  		(good if know waiting won't help unlock file, or will do multi-scan)
+	#
+	#
+	# Note that folder1 itself won't be moved, it is the content inside the folder
+	# It is more like folder1\* to folder2.  
+	# But folder1 itself will be deleted if /MOVE is used.
+	# Don't think too much like Unix!   
+	
+	# Additional notes:
+	# File that cannot be moved (cuz it is locked) 
+	# is not reported as error in summary (but as skipped?).
+	# But instead of whining and stopping if using the Win Explorer GUI, 
+	# Robocopy will continue to move the next file.
+	#
+	# Files created after Robocopy completes its indexing are not touched.
+	#
+	# Redirecting output to a log file is good, as it is quite verbose.
+	# \\unc\path can be used.
+	# 
+	# files that already exist in the destination are reported as EXTRA
+	# can be /purge if desired.
+
+
+
+cacls		= change acl's.  NT cli version of solaris setfacl.
+compact		= file compression util (list, maybe set?)
+
+
+
+
+type file | find /i "string"
+	# equiv to unix cat file | grep -i string
+	# the quotes MUST be used or 
+	# find will complain with weired error message!
+	# /i = case Insensitive grep.
+type file | findstr /i "string"
+	# similar to find above, but different binary...
+
+rdisk		= nt4 create emergency recovery disks (erd)
+
+regback		= registry backup (add on?)
+
+
+title any text string desired
+	Set the DOS CLI window to have the desired title
+
+
+bgjob prog arg
+	run bg job inside a telnet session
+	so that even if telnet goes away, job remains.
+	There is still probably a nohup.
+---
+
+</PRE>
+
+
+<H3>BATCH script</H3>
+
+Sample .bat file:
+
+<PRE>
+
+@echo off
+CLS
+assoc .dxp=dxpfile >NULL 
+REM ftype dxpfile="C:\winnt\system32\notepad.exe" "%%1"
+
+echo.
+echo.
+echo.
+echo.
+
+if exist "C:\Program Files\TIBCO\Spotfire\3.0\Spotfire.Dxp.exe" (
+  ftype dxpfile="C:\Program Files\TIBCO\Spotfire\3.0\Spotfire.Dxp.exe" "%%1"  >NULL
+  echo "Updated dxp extension for SpotFire 3.0
+  goto theend
+) 
+
+if exist "C:\Program Files\TIBCO\Spotfire\2.1\Spotfire.Dxp.exe" (
+  ftype dxpfile="C:\Program Files\TIBCO\Spotfire\2.1\Spotfire.Dxp.exe" "%%1"  >NULL
+  echo "Updated dxp extension for SpotFire 2.1
+  goto theend
+)
+
+echo "No SpotFire found in standard directory locations, no changes made."
+
+:theend
+echo.
+echo.
+
+pause
+exit 0
+
+
+
+
+</PRE>
+
+<H3>Alternate Data Stream</H3>
+
+<PRE>
+echo "main stream" > stream.txt
+echo "alternate stream" > stream.txt:ads  
+
+not supported in NFS.
+Similar stuff on Apple's HFS?
+
+</PRE>
+
+
+
+<H3>windows network stuff</H3>
+
+<PRE>
+
+net use R: \\host\share password /user:DOMAIN\USERNAME
+	map network drive; funky session weireness, watch out use in script
+
+net view
+
+net user USERNAME PASSWORD /add
+	add user
+
+
+net statistics server		# info about uptime, etc
+
+
+
+
+
+tracert
+nbtstat -n 	= list all comp (NetBIOS name, WINS)
+nbtstat -c	= clear the cache
+nbtstat -RR	= Release and Reregister NetBIOS name with WINS
+
+</PRE>
+NetBIOS names can only be 15 chars long.  The 16th char encode the NetBIOS Suffix.
+<BR>
+A list (albeit not comprehensive, at least 4F is not listed) can be found at
+<A HREF="http://support.microsoft.com/kb/163409S">
+http://support.microsoft.com/kb/163409</A>
+
+<BR>
+All code in hex<BR>
+00	= Workstation 	Service<BR>
+03	= Manager 	Service    (allow MMC to connect to it?)<BR>
+1B	= Domain Master Browser, defined for a domain rather than a computer<BR>
+1C	= Domain Controllers,    defined for a domain<BR>
+20	= File Server 	Service<BR>
+<BR>
+
+<PRE>
+
+
+
+netsh (shell for config of dhcp, ras, wins, routing) [w2k]
+
+runas  	# kind of like sudo
+
+runas /user:domain\adminUser c:\winnt\system32\cmd.exe		# create a dos prompt with admin credentials
+      c:\"Program Files\Internet Explorer\iexplore.exe"		# start IE using the credential of the DOS session (ie admin acc).
+
+
+
+set	# display system environment
+	# LOGONSERVER is the Domain Controller the machine is currently talking to
+	# Other interesting variables displayed by set:
+	# USERNAME, USERDOMAIN 
+	# PROCESSOR_ARCHITECTURE
+
+
+----
+
+network browser cmd (some gui stuff) in Resource or Supplement kit.
+
+net config rdr, see network device info, eg NetBT_E100B1
+then, 
+
+browstat gb NetBT_E100B1
+   tell which one is the master browser in the network.
+
+browmon	
+   GUI browser monitor.  similar to above
+
+
+browstat status
+browstat view NetBT_E100B1 NTDOM1
+browstat getpdc NetBT_E100B1 NTDOM1
+
+
+other obscure stuff, w2k only?
+    browstat dumpnet
+
+
+netusers  \\computername   /history
+		# see who has logged in to a given machine
+
+mmc		# win magement console, 
+		# many plugin, eg computer mgnt
+		# customizable and store them as .msc file
+
+http://www.windowsnetworking.com/kbase/WindowsTips/Windows2003/AdminTips/Admin/LaunchAdminToolsfromtheCommandLine.html
+
+
+</PRE>
+
+<H2>nt4 / w2k reousrce pack</H2>
+
+<PRE>
+shutdown 
+		\\computer	: remote computer to shutdown (local if omitted)
+		/A			: abort shutdown
+		/R 			: reboot
+		/T:xx		: wait xx secs (def=30)
+		msg			: message to user of shutdown
+		/C 			: force running app to close
+</PRE>
+
+
+
+<H2>Windows Registry</H2>
+
+<PRE>
+reg query HKCR\dxpfile
+reg add
+reg delete
+reg export  ROOTKEY/subkey regdump.reg
+
+Did not find command line equivalent of doing find on all fields and repeat using regedit and F3 ... 
+can't export and do grep either :(
+
+
+accepted abbreviations (likely in order of decreasing priority):
+HKCR    HKEY_Classes_ROOT
+HKCU	HKEY_CURRENT_USER    (take precedence over local_machine if there are duplicates)
+HKLM	HKEY_LOCAL_MACHINE
+HKU?    HKEY_USERS
+HKCC?   HKEY_CURRENT_CONFIG
+</PRE>
+
+
+
+
+
+<H2>Windows Startup</H2>
+<PRE>
+windows program auto load, from registry instead of Startup folder:
+
+regedit
+
+
+HKLM\Software\Microsoft\Windows\CurrentVersion\Run
+HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+
+TLA (likely in order of decreasing priority):
+HKCU	HKEY_CURRENT_USER    (take precedence over local_machine if there are duplicates)
+HKLM	HKEY_LOCAL_MACHINE
+
+each program has an entry with full path as value, delete individually as needed.
+XP has a System Configuration Utility under control panel | help support 
+section, so that all current startup places are listed and can be turned off via uncheck.
+
+Many of these can be recognized as normal software, but just always run
+at startup, which becomes anoying.
+
+Some spyware may also add hooks here, but if they are really good, 
+spyware may replace legit system file and it will need a tool to check 
+if it is really spyware or the legit file!
+
+Probably legit programs (could still be replaced by spyware!):
+
+HKLM...Run 	mobsync.exe /logon.  Sync Manager
+KHCU...Run	ctfmon.  Office2003 text2speech [potentially key logger]  
+
+
+
+
+Additional crap that is loaded somehow...
+
+C:\Program Files\Common Files\Real\Update_OB\
+apperently lot of .dll and .exe which somehow get executed
+rnms3270.dll is the realone messanger center crap that do lot of pop up messageging ads.  Delete or rename them!
+
+---
+
+Internet MIME programs (may load all the time)
+C:\winnt\Downloaded Program Files\ 
+Each control has its own entry, right click and then choose remove
+(eg, will see DBFullInst Control for the stupid SpyWare program).
+
+---
+
+</PRE>
+
+
+SpyBot AntiSpyware program has tool that list all program that will be 
+loaded up at boot time and allow single click disactivation.
+
+<H2>Hackish way to reset password</H2>
+
+At least for Win 7.  
+Idea is to replace the sethc.exe program, which is what accessibility invokes, and replace it with cmd.exe
+then during login, press shift 5 times or alt sh prtSc to invoke the accessibilty program, get dos prompt instead, and 
+issue command
+<br>
+net user geek newPassword
+<br>
+
+detailed steps are listed in 
+<A HREF="http://www.howtogeek.com/96630/how-to-reset-your-forgotten-windows-password-the-easy-way/">
+http://www.howtogeek.com/96630/how-to-reset-your-forgotten-windows-password-the-easy-way/</A>
+
+<br>
+(replace sethc.exe when done.  or maybe not... nice quick shortcut to cmd, but perpetual back door...)
+
+
+
+<BR><BR>
+<H2>Cool SA tools</H2>
+
+<H6>WinDirStat</H6>
+
+Get it from sourceforge.net, a program that will collect disk stat usage (network share ok),
+keep track of subfolder disk usage, and also give aggregate of files type usage 
+(eg mp3, m4a, avi, pst, zip, etc).
+
+<BR><BR>
+
+<A HREF="http://pdfforge.org">PDF Forge</A>  A freeware to generate PDF for windows (freeware version of Acrobat Writer).<BR>
+
+<BR><BR>
+
+
+<H2>Unixfying Windows/DOS</H2>
+
+<OL>
+<LI><A HREF="http://www.cygwin.com/">Cygwin</A> add a lot of standard unix tools, libraries, etc.  Includes a bash shell and X Window Manager for running X-based (GUI) apps.  It even has GNOME, KDE, keepassx (Qt), tetris!<BR>
+<PRE>
+  add this to PATH system variable  
+  c:\cygwin\bin;c:\cygwin\sbin;c:\cygwin\usr\bin;c:\cygwin\usr\sbin;
+  modern cygwin creates .bashrc in user's home dir and source that, so PATH can be setup there.
+
+  A somewhat yum-like feature to add new packages, eg python:
+  setup-x86_64.exe -P python
+  	it still run the GUI, but then the python package is selected, 
+	so can just click next/next/next to complete.
+  setup-x86_64.exe -M -P wget,curl,dog,openssh,ctorrent,openldap,nc,rsync
+	-M will skip many GUI prompt and go right into the package selection window.
+	openssh is for both client and server?
+	openldap is for the client portion only
+
+  apt-cyg (not fully stable) may provide an apt-get like command interface to install packages, one at a time.
+
+	wget http://raw.github.com/transcode-open/apt-cyg/master/apt-cyg
+	chmod +x apt-cyg
+	mv apt-cyg /usr/local/bin
+
+	apt-cyg install nano
+	apt-cyg install git
+	apt-cyg install ca-certificates
+
+	
+</PRE>
+
+<LI><A HREF="http://www.mkssoftware.com/">MKS Toolkit</A>.  This actually pre-date cygwin, but this is moneyware.
+<LI><A HREF="http://www.microsoft.com/technet/interopmigration/unix/sfu/default.mspx">SFU</A> Microsoft Services for Unix.  Add NFS client and server, telnet server, and other tools to bridge Unix and Windows machines.  In the same manner that Samba teaches Unix to talk Windows, SFU teaches Windows to talk Unix.
+</OL>
+
+
+
+<BR><HR>
+<div align="CENTER"> [Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/dos.html">http://www.cs.fiu.edu/~tho01/psg/dos.html</A>] 
+  <BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

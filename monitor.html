@@ -1,0 +1,151 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Network Monitoring Tools Review</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/monitor.html">Sys Admin Pocket Survival Guide - Network Monitoring Tools Review</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html"></a></td>
+      <td align="center"><a accesskey="p" href="hpux.html"></a></td>
+      <td align="right"><a accesskey="a" href="aix.html"></a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>Network Monitoring Tools Review</H1>
+
+A review of various Network Monitoring Tools and my opinion on them.  
+<BR><BR>
+
+<H3>Big Brother</H3>
+Pretty old tool now.  But fairly simple to setup.  An agent need to be installed on each machine and run as a daemon service.  Unix centric, newer version has a windows agent.  No reporting tool, interface is simple but not fancy.<BR>
+Recently Quest Software aquired Big Brother.  Moneyware vs Freeware versions still exist.<BR>
+<BR>
+<H3>Big Sister</H3>
+Newer than Big Brother.  Still use a daemon process that run as a user process.  Maybe worthwhile to look into if something lightweight is desired.
+<BR><BR>
+
+<H3>Nagios/NetSaint</H3>
+This is probably the best open source monitoring tool.  Very flexible, though setup would be significantly more time consuming.  Linux origin.  Originally agent based, but SNMP capable now.  Everything is possible, you just need to configure it :)
+<BR><BR>
+
+<H3>OpenNMS</H3>
+Newer network monitoring tool.  SNMP centric, Unix based.  If you don't like the security model of SNMP, 
+then this would not be the tool for you.  But this is targeted at the enterprise user, to compete with HP Open View and 
+IBM Tivoli
+<BR><BR>
+
+<BR><HR><BR>
+
+<H3>What's Up</H3>
+Better know as What's Down.  <BR>
+Windows based tool.  SNMP centric.  <BR>
+Kinda pretty looking with reasonable graphics, but the GUI is actually rather clumbsy interface.  Lot of click for saving and going back before one can drill into other details, instead of using a more simple tab-based interface for faster navigation.  The discovery tool leave much to be desired.  It can find all the machines in the vlan, but it does not use nmap fingerprinting tech to guess what kind of OS a given node is, so leaving everything as generic.  <BR>
+What's Up itself need to be monitored by another server as it seems to die often.  Not recommended unless a simple tool to monitor ping availability of the machines in the network.  
+<BR><BR>
+
+<H3>GFI</H3>
+Another windows centric tool.  It relies heavily on VB Script to do monitoring.  It needs to run as a windows domain administrator user so that it can remotely login to other machines and gather info.  If this is not acceptable, look elsewhere.
+<BR><BR>
+
+<H3>HP OpenView</H3>
+The behemonth.  Really big, plan to get an admin or two to maintain it.  I know of a company that bought it but never deployed it.  Go figure.
+<BR><BR>
+
+<H3>Summary</H3>
+Different tools have different strengths and weakness.  But some seems to be rather much a waste of time or money :) <BR>
+For something lightweight, check Big Sister.  If you have a bit more time, look into Nagioes, it is my favorite.  <BR>
+<BR><BR>
+
+<H1>Specialty Monitoring Tool</H1>
+
+<H3>
+<A HREF="http://www.tek-tools.com">
+Tek-Tools</A> 
+<A HREF="http://www.tek-tools.com/profiler.jsp">
+Profiler</A>
+</H3>
+This isn't exactly a specific tool, but I evaluated it specifically for monitoring NetApp filers.Works pretty well, butter than the NetApp DFM tool.  Allow logging of file usage so admin 
+can get an idea what files are hardly used anymore.  Lot of reports, but if customization
+is desired, it may not be trivial (DB schema not published).
+<BR>
+<BR><BR>
+
+<H3>Microsoft SMS</H3>
+As usual, MS product is only for working with MS Windows.  But this is a very powerful tool when
+the number of windows machines is substantial to warrant its own island of administration.
+It is probably should not be used so much as monitoring machine availability per se, but a 
+very good tool to keep track of MS windows setup, push out updates, keep inventory, etc.
+Ver 3.0 is actually pretty robust and much better than the old stuff.  Reports are extensive,
+and the internal DB now present standardized VIEWS so that custom reports can created easily
+(and hopefully still work with the next major release, one level up ;-P ).
+<BR>
+It is not easy to configure or use, must read the manual.  Taking the class Managing Microsoft System Management Server 2003 (2596B) would go a really long way to understanding this monster tool.  Though some third party installer packaging tool and understanding of International Language Support on different Windows would also be useful.
+
+<BR><BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/monitor.html">http://www.cs.fiu.edu/~tho01/psg/monitor.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+
+
+<!--A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"--></A>
+<!-- Just for fun. this google ad is actually from unixguide.net -->
+<script type="text/javascript">
+<!--
+google_ad_client = "pub-9786751149916387";
+google_ad_width = 728;
+//google_ad_width = 1028;
+google_ad_height = 90;
+//google_ad_height = 10;
+google_ad_format = "728x90_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+//-->
+</script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+</div>
+<HR><BR>
+
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

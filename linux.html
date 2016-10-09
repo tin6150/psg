@@ -1,0 +1,2231 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Linux</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - Linux</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a></td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
+      <td align="center"><a accesskey="n" href="emc.html">EMC</a></td>
+      <td align="right"><a accesskey="l" href="ldap.html">LDAP</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<!---------------------------------------------------->
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/1638"><IMG SRC="fig/xkcd_backslashes.png"></A>
+</div>
+ 
+<BR>
+
+This Linux guide is my own notes on Linux, for stuff that I did not like to 
+documents that I have found on the internet. It is RedHat centric. <BR>
+
+<A HREF="centos.org">CentOS</A> is supposed to be a "rebadged/un-commercialized" version of RHEL, keeping binary-level compatibilities at major release level, thus the discussion should apply equally to CentOS and Scientifi Linux.
+<BR>
+Ubuntu is conquering the world now, so there are some Debian things here and there.  What is Linux anyway? :)
+<BR>
+
+<H1>HOW-TO</H1>
+<p>&nbsp; </p>
+<H2>Linux Admin 101</H2>
+
+Linux init mode are not "cumulative".  So, if default init is 5, script in run level 3 would not be run.  If adding a Start script, may want to add them in both in rc3.d and rc5.d, unless it is really only wished to be available at one of the run level and not the other.  
+Kill script should be placed in rc6.d, which shutdown/reboot scan.
+
+<BR>
+<BR>
+RHEL3 - binary compatible with FC2  (but FC2 is EOL)
+<BR>
+RHEL4 - binary compatible with FC3  (and maybe FC4)
+<BR>
+
+<H4>Single User Mode</H4>
+
+<PRE>
+To boot into single user mode for maintenance,
+enter "linux single" or "linux emergency" at the LILO boot: prompt.
+
+If using GRUB, then, at the menu for choosing kernel, do:
+ hit 'e'
+ then arrow down to the kernel line
+ hit 'e' again
+ add 'single' to the end of the line
+ hit enter
+ hit 'b' to boot
+ lather, rinse, repeat
+</PRE>
+
+<H4>Old days Core dump</H4>
+
+<PRE>
+Linux kernel panic does not core dump to a file.
+it will print output of the kernel core dump result to the stdout device:
+a vga screen or a serial console.  
+To setup serial console, do:
+console=ttyS0,115200 console=tty0
+but this would mean console boot/shutdown/panic message will no longer
+be send to the VGA, but to serial port.  VGA may get a spawned
+login prompt after OS is up.
+</PRE>
+
+<H4>kdump</H4>
+
+<PRE>
+yum install kexec-tools
+chkconfig kdump on 
+</PRE>
+
+/etc/kdump.conf ::
+<PRE class="cf">
+core_collector makedumpfile -c --message-level 1 -d 31
+# -d specify the dump filter (stuff to exclude)
+# 1 	Zero pages
+# 2 	Cache pages
+# 4 	Cache private
+# 8 	User pages
+# 16 	Free pages 
+# -c to enable compression
+#
+net sa@debug-svr.nx.net
+sshkey /etc/acs/kdump/id_rsa-sa_kdump
+path /data/kdump/
+blacklist pvscsi
+blacklist vmmemctl
+</PRE>
+
+
+
+<PRE>
+/boot/grub/grub.conf : add crashkernel clause
+	        kernel /boot/vmlinuz-2.6.18-371.11.1.el5 ro root=LABEL=/ crashkernel=768M@32M
+
+test.  this WILL CRASH the machine:
+echo 1 > /proc/sys/kernel/sysrq
+echo c > /proc/sysrq-trigger
+</PRE>
+
+
+To look at vmcore file:
+<PRE>
+yum install crash
+debuginfo-install kernel	# to install necessary "decoder" to analyze the crash file
+
+crash  /var/crash/.../vmcore   /usr/lib/debug/lib/modules/.../vmlinux    # need matching kernel file
+  log
+  bt       	# for backtrace
+  ps		# display processes
+  vm
+  files		# lsof
+  help
+</PRE>
+
+
+somewhat helpful shell function to see if there are recent core dumps
+<PRE class="cf">
+lsdump () {
+    for entry in $(ls /kdump|grep ^[1-9]); do
+        ip=$(echo $entry|cut -d- -f1)
+        hostname=$(dig +short -x $ip)
+        date=$(echo $entry|cut -d- -f2-)
+        echo "$date    $hostname ($ip)"
+    done | sort
+}
+</PRE>
+
+
+
+<H2>Linux "deviation" from Solaris</H2>
+
+Some of the most notable things that Linux does rather differently than
+Solaris or traditional Unix.
+
+<UL>
+<LI>xinetd 
+<LI>Gnome/KDE for Display Manager (see XDMCP).
+<LI>
+</UL>
+
+<BR/>
+
+<A NAME="64-bit"></A>
+<H2>64-bit Platforms</H2>
+
+RHEL 3.0 and 4.0 maintains simultaneous relese/update levels for 64-bit platforms as their popular 32-bit x86 OS.  Just need to get the "special" distro ISO to install on the 64-bit hardware and it will be good to go.  Not all the AS/ES/WS flavor maybe available to all platform. 
+
+<BR>
+<PRE>
+RHEL 4.0   	
+
+rhel-ia64-as-4		Red Hat Enterprise Linux AS (v. 4 for 64-bit Intel Itanium)
+rhel-x86_64-as-4	Red Hat Enterprise Linux AS (v. 4 for 64-bit AMD64/Intel EM64T)
+rhel-ppc-as-4		Red Hat Enterprise Linux AS (v. 4 for 64-bit IBM POWER)
+rhel-s390-as-4		Red Hat Enterprise Linux AS (v. 4 for 31-bit IBM S/390)
+rhel-s390x-as-4		Red Hat Enterprise Linux AS (v. 4 for 64-bit IBM zSeries)
+rhel-i386-as-4		Red Hat Enterprise Linux AS (v. 4 for 32-bit x86)   [typical intel pentium 4/80x86 release]
+rhel-i386-ws-4		Red Hat Enterprise Linux WS (v. 4 for 32-bit x86)
+
+RHEL 3.0 	
+
+rhel-ia64-as-3		Red Hat Enterprise Linux AS (v. 3 for Itanium)
+rhel-x86_64-as-3 	Red Hat Enterprise Linux AS (v. 3 for AMD64/Intel EM64T)   
+rhel-ppc-as-3		Red Hat Enterprise Linux AS (v. 3 for iSeries and pSeries)
+</PRE>
+
+Commands for 64-bit info:<BR>
+
+<PRE>
+ld -V		# shows supported emulation for a given machine	
+		# eg: elf_x86_64 elf_i386 i386linux
+
+</PRE>
+
+<A HREF="64bit_and_rpm"></A>
+<H4>64-bit and rpm</H4>
+
+AMD64 RedHat Linux utilize lots of rpm that has ARCH set to x86_64 (instead of
+the traditional i386).  rpm -q by default won't tell you.  Use something like
+<BR>
+<BR>
+
+<TT>rpm -q --qf '%{NAME}  %{VERSION}  %{RELEASE}  (%{ARCH})\n'  <I>Package_Name</I> </TT>
+<BR>
+<BR>
+to see which one you have installed.  In 64-bit machines, most of the packages
+are x86_64.  But quite often you will have a matching package of the same
+name, but is i386 ARCH.  Some apps don't understand 64bit libs, so these older
+libs are sometime needed.  There are also some compat libs.  My friend Vic says:
+
+<PRE class=quote>
+
+* Compatibility Arch Support
+Crapload of i386 binaries and libraries that run on x86_64 RedHat systems
+
+* Compatibility Arch Development Support
+You'll need some packages in Compatibility Arch Development Support to build
+i386 RPMs or compile 32 bit binaries on an x86_64 system.
+
+I find it annoying to install the Compatibility Arch Support group, though.
+
+For instance, let's say you have an x86_64 arch server. You want some i386
+compatibility for some random library.  Let's say zlib.i386 for whatever
+reason.  Maybe some 3rd party application needs to run as a 32 bit binary and
+requires zlib's /usr/lib/libz.so.1 instead of zlib.x86_64's
+/usr/lib64/libz.so.1
+
+You can just install Compatibility Arch Support and not worry about it, or go
+back an install zlib.i386 specifically.  If you install the whole
+Compatibility Arch Support group, you are going to end up with all the
+freakin' i386 packages designed to run on x86_64 systems.  Which means, you'll
+get a lot of crap you don't want to be living on a light weight server.  For
+instance, kdebase.i386, gnome-blah.i386 and such.
+
+One thing that is very useful to have is firefox.i386 or mozilla.i386 on an
+x86_64 system. 
+Most plugins don't play well with 64-bit browsers.
+
+So, in short -- you can remove what you don't need :)
+
+
+</PRE>
+
+<A ID="compatibility"></A>
+<H3>Compatibility</H3>
+
+The Linux community embraces the source code, and compatibility between different release is to recompile the code.  Binary compatibility is not maintained between different (minor) releases of the glibc.  So, be careful not to update the libraries, kernels, and gcc compiler unless you are ready to recompile everything in the system! (And if you have 3rd party libraries dependencies, then really think twice before changing the system library level). <BR>
+If using up2date for RHEL, it would be safe as only compatible updates are listed in the channel.  I would assume the same is true for yum.
+<BR>
+
+<PRE>
+
+System Release			kernel		glibc		gcc			compat-glibc
+----------------------------	-------------	-------------	-------------		-------------
+SuSE SLUS  9 (patch  3)		2.6.11.7	2.3.3-98.94	3.3.3-43.54		
+SuSE SLUS 10 (patch 10)		2.6.16.27-0.9	2.4-31.5	4.1.2_20070115-0.11	
+
+RHEL 3				2.4.21		   		3.2
+RHEL 4.5 (WS)			2.6.9-55	2.3.4-2.36	3.4.6-8			2.3.2-95.30
+RHEL 5				2.6.18		2.5		4.1			
+
+Fedora Core 6			2.6.19-1	2.5-10.fc6	4.1.1-51.fc6		
+
+
+RHEL 2.1, 3, 4.  Increasing support cost: WS,                    WS HPC, 		ES (2 socket max),      AS
+             5.                           Desktop + workstation, HPC Compute Nodes, 	Server, 		Advance Platform
+
+</PRE>
+For RH, each category has separation of basic, std, premium.  HPC has a 4 socket version.
+See <A HREF="http://www.redhat.com/rhel/compare/">comparison chat</A>.
+
+
+<BR>
+<BR>
+
+<A NAME="setup"></A>
+<H2>Initial Setup</H2>
+
+Things to keep in mind when installing Linux.  <BR><BR>
+
+For RHEL 3 and 4, once the OS is installed, additional international language support cannot be added (easily), RH recommends a reinstall.  So, if you might need to support any given natural language, install it when you do the system install!  <BR>
+Starting with Fedora Core 4, additional language can be added from system-configure-packages.
+<BR> <BR>
+
+<H5>CentOS Network Install CD</H5>
+<PRE>
+Use Web as source of rpm.  
+Server: mirror.stanford.edu  			(no http:// prefix)
+Directory: yum/pub/centos/5.1/os/x86_64/  	(leading slash should not matter)
+or
+Server: mirror.centos.org
+Directory: /centos/5.2/os/x85_64
+But unfortunately don't support proxy, so likely have to setup something locally.
+</PRE>
+
+The dir containing images sub dir is the right one, 
+it need to have the rpm available rather than just .iso   
+<BR>
+
+Essentially, same as internal network install, but the web server is over the WAN, and not using a pre-defined kickstart.cfg file :)
+<BR>
+
+Other mirror can be used, but some of them only offer ISO files. 
+<BR><BR>
+
+<A NAME="kickstart"></A>
+<H1>Kickstart</H1>
+A step-by-step command listing for setting up kickstart,
+(hopefully easier to read than Red Hat kickstart instructions, 
+once it is working, tweaking it is much easier to comprehend).
+...
+<BR>
+Here is a rough outline:
+<BR><BR>
+
+<PRE>
+</PRE>
+<OL>
+	<LI> iso loopback mount DVD or copy all content of CD/DVD to a dir
+	<LI>cretae a dir on web server to host the ks.cfg file, make file accessible as http://apache/ks/ks.cfg
+	<LI>ks.cfg uses http or nfs install, indicating path where rpm can be retrieved.  eg:  <BR>
+	nfs --server=10.140.91.44  --dir=/mnt/loopback/rhel-5.1-server-x86_64-dvd   <BR>
+	or   <BR>
+	url --url http://10.140.91.44/ks/serv51-64/dvd1 <BR>
+	<LI>client, use cd 1, at boot prompt, enter: <BR>
+	linux ks=http://10.140.91.44/ks/serv51-64/ks.cfg <BR>
+</OL>
+
+
+running commands after kickstart rpm are installed, 
+everything is masked as ran from /:
+<PRE class="code">
+%post 
+#!/bin/bash
+LOGFILE=/var/log/my-kickstart.log
+echo "manual log to execution ran on post section of kickstart "  > ${LOGFILE}
+pwd                                                              >> ${LOGFILE}
+
+# Add yum repos (rpm from original dvd for easy install via yum)
+echo "[rhel5]
+name=RHEL5 Kickstart Server 
+baseurl=file:///net/apache/mnt/loopback/rhel-5.3-server-x86_64-dvd/Server/
+enabled=1
+gpgcheck=0" > /etc/yum.repos.d/rhel5.repo
+
+# install additional packages 
+yum -y install j2re AdobeReader_enu
+
+# Create symlink for java browser plugin
+ln -s /usr/java/j2re1.4.2_07/plugin/i386/ns610-gcc32/libjavaplugin_oji.so /usr/lib/mozilla/plugins/
+
+# Local services
+chkconfig ntpd on
+
+
+
+echo "nfserver:/export/home    /nfshome    nfs    rw,soft,intr,tcp,rsize=32768,wsize=32768,vers=3 0 0
+" >> /etc/fstab
+
+mkdir /nfshome/
+touch /nfshome/MOUNT+PENDING
+mount /nfshome
+
+ln -s /bin/csh  /usr/bin/csh
+ln -s /bin/tcsh /usr/bin/tcsh
+
+echo "sn     ALL=(ALL) ALL" >> /etc/sudoers
+
+mv /etc/yp.conf /etc/yp.conf.orig
+wget http://apache/conf/yp.conf -O /etc/yp.conf
+
+# Modify SSHD allowed protocols to use only ssh v2:
+# sed -i.bak -c "s/#Protocol 2,1/Protocol 2/" /etc/ssh/sshd_config
+
+
+</PRE>
+
+<H2>Updating Machine</H2>
+
+<PRE>
+RHEL 4.x  - Use up2date
+RHEL 5.x  - Use yum
+	    rhn_register # automatically prompt for root password when run as user, X-based.
+SuSE      - Use rug
+
+</PRE>
+
+Version numbers with dots matter for kernel, glibc, etc.  Only version number after dash are bug fixes and don't change behaviour.  
+See <A HREF="#compatibility">compatibility</A> section for more details.
+
+
+
+<H1>Quick Ref</H1>
+
+
+
+
+<H2>Hardware related command</H2>
+
+<PRE>
+
+lspci			# list pci info
+
+modprobe -l		# display all kernel loaded modules
+
+hwbrowser		# GUI hardware browser, in /usr/bin  (RH9, RHEL 4)
+
+
+udev			# some hw persisten naming thing
+
+</PRE>
+
+
+<H2>Random Tidbits</H2>
+
+<A NAME="xdmcp"></A>
+<H2>XDMCP</H2>
+
+<PRE>
+enabling XDMCP will allow program like X Manager to use browser and login via virtual screen, 
+fully X Manager, Remote Display Manager style, rather than having to login 
+using ssh and start VNC first.  However, VNC is nicer in that 
+the session stays on the server, XDMCP, if client is a laptop and disconnect, 
+session will be reset.
+Note that botyh XDMCP and VNC are insecure by default!
+
+vi /etc/X11/fs/config
+# don't listen to TCP ports by default for security reasons
+###no-listen = tcp
+### commented out line above to enable XDMCP
+
+service xfs restart
+
+vi /etc/X11/xdm/xdm-config
+! SECURITY: do not listen for XDMCP or Chooser requests
+! Comment out this line if you want to manage X terminals with xdm
+!!!DisplayManager.requestPort:  0
+!!!Line above commented out to enable XDMCP
+
+
+vi /etc/X11/xdm/Xaccess
+# *                                     #any host can get a login window
+*       # have start by itself will allow all host to get login window
+
+
+vi /etc/X11/gdm/gdm.conf
+[xdmcp]
+###Enable=false
+Enable=true
+### XDMCP is enabled using the above clause
+### this file need to be updated when GNOME is default windows manager/Display Manager
+
+vi /etc/kde/kdm/kderc
+[Xdmcp]
+###Enable=false
+Enable=true
+### XDMCP is enabled using the above clause
+### this file need to be updated when KDE is default windows manager/Display Manager
+
+chmod 444 /etc/X11/xdm/Xservers                 # probably correct already
+chmod 755 /etc/X11/xdm/Xsetup_0
+
+
+older config need to update /etc/X11/XF86Config, but circa 2003
+most distro use Xorg,
+
+check /etc/X11/xorg.conf
+and ensure FontPath uses Xserver:
+        FontPath     "unix/:7100"
+
+restart X:
+- killall gdm-binary 	# if running GNOME by default
+- ctrl+alt+bacckspace	# if in front of maching/keyboard
+- init 3; init 5	# This may work
+- reboot		# :)
+
+</PRE>
+
+<BR><BR>
+
+<A NAME="gnome"></A>
+<H2>GNOME</H2>
+
+<PRE>
+gnome-terminal, configure to source .login/.cshrc when launched:
+
+Edit menu, Current Profile... Titles and Command tab, 
+check "Run command as a login shell".
+This should be saved in the user's config file somewhere under the user's home dir.  
+
+
+# to view user's setting.
+gconftool-2 --get /apps/gnome-terminal/profiles/Default/login_shell	
+
+# command line to set to source login shell, per user.
+gconftool-2 --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true			
+
+
+
+# read system wide setting
+gconftool-2 --direct --config-source xml:read:/etc/gconf/gconf.xml.defaults --get /apps/gnome-terminal/profiles/Default/login_shell		
+
+
+# set global settings as root, to source login when term opens.
+gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true		
+
+
+
+
+
+</PRE>
+
+
+<A NAME="ldap"></A>
+<H2>LDAP</H2>
+
+See the 
+<A HREF="ldap.html">LDAP</A> doc for more details.
+<BR><BR>
+
+<PRE>
+authconfig 		# TUI, select to use ldap, etc.
+			# upon completion, ldap should work for user login.
+			# multiple server can be listed using comma separation
+			# or space separated in /etc/sysconfig/authconfig
+
+/etc/sysconfig/autofs	# update BASEDN to define where autofs will look for maps.  eg
+			# BASEDN="ou=us,dc=unixville,dc=com"
+service autofs restart	# restart autofs to effect the changes
+
+/usr/lib/autofs/autofs-ldap-auto-master		# list all known automount maps from ldap
+
+</PRE>
+<BR><BR>
+
+<A ID="nis"></A>
+<H2>NIS</H2>
+
+<PRE>
+ypcat (group, passwd)
+ypstart		# linux
+ypbind
+ypinit 		# client, specify machines to bind to
+		# server, specify whether master or slave
+		# Often messed up client, "up2date yp" to ensure running latest code with bug fixes.
+ypwhich		# tell what NIS server machine is bound to.
+passwd
+yppasswd (obsolete, for combatibility only)
+
+ypcat -k auto.master	(-k to display the key name too!)
+ypcat -k auto.direct	(the direct map, use /-)
+
+
+/etc/init.d/autofs	# most standard automount from auto.master, etc.  
+			# /net need to be enabled by uncommenting entry in /etc/auto.master .
+			# Some version of autofs (eg RH 4.0) have nasty bug that stale NFS mount
+			# may result in autofs daemon wanting to erase all files on server,
+			# at the very least, seen it cause lot of errors in syslog.
+
+/etc/init.d/amd		# an alternate for automount for /net/HOST/... paths
+			# install as up2date am-utils, and enable always start via ntsysv
+			# amd maybe a bit older than autofs and performance may not be as good.
+</PRE>
+
+
+<A ID="net"></A>
+<H1>Network Connectivity</H1>
+<BR>
+<BR>
+<PRE>
+mii-tool -vv		# determine NIC speed, duplex.
+ethtool -i eth0 	# list ethernet driver info
+
+Spawn login session on serial port:
+echo "7:2345:respawn:/sbin/agetty -h 9600 ttyS0" >> /etc/inittab
+echo "8:2345:respawn:/sbin/agetty -h 9600 ttyS1" >> /etc/inittab
+
+above does NOT redirect VGA to console, to do that, use
+(nothing will show on VGA output at boot):
+	[check zambeel notes, TBA]
+
+
+
+
+
+adding route:
+
+route add default gw 192.168.1.1
+
+route delete -net 172.16.16.0 netmask 255.255.255.0 eth3
+route add -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1 eth2
+(but going out from first interface)
+route add -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1
+metric 1 dev eth2
+route add -net 172.16.16.0 netmask 255.255.255.0 dev eth3
+
+
+dhclient	= get dhcp address from server for current client.
+
+dhcpcd		= slackware, start the dhcp client daemon, then interfaces 
+		  will get dhcp address.
+ifconfig hme0 dhcp		see purple book.  (Solaris?)
+
+
+irouted
+
+
+</PRE>
+
+<H5>Link Aggregation</H5>
+See <A HREF="http://www.cyberciti.biz/tips/linux-bond-or-team-multiple-network-interfaces-nic-into-single-interface.html">
+http://www.cyberciti.biz/tips/linux-bond-or-team-multiple-network-interfaces-nic-into-single-interface.html</A>
+
+<BR>
+
+Here is a script to setup bonding:
+<PRE class="code">
+#!/bin/bash
+
+# script to change machine with single eth0 to use bond0 (eth0+eth1)
+# completely automatic, generic for all hosts.
+# no testing of conditions, assume only 1 nic with 1 ip.
+# For RHEL 5.3 with bonding modules for kernel already pre-installed.
+
+# copy script to local drive so that it doesn't depend on network avail !!
+
+
+
+ModConfFile=/etc/modprobe.conf
+
+echo "alias bond0 bonding"                              >> $ModConfFile
+echo "options bond0 mode=balance-rr miimon=100"         >> $ModConfFile
+
+echo "#"                                                                                                >> $ModConfFile
+echo "# see http://www.cyberciti.biz/howto/question/static/linux-ethernet-bonding-driver-howto.php"     >> $ModConfFile
+echo "# Section 1 and 6 Switch config for more info of different modes."                                >> $ModConfFile
+echo "# balance-rr(0), balance-xor, boradcast: works with Cisco EtherChannel "                             >> $ModConfFile
+echo "# balance-xor is safer but less optimal than balance-rr"                                          >> $ModConfFile
+echo "# 802.3ad is the IEEE standard, aka lacp mode"                                                    >> $ModConfFile
+echo "# active-backup(1), balance-tlb and balance-alb modes do not require any specific configuration of the switch" >> $ModConfFile
+echo "#"                                                                                                >> $ModConfFile
+echo "# sed -i 's/^options bond0 mode=balance-alb/options bond0 mode=balance-rr/' $ModConfFile "        >> $ModConfFile
+
+
+# create a bond  interface
+echo '
+DEVICE=bond0
+NETMASK=255.255.255.0
+USERCTL=no
+BOOTPROTO=none
+ONBOOT=yes
+' > /etc/sysconfig/network-scripts/ifcfg-bond0
+
+cat /etc/sysconfig/network-scripts/ifcfg-eth0 | grep ^IPADDR=10.140    >> /etc/sysconfig/network-scripts/ifcfg-bond0
+
+
+# update eth1 config
+echo '
+MASTER=bond0
+SLAVE=yes
+BOOTPROTO=none
+USERCTL=no
+' >> /etc/sysconfig/network-scripts/ifcfg-eth1
+
+sed -i 's/ONBOOT=no/ONBOOT=yes/'        /etc/sysconfig/network-scripts/ifcfg-eth1
+
+
+
+# update eth0 config
+sed -i 's/^IPADDR=/#IPADDR=/'                           /etc/sysconfig/network-scripts/ifcfg-eth0
+sed -i 's/^NETMASK=/#NETMASK=/'                         /etc/sysconfig/network-scripts/ifcfg-eth0
+sed -i 's/^BOOTPROTO=static/BOOTPROTO=none/'            /etc/sysconfig/network-scripts/ifcfg-eth0
+echo '
+MASTER=bond0
+SLAVE=yes
+USERCTL=no
+' >> /etc/sysconfig/network-scripts/ifcfg-eth0
+
+
+# next two lines need to run in sequence, network connectivity lost after modprobe
+/sbin/modprobe bonding ; /etc/init.d/network reload
+
+
+/etc/init.d/network status
+/sbin/ifconfig bond0
+/sbin/ifconfig eth0
+/sbin/ifconfig eth1
+cat /proc/net/bonding/bond0
+
+</PRE>
+<BR><BR>
+
+<A NAME="firewall"></A>
+<H2>Firewall</H2>
+
+<A NAME="iptables"></A>
+<H4>iptables (RHEL)</H4>
+
+<PRE>
+system-config-authconfig	# GUI tool to set firewall rules
+/etc/sysconfig/iptables...	# firewall rule config file
+
+</PRE>
+
+
+<A NAME="san"></A>
+<H1> SAN Connectivity </H1>
+
+<H3>Basic SAN Commands</H3>
+
+<PRE>
+Utility/Function Description
+fdisk Command used to create and manipulate partition tables.
+fsck Command used to check and repair a Linux filesystem.
+mkfs Command used to create a Linux filesystem on a device partition.
+insmod Utility used to dynamically load a single module into a running kernel.
+rmmod Utility used to unload loadable modules from the running kernel 
+       if they are not in use and if other modules are not dependent upon those being removed.
+modprobe Utility used to load or remove a set of modules that can be either a single module or a stack of dependent modules.
+lsmod Utility used to list the currently loaded modules.
+lspci Utility used to display information about all of the PCI buses in the system and all of the devices connected to those buses.
+scsiinfo Utility to query information from a scsi device.
+</PRE>
+Ref: Emulex/EMC Linux Guide.
+
+<A NAME="hba"></A>
+<A NAME="emulex"></A>
+<H3>HBA - Emulex</H3>
+<PRE>
+
+HBAnyware is an optional add-on utility, but it is not a driver req for FC functionality.
+Emulex HBA Driver is included in RHEL kernel since 4.1.  To verify:
+
+lsmod | grep lpfc
+modprobe -l | grep lpfc
+modinfo lpfc | fgrep version
+	# if installing HBAnyware + lputl, must find exact version matching lpfc driver !!
+
+
+CNA (convergent net+hba) driver on the other hand is not in kernel of std os distro.
+
+
+hbanyware		# Java GUI tool for emulex HBA, in /usr/sbin/hbanyware
+hbacmd			# cli
+
+sudo /usr/sbin/hbanyware/hbacmd listhbas	# show hbas on the host
+
+/usr/sbin/lpfc/lputil	# util to check config and coutner for Emulex HBA
+/usr/sbin/lpfc/lun_scan all	# check for new LUN, delete dead ones
+/usr/sbin/lpfc/lun_scan -r all	# supposed to check for size change of LUN, don't work in RHEL 5.2
+
+
+</PRE>
+
+<BR><BR>
+
+<H6>Restarting HBA driver</H6>
+Ref: p58 Unix user manual (by EMC)  
+<A HREF="http://www.emulex.com/downloads/dell/drivers/linux-blade.html">
+http://www.emulex.com/downloads/dell/drivers/linux-blade.html</A>
+
+<PRE class="quote">
+Run the following commands to stop the Emulex application daemons:
+cd /usr/sbin/hbanyware
+./stop-hbanyware
+
+Run the following command to remove the Emulex Application
+Helper Module (lpfcdfc driver):
+/etc/init.d/elxlpfc stop
+
+Finally, unload the Emulex driver:
+modprobe -r lpfc
+To reload the Emulex driver, the Application Helper Module (lpfcdfc
+driver), and the Application Kit use the following steps.
+
+Load the Emulex driver:
+modprobe lpfc lpfc_log_verbose=0x10
+
+Reload the Emulex Application Helper Module (lpfcdfc driver):
+/etc/init.d/elxlpfc start
+
+Start the Emulex Application daemons:
+cd /usr/sbin/hbanyware
+./start_elxdiscovery
+./start_myserver
+
+</PRE>
+<BR>
+
+<A NAME="qlogic"></A>
+<H3>HBA - Qlogic</H3>
+
+<PRE>
+Driver typically install some command tools in /opt/QLogic_Corporation
+eg 
+scli	- san surfer cli
+qaucli	- convered network cli
+
+these can be run in a menu prompted interface.  see HBA info, WWN, BIOS version, etc.
+Can flash HBA using this command in linux and providing a .BIN file.
+
+getting driver to work in upgraded kernel was quite painful.
+Maybe should have avoided building the initrd image, which clobber with subsequent 
+kernel compilation...?
+
+The DMKS driver didn't work.  
+the Converged Network Driver in RPM worked out okay.  Had to hand edit modprobe.conf that 
+added module but didn't work in new kernel... then things worked.
+
+BIOS is not explicitly listed, but part of some package like converged console cli package.
+(and there there is a zip file that contain a .BIN (and DOS utility to install flash, but can be done in linux)).
+
+
+</PRE>
+
+
+<BR>
+
+
+<A NAME="parallel scsi"></A>
+<A NAME="parallel_scsi"></A>
+<A NAME="parallelscsi"></A>
+<A NAME="parallel"></A>
+<H3>parallel scsi</H3>
+
+
+<PRE>
+new LUN from SAN to a physical host, hba card can scan for new FC disk:
+      /usr/sbin/lpfc/lun_scan all
+
+ESX direct raw lun mapping provides good old fashion scsi disk, not FC.  Command to use for scanning scsi bus is:
+      echo "- - -" > /sys/class/scsi_host/host0/scan
+
+
+the hostX dir has to do with scsi id, but not necessarily assigned in same numbring.
+default 0:x device are in host0, but when i added scsi 2:10, 
+it was placed in host1.  I had skipped 1:x, presumably later on when this is added, 
+this would be assigned the next hostX dir.
+
+
+but /dev/sdc and /dev/sdd are not assigned as per scsi id number, but sequentially
+so sdc was 2:10, and sdd was 1:2   :(
+
+the scsi target id number can be found by looking at
+	ls -ld /sys/block/sd*/device
+
+
+Overall, in linux, scsi device in /dev/sdb, sdc, etc are not necessary static.  
+changes to scsi bus and boot order may make them scan at different order and 
+thus assigned different device path.  
+fs labeling and fstab mounting using such label circumvent around the problem.
+but no such labeling in raw scsi devices.
+
+emc powerpath provides a uniq /dev/emcpower* device path for the LUN.
+in its absence, can use udev naming rules.
+
+
+
+scsi_id : retrieve and generate a unique SCSI identifier
+	  the id presented should be consistent when presented to multiple
+	  host in a cluster environment.
+
+udev    : dynamic dev management  - seems to allow for mapping scsi_id 
+	  to specific path user desire, and make such path persistent 
+	  to the same physical disk independent of machine path, 
+	  since it uses id.
+
+linux machine path eg: /sys/block/sde 
+scsi id for the device can be retrieved by:
+	scsi_id -g -u -s /block/sde
+
+/etc/udev/rules.d/20-names.rules
+KERNEL=="sd*", BUS=="scsi", PROGRAM=="/sbin/scsi_id -g -u -s %p", RESULT=="3600601607ba02900b63b5cf7c4b3e011", SYMLINK+="data10_d1_p%n"
+
+To test the rule w/o reboot, use the command "udevtest  /block/sde"
+
+Oracle ASM can use /dev/emcpowerX1 for data storage.  (need to have a partition in it).
+or use the symbolic name created by udev, like /dev/data10_d1_p1
+(udev create sym link at boot like /dev/data10_d1_p --> sde, /dev/data10_d1_p1 --> sde1)
+
+
+
+/etc/udev/rules.d/60-raw.rules   
+maps emcpowerX to /dev/raw/rawX so that scsi id reservation for voting can work.
+if no power path, then use scsi_id 
+eg:
+ACTION=="add", KERNEL=="emcpoweri", RUN+="/bin/raw /dev/raw/raw1 %N"
+ACTION=="add", KERNEL=="sd*[!0-9]", PROGRAM=="/sbin/scsi_id -g -u -s %p", RESULT=="3600601607ba0290056a27f08c6b3e011", RUN+="/bin/raw /dev/raw/raw1 %N"
+
+
+when the above rule runs, it will create "character special devices" path in 
+/dev/raw/raw1
+
+
+Oracle RAC uses /dev/raw/raw1 thru 5 to run its voting and quorum selection to power the cluster membership algorithm.
+No partitions are needed in such disk.  only scsi reservation commands are issued to it.
+
+
+
+</PRE>
+
+
+
+<A NAME="ib"></A>
+<H1>Infiniband</H1>
+
+It seems that the current trend is to use the ofed drivers.
+some compilation needed.  Compilation for MPI, MVAPICH, etc would be needed for HPC env.
+They include ULP (upper layer protocol) such as IPoIB.  <BR>
+see:
+<A HREF="http://www.openfabrics.org/download_linux.htm">openfabrics.org</A>
+
+
+<A NAME="partitions"></A>
+<A NAME="HD_Partitions"></A>
+<H1>HD Partitions</H1>
+
+From DOS days, disks are typically partitioned.  Linux typically have up to 4 primary partions, and extended partitions if necessary.
+
+Technically, ext2/3 can be created on the whole disk without partition, 
+ie, one can do <BR>
+mkfs -t ext3 /dev/sda <BR>
+instead of defining /dev/sda1, /dev/sda2, etc.  <BR>
+But this is not recommended, another sys admin may think the disk is not in use.
+Partition also help add flags to indicate what fs is in a given partition.
+<BR>
+
+fdisk is the traditional command for manipulating partitions.  It is reasonably user friendly, but can't handle large drive (2+ TB?  or 8+ TB?).
+For really large drive, gnu <TT>parted</TT> will need to be used.
+parted can manipulate some fs, should be able to resize FAT fs/partitions.
+<BR>
+<BR>
+
+<PRE>
+
+sudo parted /dev/sdb print		# show partition table
+sudo parted /dev/sdb mklabel gpt	# add some dos marker for large drive
+
+sudo parted /dev/sdb mkpart primary ext3 1 2048		# shoudl create a 2G partition
+sudo parted /dev/sdb mkpart primary amufs 1 100%	# create a primary part
+	# instead of 100%, can use:
+	# cyl eg 123456000cyl
+	# mb     123456000    (ie, default is mb, finding disk size is tricky)
+	##   amufs cuz parted don't have lvm and don't want ext2/3
+sudo parted /dev/sdb set 1 LVM		# optional
+	## the LVM flag isn't likely relevant, but will be printed in output
+	## to help remind sys admin it is LVM and not say ext3 fs.
+
+sudo parted /dev/sdb rm 1		# remove partition 1
+
+
+Don't use fdisk on big drive where parted was needed to create partition table.
+fdisk will screw things up.
+
+fdisk -l		# see list of drives
+fdisk /dev/sda		# modify a specific drive
+			# m for help
+
+</PRE>
+
+
+<A NAME="lvm"></A>
+<H1>LVM</H1>
+
+<PRE>
+
+File System:	FS: one ext3 fs on top of a given LV.
+Logical:	LV: many virtual/logical partitioins on top of a single VG.
+Aggregation:	VG: volume group, encapsulate many PVs. 
+Physical:	PV: whole disk or partition
+
+In VM environment, best to add a separate virtual disk, 
+and add the new disk to LVM using pvcreate+vgextend.
+Can use VM's feature to extend the existing LUN, 
+but would still need to use fdisk to create a new partition and then
+add this partition to LVM using pvcreate+vgextend.  
+(RHEL 5.4 need reboot to see expanded LUN, LVM partition can
+be an extended partition, but after fdisk creation of volume, reboot needed
+before pvcreate can mark the partition for use with vgextend)
+
+
+
+system-config-lvm			# GUI for LVM.  Pretty neat.
+lvm					# interactive shell for LVM, all cmd avail as stand alone.
+
+pvdisplay				# display info such as PV size, PE size, avail PE.
+pvcreate /dev/sda2			# create pv on partition, def RHEL 4 setup
+pvcreate /dev/sde
+
+vgdisplay				# display vol grp info such as lvm/lvm2.
+           -v				# list all LV on the vol group, which PV it uses.
+vgcreate VolGroup00 /dev/sda2		# create a new VG, this is the def in RHEL 4 setup.
+vgextend  VolGroup00 /dev/sda5
+vgreduce				# reduce number of disks in vol grp
+vgremove  VolGroup00			# remove the whole volume group
+
+lvscan						# brief list of LV and their size.
+lvdisplay					# show info of all LV: path, LV size, Status, which VG it resides in.
+lvdisplay /dev/VolGroup00/LogVol01		# display specific info of a single LV (instead of all LV)
+lvcreate -n LogVol00 --size 500M VolGroup00	# create a new LV called LogVol00 of size 100 MB
+
+lvextend -L+100M /dev/VolGroup00/LV01		# extend existing LV (hosting swap of fs) by given size
+						# -L20G would set exact size of 20G
+lvremove /dev/mapper/VolGroup00/LV01		# remove unused LV
+
+mkfs -j /dev/VolGroup00/LogVol02	# create fs on the LV (-j will use jounal, ie ext3)
+					# NOTE: old kernel may give error.  2.6.16-1.2069_FC4 works.
+mkswap /dev/VolGroup00/LogVol02		# create swap partition on the LV 
+					# Doesn't seems to work, actually confuses kernel to the point that
+					# all subsequent mkfs command will also be refused.  BUG??!!
+
+
+e2fsadm					# extend or reduce fs and LVM1 at the same time 
+					# but not avail with LVM2 (eg FC4, RHEL 4)
+
+ext2online /dev/VolGroup00/LogVol00	# extend ext3 FS online (for LVM 1 or 2)  (RH4)
+ext2online /				# can use mount point instead of dev path
+ext2resize				# change ext2 FS after it has been UNMOUNTED.  ?? does not exist??
+resize2fs /dev/VolGroup00/LogVol00 	# RH 5, extend the FS to max space that the LVM has allocated.
+					# op done online in RH5, no umount needed.
+
+resize2fs /dev/VolGroup00/lv101 1000000	# reduce ext2/ext3 FS to size to exactly 1,000,000 bytes. 
+					# UMOUNT+FSCK FIRST
+
+
+lvreduce -L1G /dev/VolGroup00/LogVol00	# reduce the LV the FS is on 
+					# (Don't make it smaller than FS size!)
+					# After these procedure, there maybe some left over space,
+					# if using ext3, can use ext2online to reclaim the space.
+					# ext2 somehow can't be re-expanded, use ext3 !!
+					# use tunefs -j to convert to ext3 :)
+	
+
+/etc/fstab				# typically list which LV dev used by which FS
+??					# no cmd to display what LV is being used by which FS :(
+
+
+
+Importing a new hard drive that has LVM:
+
+vgexport VolGrpName			# export a volume so that it can be imported (work on already "migrated" hd)
+vgimport VolGrpName			# import for use
+lvscan					# newly imported volume group will be listed as inactive
+vgchange -ay VolGrpName			# activate volume group
+mount -t ext3 /dev/to/fs /mnt/myfs	# mount the file system on the newly imported volume
+
+</PRE>
+
+<H5>Removing LVM stuff</H5>
+
+
+<PRE>
+sudo umount /data
+sudo lvremove /dev/mapper/VolGroup02-LV_data
+
+sudo vgremove VolGroup02
+sudo pvremove /dev/sdb1
+
+
+
+</PRE>
+
+Ref: <A HREF="http://www.redhat.com/magazine/009jul05/features/lvm2/">
+http://www.redhat.com/magazine/009jul05/features/lvm2/</A>
+
+<BR>
+<BR>
+
+
+<H1>File System Related Command</H1>
+
+See also: <A HREF="fs.html">fs</A> for loopback mount, samba, etc. <BR>
+
+<PRE>
+mkswap  /dev/hdd3			# def RHEL 2.1 swap dev
+mkswap  /dev/VolGroup00/LogVol01	# def RHEL 4   swap dev
+swapon  -s 				# list swap dev (eg, which LV is swap partion hosted on)
+swapon  -a 				# turn on  all swap partitions/files
+swapoff -a 				# turn off all swap partitions/files
+
+
+
+mkfs -t ext3 /dev/hdd2	# create a new fs on ide drive secondary slave.
+			# probably only create as ext2;  then:
+tune2fs -j /dev/hda3 	# add journaling to it via tune2fs  (manual for ext2 in 2.1)
+			# (probably automatic/default in ext3/as 3.0)
+
+e2label /dev/hda3 [Partition-Label]
+		view/change label of a partition
+		used in /etc/fstab LABEL=/label-name for mounting
+		so that mapping does not have to be maintained in fstab
+findfs LABEL=/boot	# determine which disk host a given FS with the assigned label.
+
+raven:/usr/local/bin/wshaper  traffic shaping and throttle specific connection bandwidth usage.
+
+du -kxS * 	= display space usage Summary for only (x) one file sys (ie local)
+				linux only
+du -kl		= local disk in solaris?
+
+df -kl 		= report fs space usage of local fs, solaris and linux
+
+</PRE>
+
+
+<BR>
+<BR>
+
+
+<H1>Package/Software management</H1>
+
+<BR>
+
+rpm is a basic command to manage software packages, available in just about
+every linux distro.  up2date is a Red Hat Network moneyware to automatically
+download updates and install them.  YUM is the freeware version, used by
+Fedora (from Yellow Dog distro) and actually better than up2date.  But for
+those paying money to RH for support, keep to their tool maybe advisible.
+
+
+<PRE>
+rpm -ivh [path/file.rpm]     # install rpm, vh = verbose hash for progress monitor
+    --nodeps                 # install pkg even if fail dependencies check
+    --noorder                # 
+for File in `ls -1`; do rpm -ivh --nodeps  $File; done
+                             # install all rpm in a dir eg cdrom
+                             # it seems that already installed packages will be overwritten by default
+                             # there is no "force" options needed to overwrite package to redo bad install.
+
+rpm -qa                      # query for all installed rpm packages in the machine
+rpm -qa arch=i386	     # same as above, specifying 32-bit binaries
+rpm -qa arch=x86_64	     # same as above, specifying 64-bit binaries for AMD 64 / Intel EM64T
+
+rpm -qa | grep glibc         # query for glibc version
+rpm -qpl [rpmfile]           # list where are the files installed to.
+rpm -ql  [pck_name]          # query installed package to see where files were send to
+                             #  (partial package name will work). 
+rpm -qi                      # query info of a specified package.
+rpm -qf /path/file           # query see which package installed the given file 
+rpm -e [pck_name]            # erase pcka_name as listed in rpm -qa from computer.  stop if it break deps
+rpm -e [pck_name] --nodeps   # forceful erase, even if it breaks dependencies.
+-Uvh [pkgname]               # Upgrade (erasing old packages, which install don't do)
+                             #  h= print hash sign as it goes, 
+                             #  v = nicely formated output
+rpm -Fvh *.rpm               # Freshen/update all rpm if an older version is installed
+                             # eg.  Refresh from AS 4.0 Update 1 to Update 2 via -F of all the rpm from cd.
+-V [pkgname]                 # Verify integrity of installed package.
+
+
+rpm -qa --qf '%{NAME} \t\t %{VERSION} \t %{RELEASE} \t %{ARCH}\n' 	
+	# display whether a given package is 32-bit i386 or x86_64.
+echo "%_query_all_fmt     %%{name}-%%{version}-%%{release}.%%{arch}" >> ~/.rpmmacros 
+	# to set the rpm query arch stuff permanently in the rpm query macro
+	# fedora does something like this by default.
+</PRE>
+
+
+<H4>RedHat's up2date</H4>
+
+<PRE>
+up2date				# GUI/CLI program to download patches, need RH registration.
+up2date ypbind			# ypdate ypbind client package to latest version
+#up2date nis			# update the nis package to latest version (??)
+up2date libstdc++-3.2.3-42	# update a specific rpm
+up2date -l			# list available downloads
+up2date -d			# download patches (as per config)
+up2date -i 			# install downloaded patches
+up2date --config		# run configuration (GUI or TUI), register machine, set exclusion, etc
+</PRE>
+
+<H4>YUM (yellow dog, fedora, centos, redhat)</H4>
+
+<PRE>
+yum			# yellow dog update modified, better rpm updated than up2date
+			# run cmd by itself will do all update automatically.
+			# not installed by default in RHEL 4, only in FC.
+yum update		# can be added to cronjob for auto update
+yum list		# list avail pkg and version number
+yum list  autofs	# list installed and avail pkg/ver for the pkg autofs
+yum info [pkgname]	# only display info of avail packages, opt followed by pkg name.
+		
+yum install yumex	# donwload and install the Yum Extender (GUI) rpm
+
+yum search wireshark	# search for package... give more info than list | grep...
+
+yum --enablerepo=epel --enablerepo=dag ...	# tmp enable named repos for this run (they have to be in /etc/yum.repos.d but disabled)
+
+</PRE>
+
+<H5>Creating YUM Repository</H5>
+
+
+
+<PRE>
+For RHEL 5.2 and older, 
+dvd dir has some media id in it.
+can't have yum and kickstart use same dir list :(
+It creates a series of xml files under the dir repodata/  (where all the RPMs are)
+Therefore, one need to copy all RPM from CD/DVD (RPMS or Server dir) to NFS or HTTP server location.
+cd /path/to/rpm-repository ; createrepo .
+createrepo is an rpm in RHEL5 not installed by default.
+(make sure .discinfo and .treeinfo are copied from root of DVD before running createrepo)
+
+For RHEL 5.3, such restrictions doesn't apply anymore, and 
+yum repo can point to the same dir tree that kickstart use,
+both can be a loopback mount to a DVD iso.
+
+
+Client side config: 
+add file to /etc/yum.repos.d/
+eg call it rhel5.repo
+contents:
+</PRE>
+<PRE class="code">
+[rhel5]
+name=RHEL 5.1 Server
+##baseurl=http://apache/ks/serv51-64/dvd1/Server/
+##baseurl=file:///unixhome/sa/repo/RHEL/5Server/x86_64/Server
+baseurl=http://apache/loopback/rhel-5.3-server-x86_64-dvd/Server/
+baseurl=file:///net/apache/mnt/loopback/rhel-5.3-server-x86_64-dvd/Server/
+enabled=1
+gpgcheck=0
+
+</PRE>
+
+
+<H4>apt (debian, centos, redhat)</H4>
+
+<PRE>
+http://dag.wieers.com recommends use of apt and rpmsource for getting packages automatically,
+including dependencies.  However, it doesn't seems to like yum, and recommends command for its 
+removal (apt-get --fix-broken install).
+Sample package that is good to use are Apache mod_perl modules RH doesn't package but DAG does.  
+eg perl-Apache-DBI (Apache::DBI mod_perl),  perl-Compress-Zlib 
+
+install apt...rpm and rpmforge...rpm
+
+
+apt-get update				# update repository db
+apt-get -d install perl-Compress-Zlib	# install a specific package
+					# -d = download only, stored in /var/cache/apt/archives
+
+aptitude search foo			# kinda equiv to yum list | grep foo
+aptitude install foo			# equiv to yum install foo
+aptitude show genome-music		# brief info about pkg
+					# info stored in /var/lib/dpkg/available
+cat/var/lib/dpkg/info/genome-music.list # list files installed by a given package
+
+dselect
+dpkg -l					# list installed packages (.dpkg) = rpm -qa
+dpkg -i					# rpm -ivh
+
+dpkg  --search file			# find which package has file
+rpm    -qif    file
+
+
+note that sometime the dependencies of a package is to be satisfied by OS distro rpm, 
+in such case, apt-get would fail saying broken package.  Just install the necessary rpm (eg perl-Digest-HMAC) 
+from CD and re-run apt-get.
+
+</PRE>
+<BR><BR>
+
+
+<H4>SuSE Enterprise (SLUS/SLED)</H4>
+
+<PRE>
+rug se [PKG-NAME]	# find rpm package from pre-configured repository.
+
+</PRE>
+
+
+<H4>Open SuSE</H4>
+
+Open SuSE is the name for the former commercial SuSE that Novell ditched after it publised Enterprise SUSE.
+
+<PRE>
+yast			# TUI far-style
+
+</PRE>
+
+
+<A NAME="system_services"></A>
+<H2>System Services</H2>
+<PRE>
+chkconfig                       # Easiest way to manipulate rc services, 
+                                # bettter than ntsysv or mangling xinetd file manually!
+chkconfig --list xinetd         # see if xinetd service is enabled
+chkconfig --list rsh            # see if specific xinetd service is running, eg rsh
+chkconfig --list telnet         # see if specific xinetd service is running, eg telnet
+chkconfig --list autofs         # see if specific xinetd service is running, eg autofs automount
+chkconfig --list amd            # see if specific xinetd service is running, eg amd automount
+chkconfig --add ypbind		# register ypbind into service db
+chkconfig --level 345 ypbind on	# enable ypbind on run level 3,4,5
+chkconfig --level 345 rsh    on # enable rsh on run level 3,4,5, starting the service now also.
+chkconfig --level 35  httpd  on # enable httpd in init 3 and 5
+chkconfig vsftpd on             # enable  ftp  as xinetd controlled service (level 2,3,4,5)
+chkconfig talk   off            # disable talk as xinetd controlled service (all level)
+
+
+service iptables off            	# temporary stop firewall service (till reboot)
+service iptables status         	# check running status 
+chkconfig --level 345 iptables stop 	# disable firewall service from starting on run level 3,4,5
+					# RHEL 2.1 use ipchains.
+
+
+for SVC in `ls -1 /etc/xinetd.d`; do chkconfig --list $SVC; done
+                                # see which xinetd service is on or off.
+for SVC in `ls -1 /etc/init.d`; do chkconfig --list $SVC; done
+                                # see which init service run when
+				# but some file are not actually service
+
+serviceconf			# GUI, see what service run at what run level.
+redhat-config-services 		# same as above
+ntsysv 				# TUI of serviceconf (vsftp/telnet/rlogin, etc)
+				# Need to have ntsysv*rpm
+
+</PRE>
+
+<H4>SuSE</H4>
+
+
+<PRE>
+sudo service SuSEfirewall2_setup status		# firewall service  
+sudo /sbin/SuSEfirewall2 status			# alt script to check status  
+chkconfig --level 345 SuSEfirewall2_setup  off	# turn off firewall
+
+
+</PRE>
+
+<A NAME="performance"></A>
+<A NAME="perf"></A>
+<H1>Perforamnce</H1>
+
+<PRE>
+ulimit
+
+/etc/security/limits.conf ::
+*             -   memlock        unlimited
+*          soft   memlock        unlimited
+*          hard   memlock        unlimited
+
+or
+
+*      hard memlock unlimited
+oracle hard nproc 16384
+oracle soft stack 10240
+oracle soft core unlimited
+oracle soft nproc 16384
+oracle soft nofile 131072
+oracle hard nofile 131072
+*      hard core 0
+oracle hard core unlimited
+*      soft memlock unlimited
+oracle hard stack 10240
+
+
+
+
+/etc/sysctl.conf ::
+
+net.ipv4.ip_forward = 0
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.default.accept_source_route = 0
+kernel.sysrq = 0
+kernel.core_uses_pid = 1
+net.ipv4.tcp_syncookies = 1
+kernel.msgmnb = 65536
+kernel.msgmax = 65536
+kernel.shmmax = 68719476736
+kernel.shmall = 4294967296
+
+kernel.sem = 250 32000 100 128
+net.core.rmem_default = 4194304
+net.core.rmem_max = 16777216
+net.core.wmem_default = 262144
+net.core.wmem_max = 16777216
+net.ipv4.tcp_wmem = 4096 262144 16777216
+net.ipv4.tcp_rmem = 4096 4194304 16777216
+
+fs.file-max = 6815744
+net.ipv4.ip_local_port_range = 9000 65500
+fs.aio-max-nr = 1048576
+kernel.randomize_va_space=0
+kernel.exec-shield=0
+vm.panic_on_oom=1
+vm.swappiness = 0
+
+
+</PRE>
+
+<A NAME="kernel"></A>
+<H1>Kernel</H1>
+<BR>
+<A NAME="kernel-compile"></A>
+<H2>Kernel Compilation</H2>
+
+<!-- linux.kernelCompile.ref, ca 2004/01/05 -->
+<!-- slightly updated 2006/04/05 during RH300 class -->
+<PRE>
+
+compiling linux kernel  
+(similar procedure for old 2.4, new 2.4, and 2.6)
+
+download kernel source (srpm, rpm -ivh ...)
+Get the version applicaple to the base OS (eg RH 8.0) and kernel similar to the one installed 
+(latest maybe okay, but then other support may not be available).
+
+[
+For ES2.1/RH7.2, 
+building custom kernel just req getting RPMS packages for:
+kernel-headers-2.4.9-e.12	(disk1)
+kernel-source-2.4.9-e.12 	(disk2)
+SRPMS are not needed!  Though there are dependencies such as gcc, glibc-dev, 
+kernel dev, etc, which are RPMS, not Source RPMS!
+Files from SRPMS/ are not really needed unless really do heavy dev, 
+and they do not show up in rpm -qa!
+Note that RH does not provide support for customized kernel.
+]
+
+</PRE>
+
+<TT>
+cd /usr/src/linux-2.4*
+</TT>
+[ use /usr/src/kernels/2.6.11-* for FC4 ]
+<BR><BR>
+
+<TT>
+make menuconfig
+</TT><BR>
+this lauches a text menu program to createa  config file.  <BR>
+* indicates compiled into kernel  <BR>
+M indicates loadable modules.  <BR>
+<BR>
+
+<TT><B>
+make xconfig
+</B></TT><BR>
+# GUI, an alnternate to the TUI menuconfig.    <BR>
+# RHEL 2.1 (RH 7.2) GUI is a big grid  <BR>
+# 2.6 kernel is a tree based GUI with lot of explanations; auto compile when done.  <BR>
+  <BR>
+
+
+<PRE>
+make dep; make bzImage; make modules
+make modules_install
+
+#make install		# may not be avail.
+cp vmlinux... ...
+
+For old machines runing LiLo (RHEL 2.1 and older):
+
+cp /etc/lilo.conf.anaconda /etc/lilo.conf
+vi /etc/lilo.conf
+/sbin/lilo -v -C  /etc/lilo.conf
+to install a new boot loader w/ new config into MBR.
+
+
+For newer machines running Grub (RHEL 3.0/RH 8.0/Fedora):
+grub
+/etc/grub.conf (link to /boot/grub/grub.conf).
+edit of such file doesn't require lilo install, but then need to reactivate grub...
+
+
+---
+
+From README
+
+ - make config : standard kernel compiling config.
+ - Alternate configuration commands are:
+        "make menuconfig"  Text based color menus, radiolists & dialogs.
+        "make xconfig"     X windows based configuration tool.
+        "make oldconfig"   Default all questions based on the contents of
+                           your existing ./.config file.
+   
+Then do:
+
+make bzImage	# create compressed kernel image
+		# files are placed in .../linux/arch/i386/boot/bzImage
+make bzdisk	# optional, make boot floppy disk.
+
+make modules 	# needed if anything is in loadable module
+make modules_install	# suggested to do backup, but not sure where
+
+
+</PRE>
+
+<H2>Upgrading Kernel</H2>
+
+<PRE>
+
+Upgrading RH kernel, just need to get the later RPMS, package format kernel-VER.rpm, and install that.  
+No other packages are needed, and no recompiling needed.   It insall a stock RH tested general kernel.
+
+rpm -Uvh new-kernel-ref.rpm
+Install stuff like /boot/vmlinux-... vmlinuz-... System.map-... initrd-... 
+plus lot of files with version number on filename into /lib, etc
+
+The rpm has to be from RH.  Changes to /boot/grub/grub.conf may be needed.
+
+Easiest is just to use up2date and let it update kernel also, 
+then just reboot, it will do all the necesary update and changes.
+
+OS upgrade typically update grub.conf so that old kernel can be booted.
+Especially useful when certain drivers are tied to the kernel and don't work after kernel upgrade.
+eg. HBA driver from QLogic, PowerPath.
+DKMS would be really helpful as system is patched to new kernel.
+
+</PRE>
+
+
+<!-- from some linux kernel tuning ref file dated 2004/01/05 -->
+<A NAME="kernel_tuning"></A>
+<H2>Kernel Tuning</H2>
+
+For general performance tuning, see the
+<A HREF="tool.html">tool</A> page
+
+<PRE>
+ipcs -l 	# display interprocess communication parameters
+
+sysctl 		main tool to viewing kernel parameters
+	-a	display parameter and its setting.
+	-w	write new value for a given param
+	-n 	supress printing of key, just print value.
+	-p 	re-read /etc/sysctl.conf and make changes effective immediately
+
+eg:
+$ sysctl kernel.threads-max
+kernel.threads-max = 20479
+$ sysctl -n kernel.shmmax
+33554432
+$ sysctl -a
+...
+kernel.tainted = 0
+kernel.core_name_format = core
+kernel.core_uses_pid = 0
+kernel.child-runs-first = 1
+kernel.panic = 0
+kernel.domainname = brio.com
+kernel.hostname = lancer
+kernel.version = #1 SMP Tue Feb 11 02:24:10 EST 2003
+kernel.osrelease = 2.4.9-e.12smp
+kernel.ostype = Linux
+fs.aio-max-pinned = 163836
+fs.aio-max-size = 131072
+...
+
+
+Alternatively, the kernel params are listed in /proc/sys
+and they can be viewed or changed like all the other /proc parameters.
+eg:
+
+$ cat /proc/sys/kernel/sem 	# semaphore :: semmsl semmns semopm semmni
+250     32000   32     128
+$ cat /proc/sys/kernel/shmmax
+33554432
+$ cat /proc/sys/kernel/threads-max
+20479
+$
+
+Changing kernel parameters:
+
+Edit /etc/sysctl.conf for permanent changes that persist thru reboot.  
+Run sysctl -p to read this file and make changes effective immediately
+eg, for ora10g R2 install, add the following to /etc/sysctl.conf
+to modify equiv params in /proc/sys/kernel/shmmax and sem:
+kernel.shmmax=1036870912
+kernel.sem=250 32000 100 128
+
+Or, for one time change:
+echo VALUE > /proc/sys/kernel/file
+eg:
+echo "250     32000 100 128" > /proc/sys/kernel/sem
+
+
+smartctl	# tool to read hd SMART data.  gnome-disks is a GUI front end of this.
+		# ubuntu# apt-get install smartmontools
+
+</PRE>
+
+<H4>Kernel Tuning Links</H4>
+
+<A HREF="http://www-106.ibm.com/developerworks/linux/library/l-adfly.html?ca=den-wud">
+http://www-106.ibm.com/developerworks/linux/library/l-adfly.html?ca=den-wud</A>
+describe the major /proc entries in Linux, what they do and stuff.
+<BR><BR>
+
+Oracle 10g install on linux params are described in:
+<A HREF="http://www.puschitz.com/InstallingOracle10g.shtml">
+http://www.puschitz.com/InstallingOracle10g.shtml</A>
+<BR><BR>
+
+
+<A HREF="http://groups.google.com/groups?q=increase+thread+linux&start=10&hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=jw98.77j.1%40gated-at.bofh.it&rnum=20">
+http://groups.google.com/groups?q=increase+thread+linux&start=10&hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=jw98.77j.1%40gated-at.bofh.it&rnum=20</A>
+A thread where it seems linux kernel only support 1024 threads.
+Changes would be in the config file and recompile kernel.
+Info on 2.4
+<BR><BR>
+
+
+<A HREF="http://www.volano.com/linux.html">
+http://www.volano.com/linux.html</A>
+Older info, 2.2 kernel.
+Info about source file to change to alter kernel param.
+
+<BR><BR>
+
+<H3>Kernel Modules</H3>
+
+<PRE>
+
+modprobe -c		# list all modules
+insmod			# simple, no dependencies check, not too user friendly
+lsmod
+
+rpm -q --scripts kernel		# find out what kernel script runs and what modules are loaded.
+
+mkinitrd -v -f initrd-2.6.18-53.1.13.el5 2.6.18-53.1.13.el5	# create new initrd image
+
+
+
+
+
+
+</PRE>
+
+
+
+<BR><BR>
+
+<H3>DKMS</H3>
+Dynamic Kernel Module System 
+<BR>
+Source code living outside kernel source, get rebuild automatically when new kernel is installed.
+Used by eg Dell PERC RAID controller, which add the mpt2sas driver (but not always newer than what comes with the OS distribution).
+<BR>
+<PRE>
+rpm -ivh dkms-...rpm 		# install the dkms package/feature
+rpm -ivh driver...dkms.rpm	# these would actually be source codes 
+
+dkms status			# see if dkms is installed/configured (/etc/dkms)
+modinfo mpt2sas			# could be from native os or dkms
+</PRE>
+
+
+
+
+
+
+<A NAME="SE_Linux"></A>
+<A NAME="selinux"></A>
+<H1>
+SELinux - Security Enhanced Linux
+</H1>
+
+
+Starting from Red Hat Enterprise Linux 4.0 ships with an implementation of Security Enhanced Linux. 
+They use "targeted policy" which only limits functionality to a pre-defined set of deamon processes.  The defined set will then have to obey the Mandatory Access Control (MAC) and become more secure even when exploited.  
+The rest of the process are monitored but are freely allowed to change state, and thus they will operate more like the traditional Discretionary Access Control (DAC).
+<BR>
+<BR>
+
+Overall, enabling SELinux in RHEL 4 is largely safe and don't cause too much headache.  A few known places are known to break, such as chroot, dhcp.   The old RHEL4 settings is largely what is the "discretionary", ie monitoring/logging SELinux mode.  
+<BR>
+<BR>
+<BR>
+Some places it may cause lots of logging.  Specific daemons (eg SNMPD) can be excempt from the 
+SELinux targeted policy via:
+
+<PRE>
+A1.  Modify the /etc/selinux/targeted/booleans file.  
+A2.  Change snmpd_disable_trans=0 to snmpd_disable_trans=1 
+A3.  reboot your server
+
+-or-
+
+B1.  echo "1 1" > /selinux/booleans/snmpd_disable_trans
+B2.  echo "1"   > /selinux/commit_pending_bools
+B3.  Check that the value in /etc/selinux/targeted/booleans is changed to
+     snmpd_disable_trans=1
+
+
+http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/rhlcommon-section-0010.html
+
+
+</PRE>
+
+<PRE>
+Starting with RHEL6 (or 5?), there is an enforcing mode.  This will add an extra layer of restrictions.  eg, httpd that got hacked, but if running in SELinux environment, the kernel will still block access to things beyond its context (eg access to user's home dir).
+<BR>
+<BR>
+
+sudo chcon -v  --type=httpd_sys_content_t /var/www/html/index.html	# change SELinux context for a file, this eg allow apache httpd to be allowed access to the file (SELinux restrictions will show up in error_log).
+sudo chcon -vR --type=httpd_sys_content_t /var/www/html			# change SELinux context for a dir, Recursively.
+
+sestatus					# check status and mode of SELinux, such as enforcing or monitoring
+ls -Z /var/www/html/index.html			# -Z works for many commands, show SELinux context
+ps -efZ
+
+
+</PRE>
+
+
+<BR><BR>
+<A NAME="VendorSpecific"></A>
+<H1>
+Vendor Specific Tools/Packages
+</H1>
+
+<H2>HP (Intel Hardware)</H2>
+
+<PRE>
+HP Smart array rpm eg: hpacucli-7.60-18
+part of HP/Compaq ProLiant Support Pack (PSP)
+
+More info:
+http://www1.jpn.hp.com/products/software/oe/linux/mainstream/bin/support/doc/general/mgmt/acuxe/v731-1cli/hpacucli-7.31-1.linux.txt
+
+
+/usr/sbin/hpacucli
+
+=> ctrl all show 			# list all controller
+=> ctrl all show status			# show controller info
+=> ctrl slot=0 array all show 		# list all array in a given controller
+=> ctrl slot=0 array all show status	# array status, an array is a mirror set.
+=> ctrl slot=0 array A   show		# give info and config of a specific array
+
+
+To find RAID config, simply:
+cat /proc/driver/cciss/cciss0
+
+
+</PRE>
+
+HP System Health Application and Isight Management Agent - hpasm
+
+<PRE>
+
+For Proliant servers eg DL 585
+
+rpm -ivh hpasm-7.6.0-111.rhel3.i386.rpm
+
+hpasm activate			# activate and configure SNMP strings, etc
+/etc/init.d/hpasm  reconfigure 	# change settings
+
+it create a bunch of cma* process
+
+For command usage, see http://gentoo-wiki.com/HOWTO_Use_Hpasm
+
+
+</PRE>
+
+<H2>Dell</H2>
+
+<H2>VMware ESX</H2>
+
+
+<BR><BR>
+
+<A NAME="rhel6"></A>
+<H1>
+RHEL6 new stuff
+</H1>
+<PRE>
+upstart		# replaces /etc/inittab, allow specifying user, etc.
+		# but abandoned in rhel7 in favor of systemd (ditto in ubuntu land).
+</PRE>
+Ref: 
+<A HREF="http://upstart.ubuntu.com/cookbook/#non-graphical-sessions-ubuntu-specific">upstart doc from Ubuntu</A>
+<BR><BR>
+
+/etc/init/couchdb.conf ::
+
+<PRE>
+
+# couchdb - a RESTful document oriented database
+
+description "Start the system-wide CouchDB instance"
+author "tin ho"
+
+# upstart will start couchdb automatically on boot based on this config file
+# for manual control, run these as root:
+# initctl start couchdb
+# initctl stop couchdb
+# initctl status couchdb
+
+#start on filesystem and static-network-up
+#stop on deconfiguring-networking
+#start on runlevel [345]
+start on stopped rc RUNLEVEL=[345]
+stop  on runlevel [!345]
+
+
+env COUCHDB=/usr/local/bin/couchdb
+env COUCHDB_USER=couchdb
+env COUCHDB_STDOUT_FILE=/var/run/couchdb/stdout.log
+env COUCHDB_STDERR_FILE=/var/run/couchdb/stderr.log
+
+
+respawn
+
+pre-start script
+    mkdir -p /var/run/couchdb
+    chown couchdb:couchdb /var/run/couchdb
+    logger -i -s -t upstart_couchy -p local6.info 'initctl couch reached pre-start script section'
+end script
+
+
+script
+        # remember, for su, username is at the end!
+        #exec su -c "logger -i -s -t upstart_couchy -p local7.info 'this is a test msg from initctl couchy'" couchdb
+        logger -i -s -t upstart_couchy -p local6.info 'initctl couch starting couchdb'
+        exec su -c "$COUCHDB -a /usr/local/etc/couchdb/default.ini -a /usr/local/etc/couchdb/local.ini"  $COUCHDB_USER
+
+end script
+
+post-stop script
+    logger -i -s -t upstart_couchy -p local6.info 'initctl couch reached post-stop script section'
+end script
+
+
+
+</PRE>
+
+<BR><BR>
+
+<A NAME="rhel7"></A>
+<H1>
+RHEL7 new stuff
+</H1>
+
+
+<PRE>
+systemd
+systemctl list-unit-files			# replaces chkconfig --list
+systemctl list-dependencies 			# show service dependency tree
+systemctl list-dependencies multi-user.target 	# show service dependency tree for a specific boot target
+
+
+systemctl show bruker_lmgr.service		# get details of the bruker lmgrd service
+						# init script fragments consolidated into /etc/systemd/system
+systemctl daemon-reload bruker_lmgr		# reload service after changes to init script fragment
+
+/etc/systemd/system				# dir where startup files are stored
+
+# http://www.tejasbarot.com/2014/07/22/rhel-7-centos-7-how-to-get-started-with-systemd/
+# https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/chap-Managing_Services_with_systemd.html
+
+</PRE> 
+
+<A NAME="systemctl_vnc"></A>
+
+
+<PRE> 
+systemctl enable  vncserver0			# add sym link to the target dir to start service on "runlevel" change
+systemctl start   vncserver0
+systemctl status  vncserver0			# look at output/error message from the start up process
+systemctl disable vncserver0			# remove sym link, but seems like service still listed...
+</PRE> 
+
+<PRE class="cf">
+# /etc/systemd/system/vncserver0.service
+# systemctl enable vncserver0			# add sym link to multi-user.target.wants to start the service
+[Unit]
+Description=Remote desktop service (VNC)
+After=syslog.target network.target
+
+[Service]
+#Type=forking   # for process that deamonize itself and return to the command prompt within ~120sec
+Type=simple
+
+ExecStart=/usr/sbin/runuser -l sn -c "/usr/bin/x0vncserver -PasswordFile=/home/sn/.vnc/passwd -AlwaysShared=1 -display=:0"
+PIDFile=/home/sn/.vnc/%H%i.pid
+
+[Install]
+WantedBy=multi-user.target
+</PRE>
+
+<H3>Network stack</H3>
+
+<PRE>
+nic has new naming convention.  ref: http://blog.learningtree.com/rhel-7-changes-where-did-my-network-interface-go/
+
+eno1, eno2, ...	on-board ethernet nic.  index provided by firmware.
+ens1, ens2, ... PCIe hotplug nic
+enp2s0       	eth nic on PCI bus address 02:0:0 , ie bus #2, slot #0, function 0.
+wlp0s3f1u4	wifi. p0s3 is USB controller's PCI address.  f1u4 is USB addressing.
+enx112233445566	mac-based naming (but would need to change it when NIC is replaced).
+
+nmtui					# Text UI
+nmtui-connect				# select wifi, or activate LAN port
+
+nmcli
+nmcli connection up ifname wlp3s0	# actiate a specific connection 	# replaces ifup ?
+
+systemctl restart NetworkManager	# restart the network stack
+
+
+# http://blog.learningtree.com/rhel-7-new-features-linux-network-commands-with-iproute2/
+
+iproute2 (ip cmd)	# replaces net-tools (ifconfig, route, netstat, arp)
+			# for the subcommands of ip, can use a single or first two letters, so long as it is non ambiguous.
+
+ip [opt] [sub-cmd]
+
+ip addr			# show ip address, aka ip a, replaces ifconfig.  will show NO-CARRIER.  UP just indicate driver is loaded?
+ip ad  show wlp3s0	# show info for a specif ineterface only
+
+ip route		# see routing table, replaces netstat -r
+ip route ...		# replaces route...
+
+ip link			# cumulative stat (subset of ip addr output)
+ip -s link		# -s provides stats info for all links
+
+ip neigh		# mac to ip mapping, replaces arp -a
+ip -4 neigh
+
+ip -4 addr		# show ip address, all nics, IPv4 only
+ip -6 addr show ens1
+
+ifstat			# LAN stats, replaces netstat -i
+
+ss -a			# replaces netstat -a, same output format.
+ss -au 			# udp only, 
+ss -at4			# tcp only, IPv4 only
+
+   -r 			# resolve ip to hostname 
+   -l			# show listening service only
+
+
+ethtool eno1		# set duplex, etc of an interface
+
+</PRE>
+
+<H3>firewall in rhel7</H3>
+
+<PRE>
+firewall-config		# GUI tool.  DONT use system-config-firewall
+</PRE>
+
+
+<A NAME="progies"></A>
+<H1>
+Linux Desktop Progies
+</H1>
+
+<PRE>
+sublime		text editor (not IDE, so light) good for python programming .  avail in Linux, Win, Mac.
+
+mtv  		mpegtv ($10 shareware req reg) for viewing mpeg video.   mpegtv.com
+mvtp		cli of mtv, free.  
+		-z = 2x2 zoom.  
+		-G+10+10 = place window in specified +x+y geometry 
+mpeg_play	bmrc.berkeley.edu mpeg video player.  in old a.out (ZMAGIC) binary though.
+		avail for solaris, etc.
+mpegplay	mpeg video player found in Knoopix distro.
+
+xine		free video player (vcd, dvd, avi, but no mpeg?).  http://xinehq.de.
+totem		alternate front end UI for xine.
+
+mpg123		cli for playing mp3 audio
+mpg321		drop in replacement for mpg123
+xmms		winamp like mp3 player (GUI for mpg123?)
+
+kate		KDE editor w/ many extras, like CLI window, mgnt tabs, somewhat like Visual Studio editor
+
+lynx		text based web browser
+elinks		a much better text based browser
+		set proxy server http"//address:port thru env var http_proxy
+BitchX		a text based irc client 
+irssi		a newer text based irc client, some cmd same as BitchX
+
+
+iEvince/GPdf 	GNOME pdf viewer
+Okular/KPDF	KDE pdf viewer
+xpdf		X Window pdf viewer
+PDFedit		GPL pdf internal structure editor
+CUPS-PDF	PDF generator extension to CUPS printing system, generate pdf file
+		in /var/spool/cups-pdf, but somehow doesn't work in x86_64 
+
+		http://localhost:631/	- cups web interface
+---
+
+fsview			# A GUI to see directory/file space usage, kinda interesting.
+redhat-logiviewer	# GUI tool to parse many diff logs
+
+gqview			# acdsee like image viewer
+eeyes			# electric eyes
+gimp			# "photoshop"
+
+ethereal is replaced by wireshark
+but that only install text-based snooper called /usr/sbin/tshark
+ 
+older ethereal comes with a gtk+, gnome, kde package.
+But those are somehow no longer shipped (by up2date, rpmfind).
+
+
+xterm, use rxvt color scheme, grey on black. MiscFixed font, 8pt.
+gnome-terminal
+kterm ??
+
+
+iptraf 	- ip trafic monitor
+ss	- socket usage (related to netstat)
+pmap	- process memory usgae
+mpstat	- multiprocessor usage
+KSysGuard - kde system guard - real time reporting and graphing 
+	    similar one on Gnome
+
+ntop 	- network top (need kernel tapping?)
+etherApe - bubble graphics of where traffic is going, but some bubbls become too big.
+Conky
+GKrellM
+vnstat	- network traffic monitor
+htop	- better top, 
+mtr	- ping and traceroute fused
+
+http://www.cyberciti.biz/tips/top-linux-monitoring-tools.html has good overview.
+
+
+
+
+---
+
+minicom		# telix like program in Linux (a bit thicker than Solaris tip)
+
+minicom -o -m	# -o = no modem init
+		# -m = use meta key (instead of ctrl-a + key, can use ALT+key
+ 		#      or ESC, key.  eg ALT-O for options)
+		#      useful when running minicom inside "screen", 
+		#      which also use ^A for escape, thus req ^a, a, key combo.
+
+
+one anoying thing seems that minicom param change in ALT-O is not fully
+effective right away, especially on change of serial port.  Need to save it
+eg as default .dlf, then restart minicom for it to become effective!
+
+Solaris, use 9600, 8n1, no flow control (hardware of software).
+Acopia seems to have required Flow Control DTS/DTR.
+
+
+</PRE>
+
+
+<BR> <BR>
+<A NAME="links"></A>
+<H1>Links</H1>
+
+Stress test program, to help diag nasty hardware problems:
+
+<UL>
+<LI><A HREF="http://www.memtest86.com/">	
+http://www.memtest86.com/</A><BR>
+memory test<BR><BR>
+
+
+<LI><A HREF="http://members.dslextreme.com/users/billw/gkrellm/gkrellm.html">
+http://members.dslextreme.com/users/billw/gkrellm/gkrellm.html</A><BR>
+gkrellm, may just seems like a pretty display program<BR><BR>
+
+
+
+<LI><A HREF="http://secure.netroedge.com/~lm78/">
+http://secure.netroedge.com/~lm78/</A><BR>
+lm_sensors<BR>
+Linux hardware sensor, limited use<BR><BR>
+
+
+<LI><A HREF="http://www-128.ibm.com/developerworks/linux/library/l-hw1/">
+http://www-128.ibm.com/developerworks/linux/library/l-hw1/</A><BR>
+IBM write up on hw troubleshooting<BR><BR>
+
+<LI><A HREF="http://www.fedorafaq.org/">
+Fedora FAQ</A><BR>
+Very good step by step procedure on how to do many things in Fedora Linux
+<BR><BR>
+
+<LI><A HREF="www.rpmfind.net">
+Linux RPM</A>, many linux flavors, but no more RHEL rpms.<BR>
+<BR><BR>
+
+
+<LI><A HREF="www.freshrpms.net">
+FreshRPMs</A>, mostly for Fedora, for those not avail thru YUM.<BR>
+<BR><BR>
+
+<LI><A HREF="">
+</A><BR>
+<BR><BR>
+
+</UL>
+
+
+<BR><HR><BR>
+
+<H1>TBD</H1>
+
+
+<!-- cmd.linuc.ref, 2006/04/04 -->
+<PRE>
+
+
+# cmd.linux.ref
+
+# some content formerly adapted from cmd.admin.ref.
+
+************************************************************
+Red Hat 4.0   (and not available in 3.0)
+************************************************************
+/usr/sbin/system-config-kickstart	kickstart configurator.
+system-config-netboot			pxe, tftp boot setup
+system-config-language			GUI language config tooll for the machine
+
+many of these system-config-* had been named redhat-config-* in RH 3.0
+
+
+************************************************************
+Red Hat 9.0    2003/07
+Also for RH 3.0 (and presumably available in RH 4.0)
+************************************************************
+
+
+
+/etc/X11/XF86Config	# config file read by X server.
+redhat-config-xfree86	# config tool to create XF86Config, try system-config-display in ES 4.0 and later.
+redhat-config-*		# lot of red hat gui config tool.
+nautilus		# file explorer
+gqview			# acdsee like image viewer
+
+
+
+
+************************************************************
+Red Hat ES 2.1  (7.2 base)
+************************************************************
+
+/usr/sbin/setup		# rh version of aix smitty, not all that.
+
+gnorpm				# GUI rpm manager, not in 3.0 or 4.0 (/usr/bin)
+
+************************************************************
+
+/etc/sendmail.cf
+edit DS line to read
+DSsv-smtp.hybridauto.com
+and sv-smtp will become the smarthost that will be used to realy all the outbound mail.
+
+/etc/rc.d/init.d/ 
+/etc/rc[35].d/		# newer RH system, note that links need exist in 3 and 5
+
+runlevel		# what init level machine currently in
+who -r			# RH 9 and AS 3.0 (cmd exist in Solaris)
+
+
+/etc/inetd.conf
+/etc/xinetd.conf, /etc/xinetd.d/
+
+/etc/printcap  or /etc/printer.conf
+/etc/motd
+/etc/release		# see which os cd was used eg sol 8 01/00 for Jan 2000 build. 
+
+/etc/resolv.conf	# dns setup
+/etc/nsswitch.conf	# order of search for files/dns/nis
+
+/etc/fstab
+
+
+
+
+
+********************************************************************************
+linux:
+********************************************************************************
+printtool  (red hat print config)
+
+e-conf		enlightment configuration
+
+
+linux-conf	most essential config of linux in here
+control-panel	old red hat panel, configure network, printer, etc
+
+
+
+
+
+
+</PRE>
+
+**************************************************
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/linux.html">psg/linux.html</A>] 
+
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html>main page</A>
+ for copyright info. <BR>
+Last updated: 2009-08-02
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

@@ -1,0 +1,136 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Documentation Platform</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/docPlatform.html">Sys Admin Pocket Survival Guide - Documentation Platform</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<div id="google_translate_element"></div>
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
+
+  }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+
+
+<H1>Documentation Platform</H1>
+
+<H3>Plain Text</H3>
+Plain text documentation is probably the easiest to write in term of allowing the author just
+focus on content and not having to worry about look and style.  However, for large document,
+it would be rather hard to read.  Except for the original RFC and IEEE docs, plain text are 
+probably not recommended other than short ReadMe style docs.
+<BR><BR>
+
+<H3>HTML/CCS</H3>
+A next level up would be to use HTML, which is what I have done for these notes.
+I actually started with a series of plain text file, and have largely embeded the 
+docs in HTML file inside &lt;PRE&gt; &lt;/PRE&gt; tags.  A few places where by I want
+highlights I would use Heading tags.  Finally, a pretty simple CCS stylesheet 
+allows for some control on the look of the docs and provides uniformity.
+I write HTML using vi, so this approach allow me to largely focus on content
+and not having to spend a lot of time to format the document to make it look nice.
+Of course, heavy duty HTML editor exist to create jazzy web sites, but that 
+shouldn't be the focus of documentation.
+The major downside I find of HTML documentation is that it doesn't print out nicely.  
+So, if you need the abilities to create book-like manuals, with pagination, table of contents, index, HTML is probably not the best choice.
+<BR><BR>
+
+<H3>TeX/LaTeX</H3>
+This is probably considered old school :)  And it does have a significant learning curve.  You will be "compiling" your doc to generate output...   But once learned, TeX is actually pretty good.  It use of tags were probably the inspiration for HTML.  It really train the writer to focus on contents and hierarchy of the documents, and let the formatting be done separately at compilation time.  It can produce professional looking book-like manuals.  There are tools to generate .PS, .PDF and .HTML files from TeX/LaTeX.  
+I actually liked it a lot after learning it.  However, I have a big gripe about the method of creating tables, especially those that need to span many lines within a cell.  Such table really benefit from WYSIWYG, and it is a royal pain in the rear when using TeX/LaTeX :(   Because of the table deal, I stopped using LaTeX and have forgotten all about it by now.
+<BR><BR>
+
+<H3>FrameMaker</H3>
+This is what most technical doc writer use.  Extremely powerful for creating table of contents, table of figures, indexes, etc.  However, last time I used it, many of the features were still far behind that the mainstream Word Processors.  If you have a team of people to generate professional manuals, this would be the tool to use.  If you have a small project, probably not the best choice...
+<BR><BR>
+
+<H3>OpenOffice</H3>
+If the doc is to be printed and be presented in a easy to read format, and the doc is not too big, this is probably the way to go.  If you were to generate HTML from this, it may not turn out so great though.  As time goes by, this may become better.  But WYSIWYG word processor interently trap the writer to spend too much time in formatting instead of hierarchycally categorizing the contents.
+<BR><BR>
+
+<H3>MS Office/Word</H3>
+This is probably the most widely used word processor.  While extremely feature rich, it is actually pretty anoying for producing technical documents.  This is because many of the "smart" feature makes MS Word to have a mind of its own.  Automatic list numbering don't flow after some "interruption".  Framed pictures float to the wrong page when slightly moved.  Tries to generate a gazillion styles when user use the WYSIWYG feature to format text, headings, etc.  I wouldn't use it again for creating docs of more than a few pages.  Also, MS seems to be imposing license that docs created using it cannot be legally manipulated by other third party tool, such as OpenOffice.  This would sucks really big time!
+<BR><BR>
+
+<H3>Word Perfect</H3>
+This is likely considered to be old now, even though new versions still comes out.  Law firms still use it alot.  I really like the "Reveal Code" feature whereby the tags for the formatting are easily seen, so that one don't have to deal with the crazy mind of MS Word.  
+<BR><BR>
+
+<H3>WiKi</H3>
+WiKi is a new comer and has generated quite a sensation.  This would constitute a true platform-centric documentation approach.  It is web-based and requires a server to host it.  It allows an online community to edit the contents.  eg, OpenNMS, Fedora main sites are hosted by WiKi.  With such server centric platform, it means that the contents creates stay at the web site, and there are no easy ways to "distribute" the documents, like putting them on a CDROM or tar file that goes with a specific product.  HTML allows docs to be saved anywhere and be read using a browser (while offline).  WiKi isn't focused for this kind of access.  If you have a community and wants to keep posting constantly updated, WiKi would be a good choice.
+<BR>
+
+WiKi use its own set of tagging mechanism that is similar to idea of HTML, but different in the token it uses.  There will be a bit of a learning curve, but not bad at all.  
+<BR><BR>
+More details: <A HREF="wiki.html">wiki.html</A>
+
+<H3>MarkDown</H3>
+
+This really focus on content rather than pretty facing mark ups.  
+Minimal markings, just enough so that it can be compiled into html
+More details: <A HREF="wiki.html#markdown">wiki.html#markdown</A>
+
+
+<H3>Documentum</H3>
+
+TBD.
+<A HREF="http://www.cmswatch.com/CMS/Vendors/Documentum%20(EMC)">cmswatch.com</A>
+
+<BR>
+
+<BR><HR><BR>
+
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/docPlatform.html">http://www.cs.fiu.edu/~tho01/psg/docPlatform.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

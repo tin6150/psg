@@ -1,0 +1,871 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - OS</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/vnc.html">Sys Admin Pocket Survival Guide - VNC / X</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>Running X-based apps in a remote Unix machine</H1>
+
+<PRE>
+
+New school way (recommended):
+
+desktop%  ssh -Y remote
+				remote% x-win-app
+
+ssh likely default to this now.  If -Y doesn't work, try -X.
+
+
+
+
+Old school way:
+
+desktop% xhost +remote
+				remote% setenv DISPLAY desktop:0
+				remote% x-win-app
+				remote% xclock
+
+
+Modern Linux implemented some securities that need to be changed/relaxed:
+
+[security]
+DisallowTCP=false
+AllowRemoteRoot=true
+
+[xdmcp]
+Enable=true
+
+
+In Solaris, often time /tmp/X11-unix or some such pipe is owned by root and need to be chown to the user.
+
+
+In newer version of Linux, need to update /etc/X11/gdm/gdm.conf
+	DisallowTCP=false
+else, X server will only use named pipes and not listen on port 6000,
+thereby rendering X forward inusable.
+
+Usual cavet: allowing X forward is a security problem, allows remote capture of
+screen, keystrokes, etc.
+
+
+</PRE>
+<H1>Running X-based apps in Windows</H1>
+
+There are many ways of running Unix GUI application in the Microsoft World (and Apple OS X).  The most popular way is to create an X-Window server on top of Windows so that Unix GUI programs can display directly on the Windows machine.  This can be done by program such as Exceed, X Manager, and even Cygwin.
+<BR><BR>
+
+An alternative is to run VNC.  It is typically thought of a remote desktop program, but it works very well in hosting virtual X-Window session and allow a multitude of client to access and share such session.
+<BR><BR>
+
+Advantages of VNC:
+<OL>
+<LI>All session info is stored on the server, so client can disconnect and reconnect at any time without loosing the session.
+<LI>Easily sharable, recruit your colleague to help you troubleshoot problem and let everyone watch the window at the same time (be careful about password sharing!)
+<LI>More efficient use of bandwidth than the full blown X-Window protocol, thus more usable across slow DSL and WAN.
+<LI>Easier to tunnel traffic thru SSH
+<LI>Client/Viewer exist for many platform, even web-based Java applet.
+<LI>Many implementations are free
+</OL>
+<BR>
+
+Advantages of X-Window Emulation Software:
+<OL>
+<LI>In LAN environment where there is plenty of bandwidth, X is a bit more responsive in interactive session than VNC.
+<LI>Coloring tends to be more accurate than VNC as it does not use compression.
+<LI>No need to pre-set window size, thus screen size can change dynamically depending on client-side screen resolution.
+</OL>
+
+Where to get VNC
+<OL>
+<LI>RedHat Linux comes with VNC, binaries in /usr/bin
+<LI>Ubuntu may need to install, use "aptitude search vnc" and "apt-get install tightvnc" or something along those lines.
+<LI><A HREF="http://tightvnc.com"> 
+Tight VNC</A> - Open Source software model, my current favorite.
+<LI><A HREF="http://ultravnc.sourceforge.net/">
+Ultra VNC</A> - Has a nice auto-hide toolbar in full window mode, similar to Windows Remote Desktop client.
+<LI>Real VNC - Commercial support available.
+
+</OL>
+
+
+Where to get X-Window emulator:
+<OL>
+<LI><A HREF="http://www.cygwin.com">
+Cygwin</A>.  This open source tool add lot of unix commands to windows, as well as provide an X server emulation, which is very usable now.   Highly recommended for unix user stuck in windows land.
+<LI><A HREF="http://www.netsarang.com/products/xmg_detail.html">
+X Manager 2.0</A> - Shareware, basic functionality, "lighter weight" install, solid performer.
+<LI>Humingbird Exceed - Lot more bells and whishels that may not be useful, integration into Explorer neighborhood, etc.  Likely best 3D performance of all implementation.
+<LI>X-Win32 ...  This is probably very old stuff now...
+<LI>NX (No Machine)
+</OL>
+
+
+<BR><HR><BR>
+
+<A NAME="nx"></A>
+<A NAME="NX"></A>
+<H1>NX</H1>
+
+NoMachine NX is a great wrapper around VNC.  The NX client, which can run on windows, mac or linux, will ssh to the NX server, and setup the necessary VNC server, and connect the client thru.  It seems a bit slow when more than a couple of users is logged in to a machine though :(
+<BR>
+
+NX 3 on Linux created virtual servers and worked like a terminal server.  <BR>
+NX 5, at least the free version, mirror a physical screen like Windows and Mac.  It is more like x11vnc.  Terminal Server is a different commercial product now. 
+<BR>
+
+Ref: 
+<A HREF="http://www.kernelhardware.org/how-to-setup-freenx/">
+http://www.kernelhardware.org/how-to-setup-freenx/</A>
+
+
+<PRE>
+Use commercial NoMachine NX client and their ssh key if don't want to deal with key distribution.
+(their client is free).
+
+
+nx-3.5.0-1.el5.centos			# base free nx package
+freenx-0.7.3-8.el5.centos		# server end rpm, update and restart sshd , add init script.
+
+The freenx-server rc init really just really say whether client can start NX session.  
+There is no NX daemon running on the machine.  Client ssh in and start necessary process.
+
+
+config files are in /etc/nxserver
+
+ENABLE_USERMODE_AUTHENTICATION="0"
+ENABLE_PASSDB_AUTHENTICATION="1"                              
+ENABLE_SU_AUTHENTICATION="0"    
+ENABLE_LOG_FAILED_LOGINS="1"
+SESSION_LOG_CLEAN=0 
+NOMACHINE_NX_HOME_DIR="/var/lib/nxserver/home" 
+
+
+
+update /var/lib/nxserver/home/.ssh
+client.id_dsa.key
+to use the key from NOMACHINE client key 
+should not need to update authorized_keys2
+
+
+</PRE>
+
+dependencies:
+<UL>
+<LI>expect
+<LI>libXcomposite
+
+</UL>
+<BR><HR><BR>
+
+<A NAME="vnc"></A>
+<H1>VNC</H1>
+
+<H2>General method of operation</H2>
+
+In windows, VNC server works very similar to the Remote Desktop feature.  A server process runs all the time, and VNC viewer (client) connects to it via WinMachineName:0.  A password will be needed to connect, but typically one can't tell if there are any VNC client connected to a server.  If the shared options is used (often a check box in "do not disconnect other client"), then many users can view and control the same physical screen displayed on a windows machine.
+<BR><BR>
+
+In Unix/Linux, VNC works somewhat differently.  By default, the VNC server process (Xvnc) starts and create a virtual X window environment.  There is no physical display/screen associated with this virtual session.  Furthermore, more than one VNC server can run at a time, and they will be assigned different "display session number", eg :1 , :2, :3, etc.  
+When a vnc viewer (client) connects, it must specify the server name together with the display session number, eg : LinuxMachineName:1  <BR>
+While Xvnc does not attach to a physical screen, a user can connect to the virtual X session of the local machine without problem (eg vncviewer localhost:1).  
+
+<BR>
+<BR>
+
+More recently (a few year now, really), Unix also have abilities to share the physical screen just the same way windows behave.  This is provided by a different server process called <TT>
+<A HREF="http://www.karlrunge.com/x11vnc/"> 
+x11vnc</A></TT>, 
+which need to be started by the user on demand in a physical session (ie :0).  
+More info <A HREF="#x11vnc">below</A>
+<BR><BR>
+
+
+Since RHEL 5.4 or maybe even earlier, "vncserver" can be configured to listen to the actual GUI login screen (ie, :0).
+Instructions in 
+<A HREF="http://wiki.centos.org/HowTos/VNC-Server#head-a62534b6c5b0fecafb137b0606a429864432fee9">centos wiki</A>.
+<BR>
+In a nutshell, update xorg.conf and restart X, ensure port 5900 is open (iptables -I INPUT -p tcp --dport 5900 -j ACCEPT):
+<PRE>
+## Module section:
+Section "Module"
+  Load "vnc"
+EndSection
+
+## Screen section:
+Option "SecurityTypes" "VncAuth"
+Option "UserPasswdVerifier" "VncAuth"
+Option "PasswordFile" "/root/.vnc/passwd"
+</PRE>
+
+
+Wikipedia has a good overview of 
+<A HREF="http://en.wikipedia.org/wiki/Vnc">VNC</A>.
+
+<!-- vnc.txt -->
+<H2>Basic VNC Setup</H2>
+
+RealVNC host a good intro on setting up to use VNC, see 
+<A HREF="http://www.realvnc.com/support/getting-started.html">
+http://www.realvnc.com/support/getting-started.html</A>
+. 
+<BR><BR>
+
+Here are the commands that need to be run: <BR>
+
+
+If you are running vnc on Linux, the software is usually pre-installed and PATH pre-configured.  It usually is as simple as logging in (via ssh, eg, use PUTTY), then run the <TT>vncserver</TT> command to start the server session.  Then, from the windows machine, use VNCviewer to connect to the remote machine, appending :1, :2 or whatever that is the virtual screen session created by VNC.  <BR>
+
+To avoid panning, you may want to set a specific geometry when starting VNC, use any one of the folllowing example:
+<BR><BR>
+
+<PRE class="cf">
+<TT>
+vncserver -geometry 1012x688 -depth 24</TT>
+# Good for small Laptop LCD at 1024x688 (with 4 toolbars/title bars all together)<BR>
+</PRE>
+
+<PRE class="cf">
+<TT>
+vncserver -geometry 1260x950 -depth 24</TT>
+# Good for 17" desktop screen running at resolution of 1280x1024<BR>
+</PRE>
+
+
+<PRE class="cf">
+<TT>
+vncserver -geometry 1580x1120 -depth 24</TT>
+# Good for 20" desktop screen running at resolution of 1600x1200<BR>
+</PRE>
+
+<!--
+<TT>
+vncserver -geometry 1012x712 -depth 16'
+</TT> # An alternative for 1024x768 screen, if not using so many toolbars.<BR>
+-->
+<BR>
+
+
+<PRE>
+If you are using Solaris, the procedure is slightly more involved.  Below is a basic outline of commands to run.
+
+ssh to your sun machine and run:
+bash
+export PATH=$PATH:/usr/bin:/usr/local/bin:/usr/X11R6/bin:/usr/dt/bin:/opt/sfw/bin
+vncserver -nolisten local -geometry 1012x712 -depth 24
+
+Then, on your windows machine:
+vncviewer YOURHOST:x
+
+Once inside the VNC session, at the xterm window prompt, enter the commands:
+pkill twm
+/usr/dt/bin/dtwm &
+
+</PRE>
+
+<TT>vncconfig -iconic &</TT> <BR>
+In some machines, the vnc config panel does not start automatically,
+this will start it, and would allow cut-n-paste.
+On some machine, starting this will return an error saying no vnc-extension found.
+Not sure what it means, maybe some perm on /tmp/X11... is not allowing the 
+clipboard to be transferable...  SOL :(
+
+
+
+
+
+<H2>Detailed Instructions on Starting VNC</H2>
+
+<PRE>
+
+(i) Setup your PATH.  
+You may already have them setup.  You can check via echo $PATH 
+or you can rerun these commands, duplicates are safe. 
+
+sh/ksh/bash users  (recommended, csh/tcsh is weired!):
+Solaris	export PATH=$PATH:/usr/bin:/usr/local/bin:/usr/X11R6/bin:/usr/dt/bin:/opt/sfw/bin
+Linux	export PATH=$PATH:/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin
+AIX	export PATH=$PATH:/usr/local/bin:/usr/lpp/X11/bin
+HP-UX	export PATH=$PATH:/usr/dt/bin:/bin/X11:/usr/bin:/usr/local/bin
+
+csh/tcsh users:
+Solaris	set path=($path /usr/bin /usr/local/bin /usr/X11R6/bin /usr/dt/bin /opt/sfw/bin) 
+Linux	set PATH=($path /bin /usr/bin /usr/local/bin /usr/X11R6/bin)
+AIX	set PATH=($path /usr/local/bin /usr/lpp/X11/bin)
+HP-UX	set path=($path /usr/dt/bin /bin/X11 /usr/bin /usr/local/bin)
+
+
+
+(ii) Start the vncserver:
+
+vncserver -nolisten local -geometry 1012x712 -depth 24
+
+The "-nolisten local" parameter avoid the need to write to the directory /tmp/.X11-unix, 
+which only root can do.
+
+The -geometry and -depth settings set the screen size and color palette.
+This setting should work well in windows desktop running resolution of 1024x768,
+so that you don't have to be scrolling till your head is dizzy.
+
+
+NOTE: If you have never run vncserver before, it will prompt you to enter a 
+vnc session password.  Enter that, and when it returns to the prompt, 
+run the vncserver command listed above again to really start the server.
+This time, it will print a message telling you which virtual session
+(:N) your vnc session will be located, or an error message.
+
+
+</PRE>
+
+
+<A ID="desktop"></A>
+<H3>
+Info for setting a a Desktop Environment inside VNC session.
+</H3>
+
+<PRE>
+
+Desktop Environment includes Windows Manager and extra features like
+desktop icons, integrated file manager and web browser, etc.
+
+By default, vnc session starts with the most barebone windows manager (twm) 
+and no desktop environment.
+You can change it to use something else, so that you won't be left with 
+a boring plain pale looking TWM. 
+This is optional, but it generally gives a much better feel of 
+actually running the stuff in local machine native graphical console.
+The settings are platform depending.
+
+Traditional Unix typically support CDE, and it is the default Desktop Environment
+pushed by the major vendors in the past few years.  
+Linux use gnome or kde, and don't typically have CDE installed.
+
+
+
+-*-*-*-*-*-*-*-*-*-*-
+
+</PRE>
+
+<H4>CDE</H4>
+
+<PRE>
+
+CDE for Solaris 7, 8, 9
+CDE for AIX 4.x, 5L
+CDE for HP-UX 11i
+
+set your ~/.vnc/xstartup file to something like:
+
+	PATH=$PATH:/usr/dt/bin:/usr/openwin/bin:/usr/X11R6/bin:/bin/X11
+	XSTATION=1 
+	DTXSERVERLOCATION=local
+	export  XSTATION DTXSERVERLOCATION
+    	Xsession &
+    	xterm -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+
+and start the vncserver, it will start CDE environment nicely.
+The color settings of starting CDE like this is better than just
+running dtwm.
+
+You can also copy the xstartup file from /nfshome/tho/.vnc/xstartup.cde
+Be sure that XSTATION and DTXSERVERLOCATION are NOT preceded with "set"!!
+
+
+Trobleshooting:
+If your vncsession start up with a blank screen, then check that
+CDE and X server has been installed on your machine.
+AIX does not have this installed by default!!
+If it is installed, you should be able to do ls for file such as:
+        /usr/dt/bin/Xsession
+        /usr/dt/bin/dtlogin
+If the file above cannot be found, or if the whole /usr/dt/bin dir is not there,
+contact the sysadmin to get the CDE/X server packages installed to the system.
+
+
+-*-*-*-*-*-*-*-*-*-*-
+
+</PRE>
+
+<H4>GNOME on Linux (and possibly Solaris machines with gnome setup)</H4>
+
+
+<PRE>
+First, ensure that twm is not running.  In the xterm windows:
+	ps -ef | grep twm
+
+If there is a process named twm, just issue a "kill" on the pid, eg:  
+	kill 12345 
+	or
+	ps -ef | grep twm | grep -v grep | awk '{print "kill " $2 }' | sh
+
+Then, run:
+	/usr/bin/gnome-session &
+
+This should start a nice and complete gnome desktop environment.
+
+For lighter terminal settins, AS/ES 3.0 can use the following two lines instead,
+it will disable things like the screen saver, etc.
+This method seems to be needed for Solaris 10 w/ international language support,
+as somehow that interact catastrophically with gnome-session and the keyboard
+won't work!
+	/usr/bin/gnome-wm    &
+	/usr/bin/gnome-panel &
+
+
+For GNOME/Java Desktop on Solaris 10, run:
+	/usr/dt/config/Xsession2.jds &
+
+</PRE>
+
+
+<H4>KDE</H4>
+
+<PRE>
+
+startkde	= start a kde session, will work inside VNC 
+		  equiv to gnome-session
+
+kwin		= kde windows manager.  Equiv to gnome-wm or twm.
+kicker		= start the KDE bottom panel (start menu)
+		  equiv to gnome-panel
+kdesktop	= start process that respond to desktop background
+
+
+(Info collected from RHEL 4, SUSE 10 has KDE under /opt/kde3 and use different binaries)
+
+</PRE>
+
+
+<H3>Changing Windows Manager</H3>
+
+
+Windows Manager can be seen as a sub component of the Desktop Environment.
+One can run just the windows manager w/o a desktop environment for
+a light weight setup, and potentially for compatibility reasons inside a 
+VNC virtual session.
+<BR><BR>
+
+There are lot of technical details here, and 
+you need not be concerned about them if you can live with the default TWM 
+windows manager, or if the Desktop Environment described above 
+can be setup and run correctly.
+<BR><BR>
+
+By default, vnc session starts with the most barebone windows manager, twm.
+You can change it to use something else.  The config file is ~/.vnc/xstartup.
+You will see twm toward the bottom.  You can change it to other windows manager
+by running a different command instead of twm, eg:
+
+<PRE>
+
+dtwm	# This is the windows manager that is run with CDE.
+	# available in /usr/dt/bin/dtwm (HP-UX, Solaris, AIX)
+	# not available in default linux install (it is ugly anyway).
+	# Note that the color is a bit off when run inside VNC,
+	# but the funtionalities are there.
+	# See CDE in desktop environment below.
+
+olvwm	# Sun default windows manager before it adopted CDE.
+	# It is pretty clumsy to use, but works well in old system.
+	# try to locate it in one of these places:
+	# - /usr/local/bin/olvwm
+	# - /corpits/usr/local/bin/olvwm
+
+mwm	# alternative to olvwm, much more usable and very light weight.
+	# Available in 
+	# - /usr/bin/X11/bin (HP-UX)
+	# - /usr/X11R6/bin   (Solaris, Linux)
+
+twm	# Most barebone windows manager, avail almost everywhere.
+	# Solaris, Linux is in /usr/X11R6/bin
+	# HP-UX don't seems to have it!
+
+fvwm2	# fvwm2 build on top of mwm, adding a config option to allow 
+	# win95 menu, if configured properly.
+	# Avail in:
+	# /corpits/opt/sfw/bin/  mwm or fvwm2
+
+icewm	# an open source light weight Windows Manager 
+	# with support for GNOME and KDE.
+	# avail only in Linux, as the code won't compile under Solaris.
+	# .xstartup recommended way to start icewm
+	# icewmtray &
+	# which icewm >/dev/null 2>&1 && exec icewm || exec xterm -bg red
+
+If you want to try out the various windows manager, you can always lookup the 
+process number of your current windows manager, kill it, and then start a new one.
+
+
+*************************************************************************
+
+
+PS1:  http://www.uk.research.att.com/archive/vnc/faq.html has a very good FAQ 
+about the many advance features for VNC.
+
+PS2: Windows VNC program:
+http://tin-u10:8000/~sa/applet/VNC-tightVNC/
+
+PS3: A note on HP-UX use of ^C and '@' symbol.
+Default HP-UX /etc/profile map interrupt to "DEL" and kill to @.
+This cause lot of confusion.  So, I recommend that you update your keyboard 
+mapping once you get to a shell prompt:
+	stty intr <ctrl-v><ctrl-c>
+	stty kill <ctrl-v><ctrl-u>
+	stty -a	# check your settings.
+
+</PRE>
+
+
+<A ID="x11vnc"></A>
+<H3>x11vnc</H3>
+
+Instructions for X11vnc (Solaris only, for now)
+
+<PRE>
+
+Sunfreeware now has this package called x11vnc.  It works closer to the windows vnc
+in the sense that you share physical display with a remote user.
+
+To use it, you will need to have an existing physical login to your sun desktop.
+Then, to share your display, issue the command:
+
+x11vnc -display :0
+
+Then, on the client side, just use vncviewer against your hostname with :0 as your display
+(eg spartan:0) and it will connect.
+
+When you are done, terminal the vncviewer.  Once the client ends, the x11vnc (server) also ends.  
+Note that this is the only security, there are no password checking.  
+So, run x11vnc only when you want to share your desktop.
+You can use ssh or telnet to your machine and issue the command when you want to share.
+
+Password can probably be setup, will need to refer to the doc...
+
+</PRE>
+
+<A ID="x11vnc_linux"></A>
+<H3>x11vnc in Linux</H3>
+
+
+<PRE>
+
+There is a x11vnc-0.9.8-1.el5.rf.x86_64.rpm  but this package doesn't seems to be needed on stock RHEL 5.4.
+It just need some update on xorg.conf and a location to store the vnc password file.
+Some video driver will prevent this screen duplication from working correctly.  Updating to latest driver should help.
+ 
+ 
+ 
+Update /etc/X11/xorg.conf as follows:
+ 
+In Section “screen…”, add these options:
+     Option "SecurityTypes" "VncAuth"
+     Option "UserPasswdVerifier" "VncAuth"
+     Option "PasswordFile" "/root/.vnc-0/passwd"
+The vnc password can be stored in any dir you want.  Create the password file using vncpasswd if needed, then copy it to the path indicated above..  You will need this to connect.
+ 
+Then add this new section, say, at the end of the xorg.conf file.
+ 
+Section "Module"
+     Load           "dbe"
+     Load           "extmod"
+     Load           "type1"
+     Load           "freetype"
+     Load           "glx"
+     Load           "vnc"
+EndSection
+ 
+ 
+Restart X (eg init 3; init 5).
+ 
+From windows, use vncviewer and connect to the nmr linux machine, no need to specify any session number, as :0.0 is assumed as default.
+
+</PRE>
+
+<H2>tigervnc in rhel7</H2>
+
+<A HREF="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/sec-vnc-sharing-an-existing-desktop.html">
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/sec-vnc-sharing-an-existing-desktop.html</A>
+
+
+http://stackoverflow.com/questions/28776520/systemd-service-for-jar-file-gets-operation-timed-out-error-after-few-minues-o
+
+<PRE>
+
+# x0vncserver mirror actual screen, so like previous x11vnc:
+
+sudo yum install tigervncserver
+# as user that would typically be logged to the X session, eg bofh:
+vncpasswd  
+x0vncserver -PasswordFile=.vnc/passwd -AlwaysShared=1		# this listen for :0, port 5900
+</PRE>
+
+<PRE class="cf">
+# /etc/systemd/system/vncserver0.service 
+# sudo systemctl start vncserver0 works when file is configured to use service type "simple" instead of "forking"
+[Service] 
+Type=simple
+ExecStart=/usr/sbin/runuser -l bofh -c "/usr/bin/x0vncserver -PasswordFile=/home/bofh/.vnc/passwd -AlwaysShared=1 -display=:0"
+</PRE>
+See also <A HREF="linux.html#systemctl_vnc">linux systemctl vnc example</A>.  
+<BR>
+
+
+<PRE>
+
+##  this one below theoretically create a virtual X server on :3, but systemctl have problem starting it... 
+
+cp /lib/systemd/system/vncserver@.service  /etc/systemd/system/vncserver@.service
+vi !$
+	# change USER to actual username (yeah, not very general...)
+systemctl daemon-reload
+systemctl enable vncserver@:3.service		# template was vncserver@:DISPLAY.service   (but never got it to work)
+	sudo /usr/sbin/runuser -l sn -c /usr/bin/vncserver 3	# should have been cmd by systemctl.  manually running it works
+
+systemctl status vncserver@3.service 		# view log message ... somehow it fails, %i thing??
+journalctl -xn 
+
+
+</PRE>
+
+<!-- vnc.ref -->
+<H2>VNC Installation, Encryption</H2>
+
+<PRE>
+
+
+
+download package, untar
+cp vncviewer vncserver vncpasswd vncconnect Xvnc /usr/local/bin
+
+vncserver
+
+
+need to ensure that /tmp/.X11-unix is world writable 
+in solaris, need to do it in init script as it is changed back on bootup.
+vncserver fails silently when this dir is not world writable.
+chmod 777 /tmp/.X11-unix
+Haven't seen any report of security problems with such setup, 
+but solaris 9 seems to reset the directory permission.
+
+Alternatively, start vncserver as 
+
+vncserver :n -nolisten local 
+So that it avoid writting to /tmp/.X11-unix completely.
+http://www.cs.columbia.edu/~crf/crf-guide/resources/software/vnc.html
+
+
+
+logs are in ~/.vnc
+~/.vnc/xstartup  is config file.  
+	default to twm.
+	can run olvwm (old sun) or dtwm (which is the one cde use, but ugly color).
+
+vncserver -geometry  1500x1000 -depth 16 	# home 24"
+vncserver -geometry  1260x910  -depth 16 	# win 1280x768 desktop, okay sun 20"
+vncserver -geometry  1018x720   -depth 32	# approx for 1024x768...
+vncserver -geometry  1150x910 	-depth 16	# u10 build in vga port + sun 20" mon
+vncserver -kill :1
+
+sun 21 inch is about 1280x1020, cde top aroud 934. title + frame around 24 pixels.
+
+default port is 
+5800  for windows
+5801  for unix java
+5901  for unix standard vnc client
+
+
+
+solaris version req perl which may not be installed.  the vncserver script may need to change the #! line.
+
+-----
+
+encapsulating vnc with ssh, all command run on localhost:
+
+ssh -L 5911:localhost:5901 tin-u10 
+         ^            ^^^^^^^^^^^^
+         |             destination machine and port
+         |
+       tunneled localhost port 5911
+vncviewer -shared -hextile localhost:11
+
+# establish tunnel that is: 
+#  localhost:5911   <====> tin-u10:5901
+#  thus vnc connect locally will get tunneled to remote host.
+# vnc for unix default to port 5900 + virtual session number
+# the tunnel kind of create the port on virtual session 11, 
+# To some extend, this would limit number of VNC that can be running to 10.
+
+# -hextile will not let machine think it is local and use raw.
+# actually, not sure if that is windows only.
+
+# for linux machine to vnc server on tin-u10, but i haven't gotten it to work yet.
+
+
+New vncclient (eg tigervnc, mobaXterm) support a -via option:
+
+vncviewer -via user@server:1
+
+and the ssh tunnel will be created.  No need to manually run ssh and understand the whole tunnel business :)
+
+
+</PRE>
+
+
+<H3>windows client options</H3>
+
+<PRE>
+
+-shared -fullscreen
+-scale 1024/1280	# scale 1280 screen to fit 1024, but ugly font and slower.
+-scale 4/5		# same ratio as above, read as, every 5 pixels on svr,
+			# becomes 4 pixels on client.  
+
+-noauto			# no auto detect color depth, not usually needed.
+
+-fullscreen:
+disable full screen prompt:
+    HKEY_CURRENT_USER\Software\ORL\VNCviewer\Settings\
+    Create DWORD SkipFullScreenPrompt set value to 1.
+    wish there was just a cli option for it :)
+
+-localhost	vncserver only binds to 127.0.0.1
+-interface IP	vncserver binds to specified IP
+
+
+starting vnc at startup thru rc script,
+this case for oracle applmgr user, as ora app need running X server to work 
+correctly in rendering graphics for web clients!!
+simple content for rc2.d/S99rcVnc
+su - applmgr -c "/opt/sfw/bin/vncserver :18 -localhost -nolisten local -geometry 1012x712 -depth 24"
+
+
+search online for other script to start series of vnc at startup.
+
+</PRE>
+
+<H3>Linux client (vncviewer) options</H3>
+
+<PRE>
+F8 = pop up menu, send key sequences like ctrl-alt-del
+full screen mode
+</PRE>
+
+
+<H1>Display Manager vs Window Manager</H1>
+
+Display Manager governs the GUI login screen before a user login.  
+Window Manager is the GUI that gets loaded for a specific user once login is complete.
+
+Historically, gdm is the display manager everyone used.  It can load Gnome Desktop Environment and its Window Manager, or it can load KDE.
+Increasingly, different DM are used for different WM/Desktop Environment.  
+MDM is the default for Mint, which loads the Cinnamon environment.  To switch to use Gnome, have to install GDM, which required changes to /etc/X11/default-display-manager
+
+
+
+<A NAME="X"></A>
+<H1>X Window Emulation</H1>
+
+<A NAME="xmanager"></A>
+<H2>X Manager 2.0</H2>
+
+X Manager support many ways of starting an X Window emulation.  
+IMHO, I recommend using a simple "xstart", and have it use SSH to login to the remote machine and launch the correct xterm command.  This will not start a full blown Desktop Environment though.  If sshd has been configured to disable X port forwarding, X Manager may not run.  In such case, try RSH, REXEC, or TELNET. <BR>
+
+<IMG SRC="fig/xmanager-setup.gif">
+
+
+<H1>X settings</H1>
+
+Things that I like...
+<BR>
+
+<H3>.Xdefaults</H3>
+
+<PRE class="cf">
+
+! rxvt settings customization, usable in Cygwin
+! http://cygwin.com/ml/cygwin/2003-04/msg02006.html
+
+! color could be named, or #000000 for black, #FFFFFF for white
+! #DDddDD is lighter gray than LightGrey, this bg works better than black for ls --color
+!Rxvt*background:           Black
+!Rxvt*background:           LightGrey
+!Rxvt*background:           #EEEEEE
+Rxvt*background:           #DDDDDD
+Rxvt*backgroundPixmap:
+Rxvt*backspacekey:         ^H
+Rxvt*boldFont:             Fixedsys
+Rxvt*colorBD:              Red2
+Rxvt*colorRV:              RoyalBlue
+Rxvt*colorUL:              ForestGreen
+!Rxvt*cursorColor:         Cyan3
+Rxvt*cursorColor:          RoyalBlue
+Rxvt*cursorColor2:         Gold
+Rxvt*cutchars:             BACKSLASH `"'&()*,;<=>? at []{|}
+Rxvt*externalBorder:       0
+Rxvt*font:                 Fixedsys
+!Rxvt*foreground:           LightGrey
+Rxvt*foreground:           Black
+
+
+</PRE>
+
+
+<BR><HR><BR>
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/vnc.html">http://www.cs.fiu.edu/~tho01/psg/vnc.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

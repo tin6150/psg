@@ -1,0 +1,1555 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=ISO-8859-1">
+  <title>Sys Admin Pocket Survival Guide - AIX</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+  
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="3" align="center">
+	  <A HREF="http://www.cs.fiu.edu/~tho01/psg/aix.html">Sys Admin Pocket Survival Guide - AIX</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left" width="20%"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center" width="60%"><A accesskey="c" HREF="aix_cd_catalog.html">AIX CD catalog</A></td>
+      <td align="right" width="20%"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+    </tr>
+
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+
+<H1>HOW-TO</H1>
+<!-- set tab to 8 spaces, which is what Firefox and IE use -->
+<A NAME="aix_admin_101"></A>
+<H2>AIX Admin 101</H2>
+
+
+<PRE>
+
+PMR 	- Problem Management Record. 
+PTF 	- Program Temporary Fix eg Unnnnnn
+APAR 	- Authorized Program Analysis Report, specific release of PTF.  eg IYnnnnn, IXnnnnn
+ML 	- Maintenance Level, grouping of APAR.  eg 5300-04 is ML 4
+SP	- Service Pack (starting aix 5.3 ML 3)  eg 5300-03-01 is SP 1 on ML3
+TL	- 
+
+Fileset - group of files, eg bos.adt.libm
+VRMF 	- Version, Release, Modification/Maintenance level, and Fix. 
+	  eg 5.2.0.60 
+
+</PRE>
+
+
+<A NAME="smit"></A>
+<H5>smit</H5>
+
+A lot of the sys admin task in AIX can be done thru smit (or smitty for TUI version).
+It can accept a parameter to get to a specific menu section right away.
+<BR>
+
+<PRE>
+Here are some example:
+
+smit mktcpip		# configure network parameters
+smit chfs		# change file system, eg grow/extend it.
+smit lsprt		# list printers (don't list all, may need to go thru long menu)
+smit installp		# Add new software
+smit update		# add patches
+smit update_all		# automatic add patches to existing sw, no complain if patch is not relevant
+
+
+smitty fastpath:
+
+    Action          Prefix                Device        Abbreviation
+    ------          ------                ------        ------------
+    (add)             mk                 (printer)         prt
+    (change)          ch                 (tty)             tty
+    (list)            ls                 (pty)             pty
+    (remove)          rm                 (disk)            dsk
+                                         (cdrom)           cdr
+                                         (diskette)        dskt
+                                         (tape)            tpe
+                                         (adapter)         adp
+							   lang
+
+Keystrokes:
+F3  or ESC, 3 	Cancel, go back
+F4  or ESC, 4	Provide list of items to choose from
+F6  or ESC, 6	Show command that smit will actually run
+F10 or ESC, 10	Exit smitty
+ 
+</PRE>
+
+<H5>Linux Affinity</H5>
+   AIX is affectionally known as It Ain't uniX. With version 5L that added Linux Affinity, it
+   maybe called Ain't It linuX?<BR>
+   The linux toolkit does add lot of open source utilities for AIX, it even provides an rpm
+   package manager to manipulate these open source tools. However, it is stuck in the past,
+   circa 2002, and so many of the newer Linux updates are not available. For example, there is
+   no rpmbuild but use the old rpm --recompile. There is no automatic patch to update the
+   source codes from Source RPM. These deficiencies makes development in AIX extremely painful.
+   <BR><BR>
+
+<H3>AIX Idiosyncrasies</H3>
+
+  If a file is held open by the OS with a running program, it will not allowed to be overwritten (think Windows).  For example, /lib/security/NSS_LDAP and /usr/lib/netsvc/dynload/nss_ldap.so are modules loaded by the authentication subsystem, and these files are locked and cannot be upgraded.
+
+<BR><BR>
+
+<H2>Initial System Setup</H2>
+
+<PRE>
+<TT>smitty assist</TT>		# init os setup assistant to config basic system param. <BR>
+
+/usr/sbin/install_assist	# what get launched automatically after init install reboot
+</PRE>
+<BR>
+<BR>
+
+<H5>FS Layout</H5>
+AIX uses a pretty good volume manager out of the box. Every FS can be expanded on the fly, so no special work is really needed on initial setup.  If you use /home as NFS mounted home dir, you may wish to update /etc/filesystems so that the the local disk is mounted as /localhoome or something.
+<BR><BR>
+<H5>Bundle Install</H5>
+AIX that comes with the machine often don't have all the desired software packages installed.  It maybe good to add some <TT>bundles</TT> before releasing the machine for general use.
+<BR><BR>
+
+eg: Add the Application Development bundle :: <BR>
+<TT>
+/usr/lib/instl/sm_inst installp_cmd -a -Q -d '/nfshome/sa/aix53/cd1' -b 'App-Dev' -f 'all'  '-c' '-N' '-g' '-X'  '-G'    
+</TT>
+<BR><BR>
+Other bundles that can be installed are:
+<TT><OL>
+<LI>AllDevicesKernels                                
+<LI>Alt_Disk_Install                                
+<LI>App-Dev                                           
+<LI>CC_EVAL.Graphics                                   
+<LI>CDE                                                 
+<LI>GNOME                                                
+<LI>Graphics                                              
+<LI>KDE                                                    
+<LI>Kerberos_5    <I>(Expansion Pack)</I>
+<LI>Media-Defined                                            
+<LI>Mozilla       <I>(AIX Toolbox for Linux Applications, Mozilla CD)</I>
+<LI>PerfTools
+<LI>Server 
+</OL></TT>
+Note that not everything is in the first CD.  Time for IBM to get with DVD media, no? :)<BR>
+
+<BR><BR>
+See also <A HREF="#cf">Config Files </A><BR><BR>
+
+<H5>Firmware/BIOS</H5>
+
+When upgrading an older machine to new version of AIX, 
+be sure to check the AIX release notes to ensure the machine in question is
+still supported, and whether any firmware update maybe needed.
+<BR><BR>
+RS/6000 / pSeries machine firmware is typically updated when AIX is still
+running.  Many older machines does not support firmware update in SMS.
+Old hardware or firmware have tendency to crap out in a boot process giving
+error 20EE000B (unable to find boot device), even when boot from the CD for
+the initial install works fine.  The saving grace is that one can boot and
+reinstall the old OS should machine become unbootable.
+
+<PRE>
+
+# show firmware version, sample output included
+# the last 6 digit of the firmware is a date code YYMMDD
+lscfg -vp | grep -p Platform		
+
+      Platform Firmware:
+        ROM Level.(alterable).......3R040323       
+        Version.....................RS6K
+        System Info Specific.(YL)...U0.1-P1/Y1
+      Physical Location: U0.1-P1/Y1
+
+
+# copy new firmware from CDROM into a new dir /tmp/fwupdate
+# inside the microcode dir in the CDROM are subdir for each machine type
+# refer to the doc inside this dir for full details on firware upgrade.
+cp /mnt/cdrom/microcode/... /tmp/fwupdate
+
+# run checksum on the firmware image.
+sum vvYYMMDD.img		
+
+# perform the update, it will reboot the machine automatically when done
+cd /usr/lpp/diagnostics/bin 
+./update_flash -f /tmp/fwupdate/3R041029.img
+
+</PRE>
+
+
+<H2>Boot Time Troubleshooting</H2>
+
+<PRE>
+
+RC scripts executed at startup:
+
+/etc/rc.d/rcN.d/
+same as solaris, Snn--- script, but there is nothing in here from basic OS.
+normal run level is 2.  Placed S74autofs and S89sshd in rc2.d .
+/etc/rc.d/rc script is the one that source all the rcN.d, 
+	but this script doesn't seems to exist by default, 
+	had to be copied from another 4.3.3 machine and then it was fine.
+For some unknown reason, init script for AIX 5.3 doesn't seems to run
+correctly!! (eg, opensshd script will create log, but fail to start)
+
+
+
+AIX default system config is to have a few named rc scripts, 
+they are all started by init as per /etc/inittab:
+/etc/rc.tcpip 		# tcp config, but could not start sshd from here at boot, so placed in rc2.d/S89sshd.
+/etc/rc.nfs		# includes NIS, rcp
+/etc/rc.emcpower	# emc added their own startup script here, which is called form /etc/inittab.
+
+</PRE>
+
+<H3>Single User/Maintenance Mode </H3> 
+
+For servers with Service Processor:
+
+<OL>
+<LI>Power off machine
+<BR/>Navigate the Service Processor menu (avail only when machine is off, from serial console):
+<LI>go to (2) system power control menu
+<LI>go to (7) Boot Mode Menu (some system list it as AIX/Linux mode config)
+<LI>go to (2) Service Mode boot from Saved List (to enable Maintenance Mode, diff than SMS mode).
+<BR/>
+Power on machine. <BR/>
+Kernel will boot, then ask which options to boot to, choose single user mode 
+(maintenance mode has less capability).
+</OL>
+<!-- (access rootvg is (NOT?) available in maintenance mode) -->
+<BR/>
+To install new OS to system, change system to get into System Management Service (SMS) mode.
+Then choose to boot from cdrom (first CD for OS install).
+
+<BR/><BR/>
+A note about the old desktop machines (eg 43P-140 604e-332 PowerPC 760): 
+<OL>
+  <LI>When machine first boot, it will display various number on the various terminal.<BR/>
+    eg. 0 for ASCII console (dumb terminal), 1 on first graphics video, 2 on second graphics video. <BR/>
+    Press the number corresponding to the video that you wish to use.  <BR/>
+    This setting is "memorized" by the system, prompt again only when a there is hardware config change.
+  <LI>To get into the graphical System Management Service (SMS) mode, press <TT>F1</TT> as soon as the double beep "dirip-dirip" chirps happens (and the keyboard icons is displayed).  <BR>
+     You better be quick, do it before the long chime of the speaker test happens (the fifth/last icon in startup: speaker icon).  <BR>
+If using ASCII console, F-keys are simulated via ESC+Number keys.  The graphical icons won't appear, but the equivalent text will be displayed 
+progressively across the screen:  <BR>
+     <CENTER>
+     <PRE class="screen">
+
+     memory        keyboard       network        scsi         speaker   
+     </PRE>
+     </CENTER>	  
+     
+  <LI>Pressing F8 will go to the open firmware OK prompt.  There are only a few commands accepted:  <BR>
+     <PRE class="cmd">
+	devalias
+	printenv
+	setenv
+	boot [DEVICE]
+     </PRE>
+	
+<TT>boot disk</TT> will do a normal boot from hard drive.  This is the default action if open firmware is not explicitly invoked. <BR>
+<TT>boot cd</TT> will boot from the cdrom and run the installer program, 
+whereby it will prompt for install config info.  <BR>
+There is also option to get into maintenance mode (?? It is NOT boot -s !!)
+<BR>
+More info about open firmware:
+<A HREF="http://playground.sun.com/1275/">IEEE 1275</A>.
+  <LI>SMS has entry to define boot device scan sequence, which is based on SCSI (lowest ID first).  However, actual boot is according to Open Firmware boot command, so which device is booted depends on what the alias for disk is defined as.  In summary, ignore the SCSI id boot sequence in SMS.<BR>
+  <LI>Some system require pressing F5 instead of F1 to get into SMS mode.
+      If you are lucky, some will display what key to press to get into what mode right before the hardware scan progress, eg: <BR>
+     <PRE class="screen">
+
+          1 = SMS Menu                        5 = Default Boot List
+          6 = Stored Boot List                8 = Open Firmware Prompt
+      </PRE>
+  <LI>IBM RS/6000 hardware is pretty finiky and OS support may not be available  for some machines.   AIX 5.2 will no support any machines with ISA bus.  Some 43P have such bus and thus can only run AIX 5.1 as latest OS.  Other 43P that don't have ISA bus can run the newer AIX.  If you wish to install Linux, expect even more finickyness, as there are lot of small modifications between motherboards of different serial numbers.  Linux may run on one 43P, but not another that looks the same.   ie: don't install Linux on these putters!
+</OL>    
+
+
+<A NAME="random_daily_sys_admin_tasks"></A>
+<H2>Random Daily Sys Admin Tasks</H2>
+<!-- Consider resort into different sections later -->
+<PRE>
+
+See if system has ASync IO feature installed:
+
+lslpp -l | grep -i asyn 	# list bos.rte.aio package installation
+lppchk -c			# check to ensure all fileset are installed correctly
+lsdev -C -t aio			# list whether async io is avail as device
+smitty chgaio			# smit interface to activate aio, reboot req.
+
+
+---
+
+smitty chtz			# change timezone info  
+				# /etc/environments TZ=PST8PDT
+date -u				# display internal system clock (in CUT/GMT).
+				# reboot was recomended, but all future login will see 
+				# corect TZ.  cron and stuff may not update till reboot.
+
+
+---
+
+AIX WebSM, default port is 9090 (/etc/services)
+To disable, use /usr/websm/bin/wsmserver -disable; -enable will re-enable it.
+
+HTTP server, started in /etc/inittab ! 
+So it will respawn if it is just killed, edit inittab to free up port 80!
+
+EMC navisphere agent also started in inittab, I guess it is the AIX way.
+it calls /etc/rc.agent
+
+----
+</PRE>
+ibm option number for universal (oem) cabinet rack mount rail part.
+OEM means 3rd party cabinet.  IBM cabinet rails are fixed length!
+<BR>
+p5 9113-550 :: 
+7162 IBM/OEM RACK-MOUNT DR.RAIL KIT 1 168.00 
+<BR><BR>
+p5 510 ::
+7166 IBM/OEM RACK-MOUNT DR.RAIL KIT 1 150.00 
+
+<BR>
+<BR>
+
+
+
+<A NAME="storage"></A>
+<H1>Storage</H1>
+
+<A ID="lvm"></A>
+<H2>Disk/Volume Management/Filesystem</H2>
+
+
+AIX has probably the most admin-friendly Logical Volume Manager and Filesystem
+of all the major Unices out there.  It use a single LVM for every FS.  Every 
+FS is extendable online without the need to unmount.  It does have lot of commands 
+that are needed to manipulate the system though.  But if you just need to
+get more space on a given FS/partition, just use smit chfs.
+
+
+<PRE>
+TLA	name		eg				sample cmd
+---	-------------	------------------------	--------------
+PP	physical part
+LP	logical  part
+
+PV	physical vol	hdisk0 hdisk1			lspv
+VG	volume group	rootvg appvg			lsvg mkvg extendvg
+LV	logical  vol	/dev/hd0 /dev/hd9var		lslv mklv
+FS	filesystem	/ /var				lsfs mount
+
+hdiskN are physical hard drives (or RAID device?)
+/dev/hdN are FS level mountable device, these are created by the LVM.
+/dev/hdN are subcomponents of VG such as rootvg.
+
+
+smit vg				# display and set logical volume group info
+
+lsdev -Cc adapter		# list many adapters, include fc, scsi, ide, pci, LPAR virtual, usb, graphics
+lsdev -Cc disk			# list hard disks.  eg hdisk0 hdisk1
+rmdev -dl hdisk2		# remove a named disk from config, often needed when san disk has been
+				# changed on the storage server side.  after rm, rescan the bus. 
+
+lsvg				# list all VG present in system
+lsvg rootvg			# VG space usage and free, PP size, etc
+lsvg -l rootvg			# list LP content of rootvg
+lsvg -p rootvg			# list PP used and free for a VG
+				# when LV/FS need to be extended.
+
+extendvg -f rootvg hdisk8	# allocate physical hd to VG rootvg
+smitty vg			# smitty for Vol Grp, allow remove vg
+
+mklv -y'appvol00' appvg 1 	# create logical volume (after volume group defined via mkvg)
+				# if -y is not given, a generic volume name will be assigned.
+				# This step isn't strictly needed, mkfs will create generic vol as needed.
+mkvg -f -y'appvg' hdisk2 hdisk3	# create a VG appvg from 2 physical hd
+mkvg    			# original Vol Grp   (Max   32 PV, 255 LV)
+mkvg -B 			# Big Volume Group   (Max  128 PV, 512 LV, 4.3.1+)
+mkvg -S 			# Scalable Vol Group (Max 1024 PV, 256 LV, 5.2+)
+
+smit fs				# best to use smit to create a fs, many parameters.
+				# it typically call cffs -v jfs2
+
+reorgvg				# reorganize PP w/in vol grp
+
+lsfs				# list fs on machine, kinda like mount, 
+				# diff output, only list fs in /etc/filesystems.
+
+chfs -a size=+1 /dev/hd2	# grow a file system, size mult of 512 bytes, but
+				# always rounded up to integer number of PP 
+				# 8 mb, 64 mb, etc (see lsvg rootvg pp size)
+				# to add 256mb, use size=+524288
+				# 256 * 1024*1024 / 512   = 524288 blocks
+				# ie, use size val of [ X MB * 2048 (constant) ]
+chfs -a size=+1 /tmp		# /dev/hd2 can be substituted by the fs mount pt.
+smitty chfs			# will see SIZE for more accurate resizing.
+				# count is # of 512 bytes block, 
+				# value is absolute num only.
+				# Can also strink fs while mounted (at least tested in 5.3)
+
+lslv hd1			# info of LV hd1 (find from mount 
+				# what fs it belongs to).
+
+cplv				# copy LV	
+chlv				# change LV, 
+				# cplv + chlv = move Log Vol b/w Vol Grp.
+
+lspv				# list PVID (physical volume id) and vg on disk 
+lspv -l hdisk0			# list what fs are on a given disk
+				# good to check to ensure fs does not span more
+				# than one disk unecessarily, to reduce disk 
+				# crash damage.
+
+migratepv -l LVname oldPV newPV		# move a fs w/in same vol grp, but diff hd. eg
+migratepv -l paging00 hdisk1 hdisk2	# migrate pagin, can take a while!
+
+
+
+
+varyonvg  VGname	# vary on a vol grp, needed before VG is accessible,
+			# typically automatica with most commands now
+varyoffvg VGname	# vary off, ie, make vol grp offline.
+
+exportvg VGname			# disociate /etc/filesystems etc from the computer, 
+				# making the VG available for mount by another computer
+importvg -y VGname hdiskN	# reimport the VG.  Remember the vary cmd.
+
+lqueryvg -p hdisk0 -v   	# Determine the VG ID# on hdisk0 
+lqueryvg -p hdisk0 -L   	# Show all the LV ID#/names in the VG on hdisk0
+lqueryvg -p hdisk0 -P   	# Show all the PV ID# that reside in the VG on hdisk0
+
+getlvodm -u rootvg      	# Determine if ODM and VGDA data are correct (in sync)
+
+
+
+
+chvg -u rootvg		# unlick rootvg (maybe locked during crash, ODM problems)
+getlvodm/putlvodm	# disk ODM repair related.
+
+smitty mklvcopy		# smitty fastPath for making mirrors
+			# work on each logical volume, eg hd1
+			# Lot of menu options then, but don't like it much, 
+			# not obvious how to make 2 disk mirror identically.
+			# maybe one don't have to, as it will be mapped blocks anyway
+			# not like solaris that match cylinder allocation, but solaris maybe more resilient
+			# aix wants to find where to place vol (center of disk, etc).
+			# Maybe multiple copies of a logical vol inside same volume group (and potnetially 
+			# same disk!  
+			# aix book p 210
+
+mirrorvg rootvg		# mirror whole volume group, simple one command does it.
+			# aix book p 202
+
+istat /opt		# show inode status
+
+ipl_varyon -i    	# Determine which disk(PV) is the boot drive
+
+</PRE>
+<BR>
+Other ref: <A HREF="http://www.ahinc.com/aix/logicalvol.htm">Advanced Horizons AIX File Info</A>
+<BR><BR>
+
+
+<A ID="swap"></A>
+<H2>swap / paging </H2>
+
+<PRE>
+
+/etc/swpaspaces			# config file
+swapon -a			# activate all swap spaces
+swapon  /dev/paging00		# activate additional device
+swapoff	/dev/paging00		# deactivate
+
+chps -s16 hd6			# change attrib of paging space
+				# add 16 PP to existing paging space in /dev/hd6
+				# PP size determined by lslv hd6", eg 256, 512 MB
+chps -d8 hd6			# remove 8 PP to existing paging space in LV hd6
+mkps -s16 rootvg -a -n		# add new paging space worth 16 PP to 
+				# vg called rootvg, 
+				# -a = activate at once, 
+				# -n = active on reboot.
+mkps -s32 datavg hdisk1		# add new paging space on diff vg, specifying 
+				# which disk to put it on.
+rmps paginig00			# remove the whole paging space from sys
+lsps -a				# list paging space stat
+shrinkps			# 5L, shrink paging space (script)
+				# not sure why need this??
+
+svmon				# view current vm usage.  Need perfagent.tools
+</PRE>
+
+<A NAME="connectivity"></A>
+<H1>Connectivity (Network)</H1>
+
+
+<H2>Serial/Console Port</H2>
+
+DB9 connector wiring is slightly different than Sun.  Use a real null modem cable.
+"Psseudo" cable from sun DB9-RJ45 adaptors and ribbon cable don't work.  One will see text and be able to type text, but it won't accept the login, even when password is right.
+can't loging!!
+Terminal is VT100, none of the flow control stuff, but that probably don't matter.
+Also, for running system, when NULL modem is connected to serial, it should automatically display new text and prompt for login.  ribbon cable probably don't work at all here.
+<BR>
+
+P4 and older machines use standard <STRONG>9600</STRONG> for serial port.
+But new POWER5 machines, they changed serial port to use <STRONG>19200!!</STRONG> All other settings are same as before.
+
+<H2>Dumb Terminal</H2>
+The <TT>tip</TT> command exist on AIX, but it is slightly different than Solaris.  
+
+<PRE class="cf">
+# aix tip host spec, typically placed in /etc/remote-file
+# with a /etc/remote file defining its location
+# alternatively, env var REMOTE can define location of this remote-file
+#
+# aix tip escape sequence is same as solaris. 
+# ~?  produces full list. 
+# ~^D terminate the connection.
+#
+# tty0 is the system console, like Solaris Serial A, not usually usable as dumb terminal emulator
+# tty1 is the serial port labeled T2, the equi of serial B in Solaris.
+#
+# IBM AIX serial connection is slightly diff than Sun, req NULL modem cable.
+# This emulated TIP does not fully act as dumb terminal :(
+# Depending on the state of the machine, and whether tip session is established first, 
+# or the cable is connected first, text may or may not be visible :(
+# So, tip in aix can probably only work as dumb terminal for sun and hp machines,
+# and the most reliable console is still a dumb terminal.
+#
+# eg usage, runnable as normal user:
+# export REMOTE=$HOME/etc/remote-file
+# tip dumb19200
+# tip -9600 serial1
+#
+#
+dumb9600|direct connect at 9600 bps,br#9600:dv=/dev/tty1
+dumb19200|direct connect at 19200 bps,br#19200:dv=/dev/tty1
+serial0|dumbterminal:dv=/dev/tty0
+serial1|tty1|dumbterminal:dv=/dev/tty1
+tty|dumbterminal:br#19200:dv=/dev/tty 
+#
+# The serial ports ttyp0...ttyp9,ttypa...ttypf do not usually exist
+#
+ttyp0|dumbterminal:br#19200:dv=/dev/ttyp0
+ttyp1|dumbterminal:br#19200:dv=/dev/ttyp1
+ttyp2|dumbterminal:br#19200:dv=/dev/ttyp2
+ttyp3|dumbterminal:br#19200:dv=/dev/ttyp3
+ttyp9|dumbterminal:br#19200:dv=/dev/ttyp9
+ttypa|dumbterminal:br#19200:dv=/dev/ttypa
+ttypb|dumbterminal:br#19200:dv=/dev/ttypb
+ttypc|dumbterminal:br#19200:dv=/dev/ttypc
+ttypf|dumbterminal:br#19200:dv=/dev/ttypf
+
+</PRE>
+
+<TT>cu</TT> Connect Unix. <BR>
+Opening a serial line may need some file config, cli below get error :( <BR>
+I guess need to get minicom/telix or some other similar program from the Linux
+world.
+<BR>
+
+<PRE>
+cu -s9600 -l/dev/ttyp1
+	-s speed
+	-l device line
+	cu commands:
+		~%b     send a break
+		~%!     give shell
+		~.	end session, logout user.
+</PRE>
+
+
+<H2>NIC</H2>
+<PRE>
+
+ifconfig
+netstat -i
+
+lsdev | grep -i ether	# see Ethernet devices and drirver.
+			# entX = h/w card.
+			# enX  = ethernet (DIX II framing) for IP 
+			# etX  = ethernet (IEEE 802.3) for SNA, don't bother :)
+
+lsattr -R  -l ent0 -a media_speed	# show capabilities of ent0
+lsattr -EH -l ent0 -a media_speed	# show current settings
+lsattr -D  -l ent0			# show all def val for Eth dev.
+
+chdev -P -l ent0 -a media_speed=100_Full_Duplex	  # change to forced full 100
+chdev -P -l ent0 -a media_speed=Auto_Negotiation  # change to auto negotiate for speed duplex
+						  # effective after reboot !!!
+
+
+smitty mktcpip		# configure/change ip of interface, default route, netmask
+			# permanently set ip option for interface 
+			# smitty just run mktcpip cmd:
+/usr/sbin/mktcpip 
+        -h'HOSTNAME' 
+        -a'HOST.IP'
+        -m'HOST.IP.NETMASK'
+        -i'NIC'                 # eg en0, "standard network interface"
+        -n'DNS.SERVER.IP'       # may want to add more to /etc/resolv.conf
+        -d'DNS.DOMAIN.NAME'     # eg titaniumleg.com
+        -g'DEF.GATEWAY.IP'
+        -A'no'                  # Start now?  no or yes  # just omit it.
+eg:
+mktcpip -h'aix01' -a'10.215.11.101' -m'255.255.255.0' -i'en0' -n'10.215.2.1' -d'titaniumleg.com' -g'10.215.11.1' 
+
+</PRE>
+
+<A NAME="network_services"></A>
+<H2>Network Services</H2>
+
+<PRE>
+lssrc    -a		# list all services and their status
+startsrc		# start network service
+stopsrc			# stop  network service
+	 -g 		# group
+	 -s 		# subsystem, g or s is largely how AIX define the service.
+	 -a			# 
+	 -D			# Debug
+
+startsrc -g nis			# start NIS service group
+startsrc -s rcp.mountd	# rpc/mount service
+startsrc -s xntpd 		# start ntp daemon 
+						# init script starts it from /etc/rc.tcpip
+
+startsrc -s sendmail -a -bd	# start mail server to allow inbound mail.
+				# essentially, do sendmail -bd, makes it a 
+				# daemon listening on port 25 for mail services.
+			
+startsrc -s iptrace -a  "/tmp/iptrc.bin"	# start ip tracing facility, 
+						# -a = stor in file (binary).
+stopsrc  -s iptrace				# stop tracing after problem is reproduced.
+
+</PRE>
+
+<H2>DNS</H2>
+
+<PRE>
+/etc/resolv.conf	# main config file, like other Unix.
+
+	accept up to 3 name servers
+	change server after TimeOut (def of 5 sec), retry (def = 3),
+	so 5+10+20+40=75 sec.
+eg:
+	domain 	   hybridauto.com
+	nameserver 10.210.2.11
+	nameserver 10.210.2.12
+	nameserver 165.87.201.244
+	search     hybridauto.com
+	search     titaniumleg.com
+	search     titaniumlegcorp.com
+
+namerslv -s 	# run cmd to see settings are understood by system.
+
+DNS resolution depends on file /etc/netsvc.conf
+hosts=local,nis,bind
+and env var NSORDER=local,bind
+AIX 4.3 accepts bind4 and bind8 
+</PRE>
+
+<H2>NIS</H2>
+<A NAME="nis"></A>
+<A NAME="snoopy"></A>
+
+<PRE>
+
+chypdom -B titaniumleg.com	# set the NIS domain for the machine
+				# it proabably edit /etc/rc.nfs to run cmd domainname
+domainname			# show the NIS domain
+smitty yp			# general YP NIS config
+smitty mkclient			# configure machine as NIS client
+rmyp -c				# remove yp client config
+lssrc -s ypbind			# display active vs inoperative NIS
+stopsrc -s ypbind		# nis client process 
+startsrc -s ypbind
+# /etc/rc.nfs is where the ypbind is set to use specific server (if not broadbcast)
+
+startsrc -g nis			# start nis server daemon
+stopsrc  -g nis
+
+
+CD
+AIX does not have a /etc/nsswitch.conf, instead use /etc/netsvc.conf
+and /etc/irs.conf (Information Retrieval System, bind 8 code base, used in FreeBSD also).
+
+Also, changes to irs.conf doesn't seems to be effective till next reboot. 
+At least that seems to be the case with automount entry, 
+restarting autofs a/o secldapclntd didn't refresh it.
+
+May want to try these commands in /usr/sbin
+flush-secldapclntd
+restart-secldapclntd
+stop-secldapclntd
+start-secldapclntd
+ls-secldapclntd
+
+</PRE>
+
+
+eg of irs.conf
+
+<A ID="tax"></A>
+<DIV class="cf">
+<BR> &nbsp;
+<A HREF="HTTP://www.snoopy.com"><IMG SRC="fig/snoopy_tax.jpg"></A>
+&nbsp;
+<BR>
+<BR>
+</DIV>
+<BR>
+Okay, here a real sample of /etc/irs.conf from an AIX 5.3 machine:
+
+<PRE class="cf">
+hosts dns continue
+hosts nss_ldap continue
+hosts nis continue
+hosts local
+services nss_ldap continue
+services nis continue
+services local
+networks dns continue
+networks nss_ldap continue
+networks nis continue
+networks local
+netgroup nss_ldap continue
+netgroup nis continue
+netgroup local
+protocols nss_ldap continue
+protocols nis continue
+protocols local
+###
+### http://publib.boulder.ibm.com/infocenter/pseries/v5r3/index.jsp?topic=/com.ibm.aix.doc/cmds/aixcmds1/autom
+ount.htm
+###
+automount nis_ldap
+##automount  nis 
+##automount  files
+##automount nis_ldap nis files
+
+
+</PRE>
+
+<BR><BR>
+
+eg of /etc/netsvc.conf
+
+<PRE class="cf">
+
+# bind        Uses BIND/DNS services for resolving names 
+# local       Searches the local /etc/hosts file for resolving names 
+# nis         Uses NIS services for resolving names. NIS must be running if you specify this option 
+# nis+        Uses NIS plus services for resolving names. NIS plus must be running if you specify this option
+# ldap        Uses LDAP services for resolving names 
+# ldap_nis    Uses LDAP NIS services for resolving names
+# bind4       Uses BIND/DNS services for resolving only IPv4 addresses 
+# bind6       Uses BIND/DNS services for resolving only IPv6 addresses 
+# local4      Searches the local /etc/hosts file for resolving only IPv4 addresses 
+# local6      Searches the local /etc/hosts file for resolving only IPv6 addresses 
+# nis4        Uses NIS services for resolving only IPv4 addresses 
+# nis6        Uses NIS services for resolving only IPv6 addresses 
+# nis+4       Uses NIS plus services for resolving only IPv4 addresses 
+# nis+6       Uses NIS plus services for resolving only IPv6 addresses 
+# ldap4       Uses LDAP services for resolving only IPv4 addresses
+# ldap6       Uses LDAP services for resolving only IPv6 addresses 
+# ldap_nis4   Uses NIS LDAP services for resolving only IPv4 addresses
+
+hosts = nis_ldap, nis, bind, local
+
+</PRE>
+
+
+
+</PRE>
+<A NAME="nfs"></A>
+<H2>NFS</H2>
+
+
+<PRE>
+
+nfso -a			# show all nfs options and current value
+nfso -o varname[=val]	# display/set nfs option.
+nfso -o nfs_use_reserved_ports=1
+# AIX default does not use port <1024, which result in auth error.
+# http://www.faqs.org/faqs/aix-faq/part3/
+# only needed for /net with certain solaris version?
+
+
+Manual NFS mount can be added to /etc/filesystems ::
+
+/nethome:
+        dev             = "/vol/vol1/users"
+        vfs             = nfs
+        nodename        = netapp
+        mount           = true
+        options         = rw,fg,soft,intr,nosuid
+        account         = false
+
+/Import:
+        dev             = "/vol/vol1/depot"
+        vfs             = nfs
+        nodename        = netapp
+        mount           = false 
+        options         = ro,fg,hard,intr,nosuid
+        account         = false
+
+
+mount -o vers=2,proto=tcp,wsize=8192,rsize=8192,llock,soft,intr netapp:/vol/vol1/users  /nethome
+mount -o vers=2,proto=tcp,wsize=8192,rsize=32768,llock,soft,intr desktop:/mnt/cdrom     /mnt/rcdrom
+mount -o ro -v cdrfs /dev/cd0 /cdrom
+
+
+			
+startsrc -g autofs	# start autofs service group.
+stopsrc  -g autofs 	# stop autofs service group.
+			# autofs group has only 1 subsystem, so -s or -g is same
+startsrc -s automountd	# start automount service, more reliable than -g autofs !!
+
+automount is started in the /etc/rc.nfs script.
+An alternative is to use the Sun style script (aix supports them, but nothing added 
+by default), eg in /etc/rc.d/rc2.d/S74autofs, have something like:
+</PRE>
+<BR>
+<TT>/usr/sbin/automount -M /home /-</TT>
+<PRE>
+# monitor /home (for user),  
+# /- will give the /net/HOST access like sol (and other direct mount)
+# aix 5.1 no longer support the -M param
+</PRE>
+
+aix 5.1L ML 3, automount started in /etc/rc.nfs as:  <BR><BR>
+
+<TT>/usr/sbin/automount -f /etc/auto_master -D ARCH=SC_AIX</TT>
+<PRE> 
+# auto_master had only "+auto_master"
+# remember that /home may be a mounted fs, so may wan to use /nethome.
+# /net will work okay without -M /- .
+# automount will call the automountd process, massage the mount points, and exit.
+# do NOT start automountd on the CLI manually, it will not interface with mount correctly.
+</PRE>
+
+<PRE>
+/etc/exports	# export files, similar to HP-UX, Linux
+		eg content of the file:
+		/usr -ro,root=admin-desktop"
+
+exportfs -a		# export everything
+exportfs -v		# display active exports
+exportfs -i /tmp	# manually /tmp w/o entry in exportfs
+
+startrc -g nfs		# start mountd, etc
+
+lsauthent		# list authenticaltion methods
+mknfs -B		# start nfs service now and at boot?
+
+
+
+</PRE>
+
+<A ID="print"></A>
+<A ID="printing"></A>
+<H2>Printing</H2>
+
+Use smit to add printer, prints to windows print server easily
+(provided the windows print server has Unix printing services setup):
+<BR>
+<PRE>
+smitty, Print Spooling, (AIX Print Spooling, choose it if it pops up), 
+Add a Print Queueus, type is remot, std processing :
+Name of Queue to add                   --> Use printer name maching remote queue name (ie win prt name)
+Hostname of remote server              --> Windows print server name
+Name of queue on remote server         --> Windows printer name.
+Type of print spooler on remote server --> System V
+
+CLI:
+/usr/lib/lpd/pio/etc/piomisc_ext mkpq_remote_ext  -q 'QueueName' -h 'Hostname' -r 'RemoteQueueName' -t 'att' -C 'FALSE' -d 'description'
+
+</PRE>
+<!--
+eg:
+/usr/lib/lpd/pio/etc/piomisc_ext mkpq_remote_ext  -q '1-3-Wolf' -h 'sc-printserv1' -r '1-3-Wolf' -t 'att' -C 'FALSE' -d 'sc-printserv1 1-3-Wolf'
+-->
+
+
+To see what printers are installed, use:
+
+<PRE>
+/usr/bin/lsallq 		# brief listing of printer name only
+/usr/lib/lpd/pio/etc/piolsvp -p	# listing with queue server and description
+/bin/lpstat 			# query windows print server on printer status, but names are truncated
+</PRE>
+
+
+<BR>
+
+<A NAME="sys_config"></A>
+<H1>Sys Config</H1>
+<H2>General SA Commands</H2>
+
+<PRE>
+oslevel -rq		# list all known and recommended ML
+oslevel -r		# which ML (maint level) machine is at.
+oslevel -l 4.3.3.0	# list fileset missing to bring machine to specified level.
+oslevel -l 5200-02 -r	# aix 5L is weired wrt oslevel -l
+oslevel -s		# service pack, in addition to ML, not avail on all sys.
+			# ( -s is new flag starting ca 2006, aix 5.3 ML 3? not in base 5.3)
+
+uname -a		# ver info, also with val of  -m at the  end
+uname -m		# some sort of machine code, includes serial number of the machine:
+			# 000F2C9A4C00  embeds serial 00F2C9A4 (jc)
+			# 000750AC4C00  embeds serial 10-750AC (vs -u opt)
+uname -u		# serial number (of management frame).
+			# IBM,0110750AC embeds serial 10-750ac (targa, 4.3 )
+uname -L		# first number = the LPAR partition number 
+			# OS is running inside of.
+
+errpt 			# generate ERRor rePorT.  This is more detailed than syslog.
+errpt -a		#  all entries, detailed view.  Default is brief listing only.
+errpt -A		#  Abreviated detailed view.
+      -D		#  Collapse duplicate entries.
+
+
+watch cmd -o logfile	# similar to truss cmd, but can't watch existing pid
+truss			# exist for 5.x, in /bin 
+
+topas			# top/monitor clone
+vmstat
+sar
+istat
+slibclean
+svmon
+
+
+
+----
+NIM	Network Install Manager
+	- Network installation of aix, equiv of solaris jumpstart
+	- r-cmd to control remote machine
+
+</PRE>
+
+<A ID="cf">
+<H2>Config Files</H2></A>
+
+<PRE>
+/etc/passwd
+/etc/security/passwd            # similar to shadow file
+/etc/security/login             # dictate shells that are valid shell for various process.
+                                # if user shell not listed here, ftp will fail.
+/etc/ftpaccess                  # set ftp access priviledges, allow/deny access, etc.
+/etc/nologin                    # tmp disable login, presence of file set this behaviour
+/etc/filesystems                # instead of /etc/fstab
+
+</PRE>
+
+
+<PRE class="code">
+
+
+# /etc/syslog.conf
+
+# can start syslog simply as: /usr/sbin/syslogd
+# kill -HUP reload config file, adding note to error level (it whines).
+#
+# ensure the two columns are separated by TAB, not spaces
+# or syslogd will fail to log silently!!  
+# AIX 5.x works okay with spaces now.
+
+# IBM don't seems to have any standard, there are no default settings.
+
+#  *.info       /var/adm/syslog_info.log
+*.notice        /var/adm/syslog_notice.log      rotate size 100k files 4
+#  *.warning    /var/adm/syslog_warning.log
+#  *.err        /var/adm/syslog_err.log
+*.crit          /var/adm/syslog_crit.log
+
+#  create files as follows:
+#  touch /var/adm/syslog_info.log       /var/adm/syslog_crit.log
+#  touch /var/adm/syslog_notice.log
+#  touch /var/adm/syslog_warning.log    /var/adm/syslog_err.log
+#  really just need crit and notice
+#  warning and notice are same, both just marginally smaller than info.
+
+</PRE>
+
+<BR><BR>
+<BR><BR>
+
+<PRE class="code">
+
+
+# /etc/filesystems
+
+/:
+        dev       = /dev/hd4
+        vol       = "root"
+        mount     = automatic
+        check     = false
+        free      = true
+        vfs       = jfs2
+        log       = /dev/hd8
+        type      = bootfs
+
+/home-old:
+        dev       = /dev/hd1
+        vol       = "/home"
+        mount     = true
+        check     = true
+        free      = false
+        vfs       = jfs2
+        log       = /dev/hd8
+
+/usr:
+        dev             = /dev/hd2
+        vfs             = jfs2
+        log             = /dev/hd8
+        mount           = automatic
+        check           = false
+        type            = bootfs
+        vol             = /usr
+        free            = false
+
+/var:
+        dev             = /dev/hd9var
+        vfs             = jfs2
+        log             = /dev/hd8
+        mount           = automatic
+        check           = false
+        type            = bootfs
+        vol             = /var
+        free            = false
+
+/tmp:
+        dev             = /dev/hd3
+        vfs             = jfs2
+        log             = /dev/hd8
+        mount           = automatic
+        check           = false
+        vol             = /tmp
+        free            = false
+
+/proc:
+        dev       = /proc
+        vol       = "/proc"
+        mount     = true
+        check     = false
+        free      = false
+        vfs       = procfs
+
+/opt:
+        dev       = /dev/hd10opt
+        vol       = "/opt"
+        mount     = true
+        check     = true
+        free      = false
+        vfs       = jfs2
+        log       = /dev/hd8
+
+/lhome:
+        dev             = /dev/vol1
+        vfs             = jfs2
+        log             = /dev/loglv00
+        mount           = true
+        options         = rw
+        account         = false
+
+/home_na:
+        dev             = "/vol/vol1/users"
+        vfs             = nfs
+        nodename        = na_data
+        mount           = true
+        options         = rw,fg,hard,intr,nosuid
+        account         = false
+
+/mnt/import:
+        dev             = "/vol/vol1/depot"
+        vfs             = nfs
+        nodename        = na_data
+        mount           = true
+        options         = rw,fg,hard,intr,nosuid
+        account         = false
+
+/mnt/cdrom:
+        dev             = "/dev/cd0"
+        vfs             = cdrfs
+        mount           = false
+        check           = false
+        options         = ro
+        vol             = "/mnt/cdrom"
+        free            = false
+
+
+</PRE>
+
+
+<H2>Hardware commands</H2>
+lspci <BR>
+lsattr<BR>
+<BR>
+Hot swap PCI cards, or hot remove.
+Essentailly, issue command to identify, then power off a given pci slot,
+then reactivate it again.
+<BR>
+smit, devices, pci hot plug manager 
+<PRE>
+
+shutdown 	-F		# shutdown right away, no delay time
+		-r		# reboot
+		-m 		# maintenance mode
+shutdown -r +5 "msg to users"	# +5 = 5 minutes later.
+
+lsattr			# list attributes
+	-D		# display def val
+	-R		# display range of legal values
+	-E 		# display Effective vall (current settings)
+	-l name		# specify dev logical name
+	-a attr 	# specify attribute of NAME logical dev
+
+lsattr -El sys0			# show lot of hardware info, include mem
+lsattr -El sys0 -a realmem	# get specifically the memory attribute, in KB.
+
+lsdev  -Cc processor		# see number of processor on machine (may not be numbered in sequence)
+lsattr -El proc0		# find processor speed			
+
+pmcycles -m 			# list total number of CPU.  installed in /bin by bos.pmapi.
+				# AIX 5.2 and above, CD #1.
+
+</PRE>
+
+A note about IBM processors. <BR>
+POWER4 and POWER5 processor are typically packed in a processor card
+as a Dual Chip Module (DCM).  The processor card has a single physical "CPU"  
+in the traditional sense of touchable chip, but internally it has
+two cores and is marketed as a 2-way processor. <BR>
+The CPU listed by the output of <TT>pmcycles -m</TT> is similar to the Intel Hyperthreadig tech
+whereby a processor can run more than one thread at a time, it is not a physicall
+processor per se, but available to the programmer. <BR>
+Thus, a fully populated 4-way processor P5-550 would have 2 DCM processor card (two 2-way processor cards),
+<TT>lsdev -Cc processor</TT> will show 4 processors, and <TT>pmcycles -m</TT> will show 8 CPU.
+<BR>
+REF: IBM redbook-p5-550.pdf
+
+<PRE>
+
+
+lscfg			# list config
+			# ses are internal scsi disks
+			# scsi includes int and ext disks
+			# procX are CPUs
+			# fca = Fiber Channel HBA
+lscfg -vp		# lot more detailed info, eg: use to search for fca
+lscfg | grep disk	# see number and size of HD
+
+
+lsslot -c pci -a	# list pci slot info
+
+lsdev			# list devices
+
+
+
+cfgmgr			# rescan bus and install driver for new devices
+			# eg when new device made available over SAN
+	-S 		# scan serially (instead of parallel)
+	-v 		# verbose, print more status info
+			# Note that emc come with its wrapper script to do the work.
+
+bootinfo -y		# 32 v 64-bit enabled	
+			# NOTE: bootinfo is runnable by root only.
+	 -K		# current kernel mode
+			# show kernel native bits, 
+			# NOTE: 32-bit can run 64 bit app anyway.
+ 	 -r		# real memory in system in KB
+	 -s hdisk0	# disk size in MB 
+bootinfo -b		# last boot dev
+bootinfo -m 		# machine model code
+	 -p		# hw platform (type of bus, etc)
+ 	 -r		# show real memory in sys, in Kb
+
+----
+
+LPAR sysmtem
+From HMC (hardware manager console), cmds in /opt/hsc/bin
+
+query_cecs		# list all online managed sys
+get_cec_state -m <MgntSys>	# find curret state of sys
+
+get_op_panel -m <MgntSys>	# get operator panel lcd code 
+
+get_cec_mtms -m <MgntSys>	# frame type and serial number, buggy.
+
+</PRE>
+<BR>
+<H1>Package/Software Management</H1>
+
+<PRE>
+
+lslpp -h bos.rte		# show fileset history (from package mgnt?)
+lslpp -L bos.rte		# snapshot of main levele and statet of fileset
+lslpp -f bos.rte		# see what files are installed by a given fileset.
+lslpp -l bos.net.nfs.client	# show fileset revision level
+lppchk -v			# chk see if any lpp product are broken, obsolete, missing
+
+lslpp -l | grep vacpp		# show all fileset info about the ibm compiler
+
+installp flags	
+	a	apply update (def action)
+ 	c	commit
+	g	recursively install prereq
+	X	eXpand (local) FS is more space is needed.
+	d file	specify the location of the media file ( . for current dir).
+	p	preview only, nothing will actually be done.
+
+eg:
+
+installp -qa -d . -X all	# apply updates
+installp -rB -X all		# reject updates
+installp -c -g -X all		# commit updates
+smitty install_commit		# same as above.
+installp -qac -N all -d .	# install w/ commit on, no backup, no simple roll back.
+installp -u [filesetname]	# uninstall comitted lpp product 
+
+installp -iq -d /dev/cd0 all	# display supplemental info abouut ML patch in cd
+installp -qA -d /dev/cd0 all	# display APAR info
+
+</PRE>
+
+<A ID="i4"></A>
+<H4>IBM Software iFOR licensing commands</H4>
+
+<PRE>
+i4cfg -list		# list license services status
+
+i4blt			# license management for visual age.  no param = help
+ 	-r 6		# print report type 6.  see help for more types.
+	-lp 		# list licenses 
+	-lp -i		# list licenses with extra info, such as time stamp
+	-s 		# prod license status
+	-a 		# add/enroll a produt
+
+	-d 		# delete license
+	-v		# opt vendor  info (for some custom lic, used by VA C++
+	-p 		# opt product info
+	-U		# update license
+	-T		# specify number of user, cn license only
+
+eg
+14blt -a -f /usr/vac/c44aix_cn.lic -T 10 -R "registration_comment_avoid_space"
+	# enroll a license.  -T 10 inidcates number of licenses.
+
+i4blt -U -v "'IBM Software Solutions Toronto'" -p "'VisualAge C++ Professional' 6.0.n" -T 100
+	# Update license to allow 100 users.  Only for _cn license type.
+	# Be very careful about quotes!  Name with spaces need additional 
+	# single quotes around them!!!  Awful syntax and very cryptic error messge!!
+	
+i4blt -d -n server_name -v "'vendor name with space'" -p "'product name' product_version" -t timestamp
+i4blt -d -v "'IBM Software Solutions Toronto'" -p "'VisualAge C++ Professional' 6.0.n" -t 1022291809
+i4blt -d -v "'IBM Software Solutions Toronto'" -p "'C for AIX' 6.0.n" -t 1022291952
+ 	# delete a license.
+    	# -t is timestapm retrieved from output of i4blt -lp -i
+		
+
+License files are located in 
+/usr/vac/*.lic 
+/usr/vacpp/*.lic
+
+The files type are:
+C            C++	  license file names
+cforaix_cn   vacpp_cn	= concurrent nodelock LUM license  
+       _c         _c  	= concurrent network
+       _n         _n  	= simple nodelock      
+
+The First line of file is actually command for license enrollment.
+
+</PRE>
+
+Visual Age compiler license file installation requires the package bos.adt.libm
+For 5.1L, it is in CD 4/6.  However, its install need to kick started 
+from CD 1, by requesting the install of all all componets of bos.adt,
+which is not installed by default.
+
+<BR><BR>
+
+
+<A NAME="applying_ml"></A>
+<H2>Applying ML</H2>
+
+<PRE>
+http://techsupport.services.ibm.com/server/mlfixes/43/
+http://techsupport.services.ibm.com/server/mlfixes/43/11/00to11.html
+
+get aix ML (Maintenance Level patch) and instructions on installing it.
+
+
+inutoc ./usr/sys/inst.images/ 
+installp -acgXd ./usr/sys/inst.images bos.rte.install 
+smit update_all 				# 
+
+cd /home_sc/sa/share/aix43.ml/433.noLevel_to_11
+inutoc .					# this creates the .toc file
+installp -acgXd . bos.rte.install		# install the basic os patch ?
+smit update_all					# add the other patches
+oslevel -r # + reboot
+
+If getting APAR fixes with a series of .bff files, use 
+(touch .toc, chmod 777 .toc)
+inutoc . 
+and then smitty update_all on the dir to install all the patches.
+
+java 1.4 download, they came in .tar.gz format.
+strangely, it seems that I have to use tar xf from aix to correctly extract the archive.  
+it become a backup/restore file which "smitty installp" as "Install Software" 
+with path to the file as dir location will work.
+May actually need to specify the full name of the installp image filename in the path.
+tar off from solaris doesn't seems to work!!
+
+
+</PRE>
+
+
+
+
+
+
+<H2>Software Patches</H2>
+aka Program Temporary Fix
+<PRE>
+instfix -i			# show applied APAR fix
+instfix -i | grep AIX_ML	# fix done by ML patch
+instfix -i -k IY78933		# see if a given IY APAR fix had been applied.
+instfix -ivq | grep xlC.aix5.*rte | sort -u	# list installed xlC runtime environment 
+
+
+/usr/lib/instl/sm_inst instfix_cmd   -d '/lhome/root/vacpp7_rte8' -f 'IY78993' -c -N -X
+	# install the specific IY78933 from the RunTimeEnv v8 for "xlC v7"
+	# this can be done over NFS dir, provided .toc is created correctly
+	# and stored on this NFS source.
+	# The downloaded PTF file vacpp.70.aix.nov2005.ptf.tar.Z need to be extracted
+	# which produce a series of .bff files in  backup/restore format.
+
+/usr/lib/instl/sm_inst installp_cmd -a -Q -c -N -g -X -G \
+ -d '/nfshome/sa/share/aixX.smit/aix_vacpp_rte7_nov2005/extract' -f _all_latest
+		# install the whole RunTimeEnv v8 for "xlC v7"
+
+/usr/lib/instl/sm_inst installp_cmd -a -c -N -g -X \
+ -d '/nfshome/sa/share/aixX.smit/aix_vacpp_rte7_nov2005/extract' -f _update_all
+ 		# apply relevant updates from RunTimeEnv v8 for "xlC v7"
+		# it will not display failure msg when optional debugger
+		# components are not installed.
+
+
+
+</PRE>
+
+<H5>Example: Installing and Patching IBM Visual Age c++</H5>
+<PRE>
+
+copy cdrom image 
+run smit
+
+use dir of
+cdrom/usr/sys/inst.images
+eg /nethome/sa/software/VisualAge_5.0.2_cd/usr/sys/inst.images
+   /nethome/sa/software/VisualAge_5.0.2_cd/usr/sys/mvCD
+
+NOTE: use inst.images first, then mvCD.
+
+mvCD may have complain of wrong path, but it generally list more stuff and install more programs, even when some may fail.
+mvCD may be listing all software in the whole CD set, not just a given CD.
+mvCD would fail if content is network path and no CD media change is possible.
+actually, aix5l book suggest use of inst.images dir (build .toc before install if obtaining as tar is normal procedure.)
+
+
+use F7 or ESC,7 to toggle selection.
+can use keyword "all" to select all subpackages.
+but note that it will not currectly detect os level and then cause fialure notices.
+
+
+Applying patches :
+
+/nethome/sa/software/VisualAge_patch_to_5.0.2.7
+
+it is like installing normal software, but the tar didn't have a .toc file.
+thru smit, there was an entry to list software in media, run it so that it created a .toc file.  
+After that, install the patch as software (via smit update_all), which generate commands like:
+
+geninstall -I "a -cgNqwX -J" -Z  -d /nethome/sa/software/VisualAge_patch_March2003_runtimePTF -f File 2>&1
+
+File:
+    xlC.adt.include                6.0.0.0
+    xlC.aix50.rte                  6.0.0.0
+    xlC.aix50.rte                  6.0.0.5
+    xlC.msg.en_US.rte              6.0.0.0
+    xlC.rte                        6.0.0.0
+
+geninstall -I "a -cgNqwX -J" -Z  -d /nethome/sa/software/VisualAge_patch_March2003PTF -f File 2>&1
+
+</PRE>
+
+<H2>Adding international LOCALE</H2>
+
+<PRE>
+smitty lang (System Environments,Manage Language Environment),
+  go to "Add Additional Language Environments"
+  Then there are two possibilities:
+  - CULTURAL convention to install 
+    This add support for desired lang (already supported language can be 
+    found from "locale -a")
+  - LANGUAGE translation to install                         
+    This add system error message for many different software packages
+    installed on the machine.  Not typically needed for dev/test of intl lang
+    support.
+
+
+Instead of putting CD into machine CD-ROM drive, one can specify network shared CD-ROM 
+such as /net/tin-sun/cdrom, but it will NOT prompt to change  CD,
+and any language locale pack selected not avail on network path will simply not be queue for 
+install, so not even error message.  If the CD has nothing about the related
+language, it will display error.  Most International language locale start
+with CD #5.  
+
+----
+
+Can use Remove Lang Env to see list of installed lang translation locale.
+Sometime adding a language locale complain missing file set pre-req.  do:
+cd directy to the dir with the bos.loc.com file, and install it manually. 
+smitty installp on any of the CD doesn't show option to add this fileset! 
+
+cd /share/aix5.2/disk1/usr/sys/inst.images
+installp -acgXd . bos.loc.com
+
+lslpp -l | grep bos.loc.com                         
+  bos.loc.com.CN            5.2.0.30  COMMITTED  Common Locale Support -
+  bos.loc.com.utf           5.2.0.50  COMMITTED  Common Locale Support - UTF-8 
+  [...]
+
+May also need to put in CD #1 and use smitty installp, and add the necessary 
+bos.iconv set appropriate to the desired language.
+
+---
+
+other locale/intl related cmd:
+chlang es_ES		# change to use spanish from spain... update .profile, effective after re-login.
+			# but I don't see the effects...
+
+chkbd 
+lsfont 
+lskbd
+
+</PRE>
+Ref:
+
+<A HREF="http://publib.boulder.ibm.com/infocenter/pseries/v5r3/index.jsp?topic=/com.ibm.aix.doc/aixprggd/nlsgdrf/locale.htm">
+Understanding Locale</A> from AIX online ref. <BR>
+
+
+<A NAME="loose_ends"></A>
+<H1>Loose ends</H1>
+
+AIX dev env does not use LD_LIBRARY_PATH, but instead use LIBPATH
+
+<PRE>
+
+Places to get freeware for aix.
+http://silcon.silcon.com/~baspence/AIXtip/freeware.htm
+http://aixpdslib.seas.ucla.edu/   [recommended by esj]
+
+monitor		# top like tool for real time monitor 
+		# t = top processes
+
+		# a = toggle view mode
+		# ? = help
+
+portmon
+</PRE>
+
+<A ID="link"></A>
+<H2>Reference</H2>
+
+<ULL
+<LI><A HREF="http://www.rootvg.net/">rootvg.net</A> AIX portal, lot of sutff!
+<LI><A HREF=""></A>
+<LI>IBM Online documentation at 
+<A HREF="http://publib.boulder.ibm.com/infocenter/pseries/v5r3/index.jsp">
+http://publib.boulder.ibm.com/infocenter/pseries/</A>
+<LI>Service Guide for RS/6000 F80 (Ch 4 and 5 have 4 digits LED error code for boot time hardware/firmware problem).
+    <A HREF="http://publib16.boulder.ibm.com/pseries/en_US/infocenter/base/hardware_docs/pdf/380568.pdf">
+    http://publib16.boulder.ibm.com/pseries/en_US/infocenter/base/hardware_docs/pdf/380568.pdf</A>
+<LI>RS/6000 Diagnostic LEDs (BITS code, 3 digits used in older, small machines).
+    <A HREF="http://www.pimpworks.org/ibm/aixled.html">
+    BIST Error Code</A>
+<LI>
+<LI><A HREF="http://www-03.ibm.com/servers/aix/products/aixos/linux/download.html">AIX Toolbox for Linux</A>
+<LI><A HREF="http://www-912.ibm.com/eserver/support/fixes/fcgui.jsp">
+Download specific IBM fileset</A>  
+Specify OS version and "specific fixes", and it will bring a search page that allows retrieval of a specific version of a given fileset.  eg
+bos.net.nfs.client 5.3.0.50.  
+<LI><A HREF=""></A>
+<LI>
+</UL>
+
+<H2>AIX CD Catalog</H2>
+AIX does not have a "install everything" option.  
+So, one often has to dig thru CDs to find the right package to add a desired feature.
+<A HREF="aix_cd_catalog.html">This file</A> list what is in some of the CD.  The vary by releases, so pretty long list.
+But easier to search here than keep on swapping CDs :)
+
+
+
+
+
+<HR>
+<CENTER>
+  [Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/aix.html">http://www.cs.fiu.edu/~tho01/psg/aix.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#CreativeCommon>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos-ad.moon.gif"></A>
+<!--IMG SRC="banner/taos_banner1.moon.gif" width="728" height="98"-->
+</CENTER>
+
+<div align="right">
+  <font size="-4"> "ting" <BR>
+  "ting" </font> </div> 
+
+
+----
+
+Pending:
+
+/etc/filesystems sample cofig file.
+see aix/ subdir
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

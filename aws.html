@@ -1,0 +1,703 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+ 
+   
+<!--  xhtml format, hw6 (tables) had to use transitional instead of strict dtd.  -->    
+<!--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+the one below for strict html:
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+sttrict xhtml:
+
+-->
+
+
+
+<!--  
+CSS Class - UCSCX - 2012.07 - Final Project 
+Also making it as part of my PSG page remake.
+
+CSS validator: http://jigsaw.w3.org/css-validator/#validate_by_uri
+HTML validator: http://validator.w3.org/
+-->    
+    
+<head>
+	<title>Sys Admin Pocket Survival Guide - Amazon EC2</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="psg2.css"                type="text/css" media="screen">
+        <link rel="stylesheet" href="psg-table.css"           type="text/css">
+        <link rel="stylesheet" href="psg2-links-icons.css"    type="text/css">
+        <link rel="stylesheet" href="psg-positioning.css"     type="text/css">
+        <link rel="stylesheet" href="psg-print.css" type="text/css" media="print">
+</head>
+
+    
+<body>
+  <div id="fixie"> <!-- add a fixed position example for css final project.   potentially use to place ad, which will appear like a 3rd column on right -->
+          <div id="one"   class="skinny"><a href="plug/plug.html"><img src="plug/nema-5-20R-drawing.gif" alt="nema5pic" width="100" height="100"></a></div>
+          <div id="two"   class="skinny"><a href="fig/unixoid_hell.gif"><img src="fig/unixoid_hell.gif"  alt="vi-hell"   width="100" height="77" ></a></div>
+          <div id="three" class="skinny"><a href="fig/Assistant.gif"><img    src="fig/Assistant.gif"     alt="clippie"   width="100" height="77" ></a></div>
+          <div id="four"  class="skinny"><!-- empty for now --></div>
+  </div> <!-- closes #fixie -->
+
+    
+<div id="wrapper">
+  <div id="header">
+    <div id="title">Sys Admin Pocket Survival Guide</div>
+    <div id="sub-title">A Quick Reference Guide for Sys Admins with Alzeimer :)</div>
+  </div> <!-- closes header -->
+  
+  <div id="navigation">
+      <!-- the replace was not inside hightlight area, but whole page, finc and put back some strong and em in doc...-->
+   <!--  strong, em, h5, or div are not allowed to be nested inside ul !!  -->
+       <div class="azul">Unix</div>
+	<ul>
+        <li> <a href="sul>.html">Solaris</a></li>
+        <li> <a href="linux.html">Linux</a></li>
+        <li> <a href="hpux.html">HP-UX</a> and <br>
+                <a href="hpux.supl.html">supplement</a></li>
+        <li> <a href="aix.html">AIX</a> and <br>
+                <a href="aix_cd_catalog.html">AIX CD catalog</a><br></li>
+        <li> <a href="irix.html">Irix</a></li>
+        <li> <a href="dos.html">Windows</a></li>
+        <li> <a href="apple.html">Apple Mac</a></li>
+	</ul>
+
+        <div class="azul">Storage</div>
+	<ul>
+        <li> <a href="netapp.html">NetApp</a></li>
+        <li> <a href="emc.html">EMC SAN - Clariion</a></li>
+        <li> <a href="emcCelerra.html">EMC NAS - Celerra</a></li>
+        <li> <a href="isilon.html">Isilon</a></li>     
+        <li> <a href="fs.html">Unix File System</a></li>
+	</ul>
+
+        <div class="azul">Big Data</div>
+	<ul>
+        <li> <a href="lsf.html">SGE/UGE, PBS/Torque, LSF.</a></li>
+        <li> <a href="mpi.html">MPI, PVM</a></li>
+        <li> <a href="sci-file.html">Science File Format/Info</a></li>
+        <li><a href="sci-app.html">Sci-App</a></li>
+        <li> <a href="bigdata.html">Big Data engines</a></li>
+	</ul>
+            
+      
+        <div class="azul">Unix Dev</div>
+	<ul>
+  	<li><a href="development.html">compilers, etc</a></li>
+  	<li><a href="shellScript.txt">sh/bash, csh/tcsh</a></li>
+  	<li><a href="awk.txt">AWK</a></li>
+  	<li><a href="perl.html">Perl</a></li>
+  	<li><a href="python.html">Python</a></li>
+  	<li><a href="php.html">PHP</a></li>
+  	<li><a href="javascript_eg.html">javascript_eg</a></li>
+   	<li>gcc</li>
+  	<li><a href="gdb.html">gdb</a></li>
+   	<li>java</li>
+   	<li>rcs, cvs, p4, subversion</li>
+	<li><a href="vi.html">vi</a></li> 
+	</ul>
+
+        <div class="azul">Network</div>
+	<ul>
+        <li> <a href="ipmi.html">IPMI</a></li>
+        <li> <a href="ipv6.html">IPv6</a></li>
+        <li> <a href="net.html">Network</a></li>
+        <li> <a href="infiniband.html">InfiniBand</a><br></li>
+        <li> <a href="acopia.html">Acopia</a></li>
+	</ul>
+
+        <div class="azul">Other</div>
+	<ul>
+        <li> <a href="softenv+modules.html">SoftEnv, Environment Modules</a></li>
+        <li> <a href="puppet.html">Puppet</a></li>
+        <li> <a href="cfengine.html">CfEngine</a></li>
+        <li> <a href="factory_pw.html">factory password</a></li>
+        <li> <a href="ldap.html">LDAP</a><BR></li>
+        <li> <a href="admin.html">General Unix Sys Admin </a></li>
+        <li> <a href="toul>.html">Sys Admin tools and performance tuning</a></li>
+        <li> <a href="vnc.html">VNC, X Emulation</a></li>
+        <li> <a href="backup.html">Unix backup</a></li>
+        <li> <a href="general_unix.html">Generic Unix Commands</a></li>
+        <li> <a href="veritas.html">Veritas</a></li>
+        <li> <a href="legato.html">Legato Networker</a></li>
+        <li> <a href="mysql.html">MySQL</a></li>
+        <li> <a href="html.txt">HTML tags</a></li>
+        <li> <a href="wiki.html">WiKi tags</a></li>
+        <li> <a href="3rdParty">3rd Party and Vendor Docs Cache</a></li>
+	</ul>
+
+        <div class="azul">IMHO</div>
+	<ul>
+        <li> <a href="monitor.html">Network monitoring tool review</a></li>
+        <li> <a href="netArch.html">Network Architecture Approaches</a></li>
+        <li> <a href="docPlatform.html">Documentation platform</a></li>
+	</ul>
+
+        <div class="azul">Prod Review</div>
+	<ul>
+        <li><a href="termSvr.html">Terminal (Serial Console) Servers</a></li>
+        <li><a href="ent_prod.html">Enterprise Products</a></li>
+        <li><a href=""></a></li>
+        <li> &nbsp; </li>
+	</ul>
+            
+	<div class="azul">More</div>
+	<ul>
+	<li><a href="psg1.html">Full TOC</A></li>
+	</ul>
+
+  </div> <!-- closes #navigation -->
+
+
+  <!-- ########################################################## -->
+  <!-- ########################################################## -->
+  
+  <div id="content">
+
+      <p>
+
+
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/1737"><IMG SRC="fig/xkcd_datacenter_scale.png"></A>
+</div>
+
+
+<!--<H2><div class="azul">Amazon EC2</div></H2>-->
+<H1>Amazon Web Services</H1>
+
+Amazon Web Services.  The Cloud.  A real cloud. Not really just vapor anymore :)<p>
+<br>
+</p>
+
+
+<H3>Terminology</H3>
+
+
+<UL>
+<li>AWS - Amazon Web Services </li>
+<li>EC2 - Elastic Cloud Compute. ie. Virtual Machine </li>
+<li>ECS - EC2 Container Service. Run docker containers using EC2 instances</li>
+<li>EBS - Elastic Block Storage. ie. emulate hd for VM/EC2 instance. </li>
+<LI>EFS - Elastic File System.   ie. NFSv4  access to files </li>
+<li>S3  - Simple Storage Service.  Not virtualizaton of hard drive, but a web-centric way of storing files  </li>
+<li>Spot Instance - auction style VM, maybe terminated at any time when price exceed agreed price </li>
+<li> </li>
+</UL>
+
+<PRE>
+</PRE>
+<BR><BR>
+
+<H3>AWS Setup</H3>
+
+<PRE>
+aws configure			# initial config with user credential, prefered region, etc
+scp -pr .aws remotehost: 	# duplicate config to another admin client.  dir/file should not be world readable
+setenv | grep AWS_		# about 5 env var, include AWS_SECRET_ACCESS_KEY... feel less secure than having the .aws/ config dir above.
+
+</PRE>
+
+
+<PRE class="code">
+[default]
+output = text
+region = us-west-2
+
+# example .aws/config   equiv ENV should set them.
+</PRE>
+
+<PRE class="code">
+[default]
+aws_access_key_id = AKamaiIker53rdStAlph
+aws_secret_access_key = /LYSquieremuchoWanhWahnFAKE123xfake123Ti
+
+# example .aws/credentials   equiv ENV should set them, but INSECURE.
+# awscli v 1.2.9 (on ubuntu) can't recognize this separate file and content is stored in the same config file above.
+# the secret_access_key is very important and should be kept very private!!  (so don't put in env var!)
+# The AWS_ACCESS_KEY_ID can be obtained from Web Console.  but not the secret access key can only be retrieved when it was first generated.
+# Use IAM instead of the root account.  Each user can have 2 key_id/secrete at a time.  
+# one annoying thing is that they id cannot be named to help remember which computer have used the info for aws config
+# they can be copied and used in multiple computers.  but the .aws dir must be in some safe place!!
+# feel like the password protected ssh/pem files provides much better security, but cannot be used with the awscli :(
+#
+# env var name
+# AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY
+</PRE>
+
+
+<PRE>
+
+
+aws config --profile user2	# create additional profile (eg personal vs work)
+
+
+complete -C $(which aws_completer) aws		# allows for TAB completion of aws sub commands
+
+
+# install pip, can be done with windows cygwin's python
+wget https://bootstrap.pypa.io/get-pip.py 
+sudo python get-pip.py
+pip --help
+
+# install aws cli once pip is in place   (Anaconda on Windows comes with pip and can install this successfully)
+sudo pip install awscli
+
+
+sudo apt-get install awscli		# ubuntu, mint now have .deb for the python package
+
+
+</PRE>
+
+
+
+<H3>EC2 Commands</H3>
+
+<PRE>
+
+aws ec2 describe-regions --output=text
+aws ec2 describe-subnets --output=table
+
+aws --region us-east-1 ec2 describe-subnets --query 'Subnets[*].[SubnetId,CidrBlock,AvailabilityZone,Tags[?Key==`Name`] | [0].Value]' --filters "Name=vpc-id,Values=vpc-abcd1234" "Name=tag-value,Values=\*HPC\*"
+
+for region in $(aws ec2 describe-regions --query 'Regions[*].[RegionName]' --output text); do echo $region; aws ec2 import-key-pair --region $region --key-name tin6150 --public-key-material "$(cat $HOME/.ssh/id_rsa-aws.pub)" ; done
+
+aws ec2 authorize-security-group-ingress --group-id sg-903004f8 --protocol tcp --port 22 --cidr 203.0.113.0/ 24
+
+aws ec2 describe-security-groups 
+
+aws ec2 authorize-security-group-ingress --group-name MySecurityGroup --protocol tcp --port 22 --cidr 203.0.113.0/24	# allow port 22 inbound traffic
+
+aws ec2 create-tags --resources i-xxxxxxxx --tags Key=MyNAME,Value=MyInstance    # add a name tag to my instance
+
+
+
+aws ec2 describe-instances	# list all instances and their info
+aws ec2 describe-instances --instance-id i-30d27590 --output=table
+aws ec2 stop-instances     --instance-id i-30d27590
+aws ec2 start-instances    --instance-id i-30d27590
+
+
+</PRE>
+
+<H3>Finding instance info from within the VM</H3>
+<PRE>
+
+lspci		# like see something like
+		# 00:03.0 Unassigned class [ff80]: XenSource, Inc. Xen Platform Device (rev 01)
+
+
+
+ec2-metadata -i								# Return the instance id of the current VM (AWS Linux)
+ec2metadata --instance-id						# ubuntu w/ cloud-utils
+wget -q -O -   http://instance-data/latest/meta-data/instance-id	# 
+wget -q -O - http://169.254.169.254/latest/meta-data/instance-id	# 169.254.169.254 is IANA local link addr when NO DHCP address is received.  
+
+
+</PRE>
+
+<H3>EC2 Pricing</H3>
+
+<ol>
+<li>size is best indicator of pricing, m4.xlarge and c4.xlarge are about the same price, with both being more expensive than *.large</li>
+<li>VM instanced are categorized as T,M,C,G,R can be thought of Tiny, Moderate, CPU, GPU, RAM.  Tiny are cheaper than Moderage.  Note that R type start as large, so there are no "small" pricing for this category. </li>
+<li>VM with lots of storage are of type I, D</li>
+<li>the number after the category is generation number. eg m3.medium uses newer CPU than m1.medium and thus slightly more expensive </li>
+<li>OS type matter (due to license?).  List below is in increasingly more expensive even if VM type remains the same (eg for m4.large, 2015.09, N.Virginia):  
+    <ol>
+    <li>Linux          (0.126/hr) [CentOS?  Amazon Linux? No OS license fee]</li>
+    <li>RHEL           (0.186/hr = $134/mo)</li>
+    <li>SLES           (0.226)</li>
+    <li>Windows        (0.252)</li>
+    <li>Win w/ SQL web (0.261)</li>
+    <li>Win w/ SQL std (0.927)</li>
+    <li>Win w/ SQL ent (about 2x of SQL std)</li>
+    <li></li>
+    </ol>
+<li>Look at free software in Amazon Marketplace is a easy way to see prices for all different types of instances.  eg.  <A HREF="https://aws.amazon.com/marketplace/pp/B00N44P7L6/ref=dtl_recsim_B00EQE493U_B00N44P7L6_2">NCBI Blast AMI</A></li>
+</ol>
+
+Source: 
+<A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A>
+
+<BR><BR>
+
+<H3>EC2 vs Google Compute Cloud pricing</H3>
+
+<PRE>
+Hard to do apple to apple comparison, especially if get into spot/preemptible instance prices.
+
+AWS    bill in 1 hr  increment
+Google bill in 1 min increment, min 10 min.  automatic discount for sustained use (seesm to be 24%).
+
+prices are barebone VM, additional charges apply for OS needing license cost, app license, etc.
+comparison done on Nov 8, 2015.
+
+
+       aws/google,     def disk size		aws inst name and price			google inst name + price
+
+1 cpu, 1.0/0.6 GB RAM, 8/10 GB disk		t2.micro  $0.013/hr ($ 9.36/mo) 	f1-micro  $0.008/hr ($5.76/mo)
+1 cpu, 2.0/1.7 GB RAM, 				t2.small  $0.026/hr ($18.72/mo)		f1-small  $0.027/hr
+
+2 cpu, 8.0/7.5 GB RAM, 				m4.large   $0.126/hr ($  90/mo) 	n1-std-2  $0.100/hr ($  72/mo)
+32cpu, 108/120 GB RAM,				c3.8xlarge $1.680/hr ($1209/mo)	   	n1-std-32 $1.600/hr ($1152/mo)
+
+
+Additional charges:
+
+Google: $0.40 for each 10 GB persistent disk, per month, charged even when VM is running.
+AWS:    $0.12 for each  1 GB persistent disk, per month, charged even when VM is running.
+
+AWS has IOPS limitation for EBS disks.
+No inboud/outbound data charges seen so far.  Not sure if S3 has such charges.  
+VPN could be separate charges.
+
+</PRE>
+
+<BR><BR>
+
+<H2>Storage for EC2</H2>
+
+<OL>
+<LI>EBS: Elastic block storage.  Think of this as the virtual hard drive used in VMware.  Storage attached to specific instance of EC2 (VM).  EBS storage does not automatically go away when an instance is terminated, and can be manually attached to another instance if required.  
+$ 0.10 / GB / month
+
+<LI>EFS: This provide NFSv4 support (v3?).  Thus, provide file access to multiple instance.   $ 0.30 / GB-month, calculated by GB/day, added for the month.
+
+<LI>SoftNAS: AWS marketplace vendor providing high-performance cloud NAS, up to 20 TB.  NFS, CIFS, iSCSI.  HA when deploy 2 requisite instance.   Implemented on EBS, and need EC2 to host their software.   So cost can range from $ 0.01/hr to $ 5.28/hr + cost of EBS storage.
+
+<LI>Glacier: for data backup and archiving, extremely low cost.  $ 0.007 / GB + cost of xfer out ( $ 0.09 / GB ) <BR>
+    Store an .tar or .zip, immutable.  Each one assigned an archive ID.
+
+<LI>S3: Simple Storage Service.  This is object store.  provides web interface to access a given object.  no file system interface provided.
+<LI>
+</OL>
+
+<BR><BR>
+<H3>EFS</H3>
+Elastic File System - in Beta as of 2015.11 <BR>
+
+<OL>
+<LI>Secure access within VPC.
+<LI>
+<LI>
+<LI>http://docs.aws.amazon.com/efs/latest/ug/whatisefs.html
+</OL>
+
+
+<H3>SoftNAS</H3>
+<LI>SoftNAS: AWS marketplace vendor providing high-performance cloud NAS, up to 20 TB.  NFS, CIFS, iSCSI.  HA when deploy 2 requisite instance.   Implemented on EBS, and need EC2 to host their software.   So cost can range from $ 0.01/hr to $ 5.28/hr + cost of EBS storage.
+
+<PRE>
+</PRE>
+
+<H3>Ephemeral storage</H3>
+
+<OL>
+<LI> *NOT Persistent!!*  Files saved will be gone after reboot of EC2 instance.
+<LI> Physically attachable to EC2 instance, so does behave like a virtual hard disk.   Often mounted as /media/ephemeral0.  
+<LI> It is free, but only comes with the larger instances, of increasing size.
+<LI> better performance than EBS.
+<LI> Ideal as the root drive of an HPC cluster node, where no storage is needed (AMI is copied to ephemeral disk on boot?).
+<LI> Ephemeral storage is considered instance storage.  But to use this as boot device, need to do so before the host is created, by using a device mapping such as /dev/sdc=ephemeral0.  
+</OL>
+
+<H3>Direct-attached storage</H3>
+
+<OL>
+<LI>Not to be confused with physically-attached storage, which is what EBS is.
+<LI>It is native to a specific EC2 instance.  Likely hard drive on the same physical server hosting the EC2 instance.  As such, it is not mountable to a different EC2 instance!
+<LI>Not shared, so Potentially/Likely better performance than EBS, and less variance in performance.
+<LI>Offered on beefier EC2 only.  Maybe more worthwhile to use than paying for PIOPS EBS.
+<LI>There *is* SPOF in direct-attached storage.
+<LI>Persistent data (should be, double check).
+<LI>
+</OL>
+
+
+<H3>EBS</H3>
+
+<OL>
+<LI>EBS emulates a virtual hard drive, so it is mounted by a specific EC2 instance for use, but it lives independent of any given EC2 instance.  ie, it is NOT instance storage, and persist after an EC2 is terminated (deleted).
+<LI>Only mountable in the same availability region.  But then it has no replication delay.
+<LI>Has two tiers.  Standard IOPS, and Provisioned IOPS (PIOPS).  The latter allow extra payment to get dedicated performance.  It is not necessary faster, but will be more predictable (less variable, less likely to have bad performance because other instance is sharing the hardware and hitting it hard).
+<LI>
+</OL>
+
+<H3>S3</H3>
+
+<OL>
+<LI>Web-centric way to access files.  Main use case is programmer coding app to access files/objects using AWS S3 API.
+<LI>It does not emulate a virtual hard drive as EBS does.
+<LI>Files in S3 is accessible from any AWS Region.  It also can be replicated for availability and performance.
+<LI>Works on "eventually consistent" model.  Has replication delay.
+</OL>
+<H3>Glacier</H3>
+
+<OL>
+<LI>Glacier is like S3, much slower, and much cheaper.  but has an upload/download charge structure.
+<LI>intended for archival.  may take hours for files to be fetched from (likely tape) before it is usable.
+<LI>
+<LI>
+</OL>
+
+
+<H1>Using S3 to serve static-content web site</H1>
+
+S3 can be used to host a web site that does not need to serve server-side dynamic content.
+It is well documented, see 
+<A HREF="http://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html">overview</A> and 
+<A HRER="http://docs.aws.amazon.com/AmazonS3/latest/dev/HowDoIWebsiteConfiguration.html">Bucket config</A>.
+<BR>
+Be forwarned that each little file retrieval add to the cost.  A web site may have very many little files, so this cost may add up! <BR>
+
+
+<UL>
+<LI>Create a bucket.  eg tin6150.
+<LI>Use standard storage, not "infrequenst access storage" or "glacier storage", as acces surchage on the latter are expensive!
+<LI>Upload files to the bucket, set upload details, permissions of "Make everything public".   This just means the file's properties will say Grantee: Everyone to open/download, but not edit.  View Permissions apparently is not needed.
+<LI>Set bucket property to enable web hosting.  This will generate an website end point based on the region the bucket is, eg: <A HREF="http://tin6150.s3-website-us-west-1.amazonaws.com">http://tin6150.s3-website-us-west-1.amazonaws.com</A>
+<LI>Upload will overwrite old files w/o warning.  it will set new permission as per latest upload.
+<LI>
+<LI><A HREF="https://aws.amazon.com/s3/pricing/">S3 Pricing details</A>
+<LI>Storage cost isn't bad.
+<LI>GET request are substantially cheaper than POST and PUT request
+<LI>Upload to AWS (xfer IN) is free
+<LI>xfer OUT (ie, visitor retrieving files to see the web site) has a per GB data xfer OUT fee.  This is in ADDITION to the GET or POST request fee.  Like the Hotel California song, you can check out but you can never leave! :-P
+<LI>
+<LI>Upload a folder works, no need to pre-create a folder.
+<LI>
+<LI>There are options to set a DNS domain to point to the S3 web site, see AWS Route 53 or even a DNS CNAME to the S3 endpoint, eg <A HREF="http://tiny.cc/TIN">tiny.cc/TIN</A>.
+</UL>
+
+
+<H1>HPC in EC2</H1>
+
+
+<A NAME="starcluster"></A>
+<A NAME="StarCluster"></A>
+<H2>MIT StarCluster</H2>
+
+StarCluster from MIT provides an easy way to create (and terminate) an SGE cluster running on AWS EC2.  Characteristics:
+<UL>
+<LI> The AMI is based on Ubuntu 13.04 (as of 2015.12).   
+<LI> Utilize Open Grid Scheduler (OGS, fork of SGE), Condor workload management.
+<LI> Programming environment include, SciPy, NumPy, IPython, CUDA, PyCuda, PyOpenCL, OpenBLAS...
+<LI> Provides OpenMPI, Hadoop,
+<LI> A cluster-wide NFS mounted FS.  (An additional EBS volume need to be defined in the config, mounted by the master node)
+<LI> 
+<LI> IAM "EC2 Full Access" should be granted to the user that need to create nodes that form the starcluster.  ref: http://star.mit.edu/cluster/mlarchives/2112.html
+<LI> 
+<LI> 
+</UL>
+
+<H3>StarCluster setup</H3>
+
+<PRE>
+
+pip install starcluster
+starcluster help
+starcluster --region us-west-2 listpublic 	# list avail AMI
+starcluster createkey -o ~/.ssh/mycluster.rsa  mycluseter
+	# the public key is not returned by the above command
+	# alt, can use -i option to import pre-generated ssh keys.
+	# that key has to be imported into AWS IAM key pairs, or else get strange error about key does not exist in region us-east-1
+
+# generate starcluster configfile, 
+# edit ~/.starcluster/config with new key
+# AWS info, NODE_IMAGE_ID with ami id in the desired region, NODE_INSTANCE_TYPE.
+
+starcluster start -s 2 mycluster	# create and start a new cluster named "mycluster".  config read from ~/.startcluster/config
+					# the default config, master node is also an sge exec host
+					# they use a single NIC/IP, no distiction b/w private and public network.  
+					# EC2 allocate a public IP for each node by default.
+
+starcluster listclusters
+
+starcluster restart    mycluster	# reboot all nodes.
+starcluster terminate  mycluster	# terminate AMI, stop paying for it.  #EBS remains?
+starcluster stop       mycluster	# only poweroff node, preserving EBS image (/mnt ephemeral storage will still be lost, of course!)
+starcluster start -x   mycluster	# restart stopped cluster, all nodes will come back.
+
+
+starcluster sshmaster  mycluster		# login to master node as root
+starcluster sshmaster  mycluster -u sgeadmin	# login to master node as sgeadmin, can issue typical qconf commands from there.
+
+
+
+
+</PRE>
+
+<BR>
+Info:
+<OL>
+<LI><A HREF="https://aws.amazon.com/customerapps/2824">AWS Marketplace page</A> 
+<LI>
+<LI><A HREF="http://www.admin-magazine.com/HPC/Articles/StarCluster-Toolkit-Virtualization-Meets-HPC">Admin mag article</A>
+</OL>
+
+<H2>Virtualization Tech</H2>
+
+
+<LI> paravirtual instances (PV) - historically the standard AMI virtualization.  Xen is used as the hypervisor.
+<LI> hardware assisted virtual instances (HVM) - used in larger machines to circumvent hypervisor restrictions.  Increasingly used for all instances.
+<LI> https://www.opswat.com/blog/aws-2015-why-you-need-switch-pv-hvm 
+
+
+<H3>Performance</H3>
+
+<PRE>
+..
+</PRE>
+
+<H1>Database</H1>
+
+
+Amazon RDS (Relational Database Service) offers a few database.  Notably Aurora, claimed to be MySQL compatible, but with improved performance, cache that lives thru db restart, etc.
+For even aurora, DB sw still need to be setup by admin...  and so performance of DB is limited on the node instance that is running the DB.
+<BR><BR>
+
+DynamoDB is a NoSQL offering.  Fully managed, so just create tables and access data using API.  No need to maintain the DB itself, the DB is in some cloud, backed by distributed system.  Advertised as single digit ms latency at any scale.
+<BR><BR>
+Other eg of NoSQL DB includes: Hadoop, MongoDB.  <BR>
+BigTable-based, rather than schema-less: Cassandra, HBase.
+<BR><BR>
+
+
+<H1>Reference, see also...</H1>
+
+<UL>
+<LI><A HREF="https://docs.aws.amazon.com/cli/latest/index.html">AWS CLI</A></LI>
+<LI><A HREF="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html">AWS concepts</A></LI>
+<LI>http://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instances.html
+<LI><A HREF="docker.html">Docker</A>, linux container</LI>
+<LI><A HREF="puppet.html">puppet</A></LI>
+<LI><A HREF="cfengine.html">cfengine</A></LI>
+
+</UL>
+
+
+<BR><BR>
+<HR>
+<BR><BR>
+
+<A NAME="cc"></A>
+<A NAME="CreativeCommon"></A>
+<H3>Copyright info about this work
+</H3>    
+
+<p>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">Creative Commons Attribution-NonCommercial-ShareAlike2.5 License</a>.
+       <!--/Creative Commons License-->
+       <!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+       <Work rdf:about="">
+       <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/" />
+            <dc:title>Pocket Sys Admin Survival Guide</dc:title>
+            <dc:date>2005</dc:date>
+            <dc:description>A series of concise system administration notes</dc:description>
+            <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
+            <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+            <dc:source rdf:resource="http://www.cs.fiu.edu/~tho01/psg/" />
+            </Work>
+            <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+                                       <requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/>
+                                       <prohibits rdf:resource="http://web.resource.org/cc/CommercialUse"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/><requires rdf:resource="http://web.resource.org/cc/ShareAlike"/>
+            </License>
+            </rdf:RDF> -->
+
+
+<Strong>Pocket Sys Admin Survival Guide</Strong>: for content that I wrote, (<a
+ href="http://creativecommons.org/licenses/by-nc-sa/2.5/">CC</a>)  
+ <a href="http://creativecommons.org/learnmore"> <i>some rights reserved</i></a>.  
+ 2005,2012 Tin Ho [ tin6150 (at) gmail.com ]  <br>
+ 
+Some contents are "cached" here for easy reference. Sources include man pages, 
+vendor documents, online references, discussion groups, etc. Copyright of those 
+are obviously those of the vendor and original authors.  I am merely caching them here for quick reference and avoid broken URL problems.
+</p>
+
+  <br><br>
+
+
+<h3>Where is PSG hosted these days?</h3>
+  <div id="psg-url">
+  <a href="http://tiny.cc/EC2">tiny.cc/EC2</a><br>
+  <a href="http://dl.dropbox.com/u/31360775/psg/psg2.html">http://dl.dropbox.com/u/31360775/psg/psg2.html</a> 
+  This new home page at dropbox<br>
+  
+  <A HREF="http://tiny.cc/tin6150"> 
+  http://tiny.cc/tin6150/</A>
+  New home in 2011.06.  <BR>
+
+
+
+<A HREF="http://unixville.com/~sn/psg/psg.html">http://unixville.com/~sn/psg/psg.html</A> 
+(coming soon)
+<BR>
+<a href="ftp://read:only@sn.is-a-geek.com/psg/psg.html">ftp://sn.is-a-geek.com/psg/psg.html</a> 
+My home "server".  Up sporadically.
+<BR>
+
+<!--
+Other caches in decreasing order of update frequency:  <BR>
+
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg.html
+</A> 
+(Google site, they are changing their policy and I may not be update these pages in the near future.  Last updated 2009-10-10)<BR>
+-->
+
+
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/psg.html">http://www.cs.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-06)<BR>
+<A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
+
+</div>       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  </div> <!-- #content -->
+  
+  
+  <div id="tailer">      
+            <div class="noicon">
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">
+                <img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights20.png"></a>
+            <a href="http://jigsaw.w3.org/css-validator/check/referer">
+                <img style="border:0;width:88px;height:31px"
+                    src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+                    alt="Valid CSS!">
+            </a>
+            <a href="http://validator.w3.org/check?uri=referer">
+                <img src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88">
+            </a>
+        </div>
+  </div> <!-- #tailer -->
+
+  
+  
+  
+  
+  <div id="footer"> (CC 2015-09) Some Rights Reserved.</div>
+  
+</div> <!-- closes wrapper --> 
+</body>
+</html>

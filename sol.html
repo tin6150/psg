@@ -1,0 +1,2568 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+   content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Solaris</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="8" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/sol.html">Sys Admin Pocket Survival Guide - Solaris</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="1" href="ent_prod.html">Enterprise Products</a></td>
+      <td align="center"><a accesskey="2" href="veritas.html">Veritas</a></td>
+      <td align="center"><a accesskey="3" href="emc.html">EMC</a></td>
+      <td align="center"><a accesskey="4" href="netapp.html">NetApp</a></td>
+      <td align="center"><a accesskey="s" href="tool.html">Tool</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+
+<!--
+Files incorporated:
+cmd.sun.disksuite.ref
+sun.obp.ref
+sun.hw.ref
+sun.ref
+cmd.sun.disk.ref
+cmd.sun.etc.ref
+lom.ref
+rsc.ref
+
+But the biggest one, cmd.admin.ref, is not here yet!!
+-->
+
+
+<A NAME="howto"></A>
+<H1>HOWTO</H1>
+<H2>Solaris Admin 101</H2>
+admintool <BR>
+A very basic GUI for some simple sys admin work, such as adding printer,
+adding local user.
+<BR><BR>
+
+SMC <A HREF="#smc">see below</A><BR>
+<BR><BR>
+
+
+<PRE>
+<H6>Adding local user/group to machine</H6>
+groupadd -g 9913 hfmgrp
+useradd -u 9913 -g 9913 -d /vol1/hfmd -m -c "HFM Daemon - Roland Sherwood" -s /usr/bin/ksh hfmd
+passwd hfmd
+
+groupadd create a new group with a given gid number specified.
+
+useradd creates a user.  
+  -u is for a specific uid number.  
+  -g is for the default group the user will belong to (default to 1)
+  -d is for the home directory, 
+  -m is to create the user home dir on the fs, 
+  -c is for the gecos field that describe the username, and 
+  -s is for the shell.  
+
+passwd command is to set the password of the user.  
+
+</PRE>
+
+<A NAME="single">
+<H2>Single User Mode from CD</H2></A>
+
+<PRE>
+Send Ctrl-Break to console.  At ok prompt, enter:
+sync
+wait for system to crash dump and reset.  After memory test is completed and system about to boot, send another Ctrl-Break.
+at ok prompt, enter:
+boot cdrom -s
+
+Once booted,  enter:
+mount /dev/dsk/c0t0d0s0 /mnt	# of whatever slide contain the / fs.
+
+</PRE>
+
+<H4>Mounting SVM root volume in single user mode</H4>
+(From some sun knowledge base article)
+<BR>
+<PRE>
+1) Boot into single user mode from CDROM (see above).
+</PRE>
+
+	<H6>For Solaris 9 and above Operating System (Solaris OS) metadevices</H6>
+
+<PRE>
+2) Recover /kernel/drv/md.conf from backup.
+
+   It is possible to recover the file from the disk however as 
+   mounting a UFS file system will roll the log, when using 
+   the logging option, even when mounted read-only. This
+   means that to safely do this you must detach one side of
+   the mirror prior to mounting the file system and reattach
+   it so that a full re-sync is done. It is recommended that
+   you recover the file from back up.
+
+   Mount one of the sub-mirrors of your root metadevice as
+   read-only to get a copy of metadb configuration information. 
+   NOTE: You'll need to mount a regular disk device for this step.
+
+	# mount -r /dev/dsk/c0t0d0s0 /a
+	# cp /a/kernel/drv/md.conf /kernel/drv/md.conf
+	# umount /a
+
+3) Run update_drv:
+
+	# update_drv md
+
+4) READY !! Now you're able to use your existing metadevices as usual.
+   To view your metadevice configuration and status, use the metastat 
+   command.
+
+	# metastat
+
+   On Solaris 10 this will have the side effect of creating the links in 
+   /dev/md so that you can use the /dev/md/dsk names for the devices.
+
+</PRE>
+ie, at this point, one can <TT>mount /dev/md/dsk/d10 /mnt </TT>
+or whatever SVM volume are created, and mirror/raid dev would remain intact.
+
+<H6>For pre-Solaris 9 OS metadevices</H6>
+
+<PRE>
+2) Find the Solaris[TM] Volume Manager md driver and unload it.
+
+	# modinfo | grep md
+	 38  11d1703    ff9   -   1  md5 (MD5 Message-Digest Algorithm)
+	113  12f1b02   1ecf  70   1  ramdisk (ramdisk driver v1.15)
+	127 705c2000  2375a  85   1  md (Solaris Volume Manager base mod)
+	# modunload -i 127
+
+3) Before Solaris 9 OS, information about metadb's was stored in
+   the /etc/system file instead of in /kernel/drv/md.conf and the
+   format used was slightly different.
+
+   Mount one of the sub-mirrors of your root metadevice as read-only
+   to get a copy of metadb configuration information. NOTE: You'll need
+   to mount a regular disk device for this step.
+
+	# mount -r /dev/dsk/c0t0d0s0 /a
+	# cp /a/etc/system /tmp/system
+	# umount /a
+
+   Find metadb information from /tmp/system, for example:
+   
+   * Begin MDD database info (do not edit)
+     set md:mddb_bootlist1="sd:7:16 sd:7:1050 sd:7:2084 sd:15:16
+     sd:15:1050"
+     set md:mddb_bootlist2="sd:15:2084"
+   * End MDD database info (do not edit)
+
+   This information can be converted into a format that Solaris 9 OS
+   understands simply by adding ":id0" after each metadb identifier.
+   These lines are then added to the end of /kernel/drv/md.conf.
+
+   The previous example would then look like the following:
+
+   mddb_bootlist1="sd:7:16:id0 sd:7:1050:id0 sd:7:2084:id0 sd:15:16:id0
+   sd:15:1050:id0";
+   mddb_bootlist2="sd:15:2084:id0";
+
+   NOTE: Remember to add ";" at the end of each line !!!
+
+4) Load the Solaris Volume Manager md driver and synchronize meta devices
+
+	# modload /kernel/drv/md
+	# metasync -r
+
+5) READY !! Now you're able to use your existing metadevices as usual.
+   To view your metadevice configuration and status, use the metastat 
+   command.
+
+	# metastat
+
+</PRE>
+
+
+
+<A NAME="lang">
+<H2>Adding International Language Support</H2></A>
+
+<H4>Solaris 10</H4>
+
+<PRE>
+
+localeadm		: Solaris 10 CLI for adding international lang support.
+localeadm -l		: check for available locale and whether they are fully installed
+localeadm -q hongkong	: check whether all localization for Hong Kong has been installed.
+localeadm -q sam	: check whether all localization for South America has been installed.
+
+			other regions that can be added:
+
+			Central America region (cam)
+			Central Europe region (ceu)
+			Eastern Europe region (eeu)
+			Middle East region (mea)
+			North America region (nam)
+			Northern Europe region (neu)
+			South America region (sam)
+			Southern Europe region (seu)
+			Western Europe region (weu)
+			Japanese region (ja)
+			Korean region (korean)
+			Simplified Chinese region (china)
+			Traditional Chinese (Hong Kong) region (hongkong)
+			Traditional Chinese region (taiwan)
+			Thai region (th_th)
+			Hindi region (hi_in)
+
+			Use <TT>localeadm -l | grep "Checking for"</TT> to see a complete list.
+
+</PRE>
+
+<H4>Solaris 7, 8, 9</H4>
+
+<PRE>
+prodreg         : product registry, a GUI software bundle manager ( "super packages")
+                  Useful tool to run to install foreign language locale.
+                  when run, it willexec "installer" of the language cd, 
+		  a GUI for choosing what lang support to add.  
+		  Unfortunately, this does not add full language support,
+		  as it does not add the specific LANG packages from the base OS CD/DVD.
+
+</PRE>
+		
+Tech notes on adding locales:
+<OL>
+<LI><A HREF="http://developers.sun.com/dev/gadc/faq/locale.html">Solaris
+Locale FAQ</A>
+<LI><A HREF="http://developers.sun.com/dev/gadc/techtips/sol9_locale_pkgs/">
+    Solaris 9 locale packages</A>, what pkg to add to support req lang.  <BR>
+    run <TT>pkginfo [list of SUNWxxx pkg listed]</TT> to see if the packages exist (eg added by prodreg), <BR>
+    if not, run <TT> yes | pkgadd -d . [list of SUNWxxx pkgs]</TT> from the
+    jumpstart server OS/.../Products dir to add them. <BR>
+</OL>
+
+
+
+<A NAME="solaris_admin_commands"></A>
+<H1>Solaris Admin Commands</H1>
+Some of the more basic stuff, may have slight difference from Linux or other Unices.
+
+<PRE>
+init 6  : reboot, no question asked
+init 0  : shutdown and give ok prompt.  Don't use at gc as it won't be auto back up!!
+init 5  : shutdown, and power off. no question asked
+
+who -r  : show current run level (useful like when doing boot -s)
+who -b  : show system boot time
+
+
+shutdown, etc cmd does not seems to reboot automatically either, unless specify a reboot init level (eg -i 6)
+
+/usr/sbin/shutdown -y -g 300 -i 6 [msg] 
+        -i = specify init level, 
+        -g = grace period in secs
+        -y = yes, ie don't ask if sure again (can always cancel by killing process)
+	
+/usr/proc/bin   	: lot of process controlling commands, eg ptree
+
+date 0915               : solaris, set date (time) to 9:15 am.  
+date 04060915           : solaris,hpux, set date and time to apr 6, 9:15 am.
+	
+	
+
+</PRE>
+
+
+<A NAME="storage"></A>
+<H1>Storage</H1>
+
+<A NAME="filesystem"></A>
+<H2>Filesystem</H2>
+
+<PRE>
+newfs /dev/rdsk/c...    create a new fs for the sapce on "raw" slide 
+(also appliable to metadevices from disksuite (and veritas?) in both the 
+stripe+concat and raid5 drives.  mirror would need a sync cmd.  
+see cmd.diskstuite.ref
+        -v              verbose
+        -b [bsize]      specify block size, def should be 8192 (req by dba)
+        -N              print the mkfs cmd that will be used, w/o actually doing any work.
+
+mkfs -m /dev/dsk/c0t0d0s0       show the mkfs used to create the existing fs.
+mkfs -m /dev/md/d0              for sds disk, looking at subcomponent will give bogus data.
+
+tunefs -otime                   optimize fs performance for time (instead of space preservation)
+
+newfs /vol/dev/aliases/floppy0  try t on floppy
+
+</PRE>
+
+<H5>Size limit</H5>
+<!-- email from sophia@sun.com 20080508 -->
+Solaris 2.6 to 9 (U3) is limited to FS size of 1012 GB.
+
+<BR>
+For Sol 9 (U4) or with patch 113454-09, FS size can be up to 16 TB.
+<BR>
+
+FS smaller than 1 TB  (to be safe, say 990 GB or even 950 GB), the traditional VTOC  uses the SMI label, provides slides 0 to 7 and allow starting FS at cylinder 0 (but recommend to start at cyl 2).
+<BR>
+
+For FS larger than 1 TB, the new EFI label would need to be used.
+This uses the first 32 or 34 cylinder of the disk for VTOC.  slide 7 is no longer presented, and a new reserved slide 8 would appear instead.
+<BR>
+File size is still limited to 1 TB.  There is a max of 1 million files per 1 TB of FS size.
+<BR>
+
+Ref: Sun Doc ID 206860.
+<BR>
+<BR>
+
+Journaling (add link to doc that journaling can actually increase performance!)
+
+<BR>
+<BR>
+<BR>
+
+<A NAME="volume_management"></A> 
+<A id="lvm"></A>
+<H2>Volume Management</H2>
+<!--cmd.sun.disksuite.sds.ref-->
+Solaris by default does not use a Volume Manager, the file system by default is created right on top 
+of a partition.  Sun does have a Volume Manager that is very tied to Solaris: 
+The Solaris Volume Manager, formerly Solstice Disk Suite.<BR /><BR />
+
+Alternatively, lot of places use Veritas Volume Manager.  IMHO, the OS boot disk is best 
+left in control of the SVM.  This is a hotly contested topic.  I will just say that 
+starting with VxVM 4.0, the word from Veritas tech support is:
+"We no longer require you to use VxVM for the boot disk, why don't you just use Veritas for your 
+data disks".  They told me this after I ran into some bugs and they needed me to update from 4.0 to 4.01.
+Needless to say, I changed my school of thought then and used SVM for the bootdisk from then on.
+
+
+<BR />
+<BR />
+
+<A id="svm"></A>
+<A id="sds"></A>
+<H4>SVM/SDS Commands</H4>
+
+<PRE>
+
+metastat	
+	show config of disk suite, status and minor stat
+
+metadb
+	who info about the meta db (state db) used by disksuite to maintian meta/state info.
+
+metareplace -e mirror component
+
+metareplace -e d0 c0t0d0s0
+	This perform a resync on the mirror drive d0, component c0t0d0s0 is the 
+	one that will be wipe out and rebuild.  (Used when rebuilding the root partition, 
+	disk0 was yanked out, and so needed to use data from c0t1d0s0 to rebuild 
+	the mirror).
+
+metastat | awk '/State:/ { if ($2 != "Okay") if (prev ~ /^d/) print prev, $0}  {prev = $0}'
+	Quickly list drives that are not in okay mode. eg, error, sync, etc.
+
+metadb | grep [A-Z]
+	Quickly see if there are any problems with metadb replicas (state db).
+	Work cuz metadb use caps only when they have errors in them.
+
+
+metasync -r
+	reboot time sync to ensure disk submirrors are okay, use carefully.
+	was to be used only in specific init script or single user mode boot scenarios.
+	eg from cdrom, mount of / even in read only will roll the UFS log, so need to sync when
+	mounting the meta device /dev/md/dsk/d10...
+
+</PRE>
+
+
+sdsMon.sh, a script that monitor SDS/SVM and send email if anything is amiss.
+
+<PRE class="code">
+#!/bin/sh
+
+#quickly list drives that are not in okay mode (eg, error, sync, etc.):
+
+# extension of sdsChk.sh, this will send email notification when needed.
+# run in crontab as any user (this script chmod a+rx):
+# cron job to check status of Sun Volume Manager (software RAID)
+# 0 8,12,17 * * * /export/share/script/sdsMon.sh
+
+PATH=/usr/bin:/usr/sbin:/usr/local/bin:/usr/opt/SUNWmd/sbin/
+RCPT=tin@taos.com
+HOST=`hostname`
+MSG="Solaris DiskSuit alert for $HOST"
+
+OUTPUT1=`metastat | \
+  awk '/State:/ { if ($2 != "Okay") if (prev ~ /^d/) print prev, $0}  {prev = $0}'`
+
+
+#quickly see if there are any problems with metadb replicas (state db)
+#(work cuz metadb use caps only when they have errors in them.
+
+OUTPUT2=`metadb | grep [A-Z]`
+
+if [ `echo $OUTPUT1 | wc -w` != 0 -o `echo $OUTPUT2 | wc -w` != 0 ]; then
+        ( echo "This script is /export/share/script/sdsMon.sh, ran on " `date` ; \
+          echo "select metastat and metadb output";       \
+          echo "$OUTPUT1" ;                               \
+          echo "$OUTPUT2"                               ) \
+        | /usr/bin/mailx -s "$MSG" $RCPT
+fi
+
+</PRE>
+
+
+<H4>Creating Mirrored Boot Disks</H4>
+
+The way how SVM/SDS do mirroring is that it create a fs (mkfs or newfs) 
+of exact size on the submirrors.   
+This is independent of the slide size of the different disks.  
+As long as the starting fs size is small 
+enough to fit in all slides of diff disk, it will work.
+This is where the lowest common denominator comes from.  
+<BR /><BR />
+Note that due to this approach, once the disk is mirrored, even if slide has more space, it can never be used.  
+On the other hand, this approach allows disks of dissimilar size to work as mirror pair, allowing some extra
+partition space for other "scrach" use.
+
+<BR /><BR />
+eg of copying files from 9 gb drive to 18 gb drive, increased partitiion size via format, but after mirror, all disk slides
+ show matching size for the mirrors, even after the smaller submirrors has been removed.
+<BR /><BR />
+The final solution of the migration is to use ufsdump | ufsrestore.  see backup.ref for info of the exact command.
+<BR /><BR />
+
+TSI: gfxp0 is GFX8P @ 1152x900
+
+<BR><BR>
+<A ID="mirror"></A>
+<H5>Sample Boot Disk Mirroring Setup</H5>
+<!-- from bri/cqdb/cqdb.sdsIns.log -->
+
+Initial OS /etc/vfstab before mirroring:
+
+<PRE class="cf">
+
+#device         	device          mount           FS      fsck    mount   mount
+#to mount       	to fsck         point           type    pass    at boot options
+fd      		-       		/dev/fd fd      -       no      -
+/proc   		-       		/proc   proc    -       no      -
+/dev/dsk/c0t0d0s1       -       		-       swap    -       no      -
+/dev/dsk/c0t0d0s0       /dev/rdsk/c0t0d0s0      /       ufs     1       no      logging
+/dev/dsk/c0t0d0s4       /dev/rdsk/c0t0d0s4      /usr    ufs     1       no      logging
+/dev/dsk/c0t0d0s5       /dev/rdsk/c0t0d0s5      /var    ufs     1       no      logging
+/dev/dsk/c0t0d0s6       /dev/rdsk/c0t0d0s6      /u01    ufs     2       yes     logging
+swap    		-       		/tmp    tmpfs   -       yes     -
+
+</PRE>
+<PRE>
+
+
+
+Create metadb partition on slide 7, with 4 cyl (really just need 1 cyl).
+If there isn't enough any free cylinder on your disk, then you will need
+to strink SWAP to make more room.
+eg:
+
+format> verify
+
+Primary label contents:
+
+Volume name = <rootdisk>
+ascii name  = <SUN9.0G cyl 4924 alt 2 hd 27 sec 133>
+pcyl        = 4926
+ncyl        = 4924
+acyl        =    2
+nhead       =   27
+nsect       =  133
+Part      Tag    Flag     Cylinders        Size            Blocks
+  0       root    wm     580 - 1109      929.31MB    (530/0/0)   1903230
+  1       swap    wu       2 -  579     1013.48MB    (578/0/0)   2075598
+  2     backup    wm       0 - 4923        8.43GB    (4924/0/0) 17682084
+  3 unassigned    wm       0               0         (0/0/0)           0
+  4        usr    wm    1170 - 2039        1.49GB    (870/0/0)   3124170
+  5        var    wm    2040 - 2329      508.49MB    (290/0/0)   1041390
+  6 unassigned    wm    2330 - 4919        4.43GB    (2590/0/0)  9300690
+  7 unassigned    wm    4920 - 4923        7.01MB    (4/0/0)       14364
+
+
+format> 
+
+Copy the partition table to the 2nd disk that will hold the mirror.
+
+prtvtoc /dev/rdsk/c0t0d0s2 > vtoc.c0t0d0s2
+fmthard -s vtoc.c0t0d0s2  /dev/rdsk/c0t1d0s2
+
+Add SVM/SDS meta data info to slide 7 of all disks.  
+2 copies for each disk when there are only 2 disks are recommended:
+
+metadb -a -f -c 2 c0t0d0s7 c0t1d0s7
+
+
+output of metadb:
+        flags           first blk       block count
+     a m  p  luo        16              1034            /dev/dsk/c0t0d0s7
+     a    p  luo        1050            1034            /dev/dsk/c0t0d0s7
+     a    p  luo        16              1034            /dev/dsk/c0t1d0s7
+     a    p  luo        1050            1034            /dev/dsk/c0t1d0s7
+
+This is what the mirroring setup will be.  Can place this
+content in /etc/vfstab for easy future reference.
+
+###
+###     metadevice mapping to physical devices
+###     disk in tag 0 and 1 (9 gigs) pair
+###
+###						  orig     new mirror
+###     root    d0  submirrors: d10 d20         : c0t0d0s0 c0t1d0s0
+###     swap    d1  submirrors: d11 d21         : c0t0d0s1 c0t1d0s1
+###     usr     d4  submirrors: d14 d24         : c0t0d0s4 c0t1d0s4
+###     var     d5  submirrors: d15 d25         : c0t0d0s5 c0t1d0s5
+###     u01     d6  submirrors: d16 d26         : c0t0d0s6 c0t1d0s6
+###
+
+
+# create the basic support for SVM based on original 
+# boot disk c0t0 ::
+metainit -f d10 1 1 c0t0d0s0	# init submirror of /
+metainit -f d11 1 1 c0t0d0s1	# swap
+metainit -f d14 1 1 c0t0d0s4	# /usr
+metainit -f d15 1 1 c0t0d0s5 	# /var
+metainit -f d16 1 1 c0t0d0s6	# /oracle/u01
+
+metainit d0 -m d10		# mountable /
+metainit d1 -m d11		# usable swap
+metainit d4 -m d14		# mountable /usr
+metainit d5 -m d15		# mountable /var
+metainit d6 -m d16		# mountable /u01
+
+metaroot d0			# activate SVM for boot partition, 
+				# add one entry to vfstab for /
+				# update /etc/system, etc
+
+vi /etc/vfstab			# update mount device to use /dev/md/...  ::
+
+</PRE>
+<PRE class="cf">
+
+
+#device         	device          mount           FS      fsck    mount   mount
+#to mount       	to fsck         point           type    pass    at boot options
+fd      		-       		/dev/fd fd      -       no      -
+/proc   		-       		/proc   proc    -       no      -
+/dev/dsk/md/d1          -       		-       swap    -       no      -
+/dev/dsk/md/d0          /dev/rdsk/md/d0         /       ufs     1       no      logging
+/dev/dsk/md/d4          /dev/rdsk/md/d4         /usr    ufs     1       no      logging
+/dev/dsk/md/d5          /dev/rdsk/md/d5         /var    ufs     1       no      logging
+/dev/dsk/md/d6          /dev/rdsk/md/d6         /u01    ufs     1       no      logging
+...
+swap    		-       		/tmp    tmpfs   -       yes     -
+
+</PRE>
+(double check path is /dev/*dsk/md/...
+
+
+<PRE>
+
+sync; sync;			# optional, flush all data to disk
+lockfs -fa			# lock fs, recommended
+reboot
+
+
+# create the additional submirror components of all slides, use disk in c0t1
+metainit -f d20 1 1 c0t1d0s0 	# addtional mirror of /
+metainit -f d21 1 1 c0t1d0s1	# additiional mirror for swap
+metainit -f d24 1 1 c0t1d0s4	# additiional mirror for /usr
+metainit -f d25 1 1 c0t1d0s5	# additiional mirror for /var
+metainit -f d26 1 1 c0t1d0s6	# additiional mirror for /u01
+
+# add the additional mirrors to be active:
+metattach d0 d20		# activate mirror of / with new slide from d20
+metattach d1 d21		# activate mirror of swap
+metattach d4 d24		# activate mirror of /usr
+metattach d5 d25		# activate mirror of /var
+metattach d6 d26		# activate mirror of /u01
+
+# the above cmd return right away, use metastat to monitor sync process 
+# or metatool for gui monitor/admin tool.
+
+
+# review /etc/lvm/md.tab
+
+output of metastat -p:
+d0 -m d10 d20 1
+d10 1 1 c0t0d0s0
+d20 1 1 c0t1d0s0
+d1 -m d11 d21 1
+d11 1 1 c0t0d0s1
+d21 1 1 c0t1d0s1
+d4 -m d14 d24 1
+d14 1 1 c0t0d0s4
+d24 1 1 c0t1d0s4
+d5 -m d15 d25 1
+d15 1 1 c0t0d0s5
+d25 1 1 c0t1d0s5
+d6 -m d16 d26 1
+d16 1 1 c0t0d0s6
+d26 1 1 c0t1d0s6
+
+
+When all done, reboot again just to be sure all is okay.
+These errors from boot are ok:
+
+Boot device: disk:a  File and args:                                   
+SunOS Release 5.8 Version Generic_108528-16 64-bit
+Copyright 1983-2001 Sun Microsystems, Inc.  All rights reserved.
+WARNING: forceload of misc/md_trans failed
+WARNING: forceload of misc/md_raid failed
+WARNING: forceload of misc/md_hotspares failed
+WARNING: forceload of misc/md_sp failed
+configuring IPv4 interfaces: hme0.
+Hostname: cqdb
+The system is coming up.  Please wait.
+checking ufs filesystems
+/dev/md/rdsk/d6: is logging.
+[...]
+volume management starting.
+The system is ready.
+
+
+If these errors are annoying, update /etc/system and comment out the
+forceload of the unecessary components.  The problem with such mods is that
+should there be a need of raid 5 device down the road, and forget to re-enable  
+these, then there maybe some hair pulling in finding out the error :)
+
+----
+
+Optional update to OBP to allow easier booting,
+should one of the boot disk fail, this allows one to do:
+boot rootmirror
+
+
+Save the following content to a file, eg nvramrc.cmd
+devalias rootdisk    /pci@1f,4000/scsi@3/disk@0,0:a
+devalias rootmirror  /pci@1f,4000/scsi@3/disk@1,0:a
+
+eeprom "boot-device=rootdisk rootmirror"
+eeprom "use-nvramrc?=true"
+eeprom "nvramrc=`cat nvramrc.cmd`"
+
+eeprom boot-device		# read back programmed content
+eeprom nvramrc
+
+</PRE>
+
+--------
+
+<PRE>
+
+A sample test for failure scenario:  replacing one submirror.
+Someime, metastat will report "maintenance needed, issue metareplace...", 
+this can also be used to fix the error if disk err was transitive or relocatable.
+
+
+metadetach d5 d15	# detaches submirror d15 from the host mountable drive 
+			# d5  (/var)   
+			# real failure req metareplace will need -f
+
+metaclear d15		# clear up the association of the orphaned submirror, 
+			# making it no longer part of SDS.
+
+metainit d15 1 1 c0t0d0s5 	# reinitialize the submirror  
+metattach d5 d15		# reattaches it and make active.
+				# should see sync in this time.
+
+
+metainit can be done on device with existing fs:
+
+http://www.sun.com/bigadmin/content/submitted/expand_ufs_svm.html
+describe way of expanding disk using SDS trick.
+
+mkfs -G -M ...
+will expand ufs w/o lvm, but it is "undocumented"
+
+</PRE>
+<!-- relocate the mkfs stuff... -->
+
+
+
+<H4>Clearing out SVM/SDS</H4>
+
+<PRE>
+eg of clean up:
+
+metadb -d /dev/dsk/c0t1d0s7		# rm meta db info in a disk
+metadb -d -f c0t1d0s7			# force removal of meta db info (err fru)
+
+metadetach -f d0 d20			# detach the submirror d20 from d0, 
+					# -f for forced, when there are err 
+metaclear        d20			# rm the metadevice
+
+metainit         d20 1 1 c0t0d0s0	# initialize a new device for use w/ sds
+
+					
+</PRE>
+
+<H4>Replace Bad Hard Drive</H4>
+
+<PRE>
+eg: d0 is the host mirror, with components:
+   d10 = c0t0d0  which is bad in this eg
+   d20 = c3t8d0 which is the good submirror
+
+metadetach -f d0 d10					# offline the disk
+metaclear        d10					# remove its usage reference from SDS
+metadb     -f -d         c0t0d0s7			# remove meta data from disk
+# replace the drive
+prtvtoc       /dev/rdsk/c3t8d0s2  > vtoc.c3t8d0s2
+fmthard -s    vtoc.c3t8d0s2       /dev/rdsk/c0t2d0s2    # create partition/slide info
+metainit         d10  1 1 c0t0d0s0			# initialize the disk for SDS use
+metattach     d0 d10					# attach a submirror d10 to main disk d0
+metadb     -a        -c 1 c0t0d0s7			# add  meta data to the disk
+</PRE>
+
+
+Another method is the use metareplace to 
+"replace a drive with itself".  This method can also be used if the replacement drive
+does not have the same geometry (size) as the original drive or that of the rest 
+of the RAID group.  For example, one can replace a Sun 18 GB hard drive 
+with a COMPAQ/HP 18 GB drive that has fewer cylinders than Sun (but each cylinder 
+holds more bytes).  In such cases, one need to first manually create the partition 
+table using the format command, ensuring that the SDS and metadb slides are larger 
+than the original size (in term of megabytes).
+
+<!-- "metareplace -e d0 c1t13d0s7" was used successfully on maluku, s7 was the main data slide -->
+
+<PRE>
+format (select the right disk carefully, create slide 0 and 7).
+
+metareplace -e d0        c0t0d0s0	# for mirror d0, replace subcompont w/ err
+					# with device itself (after physical 
+					# replace hd)
+metadb     -f -d   c0t0d0s7		# remove meta data from disk
+metadb     -a -c 1 c0t0d0s7		# re-add  meta data to the disk
+
+
+</PRE>
+<H4>Creating RAID 0 device</H4>
+<PRE>
+RAID 0 is called a simple concat in SVM.  
+eg 
+stripping setup : 1 final volume, compose of 3 subdisks.  Use interleave factor of 64k (def 16k, 
+should have this number that match or be exact multiple of oracle read/write block size).
+
+metainit d30 1 3 c0t1d0s0 c0t2d0s0 c0t3d0s0 -i 64k
+newfs /dev/md/dsk/d30
+
+</PRE>
+<H4>Creating RAID 5 device</H4>
+<PRE>
+
+For raid 5, sds simply call it raid.  Here are examples for a MD device with 3 or 8 constituent disk/partition:
+metainit d45 -r c2t3d0s2 c3t0d0s2 c4t0d0s2
+or
+metainit d0 -r c1t0d0s7 c1t1d0s7 c1t2d0s7 c1t3d0s7 c1t8d0s7 c1t9d0s7 c1t10d0s7 c1t11d0s7 -i 32b
+
+Note the -r flag for metainit to inidcate it is raid.
+Otherwise, they are all simple stripe for RAID 0 or 1.
+
+if somehow need to reimport the raid 5 volume, use -k option in metainit.  Not sure how to use it yet though.
+
+
+
+</PRE>
+<H4>Hot Spare Device</H4>
+<PRE>
+
+metainit hot-spare-pool-name ctds-for-slice
+eg
+metainit hsp001 c2t2d0s2 c3t2d0s2
+or
+metainit hsp000 c0t1d0s7
+
+
+after a pool is setup, need to associate it with a volume:
+
+metaparam -h hot-spare-pool component
+eg:
+metaparam -h hsp100 d10
+metaparam -h hsp100 d0		# not done for maluku, thus no auto rebuild.
+
+
+removing hot spare disk c0t1d0s7 from a pool hsp000:
+metahs -d hsp000 c0t1d0s7
+
+
+Note that the pool name still remains when metastat is issued, but no disk attached to it.
+
+</PRE>
+
+<H4>SVM/SDS Tech Details</H4>
+
+<P>
+Sun Volume Manager likes to use slide 7.  Book says it only needs 1 cyl, but it allocates 8, and my
+past experience 15 cyl was needed on a 36 GB drive w/ 24620 cyl!  Oracle1 got 30 cyl for this.
+72 GB actually has only 14087 cyl, so each cyl is biggger.  Hopefully 7 cyl is enough.
+Slide #7 is only convention, book actually use 3.
+If there are not enough cylinnders available, metadb -l [LENGHT] option may help remedy the situation.  
+</P>
+
+<P>
+In contracst, Veritas Volume Manager usually needs 2 free avail partitions 
+(except for boot/root disk, which can do swap reloc but not recommen ded anyway).
+Typically, slice 3 contains all cyl, just like standard slide 2.
+Slide 4 would be the private region for additional VxVM managed partitions.
+However, for root disk needing encapsulation, slide 4 is 1 cylinder at beginning or end of disk.
+Other slide number can be used, 3 and 4 are just convention.
+</P>
+
+<P>
+So, if you want to be safe in term of future upgrade (or downgrade) to Veritas, 
+SVM meta data info should be stored in slide 3, and leave slide 4 unused.
+</P>
+<P>
+Save your disk VTOCs and do metastat -p /etc/lvm/md.tab
+and save both somewhere safe.  It will save you lots of time if you
+need to redo it.
+</P>
+<P>
+Also recommended:  Put two copies of your metdb on each disk in a
+seperate partition on each disk.
+</P>
+
+
+
+<H4>SVM/SDS Config files</H4>
+<PRE>
+
+
+Quick backup of config files for recovery use.
+(see separate config-backup.sh script for more info)
+
+#BKDIR=/export/cfbk
+BKDIR=/var/adm/cfbk
+
+mkdir $BKDIR
+
+cp -p /etc/vfstab 	$BKDIR
+cp -p /etc/system	$BKDIR
+
+cp -p /kernel/drv/md.conf $BKDIR
+cp -p /etc/lvm/md.cf 	$BKDIR
+cp -p /etc/lvm/mddb.cf	$BKDIR
+cp -p /etc/lvm/md.tab	$BKDIR		# really manual file, metastat -p
+
+metastat -p > $BKDIR/`date +%Y%m%d`.metastat-p
+metastat    > $BKDIR/`date +%Y%m%d`.metastat
+
+DISKPATH=/dev/rdsk/
+DISKSET="c0t0d0s2 c0t8d0s2 c0t9d0s2 c0t10d0s2" 
+#DISKSET="c0t0d0s2 c0t8d0s2 c0t9d0s2 c0t10d0s2 c0t11d0s2 c0t12d0s2"
+for DISK in $DISKSET; do
+	prtvtoc $DISKPATH/$DISK > $BKDIR/`date +%Y%m%d`.vtoc."$DISK"
+done
+
+#eepromp param (alias for booting, if setup)
+eeprom nvram 	> $BKDIR/`date +%Y%m%d`.eeprom.nvramrc.out
+eeprom 		> $BKDIR/`date +%Y%m%d`.eeprom.out
+
+----
+
+
+sol 8:
+/etc/system
+* Begin MDD root info (do not edit)
+forceload: misc/md_stripe
+forceload: misc/md_mirror
+forceload: misc/md_trans
+forceload: misc/md_raid
+forceload: misc/md_hotspares
+forceload: misc/md_sp
+forceload: drv/pcipsy
+forceload: drv/glm
+forceload: drv/sd
+rootdev:/pseudo/md@0:0,0,blk
+* End MDD root info (do not edit)
+
+* Begin MDD database info (do not edit)
+set md:mddb_bootlist1="sd:456:16 sd:360:16 sd:368:16 sd:376:16 sd:384:16"
+set md:mddb_bootlist2="sd:416:16 sd:424:16 sd:440:16"
+* End MDD database info (do not edit)
+
+
+and use /etc/lvm/
+mddb.cf
+md.cf
+
+solaris 9 and 10:
+
+nothing in /etc/system, the above mddb_bootlist1 commands cause unbootable system!
+put data in /kernel/drv/md.conf
+mddb_bootlist1="sd:104:16:id1,sd@SSEAGATE_ST39103LCSUN9.0GLSF12046000010280QJL/a";
+                Unit 0   Disk     SEAGATE ST39103LCSUN9.0G034A         # obp probe-scsi-all
+/a = slide 0 for metadb
+/h = slide 7 for metadb
+still can't figure out the sd@ part beyond disk model number :(
+
+ref eg for recovery:
+mddb_bootlist1="sd:16:16:id0"; md_devid_destroy=1;
+reboot, and system will update md.conf with the magic values, and metadb will work 
+(sol 9 only, importing from sol 8 volume, but so far can't get it to work on sol10,
+maybe that was due to the fact that maluku was a jump from sol8.  
+Intermediate sol 9 may have added device signature and then that was used 
+successfully for to reproduce the whole SDS volume.
+
+there are files in /etc/lvm.
+but mddb.cf is very diff than 8, as it use device id (embeded on disk metadb area?)
+
+for disk import, allegedly just need to match
+major/minor num, name_to_major (sd)
+
+ls -lL /dev/dsk/c*sX
+where X is the slide number of the metadb slide (typically 7)
+
+For sol 9, see steps in, not as hard as it looks:
+http://docs.sun.com/app/docs/doc/817-2530/6mi6gg8e0?a=view#troubleshoottasks-pro
+c-86
+
+</PRE>
+
+
+SVM/SDS require modules in kernel, which is not loaded in single user mode.
+use <TT>modinfo | grep md </TT> to see if they are loaded (eg SVM, ramdisk)
+
+
+
+
+References:
+
+Sun SVM admin guide, w/ instructions to create diff devices and some troubleshooting cases.<BR />
+<A HREF="http://docs.sun.com/app/docs/doc/817-2530/6mi6gg88t?q=SVM&a=view">Doc 817-2530</A>
+<BR>
+sol 8 disk suite has the long time stable.
+<BR>
+sol 10 svm has the latest commands, with latest feature and changes.
+<BR>
+
+
+
+<H1>Connectivity (Network)</H1>
+<H2>NIC</H2>
+
+<A ID="ndd"></A>
+<PRE>
+ndd -get /dev/hme status_link   # query nic speed, see ndd ref in email
+ndd -get /dev/hme \?            # list all possible param
+
+ndd -get /dev/hme \? | fgrep -v '?' |  awk '{print "echo " $1 "; ndd -get /dev/hme " $1 }'  | sh
+		# display all NIC parameters, must run as root
+
+
+ndd -get /dev/ip \? | fgrep -v '?' |  awk '{ print $1 }' | awk -F\( '{print "echo; echo ---- " $1 " ----; ndd -get /dev/ip " $1 " ; echo"}' | sh 
+		# display lot of IP info.  May want to pipe it to less... 
+
+ndd -get /dev/tcp \? | egrep -v '\?|obsolete' | awk '{print "echo; echo ---- $1 " ----; ndd -get /dev/tcp " $1 " ; echo"}' | sh 
+		# display lot of TCP info.
+
+kstat -p hme:0::'/collisions|framing|crc|code_violations|tx_late_collisions/'
+kstat -p dmfe:0::'/collisions|framing|crc|code_violations|tx_late_collisions/'
+		# get NIC collision stat from kernel stat.  Runnable as user.
+
+
+
+</PRE>
+
+See also: <A HREF="tool.html#perf">Performance measurements</A>.
+
+<H2>Network Config</H2>
+
+<PRE>
+
+/etc/hostname.hme0	# default hostname/IP
+/etc/hosts              # solaris is actually /etc/inet/hosts
+/etc/nodename
+/etc/inet/ipnodes       # solaris 10 also put IP address in here, manual update!
+
+ifconfig -a
+ifconfig hme0 plumb
+ifconfig hme0 10.10.0.101 broadcast 10.10.0.255 netmask 255.255.255.0 up
+
+ifconfig hme0 dhcp      # for DHCP instead of static IP (see USAH).
+
+hostname
+
+adding statig roures in dual homed host:   
+route add net [network number] [gateway], eg
+route add net 172.17.224.0 172.17.160.1
+Note that [gateway] is within the local network (ie 1 hop) from one of the interfaces in the computer.
+In this case, this computer had hme1=172.17.160.8.
+
+solaris adding default route (usually in /etc/defaultrouter)
+route add default [IP]
+
+</PRE>
+
+
+<A NAME="ipmp">
+<H2>IPMP</H2></A>
+
+Solaris IP Multi Path.  Ethernet/IP layer redundancy w/o support from switch side.
+<BR>
+Can run as active/standby (more compatible, only single IP presented to outside world),
+or active/active config (outbound traffic can go over both NIC using 2 IPs, 
+inbound will depends on the IP the client use to send data back, so typically only 1 NIC).
+<BR>
+
+<PRE>
+
+hostname.ce0 (main active interface) ::
+oaprod1-ce0 netmask + broadcast + deprecated -failover \
+group oaprod_ipmp up \
+addif oaprod1 netmask + broadcast + up
+
+hostname.ce2 (active-standby config) ::
+oaprod1-ce2 netmask + broadcast + deprecated -failover \
+standby group oaprod_ipmp up
+^^^^^^^
+
+hostname.ce2 (active-active config) ::
+oaprod1-ce2 netmask + broadcast + deprecated -failover \
+group oaprod_ipmp up \
+addif oaprod-nic2 netmask + broadcast + up
+
+/etc/inet/hosts ::
+172.27.3.71    oaprod1
+172.27.3.72    oaprod1-ce0
+172.27.3.73    oaprod1-ce2
+172.27.3.74    oaprod2-nic2
+
+
+
+</PRE>
+
+<H2>NFS</H2>
+
+<PRE>
+/etc/dfs/dfstab
+(add sample)
+
+/etc/default/nfs        # solaris 10, need to change NFS client (and server) default vers max to 3
+                        # NFS 4 has nasty problems of ignoring NFS v3 security settings!!
+/etc/default/autofs	# all automount options are to be specified here, 
+			# no more args for cli/init script such as -D ARCH=SOL10
+			# eg: AUTOMOUNTD_ENV=ARCH=SOL10
+
+
+</PRE>
+
+
+<H1>System Config</H1>
+ 
+<A NAME="software_management"></A>
+<H2>Software Management</H2>
+
+<PRE>
+pkginfo                         : display installed package 
+pkgchk [pkgname]		: check the accuracy of package (installed or spooled)
+pkgadd -d [pkgname] all         : install all entries from [pkgname]
+pkgrm [pkgname]                 : remore package shown in pkginfo
+
+patchadd [path-dir-name]        : uncomrpress, untar patch, creates a dir, patch add it
+                                  [.zip patch need to be uncompressed, then use the folder name as param).
+patchadd -M [source src dir] [patch-dir-name] : apply (m)ultiple patches avail at source dir
+patchadd -u [patch-dir-name]	: -u "Turns off file validation", so it kinda force reinstall of the patch
+						
+patchrm  [patch-id]             : remove specified patch (ie undo the patch addition)
+
+
+pkgtrans -n RICHse ./		: convert a package into file system format
+				: ie expand/extract the files w/o installing it.	
+</PRE>
+
+See also <A HREF="http://www.par.univie.ac.at/solaris/pca/">
+Patch Check Advance</A>, an interesting tool.<BR><BR>
+
+<H4>Patchadd Exit Codes</H4>
+<PRE>
+     sol 9 / sol 10 patchadd exit code:
+         2 / 1 : Attempt to apply a patch that's already been applied
+         8 / 1 : Attempting to patch a package that is not installed
+        35 / 8 : Later revision already installed
+        25 / ? : A required patch is not applied
+</PRE>
+
+	Up till Solaris 9, the patchadd was a shell script in /usr/sbin, and
+	all the return codes are listed in the beginning of the script.  
+	But with Solaris 10, patchadd is a ELF executable, it has different 
+	return code, but the flag <B>-t</B> will make it use the older return code.
+	I am reproducing the original return code here for convinience.
+
+<!-- Would be nice to have some sort of java script that expand/contract this 
+     "sidebar quotebox
+-->
+<PRE class="quotebox">
+Solaris 8, 9 patchadd script return codes (or Solaris 10 w/ -t option):
+
+0       No error
+1       Usage error
+   2    Attempt to apply a patch that's already been applied	[S10=1]
+3       Effective UID is not root
+4       Attempt to save original files failed
+5       pkgadd failed
+6       Patch is obsoleted
+7       Invalid package directory
+   8    Attempting to patch a package that is not installed	[S10=1,8]
+9       Cannot access /usr/sbin/pkgadd (client problem)
+10      Package validation errors
+11      Error adding patch to root template
+12      Patch script terminated due to signal
+13      Symbolic link included in patch
+14      NOT USED
+15      The prepatch script had a return code other than 0.
+16      The postpatch script had a return code other than 0.
+17      Mismatch of the -d option between a previous patch
+	install and the current one.
+18      Not enough space in the file systems that are targets
+	of the patch.
+19      $SOFTINFO/INST_RELEASE file not found
+20      A direct instance patch was required but not found
+21      The required patches have not been installed on the manager
+22      A progressive instance patch was required but not found
+23      A restricted patch is already applied to the package
+24      An incompatible patch is applied
+   25   A required patch is not applied				[common]
+26      The user specified backout data can't be found
+27      The relative directory supplied can't be found
+28      A pkginfo file is corrupt or missing
+29      Bad patch ID format
+30      Dryrun failure(s)
+31      Path given for -C option is invalid
+32      Must be running Solaris 2.6 or greater
+33      Bad formatted patch file or patch file not found
+34      Incorrect patch spool directory
+   35   Later revision already installed			[S10=8]
+36      Cannot create safe temporary directory
+37      Illegal backout directory specified
+38      A prepatch, prePatch or a postpatch script could not be executed
+39      A compressed patch was unable to be decompressed
+40      Error downloading a patch
+41      Error verifying signed patch
+</PRE>
+
+<PRE>
+showrev         : showrevision (display system properties, incl hostid, os version, etc)
+showrev -p      : show all patches applied to sys
+pkgparam        : show parameter of a package, eg where to install, etc
+pkgparam [pkgid] PATCHLIST              : show all patche3s applied to the package [pkgid]
+pkgparam [pkgid] PATCH_INFO_[patch_num] : shows installation date, etc of specific patch applied to [pkgid]
+
+
+To search to see which package installed a given file, grep thru the /var/sadm/install/contents file.  
+eg, find who installed the cc (shell script!):
+grep /usr/ucb/cc /var/sadm/install/contents
+
+---
+
+admintool       : gui for varios task, add user, etc.  runnable by user in gid 14
+
+</PRE>
+
+<A NAME="smc"></A>
+<PRE>
+smc             : sun management console, X GUI.
+                  allow viewing of logs, some user config, etc.  
+                  SUPPOSED to have patch management and sol 9 allow multiple host patch at same time.
+		  Depends on WBEM server process to be running (rc2.d/S9?wbem), require network port.
+		  
+prodref		: some GUI tool for "super" package mangement.
+
+smpatch         : Patch Management, analyze, download, install.
+                  easier to figure out which patch to get, especially for storage and cluster products.
+                  Both smc and smpatch sol 9 ins def, in /usr/sadm/bin
+                  They are thick net client, req extra service (daemon and tcp port open)
+
+smpatch download -i 105407-01 -i 116298-08 -i 116302-02
+		: download the list of patches
+		: looks for later revision also, so can specify -01 for all patches.
+		: resolve dependencies??
+smpatch add -i 105407-01 
+		: install the defined patches, multiple -i accepted
+
+PatchPro...     : another patch tool...
+
+
+Patch Manager	: tool from sun website, for Sol 8 and 9.
+
+
+svcadm          # solaris 10 new method of starting services, 
+                # most basic OS dependent services have been migrated,
+                # though the higher app level are still in /etc/rc*.d/
+
+svcadm enable  autofs   	# permanently enable  autofs service, starting it now
+svcadm disable autofs		# permanetnly disable the service, stopping it now also. 
+svcadm enable  -t ssh		# temporary enable the service, only last till reboot.
+svcadm disable -t ssh
+svcadm disable svc:/network/nis/client	# NIS
+svcadm enable  network/ldap/client	# LDAP client
+
+svcs "*"           	# produce a list of services, and their current status
+svcs -l ldap/client     # long view of ldap client service status, dependencies, etc
+
+
+
+</PRE>
+<A NAME="jass"></A>
+<H2>JASS</H2>
+<!--jass.ref-->
+
+Sun JASS Security toolkit.  
+Good stuff, can replace all the security script I wrote, but I still prefer to use mine for the basic 
+service disabling as the filename created by jass is kinda long and clunky.
+
+
+<PRE>
+default root password: 	t00lk1t
+
+---
+
+pkgadd -d SUNWjass all
+
+cd /opt/SUNWjass
+
+script
+./jass-execute -d secure.driver
+
+exit
+
+
+
+
+exit
+
+
+NOTE that  jass disalbe the X server, so even Xvnc will not be able to start.
+
+vi /etc/dt/config/Xservers
+bottom of file, remove the the section 'nolisten tcp'
+
+==============================================================================
+secure.driver: Finish script: disable-xserver-listen.fin
+==============================================================================
+
+Disabling the ability for the X11 server to listen on TCP/6000.
+
+Adding the '-nolisten tcp' option to the file, //etc/dt/config/Xservers.
+This file is being created from the master version of the file,
+//usr/dt/config/Xservers.
+
+[NOTE] Creating a new file, /etc/dt/config/Xservers.
+[NOTE] Copying /etc/dt/config/Xservers to /etc/dt/config/Xservers.JASS.200301282347
+49
+
+
+
+---
+
+jass disable rsh.
+To re-enable rsh.
+edit /etc/pam.conf
+remove comment (ie, re-enable):
+rsh   auth sufficient         pam_rhosts_auth.so.1
+
+/etc/inetd.conf
+/etc/hosts.equiv	# not really needed.
+/.rhosts
+	hostname user
+
+
+</PRE>
+
+<A NAME="hardware_commands"></A>
+<H2>Hardware commands</H2>
+
+<PRE>
+
+format  = slice/partition disk, surface scan, etc.  Linux/DOS call this fdisk.
+          Note that under part submenu, use "label" to save changes to the partition table to disk.
+	  Use "volname" to add a name to the disk volume (shown in format disk list)
+
+prtvtoc : print the volume table of content (vtoc, ie the partition table + disk geometry data)
+
+swap -l                                 list swap info<br>swap -a /dev/dsk/c...   add slide as swap<br>swap -d /dev/dsk/c...   delete  slide as swap<br>
+
+
+drvconfig; disks        : create entries in /dev/dsk/c*t* ... 
+drvconfig; tapes        : create entries for backup tape drives in /dev/rmt
+			: sometime drvcnofig cause problem, device config need boot -r to fix.
+devfsadm 		: "new" solaris command for scanning new storage devices.
+
+
+drvconfig; tapes; devlinks              : tell system to reconfigure for new tape drive, eg /dev/rmt/0cbn etc
+
+
+
+Fiber Channel commands:
+
+
+cfgadm -c configure [c3]        # configure controller 3 (HBA), scan san for LUN
+                                # run devfsadm if needed, then see new "disks" in format
+
+cfgadm -c unconfigure c3        # remove all config of the given controller
+
+
+cfgadm -c unconfigure c0::dsk/c0t11d0	# unconfigure internal scsi disk (eg E250)
+					# so that dead disk no longer show up in "format"
+					# but still shows up in cfgadm -al 
+					# (may need a reconfigure reboot to completely clear it)
+cfgadm -c unconfigure c3::wwn   # remove spurious entries in /etc/cfg/fp/fabric_WWN_map devices.
+                                # such device cause boot warnings if left in there.
+cfgadm -o force_update -c unconfigure cX::wwn   # forceful manner of above
+cfgadm -c unconfigure -o unusable_FCP_dev cX:wwn
+
+
+
+luxadm fcode_download -p
+        display HBA firmware version and driver/path info.
+        luxadm is probably only for 880 w/ sse dev, and some sun array products.
+
+luxadm probe
+        display WWN of fc dev
+
+luxadm display [logical_dev]
+        ...
+
+
+
+
+</PRE>
+
+<A ID="display_resolution">
+<H4>Display resolution</H4></A>
+
+Command to change VGA resolution in SOlaris 9 and 10, sparc.
+Don't remember if they also worked for x86.
+
+<PRE>
+fbconfig -help
+fbconfig -res \?        = list supported resolution for given frame buffer card
+                          It seems to poke the monitor to see what it supports also.
+fbconfig -res VESA_STD_1600x1200x85 try = test out desired resolution, test doesn't display anything
+                                          but it does set monitor to that resolution, and monitor ODM
+                                          can be used to see resolution/refresh or whether it blank out.
+                                          At the end, it prompt to save cnofig or not.
+fbconfig -res VESA_STD_1600x1200x85 now = setup for this session only, but not permanent?
+fbconfig -res VESA_STD_1600x1200x85     = no subcommand, seems to just set it.
+fbconfig -res VESA_STD_1856x1392x75 now = used in sunblade2500, actual monitor res=1920x1440, which fb don't support.
+
+</PRE>
+
+<H4>Drivers</H4>
+<!--cmd.sun.etc.ref-->
+For the odd occasion of needing to add drivers, here are the things to lookup:
+
+<PRE>
+add_drv
+rm_drv
+
+FILES
+     /kernel/drv
+           boot device drivers
+     /usr/kernel/drv
+           other drivers that could potentially be shared between platforms
+     /platform/`uname -i`/kernel/drv
+           platform-dependent drivers
+     /etc/driver_aliases
+           driver aliases file
+     /etc/driver_classes
+           driver classes file
+     /etc/minor_perm
+           minor node permissions
+     /etc/name_to_major
+           major number binding
+
+
+
+kdmconfig       = hardware config used during install
+
+
+
+</PRE>
+
+
+
+
+
+<A NAME="obp">
+<H2>OBP</H2></A>
+<!-- sun.obp.ref (former filename = boot.ref) -->
+<PRE>
+Sun keyboard OBP related keystrokes:
+
+stop-a		: abort
+stop-d		: enter diag mode
+stop-f		: forth in ttya
+stop-n		: reset nvram to default values  
+</PRE>
+
+<H4>Sun openboot EEPROM commands</H4>
+
+<PRE>
+boot cdrom   	boot from cdrom
+boot disk	boot from local hd
+boot net	boot by asking for tftp file
+
+boot -r 	reconfigure, ie use when adding new devices eg hd
+		alternatively, create file /reconfigure and reboot.
+
+
+boot cdrom - install	install new os (upgrade is done by software after boot).
+
+
+boot cdrom - install    = normal install from cdrom
+boot net - install      = jumptstart install
+boot -s                 = single user mode, hd is typically first default boot device
+boot cdrom -s		= single user mode boot from cd (for resetting root password use, etc)
+boot net0 -s            = use jumpstart server, boot over network as single user
+boot net1 -s            = net=net0, net1 is 2nd NIC
+
+boot -a			= ask me, prompt for alternate /etc/system file, etc
+			  Default will continue to boot to level 3.
+boot -as		= -a and -s combined.
+
+
+
+probe-scsi-all
+test-all
+test /memory
+test net
+
+
+.asr			= show list of components that can be disabled/enabled
+asr-disable cpu0	= disable CPU0
+			  Other components can be bank0, dimm0
+asr-enable  cpu0	= enable CPU0 again, after it has been fixed.
+
+
+printenv                : display all nvram var/value/default settings
+setenv	[var] [value]	: set nvram variables to specified value
+
+[var]
+output-device	def: screen	alt: ttya ttyb
+input-device	def: keyboard	alt: ttya ttyb  
+				(some jerk has console, which, with frame buffer
+				card present, won't use ttya for output, weired...)
+ttya-mode	def: 9600,8,n,1,-
+screen-#rows	def: 34
+auto-boot?	def: true
+
+
+set-defaults	: reset all nvram config param to default
+
+security-mode 	def: none   other: level command	# obp password stuff
+
+device alias are set via nvalias [var] [val] and nvunalias [var]
+
+
+---
+Inside Solaris, shell command prompt can issue command eeprom to view and set eeprom variables, 
+including nvramrc, see the SDS/SVM root disk mirror for procedure.
+for nvramrc modification, it is easiest if done from within solaris rather than 
+at the actual OK prompt.
+For x86 platform, eeprom command from the shell must be used, as it doesn't have 
+a real OBP proper.
+
+eeprom | grep serial    # show system board serial, but not serial of machine
+                        # for sun support case.
+
+
+# eeprom local-mac-address?=true	
+use qfe internal local mac instead of same mac for all interfaces).
+seems to require reboot; unplumb and plumb did not get it changed.  
+ifconfig has another option to program desired mac on it.
+
+
+(in obp, it was either setenv or nvram something...)
+
+
+
+---
+</PRE>
+<!--
+old irrelevant stuff now:
+etc stuff I was playing with OBP to determine IDE devalias req for nvramrc config.
+
+ultra 5 (tin-u5) in obp:
+nvedit
+devalias rootdisk /pci@1f,0/pci@1,1/ide@3/disk@0,0:a
+^C
+nvstore
+
+but still didn't work.  end up boot into OS.  actually, it worked now.
+But nvedit leaves lot of blank lines at the end, so going back to solaris and use eeprom to set nvramrc provides neater result.
+-->
+
+<PRE>
+Note that IDE disks have diff device path than scsi and fc devices:
+
+/dev/dsk/c0t0d0s0 -> ../../devices/pci@1f,0/pci@1,1/ide@3/dad@0,0:a
+/dev/dsk/c0t2d0s0 -> ../../devices/pci@1f,0/pci@1,1/ide@3/dad@2,0:a
+/dev/dsk/c0t3d0s0 -> ../../devices/pci@1f,0/pci@1,1/ide@3/dad@3,0:a
+                                   ^^^^^^^^^^^^^^^^^^^^^^ 
+                                   ^^^^^^^^^^^^^^^^^^^^^^/disk@0,0:a 
+     Final rootdisk devalias:     /pci@1f,0/pci@1,1/ide@3/disk@0,0:a
+
+
+IDE disks device on x86 has name of the form: c0d0s1 (ie, no d-number)
+
+
+----
+
+
+
+redirect to use serial a as console
+
+eeprom tty-ignore-cd=true
+eeprom input-device=ttya
+eeprom output-device=ttya
+
+
+
+---
+
+redirecting serial console to the serial port of RSC card (Remote Server Control)
+Note that it is not like the LOM on SunFire V100.
+RSC require OS software counterpart to work.
+So, before setting this OBP param, install RSC software first!!
+
+
+diag-console rsc
+setenv input-device rsc-console
+setenv output-device rsc-console
+
+to get back to default settings (non-rsc)
+diag-console ttya
+setenv input-device keyboard
+setenv output-device screen
+
+
+Procedure to restore console to ttya.  It works for V880 and V480, 
+For E250, just remove RSC card.
+
+        After turning on the power to your system, watch the front panel wrench 
+LED for rapid flashing during the boot process. Press the front panel Power
+button twice (with a short, one-second delay in between presses).
+[it is not the immediate boot flashing, wait for about 1 minutes later, 
+where service light flashes longer and front panel yellow arrrow does not comes on).
+
+Notes:
+        The above procedure sets all nvram parameters to their default settings. 
+These changes are temporary and the original values will be restored after the 
+next hardware or software reset.
+</PRE>
+
+
+Ref: 
+<A HREF="http://www.sunshack.org/data/sh/2.1/infoserver.central/data/syshbk/General/OBP.html">
+http://www.sunshack.org/data/sh/2.1/infoserver.central/data/syshbk/General/OBP.html
+</A>
+
+
+
+<A NAME="light_out_management"></A>
+<H2>Light Out Management </H2>
+
+<!-- lom.ref -->
+<A ID="lom"></A>
+Sun Light Out Management (LOM).
+IMHO, this is the best Serial Console Interface + Management of all the Sun machines.  
+LOM is available in the Telco grade machines, like V110, V1280.
+It works directly over the RJ45 serial port, no special config needed, and it will ALWAYS work.
+RSC card can go bad and one will be left without a working console, really bad when you are 
+logging in remotely using a serial concentrator.
+<BR>
+For LOM, only need to learn a few critical commands.
+From serial console into serial A port:
+
+<PRE>
+#.		= sequence to get to LOM prompt (shell or obp).
+console		= return to os, normal console fn on original system state.
+break		= go to obp ok> prompt
+
+poweron
+poweroff
+
+there are options for LOM to automatically power cycle machine if it does not receive LOM events after threshold.  
+Solve misterious hang problem.
+
+
+---
+
+shell level command
+
+lom -a		: display all lom config
+
+
+<H4>"Advanced" Light Out Management</H4>
+
+ALOM - Advanced LOM.  IMHO, A should be Awful rather than Advance.  
+I personally prefer the functionality and usage of LOM.
+ALOM is a add-on card for V210, V220, V440 
+It isn't the same as LOM, as it is not available over the serial console port.
+The serial provided by ALOM is not an automatic mirror of the system console either.
+<BR>
+(New V490 claims to have ALOM, while the card look like ALOM card, 
+all the doc points that it is an RSC card (sans modem connection of old
+RSC card).  Couldn't login to tell more :(  But it requires 
+serial redirection like RSC, so not worth the headache.
+<BR>
+
+It is probably a bit more integrated with the OS, to the sense that OS 
+can issue commands to configure/interact with ALOM, via the scadm command in
+/usr/platform/SUNW,Sun-Fire-V240/sbin/scadm  ALOM-cmd
+<BR>
+
+ALOM cmd:
+usershow
+...
+</PRE>
+I didn't find it fruitful to learn ALOM.  If you like, help yourself:
+<A HREF="http://docs.sun.com/source/817-1960-10/index.html">ALOM doc 817-1960</A>
+
+<BR/>
+<A NAME="remote_service_controller"></A>
+<A ID="rsc"></A>
+<H2>Remote Service Controller</H2>
+<!--rsc.ref-->
+
+
+A large number of Sun machines have an RSC PCI card in the back, eg E220$, E420R, V480).
+The PCI card has a build in batter pack and thus allow one to use it even when 
+machine is powered off.  It allows the admin to remotely power on the machine, and, 
+if Serial Console is redirected, to gain access to it also.
+The biggest flaw is that the console has to be redirected via OBP, and it is a redirect, 
+not a mirroring of the console as done by HP-UX or AIX.  The RSC card also need special 
+software installed on the machine first, so forget about using it as the console for 
+setting up OS on a new box.   Again, I like LOM, nothing else from Sun is better than LOM :)
+I do wish that the make LOM the standard for ALL machines, but with the new AMD-based machines, 
+I think Sun is going even more backward and using VGA, PS/2 Keyboard and Mouse.  Yikes!
+<BR><BR>
+RSC has both serial console and NIC for telnet/http login to the RSC service.  
+If terminal server/serial concentrator is available, the only thing that
+RSC provides is the ability to remotely power cycle the machine.  
+<!--Configured for oa-dr site machines-->
+
+<PRE>
+Main ref:
+Sun  Remote System Control (RSC) 2.2 User's Guide
+It refers to E-250, but okay in 280R, V480
+
+pkgadd -d .     
+system      SUNWrsc        Remote System Control
+system      SUNWrscd       Remote System Control User Guide
+system      SUNWrscj       Remote System Control GUI
+
+/usr/platform/.../rsc/rsc-config
+
+Choose to give static ip, configure user, default mode cuar, 
+(username rsc), password is prompted after it upload settings
+to rsc firmware, which takes several minutes.
+Password is 6-8 chars.  C.0..Ma.   
+
+Use telnet to configured IP.
+Default escape char is ~.
+
+Can install GUI client.
+Can redirect console to rsc (serial port), and it has advantage of
+being up even machine in standby mode, allow power on.
+But MUST install rsc packages first, then change eeprom settings:
+
+ok diag-console rsc
+ok setenv input-device rsc-console
+ok setenv output-device rsc-console
+
+RSC was said to be buggy by Chong's friend.
+Noticed once changing IP, which req rsc firmware reload, it reset the eeprom in/out-put device back to tty!
+
+
+
+p34:
+If RSC is not designated as the system console, you cannot use RSC to access the
+console. You can temporarily redirect the console to RSC using the RSC bootmode
+-u command, or by choosing Set Boot Mode using the RSC GUI and checking the
+box labeled ÙForce the host to direct the console to RSC.ˆ These methods affect the
+next boot only.
+
+
+---
+Saving config and user account info:
+
+rscadm show 	> rscadm_usershow.out
+rscadm usershow > rscadm_usershow.out
+
+commands are in /usr/platform/SUNW,Sun-Fire-480R/rsc
+---
+
+GUI avail for sun and windows.
+/opt/rsc/bin/rsc is GUI client.
+GUI listen on port 7598 (per netstat).
+Not sure if there are ways to turn this GUI feature off...
+
+---
+Security assesment:
+Ports open on RSC card  IP address as per nmap scan:
+filtered ports are not actually connectable using telnet test.
+so, really just open 23 and 7598.
+
+
+Port       State       Service
+23/tcp     open        telnet                  
+445/tcp    filtered    microsoft-ds            
+1434/tcp   filtered    ms-sql-m                
+4444/tcp   filtered    krb524                  
+6346/tcp   filtered    unknown                 
+6347/tcp   filtered    unknown                 
+6667/tcp   filtered    irc                     
+7598/tcp   open        unknown                 
+7777/tcp   filtered    unknown                 
+8888/tcp   filtered    sun-answerbook         
+
+(per snoop, port 5838 was in use, probably random port for comm)
+</PRE>
+
+<H5>RSC commands</H5>
+(From Chapter 4 of sun RSC pdf doc).
+<PRE>
+
+environment Displays current environmental information
+showenvironment Same as environment
+shownetwork Displays the current network configuration
+console Connects you to the server console
+break Puts the server in debug mode
+xir Generates an externally initiated soft reset to the server
+bootmode Controls server firmware behavior, if followed by a server reset
+within 10 minutes (similar to L1-key combinations on non-USB Sun
+keyboards)
+reset Resets the server immediately
+poweroff Powers off the server
+poweron Powers on the server
+loghistory Displays the history of all events logged in the RSC event buffer
+consolehistory Displays the history of all console messages logged in the buffer
+consolerestart Makes the current boot and run console logs Ùoriginalˆ
+set Sets a configuration variable
+show Displays one or more configuration variables
+date Displays or sets the current time and date
+showdate Same as date command without arguments
+setdate Same as date command with arguments
+password Changes your RSC password
+useradd Adds an RSC user account
+userdel Deletes an RSC user account
+usershow Shows characteristics of an RSC user account
+userpassword Sets or changes a user∆s password
+userperm Sets the authorization for a user
+resetrsc Resets RSC immediately
+help Displays a list of RSC shell commands and a brief description of
+each
+version Displays version number for RSC firmware and components
+showsc Same as version without the -v option
+flashftp Updates the RSC Flash ROM image
+display-fru Displays information stored in the RSC serial EEPROM
+logout Ends your current RSC shell session
+setlocator Turn the system locator LED on or off (Sun Fire V480 servers only).
+showlocator Show the state of the system locator LED (Sun Fire V480 servers
+only).
+
+</PRE>
+
+<A ID="ipmi"></A>
+<H2>IPMI</H2>
+
+<!-- impi.ref -->
+<PRE>
+
+
+sun v20z and v40z amd 64 machines
+come with IPMI management port.
+See sun doc 817-5249-11 ServerManagementGuide.pdf for details.
+Claimed to be an open standard, supported by Intel, sourceforge, etc.
+
+There is LOM (light out management) on v40z, accessible from IPMI lan port
+(but not serial port?)
+
+
+Service Processor (SP) run software to emulate full hardware 
+BMC card (Baseboard Management Controller).
+
+SP IP Address can be set via front panel or default to DHCP
+
+ssh sp_ip_address -l setup
+	SP username initial setup.
+	Once setup is completed, "setup" account (user) will be deleted.
+	If it prompt for password, it has been setup.
+	Lost password, SP can be reset from front operator panel.
+
+SP also has its own SNMP traps and management channel.
+See diagram p5 for in-band, out-of-band, snmp, etc config abilities/setup.
+P20 has daisy chain setup of management LAN port.
+
+---
+
+
+Serial over LAN (SOL). p71
+Will disable the com A serial port.
+Doesn't seems to do graphics KVM, though some slight mention in beginning.
+Need to see if Solaris will default to use Serial or need Video!!
+Did read anything about OBP...
+
+ssh -l spUser spIpAddr platform set console -s sp -e -S 9600
+	enable SOL.
+	spUser is the Service Processor user name
+	spIpAddr is the Service Processor IP Address
+
+ssh -l spuser spipaddr platform set console -s platform
+	Disable SOL
+
+ssh spIpAddr -l spUser platform console
+	Launch a SOL session.  
+	To end session, either terminate ssh session via ssh escape ~.
+	or use keystroke seq: ^e c .  (ctrl-e, c, then period)
+
+
+-----
+
+
+ssh -l spipaddr spuser
+	To get to interactive shell with SP via dedicated IPMI LAN port 
+	Here, IPMI commands can be issued.
+
+
+----
+
+IPMI commands.
+see ...
+
+IPMI commands can be issued via a login to the IPMI LAN port, or
+from the running host using the command ipmitool,
+this is available in both Solaris and Linux,
+and it is a special kernel module that need to be installed/compiled in,
+and activated/loaded after boot.
+
+# enabling IPMI thru lan interface on sol x64 / linux  p 17
+ipmitool -I lipmi lan set 6 ipaddr <ipaddr>
+ipmitool -I lipmi lan set 6 netmask <netmask>
+ipmitool -I lipmi lan set 6 defgw ipaddr <gwipaddr>
+ipmitool -I lipmi lan set 6 password <ipmipasswd>
+
+# enabling LAN IPMI access, via out-of-band setup via LAN, p18
+ipmi enable channel lan  
+
+# if ipmi lan channel access is not allowed, no further ipmi commands
+# can be issued from the ssh session to the SP/IPMI port.
+# once enabled, many commands are availabe, eg:
+
+ipmitool -I open help 			# get help
+ipmitool -I open chaninfo		# get channel info
+ipmitool power status			# currrent power status
+ipmitool power on|off|cycle|reset	# power related commands.
+ipmitool lan print			# print IPMI lan port info
+ipmitool lan set			# set IPMI lan port adress, see p 34
+
+
+
+</PRE>
+
+<H2>Diagnostic tool</H2>
+
+<PRE>
+sun explorer.  5.0 avail before 2005/04/15.
+http://sunsolve.sun.com/pub-cgi/show.pl?target=explorer/explorer
+
+pkgadd -d . SUNWexplo SUNWexplu
+/opt/SUNWexplo/bin/explorer -g                  # first time setup, create machine/co profile.
+/opt/SUNWexplo/bin/explorer -w \!storage        # run exluding storage check, good for shared storage.
+        -email                                  # supposed to mail sun directly.
+log in /opt/SUNWexplo/output/...
+
+Note that there are some issues with shared storage,
+and according to SE, with SunCluster.  Okay in VCS.
+
+
+--
+
+
+SunVTS, Sun Validation and Test suite for hardware verification and stress test.
+http://www.sun.com/oem/products/vts/index.html
+ver 5.1 (ps9) works for sol 9 and 8 (maybe 7).
+[ver 6.0 works exclusively for sol 10; pkg install slightly diff]
+pkgadd -d . SUNWlxml SUNWlxmlx          # for sol 8 w/o xml pkg
+pkgadd -d . SUNWvts SUNWvtsx SUNWvtsmn 
+# ask to enable kerberos, answer no.
+Can copy /opt/SUNWvts/bin to an NFS dir and run it from there.
+Sol 8 still need SUNWlxml and SUNWlxmlx installed for lib dependencies.
+Sol9 seems to have some warning but runs ok.
+cd /opt/SUNWvts/bin
+./sunvts -t -l logdir   # -t = TUI, easy to just start default test and let it run 
+                        # -l /path/to/logdir so that it does not log to /tmp by default
+
+
+</PRE>
+
+
+
+<A NAME="random_sun_hardware_info"></A>
+<H2>Random Sun Hardware Info</H2>
+<!-- sun.hw.ref -->
+<PRE>
+As per sun 420 server manual doc # 806-1080 p69,
+
+CPU installation order is:
+memory modules | slot 3 | slot 2 | slot 1 | slot 0 | PCI bus
+install order  |   3rd  |   1st  |  2nd   |  4th   |  
+
+not sure what is system view of CPU numbering, guess it would be:
+
+               | CPU 2  | CPU 0  | CPU 1  | CPU 3
+
+hot plug disk cmd for 450.
+
+http://docs.sun.com/db?p=/doc/806-3992-10/6jd3qmd5l&a=view
+
+no special procedure other than unmounting the drive and/or stopping volume mgnt software on the os level.  
+then just plug in drive and reprobe with drvconfig...
+actually, 450 probed the disk automatically and onlined it (LED on, see new disk in format).
+
+</PRE>
+
+<H4>NIC name</H4>
+
+<PRE>
+Various machine's NIC name--not nickname :-P
+
+hme0	most machines circa 2000 machines, eg Ultra 10, E220R, E250, E450, etc.  100 Mbps.
+	aka Happy Meal Entrie
+qfe0	PCI quad card 100 Mbps each, circa 2000
+qfe4		
+
+ce0     V480R build-in 	NIC.  Cu GigE
+ce1
+ge0	fiber GigE on PCI card, ca 2000
+eri0	Sun Fire 280R build-in NIC
+dmfe0	Sun ...
+ipge0	Sun T2000
+
+iprb0	intel-based NIC (x86, eg Dell desktop, IBM laptop, PCI card)
+elxl0	3Com NIC (x86, eg PCI card for desktop)
+</PRE>
+
+<H4>Sun machines nickname</H4>
+
+<PRE>
+Sun Blade 1500		Taco
+Sun Blade 2500		Enchilada
+
+
+
+</PRE>
+
+
+<H2>Kernel Parameter</H2>
+
+<PRE>
+
+modinfo         	: kernel loaded module
+modload /path/file	: load a specific module into the kernel. eg /kernel/drv/md for SVM
+modunload -i 127	: unload kernel module by mod number (first number in modinfo output lines)
+
+uname -a	: kernel patch level, also see /etc/release.
+sysdef          : system info (long)
+prtconf         : system config info, shorter
+prtdiag         : (/usr/platform/sun4u/sbin/prtdiag -v) : show cpu info, including speed, failed FRU, OBP level, etc.
+                : on system supporting it, memory config info.
+psrinfo -v      : show sun cpu speed and on/off-line status. 
+psdadm -f 3     : force cpu 3 to be offline.  Useful when cpu is causing system crash as indicated by /var/adm/messages.
+memconf         : show memory simm config on a machine, find if available slots for expansion (GNU tool)
+
+
+ipcrm           : remove a message queue, semaphore set, or shared memory ID
+                : if oracle hog up all the memory, die ungracefully, can use this, or reboot
+                : also when too many process are present...
+		
+kbd -a disable  : disable break mode when keyboard is pulled (safe to pull keyboard).
+kbd -a enable   : enable break mode, when keyboard is pulled, system drop to OK prompt.
+                # also make changes to /etc/default/kbd for boot time default.
+
+
+crle    configure runtime linking environment
+        similar effect as to setting up LD_LIBRARY_PATH
+        /var/ld/ld.config for  32- bit  objects  and  
+        /var/ld/64/ld.config  for 64-bit objects.
+
+ls /platform/sun4u/kernel/
+
+</PRE>
+
+<A ID="32or64bit">
+isalist</A>
+(<A HREF="http://www.harmanresearch.com/solaris/#HowCanwetellSolarisOSisrunning32bitor64bit">ref</A>)
+
+<PRE class="quotebox">
+How Can we tell  Solaris OS is running 32-bit or 64-bit?
+Use the isalist command to determine whether the machine is running
+the 32-bit or 64-bit operating system. If you are running the 64-bit
+operating system on an UltraSPARC machine, then isalist
+will list sparcv9 first
+
+isainfo -b      # 64 or 32 as output of os bit  
+        -v      # verbose, 64 bit = sparcv9  (both in one machine is normal)
+
+</PRE>
+
+sample /etc/sysconfig for oracle, db2, etc.
+<H2>System Tuning</H2>
+Virtual Adrian<BR>
+SAR<BR>
+
+
+
+
+<H1>"Advance" Sys Admin</H1>
+<H2>Multi boot</H2>
+reboot -- disk2 
+
+<A NAME="jumpstart"></A>
+<H2>Jumpstart</H2>
+<!-- cmd.admin.ref.tr, more stuff in ~/bri, add later -->
+
+
+Run 
+<TT>add_install_server</TT>
+from the Solaris CD #1, inside the Tools directory.
+It will copy over all the necessary files to host the jumpstart server.
+
+Files to modify after jumpstart server is setup, but just need to add client::
+
+<PRE>
+rules
+Profiles/
+Sysidcfg/
+/etc/ethers
+/etc/hosts
+
+./check		# produces rules.ok
+
+cd /jumpstart/OS.local/sol_10_305_sparc/Solaris_10/Tools/
+./add_install_client -p 172.27.38.15:/jumpstart/Sysidcfg/sol-client10 -c 172.27.38.15:/jumpstart sol-client10 sun4u
+
+cd /jumpstart/OS.local/sol_8_1001_sparc/Solaris_8/Tools/
+./add_install_client  -p 172.27.13.15:/jumpstart/Sysidcfg/sol-client8  -c 172.27.13.15:/jumpstart sol-client8 sun4u
+
+edit /etc/bootparams, and ensure all entries for server use IP address, not hostname.  
+If wanting to use another NFS server for main file repository, 
+would need to edit bootparams file carefully.  
+Be sure to correlate the info with local hosts file also.
+
+
+Once all is setup, on client machine, issue from OBP:
+boot net  - install
+boot net1 - install
+
+# net1 would be the second NIC, though the sysidcfg file would need to be updated 
+# to assign IP on this interface instead of default/primary NIC at net0 
+
+</PRE>
+
+Cavets:
+<OL>
+<LI> Do not change the hostname without reboot
+(eg by issueing "hostname 172.27.24.150"),
+this would cause misterious non-bootable hang on the client being jumpstarted.
+
+<LI>
+For sysidcfg file, network interfaces can use generic keywords 
+like primary or default, instead of trying to figure out whether it is
+ce0, eri0, hme0, etc.  eg:  <BR>
+network_interface=primary   <BR>
+network_interface=default   <BR>
+
+
+<LI>Virtual interfaces. <BR>
+If the jumpstart machine has a single nic that would be plugged to different vlan,
+it is okay to have /etc/rc2.d/S98setVlan script that setup a bunch of virtual interfaces:
+<PRE class="cf">
+ifconfig iprb0:8 plumb
+ifconfig iprb0:8 172.27.8.15 netmask + broadcast + up
+ifconfig iprb0:13 plumb
+ifconfig iprb0:13 172.27.13.15 netmask + broadcast + up
+ifconfig iprb0:38 plumb
+ifconfig iprb0:38 172.27.38.15 netmask + broadcast + up
+</PRE>
+ensure that /etc/netmasks has all the vlan defined, mistake may cause
+jumpstart client boottime hang problem.
+
+This way, just need to plug cable to the right vlan and no software changes.
+The downside of this config is that routing to different vlan defined by the 
+virtual interface won't work (unless the switch configure all the vlans on the 
+port the jumpstart server NIC is connected to).
+
+<LI>
+If change IP of the jumpstart server, be sure to:
+
+<PRE class="cmd">
+/etc/init.d/boot.server stop  
+/etc/init.d/boot.server start
+</PRE>
+
+</OL>
+
+
+
+
+<H1>"Special" Hardware Config</H1>
+
+<A ID="v440"></A>
+<H2>Sun V440 Build-in RAID controller</H2>
+
+<PRE>
+raidctl		# display raid config
+raidctl -c ...	# create mirror pair
+
+There are some posting about issues of creating more than one mirror pair...
+Can probably only do RAID 1+0.
+
+</PRE>
+
+<A NAME=""sun_t3_disk_array></A>
+<A ID="t3"></A>
+<H2>Sun T3 Disk Array (T3b)</H2>
+<!--sun.t3.cmd-->
+<PRE>
+
+
+Commands for Sun T3+ (aka T3B) array.
+
+Monitor task:
+
+vol list		# list fs volumes
+fru stat		# display status of components
+sys list		# list general sys config, cache info, etc.
+
+refresh -s		# check battery recharge level
+
+lpc version		# list controller firmware version
+port list
+
+
+--------------------------
+
+System setup cmd:
+
+set ip
+set gateway 	10.215.2.2
+set netmask 	255.255.255.0
+
+set hostname	t3arrayname
+
+passwd				( default is root, blank password).
+
+
+set timezone US/Pacific	# or
+tzset -0800
+tzset			# redisplay
+
+date			# show syste date
+date 04060915           # set date and time to apr 6, 9:15 am (same as sol).
+
+
+sys			# general array info
+reset			# reboot the array (read ip, etc)
+
+ver			# see firmware level
+
+
+Array config cmd:
+
+vol unmount v0		# remove preconfigured raid 5 vol
+vol remove v0
+
+Target:
+disk 1-6, strip + mirror ( raid 1 in T3+ of 2n, n>1 will automatically be strip + m
+irror)
+disk 7-8, mirror
+disk 9, hot spare
+
+vol add v0 data u1d1-6 raid 1 standby u1d9  	# controller 1, disk 1 to 6 
+vol add v1 data u1d7-8 raid 1 standby u1d9
+vol init v0 data; vol init v1 data		# chain cmd to parallelize task.
+vol mount v0; vol mount v1
+
+std command that works in the T3b:
+cd
+pwd
+ls -l
+
+files:
+/etc/
+syslog
+
+---
+Sun StorEdge Component Manager is software that can be installed on host to manage the T3/T3+ array.  
+But I didn't install it, and configured it via telnet/serial login cli.
+
+</PRE>
+<A NAME="a1000"></A>
+<A NAME="a1000_disk_array"></A>
+<H2>A1000 Disk Array</H2>
+<!--cmd.sun.disk.ref-->
+
+
+Raid Manager (RM6) is used to control the A1000 (array) and D1000 (JBOD) boxen.
+These are pretty old by now, popular during the dot-bomb days circa Y2k.
+As old as the D1000 is, it will take drives up to 144 GB in size.
+<A HREF="http://sunsolve.sun.com/handbook_private/Systems/D1000/components.html">
+D1000 system handbook</A>  Sun login required now :(
+<BR>
+<BR>
+
+<A NAME="rm6"></A>
+<H4>RM6 commands</H4>
+
+packages are SUNWosa*, install w/ bin link in /etc/raid/bin/
+
+<PRE>
+
+/etc/raid/bin/rm6	Main GUI for config and status check, etc.
+
+raidutil -c c2t5d0 -i		: get info about raid device, such as firmware version, etc.
+
+nvutil -vf			: verify nvsram is set correctly for A1000.
+
+
+raidutil -c {c2t5d0} -B 	: display battery age
+raidutil -c {c2t5d0} -R 	: replace battery date 
+See Recovery Guru info on replacing battery.  Array need to be powered off for this to happen.  
+After changing battery, the above command is used to reset remembered date on the controller 
+so that it knows it can use the battery for 2 years from date of reset.
+
+
+</PRE>
+<H4>Other Frequently Used RM6 commands</H4>
+<PRE>
+
+drivutil
+fwutil
+healthck
+lad
+logutil
+nvutil
+parityck
+raidutil
+rdacutil
+rm6
+storutil
+
+You'll need to formally fail a disk before you replace it in case of
+failure.  Use raidutil for that.
+
+
+</PRE>
+<H4>RM6 details from user guide </H4>
+(from a sun pdf doc, p170, cli ref)
+<H5>Basic Information</H5>
+
+<PRE>
+rm6 Gives an overview of the software∆s graphical user interface (GUI), command-line
+programs, background process programs and driver modules, and customizable
+elements.
+
+rdac Describes the software's support for RDAC (Redundant Disk Array Controller),
+including details on any applicable drivers and daemons.
+rmevent The RAID Event File Format. This is the file format used by the applications to
+dispatch an event to the rmscript notification script. It also is the format for
+Message Log's log file (the default is rmlog.log).
+
+raidcode.txt A text file containing information about the various RAID events and error codes.
+Command-Line Utilities
+
+drivutil The drive/LUN utility. This program manages drives/LUNs. It allows you to
+obtain drive/LUN information, revive a LUN, fail/revive a drive, and obtain LUN
+reconstruction progress.
+
+fwutil The controller firmware download utility. This program downloads appware,
+bootware, or an NVSRAM file to a specified controller.
+
+healthck The health check utility. This program performs a health check on the indicated
+RAID module and displays a report to standard output.
+
+lad The list array devices utility. This program identifies the RAID controllers and
+logical units that are connected to the system.
+
+logutil The log format utility. This program formats the error log file and displays a
+formatted version to the standard output.
+
+
+nvutil The NVSRAM display/modification utility. This program views and changes RAID
+controller non-volatile RAM settings, allowing for some customization of controller
+behavior. It verifies and fixes any NVSRAM settings that are not compatible with
+the storage management software.
+
+parityck The parity check/repair utility. This program checks and, if necessary, repairs the
+parity information stored on the array.
+
+raidutil The RAID configuration utility. This program is the command-line counterpart to
+the graphical Configuration application. It allows you to create and delete RAID
+logical units and hot spares from a command line or script. It also allows certain
+battery management functions to be performed on one controller at a time.
+
+rdacutil The redundant disk array controller management utility. This program permits
+certain redundant controller operations such as LUN load balancing and controller
+
+failover and restoration to be performed from a command line or script.
+
+storutil The host store utility. This program performs certain operations on a region of the
+controller called host store. You can use this utility to set an independent controller
+configuration, change RAID module names, and clear information in the host store
+region.
+
+</PRE>
+
+<H5>Background Process Programs and Driver Modules</H5>
+<PRE>
+
+arraymon The array monitor background process. The array monitor watches for the
+occurrence of exception conditions in the array and provides administrator
+notification when they occur.
+
+rdaemon
+(UNIX only)
+The redundant I/O path error resolution daemon. The rdaemon receives and
+reacts to redundant controller exception events and participates in the applicationtransparent
+recovery of those events through error analysis and, if necessary,
+controller failover.
+
+rdriver
+(Solaris only)
+The redundant I/O path routing driver. The rdriver module works in
+cooperation with rdaemon in handling the transparent recovery of I/O path
+failures. It routes I/Os down the proper path and communicates with the rdaemon
+about errors and their resolution.
+
+</PRE>
+<H5>Customizable Elements</H5>
+<PRE>
+
+rmparams The storage management software∆s parameter file. This ASCII file has a number of
+parameter settings, such as the array monitor poll interval, what time to perform
+the daily array parity check, and so on. The storage management applications read
+this file at startup or at other selected times during their execution. A subset of the
+parameters in the rmparams file are changeable under the graphical user interface.
+For more information about the rmparams file, see the Sun StorEdge RAID Manager
+Installation and Support Guide.
+
+rmscript The notification script. This script is called by the array monitor and other
+programs whenever an important event is reported. The file has certain standard
+actions, including posting the event to the message log (rmlog.log), sending
+email to the superuser/administrator and, in some cases, sending an SNMP trap.
+Although you can edit the rmscript file, be sure that you do not disturb any of
+the standard actions.
+
+
+----
+
+a1000 (at least the one attached to sonata, then moved to perseus),
+scsi controller is DIFF, SE don't work.  From An, DIFF is high voltage differential,  
+SE is low voltage diff.  Thus, A1000 controller is High Voltage Diff.
+If connect to SE, the scsi bus light blink on the A1000, and no disk/arraay
+will be seen by the host.
+
+</PRE>
+<H4>Install/upgrading firmware of A1000</H4>
+<PRE>
+IMHO, this is quite a nighmarish exercise.  Lot of steps and if-conditions 
+of what to do listed in a about 3 huge HTML pages.
+Cluster patch for Solaris will not cover this at all.
+
+install RM6 (old software, circa 2002.  version 6.22.1 was last one).
+get patches for OS, most are in cluster patch now.
+
+
+patchadd -M . 112126-06
+# patchadd -M . 113277-04 113033-03 # these 2 seems to be added by cluster patch
+# 113033-03 is only for sbus hba
+init S; patchadd 112233-04; touch /reconfigure; reboot
+#112233 seems to have later version in latest cluster patch.
+
+
+run rm6, select controller on array, go to firmware, and after all the warnings, 
+it will provide list of firmwares that came with RM6, ready for download to the array controller.  
+Upgrade them in sequence to avoid firmware jump unsupported problems.
+
+</PRE>
+<!--2005/08/08-->
+<PRE>
+It is possible to change a group from RAID 10 to RAID 5 while disk online w/ file system active.
+Extra space gained can be used to create extra LUN.  
+But RM6 (on A1000) does not support LUN expandsion, so if desire to create a single LUN
+with all the disk space of RAID 5, it will still need to remove the LUN, and then recreate it.
+This of course means offline the fs.
+RM6 warns that OS communicate with array and expect to see a LUN 0, and problem can arise when 
+there is no LUN 0, and that to recreate it back right away.
+So far, no problem.  Maybe should avoid using format and other disk poking tool
+when there is no LUN 0.
+
+
+
+---
+raid storage array
+
+luxadm inquiry /dev/rdsk/c?t*s2		# get disk array firmware rev.
+
+</PRE>
+<A NAME="se3510"></A>
+<A NAME="storedge_3510"></A>
+<H2>StorEdge 3510</H2>
+
+StorEdge 3510 is a 2U w/ 12 disk and lot of fc port in back.  
+Popular circa 2005.
+<BR>
+Serial console is set at <STRONG>38400</STRONG> bps.
+<BR>
+
+<PRE>
+IP config
+software control via fc port: Configuration Service Console 
+/opt/SUNWsscs/sscsconsole/sscs (GUI)
+
+2 controllers, primary (top) and secondary (bottom).
+
+Each controller has these ports:
+Phy Ch 0 (FC) - PID 40  SID N/A - Host
+Phy Ch 1 (FC) - PID N/A SID 42 	- Host
+Phy Ch 2 (FC) - PID 14  SID 15	- Drive (daisy chain to other drive?)
+Phy Ch 3 (FC) - PID 14  SID 15	- Drive (daisy chain to other drive?)
+Phy Ch 4 (FC) - PID 44  SID N/A - Host
+Phy Ch 5 (FC) - PID N/A SID 46 	- Host
+
+
+Max host connectivity:
+- 4 hosts, w/ dual path (one to each controller?)
+- 8 hosts, w/ single path (is this really supported?)
+
+
+An LD/LV (Logical Drive/Logical Volume) is created, 
+then inside the LD, partitions are created.  
+The partitions are shown to host as LUN.
+
+"zoning" is really mapping a given partition/lun to a specific port/channel,
+so that only the host connected to that channel can see the partition/lun.
+path redundancy can be obtained 
+(? by connecting to different controller on different port/channel)
+
+
+Presumably, multiple LD/LV can be configured on a single StorEdge array.
+Think of LD/LV as a RAID group in EMC Clariion.  
+A specific LD/LV has a single RAID level and span a certain number of disk.
+
+SE3510 allow global standby/hotspare disk that can serve multiple LD/LV.
+
+Leave *AT LEAST ONE* partition/lun mapping to the controller host, 
+or else the host will loose ability to talk to the array via the FC.
+Only choice after that is to readd the mapping thru the serial console. 
+
+
+---
+
+Sample init config:
+1. Hook up host to SE via fc.
+2. On host, run sscs.  Let it probe for the array, take over control as primary config host.
+3. Click "Custom Config" (Menu Configuration|Custom Configure).
+4. Create a new LD/LV.  This will take long to finish, as it need to zero all disks.
+5. Seems like, by default, a single Partition/LUN is created that span all space avail in LD/LV.  this is usable to host.
+6. Use Custome Config and change partition/lun config, this is fast.
+7. Bind partition/lun to specific port so that host can access it.
+8. SE doesn't really have concept of "empty space for growth" inside the LD/LV,i
+   so left over space is assigned to a partition, which can be left unmapped
+   to any host.  The confusion remains that it must be checked it is not used, 
+   it is not marked as free space.
+?? redundant path config?
+   somehow, even bind partition/lun to single port/host, redundant path/disk 
+   are seen by the host.  
+   Seems like only one controller is being seen/config at a time ??
+
+---
+
+LD/LV can be grown dynamically (and reconfigured).
+
+Use the custom config button to see all the tasks that can be done on an LV
+such as partition/lun creation, channel/port binding (for host to see), etc.
+
+
+</PRE>
+
+<H1>SYSTEM APPS</H1>
+
+<H3>FTP</H3>
+
+<PRE>
+Default ftp server is managed by inetd.  man in.ftpd for more info.
+Config files is in /etc/ftpd/, eg ftpaccess:
+update entry to allow for anonymous, eg:
+	upload	class=anonusers * /pub yes nodirs
+
+dir specification is relative to the home dir of the ftp user defined in 
+/etc/passwd, and chroot is run to make that the root.
+/pub should be user/group writable by the ftp user.
+
+</PRE>
+
+
+<BR><HR><BR>
+
+<H1>TBD</H1>
+
+<PRE>
+old *.ref file content in here.
+
+</PRE>
+
+<BR><HR>
+<div align="CENTER"> [Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/sol.html">http://www.cs.fiu.edu/~tho01/psg/sol.html</A>] 
+  <BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

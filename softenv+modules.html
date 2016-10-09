@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Python</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://tiny.cc/MOD">Sys Admin Pocket Survival Guide - MOD</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="python.html">Python</a></td>
+      <td align="center"><a accesskey="p" href="php.html">PHP</a></td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a></td>
+      <td align="right"><a accesskey="a" href="shellScript.html">shellScript</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<PRE>
+SoftEnv vs Environment Modules.
+pro and cons
+both lack dev
+modules allow for user extension
+</PRE>
+
+
+
+<A ID="softenv"></A>
+<H1>SoftEnv</H1>
+
+<H2>SoftEnv 101</H2> <PRE> .profile source softenv.  .soft list all default pkg that should be loaded when softenv starts.
+</PRE>
+
+<BR>
+<BR>
+
+<H2>SoftEnv cmd</H2>
+
+<PRE>
+softenv
+soft add    +pkg
+soft add    @pkg-grp  	# @ denoate package group
+soft remove +pkg    	# yes, plus sign there, as it is indication of single package name
+</PRE>
+
+<H2>SoftEnv admin</H2>
+<BR> <BR>
+<BR>
+
+<A ID="module"></A>
+<A ID="modules"></A>
+<H1>Modules</H1>
+
+<H2>Environment Modules 101</H2>
+
+<PRE>
+http://modules.sourceforge.net 
+package is typicalled software-environment-modules.rpm
+RHEL5: environment-modules-3.2.9c-1
+RHEL6: environment-modules-3.2.10-2
+Ubuntu: environment-modules...
+
+Note that the rpm module-init-tools is for kernel modules (lsmod, modprobe) and nothing to do with the command shell environment-module.
+
+When the package is installed it adds a script into /etc/profile.d/modules.*sh.
+source this file will initiate Environment Modules.  ie, after this, the <TT>module</TT> command will work.  
+This initiation really define a function called "module", which look at the variables MODULEPATH, MODULEHOME.
+
+because it is a function, <TT>which module</TT> and <TT>alias module</TT> returns nothing!
+Instad, use <TT>declare -F</TT> to see list of defined bash fucntions.  
+
+The function defined is shell specific (naturally) and is stored in 
+/usr/share/Modules/init/SHELLNAME.  
+eg /usr/share/Modules/init/bash
+
+
+There is one binary that can be called:
+
+/usr/share/Modules/bin/moduelcmd bash avail	# RHEL5
+or
+/usr/bin/modulecmd bash avail		 	# RHEL6, Ubuntu
+
+this would list available modules.  the show sub-command works. but load doesn't.
+must initialize module via the profile.d/ script.
+
+
+To customize Environment Modules, a modulesfile can be written.  It is essentially Tcl.
+
+no rpm for this in NixOS ??
+
+</PRE>
+
+<BR>
+<H2>setup</H2>
+
+.modulerc <BR>
+
+can list all default pkg to be loaded when module starts.  <BR>
+however, if often need to change between diff version of a package, then don't list it to load here
+as everytime module command is run, .modulerc is sourced and the package that may have been unloaded would be re-loaded!!
+<BR><BR>
+
+
+.profile <BR>
+some conflict with shell, cuz module is well embeded into bash...
+so moved to use .bashrc and .bash_profile.  
+and seems like .bash_profile just source .bashrc, decided that going forward will put everything in .bashrc
+
+<BR><BR>
+
+
+<H5>.bashrc</H5>
+
+<PRE class="code">
+if [[ $- =~ "i" ]]; then
+	# $- will have i for interactive shell when run by bash.  
+	# only run module command then.  else it will spill error msg.
+	export MODULEPATH=${MODULEPATH}:/usr/prog/modules/all
+	module load proxy
+	module load sge
+	module load bedtools
+	module load awscli
+
+	# The MODULEPATH should be set in the .modulerc file located in your home directory.
+	# (but then i can't easily test if on build machine that load additional module, like below, so set everything in .bashrc)
+	# modules provided by bright computing
+        if [[ -d /cm/shared/modulefiles ]]; then
+                export MODULEPATH=/cm/shared/modulefiles:${MODULEPATH}
+        fi
+fi
+</PRE>
+
+
+
+<H2>commands</H2>
+
+<PRE>
+export MODULE_PATH=...
+
+module available		# what can be loaded
+module list			# what is already loaded
+module list 2>&1 | grep aws 	# output is to stderr, so need redirect to use with grep.  no flag to make it output to stdout :(
+module display ModName		# display detail of a module
+
+module {TAB}			# list sub commands (may depend on some shell magic)
+</PRE>
+
+<BR>
+<BR>
+
+<A ID="bashrc"></A>
+<A ID=".bashrc"></A>
+<A ID="shell"></A>
+<A ID="shell_rc"></A>
+<A ID="shellrc"></A>
+<A ID="rc"></A>
+<H1>shell rc script</H1>
+
+When does .bashrc get sourced?  when is .bash_profile sourced?  Apparently there was no simple answer to this questions.  The details is listed in <A HREF="http://blog.flowblok.id.au/2013-02/shell-startup-scripts.html">Peter Ward's flowblok</A>.  But here is the gist of the insanity:  <BR>
+
+<div align="CENTER">
+<A HREF="http://blog.flowblok.id.au/2013-02/shell-startup-scripts.html"><IMG SRC="fig/shell-startup-actual-flowblok.png" width="70%"></A>
+</div>
+
+These days, most folks have all their customization in their .bashrc, and .bash_profile just souce .bashrc:
+
+<PRE class="code">
+[[ -f ~/.bashrc ]] && source ~/.bashrc
+</PRE>
+
+I was afraid this would create a loop.  But so long as .bashrc doesn't also source .bash_profile, this setup should be fine.
+.bashrc is probably sourced by the shell each time a command returns.  
+
+
+<BR>
+
+
+<H2>See also</H2>
+
+<UL>
+<LI>alternatives
+<LI>lmod
+<LI>EasyBuild
+<LI>
+</UL>
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL]
+<A HREF="http://tiny.cc/MOD">tiny.cc/MOD</A><BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/softenv+modules.html">https://dl.dropboxusercontent.com/u/31360775/psg/softenv+modules.html</A><BR>
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/softenv.html">http://www.cs.fiu.edu/~tho01/psg/softenv.html</A>
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

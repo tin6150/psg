@@ -1,0 +1,358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - MySQL</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - MySQL</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>MySQL</H1>
+
+<H2>MySQL 101</H2>
+
+<UL>
+	<LI> MySQL users are different set of user than Unix or Windows OS user.  MySQL maintain its own list of user internally
+	(in the mysql table?)
+	<LI> Default "root" user has no password, should secure it.
+	<LI> Default access for anonymous user (ie, '' blank) has some basic priv.  it is not that the unix user "mysql"
+	     is treated especially.  commands that don't specify --user assume the anonymous user.
+	     command that don't specify --password assume blank password.
+	<LI> Most, if not all, commands should be run as normal user.  Hardly anything need to be run as root.
+	     Unix "root" user is not treated as priviledged when running mysql command.  --user root is what does log the user 
+	     with dba priviledges (and other user can be granted the same).
+	<LI>
+</UL>
+
+
+<H4>Reset root user password in case it is lost</H4>
+<A HREF="http://www.tech-faq.com/reset-mysql-password.shtml">
+http://www.tech-faq.com/reset-mysql-password.shtml</A>
+<OL>
+	<LI> stop mysqld, may need to login as root and do kill on the mysqld process.
+	<LI> login as user that own the mysql db (usually mysql), start <BR>
+	     <TT>mysqld --skip-grant-tables</TT>
+	<LI> mysql -u root <BR>
+		<TT> UPDATE mysql.user SET Password=PASSWORD('password') WHERE User='root'; </TT> <BR>
+		<TT> FLUSH PRIVILEGES;</TT>
+	<LI>At this point, the root user password is reset to "password" .  
+	<LI>Restart mysqld without the <TT>--skip-grant-tables</TT> option above.
+
+</OL>
+
+
+
+<H2>Setting up the program on FEDORA FC5 </H2>
+
+<H5>Install the packages</H5>
+<PRE>
+(sys admin work, require root priv)
+yum install mysql (bunch of these)
+	mysql-server... is server portion
+	mysql-5... is client package, client is also needed in server to run commands.
+
+
+
+</PRE>
+<H5>Initialize the DB</H5>
+
+<PRE>
+su - mysql           	# don't do it as ROOT!!  
+cd /var/lib/mysql	# DB tables are saved to this dir. 
+mysql_install_db
+
+Logs:
+/var/log/myusql.log
+</PRE>
+
+
+<H5>Start the DB</H5>
+<PRE>
+su - mysql
+mysqld_safe &		# need to start it in dir having mysql/host.frm   (no longer needed in mysql 5 ??)
+
+			# after initial startup, maybe subsequent startup should just run mysqld &  ??
+
+</PRE>
+
+<H5>Shutdown DB</H5>
+<PRE>
+mysqladmin -u root shutdown
+or
+mysqladmin -u root shutdown -p	# tell mysql to prompt for pw if it isn't specified on the command line
+(the unix user running the commands above don't matter too much, as -u root says to use the mysql root user to carry them out)
+</PRE>
+
+
+<H5>Verify status</H5>
+<PRE>
+mysqladmin version 
+mysqladmin variables
+ps -ef should show running processes like: mysqld_safe, mysqld 
+</PRE>
+
+
+<H5>Secure MySQL Installation</H5>
+MySQL is not secured by default, should reset the mysql internal root user password (dba):  <BR>
+	<TT>/usr/bin/mysqladmin -u root password 'new-password'  </TT><BR>
+	<TT>/usr/bin/mysqladmin -u root -h HOSTNAME password 'new-password'  </TT><BR>
+The quotes around the password are to be included in the command line, it won't become part of the password.
+<BR>
+<BR>
+<BR>
+
+<H5>Benchmark MySQL</H5>
+<PRE>
+You can test the MySQL daemon with the benchmarks in the 'sql-bench' directory:
+cd /usr/share/.../sql-bench ; perl run-all-tests
+# didn't work for me :(
+</PRE>
+
+
+<H5>Checking for installed DB</H5>
+
+<PRE>
+mysqlshow 
+mysqlshow DBNAME
+NOTE: special priv needed to see all DB, mysql root user has full access.
+mysqlshow  -u root -p 
+</PRE>
+
+
+<H5>Add new user</H5> 
+<A HREF="http://dev.mysql.com/doc/refman/5.0/en/adding-users.html">
+http://dev.mysql.com/doc/refman/5.0/en/adding-users.html</A>
+
+<PRE>
+
+### mysql -u root -p -e create user tinh identified by 'Passw0rD'  ## not needed
+
+mysql -u root -p
+> grant all privileges on *.* to 'tin-adm'@'localhost' identified by 'PassworD' with grant option
+> grant all privileges on *.* to 'tin-adm'@'%'         identified by 'PassworD' with grant option
+
+# tin-adm has full dba access, localhost for local connection, % for all remote host.
+# if only specify username eg 'tin-adm', the @'%' will be assumed by default.
+# any user that does not exist during grant will be created.
+
+
+
+
+# not sure about these...        password is needed for remote connection.
+> GRANT USAGE ON *.* to 'tin'@'%';
+> GRANT RELOAD,PROCESS ON *.* to 'tin'@'%'             identified by 'PassworD' with grant option;
+
+> GRANT SELECT ON license.* TO 'tin'@'%'               identified by 'PassworD';
+
+
+
+
+</PRE>
+
+
+
+
+<H2>SQL queries using <TT>mysql</TT></H2>
+
+
+<PRE>
+
+mysql -h hostname -u username -p  -e "SQL Query"
+	-h = use given host, localhost by default
+	-u = use given username, current user by default
+	-p = prompt for password, if it is set
+	-e = execute SQL Query, if not issued, give mysql> prompt
+	     and one can enter many queries in interactive mode. 
+
+
+mysql -e "SELECT * FROM t1" test
+                 1       2   3
+	1 = attributes, not case senstive (same as ANSI std)	
+	2 = table names, it *IS* CaSe sensitive!
+	3 = DB NAME, case sensitive! 
+	
+
+Note on Ineteractive mode when at the mysql> prompt:
+- DB Name specified in [3] is done by first issuing 
+	"use     DBNAME"	or
+	"connect DBName"	
+- DB Name can be explicityly prefix the table name:
+	"SELECT * FROM DBName.testTable01"
+- All commands ends in ;  
+
+</PRE>
+
+<H5>Examples</H5>
+
+<PRE>
+
+mysql -e "SELECT Host,Db,User FROM db" mysql	
+                 [------1----]       2    3
+	# list all mysql users ?   3, mysql, is a system DB
+	
+	sudo mysql -u root
+	> use mysql;				# mysql db specified in [3] above
+	> SELECT Host,Db,User FROM db;
+	>
+	> DROP user 'tin';			# remove 'tin'@'%'
+
+			
+
+
+mysql -e "SELECT VERSION(), CURRENT_DATE"
+	# find current version, and date.  
+	# These keyword "queries" does not hit any DB, and it is good to 
+	# find out if at least mysql deamon is running.
+
+
+mysql            -e "SHOW DATABASES"
+mysql -u root -p -e "SHOW DATABASES"
+	# equiv to cmd mysqlshow 
+	# again, mysql DB (and some others) are only visible to priv user, eg root
+
+
+mysql -u root -p -e "SHOW TABLES" mysql
+	# equiv to "mysqlshow mysql" ran by root
+
+
+mysql -e "describe license_usage" license
+	# Describe a table:
+	# list all fields in the license_usage TABLE in the license DB
+	# This eg is for the php licwatch program that monitor FlexLM license usage.
+
+
+mysql -e "show columns from mydb.test01"
+	# show the columns in table test01 in the MYDB database
+	# interestingly, interactive mysql run may require special write to /tmp
+	# which doesn't work if /tmp is mounted from a samba share (prob cuz "mysql" user can't write to it).
+	# such problem won't appear in a one-liner unix shell command!
+
+</PRE>
+
+<H2>MySQL Backup, Migration</H2>
+
+<H3>File Formats</H3>
+
+<A HREF="http://dev.mysql.com/doc/refman/5.0/en/myisam-storage-engine.html">
+http://dev.mysql.com/doc/refman/5.0/en/myisam-storage-engine.html</A>
+<BR>
+<BR>
+
+ Each MyISAM table is stored on disk in three files. The files have names that begin with the table name and have an extension to indicate the file type. An .frm  file stores the table format. The data file has an .MYD (MYData) extension. The index file has an .MYI  (MYIndex) extension.
+<BR>
+<BR>
+
+ You can copy the .frm, .MYI, and .MYD files for MyISAM tables between different architectures that support the same floating-point format. (MySQL takes care of any byte-swapping issues.) See Section 14.1, “The MyISAM Storage Engine”.
+<BR>
+<BR>
+--**  The issue is, Different version of MySQL use different DB Back end.
+So, this maybe okay for backup and restore to same machine.
+But if restore to new machine, better have original DB version and config info!
+Safer to use dump...
+<BR>
+<BR>
+Files location: /var/lib/mysql,
+each db is listed under its own subdir.  mysql db presumably contain 
+user db info, etc.
+
+
+<H3>DB Dump</H3>
+<PRE>
+
+
+<A HREF="http://dev.mysql.com/doc/refman/5.0/en/upgrading-to-arch.html">
+http://dev.mysql.com/doc/refman/5.0/en/upgrading-to-arch.html</A>
+
+Migrate to other machine:
+
+create a new db on the new machine "other_hostname"
+then do an optimized dump and send it thru a pipe and remote import the data.
+Some indexes, foreign key issues may arise... check before proceeding.
+
+shell> mysqladmin -h 'other_hostname' create db_name
+shell> mysqldump --opt db_name | mysql -h 'other_hostname' db_name
+
+
+
+</PRE>
+
+
+<BR><HR><BR>
+
+<H5>Ref</H5>
+<BR>
+Too many writtings, so far, sticking to the reference manual from the source:
+<BR>
+<A HREF="http://dev.mysql.com/doc/refman/5.0/en/unix-post-installation.html">
+http://dev.mysql.com/doc/refman/5.0/en/unix-post-installation.html</A>
+
+
+<BR>
+<BR>
+<H5>Tools</H5>
+<BR>
+Toad for MySQL (it is free).
+<BR>
+<BR>
+
+
+
+
+
+
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+	[Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg/mysql.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg/mysql.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

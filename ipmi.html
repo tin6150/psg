@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Postgres</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - IPMI</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>IPMI</H1>
+
+<H2>101</H2>
+
+<PRE>
+Dell DRAC and HP iLo are implementation of IPMI.
+Could use embeded NIC (shared with OS)? 
+Dedicated NIC provides more functionality.
+
+when enabled, can ssh in (eg into the iDRAC port).
+
+For iDRAC, really want Enterprise version, or else won't get remote console.
+IPMI may be designed for low badnwidth, text mode stuff.  
+
+</PRE>
+
+<PRE>
+~~
+sky4-5 has decent config, bio2 don't.  
+There is likely an IPMI-only w/o iDRAC on the machine as well, eg the low end 1U box
+</PRE>
+
+
+
+
+<H2>CMD</H2>
+
+<PRE>
+
+ipmitool lan print 1	# iDRAC interface (could be shared if set so).  1 refer to channel 1, which typically only channel.
+ipmitool lan set   1 ipaddr  10.10.58.140 		# set iDRAC interface IP (should be, need to verify it works)
+ipmitool lan set   1 defgw ipaddr  10.10.58.1		# set default gateway
+
+ipmitool sdr		# print environment statistics
+ipmitool fru	
+
+ipmitool sol info	# supposed to provide serial over lan info 
+ipmitool shell		# get to ipmi> shell so that don't have to invoke the tool each time.  it is NOT gettingo inside iDRAC shell.
+
+ipmitool delloem lan 	# dell specific command.  lan section set whether to use dedicated NIC or shared.
+			# but seems like iDRAC is configured yet this info can still be not set.
+			# so iDRAC can probably speak IPMI and interfaces with it, but it is not an instance of IPMI.  
+			# if work, just tell whether dedicated or shared nic
+ipmitool delloem lan set dedicated	# disable use of shared IMPI.  set once iDRAC enterprise module is installed.
+
+ipmitool delloem powermonitor	# display power usage info
+
+
+ipmitool user list 1	# list users configured to use ipmi
+
+ipmitool chassis bootdev pxe options=persistent		# change to use pxe boot by default on every boot.
+ipmitool -l lan -U root -P calvin -H 10.8.1.76 chassis bootdev pxe options=persistent
+		# issue the ipmi command remotely to a remote host using the remote iDRAC interface
+
+
+# if IPMI isn't working, in RHEL 6, it is a kernel module that need to be started
+# for machines with module:
+module load shared
+module load ipmitool
+service ipmi start
+
+
+
+
+</PRE>
+
+
+
+<H5>TBA </H5>
+
+<PRE>
+linux has ipmi cli tools installed, so can also do:
+ipmitool -H hostname -U username -P pass power 
+ipmitool -H hostname -U username -P pass power status
+credentials are IDRAC credentials
+*should* be blade specific when hostname is iDRAC of blade even when description say chassis.  Have not been able to get it to work.
+
+ipmitool -H 
+ipmitool -H hostname -U username -P pw sol
+# sol = serial over lan
+
+ipmitool -H hostname -U username -P pw sol activate
+
+
+
+
+
+</PRE>
+
+
+<PRE>
+
+</PRE>
+
+
+<H5>Verify status</H5>
+<PRE>
+</PRE>
+
+
+<BR>
+<BR>
+
+<BR>
+<BR>
+
+<BR>
+<BR>
+<BR>
+<BR>
+
+
+
+<BR><HR><BR>
+
+<H5>Ref</H5>
+<A HREF=sol.html#ipmi>Solaris#IPMI</A>
+<BR>
+<BR>
+
+
+<BR>
+<BR>
+
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+	[Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg/postgres.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg/postgres.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

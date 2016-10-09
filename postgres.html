@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Postgres</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - Postgres</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>Postgres</H1>
+
+<H2>Postgres 101</H2>
+
+End all SQL commands with ; !!
+or otherwise postgres won't do anything.
+no errors.
+even bad commands, gibberish, no errors!!
+
+
+
+<UL>
+</UL>
+
+
+
+
+<H2>Setting up the program on FEDORA FC5 </H2>
+
+<H5>Install the packages</H5>
+<PRE>
+(sys admin work, require root priv)
+yum install mysql (bunch of these)
+	mysql-server... is server portion
+	mysql-5... is client package, client is also needed in server to run commands.
+
+
+
+</PRE>
+<H5>Initialize the DB</H5>
+<H5>Create User</H5>
+
+<PRE>
+
+
+
+**** su to postgres user account
+-bash-3.2$ createuser --no-superuser --createdb --createrole --login --pwprompt --encrypted sys_openbis
+
+--pwprompt will ask for password for use with newly created user.
+#the last password prompt is postgres superuser password to connect to db and actually carry out the action.
+
+
+-bash-3.2$ createuser --no-superuser --no-createdb --no-createrole --login --pwprompt --encrypted galaxy
+Enter password for new role: 
+Enter it again: 
+CREATE ROLE
+-bash-3.2$ createdb --owner galaxy galaxydev
+CREATE DATABASE
+
+
+
+Location of datbase files:
+/var/lib/pgsql  
+/var/lib/postgresql
+</PRE>
+
+
+<H5>Start the DB</H5>
+<PRE>
+
+</PRE>
+
+<H5>Shutdown DB</H5>
+<PRE>
+</PRE>
+
+
+<H5>Verify status</H5>
+<PRE>
+ps -ef should show running processes like: postgres: ... 
+
+case of SQL commands don't matter, can be all lower case.
+written in uppercase here cuz of convention.
+
+</PRE>
+
+<H5>Accounts</H5>
+<PRE>
+psql -d template1			# connects to db called "template1"
+ALTER USER postgres WITH PASSWORD '';	# set pw to blank.  not recommended!
+ALTER USER openbiz  WITH PASSWORD '';
+
+</PRE>
+
+
+<H5>Secure Postgres Installation</H5>
+DB is likely not secured by default, should reset the internal password (dba):  <BR>
+<BR>
+<BR>
+<BR>
+
+<H5>Benchmark Postgres</H5>
+<PRE>
+</PRE>
+
+
+<H5>Checking for installed DB</H5>
+
+<PRE>
+
+</PRE>
+
+
+<H5>Add new user</H5> 
+
+<PRE>
+
+
+</PRE>
+
+
+
+
+<H2>SQL queries using <TT>pgsql</TT></H2>
+
+
+<PRE>
+
+\du      # list user
+
+what it does:
+SELECT u.usename AS "User name",
+  u.usesysid AS "User ID",
+  CASE WHEN u.usesuper AND u.usecreatedb THEN CAST('superuser, create
+database' AS pg_catalog.text)
+       WHEN u.usesuper THEN CAST('superuser' AS pg_catalog.text)
+       WHEN u.usecreatedb THEN CAST('create database' AS
+pg_catalog.text)
+       ELSE CAST('' AS pg_catalog.text)
+  END AS "Attributes"
+FROM pg_catalog.pg_user u
+ORDER BY 1;
+
+
+\list     # list all db    ... but long names are truncated...
+
+\c   dbname   # connect to a db
+\dt       # list all tables in current db
+
+\?    # list \ commands
+
+
+rename db":
+
+ALTER DATABASE openbis_prod RENAME TO openbis_prod_pre20130711 ;
+
+DROP DATABASE openbis_prod ;
+
+
+
+(instead of dropping a database :)
+</PRE>
+
+<H5>Examples</H5>
+
+<PRE>
+
+
+</PRE>
+
+
+<H2>Running External .sql script</H2>
+
+<PRE>
+psql script.sql		# assume script is fully self-contained
+psql script1.sql script2.sql 
+
+# if need to connect to db first, then run it inside psql shell:
+
+psql
+\c openbis_prod
+\i script.sql
+</PRE>
+
+<H2>Postgres Backup, Migration</H2>
+
+<H3>File Formats</H3>
+
+<BR>
+<BR>
+
+<BR>
+<BR>
+
+<BR>
+<BR>
+<BR>
+<BR>
+
+
+<H3>DB Dump</H3>
+<PRE>
+
+
+
+</PRE>
+
+
+<BR><HR><BR>
+
+<H5>Ref</H5>
+<BR>
+<BR>
+
+
+<BR>
+<BR>
+<H5>Tools</H5>
+<BR>
+<BR>
+<BR>
+
+
+
+
+
+
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+	[Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg/postgres.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg/postgres.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

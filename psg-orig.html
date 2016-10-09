@@ -1,0 +1,472 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Sys Admin Pocket Survival Guide</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="PSG101 sn50 tin6150 Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+	<!-- next one is google site verification check, for geocities, need a separate file -->
+	<META name="verify-v1" content="RaArdWjrStpqRJ02mJ9XnJ4cFVCqy/+GWT0ZxhmMn1g=" />
+	<META name="verify-v1" content="j+jPYlmZUyyDXVdijE6u2PoqyCg+C+ArVi5bpwucwsw=" />
+
+
+</head>
+<body>
+<H1>
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg.html">
+  Sys Admin<br>
+  Pocket Survival Guide (PSG)</A>
+</H1>
+
+  <br>
+  <br>
+  Howdy there! This is my collection of notes that I have collected over the years 
+  as a Sys Admin. I am sharing them here hoping that they will be useful 
+  to you. These are concise notes to refresh your mind on how to do certain things, 
+  maybe you know what need to be done on one platform but don't know the commands 
+  on another. Or maybe just pointers for you to read up the relevan man pages 
+  or know what to google for :)  They are work in progress, I know I need to polish 
+  up my notes so that other can make sense of them.  As time permits...--which never really happens :-/<br>
+  <br>
+  Thanks for those who have send kind and encouraging words to me, it is nice to know that 
+  these notes are actually useful for someone other than myself!  
+  <BR>
+  And special thanks to those who send me notes about mistakes, some pretty bad ones that could have
+  caused someone to loose his/her job!  So, be warned, check the man pages etc when doing something that
+  could have negative impact (unexporting file system, shrinking volume, etc)!
+  <BR>
+  <BR>
+  Okay, after a while of not having a home, I am hosting PSG on dropbox now.
+  If you are bookmarking this, please use
+  <A HREF="http://tiny.cc/tin6150"> 
+  http://tiny.cc/tin6150/</A>
+
+  <BR><BR>
+
+<!-- Place this tag where you want the +1 button to render -->
+<g:plusone></g:plusone>
+&lt;-- Please click if you found this site useful ;-) 
+<!--  Place this tag after the last plusone tag -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+
+<UL>
+
+ <!-- <LI> <A HREF="ftp://read:only@sn.is-a-geek.net/psg/plug/plug.html">Electrical plugs</A> (Pictorial Guide)  or -->
+  <LI> <A HREF="plug/plug.html">Electrical plugs</A> (Pictorial Guide)
+  <LI> &nbsp;
+
+  <LI> <A HREF="ldap.html">LDAP</A> <A HREF="ldap.html#books">(ldap book review)</A> <BR>
+
+  <LI> <a href="hpux.html">HP-UX</a> and <A href="hpux.supl.html">supplement</A>.<br>
+  <LI> <a href="aix.html">AIX</a> and <A HREF="aix_cd_catalog.html">AIX CD catalog</A><br>
+
+  <LI> <A HREF="sol.html">Solaris</A> (
+       <A HREF="sol.html#svm">SDS/SVM</A>, 
+       <A HREF="sol.html#jass">Security/JASS</A>, 
+       <A HREF="sol.html#ipmp">IPMP</A>, 
+       <A HREF="sol.html#obp">OBP</A>,
+       <A HREF="sol.html#lom">LOM</A>,
+       <A HREF="sol.html#rsc">RSC</A>,
+       <A HREF="sol.html#ipmi">IPMI</A>,
+       <A HREF="sol.html#jumpstart">Jumpstart</A>,
+       <A HREF="sol.html#t3">T3</A>, 
+       <A HREF="sol.html#a1000">A1000</A>, 
+       <A HREF="sol.html#rm6">RM6</A>, 
+       <A HREF="sol.html#se3510">StorEdge</A>, 
+	)
+
+  <LI> <A HREF="linux.html">Linux</A> (<A HREF="linux.html#kickstart">Kickstart</A>, 
+       <A HREF="linux.html#xdmcp">XDMCP</A>, <A HREF="linux.html#system_services">Services</A>) 
+       
+  <LI> <A HREF="dos.html">Windows</A> (DOS CLI, unix centric)<br>
+  <LI> <A HREF="irix.html">Irix</A>
+  <LI> <A HREF="apple.html">Apple Mac</A> (OS/X unix centric)<br>
+  <LI> <A HREF="vnc.html">VNC, X Emulation</A> Running Unix GUI apps in Windows <br>
+  <LI> <A HREF="backup.html">Unix backup</A> (Native OS commands: tar, cpio, pax, ufsdump, dd, ssh tunneling)
+  <LI> <A HREF="general_unix.html">Generic Unix Commands</A>:: wget, pgp, ssh-keygen, uuencode...<br>
+  <LI> <A HREF="fs.html">Unix File System</A>:: 
+	Commands, config files, 
+       <A HREF="fs.html#samba">samba</A>,
+       <A HREF="fs.html#cifs">cifs</A>,
+
+  <LI> <A HREF="admin.html">General Unix Sys Admin </A>:: 
+	Commands, config files, 
+       <A HREF="admin.html#nis">YP/NIS</A>,
+       <A HREF="admin.html#ntp">NTP</A>,
+       <A HREF="admin.html#snmp">net-snmp</A>,
+       <A HREF="admin.html#sudo">sudo</A>,
+       <A HREF="admin.html#chroot">chroot</A>,
+       ...
+
+
+  <LI> <A HREF=""></A>.
+  <LI> <A HREF="factory_pw.html">Factory Default Password</A>.
+
+  <LI> <A HREF="tool.html">Sys Admin tools and performance tuning</A>:: 
+    <A HREF="tool.html#sar">SAR</A>, 
+       iostat, vmstat,
+    <A HREF="tool.html#se">SE Toolkit</A>, 
+    <A HREF="tool.html#tcpdump">tcpdump</A>, 
+    <A HREF="tool.html#snoop">snoop</A>, 
+    <A HREF="tool.html#ethereal">ethereal</A>, 
+    <A HREF="tool.html#nmap">nmap</A>, 
+    <A HREF="tool.html#tripwire">tripwire</A>, 
+    <BR>
+
+  <LI> Development in Unix :: 
+	(Unix sys admin development, NOT real developer :)
+	<UL>
+  	<LI><A HREF="development.html">Overview</A> of diff compilers, .a vs .so libraries.  TBA. <BR>
+		<LI><A HREF="scriptRosetta.word.html">Rosetta Stone of Unix Scripting</A> (summary differences of bash vs tcsh vs awk vs perl. 
+<A HREF="scriptRosetta.rtf">(source .rtf)</A>
+  	<LI><A HREF="shellScript.txt">Bourne/ksh/sh, csh/tcsh shell command and script</A>.
+  	<LI><A HREF="awk.txt">AWK</A>,
+  	<LI><A HREF="perl.html">Perl</A>,
+  	<LI><A HREF="python.html">Python</A>,
+  	<LI><A HREF="php.html">PHP</A>,
+  	<LI><A HREF="javascript_eg.html">javascript_eg</A>,
+   	<LI>gcc
+  	<LI><A HREF="gdb.html">gdb</A>,
+   	<LI>java
+   	<LI>rcs, cvs, p4, subversion
+	<LI><A HREF="vi.html">vi</A> 
+	</UL>
+
+<LI> <A HREF=""></A>.
+
+  <LI> <A HREF="net.html">Network</A> (
+       <A HREF="net.html#cisco">Cisco</A>
+         ( <A HREF="net.html#mds">MDS</A> fibre channel switch ), 
+       <A HREF="net.html#foundry">Foundry</A>, 
+       <A HREF="net.html#extreme">ExtremeNet</A>, 
+       <A HREF="net.html#checkPoint">CheckPoint</A>, 
+       <A HREF="net.html#pix">PIX</A>, 
+       <A HREF="net.html#lb">Load Balancer</A>, 
+	)
+  <LI> <A HREF="infiniband.html">InfiniBand</A><br>
+  <LI> <A HREF="acopia.html">Acopia</A> (F5 ARX virtual file server/director)<br>
+
+  <LI> <A HREF="netapp.html">NetApp</A><br>
+  <LI> EMC (SAN) <A HREF="emc.html">Clariion</A><br>
+  <LI> EMC (NAS) <A HREF="emcCelerra.html">Celerra</A><br>
+  <LI> <A HREF="isilon.html">Isilon</A><br>
+  <LI> Veritas :: 
+    <A HREF="veritas.html#vxvm">VxVM</A>, 
+    <A HREF="veritas.html#vcs">VCS</A>, 
+    <A HREF="veritas.html#netbackup">NetBackup</A>
+  <LI> <A HREF="legato.html">Legato Networker</A>
+
+  <LI> <A HREF="mysql.html">MySQL</A>
+
+  <LI> Select keyboard layout map for 
+       <A HREF="fig/keyboard_layout_chinese.gif">Chinese</A> and  
+       <A HREF="fig/keyboard_layout_international.gif">Spanish/Thai/Dvorak</A>
+
+  <LI> &nbsp;
+  <LI> <A HREF="html.txt">HTML tags</A> quick reference.
+  <LI> <A HREF="wiki.html">WiKi tags</A> quick reference.
+  <LI> <A HREF="lsf.html">Batch System/Grid Computing</A> LSF, PBS/Torque, LSF.
+  <LI> <A HREF="mpi.html">Parallel Computing API/Layer</A> MPI, PVM
+  <LI> <A HREF="sci-file.html">Science File Format/Info</A>
+
+  <LI> &nbsp;
+  <LI> <A HREF="3rdParty">3rd Party and Vendor Docs Cache</A><br>
+
+  <LI> TBD
+  	<A HREF="sci-app.html">.</A>
+
+</UL>
+
+IMHO
+<UL>
+<LI> <A HREF="monitor.html">Network monitoring tool review</A>: Nagios/NetSaint, BigBrother, What's Up, GFI
+<LI> <A HREF="netArch.html">Network Architecture Approaches</A> The "art" part of designing a network.
+<LI> NAS vs SAN vs iSCSI
+<LI> Stand alone server, blade server, partitionable machines (LPAR, Domain), virtual machines.  VMware, MS Virtual Server vs VirtuoZo
+<LI> <A HREF="docPlatform.html">Documentation platform</A>: plain text, HTML/CSS, TeX/LaTeX, FrameMaker, OpenOffice, MS Office, WordPerfect, WiKi. <BR>
+     <A HREF="http://www.cs.fiu.edu/~tho01/stuff/fun_stuff/Assistant.gif">Word Assistant</A> and 
+     <A HREF="http://www.unixconsult.org/vim.gif">vi Assistant</A> :-)   <BR>
+</UL>
+<br>
+
+<NAME="review">
+<H3>Products Review</H3>
+
+<UL>
+<LI><A HREF="termSvr.html">Terminal (Serial Console) Servers</A>
+<LI><A HREF="ent_prod.html">Enterprise Products</A> (an overview of some High-Availability products for Solaris)
+<LI><A HREF=""></A>
+</UL>
+
+
+<A NAME="links"></A>
+<H3>Links</H3>
+
+<H5>References</H5>
+
+<OL>
+
+<LI><A HREF="http://bhami.com/rosetta.html">
+A Rosetta Stone of Unix OS Languages
+</A> (as per the author).  It is a pretty good translation between the many different Unix OS.  <BR>
+
+<LI><A HREF="http://www.lurklurk.org/rosetta.html">
+A Rosetta Stone of Unix Shell Scripts
+</A> <BR>
+
+<LI><A HREF="http://www.unixguide.net/cgi-bin/unixguide.cgi">Static table map of Unix OS commands</a> from 
+<A HREF="http://www.unixguide.net/">unixguide.net</A>.
+
+<LI><A
+HREF="http://www-03.ibm.com/servers/aix/products/aixos/whitepapers/aixmapping.html">
+AIX vs Solaris commands mapping</A>
+
+<LI><A HREF="http://www.ahinc.com/linux101/toc.html">Advanced Horizons</A> has pretty good, concise info on AIX, Linux, Windows, Hardware, etc.
+<LI><A HREF="http://www.unix.org.ua">Online Unix books</A> (Mostly in Russian, some in English)
+<LI><A HREF="http://linux-cifs.samba.org">Samba-CIFS</A>
+
+<LI><A HREF="http://www.google.com/search?q=O%27Reilly+CD+bookshelf">Google for bookshelf</A>
+
+
+<LI><A HREF=""></A>.
+</OL>
+<BR>
+
+<H5>Lighter Readings</H5>
+<OL>
+<LI><A HREF="http://www.unixville.com">Unixville</A> Geeks galore :)
+<LI><A HREF="http://www.folklore.org">Folklore</A> on computer and companies (currently only apple).
+<LI><A HREF="http://www.catb.org/~esr/jargon/">The New Hacker's Dictionary</A> Hilarious read for the insiders.  
+    <A HREF="http://www.campusi.com/bookFind/asp/bookFindPriceLst.asp?prodId=0262680920">book ISBN 0262680920</A><BR>
+</OL>
+
+
+<H5>Tools</H5>
+<OL>
+<LI><A HREF="http://validator.w3.org/">HTML Validator</A>
+
+<LI><A HREF="http://synergy2.sourceforge.net/">Synergy</A> Two computers, two monitors, ONE keyboard and mouse, with cut and paste!!  
+<A HREF="conf/synergy.conf">synergy.conf</A>
+
+<LI><A HREF="http://jpirr.nic.ad.jp/crypt_gen_web.html">crypt generation</A> web form for generating encrypted password
+
+<LI><A HREF="http://www.network-science.de/ascii/">ASCII Art Generator</A>, kinda like web-based figlet, pretty cool :) 
+<A HREF="http://bishop.fau.edu/~chris/figlet/">Another version</A>
+ hosted by a friend of mine.
+
+<LI><A HREF="http://cacert.org">cacert.org</A> Free Digital Certificate for secure web servers, etc.
+
+<LI><A HREF="http://sunfreeware.mirrors.tds.net/">Sunfreeware</A> main mirror site hosted by tds.net.
+
+<LI><A HREF=""></A>.
+</OL>
+<BR>
+
+
+<H3>Books</H3>
+<UL>
+  <LI><A HREF="http://www.campusi.com/bookFind/asp/bookFindPriceLst.asp?prodId=0130206016">Unix System Administration Handbook</A> by Nemeth et al.  This is the Bible for Unix Sys Admin.  Excellent read and reference.  Highly recommended.
+  <LI><A HREF="http://froogle.google.com/froogle?q=Essential+System+Administration&btnG=Search+Froogle&lmode=unknown&lnk=pruser&price1=15&price2=&btnP=Go">Essential System Administration</A> by Frisch.  Another comprehensive Unix Sys Admin Book.
+  <LI><A HREF="http://www.campusi.com/bookFind/asp/bookFindPriceLst.asp?prodId=020107981X">Tha Awk Programming Language</A> by the original authors.  Kinda old, but very concise yet easy to read, so still highly recommended.  After reading Ch3, you can do most of what you would need to do with Awk.  Unfortunately, its age does not cover new features implemented by gAWK :-(
+</UL>
+
+
+<HR>
+
+<H4>About me</H4>
+I have been "hacking" computers for 10+ years now.  I started liking to fiddle with OS since college days in FIU, and it is still a hobby when I am not hiking and biking or studying for biotech :-) 
+<!--Here is my old 
+<A HREF="http://www.cs.fiu.edu/~tho01/resume.TinHo.html">
+resume</A>.-->
+<BR><BR>
+
+<A NAME="cc"></A>
+<A NAME="CreativeCommon"></A>
+
+<!--Creative Commons License-->
+<H4>Copyright info about this work
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/"><img alt="Creative Commons License" border="0" src="http://creativecommons.org/images/public/somerights20.png"/></a>
+</H4>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">Creative Commons Attribution-NonCommercial-ShareAlike2.5 License</a>.<!--/Creative Commons License--><!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+               <Work rdf:about="">
+                       <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/" />
+       <dc:title>Pocket Sys Admin Survival Guide</dc:title>
+       <dc:date>2005</dc:date>
+       <dc:description>A series of concise system administration notes</dc:description>
+       <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
+       <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
+       <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+       <dc:source rdf:resource="http://www.cs.fiu.edu/~tho01/psg/" />
+               </Work>
+               <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/><permits rdf:resource="http://web.resource.org/cc/Distribution"/><requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/><prohibits rdf:resource="http://web.resource.org/cc/CommercialUse"/><permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/><requires rdf:resource="http://web.resource.org/cc/ShareAlike"/></License></rdf:RDF> -->
+
+<table summary="Navigation CC" width="100%">
+  <tbody>
+    <tr>
+
+
+
+
+
+      
+    <td align="left" > 
+<TT>Pocket Sys Admin Survival Guide</TT>: for content that I wrote, (<a
+ href="http://creativecommons.org/licenses/by-nc-sa/2.5/">CC</a>) 2005,2009 Tin Ho [ tin6150 (at) gmail.com ] <a href="http://creativecommons.org/learnmore"><i>some 
+      rights reserved</i></a>.  
+Some contents are "cached" here for easy reference. Sources include man pages, 
+vendor documents, online references, discussion groups, etc. Copyright of those 
+are obviously those of the vendor and original authors.  I am merely caching them here for quick reference and avoid broken URL problems.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+  <div align="CENTER">
+DOC URL, <I>Where is the "home" PSG ? </I>    <BR>
+
+  <A HREF="http://tiny.cc/tin6150">http://tiny.cc/tin6150/</A>
+Home since June 2011.  Still the case as of Dec 2011.  <BR>
+
+  <A HREF="http://grumpyxmas.medianewsonline.com">http://tiny.cc/tin6150a/</A>
+Alternate home since 2011.  <BR>
+
+~ 0 ~ <BR>
+
+<A HREF="http://unixville.com/~sn/psg/psg.html">http://unixville.com/~sn/psg/psg.html</A> 
+(won't be coming after all)
+<BR>
+<A HREF="ftp://read:only@sn.is-a-geek.com/psg/psg.html">ftp://sn.is-a-geek.com/psg/psg.html</A> 
+My home "server".  Up sporadically.
+<BR>
+
+<!--
+Other caches in decreasing order of update frequency:  <BR>
+
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg.html
+</A> 
+(Google site, they are changing their policy and I may not be update these pages in the near future.  Last updated 2009-10-10)<BR>
+-->
+
+
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/psg.html">http://www.cs.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-06)<BR>
+<A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
+
+<!--
+<A HREF="http://www.tokyo3.com/~tin/psg/psg.html">http://www.tokyo3.com/~tin/psg/psg.html</A> (no longer accessible)<BR>
+-->
+
+
+  <HR>
+
+<A ID="search"></A>
+<table summary="search toolbar">
+<tr>
+<tbody>
+<td>
+<!-- altavista search -->
+<script type="text/javascript" language="JavaScript1.2" src="http://www.altavista.com/help/free/websearch"></script>
+</td>
+
+<td>
+ <!-- Site-Flavored Google Search -->
+<form method=GET action="http://www.google.com/search">
+<a href="http://www.google.com/services/siteflavored.html">
+<img src="http://labs.google.com/images/gp/google_kaltix_site_flavored_searchbox.gif" border=0 alt=Google align=absmiddle></a> <input type=text name=q size=31 maxlength=255 value=''>
+<input type=hidden name=site_flavored value=on>
+<input type=hidden name=client value=site_flavored>
+<input type=hidden name=hl value=en>
+<input type=hidden name=interests value=1222|56>
+<span id=site_flavored_name></span>
+<script language=javascript>
+homeHTML = "<input type=hidden name=site_flavored_name value=" + document.location +">";
+document.getElementById("site_flavored_name").innerHTML = homeHTML;
+</script>
+<input type=submit name=sa value='Custom Search'>
+<font face=arial,sans-serif size=-1> </font>
+</form>
+<!-- End Site-Flavored Google Search --> 
+</td>
+
+
+</tbody>
+</tr>
+
+</table>
+
+<!-- Ad section, pseudo ads anyway cuz I am not looking for profit here-->
+  <A HREF="http://main.diabetes.org/site/TR?pg=personal&fr_id=3323&px=2813562"><IMG SRC="banner/tourDeCure.gif" width="731" height="92"></A>
+  <!--A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A-->
+
+
+<!-- Just for fun. this google ad id is actually from unixguide.net -->
+<script type="text/javascript">
+<!--
+google_ad_client = "pub-9786751149916387";
+google_ad_width = 728;
+google_ad_height = 17;
+google_ad_format = "728x90_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+//-->
+</script>
+<!----script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script---->
+<!--disabled the google Ad for now cuz it is slow to load, but it seems that they 
+    are getting toward the graphics banners! more to explore later-->
+
+
+<!-- Google analytics new tracking code ga.js.  
+Will actually need to add this code to every page for full tracking!    (still the case in 2011?)
+Using my gmail login 2011.0617
+updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html
+-->
+
+
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4515095-4']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+
+
+  </div>
+  <BR>
+  <div align="right"><font size="-10"><i> "ting" <BR>
+  "ting" <BR>
+  sn50 tin6150 psg101<A HREF="http://sn.is-a-geek.com/psg/">sn.is-a-geek.com</A><BR>
+  </i></font></div>
+
+<HR>
+
+</body>
+
+
+
+</html>

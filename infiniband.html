@@ -1,0 +1,364 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP, PSG101, sn50, tin6150"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - InfiniBand</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/">Sys Admin Pocket Survival Guide - InfiniBand</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
+      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
+      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>InfiniBand</H1>
+
+openfabric.org - OFED source.	<BR>
+mellanox.com   - compile binaries for major distro, about 3 months lag behind source.  <BR>
+
+<A HREF="http://tinyurl.com/infiniband">
+http://tinyurl.com/infiniband</A>	- my cache of IB docs.
+<BR>
+
+<H2>InfiniBand 101 </H2>
+
+CA  - Control Adaptor  <BR>
+HCA - Host CA  (like how FibreChannel has HBA)  <BR>
+LID - Local ID, uniq id of IB end points.  <BR>
+port - a port on the HCA, like NIC ports in ethernet quad card.  <BR>
+
+
+<PRE>
+rds-ping
+rds-info
+
+opensm 	# open fabric subnet manager.  run on one of the host.  
+	# additional standy manager on other hosts can be setup.  
+	# the daemon process will only bind to first IB port.  
+	# HA fabrics should be joined into a single one.
+  	# Fix opensm.conf to bind to additional guid.  
+
+
+opensm --create-config /tmp/opensm.conf 
+cp -i /tmp/opensm.conf /etc/opensm/
+
+ibstat
+  - all ports should be active.  It would be active if there is running fabric manager to register them when the port comes alive.
+  - node guid
+  - port guid
+
+
+
+ibv_devinfo - similar info to ibstat
+
+/usr/bin/hca_self_test.ofed  
+
+ibdiagnet
+
+ibnetdiscover - find ib network topology and LID.
+	# switch LID would be listed above all the port, see comment field 
+</PRE>
+
+<PRE class="code">
+# select output of ibnetdiscover
+
+switchguid=0x2c90200410d02(2c90200410d02)
+Switch  24 "S-0002c90200410d02"   # "MT47396 Infiniscale-III Mellanox Technologies" base port 0 lid 2 lmc 0
+#                                                                               ib switch LID      ^^^
+
+[16]    "H-00188b9097fe8e41"[1](188b9097fe8e42)     # "rac1001 HCA-1" lid 4 4xDDR
+[15]    "H-00188b9097fe906d"[1](188b9097fe906e)     # "rac1002 HCA-1" lid 9 4xDDR
+^^^^ ib port where host is connected            comment area and host's LID ^^^
+</PRE>
+
+
+<PRE>
+ibportstate [swlid] [swPortNum] [command]	
+ibportstate  2        11         disable	# turn off IB switch port a specific host is connected to
+ibportstate  6        11         disable
+     # can also use enable, status.  Other form allow for changing speed, etc.
+
+
+
+
+</PRE>
+
+
+<BR><HR><BR>
+
+<H2>IBoIP with Bonding Config</H2>
+
+
+OFED 1.4 instructions for configuring bonding for IPoIB interfaces is to create static config in /etc/sysconfig/network-scripts for the file ifcfg-bond0, ifcfg-ib0, ifcfg-ib1, as below:
+
+<H5>IB-bond for system WITHOUT ethernet bond</H5>
+<PRE class="code">
+$ cat /etc/sysconfig/network-scripts/ifcfg-bond0
+DEVICE=bond0
+BOOTPROTO=none
+IPADDR=10.2.2.98
+NETMASK=255.255.255.0
+NETWORK=10.2.2.0
+BROADCAST=10.2.2.255
+ONBOOT=yes
+USERCTL=no
+TYPE=Bonding
+
+$ cat /etc/sysconfig/network-scripts/ifcfg-ib0  
+DEVICE=ib0
+BOOTPROTO=none
+ONBOOT=yes
+USERCTL=no
+MASTER=bond0
+SLAVE=yes
+TYPE=InfiniBand
+
+$ cat /etc/sysconfig/network-scripts/ifcfg-ib1
+DEVICE=ib1
+BOOTPROTO=none
+ONBOOT=yes
+USERCTL=no
+MASTER=bond0
+SLAVE=yes
+TYPE=InfiniBand
+
+# relevant entries in  /etc/modprobe.conf ::
+## added for Oracle 10/11 (per Cambridge WI)
+## make sure that the hangcheck-timer kernel module is set to load when the system boots
+options hangcheck-timer hangcheck_tick=1 hangcheck_margin=10 hangcheck_reboot=1
+alias ib0 ib_ipoib
+alias ib1 ib_ipoib
+alias net-pf-27 ib_sdp
+##  For IB bonding
+alias bond0 bonding
+options bond0 miimon=100 mode=1 max_bonds=1
+
+</PRE>
+
+As of OFED 1.4.0 (circa 2009.09), the above bonding config would work, bond0 would be created correctly and disabling the ib port for say ib0 would cause thigns to fail over.  <BR><BR>
+
+However, fail over won't actually work if the machine also has ethernet bonding configured.
+The config would successfully create a bond for ib0 and ib1.  
+But the IP would be bond to 
+a specific interface and when the IB port is disabled from the switch, ping and rds-ping would stop working. 
+Maybe it has to do with some bugs in the ifcfg-* scripts in RHEL 5.3 that associate the HW "mac address"
+of the ibX interfaces incorrectly to the bonding interface. 
+OFED 1.4.x doesn't support the bonding config in /etc/inifiniband/openib.conf anymore.
+Manually creating the ib-bond after system boot would work, and fail over actually works correctly.
+Here is the required config:
+
+<H5>IB-bond for system with ethernet bond</H5>
+<PRE class="code">
+
+$ cat /etc/sysconfig/network-scripts/ifcfg-ib0
+DEVICE=ib0
+BOOTPROTO=none
+STARTMODE=onboot
+ONBOOT=yes
+USERCTL=no
+BROADCAST=192.168.2.255
+NETMASK=255.255.255.0
+#
+IPADDR=0.0.0.0
+#SLAVE=yes
+#MASTER=bond1
+TYPE=InfiniBand
+
+
+$ cat /etc/sysconfig/network-scripts/ifcfg-ib1
+DEVICE=ib1
+BOOTPROTO=none
+STARTMODE=onboot
+ONBOOT=yes
+USERCTL=no
+BROADCAST=192.168.2.255
+NETMASK=255.255.255.0
+#
+IPADDR=0.0.0.0
+#SLAVE=yes
+#MASTER=bond1
+TYPE=InfiniBand
+
+
+# relevant entries in  /etc/modprobe.conf ::
+options bond0 mode=balance-rr miimon=100    max_bonds=2
+
+# ethernet bonds are configured as in stock RHEL 5.3 config.
+
+</PRE>
+
+<PRE class="code">
+
+#!/bin/sh
+
+# init script to start ib-bond at boot time:
+#
+# run "manual" ib-bond config
+# could not do this in /etc/sysconfig/network-scripts as bond1, ib0, ib1 scripts
+# as somehow presence of eth bond would make ib-bond fail over not to work.
+# maybe a bug in how the network-scripts are parsed...
+#
+##  nn = startLevel  Sxx Kxx
+##  eg start at rc3 and rc5,   start as S56, kill is omitted so no Kxx script
+##  maybe as S28 if need to be before oracleasm
+##
+# chkconfig: 35 28 -
+# description: ib-bond config
+#
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+
+RETVAL=0
+prog="ib-bond-config"
+
+start() {
+        ifconfig ib0 up 0.0.0.0/24
+        ifconfig ib1 up 0.0.0.0/24
+        ib-bond --bond-name bond1 --bond-ip 192.168.2.101/24 --slaves ib0,ib1 --miimon 100
+}
+
+stop() {
+        ib-bond --bond-name bond1 --stop
+}
+
+status() {
+        ib-bond --status-all
+}
+
+case "$1" in
+        start)
+                echo -n $"Starting $prog: "
+                start
+                RETVAL=$?
+                [ "$RETVAL" = 0 ] && logger local7.info "ib-bond-config start ok" || logger local7.err "ib-bond-config start failed"
+                echo
+                ;;
+        stop)
+                echo -n $"Stopping $prog: "
+                #echo 'not implemented yet'
+                stop
+                [ "$RETVAL" = 0 ] && logger local7.info "ib-bond-config stop ok" || logger local7.err "ib-bond-config stop failed"
+                echo
+                ;;
+        status)
+                status
+                echo
+                ;;
+        *)
+                echo $"Usage: $0 {start|stop|status}"
+                RETVAL=1
+esac
+
+
+
+exit $RETVAL
+
+## setup aid:
+##  sudo cp -p /nfshome/sa/config_backup/lx/conf.test-4000/ib-bond-config /etc/init.d/
+##  sudo ln -s /etc/init.d/ib-bond-config /etc/rc.d/rc3.d/S56ib-bond-config
+##  sudo ln -s /etc/init.d/ib-bond-config /etc/rc.d/rc5.d/S56ib-bond-config
+
+
+</PRE>
+
+
+There is one final catch.  eth fail over work for one NIC at a time.
+If both eth0 and eth1 is ifdown'd, the minute eth0 is ifup, the machine reset.
+Not sure why, no log message, so may not even be a kernel panic...
+But if both eth interfaces are down, machine is probably screwed anyway...
+
+<H2>RDS and InfiniBand</H2>
+
+RDS stands for Reliable Datagram Socket.  
+It was modeled/designed like a UDP replacement, but adds reliability and 
+in-sequence delivery characteristics traditionally only available from TCP.
+It was to be lightweight, rely on the InfiniBand hardware to do the 
+path mapping and "virtual channel" config.
+<BR>
+<BR>
+The RDS developer mailing list has a <A HREF="http://oss.oracle.com/pipermail/rds-devel/2007-November/000228.html">doc</A>
+that indicates RDS would not depend on IP when run on InfiniBand, so then IBoIP may not actually need to be configured  (eg, how MPICH work with infiniband without any IP support).  
+
+On the flip side, there are also discussion of implementing RDS over TCP! (eg:
+<A HREF="http://oss.oracle.com/pipermail/rds-devel/2009-February/000966.html">take 2</A>) 
+At any rate, rds-ping needs an IP address.   rds-info is centered around the premise of IP address.  
+Oracle doesn't work unless IP are assigned for IB interface.
+<BR>
+<BR>
+So, for HA (at least for Oracle), it seems that IBoIP fail over from the IB-bonding need to be configured.
+Oracle cluster/RAC does not have ability to use multiple ib0, ib1 interfaces
+as its private network, so some sort of automatic HCA fail over would be needed.
+<BR>
+<BR>
+
+<H2>RDMA and InfiniBand</H2>
+
+RDMA = Remote DMA , ie Remote Direct Memory Access.
+It would allow data transfer between two hosts with IB HCA to copy data from one host directly into the other, bypassing the many copy needed of traditional NIC.  Combined with low latency of IB, it would give very high transfer speed.
+However, RDMA is not implemented by RDS as of OFED 1.4.
+(it is for TCP? but that would be at the IPoIB layer?  Or maybe
+for things that use IB directly like MPICH...  don't know....).
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/">
+http://dl.dropboxusercontent.com/u/31360775/psg/
+</A>] <BR>
+Last Updated: 2009-12-29
+  <!--[Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/">http://www.cs.fiu.edu/~tho01/psg/</A>] <BR>-->
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"<BR>
+  psg101 sn50 tin6150</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

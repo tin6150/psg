@@ -1,0 +1,221 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Documentation Platform</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/netArch.html">Sys Admin Pocket Survival Guide - Network Architecture</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>Network Architecture</H1>
+
+<H2>Multiple VLAN vs one huge segment</H2>
+
+Is it better to have 4 class C vlan or one big /26 network?
+The answer obviously is "it depends".  Some admin like to do things one way and other another.  But if there are no specific reasons to choose one versus the 
+other, then I would choose multiple vlans, over merging everything into one.  
+This is because:
+<OL>
+<LI>Segregate windows from unix.  One has lot of broadcast and viruses, the other is closer to nirvana :)
+<LI>...
+<LI>
+</OL>
+
+<H2>Routable vs Non-Routable IP in DMZ, Internal Network</H2>
+
+I choose non-routable for the extra security.  Not unless traffic goes thru the NAT device, they can't get to the internet.  
+
+<BR>
+
+<BR><HR><BR>
+
+<A ID="hostname"></A>
+<H2>Host Naming Convention</H2>
+
+Users like to use fun names that they like, such as Abott, Costello, Stinky, Itchy, etc etc.
+Admins like cryptic name such as sc-smtp01, nacascxch007, etc.
+But names like pc35c7b6 and s432678 is probably the worse of both world, hated by both users and most sys admins.
+
+
+<H5>Fun Names</H5>
+Users obviously like to name machines after their favorite mascot, toy, cars, etc.  This is definately easy to remember, and if there are only a few machines around, it is fine.  But for Sys Admin working at large companies with many machines, not getting any clue of what the machine from the name is usually a draw back.  So, it depends whether you want to be a BOFH or a user-pleaser :)
+<BR>
+That said, if you are in a university environment, and you see machines named Fermat and Descartes, Hydrogen, Helium, Lithium, Quark, Positron, Photon, you can probably guest that they are machines in the Math, Chem and Physics department.  If you are in a dot-com, your web server can probably be named Ferrari, your file server as Durango, and your desktop as Pinto.  It is actually very reasonable as long as you publish what the different naming themes are for what purpose.
+
+<BR><BR>
+
+<H5>SysAdmin Names</H5>
+If you are like me and not creative with naming things, then name the machines with simple acronyms are fine.  User desktops probably should be named as lnx-<USERNAME>, win-<USERNAME>, lap-<USERNAME>.  Servers would probably be DB01, Web01, App01.  Boring, but they are to the point.  If you work in large company that spans many location, adding a short prefix to the name is fine, such as CA-Ora01, NY-Web02, etc.  But keep them short, don't go overboard and name your exchange server in North America, California, Santa Clara as nacascxch007.  sc-xch7 would likely do the job better.  Keep the name short and easy to remember, that's what naming is all about!
+<BR><BR>
+
+<H5>Cryptic Names</H5>
+Some admins that really don't know how to name their machines like to put Sercie Code, Serial Number or Asset Code for the machine name.  While they claim that this pack lot of info about the machine into the name, it is flawed in the sense that it defeats the purpose of naming the machine: It was supposed to be easy to remember and talk about!  Such cryptic names are essentially the worse of both world and hated by users and sys admins alike.<BR>
+Certainly, if a user call and say my laptop lp3c4d7e battery isn't charing anymore, you can probably call dell and give them the service code that is embeded in the name to get a replacement battery.  But if you get a page that pc78df53 has a virus, would you know who to talk or where to go to work on the machine??  
+Serial number, asset tag, and other such info should be kept in the inventory database and refered when necessary.   
+<BR>
+The whole exercise of naming machine is that they can be remembered.  Those cryptic serial numbers and service code are so hard to remember that IP address may as well be used instead of the machine name!!  Furthermore, IP address that one  needs to remember is probably only one octet or two.  Calling a machine x.x.13.25 is only 4 digits and may add the info that machine is on in building 1, floor 3.  It would certainly be easier to remember and more meaningful than tag834761, as asset tag is not used 99.999% of the time of dealing with a machine.
+
+
+<BR><BR>
+
+So, in summary, don't upset everyone, try to at least please one set of people, and keep in mind that a name is supposed to be meaningful!
+
+
+<BR><BR>
+
+<A ID="apptree"></A>
+<H2>Network Application Tree</H2>
+
+Lot of sys admin create a central repository of applications stored on NFS server, so that all users can easily gain access 
+to the same set of applications at the same version.
+
+In environment where more than one platoform is supported, there are typically two ways of doing it:  <BR>
+(1) <TT>/nfsapp/<I>PLATFORM</I>/program</TT>  -or- <BR>
+(2) <TT>/nfsapp/program/<I>PLATFORM</I></TT>  <BR>
+<BR>
+PLATFORM could be a cascade of directories that represent things from uname -s and uname -m, OS version, etc.  For example: <BR>
+<LI>Linux/i386
+<LI>Linux/x86_64
+<LI>SunOS/5.7
+<LI>SunOS/5.10
+<LI>aix/4.3.3
+<LI>aix/5.1
+<LI>hpux/parisc/10
+<LI>hpux/parisc/10.11
+<LI>hpux/parisc/11.11
+<LI>hpux/itanium/11.23
+<LI>conf
+<LI>src
+
+<BR>
+<BR>
+Both choices seems largely the same.  In reality either choice presents its own set of challenges, as multi-plaform management is obviously more complicated than a single platform.  
+That said, from a sys admin and end user perspective, I would argue that option (1) is better.
+Developer might have a slight preference for option (2).  The reason for the latter is likely because developers start writing code for one platform, then as they port their code to other platform, architecture dependent code get added as sub-directories.  But if they plan for multi-architecture from the getgo, (1) wouldn't hinter their work.  
+<BR>
+<BR>
+
+As a sys admin, these are some reasons why I argue (1) is better:
+<BR> <BR>
+<LI>User can define variable like <TT>NFSBASE=/nfsapp/Linux/x86_64</TT> and then have PATH refer to things as <BR>
+<TT>$NFSBASE/oracle/bin</TT> <BR>
+	rather than <BR>
+	<TT>/nfsapp/oracle/$OS/$ARCH/bin</TT> <BR>
+	<BR>
+
+<LI>Some applications have sub components.  It is more natural to have PATH like <BR>
+    <TT>$NFSBASE/oracle/bin:\ <BR>
+	$NFSBASE/oracle/jdbc/bin:\ <BR>
+	$NFSBASE/oracle/oui/bin:\ <BR>
+	$NFSBASE/oracle/opmn/bin:\ <BR>
+	$NFSBASE/oracle/perl/bin </TT> <BR>
+     than  <BR>
+     <TT>/nfsapp/oracle/$OS/$ARCH/bin:\ <BR>
+	     /nfsapp/oracle/$OS/$ARCH/jdbc/bin:\ <BR>
+	     /nfsapp/oracle/$OS/$ARCH/oui/bin:\ <BR>
+	     /nfsapp/oracle/$OS/$ARCH/opmn/bin:\ <BR>
+	     /nfsapp/oracle/$OS/$ARCH/perl/bin</TT> <BR>
+     And, really, if using option (2), is one going to create path like 
+     <TT>/nfsapp/oracle/<I>$OS/$ARCH</I>/jdbc/<I>$OS/$ARCH/</I>bin</TT>?  
+     Even if one was up to doing it, installer like Oracle OUI won't likely make this easy.
+     <BR>
+     Oracle is not the only such program.  Other examples are gistic/MATLAB_Runtime_Component, GenePatternServer/Tomcat, etc ...     
+	     
+<BR> <BR>
+
+     <LI> SunFreeware.com has a lot of programs that can be installed on one machine and copied to network path like <TT>/$NFSBASE/opt/sfw</TT> and they just work.  Having to use path like <TT>/nfsapp/opt/sfw/$OS/$ARCH/bin</TT>, <TT>.../sbin</TT> is just not as elegant.
+<BR> <BR>
+
+<LI> Option (1) present a directory tree that can be more easily mounted, to say /usr/local, and still look largely like files
+     installed for the local machine (which can only be one arch).
+
+<BR> <BR>
+<LI>If you started installing apps on NFS server with a single platform, then (1) would be what you started with, and extending it to support additional platform would be fairly easy.   <BR>
+On the flip side, if you started with multiple platform but they are gradually dying, option (1) presents a structure that would be less tedious to work with when things fall back into a single structure.  eg, you will find yourself working almost exclusively on /nfsapp/Linux/x86_64 and forget that /nfsapp/hpux/itanium/11.23 ever existed ;-)
+
+<BR><BR>
+<B>Challenges present in both (1) and (2):</B>
+<BR><BR>
+
+<LI>Where to place rchitecturally independent config files?  <BR>
+Option (1): <TT>/nfsapp/NOARCH/program</TT>.   <BR>
+Option (2): <TT>/nfsapp/program/NOARCH</TT>.   <BR>
+From the above, option (2) would be more elegant than option (1) as it allows config file closer to the directory of program's binary.  However, I suggest that <B>ALL</B> config files be stored in a single directory, <I>a la</I> /etc/profile.d:  <BR>
+Option 1: <TT>/nfsapp/NOARCH/conf</TT> <BR>  
+Option 2: <TT>/nfsapp/conf/NOARCH</TT>  <BR>  
+or simply, <TT>/nfsapp/conf</TT>  <BR>  
+
+This way, one doesn't have to hunt all over the place for the config files (site.cshrc.csh, site.bash.profile, site.alias, tnsnames.ora and schrodinger.hosts will all be found in one place).
+Oracle now supports the use of environment variable TNSADMIN to point to the dir containing the config files and make this solution easy to implement.  But for some older programs, one may have to link files from the program bin directory to the conf to preserve the "natural" location.  eg, For old version of oracle, one could have link to a central config file as: <BR>
+<TT>cd /nfsapp/SunOS/5.8/oracle-client-9i/network/admin/ <BR>
+ln ../../../../../conf/oracle-client-9i/network/admin/tnsnames.ora ./tnsnames.ora</TT>
+<BR>
+Yes, the path is a bit ugly, but it is better than keeping many different versions for each version of the program, for each platform.
+<BR><BR>
+
+<LI>How to hide the PLATFORM from the user? <BR>
+Option (1) allows for /nfsapp/PLATFORM to be mounted as /usr/local (or a subpart like /nfsapp/SunOS/5.9/ to be mounted as /opt/sfw).  However, program tha need config files may not work as well.  Using hard link instead of symbolic link help help around the problem if everything is based on the same NFS server.
+<BR>
+Alternatively, /usr/local could be a sym link to /net/NFS-server/nfsapp/PLATFORM/, this allow for config file to be sym link to the config dir using ../ path, but csh's <TT>cd</TT> would show the real dir and make it quite unsigthy to the user :-(.  If your orgainzation use sh/ksh/bash, then this isn't as big (or ugly) of a problem.
+<BR>
+Finally, option (2) does not present an easy way to hide other PLATFORM binary on a given machine via mount or sym link of directories.
+<BR><BR>
+
+<LI>How to hide reduce the number of versions that need to be maintained? <BR>
+Many OS provides some sort of binary compatibilities between versions.  For example, old binaries produced for Solaris 7 will work in Solaris 9 (the converse may not be true).  A lazy (or prudent?) sys admin can sym link such programs into a single directory.  However, if the user use csh/tcsh, the <TT>cd</TT> command would tend to expose all these paths and make things quite ugly (sh/ksh/bash is much better in hiding in this regard).  Both option (1) and (2) would result in a spagetti of links, with option (2) having slighly fewer kinks as ARCH is at the end of the path and thus readily visible where things point to.
+<BR>
+PS.  AIX 4.3.3 binaries are not compatible with 5.x, HP-UX PA-RISC 11 binaries are not compatible with 11i. 
+<BR><BR>
+
+
+<BR><HR>
+
+<div align="CENTER">
+	[Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/netArch.html">http://www.grumpyxmas.com/netArch.html</A>] <BR>
+  	[Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/netArch.html">http://www.cs.fiu.edu/~tho01/psg/netArch.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+ Last updated: 2009-02-28<BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

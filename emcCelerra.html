@@ -1,0 +1,1205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+  <title>Pocket Survival Guide - EMC Celerra</title>
+
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="PSG101 sn50 tin6150 Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="6" align="center">
+	  
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/emcCelerra">Sys Admin Pocket Survival Guide - EMC Celerra</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
+      <td align="center"><a accesskey="i" href="isilon.html">Isilon</a></td>
+      <td align="center"><a accesskey="e" href="emc.html">EMC(SAN)</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<!-- Place this tag where you want the +1 button to render -->
+<g:plusone></g:plusone>
+&lt;-- Please click if you found this site useful ;-)
+<!--  Place this tag after the last plusone tag -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+
+<H1>EMC Celerra</H1>
+
+<H3>EMC Celerra 101</H3>
+
+Celerra is the NAS offering from EMC.
+
+
+<PRE>
+
+Control station is the management station where all admin commands are issued:
+
+https://celerra-cs0.myco.com/ 	# web gui URL.  Most feature avail there, including a console.
+
+ssh celerra-cs0.myco.com	# ssh (or rsh, telnet in) for CLI access
+
+
+Layers:
+  
+VDM (vdm2) / DM (server_2)		
+  |
+Export/Share
+  |
+Mount
+  |
+File System
+  |
+(AVM stripe, volume, etc)
+  |
+storage pool (nas_pool)
+  |
+disk
+
+Export can export subdirectory within a File System.
+All FS are native Unix FS.  CIFS features are added thru Samba (and other EMC add ons?).
+
+CIFS share recommended thru VDM, for easier migration, etc.  
+NFS share thru normal DM (server_X).  Physical DM can mount/export FS already shared by VDM, 
+but VDM can't access the "parent" export done by a DM.
+VDM mounts are accessible by underlaying DM via /root_vdm_N
+
+Quota can be on tree (directory), per user a/o group.
+
+
+
+Commands are to be issued thru the "control station" (ssh) 
+(or web gui (Celerra Manager) or Windows MMC SnapIn (Celerra Management).)
+
+Most commands are the form:
+server_...
+nas_...
+fs_...
+/nas/sbin/...
+
+typical options can be abreviated, albeit not listed in command usage:
+-l = -list
+-c = -create
+-n = -name
+-P = -Protocol
+
+
+nas_halt	# orderly shutdown of the whole NS80 integrated.  
+		# issue command from control station.
+
+</PRE>
+
+
+<H3>IMHO Admin Notes</H3>
+
+Celerra sucks as it compares to the NetApp.
+<B>If you have to manage one of these suckers, I am sorry for you </B>
+(I am very sorry for myself too).
+I am so ready to convert my NS-80 integrated into a CX380 and chuck all the Data Mover that create the NAS head.
+There are lot of catchas.  More often than not, it will bite you in your ass.  Just be very careful,
+and know that when you need to most to change some option, count on it needing a reboot!
+The "I am sorry" quote came from a storage architect.  One of my former boss used to be a big advocate of EMC Celerra 
+but after having to plan multiple outage to fix things (which NetApp wouldn't have to), he became a Celerra hater.
+
+Comments apply to DART 5.5 and 5.6 (circa 2008, 2009)
+
+<OL>
+<LI>Windows files are stored as NFS, plus some hacking side addition for meta data.  <BR>
+    This mean from the getgo, need to decide how to store the userid and gid.  UserMapper is a very different beast than the usermap.cfg used in NetApp.
+<LI>Quota is nightmare.  Policy change is impossible.  Turning it off require removing all files on the path.
+<LI>Web GUI is heavy Java, slow and clunky.  And if you have the wrong java on your laptop, well, good luck!
+<LI>CLI is very unforgiven in specification of parameters and sequences.
+
+<LI>The nas_pool command shows how much space is available, but give 
+no hints of virtual provisioning limit (NetApp may have the same problem though)
+</OL>
+
+Some good stuff, but only marginally:
+<OL>
+<LI>CheckPoint is more powerful than NetApp's Snapshot, but it requires a bit more setup.  Arguably it does not hog up mainstream production file system space due to snapshot, and they can be deleted individually, so it is worth all the extra work it brings. :-)
+<LI>
+</OL>
+
+
+<H3>Sample Setup</H3>
+
+Below is a sample config for a brand new setup from scratch.  The general flow is:
+<OL>
+<LI>Setup network connectivity, EtherChannel, etc
+<LI>Define Active/Standby server config
+<LI>Define basic network servers such as DNS, NIS, NTP
+<LI>Create Virtual CIFS server, join them to Windows Domain
+<LI>Create a storage pool for use with AVM
+<LI>Create file systems
+<LI>Mount file systems on DM/VDM, export/share them
+</OL>
+
+<PRE class=cf>
+# Network configurations
+server_sysconfig server_2 -pci cge0 -o "speed=auto,duplex=auto"
+server_sysconfig server_2 -pci cge1 -o "speed=auto,duplex=auto"
+
+# Cisco EtherChannel (PortChannel)
+server_sysconfig server_2 -virtual -name TRK0 -create trk -option "device=cge0,cge1"
+server_sysconfig server_3 -virtual -name TRK0 -create trk -option "device=cge0,cge1"
+server_ifconfig  server_2 -c -D TRK0 -n TRK0 -p IP 10.10.91.107 255.255.255.0 10.10.91.255
+# ip, netmask, broadcast
+
+# Create default routes
+server_route server_2 -add default 10.10.91.1
+
+# Configure standby server
+server_standby server_2  -create mover=server_5 -policy auto
+
+# DNS, NIS, NTP setup
+server_dns  server_2 oak.net  10.10.91.47,162.86.50.204
+server_nis  server_2 oak.net  10.10.89.19,10.10.28.145
+server_date server_2 timesvc start ntp 10.10.91.10
+
+ 
+server_cifs ALL -add security=NT
+
+# Start CIFS services
+server_setup server_2 -P cifs -o start
+
+#Create Primary VDMs and VDM file system in one step.
+nas_server -name VDM2 -type vdm -create server_2 -setstate loaded
+
+#Define the CIFS environment on the VDM
+server_cifs VDM2 -add compname=winsvrname,domain=oak.net,interface=TRK0,wins=162.86.25.243:162.86.25.114
+server_cifs VDM2 -J compname=vdm2,domain=oak.net,admin=hotin,ou="ou=Computers:ou=EMC Celerra" -option reuse
+# ou is default location where object will be added to AD tree (read bottomm to top)
+# reuse option allows AD domain admin to pre-create computer account in AD, then join it from a reg user (pre-granted)
+# the ou definition is quite important, it need to be specified even when 
+# "reusing" an object, and the admin account used much be able to write to
+# that part of the AD tree defined by the ou.
+# EMC seems to need the OU to be defined in reverse order, 
+# from the bottom of the LDAP tree, separated by colon, working upward.
+# When in doubt, use the full domain account priviledges.
+
+# &lt;!--
+
+<!-- 
+enginst acc don't cut it, need an admin user account with (essentially) 
+full domain ad access).
+ou
+
+server_cifs VDM2 -J compname=VDM2,domain=us.eville.net,admin=enginst,ou="ou=Servers:Resources:USEM"
+
+server_cifs VDM2 -J compname=us-s61,domain=na.novartis.net,admin=enginst,ou="ou=Servers:Resources:USEM"
+think above worked... 
+but doc seems to indicate need something more like ou="cn=Servers:cn=Resources:ou=USEM"
+--> 
+
+
+
+
+# option to reset password if account password has changed but want to use same credential/object again...   resetserverpasswd
+
+
+other troubleshooting commands:
+... server_kerberos -keytab ...
+server_cifssupport VDM2 -cred -name WinUsername -domain winDom   # test domain user credentials
+
+
+server_viruschk server_4	# check to see if CAVA is working for a specific data mover
+
+
+
+# Confirm d7 and d8 are the smaller LUNs on RG0
+nas_pool -create -name clar_r5_unused -description "RG0 LUNs" -volumes d7,d8
+
+ 
+# FS creation using AVM (Automatic Volume Management), which use pre-defined pools:
+# archive pool = ata drives
+# performance pool = fc drives
+
+nas_fs -name cifs1  -create size=80G pool=clar_archive
+server_mountpoint VDM2   -c  /cifs1		# mkdir 
+server_mount      VDM2 cifs1 /cifs1 		# mount (fs given a name instead of traditional dev path) 
+server_export     VDM2 -name cifs1 /cifs1			# share, on VDM, automatically CIFS protocol
+## Mount by VDM is accessible from a physical DM as /root_vdm_N (but N is not an obvious number)
+## If FS export by NFS first, using DM /mountPoint as path, 
+## then VDM won't be able to access that FS, and CIFS sharing would be limited to actual physical server
+
+nas_fs -name nfshome            -create size=20G pool=clar_r5_performance
+server_mountpoint server_4       -c  /nfshome
+server_mount      server_4   nfshome /nfshome
+server_export     server_4 -Protocol nfs -option root=10.10.91.44 /nfshome
+
+nas_fs -name MixedModeFS -create size=10G pool=clar_r5_performance
+server_mountpoint VDM4               -c  /MixedModeFS
+server_mount      VDM4       MixedModeFS /MixedModeFS
+server_export     VDM4 -name MixedModeFS /MixedModeFS
+server_export server_2 -Protocol nfs -option root=10.10.91.44 /root_vdm_6/MixedModeFS
+##  Due to VDM sharing the FS, the mount path used by Physical DM (NFS) need to account for the /root_vdm_X prefix
+
+
+</PRE>
+
+See additional notes in Config Approach below.
+
+<H3>Config Approach</H3>
+
+
+
+<LI> Make decision whether to use USERMAPPER  (okay in CIFS only world, but if there is any UNIX, most likely NO).
+<LI> Decide on Quotas policy 
+<LI> Plan for Snapshots...
+<LI> An IP address can be used by 1 NFS server and 1 CIFS server.  
+     server_ifconfig -D cge0 -n cge0-1 can be done for the DM; cge0-1 can still be the interface for CIFS in VDM.  Alternatively, the DM can have other IP (eg cge0-2) if it is desired to match the IP/hostname of other CIFS/VDM.  
+<LI> Export FS thru VDM first, then NFS export use the /root_vdm_N/mountPoint path.
+<BR>
+<BR>
+
+Use VDM instead of DM (server_2) for CIFS server.
+A VDM is really just a file system.  Thus, it can be copied/replicated.  
+Because windows group and many other system data is not stored at the underlaying Unix FS, there was a need 
+to easily backup/migrate CIFS server.  
+<BR>
+
+For multi-protocol, it is best to have 1 VDM to provide CIFS access, and NFS will ride on the Physical DM.  
+<BR>
+
+
+CAVA complication: The Antivirus scanning feature must be connected to a physical CIFS server, not to a VDM.
+This is because it is 1 CAVA for the whole DM, not multiple instance for multiple VDM that may exist on a DM.
+Global CIFS share is also required.   
+May still want to just use physical DM with limited windows user/group config, as that may not readily migrate or backup.
+<BR>
+Overall, still think that there is a need of 2 IP per DM.  Maybe VDM and NFS DM have same IP so that it can have same hostname.  But the Global CIFS share will ride on a Physical DM with a separate IP that user don't need to know.  Finally, perhaps scrap the idea of VDM, but then one may pay dearly in replication/backup...
+
+
+<BR>
+
+
+
+
+
+
+<H2> Celerra Howto </H2>
+
+<H4>Create a Server</H4>
+<PRE>
+* Create a NFS server 
+	- Really just ensuring a DM (eg server_2) is acting as primary, and
+	- Create logical Network interface (server_ifconfig -c -n cge0-1 ...)
+	  (DM always exist, but if it is doing CIFS thru VDM only, then it has no IP and thus can't do NFS export).
+
+* Create Physical CIFS sesrver (server_setup server_2 -P cifs ...)  
+    OR
+  VDM to host CIFS server (nas_server -name VDM2 -type vdm -create server_2 -setstate loaded)
+    + Start CIFS service (server_setup server_2 -P cifs -o start)
+    + Join CIFS server to domain (server_cifs VDM2 -J ...)
+</PRE>
+
+
+<H4>Create FS and Share</H4>
+<OL>  
+<LI>Find space to host the FS (nas_pool for AVM, nas_disk for masoquistic MVM)
+<LI>Create the FS (nas_fs -n FSNAME -c ...)
+<LI>Mount FS in VDM, then DM (server_mountpoint -c, server_mount)
+<LI>Share it on windows via VDM           (server_export -P cifs VDM2 -n FSNAME /FsMount)
+<LI>Export the share "via the vdm path"   (server_export -o root=... /root_vdm_N/FsMount)
+</OL>  
+
+Note that for server creation, DM for NFS is created first, then VDM for CIFS. <BR>
+But for FS sharing, it is first mounted/shared on VDM (CIFS), then DM (NFS). <BR>
+This is because VDM mount will dictate the path used by the DM as /root_vdm_N. <BR>
+It is kinda backward, almost like lower level DM need to go thru the higher level VDM, blame in on how the FS mount path ended up... <BR>
+
+<H3>
+File System, Mounts, Exports
+</H3>
+<PRE>
+
+nas_fs -n FSNAME -create size=800G pool=clar_r5_performance	# create fs
+nas_fs -d FSNAME						# delete fs
+				
+nas_fs size FSNAME		# determine size
+nas_fs -list			# list all FS, including private root_* fs used by DM and VDM
+
+server_mount server_2		# show mounted FS for DM2
+server_mount VDM1		# show mounted FS for VDM1
+server_mount ALL		# show mounted FS on all servers
+
+server_mountpoint VDM1    -c  /FSName	# create mountpoint (really mkdir on VDM1)
+server_mount      VDM1 FSNAME /FSName	# mount the named FS at the defined mount point/path.
+					# FSNAME is name of the file system, traditionally a disk/device in Unix
+					# /FSName is the mount point, can be different than the name of the FS.
+
+server_mount server_2 -o accesspolicy=UNIX FSNAME /FSName
+# Other Access Policy (training book ch11-p15)
+# NT     (both unix and windows access check NTFS ACL)
+# UNIX   (both unix and windows access check NFS permission bits)
+# NATIVE (default, unix and nt perm kept independent, 
+          careful with security implication!
+	  Ownership is only maintained once, Take Ownership in windows will 
+	  change file UID as viewed from Unix.)
+# SECURE (check ACL on both Unix and Win before granting access)
+# MIXED - Both NFS and CIFS client rights checked against ACL; Only a single set of security attributes maintained 
+# MIXED_COMPAT - MIXED with compatible features 
+ 
+NetApp Mixed Mode is like EMC Native.  Any sort of mixed mode is likely asking for problem.  
+Stict to either only NT or only Unix is the best bet.
+
+
+server_export ALL		# show all NFS export and CIFS share, vdm* and server_*
+				# this is really like "looking at /etc/exports" and 
+				# does not indicate actual live exports.
+				# if FS is unmountable when DM booted up, server_export would 
+				# still show the export even when it can't possibly exporting it
+				# The entries are stored, so after FS is online, can just export w/ FS name, 
+				# all other params will be looked up from "/etc/exports" 
+server_export server_4 -all	# equivalent to "exportfs -all" on server_4.  
+				# no way to do so for all DM at the same time.
+server_export VDM1 -name FSNAME /FSName
+server_export server_2 -Protocol nfs -option root=10.10.91.44 /root_vdm_6/FSName
+##  Due to VDM sharing the FS, the mount path used by Physical DM (NFS) need to account for the /root_vdm_X prefix
+
+
+(1)  server_export server_4 -Protocol nfs -option root=host1:host2,rw=host1,host2 /myvol
+(2)  server_export server_4 -Protocol nfs -option rw=host3 /myvol
+(3)  server_export server_4 -Protocol nfs -option anon=0   /myvol
+
+# (1) export myvol as rw to host1 and host2, giving them root access.
+# subsequently add a new host to rw list.  
+# Celerra just append this whole "rw=host3" thing in there, so that the list end up having multiple rw= list.  
+# Hopefully Celerra add them all up together.
+# (2) Alternatively, unexport and reexport with the updated final list.
+# (3) The last export add mapping of anonymous user to map to 0 (root).  not recommended, but some crazy app need it some time.
+# there doesn't seems to be any root squash.  root= list is machine that is granted root access
+# all other are squashed?  
+
+</PRE>
+
+<font color='red'>WARNING</font><BR>
+
+The access= clause on Celerra is likely what one need to use in place 
+of the traditional rw= list.
+<PRE>
+## root=host1:host2,
+## rw=host1:host2:hostN,
+## access=host1:host2:hostN
+
+## Celerra require access to be assigned, which effectively limit which host can mount.
+## the read/write list is not effective (I don't know what it is really good for)
+## access= (open to all by default), and any host that can mount can write to the FS, 
+## even those not listed in rw=...  
+## (file system level NFS ACL still control who have write, but UID in NFS can easily be faked by client)
+## In summary: for IP-based access limitation to Celerra, access= is needed.
+## (can probably omit rw=)
+## rw= is the correct settings as per man page on the control station.
+## The PDF paints a different pictures though.  
+
+# NFS share is default if not specified
+# On VDM, export is only for CIFS protocol
+# NFS exports are stored in some file, 
+
+
+
+
+</PRE>
+
+<H4>
+unshare/unmount 
+</H4>
+
+<PRE>
+
+server_export VDM1 -name ShareName\$		# share name with $ sign at end for hidden need to be escaped	
+server_export VDM1 -unexport -p -name ShareName	# -p for permanent (-unexport = -u)
+server_umount VDM1 -p /FSName			# -p = permanent, if omitted, mount point remains
+ 						# (marked with "unmounted" when listed by server_mount ALL)
+						# FS can't be mounted elsewhere, server cannot be deleted, etc!
+						# it really is rmdir on VDM1
+
+</PRE>
+
+<H4>
+Advance FS cmd
+</H4>
+
+<PRE>
+
+nas_fs -xtend FSNAME size=10G 	## ie ADD 10G to existing FS
+		# extend/enlarge existing file system.
+		# size is the NET NEW ADDITION tagged on to an existing FS,
+		# and NOT the final size of the fs that is desired.
+		# (more intuitive if use the +10G nomenclature, but it is EMC after all :-/
+
+nas_fs -modify FSNAME -auto_extend yes -vp yes -max_size 1T
+		# modify FSNAM 
+		# -auto_extend = enlarge automatically.  DEF=no
+		# -vp yes 	= use virtual provisioning
+				  If no, user see actual size of FS, but it can still grow on demand.
+		# -max_size 	= when FS will stop growing automatically, specify in G, T, etc.  
+				  Defualt to 16T, which is largest FS supported by DART 5.5
+
+		# -hwm	= high water mark in %, when FS will auto enlarge
+			  Default is 90
+
+
+nas_fs -n FSNAME -create size=100G pool=clarata_archive -auto_extend yes -max_size 1000G -vp yes
+		# create a new File System
+		# start with 100 GB, auto growth to 1 TB
+		# use virtual provisioning, 
+		# so nfs client df will report 1 TB when in fact FS could be smaller.
+		# server_df will report actual size
+		# nas_fs -info -size FSNAME will report current and max allowed size 
+		#  (but need to dig thru the text)
+
+
+</PRE>
+
+
+<H3>
+Server DM, VDM
+</H3>
+
+<PRE>
+nas_server -list		# list physical server (Data Mover, DM)
+nas_server -list -all		# include Virtual Data Mover (VDM)
+server_sysconfig server_2 -pci
+
+nas_server -info server_2
+nas_server -v -l				# list vdm
+
+
+nas_server -v vdm1 -move server_3				# move vdm1 to DM3
+		# disruptive, IP changed to the logica IP on destination server
+		# logical interface (cge0-1) need to exist on desitnation server (with diff IP)
+		# 
+
+
+server_setup server_3 -P cifs -o start		# create CIFS server on DM3, start it
+						# req DM3 to be active, not standby (type 4)
+
+
+
+server_cifs  serve_2  -U compname=vdm2,domain=oak.net,admin=administrator	# unjoin CIFS server from domain
+server_setup server_2 -P cifs -o delete		# delete the cifs server
+
+nas_server -d vdm1				# delete vdm (and all the CIFS server and user/group info contained in it)
+
+
+</PRE>
+
+
+<H3>Storage Pool, Volume, Disk, Size</H3>
+
+AVM = Automatic Volume Management <BR>
+MVM = Manual    Volume Management <BR>
+
+MVM is very tedious, and require lot of understanding of underlaying infrastructure and disk striping and concatenation.  If not done properly, can create performance imbalance and degradation.  Not really worth the headache.  Use AVM, and all FS creation can be done via <TT>nas_fs pool=...</TT>
+
+<BR><BR>
+
+
+<PRE>
+
+
+nas_pool -size -all	# find size of space of all hd managed by AVM
+	potential_mb 	= space that is avail on the raid group but not allocated to the pool yet??
+	
+nas_pool -info -all	# find which FS is defined on the storage pool
+
+
+server_df		# df, only reports in kb 
+server_df ALL		# list all *MOUNTED* FS and check points sizes
+			# size is actual size of FS, NOT virtual provisioned size
+			# (nfs client will see the virtual provisioned size)
+
+server_df  ALL | egrep -v ckpt\|root_vdm	# get rid of duplicates due to VDM/server_x mount for CIFS+NFS access
+
+nas_fs -info size -all  # give size of fs, but long output rather than table format, hard to use.
+
+nas_fs -info -size -all | egrep name\|auto_ext\|size
+			# somewhat usable space and virtual provisioning info
+			# but too many "junk" fs like root_fs, ckpt, etc
+
+
+nas_volume -list	# list disk volume, seldom used if using AVM.
+nas_disk -l
+
+
+/nas/sbin/rootnas_fs -info root_fs_vdm_vdm1 | grep _server 	# find which DM host a VDM
+
+
+</PRE>
+
+
+<H3>UserMapper</H3>
+
+Usermapper in EMC is substantially different than in the NetApp.  RTFM!
+<BR><BR>
+It is a program that generate UID for new windows user that it has never seen before.  Files are stored in Unix style by the DM, thus SID need to have a translation DB.  Usermapper provides this.  A single Usermapper is used for the entire cabinet (server_2, _3, _4, VDM2, VDM3, etc) to provide consistency.  
+If you are a Windows-ONLY shop, with only 1 Celerra, this maybe okay.
+But if there is any Unix, this is likely going to be a bad solution.
+<BR>
+<EM>If user get Unix UID, then the same user accessing files on windows or Unix is viewed as two different user, as UID from NIS will be different than UID created by usermapper!</EM>
+<BR>
+<BR>
+UID lookup sequence:
+<OL>
+<LI>SecMap Persistent Cache
+<LI>Global Data Mover SID Cache (seldom pose any problem)
+<LI>local passwd/group file
+<LI>NIS
+<LI>Active Directory Mapping Utility (schema extension to AD for EMC use)
+<LI>UserMapper database
+</OL>
+
+When a windows user hit the system (even for read access), Celerra need 
+to find a UID for the user.  Technically, it consults NIS and/or local passwd file
+first, failing that, it will dig in UserMapper.  Failing that, it will generate
+a new UID as per UserMapper config.
+<BR>
+Howwever, to speed queries, a "cache" is used first all the time.  The cache 
+is called SecMap.  However, it is really a binary database, and it is persisten
+across reboot.  Thus, once a user has hit the Celerra, it will have an 
+entry in the SecMap.  There is no time out or reboot that will
+rid the user from SecMap.  Any changes to NIS and/or UserMapper won't be 
+effective until the SecMap entry is manually deleted.
+
+
+<BR>
+Overall, EMC admit this too, UserMapper should not be used in heterogeneous
+Windows/Unix environment.  If UID cannot be guaranteed from NIS (or LDAP)
+then 3rd party tool from Centrify should be considered.
+
+
+
+
+<PRE>
+
+server_usermapper server_2 -enable	# enable usermapper service
+server_usermapper server_2 -disable
+# even with usermapper disabled, and passwd file in /.etc/passwd
+# somehow windows user file creation get some strange GID of 32770 (albeit UID is fine).
+# There is a /.etc/gid_map file, but it is not a text file, not sure what is in it.
+
+server_usermapper server_2 -Export -u passwd.txt	# dump out usermapper db info for USER, storing it in .txt file
+server_usermapper server_2 -E      -g group.txt		# dump out usermapper db info for GROUP, storing it in file 
+
+# usermapper database should be back up periodically!
+server_usermapper server_2 -remove -all		# remove usermapper database
+						# Careful, file owner will change in subsequent access!!
+
+There is no way to "edit" a single user, say to modify its UID.
+Only choice is to Export the database, edit that file, then re-Import it back.
+# as of Celerra version 5.5.32-4 (2008.06)
+
+</PRE>
+
+
+When multiple Celerra exist, UserMapper should be synchronized (one become primary, rest secondary).
+<TT>server_usermapper ALL -enable primary=IP</TT>.
+Note that even when sync is setup, no entry will be populated on secondary until a user hit the Celerra with request.
+Ditto for the SecMap "cache" DB.
+
+
+<PRE>
+
+p28 of configuring Celerra User Mapping PDF:
+
+Once you have NIS configured, the Data Mover automatically checks NIS for a user
+and group name. By default, it checks for a username in the form username.domain
+and a group name in the form groupname.domain. If you have added usernames
+and groupnames to NIS without a domain association, you can set the cifs resolver
+parameter so the Data Mover looks for the names without appending the domain.
+
+server_param server_2  -facility cifs -info resolver
+server_param server_2  -facility cifs -modify resolver -value 1
+repeat to all DM, but not applicable to VDM
+
+Setting the above will allow CIFS username lookup from NIS to match based on username, 
+without the .domain suffix.  Use it!  (Haven't seen a situation where this is bad)
+
+
+server_param server_2 -f cifs -m acl.useUnixGid -v 1
+
+Repeat for for all DM, but not for VDM.
+This setting affect only files created on windows.  UID is mapped by usermapper.
+GID of the file will by default map to whatever GID that Domain User maps to.
+Setting this setting, unix primary group of the user is looked up and used as 
+the GID of any files created from windows.
+Windows group permission settings retains whatever config is on windows 
+(eg inherit from parent folder).
+
+
+</PRE>
+
+<A ID=secmap></A>
+<H5>SecMap</H5>
+
+Unlike UserMapper, which is human readable database (and authority db)
+which exist one per NS80 cabinet (or sync b/w multiple cabinet), 
+the SecMap database exist one per CIFS server (whether it is physcial DM or VDM).
+<BR>
+
+<PRE>
+
+server_cifssupport VDM2 -secmap -list  		# list SecMap entries 
+server_cifssupport ALL -secmap -list  		# list SecMap entries on all svr, DM and VDM included.
+server_cifssupport VDM2 -secmap -delete -sid S-1-5-15-47af2515-307cfd67-28a68b82-4aa3e
+server_cifssupport ALL  -secmap -delete -sid S-1-5-15-47af2515-307cfd67-28a68b82-4aa3e
+	# remove entry of a given SID (user) from the cache
+	# delete would need to do for each CIFS server.  
+	# Hopefully, this will trick EMC to query NIS for the UID instead of using one from UserMapper.
+
+server_cifssupport VDM2 -secmap -create -name USERNAME -domain AD-DOM
+	# for 2nd usermapper, fetch the entry of the given user from primary usermapper db.
+						
+
+
+
+
+
+</PRE>
+
+
+
+
+
+<H3>General Command</H3>
+<PRE>
+nas_version			# version of Celerra
+				# older version only combatible with older JRE (eg 1.4.2 on 5.5.27 or older)
+
+server_version ALL		# show actual version running on each DM
+
+server_log server_2		# read log file of server_2
+
+</PRE>
+
+
+
+
+
+<H3>Config Files</H3>
+
+
+A number of files are stored in etc folder.
+retrieve/post using 
+<TT>server_file server_2 -get/-put   ... </TT>
+<BR>
+eg: server_file server_3 -get passwd ./server_3.passwd.txt
+would retrieve the passwd file local to that data mover.
+
+<BR>
+Each File System have a /.etc dir.  It is best practice to create a subdirectory (QTree) below the root of the FS and then export this dir instead.  <BR>
+<BR>
+<BR>
+On the control station, there are config files stored in:
+<LI>/nas/server
+<LI>/nas/site
+<BR>
+
+Server parameters (most of which require reboot to take effect), are stored in:
+<LI>/nas/site/slot_param  for the whole cabinet (all server_* and vdm)
+<LI>/nas/server/slot_X/param (for each DM X)
+
+
+<PRE>
+</PRE>
+
+<H5>Celera Management</H5>
+Windows MMC Plug in thing...
+
+<PRE>
+</PRE>
+
+<H3>
+CheckPoint
+</H3>
+
+Snapshots are known as CheckPoint in EMC speak.
+<BR>
+Requires a SaveVol to keep the "copy on write" date.  It is created automatically when first checkpoint is created, and by default grows automatically  (at 90% high water mark).  But it cannot be strunk.  When the last checkpoint is deleted, the SaveVol is removed.
+
+<BR>
+GUI is the only sane way to edit it.  Has abilities to create automated 
+schedules for hourly, daily, weekly, monthly checkpoints.
+
+
+<BR>
+<BR>
+
+<PRE>
+</PRE>
+
+
+<H3>
+Backup and Restore, Disaster Recovery
+</H3>
+
+For NDMP backup, each Data Mover should be fiber connected to a tape drive (dedicated).  Once zoning is in place, need to tell data mover to scan for the tapes.
+
+
+<H3>Quotas</H3>
+
+
+Change to use Filesize policy during initial setup 
+as windows does not support block policy (which is Celerra default).
+<BR>
+Edit the <TT>/nas/site/slot_param</TT> on the control station (what happen to standby control station?)
+add the following entry:
+<PRE class="cf">
+param quota policy=filesize
+</PRE>
+
+Since this is a param change, retarded EMC requies a reboot:<BR>
+<TT>server_cpu server_2 -r now</TT><BR>
+Repeat for additional DM that may exist on the same cabinet.<BR>
+<BR>
+<BR>
+----
+<BR>
+
+Two "flavor" of quotas:  Tree Quota, and User/Group quota.  Both are per FS.
+<BR>
+Tree Quoata requires creating directory (like NetApp qtree, but at any level in the FS).  There is no turning off tree quota, it can only be removed when all files in the tree is deleted.  <BR>
+User/Group quota can be created per FS.  Enableling require <EM>freezing of the FS</EM>
+for it to catalog/count the file size before it is available again!   
+Disabling the quota has the same effect.  
+<BR>
+User/Group quota default have 0 limit, which is monitoring only, but 
+does not actually have hard quota or enforce anything.
+<BR>
+<BR>
+----
+<BR>
+Each File System still need to have quota enabled... (?)
+Default behaviour is to deny when quota is exceeded.  This "Deny Disk Space" can be changed (on the fly w/o reboot?) <BR>
+<LI>GUI: File System Quotas, Settings.
+<LI>CLI: nas_quotas -user -edit config -fs <I>FSNAME</I>  ++ repeat for Tree Quota ?? 
+But by default, quota limit is set to 0, which is to say it is only doing tracking, so may not need to change behaviour to allow.
+<BR>
+<BR>
+Celerra manager is easiest to use.
+GUI allows showing all QTree for all FS, but CLI don't have this capability.  Sucks eh?  :(
+<BR>
+<BR>
+
+
+EMC recommends turning on FileSystem quota whenever FS is created.
+But nas_quotas -on -tree ... -path /   is denied, how to do this??!!
+
+<PRE>
+# Create Tree Quota (NA QTree).  Should do this for each of the subdir in the FS that is directly exported.
+nas_quotas -on  -tree -fs CompChemHome -path /qtree	# create qtree on a fs
+nas_quotas -off -tree -fs CompChemHome -path /qtree	# destroy qtree on a fs (path has to be empty)
+	# can remove qtree by removing dir on the FS from Unix host, seems to works fine.
+nas_quotas -report -tree -fs CompChemHome		# display qtree quota usage
+
+
+# per user quota, not too important other than Home dir... 
+# (and only if user home dir is not a qtree, useful in /home/grp/username FS tree)
+nas_quotas -on -user -fs CompChemHome			# track user usage on whole FS
+							# def limit is 0 = tracking only
+nas_quotas -report -user -fs CompChemHome		# display users space usage on whole FS
+
+
+
+</PRE>
+
+
+
+
+
+<H3>From Lab Exercise</H3>
+<PRE>
+
+nas_quotas -user  -on -fs    FSNAME	# enable user quota on FsNAMe.  Disruptive. (ch12, p22)   
+nas_quotas -group -on -mover server_2	# enable group quota on whole DM .  Disruptive.
+
+nas_quotas -both -off -mover server_2	# disable both group and user quota at the same time.
+
+++ disruption...  ??? really?  just slow down?  or FS really unavailable?? ch 12, p22.
+
+nas_quotas -report -user -fs FSNAME 
+nas_quotas -report -user -mover server_2
+
+
+nas_quotas -edit -config -fs FsNAME 	# Define default quota for a FS.
+
+
+nas_quotas -list -tree -fs FSNAME	# list quota tree on the spefified FS.
+ 
+nas_quotas -edit -user -fs FSNAME user1 user2 ...	# edit quota (vi interface)
+
+nas_quotas -user -edit -fs FSNAME -block 104 -inode 100 user1	# no vi!
+
+nas_quotas -u -e mover server_2 501	# user quota, edit, for uid 501, whole DM
+
+nas_quota -g -e -fs FSNAME 10		# group quota, edit, for gid 10, on a FS only.
+
+nas_quotas -user -clear -fs FSNAME	# clear quota: reset to 0, turn quota off.
+
+</PRE>
+
+
+
+
+<H4>Tree Quota</H4>
+<PRE>
+
+nas_quotas -on -fs FSNAME -path /tree1		# create qtree on FS                (for user???) ++
+nas_quotas -on -fs FSNAME -path /subdir/tree2	# qtree can be a lower level dir
+
+nas_quotas -off -fs FSNAME -path /tree1		# disable user quota (why user?)
+						# does it req dir to be empty??
+nas_quotas -e -fs FSNAME -path /tree1 user_id	# -e,  -edit user quota
+nas_quotas -r -fs FSNAME -path /tree1		# -r = -report
+
+
+nas_quotas -t -on -fs FSNAME -path /tree3	# -t = tree quota, this eg turns it on on
+						# if no -t defined, it is for the user??
+nas_quotas -t -list -fs FSNAME			# list tree quota
+
+
+To turn off Tree Quotas:
+- Path MUST BE EMPTY !!!!!	ie, delete all the files, or move them out.  
+				can one ask for a harder way of turning something off??!!
+				Only alternative is to set quota value to 0 so it becomes tracking only, 
+				but not fully off.
+
+
+Quota Policy change:
+- Quota check of block size (default) vs file size (windows only support this).
+- Exceed quota :: deny disk space or allow to continue.
+The policy need to be established from the getgo.  They can't really be changed as:
+    	- Param change require reboot
+	- All quotas need to be turned OFF  (which requires path to be empty).
+
+Way to go EMC!  NetApp is much less draconian in such change.  
+Probably best to just not use quota at all on EMC!
+If everything is set to 0 and just use for tracking, maybe okay.  
+God forbid if you change your mind!
+
+	
+
+</PRE>
+
+<H2>CIFS Troubleshooting</H2>
+
+
+
+<PRE>
+server_cifssupport VDM2 -cred -name WinUsername -domain winDom   # test domain user credentials
+
+server_cifs server_2		# if CIFS server is Unjoined from AD, it will state it next to the name in the listing
+server_cifs VDM2		# probbly should be VDM which is part of CIFS, not physical DM
+
+server_cifs VDM2 -Unjoin ...	# to remove the object from AD tree
+
+server_cifs VDM2 -J compname=vdm2,domain=oak.net,admin=hotin,ou="ou=Computers:ou=EMC Celerra" -option reuse
+# note that by default the join will create a new "sub folder" called "EMC Celerra" in the tree, unless OU is overwritten
+
+
+
+server_cifs server_2 -Join compname=dm112-cge0,domain=nasdocs.emc.com,admin=administrator,ou="ou=Computers:ou=Engineering"
+
+
+... server_kerberos -keytab ...
+
+</PRE>
+
+<H2>Other Seldom Changed Config</H2>
+
+<PRE>
+server_cpu server_2 -r now		# reboot DM2 (no fail over to standby will happen)
+
+server_devconfig
+server_devconfig server_2 -probe -scsi all	# scan for new scsi hw, eg tape drive for NDMP
+server_devconfig ALL	  -list -scsi -nondisks	# display non disk items, eg tape drive
+
+
+/nas/sbin/server_tcpdump server_3 -start TRK0 -w /customer_dm3_fs/tcpdump.cap      # start tcpdump, 
+	# file written on data mover, not control station!
+	# /customer_dm3_fs is a file system exported by server_3
+	# which can be accessed from control station via path of /nas/quota/slot_3/customer_dm3_fs
+/nas/sbin/server_tcpdump server_3 -stop  TRK0 
+/nas/sbin/server_tcpdump server_3 -display	
+# /nas/sbin/server_tcpdump maybe a sym link to /nas/bin/server_mgr
+
+
+/nas/quota/slot_2/ ... # has access to all mounted FS on server_2 
+# so ESRS folks have easy access to all the data!!
+
+/nas/tools/collect_support_materials		
+# "typically thing needed by support
+# file saved to /nas/var/emcsupport/...zip
+# ftp the zip file to emc.support.com/incoming/caseNumber
+# ftp from control station may need to use IP of the remote site.
+			
+
+
+server_user ?? ... add 			# add user into DM's /etc/passwd, eg use for NDMP
+</PRE>
+
+<H3>
+Network interface config
+</H3>
+
+Physical network doesn't get an IP address (for Celera external perspective)  <BR>
+All network config (IP, trunk, route, dns/nis/ntp server) applies to DM, not VDM.  <BR>
+  <BR>  <BR>
+
+<PRE>
+# define local network: ie assign IP 
+server_ifconfig server_2  -c      -D cge0  -n cge0-1     -p IP  10.10.53.152 255.255.255.224 10.10.53.158
+#      ifconfig of serv2  create  device  logical name  protocol      svr ip    netmask        broadcast
+
+server_ifconfig server_2 -a			# "ifconfig -a", has mac of trunk (which is what switch see)
+
+server_ifconfig server_2 cge0-2 down 	??	# ifconfig down for cge0-2 on server_2
+server_ifconfig server_2 -d cge0-2		# delete logical interfaces (ie IP associated with a NIC).
+...
+
+server_ping  server_2 ip-to-ping		# run ping from server_2 
+
+server_route server_2 a default 10.10.20.1			# route add default 10.10.20.1  on DM2
+server_dns server_2    corp.hmarine.com ip-of-dns-svr		# define a DNS server to use.  It is per DM
+server_dns server_2 -d corp.hmarine.com				# delete DNS server settings
+server_nis server_2 hmarine.com ip-of-nis-svr			# define NIS server, again, per DM.
+server_date server_2 timesvc start ntp 10.10.91.10		# set to use NTP
+server_date server_2 0803132059			# set serverdate format is YY DD MM HH MM  sans space
+						# good to use cron to set standby server clock once a day
+						# as standby server can't get time from NTP.
+	
+
+server_sysconfig server_2 -virtual		# list virtual devices configured on live DM.
+server_sysconfig server_4 -v -i TRK0 		# display nic in TRK0
+server_sysconfig server_4 -pci cge0 		# display tx and rx flowcontrol info
+server_sysconfig server_4 -pci cge4 -option "txflowctl=enable rxflowctl=enable" 	# to enable rx on cge0
+	# Flow Control is disabled by default.  But Cisco has enable and desirable by default, 
+	# so it is best to enable them on the EMC.  Performance seems more reliable/repeatable in this config.
+	# flow control can be changed on the fly and it will not cause downtime (amazing for EMC!)
+	
+If performance is still unpredictable, there is a FASTRTO option, but that requires reboot!
+
+server_netstat server_4 -s -p tcp 		# to check retrnsmits packets (sign of over-subscription)
+
+.server_config server_4 -v "bcm cge0 stat" 	# to check ringbuffer and other paramaters 
+						# also to see if eth link is up or down  (ie link LED on/off)
+						# this get some info provided by ethtool
+
+.server_config server_4 -v "bcm cge0 showmac" 	# show native and virtualized mac of the nic
+
+server_sysconfig server_2 -pci cge0 -option "lb=ip"
+        # lb = load balance mechanism for the EtherChannel.  
+        # ip based load balancing is the default
+        # protocol defaults to lacp?  man page cisco side must support 802.3ad.  
+        # but i thought cisco default to their own protocol.
+        # skipping the "protocol=lacp" seems a safe bet
+
+
+</PRE>
+
+<H3>Performance/Stats</H3>
+
+The .server_config is an undocumented command, and EMC does not recommended their use.   Not sure why, I hope it doesn't crash the data mover :-P
+
+<PRE>
+
+server_netstat server_x -i 			# interface statistics
+server_sysconfig server_x -v		 	# List virtual devices
+server_sysconfig server_x -v -i vdevice_name 	# Informational stats on the virtual device
+server_netstat server_x -s -a tcp 		# retransmissions
+server_nfsstat server_x 			# NFS SRTs
+server_nfsstat server_x -zero 			# reset NFS stats
+
+
+
+# Rebooting the DMs will also reset all statistics.
+
+server_nfs server_2 -stats 
+server_nfs server_2 -secnfs -user -list
+
+
+.server_config server_x -v "printstats tcpstat"
+.server_config server_x -v "printstats tcpstat reset"
+.server_config server_x -v "printstats scsi full"
+.server_config server_x -v "printstats scsi reset"
+.server_config server_x -v "printstats filewrite"
+.server_config server_x -v "printstats filewrite reset"
+.server_config server_x -v "printstats fcp"
+.server_config server_x -v "printstats fcp reset"
+
+
+</PRE>
+
+
+<H3>Standby Config</H3>
+Server failover:
+<BR> <BR>
+When server_2 fail over to server_3, then DM3 assume the role of server_2.
+VDM that was running on DM2 will move over to DM3 also.
+All IP address of all the DM and VDM are treansfered, including the MAC address.
+<BR> <BR>
+
+Note that when moving VDM from server_2 to server_3, outside of the fail over, the IP address are changed.
+This is because such a move is from one active DM to another.
+<BR> <BR>
+IP are kept only when failing over from Active to Standby.
+
+
+<PRE>
+server_standby server_2 -c mover=server_3 -policy auto
+# assign server_3 as standby for server_2, using auto fail over policy
+
+
+
+Lab 6 page 89
+
+
+server_standby server_2 -r mover	# after a fail over, this command failback to original server 
+					# brief interruption is expected, windows client will typically reconnect automatically (ms office may get error on open file).
+
+
+</PRE>
+
+
+<H1>
+SAN backend
+</H1>
+<PRE>
+
+If using the integrated model, there only way to peek into the CX backend is to use navicli command from the control station.
+
+navicli -h spa getcontrol -busy
+	# see how busy the backend CX service processor A is
+	# all navicli command works from the control station even when
+	# it is integrated model that doesn't present navisphere to outside workd
+	# spa is typically 128.221.252.200
+	# spb is typically 128.221.252.201
+	# they are coded in the /etc/hosts file under APM... or CK... (shelf name)
+
+
+cd /nas/sbin/setup_backend
+./setup_clariion2 list config APM00074801759		# show lot of CX backend config, such as raid group config, lun, etc
+
+nas_storage -failback id=1	# if CX backend has trespassed disk, fail them back to original owning SP.
+
+
+</PRE>
+
+
+
+
+<H4>Pro-actively replacing drive</H4>
+
+<PRE>
+# Drive 1_0_7 will be replaced by a hot spare (run as root):
+# -h specify the backend CX controller, ip address in bottom of /etc/hosts of control station.
+# use of navicli instead of the secure one okay as it is a private network with no outside connections
+naviseccli -h xxx.xxx.xxx.xxx -user emc -password emc -scope 0 copytohotspare 1_0_7 -initiate
+# --or--
+/nas/sbin/navicli -h 128.221.252.200 -user nasadmin -scope 0 copytohotspare 1_0_7 -initiate 
+
+
+
+# find out status/progress of copy over (run as root)
+/nas/sbin/navicli -h 128.221.252.200 -user nasadmin -scope 0 getdisk 1_0_7 -state -rb
+</PRE>
+
+<H1>
+User/security
+</H1>
+Sys admin can create accoutn for themselves into the /etc/passwd of the control station(s).
+Any user that have login via ssh to the control station can issue the bulk of the commands to control the Celerra.
+the nasadmin account is the same kind of generic user account.
+(ie, don't join the control station to NIS/LDAP for general user login!!)
+<BR>
+<BR>
+
+There is a root user, with password typically set to be same as nasadmin.  
+root is needed on some special command in /nas/sbin, such as navicli to access the backend CX.
+
+<BR>
+<BR>
+All FS created on the Celerra can be accessed from the control station.  
+
+
+<H1>
+Links
+</H1>
+
+<OL>
+<LI><A HREF="http://powerlink.emc.com">EMC PowerLink</A><BR>
+<LI><A HREF="http://vmd2.emc.com">EMC Lab access VDM2</A><BR>
+<LI>
+</OL>
+<BR><BR>
+
+<H1>
+History
+</H1>
+
+<PRE>
+
+DART 5.6	Released around 2009.0618.  Included Data Dedup, but must enable compression also
+		which makes deflation a cpu and time expensive, not usable at all for high performance storage.
+DART 5.5	mainstream in 2007, 2008
+
+</PRE>
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://sn50.users.sonic.net/psg/emcCelerra.html">
+  http://dl.dropboxusercontent.com/u/31360775/psg/emcCelerra.html
+</A>]  <BR>
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/emcCelerra.html">
+http://www.cs.fiu.edu/~tho01/psg/emcCelerra.html</A>]  <BR>
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+Last Updated: 2008-03-22
+<HR>
+<A HREF="http://www.climateprediction.net"><IMG SRC="banner/climateprediction.jpg"></A>
+<A HREF="http://boinc.berkeley.edu"><IMG SRC="banner/boinc_transparent.png"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"<BR>
+  psg101 sn50 tin6150</div>
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

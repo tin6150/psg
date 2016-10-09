@@ -1,0 +1,1116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - HPC Batch System</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - HPC Batch System</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="docker.html">Docker</a></td>
+      <td align="center"><a accesskey="p" href="aws.html">Amazon AWS</a></td>
+      <td align="right"><a accesskey="a" href="mpi.html">MPI</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/1444"><IMG SRC="fig/xkcd_cloud.png"></A>
+</div>
+
+
+<H1>HPC Batching System</H1>
+
+Batch processing for "loosely coupled" compute cluster.  eg 
+LSF, PBS/TORQUE, SGE.  <BR>
+The traditional Supercomputer seems as rare as dinosours, and even supercomputing center run batch submission system like GE or SLURM or some such. <BR>
+Cluster tends to refer to highly similar systems setup with intention of using it as a single system.  Grid tends to cover a wider variety of system (eg workstation queues).  
+<BR><BR>
+Note that instead of using a batch system, a number of tools exist to carry out embarrasingly parallel tasks of running the same program many times over and in parallel against a large number of input files: <BR>
+<UL>
+<LI> <A HREF="https://www.biostars.org/p/63816/">Gnu parallel</A>
+<LI> <A HREF="https://www.nersc.gov/users/data-analytics/workflow-tools/swift/">NeRSC SWIFT</A>
+<LI>
+</UL>
+
+<H2>Batch System 101</H2>
+
+Think of old days mainframes where user submit job, it will run non-interactively, it will be processed and output collected at the end.  <BR>
+Sys admin has to worry about scheduling, fair sharing, etc.  Things that OS used to do, now sys admin are exposed and may need to tweak them.   Deja vu? Time to dig out that Operating System book from college :)
+<BR><BR>
+<A HREF="https://blogs.oracle.com/templedf/entry/sun_grid_engine_for_dummies">DanT Grid Engine for Dummies</A>
+
+<H2>Command Summary</H2>
+
+Below is a quick comparison of commands between a couple of popular batch/queue management systems.
+<EM>A "Rosetta Stone" of Batch/Queue systems on Unix/Linux</EM> :)
+<BR>
+
+<PRE>
+Task			LSF			PBS/Torque		SGE
+--------------------	--------------------	--------------------	--------------------
+Job submission		bsub			qsub			qsub
+Job monitor		bjobs			qstat			qstat
+Job removal								qdel
+
+Job control		bstop						qhold
+			bresume						qrls
+			bpeek
+
+
+
+Check nodes		bhosts			pbsnodes -a		qhost / qstat -f
+			lshosts						
+			lsload
+
+List avail queues 							qconf -sql
+Queue status		bqueues			qstat -q		qstat -g c
+Queue behaviour		bparams
+
+User accounting		bacct
+
+
+</PRE>
+
+
+
+<BR><HR><BR>
+
+<A NAME="uge"></A>
+<A NAME="sge"></A>
+<H1>SGE/UGE</H1>
+
+SGE = Sun Grid Engine.  <BR>
+OGE = Open Grid Engine.  And NOT Oracle GE !!<BR>
+UGE = Univa Grid Engine.<BR>
+GE  =       Grid Engine.<BR>
+
+<H4>User Howto</H4>
+
+<PRE>
+Find out what queue is avail:
+qconf -sql 
+
+Submit a job to a specific queue:
+qsub sge-script.sh -q 10GBe.q		# eg run only in a queue named for nodes with 10 gigE NIC
+
+qlogin -q interactive.q			# often an interactive queue may have more relaxed load avg req than same host on default.q or all.q
+					# but limited slots to avoid heavy processing in them
+					# yet granting a prompt for lightweight testing env use even when cluster is fully busy
+
+
+qrsh
+
+
+### examples of qsub with request for extra resources ###
+
+# Find out pe env, eg smp, mpi, orte (openmpi, most widely used mpi) 
+qconf -spl
+
+# Describe detail of a pe env: 
+qconf -sp mpi
+qconf -sp smp
+
+
+# Submit a job to a queue with certain cores numbers
+qsub sge-script.sh -pe smp 8		# this req 8 core from machine providing smp parallel env.
+
+qsub sge-script.sh -q default.q@compute-4-1	# submit to a specific, named node/host.    also see -l h=...
+
+
+# an example that takes lot of parameters
+# -l h_rt specifies hard limit stop for the job (for scheduler to know what's ceiling time of run job)
+# -l m_mem_free specifies free memory on node where job can be run.  
+#               seems to be mem per core, so if specify 8GB and -pe smp 8, then it would need a systemwith 64GB free RAM
+# -pe smp 8  specify to use the symetric multiprocessing processing Parallel Environment, 8 cores
+# -binding linear:8  is to allow multiple threads of the process to use multiple cores (some uge or cgroup config seems to default bind to single core even when pe smp 8 is specified.  
+#    incidentally, load average counts runnable jobs.  so even if 6 threads are bound to a single core, 
+#    load avg maybe at 6 but most other core sits idle as visible by htop.
+qsbu -M me@example.com -m abe -cwd -V -r y -b y -l h_rt=86400,m_mem_free=62G -pe smp 8 -binding linear:8 -q default.q -N jobTitle  binaryCmd -a -b -c input.file 
+
+
+
+
+
+
+# Find out what host group are avail, eg host maybe grouped by cpu cores , memory amount.
+qconf -shgrpl
+
+# Find out which specific nodes are in a given host group:
+qconf -shgrp @hex
+
+qsub sge-script.sh -q default.q@@hex	# @@groupname submits to a group, and the group can be defined to be number of cores.  not recommended.
+
+
+# Change the queue a job is in, thereby altering where subsequent job is run (eg in array job)
+qalter jobid -q default.q@@hex
+
+
+</PRE>
+
+
+<H4>Basic User Commands</H4>
+<PRE>
+
+qsub sge-script.sh	# submit job (must be a script)
+			# std out and err will be captured to files named after JOBid.
+			# default dir is $HOME, unless -cwd is used.
+			
+qsub -cwd -o ./sge.out -e ./sge.err  myscript.sh
+			# -cwd = use current working dir (eg when $HOME not usable on some node)
+			# -o and -e will append to files if they already exist.
+
+qsub	-S /bin/bash	# tell SGE/qsub to parse the script file using specifed SHELL
+	-q queue-name	# submit the job to the named queue.
+			# eg default@@10gb  would seelct default queue, with 10gb (complex) resource available
+	-r y		# resume job (yes/no).  Typically when a job exit with non-zero exit code, rerun the job.
+	-R y		# use Reservation. useful in busy cluster and req > 1 core.  hog system till all cores become avail.  less likely to get starvation, but less efficient.  
+
+	-N job-name	# specify a name for the job, visible in qstat, output filename, etc.  not too important.
+
+    -pe smp 4		# request 4 cpu cores for the job 
+    -binding linear:4	# when core binding is defaulted to on, this allow smp process to be able to use the desired number of core
+    -l ...		# specify resources shown in qconf -sc
+    -l h_rt=3600	# hard time limit of 3600 seconds (after that process get a kill -9)
+    -l m_mem_free=4GB	# ask for node with 4GB of free memory.
+
+	
+
+qsub 	-t 1-5		# create array job with task id ranging from 1 to 5.
+			# note: all parameters of qsub can be placed in script 
+			# eg,  place #$ -t 1-5 in script rather than specify it in qsub command line 
+
+
+qstat 	
+	-j		# show overall scheduler info
+	-j JOBID	# status of a job.  There is a brief entry about possible errors.
+	-u USERNAME	# list of all pending jobs for the specified user
+	-u \*		# list all jobs from all users
+	-ext		# extended overview list, show cpu/mem usage
+	-g c		# queues and their load summary
+	-pri		# priority details of queues
+	-urg		# urgency  details
+	-explain A	# eshow reason for Alarm (also E(rror), c(onfig), a(larm) state)
+	-s r		# list running jobs
+	-s p		# list pending jobs
+
+	
+Reduce the priority of a job:
+qalter JOBID -p -500
+	# -ve values is DEcrease priority, lowest is -1024
+	# +ve is INcrease priority, only admin can do this.  max is 1024
+	# It really just affect pending jobs (eg state in qw).  won't preempt running jobs.
+qmod -u USERNAME -p -100
+	# DEcrease job priority of all jobs for the specified user 
+	# (those that have been qsub, not future jobs)
+
+
+
+
+qdel JOBID		# remove the specified job
+qdel -f JOBID		# forcefully delete a job, for those that sometime get stuck in "dr" state and qdel returns "job already in deletion"
+			# would likely need to go to node hosting job and remove $execd_spool_dir/.../active_jobs/JOBID 
+			# else may see lot of complains about zombie job in qmaster message file
+
+
+
+</PRE>
+
+<H4>Job STATE abbreviations</H4>
+They are in output of qstat
+<PRE>
+	E	= Error
+	qw	= queued waiting
+	r	= running
+	dr	= running, died  (eg, host no longer responding)
+	s	= 
+	t 	= terminating?  jobs that exceeded threashold of h_rt, but somehow sge_execd had problem contecting with scheduler, had resulted in this.
+	ts	= ??
+	h	= hold	(eg qhold, or job depency tree to hold)
+
+
+qstat -f  shows host info.  last column (6) is state, and when in problem, has things like au or E on it.
+au state means alarm, unreachable.  typically host is transiently down or SGE_execd is not running.  
+clearable automatically when sge can talk to the node again.
+E is hard Error state, and even with reboot, will not go away.  
+
+qmod -cq  default.q@HOSTNAME 	# clear Error state, do this after sys admin knows problem has been addressed.
+qmod -e   default.q@HOSTNAME	# enable node, ie, remove the disabled state.  should go away automatically if reboot is clean.
+
+</PRE>
+<BR>
+
+here is quick way to list hosts in au and/or E state:
+
+<PRE>
+qstat -f | grep au$								# will get most of the nodes with alarm state, but misses adu, auE...
+qstat -f | awk '$6 ~ /[a-zA-Z]/ {print $0}'                                     # some host have error state in column 6, display only such host
+qstat -f | awk '$6 ~ /[a-zA-Z]/  &&  $1 ~ /default.q@compute/  {print $0}'      # add an additional test for nodes in a speci
+fic queue
+</PRE>
+
+
+(o state for host: when hosts is removed from @allhosts and no longer allocatable in any queue)
+
+
+
+<H4>Basic+ User Commands</H4>
+
+<PRE>
+qmon			# GUI mon 
+
+qsub -q default.q@compute-4-1 $SGE_ROOT/examples/jobs/sleeper.sh 120
+			# run job on a specific host/node, using SGE example script that sleeps for 120 sec.
+			 
+
+qsub -l h=compute-5-16 $SGE_ROOT/examples/jobs/sleeper.sh 120 	
+			# run job on a specific host/node, alt format
+qsub -l h=compute-[567]-* $SGE_ROOT/examples/jobs/sleeper.sh 120 	
+			# run on a set of node.  Not truly recommended, using some resource or hostgroup would be better.
+
+
+qconf 
+	-sc		# show complex eg license, load_avg
+	-ss		# see which machine is listed as submit host
+	-se		# show execution hosts
+	-sql 		# see list of queues   (but more useful to do qstat -g c)
+
+
+
+qhost			# see list of hosts (those that can run jobs)
+			# 	their arch, state, etc info also
+	-F		# Full details
+
+</PRE>
+
+<H4>qstat -f</H4>
+<pre>
+qstat	-f		# show host state  (contrast with qhost)
+			# column 6 contain state info.  Abbreviation used (not readily in man page):
+			# upper case = perpanent error state
+
+			a  Load threshold alarm
+			o  Orphaned
+			A  Suspend threshold alarm
+			C  Suspended by calendar
+			D  Disabled by calendar
+
+			c  Configuration ambiguous
+			d  Disabled
+			s  Suspended
+			u  Unknown
+			E  Error
+
+qstat -f | grep d$	# disabled node, though some time appear as adu
+qstat -f | awk '$6~/[cdsuE]/ && $3!~/^[0]/'
+			# node with problematic state and job running (indicated in column 3) 
+
+</pre>
+
+<H5>Sample submit script</H5>
+
+<PRE class=cf>
+
+#!/bin/bash
+
+#$ -S /bin/bash
+#$ -cwd
+#$ -N sge-job-name
+#$ -e ./testdir/sge.err.txt
+#$ -m beas
+#$ -M tin@grumpyxmas.com
+
+### #$ -q short_jobs.q
+
+### -m define when email is send: (b)egin, (e)nd, (a)bort, (s)uspend
+### -M tin@grumpyxmas.com work after specifiying -m, (w/o -m don't send mail at all)
+### if don't specify -M, then email will be send to username@mycluster.local
+### such address will work if mailer supports it 
+### (eg postfix's recipeint-canonical has mapping for
+### @mycluster.local @mycompany.com
+
+
+## bash commands for SGE script:
+
+echo "hostname is:"
+hostname
+
+</PRE>
+
+This is a good ref for sge task array job:
+<A HREF="http://talby.rcs.manchester.ac.uk/~ri/_linux_and_hpc_lib/sge_array.html">
+http://talby.rcs.manchester.ac.uk/~ri/_linux_and_hpc_lib/sge_array.html</A>  <BR>
+
+<PRE class="cf">
+
+#!/bin/bash
+
+#$ -t 1-100
+
+#  -t will create a task array, in this eg, element 1 to 100, inclusive
+#  The following example extract one line out of a text file, line numbered according to SGE task array element number
+#  and pass that single line as input to a program to process it:
+
+INFILE=`awk "NR==$SGE_TASK_ID" my_file_list.text`
+      # instead of awk, can use sed:   sed -n "${SGE_TASK_ID}p" my_file_list.text
+./myprog < $INFILE
+
+#
+# these variables are usable inside the task array job:
+# $SGE_TASK_ID
+# $SGE_TASK_FIRST
+# $SGE_TASK_LAST
+# $SGE_TASK_STEPSIZE, eg in 1-100:20, which produces 5 qsubs with 20 elements each
+#
+# JOB_ID
+# JOB_NAME
+# SGE_STDOUT_PATH
+#
+</PRE>
+
+For other variables available inside an SGE script, see the 
+<A HREF="http://gridscheduler.sourceforge.net/htmlman/htmlman1/qsub.html">
+qsub man page</A> <BR>
+
+
+<PRE class="cf">
+
+#!/bin/bash
+
+#$ -V	# inherite user's shell env variable (eg PATH, LD_LIBRARY_PATH, etc)
+#$ -j y	# yes to combine std out and std err
+
+</PRE>
+
+
+<H4>Admin Commands</H4>
+<PRE>
+
+qalter ...		# modify a job
+qalter -clear ...	# reset all elements of job to initial defaul status... 
+qmod   -cj JOBID	# clear an error that is holding a job from progressing
+qhold      JOBID	# place a job on hold  (aka qalter -hold_jid JOBID)
+			# for qw job, hold prevents it from becomming to r state
+			# for running job, probably equiv of kill -suspend to the process.  free up cpu, but not memory or licenses.
+qrls   -hn JOBID 	# release a job that is on hold (ie resume)
+
+qacct  -j  JOBID	# accounting info for jobs
+qacct -j		# see all jobs that SGE processed, all historical data
+qacct -o USERNAME	# see summary of CPU time user's job has taken
+
+
+qrsh -l mem_total=32G -l arch=x86 -q interactive		# obtain an interative shell on a node of specified char
+
+qconf			# SGE config
+	-s...		# show subcommand set
+	-a...		# add  subcommand set
+	-d...		# delete
+	-m...		# modify
+
+qconf -sq [QueueName]	# show how the queue is defined (s_rt, h_rt are soft/hard time limit on how long jobs can run).
+qconf -sc		# show complexes
+qconf -spl		# show pe
+qconf -sel		# list nodes in the grid
+qconf -se HOSTNAME	# see node detail
+qconf -sconf		# SGE conf
+qconf -ssconf		# scheduler conf
+
+qconf -shgrpl		# list all groups
+qconf -shgrp @allhosts	# list nodes in the named group "@allhosts"
+      -shgrp_tree grp	# list nodes one per line
+
+qconf -su site-local	# see who is in the group "site-local"
+qconf -au site-local sn	# add user sn to the group called "site-local"
+
+qconf -sq highpri.q	# see characteristics of the high priority queue, eg which group alloed to submit job to it.
+			# hipri 	adds urgency of 1000
+			# express pri 	adds urgency of 2000
+			# each urgency of 1000 adds a 0.1 to the priority value shown in qstat.
+			# default job is 0.5, hipri job would be 0.6
+
+
+qconf -spl		# show PE env 
+
+qconf -sconf	# show global config 
+qconf -ssconf	# show scheduler config (eg load sharing weight, etc)
+
+Enable fair sharing (default in GE 6.0 Enterprise):
+qconf -mconf 	# global GE config
+	enforce_user		auto
+	auto_user_fshare	100
+qconf -msconf	# scheduler config
+	weight_tickets_functional 10000
+
+	# fair share only schedule job within its 0.x level
+	# each urgency of 1000 ads 0.1 to the priority value, 
+	# thus a high priority job will be be affected by fair share of default job.
+	# any 0.6xx level job will run to completion before any 0.5xx job will be scheduled to run.
+
+	# eg use, can declare project priority so any job submitted with the project code will get higher priority and not be penalized by previous run and fair share...
+	
+
+qconf -tsm	# show scheduler info with explanation of historical usage weight 
+		# very useful in share-tree scheduling 
+		# (which reduce priority based on historical half-life usage of the cluster of a given user)
+		# straight forward functional share ignore history (less explaining to user)
+		# It is a single-time run when the scheduler next execution
+		# log should be stored in    $sge_root/$cell/common/schedd_runlog  
+
+
+qping ...
+
+tentakel "ping -c 1 192.168.1.1" 	
+	# run ping aginast head node IP on all nodes (setup by ROCKS)
+
+
+</PRE>
+
+<H4>Disabling an Execution Host</H4>
+
+
+
+<H5>Method 1</H5>
+
+
+<DIV class="quote">
+
+If you're running 6.1 or better, here's the best way. <BR>
+<OL>
+<LI>Create a new hostgroup called @disabled (qconf -ahgrp @disabled). 
+<LI>Create a new resource quota set via "qconf -arqs limit hosts @disabled to slots=0" (check with qconf -srqs). 
+<LI>Now, to disable a host, just add it to the host group (
+    <TT>qconf -aattr hostgroup hostlist compute-1-16 @disabled</TT> ).
+<LI>To reenable the host, remove it from the host group (
+    <TT>qconf -dattr hostgroup hostlist compute-1-16 @disabled</TT> ).  <BR>
+<LI>Alternatively, can update disabled hosts by doing <TT>qconf -mhgrp @disabled</TT>, placing <TT>NONE</TT> in the hostlist when there are no more nodes in this disabled hostgroup.
+</OL>
+
+This process will stop new jobs from being scheduled to the machine and allow the currently running jobs to complete.
+<BR>
+<OL>
+<LI>To see which nodes are in this disabled host group: 
+  <TT>qconf -shgrp @disabled</TT>
+  <BR>
+<LI>The disabled hosts rqs can be checked as 
+  <TT>qconf -srqs</TT> and should looks like
+  <PRE class="code">
+  {
+   name         disabled_hosts
+   description  "Disabled Hosts via slots=0"
+   enabled      TRUE
+   limit        hosts {@disabled} to slots=0
+  }
+  </PRE>
+
+
+</OL>
+Ref: <A HREF="http://superuser.com/questions/218072/how-do-i-temporarily-take-a-node-out-from-sge-sun-grid-engine">
+http://superuser.com/questions/218072/how-do-i-temporarily-take-a-node-out-from-sge-sun-grid-engine</A>
+<BR>
+</DIV>
+
+<H5>Method 2</H5>
+
+<PRE>
+qmod -d \*@worker-1-16 		# disable node compute-1-1 from accepting new jobs in the any/all queues.
+qmod -d all.q@worker-1-16 	# disable node compute-1-1 from accepting new jobs in the all.q queue.
+qmod -d       worker-1-16 	# disable node compute-1-1, current job finish, no new job can be assigned.
+qstat -j 			# can check if nodes is disabled from scheduler consideration
+qstat -f 			# show host status.  
+qstat -f | grep d$   		# look for disabled node (after reboot, even if crashed by memory, sge/uge disable node)
+qmod -e  all.q@worker-1-16	# re-enable node
+qmod -cq default.q@worker-5-4	# remove the "E" state of the node.
+</PRE>
+
+<H5>Method 3</H5>
+This will remove the host right away, probably killing jobs running on it.
+Thus, use only when host is idle.  
+But it should be the surest way to remove the node.
+
+<PRE>
+qconf -de compute-1-16		# -de = disable execution host (kill running jobs!)
+qconf -ae compute-1-16		# re-add it when maintenance is done.
+
+</PRE>
+
+<H4>Pausing queue</H4>
+
+pausing the queue means all existing jobs will continue to run, but jobs qsub after queue is disabled will just get queued up until it is re-enabled.  ref: http://www.rocksclusters.org/roll-documentation/sge/4.2.1/managing-queues.html
+
+<PRE>
+qmod -d default.q		# this actually place every node serving the queue in "d" state.  check with qstat -f
+qmod -e default.q
+
+</PRE>
+
+<H4>Admin howto</H4>
+
+<PRE>
+
+See all exec node in cluster:
+qconf -sel
+
+Add submit host:
+qconf -as hostname
+	# note that execution and submit host reverse IP to DNS must lookup and match
+	# workstations can be submit host, they will not be running sgeexecd.  
+	# submit host don't need special software, but would need qsub to submit. 
+	# though often, sge client package is installed
+	# /etc/profile.d/settings.*sh will be added for configurations.  minimally:
+	#   SGE_CLUSTER_NAME=sge1
+	#   SGE_QMASTER_PORT=6444
+	#   optional?:
+	#   SGE_CELL=default
+	#   SGE_EXECD_PORT=6445
+	#   SGE_ROOT=/cm/shared/apps/sge/current
+	# submit host need to know who the master is.  
+	# ie /etc/hosts need entry for the cluster head node external IP
+
+
+
+Add an execution host to the system, modeled after an existing node:
+qconf -ae TemplateHostName		
+# the TemplateHostName is an existing node which the new addition will be model after (get their complex config, etc)
+# command will open in vi window. change name to new hostname, edit whatever complex etc.  save and exit.
+
+qconf -Ae  node-config.txt
+# -A means add node according to the spec from a file
+# the format of the file can be the cut-n-paste from what the vi window have when doing qconf -ae
+
+</PRE>
+
+example of node-config.txt ::  <BR>
+<PRE class="cf">
+hostname              node-9-16.cm.cluster
+load_scaling          NONE
+complex_values        m_mem_free=98291.000000M,m_mem_free_n0=49152.000000M, \
+                      m_mem_free_n1=49139.093750M,ngpus=0,slots=40
+user_lists            NONE
+xuser_lists           NONE
+projects              NONE
+xprojects             NONE
+usage_scaling         NONE
+report_variables      NONE
+## above is cut-n-paste of qconf -ae node-1-1 + edit
+## add as qconf -Ae node-config.txt
+</PRE>
+
+
+A way to script adding a bunch of nodes at the same time.  create a shell script with the following, and run it:
+(fix slots to match the number of cpu cores you have.  Memory should be fixed by UGE.
+
+<PRE class="cf">
+for X in $(seq 1 16 ) ; do
+
+echo "
+hostname              compute-2-$X
+load_scaling          NONE
+complex_values        m_mem_free=98291.000000M,m_mem_free_n0=49152.000000M, \
+                      m_mem_free_n1=49139.093750M,ngpus=0,slots=28
+user_lists            NONE
+xuser_lists           NONE
+projects              NONE
+xprojects             NONE
+usage_scaling         NONE
+report_variables      NONE " > compute-2-$X.qc
+
+qconf -Ae compute-2-$X.qc
+rm compute-2-$X.qc
+
+done
+</PRE>
+
+
+<PRE>
+
+
+# remove a workstation form a workstation.q
+# (needed before the execution host can be removed)
+qconf -mhgrp @wkstn
+# (open in vi env, edit as desired, moving whatever host that should not be in the grp anymore)
+
+remove execution host (think this will delete/kill any running job )
+qconf -de hostname
+
+
+# groups are member of queue
+# host are member of group?  or also to queue?
+
+
+# node doesn't want to run any job.  Check ExecD:
+# login to the node that isn't running.
+# don't do on head node!!
+/etc/init.d/sgeexecd.clustername stop
+# if don't stop, kill the process
+/etc/init.d/sgeexecd.clustername start
+
+
+# slots are defined in the queue, and also for each exec host.
+#
+# typically define slot based on cpu-cores, which are added to group named after them, eg quad, hex
+qconf -mq default.q 
+# vi, edit desired default slots, or slot avail in a given machine explictly.
+# eg
+slots                 8,[node-4-9.cm.cluster=24], \
+                        [node-4-10.cm.cluster=20],[node-4-11.cm.cluster=20], \
+                        [node-1-3.cm.cluster=12]
+
+qconf -se node-4-10	# see slots and other complex that the named execution host has
+
+</PRE>
+
+
+<H4>Cgroup</H4>
+
+
+cgroup_params contains the configuration of cgroups feature.  This need to be set via qconf -mconf.  UGE 8.1.7 and later, and config may need to be added by hand if hot-upgraded the system.
+
+<PRE>
+  cgroups_params           cgroup_path=none cpuset=false mount=false \
+                           freezer=false freeze_pe_tasks=false killing=false \
+                           forced_numa=false h_vmem_limit=false \
+                           m_mem_free_hard=false m_mem_free_soft=false \
+                           min_memory_limit=0
+</PRE>
+
+<H4>Places where (CPU) slots are defined</H4>
+
+(Not sure of order of precedence yet)
+<UL>
+<LI>Queue config, ie qconf -mq.  slots clause NEED(?) to specify which compute nodes has how many slots.
+<LI>qconf -se NodeName   
+ 	<UL>
+        <PRE>
+		<LI> processors clause 
+		<LI> slots=n definable in complex values clause. 
+		<LI> num_proc=n in load_values clause
+		<LI> m_core=n   in load_values clause
+		<LI> m_thread=n in load_values clause
+		<LI> m_socke=n  in load_values clause
+	</PRE>
+ 	</UL>
+<LI>
+</UL>
+
+<DIV class="mono">
+</DIV>
+
+<H4>jsv</H4>
+
+<PRE>
+job submission verifier?
+a script that run that check if a submitted job passes all the requirements.  it may add flags to the job.
+System-wide JSV is specified in
+   $SGE_ROOT/default/common/sge_request  eg
+   /cm/shared/apps/sge/univa/default/common/sge_request
+and the jsv repository is typically at centralized location, eg
+   /cm/shared/apps/sge/current/util/resources/jsv/
+
+User can add command line to specify JSV, but unlike most other SGE/UGE flags, all JSV options are additive, 
+ie, they will ALL be executed.  ditto for jsv specified in ~/.sge_request.
+
+</PRE>
+
+<A NAME="trouble"></A>
+<A NAME="troubleshooting"></A>
+<H4>Troubleshooting</H4>
+<UL>
+<LI> qsub -w v ...      # shed lights to why job doesn't get scheduled.
+<LI> qacct -j JOBID     # accounting data, exist only after job exit.   exit_status can have 128 added to it.  so job killed by SIGKILL get 128 + 9 = 137.  mem unfortunately reports "Gbytes cpu seconds" :(  maybe devide this number by ru_wallclock will give avg memory  utilization...
+depends on info logged $sge_root/$cell/common/accounting ( eg /cm/shared/apps/sge/current/default/common/accounting )
+
+<LI>qmon (GUI)
+<LI>sgeinspect (GUI)
+
+<LI>Default location of Sun Grid Engine log files:
+<UL>
+	<LI>qmaster_spool_dir/messages
+	<LI>$execd_spool_dir/hostname/messages
+	<LI>$sge_root/$sge_cell/common/accounting   
+</UL>
+
+<DIV class="mono">
+</DIV>
+<PRE> <!-- had to use PRE as monospace still doesn't treat extra space padding to line up the stuff-->
+<LI>SGE_ROOT            eg /cm/shared/apps/sge/current
+<LI>SGE_CELL            eg                             default
+<LI>SGE_HOME Bright UGE eg /cm/shared/apps/sge/current/default == /cm/shared/apps/sge/var/default
+<LI>SGE_HOME SGE        eg /opt/gridengine
+<LI>qmater_spool_dir    eg       $sge_root/$cell/spool/qmaster 
+<LI>execd_spool_dir	eg /cm/local/apps/sge/var/spool         # qconf -sconf | grep execd  
+
+
+</PRE>
+
+<LI>$SGE_HOME/default/spool/qmaster/messages contains log of errors when SGE tries to run jobs.
+<LI>$SGE_HOME/default/spool/qmaster/schedd/messages contains info from the scheduler    [where is this for bright uge?].
+<LI>$SGE_HOME/default/spool/NODENAME/messages error specific to each node.  may actually be a local dir on each node...
+<LI>$UGE_HOME/default/faulty_jobs   all the info about a job submission and log to troubleshoot why it failed.  Need qconf -sconf, under <TT>execd_params</TT> clause, to have this option: <TT>KEEP_ACTIVE=ERROR</TT>
+
+<LI>qsub will put the script that the nodes need to run in $SGE_HOME/default/spool/qmaster/job_scripts.  But such script get deleted as soon as the job finishes.
+<LI>SGE_DEBUG_LEVEL environment variable should provide way to get idea of what SGE is doing...
+<LI> source $SGE_ROOT/util/dl.sh (or .csh),  run dl 1 (or 3 or 5).  This will enable logging.  try qrsh HOSTNAME to see sample output.
+<LI>
+
+<LI>Univa Unicluster windows-based monitoring tool
+<LI>/cm/local/apps/sge/var/spool/NODENAME for local messags
+<LI>/cm/shared/apps/sge/univa/default/spool/messages - sge master (scheduler) log, but NFS mounted so readable on all nodes.
+
+<LI>
+<LI> Scheduler Profiling:   <BR>
+Add profile=1 to the params line of the scheduler config.
+This will add job run time profiling info to $SGE_ROOT/$CELL/spool/qmaster/schedd/messages .  More info: 
+<A HREF="http://gridengine.sunsource.net/source/browse/gridengine/doc/devel/rfe/profiling.txt?rev=1.1&view=markup">
+http://gridengine.sunsource.net/source/browse/gridengine/doc/devel/rfe/profiling.txt?rev=1.1&view=markup</A>
+<LI> Scheduler Monitoring:  <BR>
+Add "monitor=true to "params line of the scheduler config.
+Scheduler will shed lights of what it is doing in $SGE_ROOT/$CELL/common/schedule .  More info:
+the sched_conf man page and 
+<A HREF="http://gridengine.sunsource.net/nonav/source/browse/~checkout~/gridengine/doc/devel/rfe/resource_reservation.txt?content-type=text/plain">  
+http://gridengine.sunsource.net/nonav/source/browse/~checkout~/gridengine/doc/devel/rfe/resource_reservation.txt?content-type=text/plain</A> .
+
+<LI>Info on SGE tuning: 
+<A HREF="http://gridengine.sunsource.net/project/gridengine/howto/tuning.html">
+http://gridengine.sunsource.net/project/gridengine/howto/tuning.html</A>
+(especially good in looking at spooling, writting to local disk could speed things up for qmaster.)
+<LI>
+</UL>
+
+
+<LI> "cannot run in PE "smp" because it only offers 0 slots" in qstat -j JOBID output.  <BR>
+     Assuming there are indeed nodes with number of cpu cores requested by -pe smp NN, then this is because such node is not available, so the job is queued.  
+
+
+<H4>Various Notes...</H4>
+
+<UL>
+<LI>Be careful of Windows/DOS text.  If the script passed to qsub is a Windows/DOS file with CR/LF in it, SGE will return all sort of strange errors.  eg.  error on blank line (which isn't blank, it is trying to run ^M !!)
+<LI><TT>/opt/rocks/bin/tentakel cmd</TT> will run cmd on all cluster nodes
+<LI><TT>gsh</TT> can do similar things, setup groups in /etc/ghosts
+<LI>
+</UL>
+
+
+<A NAME="pbs"></A>
+<H1>PBS / TORQUE</H1>
+
+PBS = Portable Batch System.  <BR>
+
+Original open source PBS became OpenPBS.  OpenPBS is quite old now.  TORQUE is the new development adapted from the original OpenPBS, and ClusterResources seems to be the main site putting all the glues together for it.
+<BR>
+<LI>OpenPBS.org	- points to Altair, who is still providing original code for download.  Last version = 2.3.16 on 2001/12/06.  Some patches seems to be available up till 2004 from a site hosted by Argone National Lab.
+<LI>PBS Pro 	- Commercial version of PBS, supported by Altair (http://www.pbsgridworks.com)  
+<LI><A HREF="http://www.clusterresources.com/wiki/doku.php?id=torque:torque_wiki">Torque</A> (Open Source) manual from Cluster Resources (WiKi). <BR><BR>
+
+Two halves of the brain: <BR>
+<LI>Scheduler: Read script only when it starts up.  Def = pbs_sche, can be changed Maui or Moab for smarter scheduling.
+<LI>Server: live process, change thru qmgr and effective immediately.
+<BR>
+Both pbs_mom and pbs_server must be started by root.
+<BR>
+
+
+<PRE>
+
+qsub command-script.sh		# run script, stdout and stderr automatically saved as script.oXX and script.eXX
+
+qmgr -c 'print server'		# Print Server config, including pbs version.
+qmgr -c 'p s'			# Most command can be abreviated to first letter.
+
+qalter				# alter batch job, eg move job from one queue to another.
+
+</PRE>
+
+<H4>Creating New Queue</H4>
+Run <TT>qmgr</TT> command as root:
+<PRE>
+qmgr -c "create queue test_queue_tin queue_type=execution"
+qmgr -c "set    queue test_queue_tin started = True"
+qmgr -c "set    queue test_queue_tin enabled = True"
+qmgr -c "set    queue test_queue_tin max_running  = 2" 
+qmgr -c "set    queue test_queue_tin max_user_run = 1" 
+qmgr -c "set    queue test_queue_tin resources_default.nice = 2" 
+</PRE>
+<H4>Integration with MPI</H4>
+
+Integration with MPICH is somewhat documented.  They recommend mpiexec (PBS version at 
+http://www.osc.edu/~pw/mpiexec/index.php#Too_many_mpiexecs ).  This allows PBS to have better control.
+Note that there are "too many mpiexecs" and this is an add-on to the standard MPICH distribution.
+
+<BR>
+OpenMPI is touted as the best thing to use.  OpenMPI automatically communicate with Torque/PBS Pro and retrieve host and np info.  Jobs were to be submitted using mpirun rather than qsub...
+http://www.open-mpi.org/faq/?category=tm
+<BR>
+
+
+<PRE>
+
+</PRE>
+
+<H4>Deleting a Queue</H4>
+<PRE>
+qmgr -c "delete queue test_queue_tin"
+</PRE>
+
+
+<H4>Misc</H4>
+
+Prologue/Epilogue script	- Run before/after a job (for all queues?)
+
+
+<BR><BR>
+
+
+<A NAME="lsf"></A>
+<H1>LSF</H1>
+
+
+<A HREF="3rdParty/lsf4_userGuide/users-title.html">LSF User Guide</A> (older version 4, but still usable, nice html format :) ) [local cache of Platform Computing doc]
+<!--http://www.lle.rochester.edu/pub/support/lsf/users-contents.html-->
+
+<PRE>
+add pdf for quick ref guides ...
+
+
+
+
+
+
+
+bjobs -u all            # list all user jobs
+-w -u USERNAME  # wide format, w/o truncating fields.
+-l  JOBID       # long listing of a given job
+ 
+
+
+
+bhist -l -n 4           # list job history, going back 4 log files (if logs
+are available!)
+bhist -l <JobID>        # show details of the job history,
+		# including how much time it was spend in state
+		# Pending, UserSuspend, SysSuspend, etc
+
+bjobs -lp               # list all pending jobs and the reason why they are
+pending (what they are waiting for).
+
+bpeek <JobID>           # take a peek look at the current output of your job.
+		# LSF esentially capture the whole stdout of the job
+		# and displays it.  The whole buffer is displayed each time
+		# until the job is dead
+
+
+
+
+
+bsub "cmd option"       # submit job to be run as batch process
+		# LSF will execute the command in a select remote host (LSF client).  
+		# It will duplicate the env, including
+		# the current working dir, env var, etc
+		# Obviously, depends on unanimous NFS setup on all host
+
+		# anyway to reduce priority w/o creating new queues?
+
+
+bstop <JobID>		# send STOP signal to the job
+		# LSF essentially do kill -STOP on the dispatched
+		# process and all if the children
+		# ps -efl will show "T" for these processes.
+bstop 0			# stop all jobs owned by the current user
+
+bresume <JobID>		# send CONTinue signal to the job
+bresume 0 		# resume all jobs
+
+brequeue <JobID>	# Re-Queue a job.  LSF essentially kill the job
+		# and re-submit it, which will likely run on a different host
+		# Thus, it really depend on process that can be restarted gracefully.
+		# eg, setiathome will restart by reading state saved in xml files.
+
+
+lsload			# show loads
+bqueues			# list all queues
+lsinfo
+bhosts
+bparams
+
+lshosts			# display LSF "server nodes" and clients
+lshosts -l | egrep '(ENABLED|HOST_NAME)'	
+		# which which hosts has checked out license
+		# master node can be proxy that dolls out license to clients
+		# all license expires in midnite.
+					
+
+
+
+</PRE>
+
+
+ENV setup <BR>
+&lt;!--
+
+<!--
+
+setenv SCHRODINGER /borua/app/schrodinger
+setenv SCHRODINGER_RSH ssh
+setenv RSHCOMMAND ssh
+#       setenv PATH
+#       /usr/local/mpich/bin:/borua/app/schrodinger/utilities:/borua/app/schrodinger
+setenv PATH
+/usr/local/mpich/bin:/borua/app/schrodinger/utilities:/borua/app/schrodinger:"${PATH}"
+#       setenv PATH
+#       /usr/local/mpich/bin:/lsf/hpc/6.1/linux2.4-glibc2.3-x86/bin:/lsf/hpc/6.1/linux2.6-glibc2.3-amd64/bin:/borua/app/schrodinger/utilities:/borua/app/schrodinger:$PATH
+setenv MPI_USEP4SSPORT yes
+setenv MPI_P4SSPORT 6666
+setenv LSF_ENVDIR /lsf/hpc/conf
+setenv LM_LICENSE_FILE @ussf-license
+setenv SCHRODINGER_MPI_FLAGS "-v"
+source /lsf/hpc/conf/cshrc.lsf
+#       echo "lsf setup is complete!"
+
+-->
+
+<BR><BR>
+
+<H4>Admin/Accounting</H4>
+<PRE>
+
+bacct 			# display stats on finished LSF jobs.
+-u username
+
+bacct -u all -C 3/1,3/31		# display aggregate job stats for all users for month of march.
+					# -C for completed (and exited) jobs.
+bacct -u all -S 2007/1/1,2007/3/31	# similar to above, but for Submitted jobs, with year explicityly defined.
+
+</PRE>
+
+
+<H1>Assistant</H1>
+
+
+.bashrc function, to count host and cpu cores.  
+<PRE class="code">
+qhostTot() { qhost | sed 's/G//g' | awk '/^compute/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
+</PRE>
+
+
+<BR><HR><BR>
+
+
+<H1>Links</H1>
+
+See also:
+<UL>
+<LI> Cycle Computing SubmitOnce
+<LI> Globus
+<LI> SLURM
+<LI> Lustre
+<LI> GPFS
+<LI> <A HREF="bigdata.html">big data</A>
+<LI>
+</UL>
+
+
+Ref:
+
+<UL>
+<LI><A HREF="http://www.clustermonkey.net">Cluster Monkey</A>
+    eg, see articles on <A HREF="http://www.clustermonkey.net//content/view/141/33/">Parallel Molecular Dynamics</A>.
+<LI><A HREF="http://www.linuxhpc.org/">LinuxHPC.org/</A>
+<LI><A HREF="http://beowulf.org">Beowulf.org</A>
+
+<LI><A HREF=""></A>
+<LI><A HREF=""></A>
+</UL>
+
+<BR><BR>
+
+SGE:
+<UL>
+<LI><A HREF="http://blog.bioteam.net/wp-content/uploads/2008/02/sge-quick-reference_v3.pdf">
+BioTeam quick reference</A>
+<LI><A HREF="http://gridengine.sunsource.net/project/gridengine/howto/basic_usage.html">Basic usage</A>
+<LI><A HREF="http://gridengine.sunsource.net/nonav/source/browse/~checkout~/gridengine/doc/htmlman/manuals.html?content-type=text/html">Manual Pages</A>
+<LI><A HREF="http://blog.bioteam.net/2009/09/28/sge-training-slides/">SGE Admin training slides</A> by Chris Dag.
+<LI><A HREF="http://biowiki.org/HowToAdministerSunGridEngine">http://biowiki.org/HowToAdministerSunGridEngine</A>
+<LI>
+</UL>
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL]<BR>
+  <strong><a href="http://tiny.cc/uge">tiny.cc/uge</a><br></strong>
+  <a href="http://dl.dropbox.com/u/31360775/psg/lsf.html">http://dl.dropbox.com/u/31360775/psg/lsf.html</a>
+  New home page.  Hosted at dropbox since June 2011, up to date as of Dec 2016 and beyond...<br>
+
+  <A HREF="http://grumpyxmas.medianewsonline.com/lsf.html">
+  http://grumpyxmas.medianewsonline.com/lsf.html</A>
+  Alt home, last updated Dec 2012 <BR>
+
+
+
+<A HREF="http://unixville.com/~sn/psg/lsf.html">http://unixville.com/~sn/psg/lsf.html</A>
+(won't likely be coming after all)
+<BR>
+<a href="ftp://read:only@sn.is-a-geek.com/psg/lsf.html">ftp://sn.is-a-geek.com/psg/lsf.html</a>
+My home "server".  Up sporadically.
+<BR>
+
+
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+
+<!-- Just for fun. this google ad is actually from unixguide.net -->
+<script type="text/javascript">
+<!--
+google_ad_client = "pub-9786751149916387";
+google_ad_width = 728;
+google_ad_height = 94;
+google_ad_format = "728x90_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+//-->
+</script>
+<!--google_ad_height = 30;-->
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<BR>
+
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"<BR>
+  tin6150 sn50</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

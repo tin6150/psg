@@ -1,0 +1,1020 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+ 
+
+
+   
+<!--  xhtml format, hw6 (tables) had to use transitional instead of strict dtd.  -->    
+<!--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+the one below for strict html:
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+sttrict xhtml:
+
+-->
+
+
+
+
+
+<!--  
+CSS Class - UCSCX - 2012.07 - Final Project 
+Also making it as part of my PSG page remake.
+
+CSS validator: http://jigsaw.w3.org/css-validator/#validate_by_uri
+HTML validator: http://validator.w3.org/
+-->    
+    
+<head>
+	<title>Sys Admin Pocket Survival Guide</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="psg2.css"                type="text/css" media="screen">
+        <link rel="stylesheet" href="psg-table.css"           type="text/css">
+        <link rel="stylesheet" href="psg2-links-icons.css"    type="text/css">
+        <link rel="stylesheet" href="psg-positioning.css"     type="text/css">
+        <link rel="stylesheet" href="psg-print.css" type="text/css" media="print">
+</head>
+
+    
+<body>
+  <div id="fixie"> <!-- add a fixed position example for css final project.   potentially use to place ad, which will appear like a 3rd column on right -->
+          <div id="one"   class="skinny"><a href="plug/plug.html"><img src="plug/nema-5-20R-drawing.gif" alt="nema5pic" width="100" height="100"></a></div>
+          <div id="two"   class="skinny"><a href="fig/unixoid_hell.gif"><img src="fig/unixoid_hell.gif"  alt="vi-hell"   width="100" height="77" ></a></div>
+          <div id="three" class="skinny"><a href="fig/Assistant.gif"><img    src="fig/Assistant.gif"     alt="clippie"   width="100" height="77" ></a></div>
+          <div id="four"  class="skinny"><!-- empty for now --></div>
+  </div> <!-- closes #fixie -->
+
+    
+<div id="wrapper">
+  <div id="header">
+    <div id="title">Sys Admin Pocket Survival Guide</div>
+    <div id="sub-title">A Quick Reference Guide for Sys Admins with Alzeimer :)</div>
+  </div> <!-- closes header -->
+  
+  <div id="navigation">
+      <!-- the replace was not inside hightlight area, but whole page, finc and put back some strong and em in doc...-->
+   <!--  strong, em, h5, or div are not allowed to be nested inside ul !!  -->
+       <div class="azul">Cloud</div>
+        <li> <a href="docker.html">docker</a></li>
+        <li> <a href="aws.html">AWS</a></li>
+
+       <div class="azul">Unix</div>
+	<ul>
+        <li> <a href="linux.html">Linux</a></li>
+        <li> <a href="nixos.html">NixOS</a></li>
+        <li> <a href="coreos.html">CoreOS</a></li>
+        <li> <a href="sol.html">Solaris</a></li>
+        <li> <a href="hpux.html">HP-UX</a> and <br>
+                <a href="hpux.supl.html">supplement</a></li>
+        <li> <a href="aix.html">AIX</a> and <br>
+                <a href="aix_cd_catalog.html">AIX CD catalog</a><br></li>
+        <li> <a href="irix.html">Irix</a></li>
+        <li> <a href="dos.html">Windows</a></li>
+        <li> <a href="apple.html">Apple Mac</a></li>
+	</ul>
+
+        <div class="azul">Storage</div>
+	<ul>
+        <li> <a href="netapp.html">NetApp</a></li>
+        <li> <a href="emc.html">EMC SAN - Clariion</a></li>
+        <li> <a href="emcCelerra.html">EMC NAS - Celerra</a></li>
+        <li> <a href="isilon.html">Isilon</a></li>     
+        <li> <a href="fs.html">Unix File System</a></li>
+	</ul>
+
+        <div class="azul">Big Data</div>
+	<ul>
+        <li> <a href="lsf.html">SGE/UGE, PBS/Torque, LSF.</a></li>
+        <li> <a href="mpi.html">MPI, PVM</a></li>
+        <li> <a href="sci-file.html">Science File Format/Info</a></li>
+        <li><a href="sci-app.html">Sci-App</a></li>
+        <li> <a href="bigdata.html">Big Data engines</a></li>
+	</ul>
+            
+      
+        <div class="azul">Unix Dev</div>
+	<ul>
+  	<li><a href="development.html">compilers, etc</a></li>
+  	<li><a href="shellScript.txt">sh/bash, csh/tcsh</a></li>
+  	<li><a href="awk.txt">AWK</a></li>
+  	<li><a href="perl.html">Perl</a></li>
+  	<li><a href="python.html">Python</a></li>
+  	<li><a href="php.html">PHP</a></li>
+  	<li><a href="javascript_eg.html">javascript_eg</a></li>
+   	<li>gcc</li>
+  	<li><a href="gdb.html">gdb</a></li>
+   	<li>java</li>
+   	<li>rcs, cvs, p4, subversion</li>
+	<li><a href="vi.html">vi</a></li> 
+	</ul>
+
+        <div class="azul">Network</div>
+	<ul>
+        <li> <a href="ipmi.html">IPMI</a></li>
+        <li> <a href="ipv6.html">IPv6</a></li>
+        <li> <a href="net.html">Network</a></li>
+        <li> <a href="infiniband.html">InfiniBand</a><br></li>
+        <li> <a href="acopia.html">Acopia</a></li>
+	</ul>
+
+        <div class="azul">Other</div>
+	<ul>
+        <li> <a href="softenv+modules.html">SoftEnv, Environment Modules</a></li>
+        <li> <a href="puppet.html">Puppet</a></li>
+        <li> <a href="cfengine.html">CfEngine</a></li>
+        <li> <a href="factory_pw.html">factory password</a></li>
+        <li> <a href="ldap.html">LDAP</a><BR></li>
+        <li> <a href="admin.html">General Unix Sys Admin </a></li>
+        <li> <a href="tool.html">Sys Admin tools and performance tuning</a></li>
+        <li> <a href="vnc.html">VNC, X Emulation</a></li>
+        <li> <a href="backup.html">Unix backup</a></li>
+        <li> <a href="general_unix.html">Generic Unix Commands</a></li>
+        <li> <a href="veritas.html">Veritas</a></li>
+        <li> <a href="legato.html">Legato Networker</a></li>
+        <li> <a href="mysql.html">MySQL</a></li>
+        <li> <a href="html.txt">HTML tags</a></li>
+        <li> <a href="wiki.html">WiKi tags</a></li>
+        <li> <a href="3rdParty">3rd Party and Vendor Docs Cache</a></li>
+	</ul>
+
+        <div class="azul">IMHO</div>
+	<ul>
+        <li> <a href="monitor.html">Network monitoring tool review</a></li>
+        <li> <a href="netArch.html">Network Architecture Approaches</a></li>
+        <li> <a href="docPlatform.html">Documentation platform</a></li>
+	</ul>
+
+        <div class="azul">Prod Review</div>
+	<ul>
+        <li><a href="termSvr.html">Terminal (Serial Console) Servers</a></li>
+        <li><a href="ent_prod.html">Enterprise Products</a></li>
+        <li><a href=""></a></li>
+        <li> &nbsp; </li>
+	</ul>
+            
+	<div class="azul">More</div>
+	<ul>
+	<li><a href="psg1.html">Full TOC</A></li>
+	</ul>
+
+  </div> <!-- closes #navigation -->
+
+
+  <!-- ########################################################## -->
+  <!-- ########################################################## -->
+  
+  <div id="content">
+
+<A HREF="http://www.docker.io/static/img/docker-top-logo.png"><IMG SRC="fig/docker-logo.png"  alt="docker logo (download via wikipedia)" width="96%" ></A> <!-- width="96%" stock ~600x180 -->
+<BR><BR>
+
+<!-- move this lower after presentation -->
+<A HREF="http://nathanleclaire.com/blog/2014/03/22/what-is-this-docker-thing-that-everyone-is-so-hyped-about/">
+Motivation for Docker</A>: <BR>
+<A HREF="http://nathanleclaire.com/blog/2014/03/22/what-is-this-docker-thing-that-everyone-is-so-hyped-about/"><IMG SRC="fig/docker-matrix-from-hell.png"  width="96%" alt="docker matrix from hell diagram"></A> <!-- stock 442x229, tried 530x274, but % works better on mobile-->
+<BR><BR>
+  
+
+Docker vs Virtual Machine 
+(<A HREF="http://slurm.schedmd.com/SLUG15/shifter.pdf">NeRSC Shifter</A> slide 13): <BR>
+<A HREF="https://www.nersc.gov/news-publications/nersc-news/nersc-center-news/2015/shifter-makes-container-based-hpc-a-breeze/"><IMG SRC="fig/container-vs-vm.nersc-shifter-p13.png" width="96%" alt="docker vs vm diagram"></A> 
+<!--A HREF="http://slurm.schedmd.com/SLUG15/shifter.pdf"><IMG SRC="fig/container-vs-vm.nersc-shifter-p13.png" width="943" height="694" alt="docker vs vm diagram"></A--> 
+<!--A HREF="http://www.shadowandy.net/wp/wp-content/uploads/docker-containers-vs-vms.png"><IMG SRC="fig/docker-containers-vs-vms.png"  width="594" height="306"></A> -->
+<BR>
+<BR>
+
+<A HREF="https://docs.docker.com/engine/introduction/understanding-docker/">
+Docker architecture</A>:<BR>
+<A HREF="https://docs.docker.com/engine/introduction/understanding-docker/"><IMG SRC="fig/docker-architecture.svg"  width="96%"  alt="docker architecture diagram"></A>  <!-- 551x288-->
+<BR>
+<BR>
+<BR>
+
+
+<A HREF="https://blog.docker.com/2014/03/docker-0-9-introducing-execution-drivers-and-libcontainer/">
+Under the hood</A>: <BR>
+<A HREF="https://blog.docker.com/2014/03/docker-0-9-introducing-execution-drivers-and-libcontainer/">
+<IMG SRC="fig/docker-execdriver-diagram.png" width="96%"  alt="docker under the hood diagram"></A>  <!--593x445-->
+<BR>
+<OL>
+<LI>Container isolation is provided by Linux kernel Namespace.
+<LI>Resource restriction (cpu, memory) is governed by CGroups.
+<LI>UnionFS provides a unified file system inside the container, even when there are multiple pieces mounted in overlapping fashion.  Several implementation exist, eg AUFS, btrfs, DeviceMapper, etc
+<LI>A container format is a wrapper around the components above.  Modern docker use libcontainer.  Older system used LXC, libvirt, etc.
+<LI>
+</OL>
+<BR>
+<BR>
+
+
+<A NAME="101"></A>
+<H2><div class="azul">Docker traits</div></H2>
+
+    <UL>
+	<LI> Container provides instant application portability.
+	<LI>
+	<LI> Container is kernel virtualization (VM is hardware virtualization).
+        <LI>Docker creates a thin compartamentalization between apps, calling them containers.
+        <LI>Think of Docker as Solaris Container/Zone, AIX WPAR, FreeBSD jail or even a glorified chroot.
+	<LI>A container uses the host OS kernel, and bin/lib if possible.  
+	<LI> Container is similar to KVM, where virtual guest machine uses the host kernel and bin.  But container is more lightweight than KVM.
+	<LI> cgroup is used to enforce resource quota for each container
+	<LI>a container CAN have diff bin and lib than the host, such container would be much fatter.  But it is possible to have a host OS running CoreOS and a container using Ubuntu.
+	<LI> namespace
+	<LI>
+	<LI>
+	<LI> Lots of little apps...  So, multiple dockers, each hosting an app, are run to satisfy a specific "suite".
+	<LI> Wordpress container rely on a separate MySQL container to host its files.  
+	<LI> Both need to rely on OS... ?  An OS docker is needed to ... ??    Does not run docker inside another docker.
+	<LI>
+    </UL>
+
+
+<BR>
+
+
+
+<H3>Ecosystem, Competitor</H3>
+
+
+<UL>
+	<LI> Kubernetes
+	<LI> <A HREF="bigdata.html#mesos">Mesos</A>
+	<LI>Vagrant 
+	<LI>ClusterHQ
+	<LI>CoreOS
+	<LI> OpenVC
+	<LI> LXC = namespace + cgroup
+	<LI> Rocket (rkt), a newer, open source container/pod contender.
+	<LI> systemd-nspawn, AppArmor rkt, runC, 
+	<LI> AUFS, Copy on Write
+	<LI> 
+	<LI> 
+</UL>
+
+<PRE>
+</PRE>
+<BR><BR>
+
+<H3>Docker Hub</H3>
+
+Docker images can be placed in a central repository.  The "app store" equivalent for docker is at  https://hub.docker.com.
+<BR>
+No account is needed to pull docker images from the hub.  <BR>
+Account IS needed to post image to the hub.  <BR>
+
+<H3>Docker and RHEL7</H3>
+<UL>
+	<LI>Docker leverages new kernel features, devicemapper (thin provisioning, direct lvm), sVirt, systemd
+	<LI>RH don't recommend use of docker with RHEL6 and don't ship rpm for it.  
+	<LI>RHEL6.5 with kernel 2.6.32+ supported early docker implementation, but not recommended nowadays.
+	<LI>EPEL provides docker-io.rpm in RHEL 6, but it wants kernel 3.8.0 and above, so point to use RHEL7 again. (note the docker.rpm is is unrelated, it is for a GUI applet thingy).
+</UL>
+
+
+<H3>Docker and CoreOS</H3>
+
+<UL>
+	<LI>CoreOS is much thinner than traditional Linux distro.
+	<LI>Built intend to host many docker containers.
+	<LI>
+	<LI>
+</UL>
+
+
+<H3>Config</H3>
+
+<PRE>
+
+HTTPS_PROXY			# said to look at this env var for proxy
+/etc/sysconfig/docker		# docker daemon config for RHEL/Fedora
+				# may need to config proxy here.
+/etc/default/docker		# docker daemon config for ubuntu 
+
+/var/log/docker
+
+</PRE>
+
+<H3>Installation</H3>
+
+<PRE>
+
+### installation in ubuntu
+sudo apt-get install docker.io	# "docker" without .io is for some gui docklet applet.
+sudo service docker start	# start docker daemon
+
+
+docker search httpd		# to allow non root to run docker command, add the user to the docker group.
+
+/etc/default/docker		# docker daemon config for ubuntu 
+
+
+### installation on amazon linux  
+### http://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html
+
+sudo yum install -y docker
+sudo service docker start		# start docker daemon
+sudo usermod -a -G docker ec2-user	# to allow non root to run docker command, add the user to the docker group.
+					# docker commands are often run under the os-level user rather than root.
+
+### installation on rhel7
+
+sudo yum install docker 		# (deps: docker-selinux device-mapper, lvm2).  There are other optional tools
+sudo service docker start
+sudo usermod -a -G Dockerroot bofh
+# other setup maybe needed...  docker command still don't run as bofh ... maybe selinux stuff?
+
+sudo docker run httpd			# will download httpd container if not already present
+
+
+/etc/sysconfig/docker			# docker daemon config for RHEL/Fedora
+					# may need to config proxy here.
+
+</PRE>
+
+
+<H3>Basic Commands</H3>
+
+<PRE>
+
+docker search http		# look for container in hub.docker.com
+docker pull   httpd:latest	# download the httpd image from hub.docker.com.  get the "latest" version.
+				# stored in??
+			
+docker images
+
+docker run -p 80:80   httpd	# run the httpd docker image, mapping port 80 on the container to port 80   on the host 
+				# if image not already pull-ed, docker run will pull it automatically
+docker run -p 8000:80 httpd &	# run the httpd docker image, mapping port 80 on the container to port 8000 on the host, putting docker in background so get back the prompt.
+				# two instanced can run as above, resulting in service running in parallel 
+				# netstat -an | grep LISTEN will show that both port 80 and 8000 are in LISTEN state
+				# note that the httpd process is visible on the host.  it is NOT like in a VM that run all its process in a black box.
+
+
+docker run -P -d training/webapp python app.py 	# this run a demo web app called app.py
+						# -P will map all ports in container to host.  but it maps sequentially starting from 32768
+						# -d is daemon mode, ie, put process in background.
+
+
+
+
+docker ps			# list running docker process, container id, name, port mappings, etc
+docker ps -l			# list last continer that was started
+docker ps -a			# list all containers, including stopped one
+docker logs  c7f46acc532b	# get console output of the specified container id
+docker stop  c7f46acc532b	# stop the specified container id (container nickname can be used instead)
+docker start c7f46acc532b	# restart the specified container id (assuming image hasn't deleted)
+
+docker exec -it c7f46acc532b bash	# drop into a bash shell inside a running container
+docker exec     uranus_hertz df -h	# run the "df -h" command inside the named container
+
+docker port c7f46acc532b	# show port mapping of a container to its host  (similar to former docker network ls)
+docker top  uranus_hertz	# see the process running inside the specified container 
+
+
+docker pull rhel7:latest	# get a basic, off-the-shelf container for redhat 7 (eg from rh cert guide)
+docker info			# display info on existing container, images, space util, etc.
+
+docker inspect httpd		# get lots of details about the container. output in JSON 
+				# eg data volumes, (namespace?) mappings,
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' uranus_hertz	# only retrieve specific "inspection" item
+
+
+
+
+docker images -a		# list images (from docker pull).  Note that a container is an execution instance, reading info from an image.
+
+docker ps -a			# list containers (process, -a include stopped containers) (note diff vs image, which is more like a source file)
+
+
+
+docker rm  ContainerName		# remove container (process listed by docker ps    -a)
+docker rmi ImageName 			# remove image     (files   listed by docker image -a)
+					# images files from docker pull.  container are instance of image.
+
+docker commit clever_shockley rhel7box2	# save changes of a running container to a new named image called "rhel7box2" 
+docker commit -m "msg desc"		# -m add a message about the commit (description for the new image)
+docker commit -a "author name"		# -a add the authoer's name 
+
+docker tag ...			# tag/name (?container as image) for docker push to hub.docker.com
+
+docker login			# login to hub.docker.com ...
+docker info			# version, disk usage, metadata size, etc
+
+
+man docker			# docker damon and general instructions
+man docker run			# specific man page for the run command of docker 
+				# (not sure how space is handled by man, but it does!)
+
+docker 	   --help
+docker run --help		# help specific to the sub command.
+
+</PRE>
+
+<A NAME="under_the_hood"></A>
+<H2>Under the hood</H2>
+
+<H3>Process Isolation</H3>
+
+<OL>
+<LI> Each container has its own process tree, with its init process as PID 1.
+<LI> Achieved using Namespace.
+<LI> Parent is aware of all child process, but child don't know anything about parent -- security.
+<LI> Parent see child process, and each child process really has 2 PIDs.
+<LI> 
+</OL>
+
+<H3>Network Isolation</H3>
+
+<OL>
+	<LI> Each container has its own network stack, NIC, ARP space, IP space, routing tables, 
+	<LI> Achieved using <TT>ip netns</TT>
+	<LI> iptables, brctl, virtual switches
+	<LI> Docker provides network isolation, but no throtling
+	<LI> 3 network methods: 
+     	<UL> 
+	     <LI>bridged (default)
+	     <UL> 
+		<LI> Virtual ethernet interface is used (veth), called docker0
+		<LI> All containers on docker0 can communicate with one another by default (icc=true), ie no isolation between these containers.
+	     </UL> 
+
+	     <LI>host
+	     <UL> 
+		<LI> container use host network stack, thus no isolation
+		<LI> allow access to D-Bus, unexpected behavior.
+		<LI> use not really recommended
+	     </UL> 
+
+	     <LI>shared
+	     <UL> 
+		<LI> An existing container network stack is shaerd with other containers.  ie Network Namespace is shared.
+		<LI> like bridged, FS and Process isolation remains
+	     </UL> 
+     	</UL>
+	<LI> 
+</OL>
+
+<H3>File System Isolation</H3>
+
+<OL>
+<LI> File system inside container is isolated from the host
+<LI> No Disk I/O throtle, no disk quota.
+<LI> Union FS: DeviceMapper in Fedora.  AUFS in Ubuntu.
+<LI> 
+<LI> 
+</OL>
+
+<H3>Docker vs LXC</H3>
+
+<OL>
+<LI> LXC is lightweight, but heavily embeded into Gentoo Linux, not portable.
+<LI> Docker started in Ubuntu.  application portability was key goal.  Gentoo was providing a container for security/isolation.
+<LI> Both rely on Cgroup, union file system.
+<LI> 
+</OL>
+
+
+
+<H3>docker run</H3>
+
+<H5>
+Stock httpd conainer 
+</H5>
+
+<PRE>
+# run a stock container (apache httpd) on amazon linux
+# no changes to the content of the container
+
+docker run -p 80:80   -i -t --rm --name ApacheA -v ~/htdocs4docker:/usr/local/apache2/htdocs/ httpd 
+docker run -p 8000:80            --name ApacheB -v          "$PWD":/usr/local/apache2/htdocs/ httpd &
+	# run a process (httpd)  in a new container
+	# each process has its own FS, network, isolated process tree.
+	# most of the default param are defined in the IMAGE, but cli arg will overwrite the IMAGE conf.
+	# 
+	# -p = map host port 8000 to port 80 on the container 
+	# 	if not specified, default maps NOTHING, 
+	# 	so outside, even on the host, can't get into the inside of the docker app!
+	# -i = interactive, def=false.         ^P ^Q ^Z bg can suspend and background this.  cannot use with &
+	# -t = allocate pseudo-tty, def=false
+	# --name foo = assign a name to the container.  if not specified, a random 2_words name will be assigned
+	# --rm = remove container when exiting, def=false.  
+	# 	if don't delete container, it linger around.  
+	# 	will see them with docker ps -a.  remove with docker rm ContainerName
+	# 	Note that each time a container is started, the name must not match existing or stopped container.
+	#	--rm is good especially for testing, to avoid having to do lot of clean up work.
+	# -v "$PWD":/usr/local/apache2/htdocs/  bind mounts the host's current dir into the container's apache htdocs dir.
+	# -v or --volume=... format is host : container
+
+
+docker run -it httpd  /bin/bash
+	# this run (a new) apache httpd container, and start the bash shell running *inside* the container env.
+	# /usr/local/apache2/htdocs inside this container is where the web pages are served up from (if not mapped with -v)
+	# changes to this will persist inside this instance, till container is removed with docker rm ContainerName 
+
+
+docker exec -it ApacheB /bin/bash	
+	# this run the bash command in an already running container called ApacheB
+	# -it will make it interactive with tty, thus leaving one with a shell inside the container
+	# ^D or exit will terminate this exec.  the container will continue to run. it is like logout.
+
+docker exec ApacheB ps -ef
+	# will run "ps -ef" inside the container, print output, and terminate the exec
+	# think of "ssh remotehost ps -ef" to run command w/o interactive shell in a remote environment
+
+</PRE>
+
+<H5>
+Container of OSes in Amazon Linux
+</H5>
+
+
+<PRE>
+docker pull ubuntu
+docker run -it ubuntu /bin/bash
+	# start a bash shell that run inside the docker process tree env
+	# the run command by default attach stdin, stdout and stderr to the console,
+	# so all keystrokes will pass thru (which is why hitting ^Z) does not put docker to background.
+	# this was done on backbox
+	# apt-get works, no aptitude (even though host does have this command)
+	# ps -ef shows only the bash process!
+
+ 
+docker pull rhel7
+docker run -it rhel7 /bin/bash
+	# this was done on backbox
+	# uname shows ubuntu
+	# /etc/redhat-release exist in the FS inside the container
+	# yum works
+	# df -hl is very different than the ubuntu container
+	# mount shows the same list of mounts as in the ubuntu container
+
+</PRE>
+
+<H5>
+CoreOS
+</H5>
+
+<PRE>
+CoreOS relies on docker to provide packages.  no rpm, dpkg, yum, apt-get
+has two boot partition, active/standby, where OS upgrade is done on standby.
+
+docker pull httpd
+docker run -p 80:80 httpd
+
+docker pull pdevine/elinks2     
+docker run -it --rm pdevine/elinks2 elinks http://www.yahoo.com		# will start interactive browser 
+docker run -it --rm pdevine/elinks2 elinks http://172.31.28.159 	# use the host's eth0 IP to access the web server running on it
+</PRE>
+
+
+
+<H2>Building an image using dockerfile</H2>
+
+One way to build an image is to save/commit an existing/modified image. <BR>
+The other method is to build one from scratch using dockerfile <BR>
+ref: 
+<A HREF="https://docs.docker.com/engine/userguide/dockerimages/">
+https://docs.docker.com/engine/userguide/dockerimages/</A><BR>
+
+<PRE>
+mkdir  myapp
+cd     myapp
+vi     dockerfile
+docker build -t bofh/myapp:v3 .		# . will search for ./dockerfile  -t is for tag
+
+# optional upload to docker hub, assuming user bofh has been registered
+docker push     bofh/myapp 
+
+docker rmi      myapp... 		# remove an image from the lost host.
+
+</PRE>
+
+dockerfile ::
+<PRE class="code">
+FROM ubuntu:14.04			# use ubuntu as a base image to build this docker container/app
+MAINTAINER user &lt;user@example.com&gt;
+RUN apt-get update && apt-get install -y ruby ruby-dev		# 
+RUN gem install sinatra
+# always run the apt-get update and install command in the same line using &&, 
+# or it would result in a db problem on the resulting container.
+</PRE>
+<BR>
+
+<H5>Example Docker HTTPD image + psg static web content</H5>
+
+<PRE>
+docker run    -p 80:80   -i -t --name ApachePsg -v ~/htdocs4docker:/mnt/htdocs httpd /bin/bash
+		# /mnt/htdocs will be created inside the container by the startup process
+
+		# note inside this container, it has very few commands.  no scp, no wget.
+		# run this inside the container's bash :
+		# cp -pR /mnt/htdocs/psg/* /usr/local/apache2/htdocs
+		# httpd 						# this starts process and return to bash
+
+# run the following on the host (ie, from a different window)
+docker commit ApachePsg		# create a new image from changes done to exisiting container
+docker kill   ApachePsg
+
+docker run    -p 80:80   -i -t --name ApachePsg2 -v ~/htdocs4docker:/mnt/htdocs ApachePsg /bin/bash
+## above didn't work.
+
+
+docker start  ApachePsg		# re-start a container using its name
+docker attach ApachePsg		# attach to the container (last start with bash, so get back to a prompt)
+
+docker export 		# Export the contents of a container's filesystem as a tar archive
+docker save		# Save an image(s) to a tar archive (streamed to STDOUT by default)
+docker commit 		# Create a new image from a container's changes
+docker commit  -m "commitMsg" RunningContainerName  	
+			# but how is it don't see the new item in docker images?
+			# nor was i able to do docker run with the new image...
+			# certainly, after commit, psg content remained inside the container.
+			# No way to give a name to the image!  and no way to rename it!
+			# -m commitMsg is very important for identifying the image using history
+			# Even after commit is done, docker ps -a don't show the new container id
+			# because that was saved to disk and isn't the running instance!
+			# so can only see the info by carefully checking with docker images -a
+			# Managment in Docker is said to be none existing!  Kubernetes??
+
+docker images -a		# see that 8e300072616a is newest image created
+docker history 8e300072616a	# 8e300072616a is the IMAGENAME from above docker commit.  
+				# this cmd will show the commitMsg
+				# and some info on how image was created, and the 
+
+docker run    -p 80:80   -i -t --name ApachePsgII 8e300072616a  /usr/local/apache2/bin/httpd
+				# confirm that the new image can start
+
+
+docker rename		# rename a container
+? rename image... no way to do this??   but when upload to dockerhub, give it a new name, and pull it again...
+
+docker login			# login to docker hub.  credentials will be saved w/ encryption
+
+docker commit -m "apache psgIII" edb6d60c97da tin6150/apache_psg3
+				# edb6d60c97da is a container id (from docker ps -a)
+				# tin6150/apache_psg3 is username/imagename
+
+docker push tin6150/apache_psg3	# push the image to hub.docker.com
+				# at this point, image is uploaded to the web and ready for use by others :)
+
+
+docker tag e4718e38a3b1  tin6150/apache_psg_3a:dev2	# was able to tag and push, no commit...  
+	## but this push all images on the chain to create the current image??  
+	## certainly pushing lot of stuff...  but prev pull end up with lot of stuff too...
+docker push              tin6150/apache_psg_3a:dev2	# in hub.docker.com, see 81MB image.
+
+# docker tag ref https://docs.docker.com/mac/step_six/
+
+
+
+
+
+
+
+## on a different machine, eg centos7, can pull the image to test it out
+
+docker run -p 80:80 -i -t --name ApachePsg_C tin6150/apache_psg3 /bin/bash
+     # docker run will pull the image, and create a container to run this service.
+     # dropped into bash prompt, can check the htdocs dir.  
+     # httpd will start the web server
+
+
+docker run -p 80:80 -i -t --name ApachePsg_C tin6150/apache_psg_3a:dev2 httpd	# when no latest tag exist, must specify which one to get
+
+
+</PRE>
+
+<H2>Other more advance topics</H2>
+
+<H3>Docker Data Volume</H3>
+
+<PRE>
+There are ways for container to mount the host's directory to its internal directory.  
+Multiple container can mount the same host directory as well, but application need to be careful with data access and lock or it can create corruption.
+
+https://docs.docker.com/engine/userguide/dockervolumes/
+
+</PRE>
+
+
+<H3>Performance</H3>
+
+<PRE>
+Better than VM, as no hypervisor overhead.
+
+
+docker run --cpu-shares=n
+	# assign a weight of how much cpu this run command get
+	# by default all container share cpu equally.
+	# weight are 0 to 1024.  All containers weight are added and then ratio calculated based on requested weight.
+	
+docker run --cpu-quota=n
+	# wonder if they are enforced using cgroup
+
+</PRE>
+
+
+<H3>Dependencies</H3>
+
+
+
+
+<PRE>
+docker run will pull dependencies needed (think of yum auto download dependencies).
+
+multi-container apps... one way is to view them as different pieces running on multiple host and rely on network communication.
+</PRE>
+
+<A NAME="linking"></A>
+<H3>Linking Containers</H3>
+
+Linking allow container to communicate with one another.  
+vs dependencies ??
+
+
+https://goldmann.pl/blog/2014/01/21/connecting-docker-containers-on-multiple-hosts/
+(maybe add diagram)
+
+<H3>Multi-container app</H3>
+
+Example of running wordpress in one container, and a MySQL DB on a different one.  Ref: 
+<A HREF="http://www.sitepoint.com/how-to-use-the-official-docker-wordpress-image/">Article by Aleksander Koko</A> 
+<BR>
+
+<PRE>
+docker run --name wordpressdb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=wordpress -d mysql:5.7	
+# starts MySQL container
+
+docker run -e WORDPRESS_DB_PASSWORD=password --name wordpress --link wordpressdb:mysql -p 0.0.0.0:80:80 -d wordpress   
+# starts wordpress container
+# --link name:alias is to create a private network connection to the named container
+#   (--link also copy ENV variables, if conflict, duplicated to HOST_ENV_abc and HOST_PORT_nnn)
+# if don't specify to bind to 0.0.0.0:80, wordpress default to some docker bridge IP.
+# use "-i -t" instead of "-d" to see web page access log in the console.  Can then detach from session using ^P ^Q (it will NOT put container in paused state)
+# alt, ^C on process.  docker start wordpress will largely resume where it was left off (wordpress saved most state info to disk).
+
+
+# (tested to work on amazon linux.  centos7 didn't work, maybe SELinux... maybe cuz ran docker as root.)
+
+</PRE>
+
+The above just serve as proof of concept.  It is not secure.  To really run a wordpress site this way, refer to info in 
+<A HREF="https://hub.docker.com/_/wordpress/">docker hub</A>
+<BR><BR>
+
+Also, there is a more complex setup with NGINX load balancer, Redis cache: 
+<A HREF="http://www.dockerwordpress.com/">docker wordpress</A>
+(mostly done via Docker Compose)
+
+<H3>Docker Compose</H3>
+
+Docker Compose is a declarative way of managing containers.  Think Puppet, Chef and other configuration management tool, applied to docker.  
+<BR>
+eg Both examples of wordpress setup has reference to Docker Compose.
+<BR>
+
+
+
+
+<H3>Reference</H3>
+
+<UL>
+<li><A HREF="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html">Docker basic from AWS</A></li>
+<li><A HREF="https://docs.docker.com/engine/userguide/dockerizing/">Docker Getting Started</A></li>
+<li><A HREF="http://files.meetup.com/1590495/Docker.pdf">Docker (Taos)</A>slide 50 demo cgroup on memory </li>
+<li><A HREF=""></A></li>
+<li><A HREF="http://redis.io/">redis key-value db</A></li>
+<li><A HREF="http://nginx.org/en/">nginx (engine x) load balancer</A></li>
+<li><A HREF="">Open Container Initiative (OCI)</A> - Plumbing: RunC, Notary (content signing) </li>
+<li><A HREF=""></A></li>
+<li><A HREF=""></A></li>
+<li>man docker	# docker daemon man page</li>
+<li>man docker run # man page for the run command of docker</li>
+<li></li>
+<li></li>
+<li><A HREF="http://www.slideshare.net/jpetazzo/anatomy-of-a-container-namespaces-cgroups-some-filesystem-magic-linuxcon">Container SlideShare</A></li>
+
+<li><A HREF="http://tba/">tba</A></li>
+<li><A HREF="">tba</A></li>
+</UL>
+
+<BR><BR>
+
+<!-- remove H1 after presentation -->
+<div class="tomb">
+<A HREF="http://tiny.cc/dock">
+http://tiny.cc/DOCKER</A>
+</div>
+
+<A HREF="https://www.pinterest.com/pin/361906520034094732/"><IMG SRC="fig/uranus-hertz.jpg"  alt="dilbert comic uranus-hertz (download via pinterest)" width="100%" ></A>
+(I am still waiting for docker to actually name my container Uranus_Hertz, but maybe it is just a matter of time?) <BR>
+<BR><BR>
+
+
+<H1>The Container Ecosystem</H1>
+
+<A HREF="http://www.slideshare.net/lilumb/docker-101-61428727/9"><A IMG SRC="fig/univa-container-landscape.png" alt="container landscape stack diagram"></A>
+<BR>
+
+
+<H1>Container in HPC</H1>
+
+
+
+<H2>LBNL/NERSC Shifter</H2>
+
+<LI> NeRSC R&D + collaboration w/ Cray, in production use at NeRSC (Edison, Cori), open source release soon.  Cray may develop commercial support for this.
+<LI> <A HREF="http://slurm.schedmd.com/SLUG15/shifter.pdf">Paper in SC 2015.11</A>
+<LI> <A HREF="https://www.nersc.gov/news-publications/nersc-news/nersc-center-news/2015/shifter-makes-container-based-hpc-a-breeze/">https://www.nersc.gov/news-publications/nersc-news/nersc-center-news/2015/shifter-makes-container-based-hpc-a-breeze/</A>
+<LI> Flexibility: user-defined images (UDI) sw stack, placed as container image.  
+<LI> Reproducible research: UDI can be validated and workflow will run exactly every time it is started, even if environment may have aged.
+<LI> SW stack isolation.  Different users in diff realm maintain their own UDI, HPC just run them as jobs, they are completely independent  of one another.  Accomplished by using linux VFS namespaces to run multiple Shifter containers.
+<LI> Utilize public image repos like DockerHub, user can start application stack without sys admin priviledges.
+<LI> Not using Docker daemon, as that assume local disk (aufs, btrfs)
+<LI> native app perf, fast job startup.
+<LI> FS are re-mounted, no setuid.  
+<LI> Containers are read-only to user (write to network location?)  (Dockers allow changes to container after admin issue save command.)
+<LI> Shifter essentially adopt docker images, but have to redo the backend to provide docker daemon-like features executed by the HPC batch manager system.
+<LI> 
+<BR>
+
+<H2>LBNL/HPCS Singularity</H2>
+
+<LI>
+<LI> VM does not address portability.  Singularity address portability.  
+<LI> It is like getting the portability of Docker and make it run in an HPC batch system.  However, Singularity does not use any piece of Docker.  
+<LI> SAPP (Singularity App) = Combination of RPM and Container.
+<LI> ldd shows what library a program need.  Singularity automatically build dependency tree and add all the required dependency into container it builds.
+<LI> all dependencies, down to C libraries, are included.  Thus, SAPP is very portable and reproducible.
+<LI> SAPP is kinda like a static-link binary, but its container also bundle additional scripts, config files etc that make up a workflow.  
+<LI> Developer can provide SAPP of complex workflow and user won't have to worry about any dependencies!!
+<LI>
+<LI> file system mounted inside the container without using bind mounts.  
+<LI> container run as user-space process.
+<LI> By and large have no kernel dependencies, other than IB and MPI.  
+
+<LI> 
+<LI> SAPP runs as user process, thus easy to get it to run by HPC scheduler.  There is probably little the HPC scheduler need to run, other than treat SAPP as an app and run it.    This is a HUGE diff compared to Shifter.
+
+<LI> OpenMPI support is already included.  <A HREF="http://singularity.lbl.gov/docs_hpc.html">http://singularity.lbl.gov/docs_hpc.html</A>
+<LI> 
+<LI> On the high level, there are a lot of ideas similarity with Shifter.  After all, both address similar concerns of wanting reproducible workflow.   Implementations of the two are drastically different.  see <A HREF="singularity.lbl.gov/docs_faq.html">faq</A>
+<LI> Developed by Gregory Kurtzer, of Warewulf fame et al.  Ver 1 was released April 14, 2016.  Ver 2 in beta now.  Avail at <A HREF="https://gmkurtzer.github.io/">gmkurtzer.github.io/</A>.  G.K. is from Berkeley Lab <A HREF="http://scs.lbl.gov/">High Performance Computing Services (HPCS)</A>.
+<LI> 
+<BR>
+
+
+<H2>Container in UGE</H2>
+<LI> Univa promises to allow qsub to run job involving docker Containers.
+<LI> qsub will have an -xdv option to map file system of the host to process running inside container
+<LI> docker will be defined as a boolean resrouce, and requested via -l option of qsub
+<LI> Additional management and orchestration by new products: Navops Launch, Command.
+<LI> Prioritization for different containers 
+<BR>
+
+
+<div class="quote">
+</div>
+    
+
+
+<BR><BR>
+<HR>
+<!-- google custom search. site-specific set to psg.skinforum.org, cuz may not be able to search dropbox -->
+<!-- need configuration at https://cse.google.com/cse/create/getcode?cx=009863428534768709666%3Amqjt3pr91t4 -->
+Search within the PSG pages:
+<script>
+  (function() {
+    var cx = '009863428534768709666:mqjt3pr91t4';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:searchbox-only></gcse:searchbox-only>
+<!-- end google custom search -->
+
+
+<A NAME="cc"></A>
+<A NAME="CreativeCommon"></A>
+<H3>Copyright info about this work
+</H3>    
+
+<p>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">Creative Commons Attribution-NonCommercial-ShareAlike2.5 License</a>.
+       <!--/Creative Commons License-->
+       <!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+       <Work rdf:about="">
+       <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/" />
+            <dc:title>Pocket Sys Admin Survival Guide</dc:title>
+            <dc:date>2005</dc:date>
+            <dc:description>A series of concise system administration notes</dc:description>
+            <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
+            <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+            <dc:source rdf:resource="http://www.cs.fiu.edu/~tho01/psg/" />
+            </Work>
+            <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+                                       <requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/>
+                                       <prohibits rdf:resource="http://web.resource.org/cc/CommercialUse"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/><requires rdf:resource="http://web.resource.org/cc/ShareAlike"/>
+            </License>
+            </rdf:RDF> -->
+
+
+<Strong>Pocket Sys Admin Survival Guide</Strong>: for content that I wrote, (<a
+ href="http://creativecommons.org/licenses/by-nc-sa/2.5/">CC</a>)  
+ <a href="http://creativecommons.org/learnmore"> <i>some rights reserved</i></a>.  
+ 2005,2012 Tin Ho [ tin6150 (at) gmail.com ]  <br>
+ 
+<p>
+Some contents are "cached" here for easy reference. Sources include man pages, 
+vendor documents, online references, discussion groups, etc. Copyright of those 
+are obviously those of the vendor and original authors.  I am merely caching them here for quick reference and avoid broken URL problems.
+</p>
+
+  <br><br>
+
+
+<h3>Where is PSG hosted these days?</h3>
+  <div id="psg-url">
+  <a href="http://tiny.cc/DOCKER">tiny.cc/dock</a><br>
+  <a href="http://dl.dropbox.com/u/31360775/psg/psg2.html">http://dl.dropbox.com/u/31360775/psg/psg2.html</a> 
+  This new home page at dropbox<br>
+  
+  <A HREF="http://tiny.cc/tin6150"> 
+  http://tiny.cc/tin6150/</A>
+  New home in 2011.06.  <BR>
+
+
+
+<A HREF="http://unixville.com/~sn/psg/psg.html">http://unixville.com/~sn/psg/psg.html</A> 
+(coming soon)
+<BR>
+<a href="ftp://read:only@sn.is-a-geek.com/psg/psg.html">ftp://sn.is-a-geek.com/psg/psg.html</a> 
+My home "server".  Up sporadically.
+<BR>
+
+<!--
+Other caches in decreasing order of update frequency:  <BR>
+
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg.html
+</A> 
+(Google site, they are changing their policy and I may not be update these pages in the near future.  Last updated 2009-10-10)<BR>
+-->
+
+
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/psg.html">http://www.cs.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-06)<BR>
+<A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
+
+</div>       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  </div> <!-- #content -->
+  
+  
+  <div id="tailer">      
+            <div class="noicon">
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">
+                <img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights20.png"></a>
+            <a href="http://jigsaw.w3.org/css-validator/check/referer">
+                <img style="border:0;width:88px;height:31px"
+                    src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+                    alt="Valid CSS!">
+            </a>
+            <a href="http://validator.w3.org/check?uri=referer">
+                <img src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88">
+            </a>
+        </div>
+  </div> <!-- #tailer -->
+
+  
+  
+  
+  
+  <div id="footer"> (CC 2012) Some Rights Reserved.</div>
+  
+</div> <!-- closes wrapper --> 
+</body>
+</html>

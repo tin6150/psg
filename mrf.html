@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - MRF</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://tiny.cc/tin6150">Sys Admin Pocket Survival Guide - RFC 007</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="python.html">Python</a></td>
+      <td align="center"><a accesskey="p" href="php.html">PHP</a></td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a></td>
+      <td align="right"><a accesskey="a" href="shellScript.html">shellScript</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<!-- language translation for web site, no analitics tracking code  -->
+<div id="google_translate_element"></div>
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
+    }
+      </script>
+        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+
+<!-- ######################################################################### -->
+
+<H1>MRF - Modified RAID Five</H1>
+
+<!--
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/353"><IMG SRC="fig/xkcd_python.png"></A>
+</div>
+-->
+
+<PRE>
+
+This describes a Modified RAID Five algorithm intended for removable media such
+as tape.
+
+x-ref RFC 2549 - IP over Avian Carriers with Quality of Service
+
+
+Applying RAID 5 technologies to removable media such as tape or DVD.
+
+
+Overview Approach:
+
+- Utilize multiple tape drives in parallel.  eg, 9 tape drives, for 8-bits byte
+  + 1-bit parity checksum.
+- Data written to all drives at the same time (ie in parallel).
+- Data read from all drives at the same time.
+
+Salient features when implemented in serial:
+- High latency
+- Low throughput
+- High media utilization
+- Data redundancy
+
+Pivoted features when implemented in parallel:
+- High throughput
+- Minimized latency
+- Improved failure tolerance
+
+
+Technical Detail:
+- Like Virtual Tape Library (VTL) and other disk-based backup, stage data to
+  high speed random access media first(eg hard disk, SSD).  
+- As data is written to disk, store them in data strucuture that imitate
+  removable media such as tape.  ie, create tape images.  For 8+1 parity write
+  in RAID 5, create 8 images, with 1 extra ready for parity data.  Stripe the
+  write data across all 8 media images.  
+
+- Calculate parity data.  Utilize first byte of all 8 tape images, calculate a
+  parity byte.  Instead of calculating parity for each 8-bits of a byte,
+  calculate it at the byte level.  This is what the algrithm is called
+  "modified".  Write parity byte into extra parity tape image.
+
+- Once it is time to move data to removable media, the images are copied to
+  tape or DVD.  Ideally for faster performance they would be written in
+  parallel, eg 9 drives at a time.  But serial write will be tolerated.  Middle
+  of the ground, say, writting to 4 drives at a time is easily implemented as
+  well, since it is just copying pre-caclulated images from fast random access
+  media such as disk.
+
+- Improvement is from read throughput (ie data restore).  All 8 or 9 removable
+  media can be retrieved and read at the same time.  eg. A 240 GB restore/read
+  would traditionally need to real more than a quarter of the tape in a 800 GB
+  LTO4 media.  Using this MRF algorithm, all 9 tape drives will be fetched and
+  read in 9 drives in paralle.  Since the data were stripped across all 8
+  tapes, each tape only need to read 30 GB worth of data. 
+- Furthermore, if one tape should fail, we can rely on the parity tape to
+  restore the content.
+- The 9th parity drive can be read at the same time of the 8-tape restore.
+  This will avoid latency in case of failure actually needing the drive, and
+  provide the peace of mind that data is indeed passing the parity checksum.
+
+- Read/Restore would typically be staged to high speed random access media such
+  as disk/ssd as well.
+
+
+Future optimization:
+- RAID 6 could be implemented to provide dual parity failure (eg failure of two
+  tapes).
+
+
+Analysis.
+- Traditional redundancy for tape is often done by running an extra backup job
+  to cut an extra set of tape.  
+- For small backup/restore job, this amount to mirroring the data.
+- Restore does NOT typically read from two tapes at the same time to provide a
+  50% restore time improvement.
+
+- For large job that span multiple tapes, extra backup job should be viewed as
+  RAID 0 + 1 configuration of mirrored stripes on disk arrays.  
+- Most likely, a dual media failure would render both set of backup tapes
+  unusable.
+- A better approach is to use what RAID 1 + 0 does, ie, mirror first, then
+  apply stipping.  this has improved failure tolerance.  
+- In the scenario of two set of backup tapes, if hit a failure, need to start
+  all over from the second set.  
+- Utilizing MRF algorithm, the read can be picked up from the parity media,
+  potentially completely removing the "start over" time.
+
+- In the same spirit, applying RAID technology to tape drives can improve
+  failure tolerance.  For dual media failure, RAID 6 can be utilized (we can
+  all this algorithm MRS - Modified RAID Six).  This will provide better dual
+  tape failure recovery than cutting two sets of backup tapes.  
+
+
+PS.  I first planned to publish this as an RFC, in the same spirit of the RFC
+nnn for Pigeon Carrier for TCP packets.  
+
+If you are stuck with Pigeon as carrier, implementing the RFC may be good.
+
+Thus, if one is "stuck" with tape, then implementing this MRF algorithm maybe
+good.  And, for organization that actually have the scale for it, it would
+actually be advantageous.  To this date, tape has certain characteristics that
+disk does not have.  
+
+I have not formally submitted it as RFC, even if i do, i am sure the number
+would not be 007.  This RFC was going to be submitted/published on April 1st.
+But maybe as it stands, this may become a practical joke, emphasis on
+practical.
+</PRE>
+(c) 2016 Tin Ho.  <BR> 
+<!-- #########################################################################
+-->
+<BR><HR> <div align="CENTER"> Doc URL<BR> <A
+HREF="https://dl.dropboxusercontent.com/u/31360775/psg/mrf.html">https://dl.dropboxusercontent.com/u/31360775/psg/mrf.html</A><BR>
+<!-- <A HREF="http://tiny.cc/Python">tiny.cc/Python</A><BR> <A
+HREF="http://www.cs.fiu.edu/~tho01/psg/python.html">http://www.cs.fiu.edu/~tho01/psg/python.html</A>
+--> <BR> (c) 2016 Tin Ho.  <BR> This, unlike the other PSG page, i am claiming
+full copyright.  This may change over time depending on how this MRF algorithm
+progress.  <HR>
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this
+code to every page for full tracking!    (still the case in 2011?) Using my
+gmail login 2011.0617 updated with code for
+http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script
+type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount',
+'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga
+= document.createElement('script'); ga.type = 'text/javascript'; ga.async =
+true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+'http://www') + '.google-analytics.com/ga.js';     var s =
+document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();  </script>
+
+
+</html>

@@ -1,0 +1,644 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - EMC</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="7" align="center">
+	  
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/emc.html">Sys Admin Pocket Survival Guide - EMC</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="n" href="emcCelerra.html">EMC(NAS)</a></td>
+      <td align="center"><a accesskey="e" href="emc.html">EMC(SAN)</a></td>
+      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a></td>
+
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<!-- Place this tag where you want the +1 button to render -->
+<g:plusone></g:plusone>
+&lt;-- Please click if you found this site useful ;-)
+<!--  Place this tag after the last plusone tag -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+
+
+<H1>EMC - Clariion</H1>
+
+
+
+<H2>Clariion 101</H2>
+
+For initial setup 
+of Clariion CX-300 and CX-700
+Connect a windows laptop to the clariion head unit serial port with speed of 19200 bps, 
+it is able to talk both serial console (standard text) and also TCP/IP over Serial (SLIP?)
+so that a null modem can be setup between laptop and serial port to configure 
+the machine via web interface.
+<BR>
+The EMC Storage (server side) config is all done thru a web GUI.  
+<BR>
+The CX-300 and CX-700 actually run embeded windows XP (older version run
+embeded windows 2000).  I have no idea what happen if there happen to be a
+virus on it...  
+<BR>
+<BR>
+
+Get the <EM>CLARiiON Procedure Generator</EM>(Clariion PG).  It cranks out a huge doc with step by step procedure of how to add new host to the SAN, etc.  Very good stuff!!  However, still <B>check the support matrix doc</B>, which has the ultimate say.  Clariion PG and eLab are known to lag behind in its DB update of what is suportable!!!
+<BR>
+<BR>
+Access Logix = SAN environment, CX will do LUN masking (select LUNs presented to select hosts)  <BR>
+Non Access Logix = Direct attach environment, all LUN presented to the direct attached host(s).
+<BR>
+<BR>
+
+<PRE>
+WWN		World Wide Number (MAC address equiv for the SAN world).
+PWWN, WWPN	Port WWN (one for each HBA port for a given host)
+NWWN, WWNN	Node WWN (a slight diff from PWWN, but still multiple WWN per machine/host)  so what does it do??
+</PRE>
+
+
+
+<H3>Setup Recommendations</H3>
+
+<OL>
+<LI>
+When creating LUN, best to create them of slightly different size if 
+they do not present other asymetry problems on the host side.
+eg 48, 49, 50, 51, 52 GB for 5 LUNs.
+This is because it will be hard to tell which emcpowerX device is which LUN
+checking WWN numbers are not readily retrievable.
+(Latest release in 2006 is clearly labeling the LUN now, but solaris format
+still doesn't show such info, being able to match size allows easy telling that c7t1d5s0 is the same LUN presented by emcpower5a).
+<BR>
+Of course, if the LUN will then be stripped or mirrored by the OS, then it would not be feasible to have them of different size.  But it begs the question of why do software RAID on the OS when the Clariion can do hardware RAID...
+<BR>
+
+
+<LI>
+Another trick in sizing LUN is to use the Raid Group number as the last digit of the LUN size.  eg:  <BR>
+LUN 1 created in RG1 = 101 GB   <BR>
+LUN 2 created in RG4 = 104 GB   <BR>
+This may sometime make it easier to tell which LUN is in which Raid Group.
+<BR>
+
+
+<LI>
+Assign range of LUN number for given host.  <BR>
+eg LUN 10-39 for VCS Oracle DB storage group  <BR>
+   LUN 60-89 for ESX cluster  <BR>
+
+<LI>
+NaviCLI has no security, any machine with the binary installed can send
+command to EMC CX-700 to configure the box, not just snapshot, but
+raid group, lun dev, etc.   Only possibility is to change naviCLI to use a
+different port (obscurity) and firewall up the port (assuming production vlan
+is secure).  By default, NaviCLI use port 6389.  Additional features use port 6390 thru 6392.  EMC Acknoledge this weakness, and has a security paper on the topic; see <A HREF="http://www.virtual.com/whitepapers/EMC_Security.pdf">cache</A>.  NaviSecCli was supposed to fix this...  
+<BR>
+
+<LI>
+Snapshot is on one EMC LUN at a time, no atomic funtcion to take snap on multiple LUN at the same time.  Thus, if host FS span across multiple EMC LUN, and EMC snapshot is desired, there is a potential race condition that can have data corruption.  -- the performance gain of multiple LUN may not be worth the potential data loss.  Don't do multiple LUN per FS!!
+
+
+
+</OL>
+<H2>HBA Driver</H2>
+
+<H4>Emulex HBA on Solaris</H4>
+There are two sets of drivers.
+(<A HREF="http://www.emulex.com/support/solaris/index.jsp">
+http://www.emulex.com/support/solaris/index.jsp</A>)
+
+<BR><BR>
+<PRE>
+somehow no /usr/sbin/lpfc/lputil for Solaris, 
+but there is at least:
+* hbacmd  
+	hbacmd List	# list all HBA and their WWN
+
+* emxamd		# replaced by hbacmd above?
+
+* HBAnyware 		# GUI tool for the HBA
+May be downloaded from Emulex.com and likely going to be able to work with either driver.
+
+</PRE>
+<H5>LPFC</H5>
+<PRE>
+Clariion Procedure Generator calls for the LPFC driver, which are developed
+specifically for EMC.  This is marked as "Solaris ready".
+	Sun pkg:    
+	system      lpfc                             Emulex LightPulse FC SCSI/IP Host Bus Adapter driver
+	system      HBAnyware                        Emulex HBAnyware FC Host Bus Adapter Remote Manager
+
+Commands used to configure the HBA with this driver are 
+- /usr/sbin/lputil 		TUI (though it doesn't seems to be installed by above package).
+- /opt/HBAnyware/hbanyware	GUI (req reboot after initial install to work).
+
+- /kernel/drv/lpfc.conf		Persistent binding req finding lpfc instance from /var/adm/messages,
+				and adding the info to this file (may have tool to do this).
+- /kernel/drv/sd.conf		LPFC release 6.21f don't use this to assign LUN anymore.
+				Was not supposed to req reboot to find new LUN either,
+				but may need to run some commands that I don't know, 
+				so reboot -- -r.
+</PRE>
+
+<PRE class="cf">
+## /kernel/drv/lpfc.conf
+## Exmaple of persistent binding config.
+## wwpn of array: hba instance (lpfcX) + binding (tY)
+## One approach is:
+## spAx assign to t0
+## spBx assign to t1
+## keep the same for both HBA/FC fabric
+## But since there are typically 4 HBA path, I found it more useful to 
+## simply assing a uniq tag tY number to each path.
+## eg below assign t3, t4 to the first HBA (one for each Service Processor on the Clariion), 
+## then t5 and t6 to the second HBA, which connects to the second fail over fabric.
+## the lpfc are 1 and 3 because the HBA are actually dual ported, albeit only 1 port is used.
+##             CX WWPN |             tY binding number
+fcp-bind-WWPN="5006016341e07b37:lpfc3t3",
+              "5006016941e07b37:lpfc3t4",
+              "5006016141e07b37:lpfc1t5",
+              "5006016b41e07b37:lpfc1t6";
+
+</PRE>
+
+
+<H5>SFS FCA</H5>
+
+<PRE>
+Alternatively, there is the SFS FCA (EMLXS) driver, which is part of the 
+SAN Foundation Suite (SFS) from Sun (Leadville v4.4.14 install_it version).  
+It is included by default in Solaris 10 update 1.  
+EMC support this version also.
+This is the only one that will work in Solaris x86 environment.
+	system      SUNWcfcl                         Common Fibre Channel HBA API Library (Usr)
+	system      SUNWcfclr                        Common Fibre Channel HBA API Library (Root)
+	system      SUNWcfclx                        Common Fibre Channel HBA API Library (Usr) (64-bit)
+	system      SUNWfchba                        Sun Fibre Channel Host Bus Adapter Library
+	system      SUNWemlxs                        Emulex-Sun LightPulse FCA driver (root)
+	system      SUNWemlxsx                       Emulex-Sun LightPulse FCA driver (root) (64-bit)
+	system      SUNWemlxu                        Emulex-Sun LightPulse FCA Utilties (usr)
+	system      SUNWemlxux                       Emulex-Sun LightPulse FCA Utilties (usr) (64-bit)
+
+Sun Support Enginner can provide sfkcheck script to see if all desired patches
+are installed.  SFS install other SAN tools in addition to Emulex drivers above,
+which can stay on machine even if LPFC driver is used.
+
+Commands used to configure the HBA with this driver:
+- luxadm -e port
+- cfgadm -c configure c3
+- fcinfo
+- mpathadm  (MPxIO, Solaris native multipathing software)
+
+</PRE>
+Sun Dev Net has a good overview of the Solaris 
+<A HREF="http://developers.sun.com/solaris/articles/fc_drivers_sfs.html">
+Leadville Fibre Channel stack</A>
+
+
+
+<H2>PowerPath</H2>
+Install the PowerPath package on Solaris (and other supported OS)
+and it provides EMC Clariion commands related to disk/path access.
+
+<H5>Linux</H5>
+
+<PRE>
+To add LUN, after it is presented to host, run:
+/usr/sbin/lpfc/lun_scan all 		# script provided by emulex
+powermt config
+
+powermt save 				# ? is save really needed??
+					# this save config to /etc/powermt.custom
+					# in some strange case when powerpath hoses, remove this file and reboot.
+
+</PRE>
+
+<H5>Solaris</H5>
+
+<PRE>
+cfgadm -c configure c3 
+
+powermt display dev=all 	# list all devices
+powermt display dev=emcpower0a 	# list specific dev (usually 4 path per LUN)
+
+powermt check			# see if there are dead path, remove them
+powermt config			# scan for new disk/path
+powermt restore			# place all LUN back to original SP, 
+				# clear up any transpass.  (useful after test HA).
+
+
+emcpreg -install		# add powerpath license info.
+
+modinfo | grep emcp		# see PP related kernel modules.
+
+pkgrm EMCpower call "/etc/emc/bin/emcpmgr unconfig -e mpx" to do clean up.
+If this script fails, EMCpower pkg cannot be removed.
+
+
+
+---
+
+rm /dev/*dsk/emcpower6*
+rm /devices/pseudo/emcp*6*
+powermt check
+powercf -q
+powermt display dev=all # and check things are okay
+powermt save
+reboot if desired to ensure spurious device don't pop up again.
+powercf -q patches /kernel/etc/emcp.conf and remove any spurious devices.
+It should be run during boot time; but somehow this manual procedure was needed
+to remove the ghost device.
+
+----> don't do that removal in PP 5.2, PP get confused and can't do anything.
+To remap emcpowerX devices, use emcpadm.
+
+emcpadm	print_mappings		# display mapping
+				# there are commands to import/export/check
+
+----
+
+emcpadm export_mappings       -f powerpath.map		# (1) create a map, saving it in a file
+emcpadm check_mappings   [-v] -f powerpath.map		# check to see if path is the same in other node of a cluster, or check with historical settings
+emcpadm import_mappings  [-v] -f powerpath.map		# make a second cluster node have same device path as (1)
+
+
+> Before importing new mappings on a node or server:
+> 1. Preview changes with emcpadm check_mappings.
+> 2. Shut down all applications and database systems.
+> 3. Unmount file systems.
+> 4. Deport VxVM disk groups.
+
+powermt save
+
+
+----
+
+Older Multi-Path software may be refered and no longer work with PP.  They should be removed.
+
+ATF - Application Transparent Failover 
+CDE - CLARiiON Driver Extensions
+
+The  Sun Package name for them are CLatf and CLcde.  If they are not on the system, safe to know they 
+won't clobber PowerPath.
+
+</PRE>
+
+<H5>PP & VxVM</H5>
+
+<PRE>
+System with Veritas, run these commands so that VxVM knows how to work with PP on the CX:
+	vxddladm rmjbod  vid=DGC         				# 4.1+	
+        vxddladm addjbod vid=DGC pagecode=0x83 offset=8 length=16       # 4.0 and older
+	Effective after reboot.
+
+</PRE>
+
+<H5>PP & Solstice Disk Suite (SDS) / Sun Volume Management (SVM)</H5>
+
+
+Back in the days, SDS add an entry "forceload: drv/sd" into /etc/system.
+The SVM version that came with Solaris 9 HW 2006 no longer does this, 
+the kernel was to be able to load this automatically correctly at boot.
+However, PP will nonetheless put that in (within the block of all the drv that PP loads).  
+It is needed for system with PP to pre-load this driver for the root disk mirroring to work.  
+Thus, if removing PP manually, this drv/sd should be left as forceload in /etc/system
+or else, will need to split the mirror of the root disk containing / 
+or machine won't boot!
+<BR><BR>
+If pkgrm EMCpower works without error, then it is okay of forceload: drv/sd is removed from /etc/system.
+<BR>
+But if doing manual removal, need to take out all non-sun entries in /etc/system
+and drivers in /kernel/drv /kernel/drv/sparcv9, + many other emc files.
+refer to emc primus 81236 and 128595 doc.
+
+
+<H5>PowerPath Devices in Cluster Environment</H5>
+
+In a cluster environment, it is often desirable to see all LUNs show up 
+under the same /dev/emcpowerX device name.   There are several ways to do this:
+
+<UL>
+
+<LI>
+add 1 LUN at a time,  <br> 
+run the HBA vendor's scan disk utility <BR>
+and configure power path.<BR>
+Do this on all nodes of the cluster before adding the next LUN.  <BR>
+
+<LI>
+(eg when adding more node to a cluster, or multiple LUN are created
+by a storage admin and handed off to the sys admin): <BR>
+shutdown PP and copy files /etc/emcp_devicesDB.dat and emcp_devicesDB.idx
+from "master" node to the other nodes.
+
+<LI>
+Use  <BR>
+<TT>emcpadm rename -s emcpowera -t emcpowerf</TT> to rename from (source) emcpowera (to) emcpowerf .  <BR>
+<TT>emcpadm getused</TT> can be used to view device's major and minor numbers. <BR>
+
+</UL>
+
+
+<H2>
+NAVICLI and NAVIAGENT</H2>
+
+optional packages to be installed on Solaris (or other OS):
+
+<PRE>
+navicli ...
+/opt/Navisphere/bin/navicli -h ClariionIP naviCliCmd		# reg unix machine
+/nas/sbin/navicli           -h spa        naviClicmd		# integrated NS
+
+In the control station of an integrated NS series, spa and spb would be the head of the cx backend.
+
+
+
+w/o naviCliCmd, it will list all commands.  eg:
+
+navicli -help		# short help message
+navicli foo		# display list of commands
+
+getall		# retrieve all info, good for testing.
+getlun 101	# get info about LUN (#101, ommit for all LUNs)
+snapshot
+
+	
+getdisk 3_1_0	# find out usage of disk in Bus 3, Enclosure 1, Disk 0 (leftmost).  (rightmost could be called _E or _13)
+		# hotspare or part of RAID GROUP, serial number, size, etc.
+		# line with Prct Rebuilt indicates LunID: rebuild %
+
+getlun 32 | egrep -A1 Rebuilt		# see rebuild status of Lun #32
+getlun 32 -prb				# see progress of rebuild (in percent)
+					# RAID 5 on 750GB SATA II takes about 4 hours to rebuild.
+getlun 32 -rb				# see priority of rebuild
+
+getsniffer -rg 15			# see status of backgroun verify process (eg when raid group had been rebuild and 
+					# want to check for consistency.
+
+
+
+
+
+
+navicli -h spa getcontrol -busy
+        # in ns80, see how busy the backend CX service processor A is
+        # all navicli command works from the control station even when
+        # it is integrated model that doesn't present navisphere to outside workd
+
+
+New version has secure version called naviseccli.
+
+GUI version navicli.jar	??
+
+
+For configuration, edit this file:
+/etc/Navisphere/agent.config
+
+Mainly, add info so that the agent know how to connect to the Clariion head
+and issue commands to it:
+
+user system@172.27.104.31
+user system@172.27.104.32
+
+/etc/init.d/agent start		# solaris
+/etc/rc.agent start		# aix (spawn by inittab)
+
+
+Required packages in SUN:
+application NAVIAGENT                        Navisphere Disk Array Management Tool (AGENT)
+application NAVICLI                          Navisphere Disk Array Management Tool (CLI)
+application NAVISCLI                         Navisphere Disk Array Management Tool (CLI)
+
+
+
+</PRE>
+
+
+<H5>NaviSecCli</H5>
+
+navicli -h cx300a getall
+	would become:
+naviseccli -User xyz -Password pw -scope 0 -h cx300a getall
+	
+	if no -Password is given, should prompt for it...
+
+	Alternatively, can create a user and it will have encrypted password in a file so that no username/password need to be given.
+
+	naviseccli -addusersecurity -scope 0 -user xyz -secfilepath /root
+
+	it will prompt for password if not entered on the cli
+	
+
+<H2>Navisphere</H2>
+
+<H3>Engineer Mode</H3>
+Shift Ctrl F2  (or F12).
+messner
+
+Email notification support is set under host tab, template is used by both SP.
+If ESRS is setup, it will be under the ESRS workstation.
+
+
+<!--
+user system@172.27.4.25
+user system@172.27.4.26
+-->
+
+<H3>Checking for host access to CX</H3>
+
+Even when hosts are registered to the Clariion, in strange situations, it may not have access to all the service processers.  It is an ACL, and this could result in single path and lack of HA for some hosts.  To check it (Courtesy of R. Anderson@Dell):
+
+<PRE>
+1.	Enter the engineering mode
+2.	Open the storage groups section of the navigation tree
+3.	Right click on the specific storage group you want to check
+4.	Select properties for the storage group
+5.	Go to the hosts tab
+6.	You will notice that there is an advanced button below the left side window of this tab (once after everything is loaded.  Be patient!)
+7.	Click the advanced button
+8.	The hosts that have access to the storage group will have tabs presenting the initiators. Those that have check marks have been given access to the storage group. Those that are not checked do not have access but can then be checked if they are logged into the array.
+
+</PRE>
+
+
+
+<H2>Gathering info for support</H2>
+
+<H5>SP Collect</H5>
+
+<div class="note">
+To start a new SP Collect: Expand the Navisphere Manager tree so you can see the SPs. Right-click on an SP and select "SP Collect" from the menu. It will take several minutes (depending on array workload and size) for the SP Collect to be created.
+<BR><BR>
+To download an SP Collect: Expand the Navisphere Manager tree so you can see the SPs. Right-click on an SP and select "File Transfer Manager" from the menu. This opens the File Transfer Manager dialog. Look for files in the list that have names ending with "_data.zip". There are the SP Collect files. Choose the one with the most recent date. If you just started a SP Collect and you don't see it in the list, click the Refresh button until it appears. Then choose a destination directory by clicking the Browse button and finally click the Transfer button. Wait until the transfer is complete.
+</div>
+
+<H5>emcgrab</H5>
+
+get tool from powerlink (or ask support to put it in ftp site).
+just run ./emcgrab.sh.  albeit all the warnings, never had problems running it on live production system.
+<BR><BR>
+For ESX system, run vm-support
+
+
+<H2>Other EMC Software</H2>
+
+<UL>
+<LI>
+Power Path = FC link management, fail over when more than one link exist.
+(plain = full version) - complete package
+
+<LI>
+Utility Kit Paower Path = stip down version, probably handles some limited fail over case when EMC LUN are used as boot disks.  Porbably mainly used so that multiple HBA + Path to Clariion SP does not create multiple disks view on host side.
+But it is not intented as HA solution.
+
+
+<LI>
+Snapshot = copy on write, but copy block of the old data to separate SnapLUN.
+Master disk don't get out of space problem due to snapshot.  SnapLUN out of space would mean snapshot no longer valid.
+A bit more writting than NetApp snapshot w/in normal data area.
+
+<LI>
+BCV - Business Continuity Volume - cloned version of snapshot.  Essentially, parallel write to BCV volume (same size as
+master LUN).  THen when snapshot taken, parallel write stops.  This give backup a chance to get consistent data.
+
+<LI>
+SnapMirror - multisite mirroring, based on snapshots.
+
+</UL>
+
+
+<A ID="sw"></A>
+<H2>SAN Switch Config</H2>
+
+<A HREF="net.html#mds">Cisco MDS</A> 9100 series SAN switch. 
+<BR><BR> 
+
+<A ID="McData"></A>
+<H3>EMC san switch DS-24 M2 / McData Teton 4500 </H3>
+
+This is a 24 port rebranded mcdata san switch, 2 Gbit SC connector w/ GBIC module needed.
+serial port in front, 19200!! ask for password at first before doing anything.
+<BR>
+
+<PRE>
+cli commands :
+telnet or ssh in to the box, only one active method, only 1 active connection at a time.
+
+
+change superuser name and password.  It will prompt to login right away.  
+everything will be shown on the screen.
+Root> config security userRights administrator admin         bla
+Root> config security userRights administrator Administrator g..A..
+
+All the rest of the commands assume run from Root> prompt
+can enter each commandn to enter submenu, enter ? for available commands and quick description.
+
+config security userRights show
+	List SuperUser and general user UserName for the switch CLI.
+
+
+show feature	Display additional license added to switch (extra ports enablement
+
+config features installKey ASS9-yvZt-BH4T-Thd
+		Add the license key for extra 8 ports
+		Switch will reboot after the command is issued!!
+		Note that there is no simple way to remove license key once installed.
+		Docs actually says unremovable, so ensure which switch is addming license onto before issueing command.
+
+ACKX-qfFU-gweH-R (some other 8 or 16 port key from EMC email of unknown source).
+
+
+To reset password, hook up terminal to serial port, power on switch,
+it will automatically be logged in as admin.
+then issue cmd "passwd admin" to reset password.
+
+
+EMC/McData DS-24 M2 switch default accounts:
+serial login: admin/level-2  or password?
+ews (embeded web server): 
+cli via telnet
+http web port 80 (use ie, apperently mozilla and firefox can't login, keep looping!)
+Administrator/password 
+Operator/password
+The above are case sensitive.  The default are same for both places, but they are maintained as two different password 
+set.  Upon first login, both CLI and Web prompt for new password, but same default can be used again.
+Newer version switch software web and cli password are sync, at least when set from web page.
+
+EMC/McData DS-8 and DS-16 switch default accounts:
+admin/???
+
+EMC/McData DS-32 switch default accounts:
+admin/password
+user/password
+
+
+</PRE>
+
+
+<H2>Links</H2>
+
+<OL>
+<LI><A HREF="http://www.emc.com/interoperability">InterOperability e-lab"</A>
+<LI>PowerLink
+</OL>
+
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/emc.html">
+  http://dl.dropboxusercontent.com/u/31360775/psg/emc.html</A>] <BR>
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/emc.html">
+http://www.cs.fiu.edu/~tho01/psg/emc.html</A>] <BR>
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+Last Updated: 2006-06-07, 2009-10-13 <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

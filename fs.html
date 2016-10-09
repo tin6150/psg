@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - FS</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/fs.html">Sys Admin Pocket Survival Guide - FS</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emc.html">EMC</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>Files, ACL, security</H1>
+
+
+<H4>setfacl/getfacl</H4>
+
+<PRE>
+getfacl file1                           # read permissions
+setfacl -m u:andy:rw  file1             # -m = modify: give (a secondary user) named andy read/write access to file1
+setfacl -m g:admin:rw file1             # g for secondary group, here a group named admin, get rw access
+setfacl -x u:andy     file1             # -x = remove permissions
+
+directory can have default acl set so that all files within it will inherit such acl automatically.  use "d" to specify it as default settings.  eg
+:
+
+setfacl -m d:g:admin:rw  dir1
+
+</PRE>
+
+<H4>attributes</H4>
+
+So, not only DOS has attributes for files!  Linux does too!  It is another layer over what chmod provides!
+These attributes are supported starting from ext2.
+
+<PRE>
+getattr 	/path/to/file			# list file attributes
+chattr  =i 	/path/to/file			# change, ie set, file attributes to immutable
+sudo chattr -i 	/path/to/file			# only CAP_LINUX_IMMUTABLE user can remove the immutable flag!
+
+
+
+        select the new attributes for the files: 
+	append only (a), 
+	compressed (c), 
+	no dump (d), 
+	extent format (e), 
+	immutable (i), 
+	data journalling (j), 
+	secure deletion (s), 
+	no tail-merging (t), 
+	undeletable (u), 
+	no atime updates (A),
+       	synchronous directory updates (D), 
+	synchronous updates (S), 
+	top of directory hierarchy (T).
+
+       	The following attributes are read-only, and may be listed by lsattr(1) but not modified by chattr: 
+       	huge file (h),  
+	compression error (E), 
+	indexed directory (I), 
+	compression raw access (X), 
+	compressed dirty file (Z).
+
+
+</PRE>
+
+<BR><BR>
+
+<H1>FS</H1>
+
+<!--fs.ref-->
+
+
+<PRE>
+
+
+# cmd.mount.ref
+# this file will contain all commands in relation to filesystem manipulations.
+# eg mount, fsck, etc.
+
+# some originally from cmd.admin.ref
+# need to do some clean up and splitting...
+
+
+amq			show currently automounted drv (from amd suit)
+mount		show mouted partitions (root mount new ones too)
+showmount
+
+mount	-t nfs server:/path	/mnt/point		#linux
+mount 	-F nfs server:/path	/mnt/point		#solaris
+
+mount 	-o remount,suid 	/mnt/point		# "remount" a fs, so as to set new mount options
+							# should be able to remount ro fs as rw
+
+
+/etc/fstab
+/etc/vfstab
+
+
+/etc/dfs/dfstab		Solaris, eg:
+
+share -F nfs -o ro -d "tin-sun /mnt/cdrom" /mnt/cdrom
+share -F nfs -o ro -d "tin-sun vold /cdrom" /cdrom/cdrom0
+#share -F nfs -o ro -d "tin-sun vold /cdrom" /cdrom/sol_10_305_sparc      # don't work for OS cd
+share -F nfs -o ro -d "tin-sun vold /cdrom s0" /cdrom/sol_10_305_sparc/s0 # need to export each slide separately
+share -F nfs -o ro -d "tin-sun vold /cdrom s1" /cdrom/sol_10_305_sparc/s1 # as they are mounted separately.
+
+
+solaris :
+mount -F <fstype> servername:/exportName  /mount/point
+	<fstype> in solaris
+	nfs	
+	cdrom 	: hsfs	/dev/rdsk/c0t6d0s0 /cdrom
+	dos   	: pcfs
+
+If not using vold to manage cdrom, add entry like this to the vfstab:
+/dev/dsk/c0t6d0s0       -     /mnt/cdrom    hsfs    -       no      -
+
+showmount -e <hostname>		: display the devices shared by a remote host that can be mounted
+
+showmount -a			: list remote system that has mounted a export
+
+solaris loopback fs, sample entry in vfstab, as per man page on mount:
+
+	/export/test - /opt/test lofs - yes -
+
+
+removable media management - vold
+
+/etc/init.d/volmgt start|stop
+in sol up to 9, vold is very buggy, and tend to cause problem, 
+especially after hitting eject button on cdrom drive w/o using soft "eject cdrom"
+if it goes bad, stop,start don't seems to help.  need reboot.
+in sol 10, seems to be better, at least volmgt stop,start clear things up.
+
+
+usb devices:
+sol 10 handles usb dev mounting pretty good.
+mounting them correctly and showing icon on desktop.
+Files can be access in /rmdisk/...
+- usb floppy drive from apple
+- usb cd/dvd/burner from iomega
+- usb memory storage (lexar jumpdrive)
+
+
+usb devices are hot plug detected by kernel since solaris (8?).
+usb hard drive should work since solaris 8.
+see gmail ref for more info.
+/dev/usb/... is driver, and sym link created into /dev/[r]dsk/
+though somehow format did not see the disk.
+see
+http://docs.sun.com/app/docs/doc/817-5093/6mkisopve?a=view
+
+other vold paths:
+/vol/...  (/vol/dev/[r]dsk, /vol/dsk, ...)
+some maybe used as raw path for floppy dd when vold is running.
+
+
+
+
+
+********************************************************************************
+linux :
+********************************************************************************
+
+mount -t vfat -o loop=/dev/loop0 /tmp/floppy.dd.img /mnt/loopbackmount
+	: use loopback to mount a dd-ed image of a dos floppy, fully writable.
+
+mount -t iso9660 -o loop,ro /tmp/cdrom.dd.img /mnt/loopbackmount
+	: same as above, mounting imaged created from cdrom
+	# NFS export cannot see loopback devices (at least in linux, solaris)
+	# and loopback from a file based off NFS won't work either
+	# Typically, supports only 8 loopback "devices" unless edit loop.c and recompile kernel
+
+dd if=/dev/cdrom of=/tmp/cdrom.dd.img  : create dd image out of cdrom, using raw dev.
+
+smb.conf
+smbmount
+smbmount -V
+mount -t smbfs -o username=tin,password=foobar //n2k/c$ /mnt/n2k/c$	(trying in rh7.1 jaba)
+mount -t smbfs -o 'username=administrator,password=bar,workgroup=ntdom2' //10.0.71.231/cifs /mnt/smbfs
+umount
+
+
+fuser <dir>	: which user holding up what file, useful when mounting, etc
+fuser -cu	: -cu show user and resolved user name using a particular mount point
+
+mount -t <fstype>  ... 
+	cdrom is iso9660
+	vfat
+	ext2
+	ntfs
+
+
+Making ext2 floppy
+	fdisk /dev/fd0
+		create primarty partition of type Linux (ext2)
+	mke2fs /dev/fd0
+	mount -t ext2 /dev/fd0 /mnt/floppy 
+	or mount /mnt/floppy (auto determine fs type should work).
+
+
+linux sample /etc/fstab:
+
+/dev/hda1               /                       ext2    defaults        1 1
+/dev/cdrom              /mnt/cdrom              iso9660 noauto,owner,ro 0 0
+/dev/hda6               /var                    ext2    defaults        1 2
+/dev/hda7               /work                   ext2    defaults        1 2
+/dev/fd0                /mnt/floppy             auto    noauto,owner    0 0
+none                    /proc                   proc    defaults        0 0
+none                    /dev/pts                devpts  gid=5,mode=620  0 0
+/dev/hda5               swap                    swap    defaults        0 0
+  # 
+  # external mounts
+  #
+//10.0.1.245/c$         /mnt/tin-nt/c$          smbfs   noauto,username=tin 0 0
+192.168.71.30:/         /mnt/test               nfs     noauto          1 1
+#/tmp/diag.floppy.dd    /mnt/loopbackmount      vfat    user,exec,noauto,loop=/dev/loop0     
+/tmp/diag.ext2.dd       /mnt/loopbackmount      ext2    user,exec,noauto,loop=/dev/loop0,ro
+/img/rhel-3-cd1.iso     /mnt/rhel-3-cd1         iso9660 loop,ro		# cd iso img from rhn ftp
+
+  #
+  #  mount option user will default to noexec
+  #  sometime loopback mount will complain with strange message if image is not on a local fs
+  #
+
+
+
+
+linux sample /etc/exports:
+# Either use 
+# (1) space delimit multiple machines of the same export dir
+# each machine options must be given immediately, colon (or comma) CANNOT be used 
+# to group multiple machines with same option as in Solaris 
+# (2) each machine has its own line, with mount point repeated.
+# Then run exportfs -a to export everything 
+#
+# (eg 1)
+/mnt/usbdrv tin-sun(rw,no_root_squash,async) chong-sun(rw,no_root_squash,async) 
+# (eg 2)
+/export  tin-sun(rw,no_root_squash,sync)
+/export  chong-sun(rw,no_root_squash,sync)
+/export2 *.sn50.com(ro,async)
+/export2 172.27.0.0/16(ro,async)
+
+
+
+
+### smb.conf and related stuff
+
+security = domain, 
+then use
+smbpasswd -j ntdom1 -r '10.0.72.15' -UAdministrator%password
+
+
+
+USB hard drive on linux.
+Hot plug ok.
+Tested on RH AS 3.0 (ges-dfm).
+Typically made available as /dev/sda1.
+
+</PRE>
+
+<A ID="cifs"></A>
+<H2>CIFS</H2>
+<!--cifs.ref-->
+<PRE>
+
+http://www.codefx.com/CIFS_Explained.htm
+
+doc found by peter, fwd by emily about basic of cifs file operation.
+
+cifs		common internet file system
+			used by windows, and also has stuff like network browsing,
+			print services, authentication (NT).  aka smb
+			Commonly a layer 7/6 (app/presentation) protocol, and usually 
+			run over NTB.
+
+smb			server message block
+
+samba		unix open source implementation of some of cifs.
+
+NetBIOS	
+NTB			NetBIOS over TCP
+NetBEUI		NetBIOS Enhanced User Interface (NetBios + precursor of CIFS)
+
+SNIA	Storage Network Industry Association
+		Coming up with CIFS 1.0 protocol w/ IETF.
+		Subset of current M$ CIFS, try to document it better, 
+		and maintain for future.
+
+WINS	M$ refer this as the NetBIOS name server implementation.
+		Same function of DNS, but implemented totally differently.
+		Use lot of broadcast! 
+		Run over NetBIOS (on top of whatever network protocol).
+
+</PRE>
+
+
+<A ID="samba"></A>
+<H2>Samba</H2>
+<!--smb.ref-->
+<PRE>
+
+
+samba.ref
+
+also see fs.ref, smb.conf
+
+
+getent
+nmblookup -U <winsSvrIp> -R <NbNameToLookup>
+
+--
+
+samba 2.x
+smbpasswd -j <NTDOM> -r <WinsSvr or '*'> -Uuser%password
+run winbindd
+then start samba.
+
+wbinfo -t 
+determine if secret used to join ntdomain is still good (security=server)
+
+
+---
+
+samba 3.0 use  the "net" command:
+net [method] [-d dbgLevelNum] join member -Uadministrator%password -S tileg-bdc1
+	member = add host as member host (not as pdc/bdc)
+	-S = target (window) server to use 
+	[method] can be blank, it will auto detect
+		 ads = XP  style
+		 rpc = nt4 style
+		 ads = win95 style ?
+
+	-d 0-10	specify debug level info (spill to console), 0=none, 5=a lot, 10=unreadable.  Try 3. 
+
+net testjoin
+	check whether domain participation is still valid
+	# no longer avail???
+
+net help <CMD>
+	show help
+
+
+
+
+---
+
+strace -o /tmp/output smbpasswd ...
+to see what file it opens, has tendendy to open wrong smb.conf
+
+
+
+wbinfo -u
+list all doamin user
+
+bin/testparm lib/smb.conf
+	check that smb.conf is correct.
+
+
+smbclient  //10.0.71.231/cifs -W ntdom1 -Uadministrator%password
+	ftp like client to connect to nt-style share
+
+smbclient -L 10.0.71.231 -N
+	list shares available from the given server
+ 	-N = force no ask password
+
+
+
+----
+
+update 2004/06/23, for samba 3.0, in tileg/hybridauto
+
+config procedure
+create /usr/local/samba/lib/smb.conf file (see eg here for core elements).
+bin/testparm lib/smb.conf
+
+add member host in PDC via server manager.
+net join -Uadmin -S PDC-server		# for security=server
+
+sbin/nmbd
+sbin/smbd -D -s lib/smb.conf
+	# parameters are really default, but just in case samba have its own mind.
+sbin/smbd --version	
+	# show version
+
+
+If using security=user, then may need to use smbpasswd -a to add user 
+Although it seems to authenticate via NIS if no smbpasswd entry.
+
+
+---
+
+2005/12/02
+quick and dirty config w/o domain fuss,
+in smb.conf, set to use user level security mode (ie local list of samba user) :
+   security = user
+
+add users to smbpasswd file as (user must be recognized os level user):
+smbpasswd -a USERNAME
+change existing user password:
+smbpasswd USERNAME 	
+
+
+Samba 3 use pdbedit.
+
+pdbedit -L -v 		# list samba users, verbose
+			# samba local db stored in /var/lib/samba/private/private.tdb
+
+
+---
+logs:
+location specified by smb.conf, typically /usr/local/samba/var
+
+log.IP		= NetBIOS ip to name resolution log, per each client machine connecting to the server.
+log.HOSTNAME	= smbd log for each connecting client after netbios name resolution.
+
+log.nmbd	= nmbd server process/status log
+log.smbd	= smbd server process/status log.  level determined by smb.conf
+
+</PRE>
+
+
+<H3>smb.conf</H3>
+<!--smb.conf-->
+<PRE class="cf">
+
+
+[global]
+
+# log level = 3 passdb:5 auth:10 winbind:2
+# log level = 0 (default)
+log level = 2
+
+# workgroup = NT-Domain-Name or Workgroup-Name, eg: REDHAT4
+   workgroup = TILEG	# NT4
+
+# Security mode. Defines in which mode Samba will operate. Possible
+# values are share, user, server, domain and ads. Most people will want
+# user level security. See the HOWTO Collection for details.
+   #security = user		# user = local passwd/smbpasswd file
+   security = server		# need to join machine to nt domain
+   #security = domain		# probably never used this.
+
+# whether to use encrypted password
+#encrypt passwords = yes        # default = yes
+#encrypt passwords = no
+
+   load printers = yes
+   log file = /usr/local/samba/var/log.%m
+
+
+    password server = tileg-bdc1
+	# this was needed as somehow my machine could not determin
+	# who was PDC, probably no broadcast on this vlan.
+
+
+   wins support = no
+   wins server = 10.215.2.21
+	# set it so that samba is not wins server, 
+	# and have it use wins on BRIO-BDC1
+	# otherwise, lot of browse by \\hostname will get bad
+	# unresolvable hostname :(
+
+   socket options = TCP_NODELAY
+   dns proxy = no
+
+
+#============================ Share Definitions ==============================
+### custom settings here
+[test]
+   comment = test dir
+   browsable = yes
+   read only = no
+   create mode = 755
+   path = /export/tmp/test
+   user = tho
+
+#============================ Share Definitions ==============================
+### this and other were smb.conf.default settings.
+[homes]
+   comment = Home Directories
+   browseable = no
+   writable = yes
+
+
+
+
+</PRE>
+
+
+<H4>Linux fstab eg</H4>
+<PRE>
+/dev/VolGroup00/LogVol00 /                       ext3    defaults        1 1
+LABEL=/boot             /boot                   ext3    defaults        1 2
+none                    /dev/pts                devpts  gid=5,mode=620  0 0
+none                    /dev/shm                tmpfs   defaults        0 0
+none                    /proc                   proc    defaults        0 0
+none                    /sys                    sysfs   defaults        0 0
+/dev/VolGroup00/LogVol01 swap                    swap    defaults        0 0
+
+/dev/emcpowerc          /mnt/emcpowerc          ext3    defaults        0 0
+	
+	
+	
+nfsserver:/unixhome       /nfshome              nfs    rw,soft,intr,tcp,rsize=32768,wsize=32768,vers=3,timeo=4,retrans=9 0 0	# cambridge eg
+nfsserver:/unixhome       /nfshome              nfs bg,rw,hard,intr,udp,rsize=32768,wsize=32768,vers=3,timeo=4,retrans=9 0 0
+agami01:/export/agami  /nfsbackup/agami         nfs    rw,nfsvers=3,rsize=32768,wsize=32768,tcp,intr,soft			# RHEL 4.5
+
+/net/pollo/local/LINUX/SUSE/SUSE-10.0-CD-i386-GM-CD1.iso       /mnt/loopback/SUSE-10.0-CD-i386-GM-CD1   iso9660 loop,ro,noauto
+/export/repo/iso/RHEL4-U5-i386-WS-disc1.iso     /mnt/loopback/RHEL4-U5-i386-WS-disc1    iso9660 loop,ro,noauto
+</PRE>
+
+<H4>Solaris vfstab eg</H4>
+<PRE>
+
+
+#device         device          mount           FS      fsck    mount   mount
+#to mount       to fsck         point           type    pass    at boot options
+#
+fd      -       /dev/fd fd      -       no      -
+/proc   -       /proc   proc    -       no      -
+/dev/md/dsk/d10 /dev/md/rdsk/d10        /       ufs     1       no      logging
+/dev/md/dsk/d20 -       	-       swap    -       no      logging
+swap    -       /tmp    tmpfs   -       yes     -
+##
+##
+nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,rsize=32768,wsize=32768,proto=tcp,intr,soft
+
+
+	
+</PRE>
+
+
+<H1>NFSv4</H1>
+
+<UL>
+<A HREF="https://help.ubuntu.com/community/NFSv4Howto">https://help.ubuntu.com/community/NFSv4Howto</A>:
+<LI>Can operate without a Domain/Kerberos server.  set NEED_SVCGSSD=no, and NFSv4 can rely on client side authentication as in NFSv3, albeit this isn't all that secure.
+<LI>Use with Kerberos (MIT or Heimdal) + KDC (Key Distribution Center) provides much better security.
+<LI>
+<LI>NFS exports works differently.  On the server side, it has a root export where everything else falls under.
+<LI>Typically default to proto=tcp,port=2049
+<LI>
+</UL>
+
+<UL>
+<LI><A HREF="http://www.enterprisenetworkingplanet.com/netos/article.php/3644471/Implement-NFSv4-Domains-and-Authentication.htm">http://www.enterprisenetworkingplanet.com/netos/article.php/3644471/Implement-NFSv4-Domains-and-Authentication.htm</A> (from 2006!):
+<LI>NFSv4 introduce concept of Domain.  Many would rely on DNS domain for client and server to match.  Solaris allow for setting an explicit NFS domain.
+<LI>In addition to UID/GID needing to batch b/w client and server, Domain must match as well.
+<LI>Could use DNS RR or TXT record to specify domain.
+</UL>
+
+<UL>
+<LI><A HREF="http://nfsworld.blogspot.com/2005/06/using-active-directory-as-your-kdc-for.html">Eisler's NFS blog</A> describe how to use Active Directory with NFSv4.  From 2005!
+</UL>
+
+<BR><HR><BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/fs.html">http://www.cs.fiu.edu/~tho01/psg/fs.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

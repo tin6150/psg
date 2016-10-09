@@ -1,0 +1,577 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP, PSG101, sn50, tin6150"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - Acopia</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/">Sys Admin Pocket Survival Guide - OS</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
+      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
+      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>Acopia</H1>
+
+
+<H3>Acopia 101</H3>
+
+
+<PRE>
+Acopia present a virtual file server, and tier files to slower disks according to policy.
+
+
+
+Presentation volume aka direct volume.  No meta data maintained by Acopia.
+
+Managed Volume has associated metadata volume.  eg many unixhome_shareX to 
+make up a large volume.   Underlaying share ought to be hidden as windows share (req to share it), so that user don't write directly to it (which skew the metadata).   NFS share for the underlaying share farm volume should be exported to the acopia only, so that other nfs client can't mount directly to it.
+
+
+Presentation vol wrap around many managed volume.
+
+The managed volume needs to be exported by CIFS (hidden share help reduce 
+clutter).  But NFS don't need additional export by Acopia, as acopia does the
+proxy for the file access for NFS.  CIFS require forwarding the req to the file system handling the req.
+
+
+--
+
+Managed volume, NFS access should have 32k page size instead of default 8k to
+improve performance.  
+
+
+Max-file need to be pre-determined ahead of time (esp when managed
+volume will be wrapped by presentation volume).  
+This is like allocating inode for a unix FS (acopia need this to manage
+multi-protocol).  It can be enlarged, but reduction only back to an internal 
+pre-allocated number only.  Changing number requires disabling and re-enabling the presentation volume for the changes to take effect 
+(Win client disconnect; NFS also depend on this flip-flop to ensure don't 
+get stale file handle).
+
+
+Rule of thumb for allocation max-file count is to see if FS will
+hold large or small files, divide FS size by file size to see
+how many file handles are needed.  eg, 32TB fs, 80M file handles is good.
+For 2 TB fs, default of 4M max-file is probably okay, but allocating 8M 
+would ensure won't grow out of file handle "inode" problem.  (if avg file size is less than 250k).
+
+
+
+
+--
+
+.acopia shows up in underlaying share farm volume 
+to tell which acopia owns it.  it will be hidden from the 
+final managed volume and user shouldn't see it.
+
+In places where they have more than 1 pair of acopia, other acopia will 
+see such marker to see who is managing or own the volume.
+
+
+---
+acopia rely on its internal db to keep track of where all files are, thus all access must be made via the acopia.
+EMC Rainfinity pepper the target file system with files everywhere, such file points to where rainfinity have moved a given file to.  seems rather messy for the user.  
+
+
+</PRE>
+
+<H3>Similar Technologies</H3>
+
+Other Hierarchical Storage Management (HSM) systems besides F5 Acopia ARX:
+
+<UL>
+<LI> High Performance Storage System (HPSS).  Mostly used by National Labs SuperComputing Centers.  Tens to Hundreds of PB in combination of disk cache and tapes.  IBM provides some commercial support.
+<LI> EMC Rainfinity.  Commercial.   But not sure if you want to use it.
+<UL>
+
+<H3>Monitoring command</H3>
+
+<PRE>
+
+enable
+
+show running-config
+show global-config		# virtual file server info, clustered
+
+show namespace mynamespace 	# high level info, volume list, stat, etc
+
+show share status
+
+
+
+show active-directory status	# see active/backup/offline servers
+show ntlm-auth-server		# may not be using any
+
+show statistics cifs-auth all verbose	# number of successful/failure 
+
+	# secure agent is for NTLM 
+
+show processors			# cpu load in last 1 min and 5 min (%)
+show processors usage		# include memory and swap utilization
+
+
+show health			# ensure no err other than share offline before reload
+show health time-skew		# ensure less than 5 min skew for Kerberos to work
+show redundancy
+
+
+tail logs syslog		# tail -f syslog
+grep skew log syslog		# cat syslog | grep skew
+
+show logs traplogs		# see snmp traps, even if no external snmp is setup
+
+collect diag-info  filename.tgz	# generate a support dump file (download from web interface)
+
+collect diag-info ftp://user:pass@ftp.acopia.com/filename.tgz	# direct ftp out
+
+reload				# reboot the chasis, partner will take over automatically.
+
+</PRE>
+
+
+<H2>Performance</H2>
+
+<PRE>
+show statistics filer			#  total packet, latency, etc per each filer/volume.
+show statistics filer detailed		
+show statistics global server
+
+show interface gigabit 1/6 stats
+clear counter  gibabit 1/6
+
+</PRE>
+
+<H3>NIC/Network</H3>
+
+Cisco default to send flowcontrol, "desirable" to receive flowcontrol.
+If enabled on both side, then they will both understand "PAUSE" frames, 
+which pauses a pre-determined number of seconds to allow for buffer to be free up.
+
+
+<PRE>
+interface gigabit 1/3
+  flowcontrol send    on
+  flowcontrol receive on
+  speed auto
+exit
+
+Repeat for other nic of the same etherChannel
+To turn off flow control, use :
+  no flowcontrol send on
+
+
+To check current status (and whether receiving PAUSE frames send by Cisco Switch):
+
+show interface gigabit 1/3
+
+To see the number of PAUSE frames received (and send) by Acopia:
+
+show interface gigabit 1/3 stats
+
+
+
+(By default, if not explicity setup, acopia won't use flow control.
+Cisco does, so there would be significant number of 
+Ingress PAUSE frames, but no Outgress.
+
+</PRE>
+<H5>EtherChannel</H5>
+(really lacp since etherChannel only work within cisco)
+show EthCh config:
+<PRE>
+show channel summary
+show channel 1
+</PRE>
+
+<H5>Proxy IP</H5>
+<PRE>
+show ip proxy-addresses
+</PRE>
+The Proxy-addresses are the one that are used by NFS from Acopia to the back end filer.
+(1 IP per active port of EtherChannel should be configured, so that EthCh
+load balancing works.  Arx assign diff mac for each proxy ip addr).
+<BR>
+The general VIP used Acopia (pointed to live ARX) 
+is what client use to mount the ARX.  This is a single IP
+and is ethCh balanced by client using diff source mac/ip add
+(if they are not behind a router or NAT box as in a cluster head node!
+maybe ethCh should balance by IP rather than mac.)
+
+
+<BR>
+<BR>
+
+
+<H5>Management Interface</H5>
+
+The acopia has an out-of-band network management interface and a serial port.
+
+The management interface is not required, it maybe left unconfigured and 
+unplug to a network.   
+However, many management traffic such as snmp and syslog by def route thru 
+the management interface.  Special config need to be done to change them.
+<BR>
+Acopia allows ssh in thru the in-band regular traffic network.  
+
+<PRE>
+
+show interface mgnt
+show management access		# see what traffic is allowed on which port (eg snmp on vlan, ssh in management, etc)
+
+</PRE>
+
+<PRE>
+management source vlan XX 	# tell ARX to use vlan XX that is typical of NFS/CIFS traffic 
+				#   for all its management activities 
+				#   (eg smtp notification, snmp traps, etc)
+
+channel 2
+  no trap shutdown		# allow snmp trap to flow thru ether channel 2 (network traffic etherChannel)
+</PRE>
+<BR>
+
+
+
+
+<H5>Troubleshooting</H5>
+A lot of unix commands are available, but some of the common commands are wrapped thru <TT>expect</TT>
+<PRE>
+expect show netstat
+expect traceroute 10.10.x.y
+</PRE>
+
+ 
+
+<H3>Config Commands</H3>
+<PRE>
+
+
+config term	# configure running config, specific to each arx
+
+global		# enter global config mode, one change to both arx ha pair.
+
+
+## configure arx to send syslog output to central syslog svr, such as a splunk svr
+## need to tell it to route the traffic thru network rather than def mgnt interface
+## which is the private heartbeat network.
+show vlan summary
+show logging destination
+enable
+config terminal
+  logging destination central-syslog-svr
+  management source vlan 91
+exit
+
+
+## configure email notifications
+show email-event tech-support
+show email-event mycompany
+config term
+  email-event mycompany
+    no mail-to  t@nova
+    mail-to tin@nova
+
+    enable
+    group chassis
+    group metadta
+    group virtual-server
+    group storage
+    group cifs
+    exit
+  exit
+exit
+
+
+## There is no need to do the cisco "copy run start" to "save" the running config.
+## But can make backup copies as:
+copy running-config configs running-20081002.arx2.txt
+
+
+</PRE>
+
+<H5>Saving Config</H5>
+
+Global  config is synchronized between the two ARX heads.  <BR>
+Running config is per-head config, such has unit's hostname, ip address, ssh-host-key, etc <BR>
+Startup config is the combination of both running and global config <BR>
+
+The commands need to run in <TT>en</TT>able mode (exec-priv in acopia parlance).  <BR>
+
+<PRE>
+copy running-config scp://user@host:/path/file1  accept-host-key
+copy global-config  scp://user@host:/path/file2  accept-host-key
+copy startup-config scp://user@host:/path/file12 accept-host-key
+</PRE>
+
+Manually... can run:
+<PRE>
+terminal length 0
+show running-config
+show global-config
+</PRE>
+
+
+<H5>Restoring Config</H5>
+<PRE>
+copy scp://user@host:/path/file1 scripts running
+</PRE>
+scripts is the dir where acopia store all the configs... 
+running is the name of the file... it could be startup_config...
+refer to pdf for more detail.
+
+<BR>
+<BR>
+<H3>Adding share to the farm</H3>
+
+Requirements:
+<OL>
+<LI>
+<LI>Unix side, set share so that Acopia IP (and proxy IPs) have root access to the share.  All unix NFS access are proxied by the Acopia.
+<LI>For a new share, needeto use windows to fix the permission of the share before import to  the Acopia.  Default access for "Everyone" wasn't good enough.  Need to explicitly add the backup operator group as having full access to the share.  Even when Windows client get a pointer to access the underlaying storage directly, acopia need to mark the volume with some .acopia files.
+<LI>
+
+</OL>
+
+Don'ts:
+<LI> Don't set NFS permission such as anon=0 or no-root-squash.  This wide open security hole isn't needed if everything is setup correctly.
+
+
+
+
+<BR>
+<BR>
+
+<H4>Adding Share to Existing Presentation Volume </H4>
+
+
+<PRE>
+enable
+global
+  namespace ns1.nova.net
+    volume /data-Pres 
+      share db-link
+      # create new share?  --> yes
+        managed-volume ns1.nova.net /db
+        attach db to .
+          #### more like attach {destinationPath} to {managedVolumeDir}
+          ##   1st param is "virtual pathname within the (presentation) volume (eg db will become /usemdata/db in acopia)
+          ##   2nd param is path on the share, which is typically . for the whole share (and not subdir of it)
+          ##   the attach command syntax is really misleading, the params order should be flipped in such syntax!!
+        enable
+        exit
+
+Used GUI to disable Auto Reserve Files on /db volume first.
+
+
+NO NESTED ATTACHMENT !!
+can't attach db into some places in bionfo.
+so, can't do NFS mount in a NFS dir kind of idea (although NFS can do it, albet a bad idea).
+
+
+
+## if doing thru GUI, 
+## create share (using acopia volume), then add attachment.
+
+
+</PRE>
+
+<H3>CIFS config</H3>
+
+<PRE>
+
+probe exports external-filer ns80-emc-s6001 proxy-user acopia_username_win_domain
+# check whether CIFS access to a specific filer backend is valid
+
+probe exports external-filer ns80-emc-s6001
+# check that NFS access to backend share is okay
+
+
+show active-directory status
+# see root of domain tree
+
+show active-directory    
+# or
+show active-directory forest novartis.net
+# see specific IP and server used for AD
+
+
+
+
+global
+  cifs namespace1.eVille.net 
+    domain-join my.domain.net ou "CO/Resources/Servers"
+  end
+end
+# join the ARX to windows domain, adding the object under the AD tree in the OU of 
+# (CO is the top of the LDAP tree Servers is the child folder where object is added to)
+# OU syntax is tested to work, but need domain admin proiv to add it
+# can also omit OU spec, add it with domain acc, 
+# and then move it from "Computers" folder in AD to the desired location.
+
+
+
+global
+  active-directory-forest eville.net 
+  child-domain us.eville.net  172.27.91.10 preferred
+exit
+# For forest-root just replace the child-domain part)
+# preferred server is not required, but beneficial to avoid replication delay and problems.
+
+  
+
+
+</PRE>
+
+<H3>SNMP</H3>
+
+Acopia (3.x) only supports SNMP version 2c.  snmp version 1 is not supported at all and all such queries will be ignored.
+It does listen on udp port 161.
+<BR>
+SNMP v2c does not require authentication, and Acopia does not add/control
+auth the way it does for HTTP or SSH.  
+It could be quite insecure, especially if write-community is created.
+So configure carefully!
+<BR>
+
+By default, snmp info is not shared.
+One would need to permit "management access snmp", ie turned on to allow snmp queries, 
+send traps.
+It would also need to be configured to use the right network channel for such traffic
+(def to use mgnt which may not be configured).
+<BR>
+Once enabled, all hosts are trusted by default, until a specific "snmp-server trusthost" is issued.
+This will allow both get and set.   (page 8-12 of cliReference.pdf)
+If no write-community is configured, then no snmp write would be possible, even from trusted hosts.
+<BR>
+snmpserver traps would list host that receive snmp events (not all that many on the acopia).
+snmp trusted-host are machine that can use snmp to query/update the ARX, ask for info such as cpu, etc, which 
+are never send out thru traps.
+<BR>
+
+
+<PRE>
+enable
+config
+
+management access snmp 
+  permit all			# if desire to route snmp traffic thru management port
+  no permit mgmt		# this will deny snmp trap from going to the management port
+				#    and hopefully send out thru regular data vlan
+exit
+
+channel 2			# pick the etherchannel that has client/servernetwork traffic
+  no trap shutdown		# allow snmp trap to flow thru (for cases where out-of-band management nic is not configured)
+exit
+
+snmp-server community bofh-community-read read-only
+snmp-server trusthost 192.168.1.146
+
+snmp-server host 10.10.91.49  bofh-community-read  162
+	# (162 is the default udp-port and don't really need to be specified)
+snmp-server contact  sysadmins@bofh.com
+snmp-server location "Data Center, USA"
+snmp-server name arx1
+
+snmp-server trap 
+	# -or-
+snmp-server trap private
+	# (private would include Acopia specific MIBs.)
+</PRE>
+
+<PRE>
+show snmp-server	# pay attention to Interface, Access Mode and Trap Targets
+
+</PRE>
+
+
+
+
+<H3>Maintenance Commands</H3>
+
+<H5>Generate CIFS/NFS inconsistency report</H5>
+<PRE>
+nsck namespace1.eville.net report inconsistencies /nfshome/username/path/to/file outputfile myReport.rpt
+nsck namespace1.eville.net report metadata-only   /nfshome/username/path/to/file outputfile myReport-md.rpt
+</PRE>
+
+<H5>collect diag</H5>
+web interface of downloading a collect-diag is too slow.  cli scp is much quicker:
+<PRE>
+copy diag-info diagInfo.tgz scp://boft1@67.67.67.67:diagInfo.tgz accept-host-key
+</PRE>
+
+
+<H5>Restart HTTPS server (web gui)</H5>
+<PRE>
+0.   SSH to the acopia management interface, VIP.
+1. } enable
+2. # terminal debug
+3. # gui restart
+4. # no terminal debug
+</PRE>
+
+
+
+<BR><HR><BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL]<BR>
+<A HREF="tiny.cc/acopia">tiny.cc/acopia</A><BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/acopia.html">https://dl.dropboxusercontent.com/u/31360775/psg/acopia.html</A><BR>
+Last Updated: 2008-03-22, 2016
+  <!--[Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/">http://www.cs.fiu.edu/~tho01/psg/</A>] <BR>-->
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"<BR>
+  psg101 sn50 tin6150</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

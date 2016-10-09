@@ -1,0 +1,1600 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html> 
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - LDAP</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="ISBN 1419630288, ISBN 1-41963-028-8, Sys Admin, System Administrator, LDAP, book review, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/ldap.html">Sys Admin Pocket Survival Guide - LDAP</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<div id="google_translate_element"></div>
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
+  }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+
+
+
+<H1>LDAP</H1>
+
+LDAP is a user database, and it does in Unix what MS Active Directory does in Windows.
+From Operating System Admin perspective, LDAP would typically be used to replace NIS (or NIS+ or scattered local passwd files).  If you are pondering if you should migrate to LDAP, you'll wish the answer was 'NO' :)  
+<BR>
+LDAP is much more complex than NIS, and OS support is still not rock solid as in NIS [this was written back in 2006].  Automount maps retrieval from LDAP is quite complex and not well supported.  Older OS LDAP support is rather spotty, and forget about OS that have been EOL-ed by the vendor!
+<BR>
+So, in short, unless you know you need LDAP, stay away from it :)  And if you do use it, hopefully this page has some useful info for you.
+<BR><BR>
+
+<div align="CENTER">
+<A HREF="https://www.explainxkcd.com/wiki/index.php/327:_Exploits_of_a_Mom"><IMG SRC="fig/xkcd_bobby_tables_327.png"></A>
+</div>
+
+
+<A ID="tree"></A>
+<H2>LDAP Tree Conceptualization</H2>
+
+While LDAP is a user "database" repository, do not think of it as a Relational Database.  It has no resemblance to RDBMS.  The only thing that bear resemblance from RDBMS is the "key" and maybe "attributes", other than that, forget everything you learned about Relational DB when working with LDAP.  Definately forget about those Boyce-Codd Normal Form!!
+
+<H5>File Cabinet Numbering</H5>
+...
+<H5>Special File System Tree</H5>
+...
+
+<BR><BR>
+
+<A ID="user"></A>
+<H2>LDAP User Management</H2>
+
+To disable/lock out a user, one can add the attribute to the user dn:
+<TT>nsAccountLock: true</TT>.
+The GUI console provide a way to click "disable" under the Accounting tab.  
+However, OS support for this flag is spotty.  For example, 
+RHEL 3 does, but Solaris 8 does not.
+Thus, the admin should change the user default shell to something like
+/bin/false.
+<BR><BR>
+
+The Unix sys admin tradition is to also change the user's password to some random text to 
+prevent the user from logging in.  Sure, theoretically, there is a chance the password could
+still be guessed, but this isn't likely in practice, and may involve non-print characters.
+Finally, note that if POSIX account is completely disabled, 
+it would delete the UID info, which are typically
+undesirable due to the need to keep UID/GID for historical reference (files ownership, etc).
+
+<BR><BR>
+
+<A ID="profile"></A>
+<H2>LDAP Profile Management</H2>
+
+Some OS need a profile to be stored on the LDAP server so that client side
+LDAP config can be updated in a single server location, rather than updating
+on each machine.  
+In practice, profile may add too much complexity for too
+little gain.  
+<BR>
+<BR>
+Sun also claims profile add security, preventing user from joining a machine
+to LDAP w/o the LDAP admin knowledge.  However, if the user have root in one
+client, files in /var/ldap can be copied from one machine to another.  The
+encrypted password is copied, obliviating the need to know any password to
+bind to the Directory.  Lastly, most site allows anonymous bind just as ypcat
+passwd is not secured anyway.
+At the end of the day, the sys admin don't have a choice whether to use profiles or not.  
+Solaris and HPUX use
+profiles, and AIX and linux don't.  
+<BR>
+<BR>
+Some admins like to create one profile for each version of a given OS, so that
+vendor gratuitous changes in new version won't affect other versions.  This
+come at a cost of maintaining more profiles.  Pick your own poison :)
+On the other hand, if there are multiple sites, then site-specific profile
+would typically make sense.
+<BR><BR>
+If there is only one domain, storing profiles near the root would be good.  
+eg OU=profiles,dc=unixville,dc=com.  
+But even if there are multiple domains, it maybe best to put them in the same
+location anyway, using different name for profiles beloging to different
+domain/site.  This is mostly to ensure client bind process can locate the
+profile easily and no guess work as to which part of the tree the profile came
+from.
+<BR><BR>
+
+<H6>Solaris</H6>
+So far, Solaris 8 thru 10 can use the same profile without any noticeable
+problem.  It seem easiest to create the profile from a Solaris 9 client and
+bind using Directory Manager to seed this process.
+
+<H6>HPUX</H6>
+Each version of HP-UX add a bit more "feature" into the ldapux-profile.  
+11.00 has a basic profile, 11.11 added something, yet 11.23 bloated it up even
+more.  The nature of ldap client is that they ignore directives they don't
+understand.  As such, it worked pretty well to seed the initial profile using
+an 11.23 client, binding as Directory Manager to upload the profile directly
+to the LDAP server.  Once done, the client can be reconfigured to bind as
+proxy agent.
+<BR><BR>
+Lastly, I would like to mention that it is possible for LDAP-UX to use the
+Solaris profile, at least for HP 11.11.  However, latest versions of the two
+OSes seem to diverge and maintaining separate profiles may reduce compatibility
+problems down the road.
+<BR><BR>
+
+<A ID="gotchas"></A>
+<H2>LDAP Gotchas</H2>
+
+<H5>Smart Referals</H5>
+Probably want to stay away from them from NIS migration perspective.  
+Linux is probably the only platform that supports it.  
+AIX will traverse them and loop thru the many servers set by the smart referals and cause
+huge delays in telnet session connection, automount maps retrieval, and make machine
+extremely sluggish.
+<BR>
+
+Solaris, it is a bit better.  It still crosses the smart referal servers 
+more often than needed, resulting in delayed performance.  Even when profile 
+is set that it should not follow the smart referals, it doesn't honor it.
+Performance is acceptable if smart referals is a must.  But even then, 
+I don't see automount maps referals to function correctly.
+<BR>
+
+HP-UX.  Don't know if it cause problem yet, but it doesn't
+provide the correct function of retrieving data from the 
+smart referal automount maps.
+
+<BR>
+<BR>
+
+<H5>RSH vs REXEC</H5>
+The protocol definition for RSH vs REXEC and other similar command:
+
+(a) rsh use the Berkeley rcmd(3) library,  and requires the binary to be setuid root 
+    so that it run in priviledged ports and scan for .rhosts in remote server.<BR>
+(b) rexec use the rexec(3) library.  It does not scan .rhosts so no need to run as root.  Instead,
+    it provide user password in clear text to remote server to login.  remsh is the same as rsh, just renamed to avoid clash with the "restricted shell"<BR>
+(c) rlogin is for remote console login.  It handles less control character than TELNET.  
+    Most system implements "rsh host" w/o a command as a call to rlogin for interactive login.
+    RSH is left for executing command on remote host and streaming the output back to the source machine.
+    RLOGIN also uses the Berkeley rcmd(3) library. <BR>
+(d) rcp is remote copy akin to rsh wrapped around files directly. <BR>
+(e) ssh default behaviour is to emulate rsh with command.  For interactive login, it probably follows the rlogin algorithm, but hangles control characters much better, akin to telnet.  Further, ssh is smart enough not to read user login/password from a std out redirect, but must ask on an interactive keyboard (expect can emulate keyboard login).
+<BR>
+<BR>
+
+Note that  <BR>
+(1) RSH/RLOGIN/SSH scan user db differently than  <BR>
+(2) TELNET/REXEC <BR>
+At least in AIX, the former set seems to invariably look for local /etc/passwd user first,
+whilst the latter look at LDAP.   nsswitch.conf on other system may have effect on this,
+but Solaris 8 RSH is looking at local passwd first for sure.
+Further note that AIX 5.3 "rsh hostname cmd" behaves more like (2).  It is a bizare world
+of intricate details and buggy implementations a/o protocol :-/  
+Note that aix man page on rexec says it only look at COMPAT but in fact it look at LDAP first!
+<BR>
+<BR>
+AIX has a variable <TT>AUTHSTATE</TT> that get set to:
+<LI>compat when login using rsh
+<LI>LDAP   when login using telnet
+<LI>files  can be set manually to force UID to username resolution thru files first (still go thru other method if it fails to find it in files).
+<BR>
+It seems safe to set this variable in /etc/profiles and /etc/csh.cshrc to
+"compat" and all seems to work well, sourcing local files first.
+<BR><BR>
+
+<H5>RSH issues</H5>
+RSH is likely to work in LDAP environment.  However, getting RSH to allow user
+to login without prompting for password (use of the insecure .rhosts, etc) is
+likely to be more problematic.  Solaris may need patches and config on
+pam.conf.  HP-UX will need update on pam.conf, and perhaps a myriad of other
+config depending on security model.  Refer to HP PAM doc.
+<BR><BR>
+
+<H5>SSH issues</H5>
+<LI>If you compiled OpenSSH from source, you will need to include PAM support.
+<LI>If you got openssh package from SunFreeware.com, the older version won't
+work with LDAP.
+<LI>If you are using vendor provided SSH, and vendor supplied LDAP libraries,
+then all should be good.  If on the other hand third party LDAP libraries are
+added, eg from PADL.com, then things may break.
+
+<H5>Automount issues</H5>
+
+The typical sys admin would put lot of automount maps on NIS, and just about every unix OS automount can retrieve these maps from NIS.  However, such assumption would be very wrong when migrating to LDAP.  While the LDAP server can store anything one throws at it, the data may not always be retrievable :(  
+There is an rfc defining how to store automount maps in LDAP, and when configured correctly, will work.  But it need substantial client-side support.  Autofs on just about every OS client need to be updated.  Solaris 9 and older need patches.  AIX 5.2 and older don't have upgrades available.  HP-UX 11i can use the Enhanced-AutoFS package, but it need lot of OS patches and kernel recompilation to support it.  Newer Linux can run up2date to patch the autofs rpm.  See the 
+<A HREF="#client">client</A> section below for more details.
+In general, treat each version of each OS as an independent entry in the configuration matrix, and test everything to ensure your config works!
+
+<BR><BR>
+
+<A ID="ldapcmd"></A>
+<H2>LDAP command</H2>
+
+
+
+<A ID="ldapsearch"></A>
+<H3>ldapsearch</H3>
+
+Query ldap directory server info, output in LDIF format.  <BR>
+Sample ldap search  commands...
+
+<H5>solaris 10 argument structure:</H5>
+
+<PRE>
+ldapsearch -b SearchBase [options] FILTER [attributes]
+	[options]
+	-h ldaphost	# ldap server to connect to, default to localhost
+	-D bindDN	# user used to connect to LDAP, default to anonymous
+	-d n		# debug level, bits flags. 
+	-e 		# minimizes base-64 encoding (like tab!)
+	-T		# don't fold/wrap lines.  ldiff treat lines starting with space as
+			# continuation of previous line, def width is 80 chars.
+	-p 1234		# use port 1234 (default ldap use 389, TLS is 636)
+	-L		# ...
+	[attributes]
+	select the addributes to list.  Default to all, but can limit to display only a certain ones, eg:
+	dn 		# list only the dn entry
+	dn cn		# list both dn and cn entries, nothing else.
+
+
+</PRE>
+&lt!-- --&gt
+
+<!--
+	# info similar to db export on "uid=tin,ou=People,ou=sc,ou=ca,ou=na,dc=unixville,dc=com" 
+
+ldapsearch -b "ou=People,ou=sc,ou=ca,ou=na,dc=unixville,dc=com" -h ldapsvr "uid=tin"
+	# search for tin in "sc domain"
+ldapsearch -b "ou=People,ou=fb,ou=oh,ou=na,dc=unixville,dc=com" -h ldapsvr "uid=tin"
+	# search for tin in "OH domain"
+
+ldapsearch -b "ou=People,ou=sc,ou=ca,ou=na,dc=unixville,dc=com" -h ldapsvr "uid=*"
+	# display all user in the specified domain
+ldapsearch -b "ou=People,ou=sc,ou=ca,ou=na,dc=unixville,dc=com" -h ldapsvr "uid=*" dn
+	# display all user, but only the dn attributes
+ldapsearch -b "ou=People,ou=sc,ou=ca,ou=na,dc=unixville,dc=com" -h ldapsvr "uid=*" dn cn uidNumber
+	# display all user, but only the attributes:  dn, cn, and uidNumber
+
+-->
+
+<PRE>
+
+ldapsearch -b "dc=unixville,dc=com" -h ldapsvr        uidNumber=5001
+ldapsearch -b "dc=unixville,dc=com" -h ldapsvr -p 389 gidNumber=5001
+	# find entry with a given uid or gid number.
+ldapsearch -b "dc=unixville,dc=com" -h ldapsvr memberUid=tin dn
+	# find all gruops whereby tin is a member of (unix secondary group membership)
+	# display only the dn (name of group and "domain" group is defined in)
+ldapsearch -b "l=sf,l=us,dc=unixville,dc=com" -h ldapsvr uid=* dn
+	# list all user in a the "domain" l=sf,l=us
+ldapsearch -b ou=Groups,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com -h ldap007 cn=* dn
+	# list all group names of a given domain.
+
+
+ldapsearch -b "dc=unixville,dc=com" -h ldapsvr "uid=tin*" dn cn uidNumber
+	# find all username starting with tin, display only the fields dn, cn, uidNumber.
+ldapsearch -b "ou=us,dc=unixville,dc=com" -h ldapsvr "givenName=*tin*" dn givenName uidNumber
+	# find all user real name containing tin anywhere, case insensitive
+ldapsearch -b "ou=us,dc=unixville,dc=com" -h ldapsvr -D "cn=Directory Manager" "givenName=tin" userPassword
+	# -D = perform search using specific user credentials
+	# Certain attributes such as shadow password can only be retrieved by
+	# priviledged user.
+	# Finally, some info is only available on the Directory Server (eg via
+	# export) but not as ldapsearch at all.  eg attributes for Person entry: 
+	# creatorsName, modifiersName, modifyTimestamp, nsUniqueId
+
+
+ldapsearch -b "cn=config" -h ldapsvr -D "cn=Directory Manager" "objectClass=*"
+	# retrieve config info, objectClass=* serve as wildcart for "all"
+ldapsearch -b "cn=config" -h ldapsvr -D "cn=Directory Manager" "objectClass=*" | grep  passwordStorageScheme
+	# grep for the password encryption scheme (crypt, ssha, etc).  
+	# aix 5.3 only supports crypt
+	# solaris and linux support both crypt, ssha.
+
+ldapsearch  -b "cn=schema" -h ldapsvr -D "cn=Directory Manager" "objectClass=*" 
+	# retrieve all info on the schema of the directory tree
+
+ldapsearch -h ldapsvr  -b "o=NetscapeRoot" -D "cn=directory manager" "objectClass=*" 
+	# retrieve fedora directory server internal config info
+	# NetscapeRoot cuz fedora/redhat ds is based off the old netscape directory server 
+
+ldapsearch -h ldapsvr -L -b automountMapName=auto_master,l=sf,l=ca,c=us,dc=element50,dc=com objectclass=*
+	# something similar to "ypcat auto.master"
+
+ldapsearch -h ldapsvr -T -b automountMapName=auto_home,ou=us,dc=unixville,dc=com  objectClass=*  dn                   | grep -v ^$ 
+ldapsearch -h ldapsvr -T -b "ou=us,dc=unixville,dc=com"                          automountkey=*  automountInformation | grep home
+	# list automount maps entries for auto_home, similar to "ypcat auto.home"
+
+ldapsearch -h ldapsvr -T -b automountMapName=auto_home,ou=us,dc=unixville,dc=com  automountKey=tin
+	# retrieve automount info about /home/tin
+
+ldapsearch -h ldapsvr -T -b dc=unixville,dc=com  automountkey=/home
+	# find out where /home is refered and how it is defined (auto.master, auto_master, which domain/ou)
+
+ldapsearch -h ldapsvr -b dc=unixville,dc=com nisnetgrouptriple=*lungfish* | less
+	# find out which netgroup a machine called lungfish belongs to, long output!
+
+</PRE>
+<BR>
+
+<A ID="ldapsearch-aix"></A>
+<H5>AIX</H5>
+ldapsearch	is located in /usr/ldap/bin.  Parameters are similar to Solaris.
+
+
+<A ID="ldapsearch-linux"></A>
+<H5>Linux native</H5>
+
+
+Parameters used by /usr/bin/ldapsearch from the opendap-client rpm, most of
+them are similar to the Solaris ldapsearch:
+<PRE>
+ldapsearch [options] FILTER [attributes]
+	[options]
+	-x 		# no SASL (option not in Solaris)
+	-LL		# suppress comments in output
+ 	-b SearchBase	# specify the starting point where search will begin.  Typically root.
+	-h ldaphost	# ldap server to connect to, scan /etc/ldap.conf if configured.
+	-D bindDN	# user used to connect to LDAP, default to anonymous
+	-d n		# debug level, bits flags. 
+
+           [------------- options -------------]   [-- FILTER (req) --] [attr]
+ldapsearch -b dc=hybridauto,dc=com -h ldap007 -x   nsds5ReplConflict=*    dn    | grep -v ^$
+	# find all entries with replication conflict problem, 
+	# where dn is has nsuniqueid appended to it.  eg:
+	# nsuniqueid=f0b6791e-1dd111b2-80dba88a-997d0000+uid=duptest,ou=people,dc=hybridauto,dc=com
+	
+</PRE>
+<BR>
+<H5>FEDORA-DS</H5>
+
+Parameters used by /opt/fedora-ds/shared/bin/ldapsearch  installed by the RedHat/Fedora DS:
+
+<BR>
+
+<H5>Some strange Linux machines default ldapsearch</H5>
+
+Probaly old school linux machines...  <BR><BR>
+<PRE>
+ldapsearch -x -ZZ -s "dc=unixville,dc=com" -b ""
+	-x 	= no SASL
+	-ZZ	= use TLS
+	-s 	= search base
+
+
+</PRE>
+
+<BR>
+
+
+<A ID="ldapadd"></A> 
+<H3>ldapadd</H3>
+
+ldapadd will add info to the directory server, erroring out if
+the entry already exist (as defined by the dn).
+Must be done when the Directory Server is running, live.
+(ldif2db will overwrite, see below).
+
+<H5>FEDORA-DS</H5>
+
+<PRE>
+ldapadd -x -W -c -D "cn=Directory Manager" -h ldapsvr -f data.ldif
+	ldapadd is really "ldapmodify -a", so it share the same options, see below
+
+</PRE>
+
+Sample data.ldif file used to add a user, a group and simple automountmap entry for the home directory.
+
+<PRE class="cf">
+
+#
+# add a user 
+#
+dn: uid=tin,ou=People,l=sf,c=us,dc=unixville,dc=com
+uid: tin
+cn: Tin Ho
+givenName: Tin
+sn: Ho
+mail: tho01@yahoo.com
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+userPassword: {crypt}solarisShadowOk
+loginShell: /bin/bash
+uidNumber: 168
+gidNumber: 168
+homeDirectory: /nfshome/tin
+gecos: optional NIS gecos field 
+
+#
+# eg for adding a group
+#
+dn: cn=sn-group,ou=Groups,l=sf,c=us,dc=unixville,dc=com
+objectClass: posixGroup
+objectClass: top
+cn: sn-group
+gidNumber: 168
+memberUid: moazam
+memberUid: rlee
+memberUid: lys
+
+#
+# eg for automount entry (automount object need to be already defined prior to this add)
+# this form is acceptable by Solaris and new Linux autofs (ditto for Aix and Hpox, 
+# but the old linux autofs will not understand it, so get rpm 4.1.3-174 or newer)
+#
+dn: automountKey=tin,automountMapName=auto_nfshome,l=sf,c=us,dc=unixville,dc=com
+objectClass: automount
+automountKey: tin
+cn: tin
+automountInformation: -rw casper:/export/home/&
+</PRE>
+
+<A ID="ldapadd_automount"></A>
+When first setting up LDAP repository, initial maps for auto.master, auto.nfshome, etc need to be defined.  It maybe easier to do this using the GUI, see 
+<A HREF="#GUI_automount">below</A>.
+The LDIF files defined here can be used for addition or verification in subsequent ldapsearch.
+<I>Pay special attention to dot(.) vs underscore(_) below.</I>
+
+<PRE class=cf>
+
+#
+# auto.master direct map (Linux) 
+# 
+dn: automountMapName=auto.master,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+objectClass: top
+objectClass: automountMap
+automountMapName: auto.master
+
+dn: automountKey=/nfshome,automountMapName=auto.master,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+objectClass: automount
+automountKey: /nfshome
+cn: /nfshome
+automountInformation: ldap:automountMapName=auto_nfshome,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+
+dn: automountKey=/net,automountMapName=auto.master,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+objectClass: automount
+automountKey: /net
+cn: /net
+automountInformation: -hosts
+
+
+#
+# auto_master direct map (Solaris?)
+#
+dn: automountMapName=auto_master,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+objectClass: top
+objectClass: automountMap
+
+dn: automountKey=/nfshome,automountMapName=auto_master,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+objectClass: automount
+automountKey: /nfshome
+automountInformation: auto_nfshome -rw,hard,intr,vers=3,rsize=32786,wsize=32786
+
+dn: automountKey=/net,automountMapName=auto_master,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+objectClass: automount
+automountKey: /net
+automountInformation: -hosts
+
+#
+# auto_nfshome
+#
+dn: automountMapName=auto_nfshome,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+objectClass: top
+objectClass: automountMap
+
+
+</PRE>
+  
+<A ID="ldapmodify"></A> 
+<H3>ldapmodify</H3>
+
+Change existing data already stored in the Directory Server
+
+
+<H5>Solaris</H5>
+
+<PRE>
+
+ldapmodify -D uid=tinh,ou=people,dc=geneusa,dc=com -h ldapsvr -p 1389 -f ./data.ldif
+
+</PRE>
+
+<!--
+ldapmodify -h bigbear.amgen.com -p 1389 -D uid=tinh,ou=people,dc=unix,dc=amgen,dc=com -f ./ldapmodify.data.ldif
+Solaris kronos works.  xena doesn't.  voivod doesn't.
+-->
+
+<H5>FEDORA-DS</H5>
+
+<PRE>
+ldapmodify -x -W -c -D "cn=Directory Manager" -h ldapsvr -f data.ldif
+	-h specify the server to connect to to perform the add
+	-f FILENAME, if using path with filename, must use /full/path/to/file
+	   If no filename is defined, ldapmodify expect all commands to come from std in, one line at a time;
+	   empty line by itself to indicate end of record.
+	-x = simple auth instead of SASL
+	-W = prompt for password on the CLI
+	-c = continuos operation, instead of exiting when errors happens
+	-D USER = the user to perform the change as
+
+	-v = verbose
+	-n = dry run, don't acutally do anything
+</PRE>
+
+<PRE class=cf>
+
+#
+# modify user account try adding the objectClass=shadowAccount
+# so that user can login to Solaris 8 and related machines
+# Note that some ldapmodify binary may crook on comments!!
+# (Solaris and many Linux can't parse #)
+# Blank lines are potential problems, so avoid them :)
+#
+dn: uid=tin,ou=People,l=sf,c=us,dc=unixville,dc=com
+changetype: modify
+add: objectClass
+objectClass: shadowAccount
+
+</PRE>
+
+<PRE class=cf>
+#
+# Add a password field to user whose account have empty password
+# ie, no userPassword clause definated at all
+#
+dn: uid=mlee,ou=People,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+changetype: modify
+add: userPassword
+userPassword: {crypt}*notSet*
+
+</PRE>
+
+<PRE class=cf>
+
+#
+# Change user password field to indicate that it is in locked state.
+#
+dn: uid=tho,ou=People,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+changetype: modify
+replace: userPassword
+userPassword: {crypt}*AccountLocked-2006-07-26*
+ 
+#
+# Change account to lock state, not all OS honor this.
+#
+dn: uid=tho,ou=People,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+changetype: modify
+add: nsAccountLock
+nsAccountLock: true
+
+
+</PRE>
+
+
+
+
+  <PRE class=cf>
+
+#
+# Change a group definition: add a user to its membership list
+#
+dn: cn=sysadmin,ou=Groups,ou=sc,ou=ca,ou=na,dc=hypbridauto,dc=com
+changetype: modify
+add: memberUid
+memberUid: tho
+memberUid: mlee</PRE>
+
+
+<A ID="import"></A> 
+<H2>Import/Export</H2>
+
+<A ID="db2ldif"></A> 
+<H3>db2ldif</H3>
+
+<TT>/opt/redhat-ds/slapd-ldapsvr/db2ldif -s dc=unixville,dc=com -a export.ldif</TT><BR>
+
+Export all site data for the domain unixville.com, place it in LDIF format.
+This file can then be edited, eg sed 's/\t/ /g' to remove all tabs, and then reimported.
+<BR>
+For the <TT>-a</TT> option, output file may need to have full path specified, and output location may need to be writable by user "nobody".  If option -a is not used, the output will be stored automatically in a location where "nobody" can write to, typically /opt/redhat-ds/slapd-ldapsvr/ldif.
+<BR> <BR>
+
+<TT>/opt/redhat-ds/slapd-ldapsvr/db2ldif -n userRoot</TT>
+<BR>
+Brief test, output info related to "default master db" that stores root-level data, such as profiles, etc.  It does not output data in 
+sub-suffix databases related db that stores user data.  so it is usually small.
+<BR>
+
+<BR>
+
+
+<A ID="ldif2db"></A> 
+<H3>ldif2db</H3>
+
+
+<TT>/opt/redhat-ds/slapd-ldapsvr/ldif2db  -s "ou=us,dc=unixville,dc=com" -i /full/path/to/import.ldif</TT><BR>
+Import data in ldiff format.  Typically req to be importing a specific section of the domain.
+It will <EM>overwrite</EM> data that already exist under the subtree of the import.
+The import has to be done when the directory server is turned off.
+If using replication with multiple servers, the other machines
+need to be re-init from this master server that did the import.
+<BR>
+<BR>
+
+<A NAME=ldif></A>
+<H2>LDIF</H2>
+
+LDIF is the standard data exchange format.  It is a simple ASCII file 
+with special text formatting.  
+Each entry has a dn.  Different entries are separated by blank lines.
+line that begin with a space is considered to be continuation of 
+previous line, which are typically wrapped at 80 chars.
+Anything not presentable in standard ASCII will be uuencoded in base64.
+<BR>
+Besides LDIF, there is also format based on the XML standard called ____.  It seems
+to be seldom used.
+<BR>
+
+&lt; !-- 
+<BR>
+<!--
+
+# additional objects from NIS maps that Solaris 10 will query
+
+# network and netmasks
+dn: ipNetworkNumber=172.27.33.0,ou=Networks,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+cn: vlan33
+ipnetworknumber: 172.27.33.0
+objectclass: top
+objectclass: ipNetwork
+description: vlan 33 in SC
+ipnetmasknumber: 255.255.255.0
+
+# The "Ethers" container to host the next entry 
+# Unlike Hosts, Services, etc, the PADL migration script does not define this object
+# in base.ldif
+dn: ou=Ethers,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+ou: Networks
+objectClass: top
+objectClass: organizationalUnit
+objectClass: domainRelatedObject
+associatedDomain: hybridauto.com
+
+# bootparams and ether
+dn: cn=jumpstart-client-test,ou=Ethers,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+bootparameter: root=jumpstart2:/jumpstart/OS
+objectclass: top
+objectclass: device
+objectclass: bootableDevice
+objectclass: ieee802Device
+cn: jumpstart-client-test
+
+
+# publickey
+dn: cn=publicKeyEg+ipHostNumber=200.20.20.88,ou=Hosts,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com
+cn: publicKeyEg
+iphostnumber: 200.20.20.88
+description: Joe Smith Sample Only - orig example cn refered to host
+nispublickey: 9cc01614d929848849add28d090acdaa1c78270aeec969c9
+nissecretkey: 9999999998769c999c39e7a6ed4e7afd687d4b99908b4de99
+objectclass: top
+objectclass: NisKeyObject
+objectclass: device
+objectclass: ipHost
+
+-->
+Additional example of ldif file for various objects can be found at:
+<A HREF="http://docs.sun.com/app/docs/doc/816-4556/6maort2ro?a=view">
+http://docs.sun.com/app/docs/doc/816-4556/6maort2ro?a=view</A>
+<BR><BR>
+
+<A ID="fedora-ds"></A> 
+<H1>FEDORA-DS</H1>
+
+Fedora Directory Server is the open source version of RedHat Directory Server.<BR>
+The RH DS came from the Netscape Directory Server (6.1).  The Netscape DS was also developed 
+by Sun and branded as iPlanet DS and later Sun ONE DS.  HP also repackage the Netscape/Red Hat DSwith their LDAP-UX.  Thus, these products are largely the same.  
+<BR>
+
+<A ID="GUI"></A> 
+<H2>GUI Console</H2>
+
+Fedora DS has a Graphical Console.  There is two piece to it, an app/web server that typically configured to listen on port 5555, which can be started as: <BR>
+<TT>
+cd /opt/fedora-ds <BR>
+./start-admin<BR> 
+</TT>
+
+And a client part.  A web browser can point to http://ldapsvr:5555/ and get lightweight ldap server queries, or use the full featured java client
+which get started as:
+<TT>
+cd /opt/fedora-ds <BR>
+./startconsole<BR>
+</TT>
+
+The GUI console can be used to perform admin task on the Directory Server configuration or for modifying data in the LDAP data tree.
+Below are several examples of adding objects in the "database" tab.
+<BR><BR>
+
+<H4>Add Unix User</H4>
+Right click on the People OU, click <TT>new, user</TT>.  For Unix user, check on the Posix Account entry.  Furthermore, go to advance attributes and add the "shadowAccount" attribute.
+<BR><BR>
+
+<H4>Add Unix Group</H4>
+Right click on the Groups OU, click <TT>new, other object, posix group</TT>.  
+<BR><BR>
+
+
+<A ID="GUI_automount"></A>
+<H4>Add Automount Map</H4>
+
+automount map is for defining an entirely new set of automount entries, such as /import, /products, etc.
+<BR>
+Here is an example for defining automount maps in LDAP for the first time, 
+adding a auto.master, auto_master and finally a sample indirect map for /nfshome .
+<I>Pay special attention to dot(.) vs underscore(_) below.</I>
+<BR>
+
+<OL>
+
+<BR><EM>Defining auto.master</EM> (master map used by Linux, AIX and HP-UX?)
+<LI>Right click on the desired OU where the automount map should be added (eg, ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com)
+<LI>Click <TT>new, other object, automountMap</TT>
+<LI>Enter "<TT>auto.master</TT>" in the automountMapName field.
+<LI>Then, inside this newly created auto.master object, right click, <TT> new, other object, automount</TT>
+<LI>In the automountInformation field, enter info like "<TT>ldap:automountMapName=auto_nfshome,ou=sc,ou=ca,ou=na,dc=hybridauto,dc=com</TT>"
+<LI>In the automountkey field, enter "<TT>/nfshome</TT>"
+
+<BR><BR><EM>Defining auto<STRONG>_</STRONG>master</EM> (master map used by Solaris?)<BR>
+<LI>Right click on the desired OU, as in step 1 above
+<LI>Click <TT>new, other object, automountMap</TT>
+<LI>Enter "<TT>auto_master</TT>" in the automountMapName field.
+<LI>Then, inside this newly created auto_master object, right click, <TT> new, other object, automount</TT>
+<LI>In the automountInformation field, enter info like "<TT>auto_nfshome</TT>"
+<LI>In the automountkey field, enter "<TT>/nfshome</TT>"
+
+<BR><BR><EM>Defining auto_nfshome</EM> (indirect map used by all systems)
+<LI>Right click on the desired OU, as in step 1 above
+<LI>Click <TT>new, other object, automountMap</TT>
+<LI>Enter "<TT>auto_nfshome</TT>" in the automountMapName field.
+<LI>Entries in auto_nfshome will be added in the section below "Add Automount Entry".
+</OL>
+
+The info can be verified by using ldapsearch and compare it against the ldif used in the
+ldapadd section 
+<A HREF="#ldapadd_automount">above</A>.
+<BR><BR>
+
+
+<H4>Add Automount Entry</H4>
+
+Sample automount entries would be the various user's home dir that are defined under /home.
+Thus, /nfshome/tin with content of nfssvr:/export/home/tin would be one automount entry.  <BR>
+
+For user home directory that need atuomount entry to define which server to use for the actual mount, 
+To add a new entry:
+<OL>
+<LI>right click on the desired automount map (eg auto_nfshome)
+<LI>click <TT>new, other object, automount</TT>.  
+<LI>Enter the mount key into the automountKey field
+<LI>Enter mount path info and mount option into the automountInformation field
+</OL>
+<BR>
+
+<A ID="password_encryption"></A>
+<H4>Change Default Posix (Unix) Password Encryption</H4>
+
+When creating unix user account using the GUI console, the password strings need to be encrypted in the same method  that client OS expectes them to.  While newer OS can support MD5 or SSHA, CRYPT is still the universal standard.  Thus, it is best to set the console to encrypt user password using CRYPT by default.  Solaris NIS use CRYPT by default.
+<BR><BR>
+
+Method 1 - What Red Hat consultant told me and I know it works:
+<BR>
+
+<OL>
+<LI>Go to the Directory tab
+<LI>Click on the config node in the tree, right click, select advance properties (in a nutshell, we are editing the properties for the node <TT>cn=config</TT>.
+<LI>Scroll to the bottom where the attribute "passwordStorageScheme" is listed.  By default, it says SSHA.  Change it to say "<TT>CRYPT</TT>"
+</OL>
+
+Method 2 - What is described by the Admin Guide:
+<BR>
+
+<OL>
+<LI>Go to Config tab, 
+<LI>Data node in the LDAP tree.
+<LI>On right side, go to Password tab.  Toward the bottom, it has option to choose
+password encryption policy.  The default is SSHA, change it to CRYPT.  
+</OL>
+
+<BR>
+
+To verify that default password is created using CRYPT, perform a password change on a test user, then perform ldapsearch on this user using the <TT>cn=Directory Manager</TT> credentials.  Encryption method is prefixed as {CRYPT} or {SSHA}.
+
+<A ID="backup"></A> 
+<H2>Backing up DB</H2>
+
+<PRE>
+/opt/fedora-ds/slapd-SVR/db2bak		# run the backup
+/opt/fedora-ds/slapd-SVR/bak/DATE/	# dir where the files are stored (mostly Berkeley DB files)
+</PRE>
+
+<H2>Index</H2>
+Some fields are not indexed by default, and when used as a NIS replacement,
+having these indexes would greatly improve performance.  
+
+<UL>
+<LI>gidnumber
+<LI>uidnumber
+</UL>
+<BR>
+
+To create indexes, 
+
+<OL>
+<LI>Go to config tab
+<LI>Click on "data" on the ldap tree
+<LI>Expand to the desired database container config, indexes tab should appear
+on right
+<LI>Click on attribute, and select the attribute that should be added to the
+index.
+<LI>Typically, equality is the box that need to be checked for indexing to  be
+performed on.
+</OL>
+The above steps need to be done on each LDAP server, on each database
+repository (eg when different domains/OU use different database backend).
+
+<BR><BR>
+
+  <H2>Replication Conflicts </H2>
+
+Records from replications with conflicts are marked by nsds5ReplConflict.
+If the conflicts are specific to a single domain (and espcially in a dedicated
+consumer), the easiest way to remove them is to "Initialize the Consumer" from
+the Replication Config.
+<BR><BR>
+
+Otherwise, refers to
+<A HREF="http://www.redhat.com/docs/manuals/dir-server/ag/7.1/replicat.html#1106141">
+http://www.redhat.com/docs/manuals/dir-server/ag/7.1/replicat.html#1106141</A>
+
+
+
+<BR><BR>
+
+
+
+<A ID="replication"></A> 
+<H2>Replication Agreement</H2>
+
+<BR>
+Example of setting up a new server for a new domain, and adding replication.
+
+  <table width="100%" border="1">
+    <tr> 
+      <td>Step#</td>
+      <td>Central Master Server (eg ldap1)</td>
+      <td>Local Replica (new server, eg ldap3)</td>
+    </tr>
+    <tr> 
+      <td colspan="3">I. Setup Directory Server Admin metadata</td>
+    <tr> 
+      <td>0</td>
+      <td>&nbsp;</td>
+      <td> 
+        Run ./setup to configure the directory server.  <BR>
+	   Enable &quot;Change Log&quot;, 
+          db dir = /opt/redhat-ds/slapd-ldap*/changelogdb/ (owned by nobody:nobody, chmod
+	  755)<BR>
+	  restart slapd <BR>
+        </td>
+    </tr>
+    <tr> 
+      <td>1</td>
+      <td>&nbsp;</td>
+      <td>Create user &quot;uid=replication manager&quot; under &quot;cn=config&quot; 
+        (in Directory tab)</td>
+    </tr>
+    <tr> 
+      <td>2</td>
+      <td>&nbsp;</td>
+      <td>Remove unecessary data from the directory tree (eg: People, Group, Special 
+        users)</td>
+    </tr>
+    <tr> 
+      <td>3</td>
+      <td>&nbsp;</td>
+      <td> 
+        For replication, userRoot, ensure to
+        <li>check &quot;Enable Replica&quot;
+        <li>uid=replication manager,cn=config
+        <li>dedicated consumer
+      </td>
+    </tr>
+    <tr> 
+      <td>4</td>
+      <td> 
+        <p>Replicate &quot;userRoot&quot; data to the new server</p>
+        <p>This will setup the root dc=hybridauto,dc=com to the new remote server.</p>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="3">II. Replicate existing domain/database to new server</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>&nbsp;</td>
+      <td>In config tab, create databases matching all desired subsuffices for the data/domain that 
+        wish to be made available in this new server</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>&nbsp;</td>
+      <td>Check to ensure all subsuffix for db defined above exist, they should have been replicated from Part I.
+	</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>&nbsp;</td>
+      <td>Enable replication (on Local Replica, this would typically be dedicated 
+        consumer, so read-only). </td>
+    </tr>  
+    <tr>
+    	<td>8</td>
+	<td>Add replication agreement for each database/domain defined in step 5.</td>
+	
+      <td>&nbsp;</td>
+    </tr>  
+    <tr> 
+      <td colspan="3">III. Setting up new domain, getting data to new server</td>
+    </tr>
+    <tr> 
+      <td>9</td>
+      <td>In config tab, create new subsuffix with db for it. eg, create ou=seattle,ou=on,ou=na,dc=hybridauto,dc=com</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>10</td>
+      <td>In database tab, create a matching subsuffix</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>11</td>
+      <td>Enable replication. (On Central Master Server and Backup Master Server, 
+        this would need to be a &quot;multi-master&quot; replicatoin)</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>12</td>
+      <td>&nbsp;</td>
+      <td>In config tab, create subsuffix matching that created in step 9, create 
+        the db with it to store the data locally</td>
+    </tr>
+    <tr> 
+      <td>13</td>
+      <td>&nbsp;</td>
+      <td>In database tab, create ou matching above (may not really need to create 
+        this manually)</td>
+    </tr>
+    <tr> 
+      <td>14</td>
+      <td>&nbsp;</td>
+      <td>Assign a unique replication id to this machine to use (if servers are 
+        numbered sequentially, this is a good number to use).</td>
+    </tr>
+    <tr> 
+      <td>15</td>
+      <td>&nbsp;</td>
+      <td>Enable replication (It maybe desirable to setup the Local Replica to 
+        act as Local Master for this domain that host local user, as such, the 
+        replication would be a &quot;multi-master&quot;, and not dedicated consumer.</td>
+    </tr>
+    <tr> 
+      <td colspan=3>IV. Setup Replication agreement</td>
+     
+    </tr>
+    <tr> 
+      <td>16</td>
+      <td>
+        In config tab, replicatin branch in the tree:
+        <LI>centralServer-seattle, new agreement: SE-central2se
+        <LI>consumer is ldap3:389
+        <LI>simple auth, uid=replication manager, cn=config (created in step 1, 
+          enabled for writing in step 3)
+        <LI>Do NOT initialize consumer (at this time).
+        </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>17</td>
+      <td>&nbsp;</td>
+      <td>
+        In config tab, replication branch of the tree, create a &quot;back-fill&quot; 
+          replication from the local master back to central master, db name: localMaster-seattle:
+        <LI>right click and add a new replication agreement. 
+        <LI>call it SE-SE2central
+        <LI>consumer: ldap1:389 (central master server)
+        <LI>Do NOT initialize conumer 
+      </td>
+    </tr>
+    <tr> 
+      <td>18</td>
+      <td>
+        <p>Tail the error log (slapd-ldap1/logs/error). <BR>
+           Initialize consumer.</p>
+      </td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td colspan=3>V.  Replication with Backup Master - repleat stage IV, adjust 
+        as: </td>
+    </tr>
+    <tr> 
+      <td>19</td>
+      <td>(step 16): name replication agreement as SE-backup2se, multi-master 
+        replication</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr> 
+      <td>20</td>
+      <td>&nbsp;</td>
+      <td>
+        (step 17) name for replication:
+        <LI>localMaster-SE
+        <LI>SE-SE2backup
+
+      </td>
+    </tr>
+  </table>
+
+
+<!--  old notes before table was added... 
+Setup outlines (some steps maybe missing, see separate docs).
+
+<OL>
+<LI>
+<LI>
+<LI>enable changelog
+<LI>add the replication manager user to the local machine config
+<LI>create the replications
+<LI>
+<LI>create DB on new ldap machine, remove all unecessary junk (default People, Group, Special users).
+<LI>Add replication agreements  (Multi Master)
+<OL>
+  <LI> On Central Master Server: Setup replication for "userRoot"
+  <LI> On Slave Server (Local Master): set "userRoot: as dedicated consumer of the replication
+  <LI> On CM: Setup replication agreement for each "Domain" between CM and all Salve Servers.
+  <LI> On Slave: Setup replication agreement back to CM, be sure not to initialize the client.
+</OL>
+<LI>On CM: create the OU for the new domain
+<LI>
+<LI>Create the database on the slave (local master) so that it will host a read-only database.
+<LI>Create a new ou=NewDomainName on the slave (a new sub-suffix under the root).
+<LI>Enable the replication for the newly created sub-suffix.
+<LI>
+<LI>
+<LI>When all the replications agreement are set, initialize the consumers.
+<LI>
+</OL>
+-->
+
+<br>
+When defining the replication agreements, for database that need multi-master, it maybe best to select such type of replication from the beginning.  This is because the GUI console is rather buggy, and it has a tendency to put in a random number if the replication is first setup as dedicated consumer.  If error happens, it is probaby best to blow away the replication agreement and redo it.  For those really brave, the slapd server can be shut down and edit the dse.ldif file manually :)
+It was actually possible to define the replication agreement as ldif file that one just paste into the dse.ldif, but I don't konw the details.
+
+<BR><br>
+
+Other things to remember when setting up additional server:
+<LI> Copy custom schemas into the schema directory and restart the DS.
+     /opt/redhat-ds/slapd-*/config/schema, typically starts with number 61
+     thru 98.
+<LI> Uniqueness plugin, either thru ldif import or set them up manually on the
+     GUI console.
+<LI> Tail the error logs when doing replicaiton test.  Sometime console reports status as good but when in fact error log shows replication problems.
+<LI> Ensure each server is assigned a uniq replicaiton id.  Last octet(s) of the server IP address may work.  Naming the servers with numerical sequence and using that number may also be a good idea.
+<LI> Perform any server-specific changes to each machine, eg change password
+encryption from default SSHA to the more compatible CRYPT.
+
+<br><br>
+
+<A ID="server_transfer"></A> 
+<H2>Server Transfer</H2>
+<BR>
+If there is ever a need to migrate the RedHat Directory Server from one
+physical server to another, here is one possible method.
+
+This method assumes that you have at least one other server that can pick up
+all the workload, or downtime is acceptable.
+<BR>
+
+<OL>
+<LI>Stop slapd
+<LI>Create a tar of the whole /opt/fedora-ds
+<LI>Transfer this tar to the new server
+<LI>Untar into /opt/fedora-ds (rename the existing dir if the fedora rpm has
+already been added)
+<LI> Shutdown or otherwise network disconnect the old ldap server
+<LI> Configure the new LDAP server to have hostname (and optionally IP) of the old server 
+<LI> Start slapd on the new server
+</OL>
+
+
+
+<BR>
+
+<A NAME=cf></A>
+<A ID="client"></A> 
+<H1>LDAP Client Config and Troubleshooting</H1>
+
+<A ID="solaris-client"></A> 
+<H2>Solaris</H2>
+
+Config files: <BR>
+<LI>/etc/pam.conf
+<LI>/etc/nsswitch.conf
+<LI>
+
+<PRE>
+
+/etc/init.d/ldap.client stop		# restart ldap client bind process
+/etc/init.d/ldap.client start
+
+svcadm enable network/ldap/client	# solaris 10
+
+/usr/lib/ldap/ldap_cachemgr -g 		# generate a new cache, display status
+
+/etc/init.d/nscd stop			# restart name service daemon
+/etc/init.d/nscd start
+
+
+</PRE>
+
+<A ID="ldaplist"></A>
+<H4>ldaplist</H4>
+Solaris support the ldaplist command that does the equivalent of ypcat in the
+NIS world.  It is easier than ldapsearch in the sense that it will use the 
+BASEDN and ldapserver that is already configured for a given ldap client
+machine.   If ldaplist work, then the client is correctly configured to talk 
+to the ldap server (whereas ldapsearch just means the ldap server is
+reachable).  It is probably tuned to work with the Sun One Directory Server, 
+but many specific queries will work with RedHat/Fedora DS also.
+<BR>
+Also, command works better when <TT>ldapclient init</TT> is used, rather than 
+hacking the machine to work by copying files to /var/ldap.
+
+<PRE>
+
+ldaplist    passwd "*"		# list all user, equiv of ypcat passwd
+ldaplist -l passwd tin		# display detailed info about user tin
+ldaplist -l group  \*		# list all groups and their members
+
+ldaplist    auto_master  \*	# list master automount info, like ypcat -k auto.master
+ldaplist -l auto_nfshome tin	# give specific details for /nfshome/tin
+
+ldaplist -l aliases root	# find out email alias definition for user root
+
+
+</PRE>
+
+
+<BR><BR>
+
+<A ID="aix-client"></A>
+<A HREF="aix.html#tax">
+<H2> AIX</H2>
+</A>
+<H6>AIX as LDAP client</H6>
+
+<UL>
+<LI>5.1:  Only support AIX LDAP schema.  To bind to OpenLDAP or Fedora DS, need to
+use PADL nss_ldap module.
+<BR>
+<LI>5.2:  Provided a mapping function and thus can use standard RFC2307 from
+any ldap server.  But can only bind using cn=Director Manager, and the
+password is stored as clear text in the ldap.cfg file (def it is only readable by root).
+
+<LI>5.3 Base:  same support as 5.2
+<LI>5.3 w/ ML3:  mksecldap -a ldap_auth allows binding using proxyagent.
+password is encrypted in ldap.cfg
+<LI>5.3 w/ ML4:  provides updated automount (nfs.client.rte 5.3.0.40), allowing it to  queries maps from ldap server directly.
+</UL>
+
+<BR>
+
+<H6>Config and Test Commands</H6>
+
+<PRE>
+mksecldap -c -h ldap03.hybridauto.com -a "cn=Directory Manager" -p bigsecret -d "dc=hybridauto,dc=com" -u NONE
+## Bind as Directory Manager, kinda bad.  
+## Some older sys password is in clear text in teh ldap.cfg file!!
+
+mksecldap -c -h ldap03.hybridauto.com -a "cn=proxyagent,ou=profile,dc=hybridauto,dc=com" -p secret -A ldap_auth -d "dc=hybridauto,dc=com" -u NONE
+## Works for AIX 5.3 with ML 3 patches, bind for authorization only, using
+## proxyagent  (which is just a normal People OU in the profile OU).
+## One can edit the ldap.cfg file and remove the user and password for
+## anonymous bind.
+
+
+
+
+lsuser -R LDAP tin	# see if user "tin" is defined in LDAP
+			# AIX command, in /usr/sbin
+
+ls-secldapclntd		# check status of ldap connectivity, in /usr/sbin
+stop-secldapclntd
+start-secldapclntd
+restart-secldapclntd
+flush-secldapclntd
+
+</PRE>
+
+<H6>Config Files</H6>
+<LI>/etc/security/user <BR>
+<LI>/etc/security/ldap/ldap.cfg
+<LI>/etc/irs.conf 
+	<OL>
+	<LI>Update needed if using PADL nss_ldap module.  
+	<LI>No changes needed in AIX 5.3, and there should be no clause for
+	automount if it is to query LDAP for the maps 
+	(stating that it should query from LDAP makes it fail!)
+	</OL>
+<LI>/usr/lib/security/methods.cfg.  
+    LDAP clause need to be present, added by ldap.client.rte
+<LI>/etc/pam.conf (no changes are typically required)
+<LI>/etc/inittab has extra clause for ldap: <BR>
+	<TT>ldapclntd:2:once: /usr/sbin/secldapclntd > /dev/console 2>&1</TT><BR>
+    Any service that depends on ldap user auth need to be placed below this
+    line (eg Clear Case, custom rc script that start services using LDAP user
+    credentials)
+<LI>
+<LI>/etc/profile, /etc/csh.cshrc: <BR>
+$AUTHSTATE (env variable: LDAP, compat, files.  It define default, first method for UID resolution)
+<LI>
+
+
+
+<BR><BR>
+
+
+<H6>/etc/security/user config details</H6>
+the "default" clause should say something like:
+
+<PRE class=cf>
+default:
+	SYSTEM = "LDAP or compat or DCE"
+	(...)
+</PRE>
+
+This would allow local user account to be checked.  
+If the order is "compat or LDAP", ldap user who telnet in will see a small error message about 
+"invalid login name or password" and then move on to LDAP and log the user right in (assuming currect pam.conf).  If the order is "LDAP or compat", then somehow local user can still login even if there is matching USERNAME on LDAP with /bin/false for shell.  
+IBM doc says DCE is used for X windows login, but seems to work w/o it anyway.  <BR>
+
+Lastly, if somehow local user still doesn't work, then a specific clause for the
+user need to be added, one that looks similar to the entry for the root user.  Either run commands like:  <BR>
+chuser SYSTEM=compat db2inst8  <BR>
+chuser SYSTEM=compat registry=files db2inst8  <BR>
+(registry deal with where the password is stored.  For LDAP, it would be "registry=LDAP").
+Alternatively, one can edit the file manually.  Final config should look like:  <BR>
+
+<PRE class=cf>
+db2inst8:
+	SYSTEM = "compat"
+	(...)
+</PRE>
+
+<BR><BR>
+
+IBM claims that the extension, RFC2307AIX, provides additional support for AIX
+5.2 onward.  It was supopsed to be a transparent addition that does not affect
+other clients that do not use such feature.  The ldif file for schema
+update is provided on AIX machines at /etc/security/ldap/nisSchema.ldif .
+This extra support is not required, but provides AIX with additional user
+tracking support.
+
+<BR><BR>
+
+<H2>Linux</H2>
+
+<PRE>
+authconfig
+or
+/etc/ldap.conf
+/etc/nsswtich.conf
+
+anonymous bind works if server allows it, proxyagent bind wilL need to put password 
+in a separate file 600 root and contain password in clear text.
+
+
+automount: 
+/etc/sysconfig/autofs, define BASEDN so that it will locate the correct auto*master 
+autofs rpm version at least 4.1.3-174 need to be available to support maps retrieval thru LDAP.
+
+</PRE>
+<BR><BR>
+
+<A ID="hpux-client"></A>
+<H2>HPUX</H2>
+
+
+<PRE>
+Config files:
+
+/etc/opt/ldapux/ldapclientd.conf	# LDAP-UX daemon config file
+/etc/nsswitch.conf
+/etc/pam.conf 		# can use pam.ldap as template
+
+Config commands:
+
+swlist -l product | grep -i ldapux
+# Ensure that ldapux package is installed.  
+# Need at least version B.03.30...
+
+cd /opt/ldapux/config
+./setup
+# this is the main config for the ldap-ux module
+# to configure HP-UX to use ldap for user authentication
+# it is an interactive program
+# will ask ldap server name, port, and 
+# the hpux/ldapux profile dn path/location
+
+
+cd /opt/ldapux/config
+./ldap_proxy_config -i
+cn=proxyagent,ou=profile,dc=unixville,dc=com
+proxyagentpass
+# configure ldapux to use a proxyagent
+# the two lines after the command are entered after the command is issued
+# there is no prompt, just enter "username" and password, 
+# one line at a time, and then the command prompt will return
+
+
+./ldap_proxy_config -p
+# print out the config setup above
+
+./ldap_proxy_config -v
+# verify proxy agent config, should return "verified - valid"
+
+Automount:
+
+swlist -l product | grep -i auto
+# Ensure Enhanced Autofs is installed
+# Need at least version ...
+
+
+
+</PRE>
+<BR><BR>
+
+<A ID="generic-client"></A>
+<H2>Generic</H2>
+
+These are commands available in most OS, unless otherwise specified.
+
+<PRE>
+
+id -a tin		# see id of user (all platform, but diff flags)
+
+getent  		# get entries from administrative database as def by nsswitch.conf
+	  		# avalable on solaris, linux, hp-ux.
+        		# But there is NO service that look up automount maps :(
+getent passwd		# equiv of cat /etc/passwd, but retrieving the content from whatver nsswitch has configured .
+			# multiple source will be queried and result combined 
+
+getent shadow		# typically return blank.  encrypted pw not provided.
+
+getent passwd tin    	# see if user tin is recognized
+			# similar to ypcat passwd | grep tin
+			# but would work against LDAP source.
+getent group
+getent group wheel	#  
+getent hosts		# get list of hosts , but don't retrieve from DNS.  think cat /etc/hosts
+        
+
+</PRE>
+<A ID="crypt"></A>
+<A ID="perl"></A>
+<PRE>
+perl -e "print crypt('clear-text-password','salt');"
+			# generate the CRYPT encrypted version of the string
+			# clear-text-password usnig the first two letter as
+			# the salt to seed the encryption.
+			# CRYPT is the default password encrypting scheme
+			# for solaris /etc/shadow and many other unices.
+			# {CRYPT}encrypted entry can be used in ldif file
+			# for password import into LDAP POSIX User account.
+</PRE>
+
+
+<A ID=link></A>
+<H1>Reference</H1>
+
+<H3>Online</H3>
+<UL>
+<LI><A HREF="http://www.padl.com">PADL</A> (LDAP spelled backward), is a company that provides many LDAP
+modules for many OS, as well as conversion scripts, NIS Gateway, etc.  
+<LI><A HREF="http://www.symlabs.com/Training/LSC/">SymLabs LDAP</A> online training tutorial
+<LI><A HREF="http://www.enterprisenetworkingplanet.com/netsp/article.php/1444871">Online article about LDAP</A> and how company will eventually have to adopt it.
+<LI><A HREF=""></A>
+</UL>
+<BR>
+
+<H4>Red Hat</H4>
+<UL>
+<LI><A HREF="http://www.redhat.com/docs/manuals/dir-server/">RH Direcoty Server Manuals</A>
+<LI><A HREF="http://directory.fedora.redhat.com/wiki/Howto:Posix">Fedora DS Posix Host Based Access Control</A>
+<LI><A HREF=""></A>
+</UL>
+<BR>
+
+<H4>IBM AIX</H4>
+<UL>
+<LI><A HREF="http://www-03.ibm.com/servers/aix/whitepapers/ldap_client.html">AIX LDAP client</A>.  An IBM white paper covering AIX 5.2 ldap authentication.
+<BR>
+<LI><A HREF="http://www.redbooks.ibm.com/abstracts/sg246622.html">
+AIX and Linux Interoperability</A> 
+An IBM Redbook that covers setting up OpenLDAP server, and client connectivity for AIX and Linux (section 2.6).
+<BR>
+<LI><A HREF="http://www.redbooks.ibm.com/abstracts/sg247165.html">
+Integrating AIX into Heterogenous LDAP Environments</A>
+Another IBM Redbook, discuss how AIX can bind to Sun One DS, IBM Tivoli DS,
+OpenLDAP and even MS ActiveDirectory (thru Services for Unix).  
+But it only cover AIX 5.3, not the
+older versions.  Bear in mind that while AIX 5.2 5.2 ldap.client.rte share much in common with 5.3,
+it still has many limitations, so not all feature of this doc will apply.  
+<BR>
+<LI><A
+HREF="http://publib16.boulder.ibm.com/pseries/en_US/aixbman/security/ldap_exploitation.htm#a02122001001endr">
+Inner working of mksecldap</A> from the
+<A
+HREF="http://publib16.boulder.ibm.com/pseries/en_US/aixbman/security/securitytfrm.htm">
+AIX 5.2 Security Guide</A>
+<BR>
+
+<LI><A HREF=""></A>
+</UL>
+<BR>
+
+
+<A NAME="books"></A>
+<H3>Books</H3>
+
+
+<UL>
+<LI>
+<A HREF="http://www.amazon.com/gp/product/1419630288/ref=sr_11_1/102-4703141-1428151?%5Fencoding=UTF8">Sun Geeks Guide to Native LDAP</A> A Native LDAP Blueprint.
+Jim Covington.  
+<A HREF="http://search.yahoo.com/search?p=isbn+1-41963-028-8">ISBN</A>
+<A HREF="http://www.google.com/search?q=1419630288">1419630288</A>.
+(c) 2006.<BR>
+This is the only book that I have found which covers native OS config to hook it up to LDAP
+for basic user authentication.  It covers Solaris, Red Hat Linux, AIX and HP-UX.  
+It is centered on the Sun Java System Directory Server, but it is largely the same as the 
+Netscape/RedHat DS, so most tasks should be carriable over.  For the server config, it provides
+steps of converting NIS data, SSL, Certificates, Replications, etc.<BR>
+
+If you are a sys admin having to convert your heterogenous environment from NIS to LDAP, this 
+book would be a necessity.  But be warned, this is NOT a comprehensive guide.  The book is very slim, 124 pages in all, with 41 figures and additional text-based output that cover most of the pages.  The author does take the admin on a step-by-step config for setting up the clients.  However, there are little explanations of what the different command does, or how to troubleshoot a problem which invariably will happen.  
+<BR>
+
+This book would server as a good reference for those admins who has already done the setup but need a quick guide to remind them of the detailed steps involved in each OS.  For those doing it a first time, the book would serve as an guide but more info would need to be digged out, yet there are no links or pointers from this book.   <BR>
+
+Lastly, the book seems to have started as web-based documentation but now got it printed.  This isn't bad, but the table of contents have page numbering that is not quite accurate.  
+Furthermore, the many screenshots in the book would be more meaningful if additional text are added to explain what was clicked to get to the view presented.
+<BR><BR>
+
+<LI>
+<A HREF="http://www.oreilly.com/catalog/ldapsa/">
+LDAP System Administration</A>.  Gerald Carter.  O'Reilly. ISBN 1565924916.  (c) 2003.<BR>
+This book covers mostly the open source LDAP server, which lacks multi-master replication, thereby rendering of limited use in enterprise avoiding SPOF (but it does support simple replications).  It starts with concise technical overview of LDAPv3, then move on to describe how to create a simple OpenLDAP server to support a simple Directory.  It does cover some specifics of client config regarding pam_ldap, nss_ldap, OpenSSH, FTP, HTTP and email/MTA.  However, it lacks details on how to configure the very many OS when the admin is seeking to replace NIS, which works very well with the native telnet, rlogin, CDE, etc. 
+<BR><BR>
+
+<LI>Understanding and Deploying LDAP Directory Services, 2nd Ed.  Howes, Smith, Good.  ISBN 0672323168.  (c) 2003.<BR>
+This book gives a comprehensive review of what LDAP is, what it can do, examples of deployment, and centered mainly the original Netscape DS.  Other than specific of the LDAP schema and LDIF fragments, a review of the Netscape DS in Ch 4, a good working overview of the replications in Ch 22, this book is largely high level business talk.  It doesn't have much details about any client connectivity, or the specifics on how to configure and maintain the Netscape DS.  The high level text that you need to do backup, have rigorous testing and go live plan, etc are of little relevance to the Sys Admin who is working on a commited project.  It concludes with a discussion of Perl Net::LDAP which would be very useful for scripting project after LDAP is established.
+<BR><BR>
+
+<LI>LDAP Directories Explained: An Introduction and Analysis.  Brian Arkills.  ISBN 020178792X.  (c) 2003.  <BR>
+Again, high level book with little technical details.  Good starter guide as to what LDAP provides.  There are some rather theoretical details in the appendices, usable as a quick reference for LDAP Architect.  But limited use for Sys Admin.
+<BR><BR>
+
+<LI>Sun LDAP Blueprint. <BR>
+This book cover only Sun's product.  The Sun DS discussion is probably applicable to the 
+DS branded by other vendor, but the client OS config is solely on Solaris, and it has lot 
+of intricacies used by itself.  
+
+</UL>
+
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL]<BR>
+<A HREF="https://tiny.cc/LDAP">tiny.cc/LDAP</A><BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/ldap.html">https://dl.dropboxusercontent.com/u/31360775/psg/ldap.html</A><BR>
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/ldap.html">http://www.cs.fiu.edu/~tho01/psg/ldap.html</A> 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#CreativeCommon>main page</A>
+ for copyright info. <BR>
+<HR>
+<!-- Just for fun. this google ad is actually from unixguide.net -->
+<script type="text/javascript">
+<!--
+google_ad_client = "pub-9786751149916387";
+google_ad_width = 728;
+google_ad_height = 30;
+google_ad_format = "728x90_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+//-->
+</script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+
+
+<!-- Google analytics new tracking code ga.js.  
+Will actually need to add this code to every page for full tracking!  
+Using my gmail login 2008-05-25-->
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-4515095-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+
+
+
+
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

@@ -1,0 +1,1153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - HP-UX</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="3" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/hpux.html">Sys Admin Pocket Survival Guide - HP-UX</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left" width="20%"><a accesskey="h" href="http://www.cs.fiu.edu/~tho01/psg/psg.html">Home</a></td>
+      <td align="center" width="60%"><A HREF="hpux.supl.html">HP-UX Supplement</A></td>
+      <td align="right" width="20%"><a accesskey="a"
+ href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<!-- set tab to 8 spaces, which is what Firefox and IE use -->
+
+<H1>HOW-TO</H1>
+
+<H2>HP-UX 101</H2>
+
+
+<PRE>
+The default setup of HP-UX often "messes up" ^C and '@' symbol.
+Default HP-UX /etc/profile map interrupt to "DEL" and kill to @.
+This cause lot of confusion.  So, I recommend that you update your keyboard 
+mapping once you get to a shell prompt:
+	stty intr 
+	stty kill 
+	stty -a	# check your settings.
+
+</PRE>
+
+
+<H5>sam</H5>
+
+<PRE>
+Text User Interface (TUI) for sys config (GUI version avail if DISPLAY set to working X server).				
+in /usr/sbin
+SAM is your friend.  It should be the first place to try if you are admin from another OS :)
+Not as good as aix smitty, but better than solaris that have nothing! 
+Use TAB key to move around, space key for select.  Arrow key works.
+
+--0--
+
+some of the major files location:
+/etc/hosts
+/etc/nsswitch.conf
+/etc/fstab
+/etc/lvmconf/vgNN   (binary files, but see all volume grp here)
+/sbin/rc.config.d/
+/sbin/rc.d/
+
+</PRE>
+
+<H2>System Setup</H2>
+<PRE>
+
+***** Initial system install checklist:   *****
+
+
+Ensure that / and /usr are fairly big, as these are not not expandable 
+unless in single user mode (or maybe onlineJFS).
+Most other volumes still need to be unmounted before fs can grow, 
+so estimating correct size is pretty important.
+OnlineJFS should allow fs expansion w/o unmount like AIX, but more money.
+
+
+
+
+Get latest of all 4 of BUNDLE11i, HWEnable11i, GoldApp and GoldBase and install them. 
+Factory OS install included the latest release of all the above 4 patch bundles.
+
+After bundles, java patches may still be needed.  See:
+http://www.hp.com/products1/unix/java/patches/index.html 
+
+Upgrading OS.
+Default CD media allow for both initial setup and upgrade.
+Upgrade has special procedure to install lot of depot first when system still 
+running.  riptide was upgraded from 11.00 to 11.11, seems to run fine.
+
+
+--------------
+
+Update HP-UX from 10x and 11.0 to 11i:
+install update-ux software from CD, then run 
+/usr/sbin/update-ux -s /cdrom HPUX11i-OE.
+
+Refer to Install and update guide in "Instant Documentation" CD.
+
+--
+HP-UX versions
+PA-RISC: 10.20 (EOL), 11.00 (11), 11.11 (11i),               11.23 (ca 2005/05)
+Itanium:                                       11.20, 11.22, 11.23
+
+
+<H2>Boot Time Troubleshooting</H2>
+
+Recovery of unbootable system.
+Default setup CD has option to do this.  It may help when 
+VxFS has crashed some critical OS partitions.
+
+
+booting  HP-UX machine into single user mode.
+
+http://www.unixhub.com/docs/hpux/hpux_boot.html
+
+(Connect dumb terminal to serial console)
+
+Press and hold ESC at the beginning of the boot process 
+(it should prompt, but if not, just hit ESC like crazy).
+
+In the PDC (firmware processor dependent code), enter
+BO to boot.  (or BO P0 isl), where P0 is the boot device to use,
+whohwn by SEArch.
+
+When it ask whether to use interactive ISL (initial system load), say yes.
+a the ISL prompt, enter :
+	hpux -is
+
+	[ thre is a 'hpux -lm' for maintenance mode also 
+	  it probably doesn't mount the / fs using normal method
+	  and thus VxFS stuff will not work
+	  -lm = lvm maint mode, sometime -is won't work when lvm is corrupted.
+	  -lq = lvm, ignore failed mirror drive
+		allow booting of machine when one of the mirrored drive
+		have failed.
+	  ll  = list content of /stand, thus see filename of alternate kernel
+		usable via eg -lm /stand/vmunix.alternate
+	]
+
+After this, should see these messages and the login prompt:
+
+Boot
+: disk(scsi.6;0)/stand/vmunix
+966616+397312+409688 start 0x6c50
+
+   Kernel Startup Messages Omitted
+
+INIT: Overriding default level with level 's'
+
+INIT: SINGLE USER MODE
+WARNING:  YOU ARE SUPERUSER!!
+#
+
+NOTE:  The VGA monitor + pc keyboard may show some optinos.
+Hit F4 to toggle remote management on (with * on it).
+This makes serial console usable.  
+
+
+When booted in single user mode with corrupted fs,
+vgchange can be used to tell Veritas Vol Mgrt which device to use.
+This is sometime needed even in non-mirrored disk.
+</PRE><!-- (eg ebbtide) --><PRE>
+vgchange -a y /dev/vg00		
+lvlnboot -v /dev/vg00
+
+fsck -F vxfs -o full,nolog /dev/vg00/rvol8
+		# fsck for drives that have lot of errors, this method
+		# may give more instructions to cmd of how to do the cleaning.
+		# by specifying -F vxfs, allow use of intent log (journaling) 			
+		# feature of JFS and thus completes much quicker.
+
+
+
+************************************************************
+clear out attention light in front panel
+
+thru serial console session:
+
+^B , enter 2x
+get into gsp mode (Guardian Service Processor cli)
+	give access to bios level control of the machine, 
+	view vfp (virtual front panel), clear hw err log, etc.
+
+sl	# sys log
+e	# errors
+n	# no filter
+q	# quit
+	
+co	# exit back to console
+************************************************************
+
+</PRE>
+<H4>---------- PDC commands ----------</H4>
+
+<PRE>
+
+PDC - Processor Dependent Code
+Accessed at boot up time by the hardware to boostrap the 
+system.  Step 1 of booting.
+Only accessible during boot time.
+Need to hit any key when prompted in a 10 seconds windows
+during boot process to enter the PDC interaction session.
+The window is after all hardware has been checked and before 
+OS bootstrab process begins.
+
+SEA	Search and display bootable device.
+	Booting from CDROM may need to use this to find 
+	device path to use for booting.
+
+BO		boot, use default dev
+BO PRI		boot, using primary (default) dev
+BO SEC		boot, using secondary disk.  Simple to do dual boot.
+BO 0/0/2/1.15	boot via specific path, see SEA.
+
+IN	enter info menu
+  ALL	display all info, there will be machine model strings 
+	to determin what class of machine it is.
+	eg  9000/800/A500-5X System Name: riptide
+	is A-class.  some software like compiler bound to the 800 designation.
+	Class info usually not shown in tag/model info in front os system :(
+
+  ME	memory info, tell which bank has what kind of DIMM, vacancy.
+
+
+</PRE>
+<H4> ---------- ISL commands ---------- </H4>
+
+<PRE>
+
+ISL - Initial System Loader
+Invoked by PDC so that it can load the kernel off /stand 
+from the hard drive.
+
+Interactions in here allow boot into single user mode, etc.
+See HOWTO section and hpux command is in ISL.
+
+hpux -is			# single user mode.  No password req!!
+hpux -lm			# LVM maintenance boot mode.
+hpux -lm /stand/vmunix.prev	# boot via specific kernel 
+hpux ll				# list kernels avai in /stand
+
+-0-
+ISL> ?
+
+    HELP          Help Facility
+    LS            List ISL utilities
+    AUTOBOOT      Set or clear autoboot flag in stable storage
+    AUTOSEARCH    Set or clear autosearch flag in stable storage
+    PRIMPATH      Modify primary boot path in stable storage
+    ALTPATH       Modify alternate boot path in stable storage
+    CONSPATH      Modify system console path in stable storage
+    DISPLAY       Display boot and console paths in stable storage
+    LSAUTOFL      List contents of autoboot file
+    FASTSIZE      Sets or displays FASTSIZE
+    800SUPPORT    Boots the s800 Support Kernel from the boot device
+    700SUPPORT    Boot the s700 Support Kernel from the boot device
+    READNVM       Displays contents of one word of NVM
+    READSS        Displays contents of one word of stable storage
+    LSBATCH       List contents of batch file
+    BATCH         Execute commands in batch file
+    LSEST         List contents of EST (Extended Self Test) file
+    EST           Execute commands in EST (Extended Self Test) file
+
+Enter 'LS' to see a list of the ISL utilities.
+
+</PRE>
+
+<H4> ---------- GSP commands ---------- </H4>
+
+<PRE>
+
+GSP - Guardian Service Processor.
+BIOS level command, accessible even when machine is 
+in Power Off state.  
+
+Use serial console or LAN console, 
+hit ^B
+default is unsecured so just press enter for username and
+password to gain GSP> prompt access.
+Accessible all the time, it will not cause any interruption of running system.
+If machine gets into boot process, user session to GSP will end.
+
+HE = help, LI in there list commands:
+
+==== GSP Help ============================================(Administrator)===
+AC  : Alert display Configuration       PC  : Remote Power Control             
+AR  : Automatic System Restart config.  PG  : PaGing parameter setup           
+CA  : Configure asynch/serial ports     PS  : Power management module Status   
+CL  : Console Log- view console history RS  : Reset System through RST signal  
+CO  : COnsole- return to console mode   SDM : Set Display Mode (hex or text)   
+CSP : Connect to remote Service Proc.   SE  : SEssion- log into the system     
+DC  : Default Configuration             SL  : Show Logs (chassis code buffer)  
+DI  : DIsconnect remote or LAN console  SO  : Security options & access control
+EL  : Enable/disable LAN access         SS  : System Status of proc. modules   
+ER  : Enable/disable Remote/modem       TC  : Reset via Transfer of Control    
+HE  : Display HElp for menu or command  TE  : TEll- send a msg. to other users 
+IT  : Inactivity Timeout settings       VFP : Virtual Front Panel display      
+LC  : LAN configuration                 WHO : Display connected GSP users      
+LS  : LAN Status                        XD  : Diagnostics and/or Reset of GSP 
+MR  : Modem Reset                       XU  : Upgrade the GSP Firmware        
+MS  : Modem Status                     
+
+-0-
+
+CO	return to console mode, exit GSP.  
+	contrast to exit, which will logoff a telnet to the LAN console session.
+LS, LC	Show and configure LAN console settings (IP, hostname, etc),
+  	extremely useful, make sure to configure it!
+TC	Send signal to OS, force it to do a core dump and reboot.
+	Probably similar to Sun OBP sync cmd.
+RS	Harshes restart of system, no OS interaction, no core.
+	SUN OBM reset.
+PC	allow turning machine on/off.  Can perform power cycle.
+	GSP and LAN console will remain usable after power off.
+	Contrast to SUN LOM and AIX serial access,
+	just need to have power fed into machine.
+PS	Monitor status of power supply, fan, etc.
+
+SL	Show log, GSP level logging, with timestamp in UTC/GMT.
+	Use this command to clear attention light.
+CL	Show text message that has been displayed to the console.
+
+VFP	display a virtual front panel, a mirror of the LED in front of machine.
+
+</PRE>
+
+
+<H2>Random Daily Tasks</H2>
+
+<PRE>
+
+
+
+
+
+changing hostname of a machine
+
+/etc/rc.config.d/netconf	# top, see HOSTNAME="name"
+/etc/hosts
+/var/adm/inetd.sec		# may not be needed.
+
+hostname NEWNAME (use this instead of reboot)
+
+don't use set_parm
+sam okay, but check files above.
+
+
+
+move machine to new subnet, maybe use sam instead of config file changes for IP/NIC settings or else
+need to edit multiple places.
+
+
+
+creating /dev/zero
+
+cd /dev
+mknod zero c 3 0x000004
+chown bin:sys zero
+chmod 666 zero
+
+
+Change system default timezone:
+edit /etc/TIMEZONE to be:
+TZ=PST8PDT
+export TZ
+
+
+
+Setting up NIS with predefinied list of servers.
+
+/etc/rc.config.d/nameserver ::
+NIS_DOMAIN-"titaniumleg.com"
+(verify with domainname, immediate activation via domainname titaniumleg.com)
+
+/var/yp/secureservers ::
+10.215.10.255 10.215.10.17
+10.215.20.255 10.215.20.21
+10.215.30.255 10.215.30.6
+10.215.40.255 10.215.40.199
+
+/usr/lib/netsvc/yp/ypbind
+
+Note that ypinit can only be used to setup master or slave server
+not to init client config.
+
+
+
+
+</PRE>
+<BR>
+<HR><BR>
+
+<A NAME="Storage"></A>
+<H1>Storage</H1>
+<H2>Disk</H2>
+
+<PRE>
+swap/paging 
+
+swapinfo
+swapon /dev/vg01/lvol2		# activate swap partition
+
+/etc/fstab entry:
+/dev/vg01/lvol2	/	swap	defaults 0 0 # swap device
+
+
+/usr/sbin/sam goto 
+Performance Monitors -> System Properties 
+	there are tabs for cpu and memory info
+
+</PRE>
+
+<H2>Volume Management</H2>
+
+<H3>creating root and swap volumes (using LVM)</H3>
+[Adapted from Unix Sys Admin Handbook (USAH) p146.]
+
+<PRE>
+ioscan -fnC disk		# scan for disk dev path
+pvcreate -B /dev/rdsk/c3t15d0	# mark disk for use as PV in LVM
+dd if=/dev/zero of=/dev/rdsk/c3t15d0 bs=64k count=10
+				# wipe out obsolete LVM marking on disk so that 
+				# pvcreate will not complain, re run pvcreate cmd
+
+mkdir /dev/vg01			
+mknod /dev/vg01/group c 64 0xNN0000	# c 64 is disk major number
+					# 0xNN0000 is uniq minor number hex, try 01, 02, ...
+					# eg, chk against ls -l /dev/vg*/group
+
+vgcreate -s8 /dev/vg01 /dev/dsk/c3t15d0	# create a new vol grp. w/ Phy Extend = 8 mb
+
+mkboot /dev/rdsk/c3t15d0		# make it bootable disk
+
+lvcreate -C y -r n -L 1024 /dev/vg01	# create contiguous dev lvol1 size 1024 MB
+lvcreate -C y -r n -L 1024 /dev/vg01	# ditto, will be named lvol2 automatically
+
+lvlnboot -r /dev/vg01/lvol1		# make lvol1 a boot partition
+lvlnboot -s /dev/vg01/lvol2		# make lvol2 a swap dev
+
+
+newfs -F vxfs /dev/vg01/rlvol1		# create the fs as veritas fs
+swapon /dev/vg01/lvol2			# activate swap
+vi /etc/fstab...
+
+# swap addition like this req disk to have a boot partition, even on 2nd disk.
+# sam may provide easier alternative.
+# also, may need to set kernel param maxswapchunk which limit max swap size in byte
+# calc as swchunk * DEV_BSIZE, whose def are 2048 and 1024, resp.
+
+
+
+non "system" volumes can be created as, eg /usr/local:
+lvcreate /dev/vg00	
+lvextend -L 2000 /dev/vg00/lvol11 	# allocate 2 GB for the Log Vol.
+newfs -F vxfs /dev/vg00/rlvol11		# lvol11 assigned dyn from above
+
+Clean up procedure, reverse of create...
+lvrmboot -r /dev/vg01			# remove root vol req for the LV.
+					# undo lvlnboot -r and -s
+lvremove /dev/vg01/lvol2		# remove the logic vol lvol2 from vg01
+lvremove /dev/vg01/lvol1
+vgremove vg				# remove the whole vol grp
+
+bdf					# df, berkeley version
+
+growfing the fs:
+lvdisplay /dev/vg00/lvolX
+# find out LE value
+umount /fsmount
+lvextend -l le_number /dev/vg00/lvolX	# where le_number is new LE value
+					# or -L sizeInMB (final size)
+extendfs  /dev/vg00/lvolX		# will fill up all allocated LE, JFS
+fsadm -F vxfs size /fsmount		# increase fs for onlineJFS.
+mount /fsmount
+
+unless have onlineJFS, need unmount before extend.  /var, /usr need boot into 
+single user mode (ISL hpux -is, -lm main mode won't work!)
+lvextend, extendfs, then reboot to increase such fs.
+Not sure how to do / !!
+</PRE>
+
+<A ID="note-contig"></A>
+<DIV class="note">
+<I>NOTE</I><BR />
+  /, /stand and swap require special policy of 'contiguous', and thus cannot be 
+  extended! (They usually correspond to lvol1 to lvol3). Wizar can do it by migrating 
+  to another disk and if onlineJFS is used. </DIV>
+
+<BR />
+
+
+<A ID="mirror"></A>
+<H3>Setup boot disk mirroring</H3>
+<!-- This was in both hpux.ref and hpux.mirror.ref, they were largely similar -->
+
+
+Boot disk mirroring.<BR><BR>
+Adapted from HP-UX 11i system administration handbook and toolkit, 2nd Ed, 
+by Poniatowski.  p140 <BR>
+
+Here is the procedure to mirror root disk, which uses HPUX native LVM, 
+and not the Veritas Volume Manager that the OS also ships with. <BR>
+
+<A ID="warn-mirror"></A>
+<TABLE class="t12">
+<TR>
+<TH>Warning</TH>
+</TR>
+<TR>
+<TD>
+While this mirroring software is native to the HP-UX OS, 
+it is an option that requires more money.  <BR>
+lvextend <STRONG>-m </STRONG> is the mirroring option that need license to be activated.
+</TD>
+</TR>
+</TABLE>
+
+<PRE>
+###
+### ++ TODO: find out how to determine if machine has license for mirroring.
+###
+
+
+# eg, existing vg00 is in /dev/dsk/c1t2d0 (0/0/1/1.2.0)
+# new drive for mirror is /dev/dsk/c2t2d0 (0/0/2/0.2.0)
+
+
+</PRE>
+<A ID="cf-fstab"></A>
+The /etc/fstab before mirroring is:
+<PRE class="cf">
+/dev/vg00/lvol3   /        vxfs delaylog 0 1   
+/dev/vg00/lvol1   /stand   hfs  defaults 0 1   
+/dev/vg00/lvol4   /tmp     vxfs delaylog 0 2   
+/dev/vg00/lvol5   /lhome   vxfs delaylog 0 2   
+/dev/vg00/lvol6   /opt     vxfs delaylog 0 2   
+/dev/vg00/lvol7   /usr     vxfs delaylog 0 2   
+/dev/vg00/lvol8   /var     vxfs delaylog 0 2   
+</PRE>
+
+<PRE>
+ioscan -funC disk
+pvdisplay /dev/dsk/c1t2d0		# get lvm info of existing disk.
+pvdisplay /dev/dsk/c2t2d0		# get err, no lvm def on it, raw disk.
+
+pvcreate -B /dev/rdsk/c2t2d0		# add physical disk to be used by LVM
+vgextend /dev/vg00 /dev/dsk/c2t2d0	# incorporate new disk to existing vg00
+
+# do some checking
+strings /etc/lvmtab			# see new disk used by lvm
+lifls /dev/rdsk/c1t2d0			# see lot of boot util
+lifls /dev/rdsk/c2t2d0			# no boot util, add next...
+
+mkboot /dev/rdsk/c2t2d0			#
+mkboot -a "hpux -lq" /dev/rdsk/c2t2d0	# SECONDARY disk, add AUTO, low quorum
+mkboot -a "hpux -lq" /dev/rdsk/c1t2d0	# PRIMARY disk, low quorum (??)
+
+lifls /dev/rdsk/c2t2d0			# see boot util, but not as extensive 
+					# as primary disk.  It is ok.
+					
+###
+###  The next steps will actually perform the mirror, 
+###  and it will fail if -m mirroring option is not activated with valid license
+###					
+
+lvextend -m 1 /dev/vg00/lvol1 /dev/dsk/c2t2d0	# add mirror for lvol1=/stand
+lvextend -m 1 /dev/vg00/lvol2 /dev/dsk/c2t2d0	# add mirror for lvol2=/ (root)
+lvextend -m 1 /dev/vg00/lvol3 /dev/dsk/c2t2d0	# add mirror for lvol3=(swap)
+# Repeat for all lvolX...
+lvextend -m 1 /dev/vg00/lvol8 /dev/dsk/c2t2d0   # add mirror for lvol8=(/var)
+lvextend -m 1 /dev/vg00/lvol7 /dev/dsk/c2t2d0   # add mirror for lvol7=(/usr)
+lvextend -m 1 /dev/vg00/lvol6 /dev/dsk/c2t2d0   # add mirror for lvol6=(/opt)
+lvextend -m 1 /dev/vg00/lvol5 /dev/dsk/c2t2d0   # add mirror for lvol5=(/lhome)
+lvextend -m 1 /dev/vg00/lvol4 /dev/dsk/c2t2d0   # add mirror for lvol4=(/tmp)
+
+setboot					# check current PDC bootpath
+setboot -a 0/0/2/0.2.0			# set PDC> BO SEC (if needed)
+
+###
+### To undo the mirroring prep work:
+###
+
+vgreduce /dev/vg00 /dev/dsk/c2t2d0
+pvremove /dev/rdsk/c2t2d0
+
+###
+###  Replacing a mirror disk  149
+###
+
+vgcfgrestore -n /dev/vgXX /dev/rdsk/c...                # vol grp conf restore
+vgchange -a y /dev/vgXX                                 # change vol grp to avai
+lable (-a y)
+vgsync /dev/vgXX                                        # resync logical vol in
+vol grp.
+
+###
+### Replace mirrored disk boot disk
+### In addition to normal mirror disk replacements steps above, 
+### add:
+###
+
+mkboot /dev/rdsk/c.t...
+mkboot -a "hpux lq" /dev/rdsk/c...
+
+reboot	# vgcfgbackup is run automatically on reboot
+
+</PRE>
+
+
+<A NAME="OVMC"></A>
+<H3>Other Volume Management Commands</H3>
+
+HP-UX >= 11  default boot disk is under control of LVM - Logical Volume Manager.
+
+<A ID="Note-lvm"></A>
+<DIV class="note">
+<I>Note</I><BR />
+HP-UX shipws with <B>TWO</B> LVM.  An native version for core OS partitions, and 
+Veritas Volume Manager for use with data partitions. <!--(hp book)-->
+Filesystem created by LVM can be hfs (/stand, boot stuff) and vxfs (root, /var, /usr, etc).
+Further note that in addition to vxfs, HP talks about JFS and onlineJFS, see fsck. <BR>
+To some extend, this is akin to Solaris, whereby some admin use the Sun Volume Manager (Disk Suite) 
+for OS disks, and Veritas for data disks.  HP-UX just happen to ship both pre-installed.
+
+</DIV>
+
+<PRE>
+LVM  devices are /dev/vg00/lvolN
+VxVm devices are /dev/vx/dsk/rootdg/volNN
+
+LVM  cmds are lv... pv... vg...
+VxVm cmds are vx...
+
+---
+
+LV = logical volume, similar to partition/slide of solaris.
+
+ioscan -fnC disk		# scan for all hard drives (+ cd/dvd).
+
+diskinfo
+
+pvcreate -B /dev/rdsk/c3t15d0	# init a raw disk dev as dev for LVM -- ie make a PV.
+pvremove /dev/rdsk/cXtXd0	# reverse/undo of pvcreate
+pvdisplay /dev/dsk/c1t15d0	# display physical vol info (disk to vol grp info)
+				# dev path from ioscan output
+
+vgdisplay -v vg00		# display (verbose) vol grp info
+				# vg00 = root vol grp (system files)
+				# /etc/lvmconf list all vol grp in system
+
+lvdisplay -v /dev/vg00/lvol8	# show logical to phy extents map for logical vol
+
+# a few more commands. some sample eg in LVM mirroring section.
+
+vgextend	# vol grp, add disk to
+vgreduce	# vol grp, remove disk from
+vgremove	# vol grp, remove it completely (all log vol in it will be gone)
+
+lvcreate	# logi vol, create (initial setup)
+lvextend	# logi vol, add space (physical extents) or mirror config
+lvreduce	# logi vol, reduce space or remove mirror
+lvchange	# logi vol, change allocation policy (congtiguous, etc)
+lvremove	# logi vol, remove it completely (fs will be gone)
+lvlnboot	# make lv bootable.
+
+newfs, extendfs etc are applied to LV to make usable filesystem.
+
+
+
+</PRE>
+
+<H2>Filesystem</H2>
+
+<PRE>
+
+mounting cdrom:
+
+mount -o ro -F cdfs /dev/dsk/c2t1d0 /mnt/cdrom
+
+alternate approach (diff format? iona cd):
+pfs_mountd &
+pfsd &
+pfs_mount /dev/rdsk/c2t1d0 /mnt/cdrom
+pfs_umount /mnt/cdrom
+
+
+</PRE>
+
+
+<H1>Connectivity (Network)</H1>
+<H2>NFS</H2>
+
+<PRE>
+
+automount typical auto startup (from ps):
+/usr/lib/netsvc/fs/automount/automount -f /etc/auto_master -D ARCH=SC_HPUX	# old automount
+/usr/lib/netsvc/fs/autofs/automountd -D ARCH=SC_HPUX				# newer autofs, /net may need some OS path in PARISC
+
+/etc/rc.config.d/nfsconf				# set both to be sure!	
+	AUTO_OPTIONS="-f $AUTO_MASTER -D ARCH=SC_HPUX"	#older automount
+	AUTOMOUNTD_OPTIONS="-D ARCH=SC_HPUX"		#newer autofs
+	see sambple config in hpux/nfsconf
+
+/sbin/init.d/nfs.client	start 		# automount/autofs, can read the std out from this script
+
+startup file is in /sbin/init.d/nfs.client
+
+Note that if NIS map auto.master use undescore like auto_home, 
+hpux won't be able to translate that to auto.home
+As such, a slew of files need to be added in /etc/auto_home with conent of
++auto.home
+
+/etc/auto.products		:: 	+auto.products
+/etc/auto.automnt		::	+auto.automnt
+
+Converting NIS server to have map with '.' should work.
+But afraid break other OS platform, not well tested yet.
+But Ohio NIS use that and it works fine!
+Ass hole before created the SNAFU for me.
+
+For compatibility issues, it is probably best to avoid both . and _ in the filename
+There should not be reason why one can't use auto_master to have entries like:
+/products 	autoproducts	# ie, no . or _
+
+Not sure of the effect on auto_home and auto_direct
+
+NFS
+
+/etc/fstab
+
+/dev/vg00/lvol8            /usr    vxfs   delaylog      0 2
+netapp:/vol/vol1/users/sa  /mnt/sa nfs    rw,intr,hard  0 0
+
+
+/etc/exports
+
+/opt	-ro
+/var	-ro
+
+exportfs -a
+
+
+</PRE>
+
+
+<H2>NIC</H2>
+<PRE>
+
+lanscan  		# list all NIC, ifconfig -a doesn't work.
+        -v		# verbose, show nic and driver, etc
+ifconfig lan0		# almost all NIC are lanX
+lanadmin -x 0		# tell what is current NIC config, eg duplex
+				# 0 is NMID from lanscan.
+lanadmin -X 100FD 0	# force settings, for this session only.
+			
+ioscan -fnC lan		# id card type and driver.
+lsdev -C lan		# list all devices of Class lan
+
+/etc/rc.config.d/hp*conf 	
+eg 	hpbtlanconf	= btlan			# a-class build-in NIC
+	hpgsc100conf	= btlan4 hsc j3515a	# some old box add on nic
+	hpbasetconf	= btlan1
+	hpbase100conf 	= btlan3 Internal (core) LAN card
+	hppci100conf	= btlan5 "external" pci card A5230A
+	hpsppci100conf	= btlan6 V-class pci lan card
+	# Update this file to 
+	# hard coded NIC settings (speed and duplex, eg 100 FD)
+	# remember to add the card interface eg lan0 in the name 
+	# section, or it will have no effect!
+	# can also change settings via lanadmin -X 100fd 
+	# but it will not live thru reboot.
+
+Determining / setting nic duplex and speed
+http://forums1.itrc.hp.com/service/forums/questionanswer.do?threadId=684614
+
+
+network driver patch for some old (a-class?) machine  btlan 
+PHNE_22727	patch for btlan for hpux 11.11, older, stable, safe patch
+PHNE_23465	latest btlan patch, have some warnings.  if work, autoneg will work better.
+
+</PRE>
+<H2>Network Config </H2>
+
+<PRE>
+
+
+
+change DNS servers
+/etc/resolv.conf		# same as solaris/aix.
+sam, networking and communications, DNS (BIND), DNS Resolver
+use Menu, Actions, Set Default Domain...  to add "search" for other dns domains.  
+config file edit is easier, only 1 file.
+
+change ip/netmask:
+sam, networking and communications, network interface cards
+# this even allow for speed duplex settings!!  Advance has mac address and mtu.
+/etc/rc.config.d/netconf 	# IP_ADDRESS[0]="10.10.10.123" SUBNET_MASK[0] 
+				# BROADCAST_ADDRESS[0]="" (blank seems to work, auto calc?)
+/etc/hosts 			# enter new IP of machine.
+
+change routing:
+sam, networking and communications, routes
+/etc/rc.config.d/netconf	# ROUTE_DESTINATION[0]="default"
+				# ROUTE_MASK[0]=""
+				# ROUTE_GATEWAY[0]="10.10.10.1"	
+				# ROUTE_COUNT[0]="1"		(aix consider it as 0)
+
+Adding default router in command line:
+route add default netmask 255.255.255.0 172.27.188.1 1
+
+
+  
+
+</PRE>
+
+<H2>Serial/console port</H2>
+<A NAME="print"></A>
+<H2>Printing</H2>
+
+<PRE>
+To add a network printer, use sam,
+printers and plotters, 
+LP Spooler, 
+Printers and Plotters, 
+
+go to Actions menu, Add Remote Printer
+
+Name of Queue to add                      --> Use printer name maching windows
+Hostname of remote server                 -->  windows print server name
+Name of queue on remote server            --> Windows printer name.
+Type of print spooler on remote server    --> System V     (ie, don't check remote is BSD)
+
+
+</PRE>
+
+
+<A NAME="SysCf"></A>
+<H1>Sys Config</H1>
+
+
+
+<H2>Package/Software management</H2>
+<PRE>
+
+
+swlist -l product 	
+	list all product/patches in system
+swlist | grep -e QPK -e GOLD
+	determine if any Quality Pack or Gold Base patch has been installed 
+	(service pack equiv).
+	Apperently, all 4 of BUNDLE11i, HWEnable11i, GoldApp and GoldBase should be installed on the system.
+	Factory OS install included the latest release of all the above 4 patch bundles.
+swlist -l product | grep PH
+	look for installed patches.  -l product seems to be needed for 11i 
+
+
+swinstall -f mysoft -s /mnt/cd
+	supposed to install software listed in file mysoft from cdrom
+
+swinstall -s /home/sa/share/software-in-cd/hpux_aC++/aC++Compiler.800.depot
+	needed to fully specify the depot file before the damn thing will recognize the file.  It is really just a tar file.
+
+swinstall -s /export/tmp/bash.depot \*
+	install everything in the depot (in this case, sure there is bash only).
+	
+	see email about where gnu tools are downloaded 
+	[http://hpux.cs.utah.edu, depot format, some ins to /usr/local/bin, 
+	other to /opt, into product specific subdirs!]
+
+
+</PRE>
+
+<H2>Patch</H2>
+
+<PRE>
+
+patch install eg:
+(patch is obtained in a "depot" file format, which is really a tar.  
+Instruction presented in here is also in a text file inside the tar.)
+
+http://www2.itrc.hp.com/service/patch/patchDetail.do?patchid=PHSS_20055&context=hpux:800:11:00
+
+	1. Back up your system before installing a patch.
+
+	2. Login as root.
+
+	3. Copy the patch to the /tmp directory.
+
+	4. Move to the /tmp directory and unshar the patch:
+
+		cd /tmp
+		sh PHSS_20055
+
+	5. Run swinstall to install the patch:
+
+[ to check that depot has been downloaded correctly:
+  swlist -d @ /full/absolute/path/PHSS_20055.depot
+]
+
+		swinstall -x autoreboot=true -x patch_match_target=true \
+			  -s /tmp/PHSS_20055.depot
+
+	By default swinstall will archive the original software in
+	/var/adm/sw/save/PHSS_20055.  If you do not wish to retain a
+	copy of the original software, use the patch_save_files option:
+
+		swinstall -x autoreboot=true -x patch_match_target=true \
+			  -x patch_save_files=false -s /tmp/PHSS_20055.depot
+
+	WARNING: If patch_save_files is false when a patch is installed,
+		 the patch cannot be deinstalled.  Please be careful
+		 when using this feature.
+
+	For future reference, the contents of the PHSS_20055.text file is
+	available in the product readme:
+
+		swlist -l product -a readme -d @ /tmp/PHSS_20055.depot
+
+	To put this patch on a magnetic tape and install from the
+	tape drive, use the command:
+
+		dd if=/tmp/PHSS_20055.depot of=/dev/rmt/0m bs=2k
+
+
+
+</PRE>
+<H2>Kernel/System Tuning</H2>
+
+<PRE>
+
+sysdef			# show many (but not all) kernel parameters
+kmtune -l		# list all kernel parameters, -l for long list (in /usr/sbin)
+
+ulimit -a	# display all limits, below are probably defaults.
+
+core file size        (blocks, -c) 2097151
+data seg size         (kbytes, -d) 1048576
+file size             (blocks, -f) unlimited
+max memory size       (kbytes, -m) unlimited
+open files                    (-n) 2048
+pipe size          (512 bytes, -p) 16
+stack size            (kbytes, -s) 8192
+cpu time             (seconds, -t) unlimited
+max user processes            (-u) 76
+virtual memory        (kbytes, -v) unlimited
+
+
+ulimit -s 	# define stack size.
+	governed by kernel static params and def vals
+	maxsiz			         8388608 (8k)
+	maxsiz_64bit		         8388608
+	suggested val for small server 401604608 (max allowed, 383K)
+
+ulimit -n 	# define max open files, def kernel values:
+	maxfiles	2048	static		4096	# soft
+	maxfiles_lim	2048	dynamic		8192	# hard
+
+
+
+maxusers	# num of users, base param as multiplier by other params
+		# does not actually govern logins.
+
+npty		# pty for user login sessions.
+nstrpty		# can set them to 1000
+nstrtel
+
+nproc		# max processes that can exist on system, 11i = static
+		# def 20 + 8 * MAXUSERS (5988?)
+
+use sam to define new params and build new kernel.
+restart is needed.
+
+</PRE>
+
+
+Kernel parameters in default os is not very good for large server,
+For large java app servers, get HP tool Java2 Out-of-box
+and it will plug in all desireble parameters.  Probably good for all server.
+<A HREF="http://www.hp.com/products1/unix/java/java2/outofbox/">
+http://www.hp.com/products1/unix/java/java2/outofbox/</A>
+
+<PRE>
+download .depot, swinstal -s /full/path/to/joob_203_1100.depot -x autoreboot=true \*
+Req reboot.  
+/usr/sbin/kmtune will display the kernel params.  It should modify:
+maxusers 512 
+nproc 2048 
+max_thread_proc 3000 
+nkthread 6000 
+nfile 3000 
+maxfiles 2048 
+maxfiles_lim 2048 
+ncallout 6000 
+maxdsiz 2063835136 
+tcp_conn_request_max 2048
+
+</PRE>
+
+<H2>Adding International Language/Locale support</H2>
+
+<PRE>
+By default, all the basic support for international language are
+installed.  Check with "locale -a".
+
+The CDE language may need to be installed manually:
+Insert CD2 of HP-UX 11i Foundation Operating Environment, then 
+run SAM Software Install and add the CDE bundle of the desired language.
+
+</PRE>
+
+
+<H2>Hardware commands</H2>
+
+model	- give machine model info
+
+<H2>Diagnostic tools</H2>
+<PRE>
+diagnostics tools:
+
+netfmt -(lot of options) /var/adm/nettl.LOGnnn > /tmp/nettl.txt
+	convert the network problem log from binary to text
+	options may have been -l -N -n -f
+
+
+stm, cstm xstm		
+	hardware diagnostic program.  text menu, cli and X based.
+	probably not well known, support people use only?
+
+tusk
+	some sort of network troubleshooting util.
+
+</PRE>
+
+<H1> Random Stuff </H1>
+For those from Solaris background:
+
+<PRE>
+Env variables:
+SHLIB_PATH			is used instead of Solaris LD_LIBRARY_PATH
+LD_LIBRARY_PATH		for 64 bit version libs.  Solaris LD_LIBRARY_PATH64
+LIB		There maybe something about the env var also.  Not sure.
+
+
+dos2unix	
+	Couldn't find such command tool, only found charconv.
+
+charconv 
+	convert input file to desired output format
+	-u = unix  LF
+	-d = dos   CRLF
+	-m = mac   CR
+	-i inputfile,  default is std in
+	-o outputfile, default to std out
+	--help more conversion info, including EBCDIC
+	eg: cat dostext.txt | charconv -u > unixoutput.txt
+
+
+Compiler:
+	The bundled cc compiler in /usr/ccs/bin/cc_bundled only takes K&R function prototype syntax, not Ansi C.
+	Moneyware aCC is Ansi C compliant and installs to /opt/aCC.
+
+
+</PRE>
+<H3>HP-UX Freeware</H3>
+<pre>
+
+Info about installing hpux gnu freeware from hpux.cs.utah.edu. into NFS server central location.
+No real need to use SAM to install the package and xfer to NFS server.
+Can just do tar trick, see note below.  Warning: Some admin may see this as kludge as 
+it bypass the software management tool.  Your choice :)
+
+/import/hpux1100/usr/local$ cat dir.info
+
+This dir is automounted as /import/hpux1100/usr/local
+Various link would exist pointing to the parent dir of /import/hpux1100, such as /titaniumlegit.  
+It could also be a symlink from slightly diff version of HP-UX 11.x
+
+
+These files are gnu freeware depot files for HP-UX 11.00 from hpux.cs.utah.edu
+
+The source is netapp:/vol/vol1/depot/hpux1100/usr/local  
+
+The source depot files are hacked via untar and set of cp commands to put them into the desired 
+usr/local/bin etc tree structure:
+
+gunzip *.tar
+mkdir untared
+cd untared
+for item in `ls ../*.depot`; do
+        tar xf $item
+done
+
+mkdir -p cleaned/usr
+cp -pR  */*/usr/* cleaned/usr
+
+and finally the cleanred/usr/local dir is moved here.
+
+
+---
+
+the opt dir is extracted in similar manner:
+
+mkdir -p cleaned/opt
+cp -pR */*/opt/*/* cleaned/opt/
+
+---
+
+http://hpux.cs.utah.edu/
+Software Porting and Archive Center for HP-UX
+Freeware for HP-UX
+
+
+</PRE>
+
+
+
+<BR><HR>
+<CENTER>
+  [Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/hpux.html">http://www.cs.fiu.edu/~tho01/psg/hpux.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#CreativeCommon>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>  
+</CENTER>
+
+<BR>
+<div align="right">
+  <font size="-4"> "ting" <BR>
+  "AUHAUH on the outside, LAPPLAPP on the inside" </font> </div> 
+  
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

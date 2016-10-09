@@ -1,0 +1,674 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+ 
+
+
+   
+<!--  xhtml format, hw6 (tables) had to use transitional instead of strict dtd.  -->    
+<!--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+the one below for strict html:
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+sttrict xhtml:
+
+-->
+
+
+
+
+
+<!--  
+CSS Class - UCSCX - 2012.07 - Final Project 
+Also making it as part of my PSG page remake.
+
+CSS validator: http://jigsaw.w3.org/css-validator/#validate_by_uri
+HTML validator: http://validator.w3.org/
+-->    
+    
+<head>
+	<title>Sys Admin Pocket Survival Guide</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="psg2.css"                type="text/css" media="screen">
+        <link rel="stylesheet" href="psg-table.css"           type="text/css">
+        <link rel="stylesheet" href="psg2-links-icons.css"    type="text/css">
+        <link rel="stylesheet" href="psg-positioning.css"     type="text/css">
+        <link rel="stylesheet" href="psg-print.css" type="text/css" media="print">
+</head>
+
+    
+<body>
+  <div id="fixie"> <!-- add a fixed position example for css final project.   potentially use to place ad, which will appear like a 3rd column on right -->
+          <div id="one"   class="skinny"><a href="plug/plug.html"><img src="plug/nema-5-20R-drawing.gif" alt="nema5pic" width="100" height="100"></a></div>
+          <div id="two"   class="skinny"><a href="fig/unixoid_hell.gif"><img src="fig/unixoid_hell.gif"  alt="vi-hell"   width="100" height="77" ></a></div>
+          <div id="three" class="skinny"><a href="fig/Assistant.gif"><img    src="fig/Assistant.gif"     alt="clippie"   width="100" height="77" ></a></div>
+          <div id="four"  class="skinny"><!-- empty for now --></div>
+  </div> <!-- closes #fixie -->
+
+    
+<div id="wrapper">
+  <div id="header">
+    <div id="title">Sys Admin Pocket Survival Guide</div>
+    <div id="sub-title">A Quick Reference Guide for Sys Admins with Alzeimer :)</div>
+  </div> <!-- closes header -->
+  
+  <div id="navigation">
+      <!-- the replace was not inside hightlight area, but whole page, finc and put back some strong and em in doc...-->
+   <!--  strong, em, h5, or div are not allowed to be nested inside ul !!  -->
+       <div class="azul">Unix</div>
+	<ul>
+        <li> <a href="sul>.html">Solaris</a></li>
+        <li> <a href="linux.html">Linux</a></li>
+        <li> <a href="hpux.html">HP-UX</a> and <br>
+                <a href="hpux.supl.html">supplement</a></li>
+        <li> <a href="aix.html">AIX</a> and <br>
+                <a href="aix_cd_catalog.html">AIX CD catalog</a><br></li>
+        <li> <a href="irix.html">Irix</a></li>
+        <li> <a href="dos.html">Windows</a></li>
+        <li> <a href="apple.html">Apple Mac</a></li>
+	</ul>
+
+        <div class="azul">Storage</div>
+	<ul>
+        <li> <a href="netapp.html">NetApp</a></li>
+        <li> <a href="emc.html">EMC SAN - Clariion</a></li>
+        <li> <a href="emcCelerra.html">EMC NAS - Celerra</a></li>
+        <li> <a href="isilon.html">Isilon</a></li>     
+        <li> <a href="fs.html">Unix File System</a></li>
+	</ul>
+
+        <div class="azul">Big Data</div>
+	<ul>
+        <li> <a href="lsf.html">LSF, PBS/Torque, LSF.</a></li>
+        <li> <a href="mpi.html">MPI, PVM</a></li>
+        <li> <a href="sci-file.html">Science File Format/Info</a></li>
+        <li><a href="sci-app.html">Sci-App</a></li>
+	</ul>
+            
+      
+        <div class="azul">Unix Dev</div>
+	<ul>
+  	<li><a href="development.html">compilers, etc</a></li>
+  	<li><a href="shellScript.txt">sh/bash, csh/tcsh</a></li>
+  	<li><a href="awk.txt">AWK</a></li>
+  	<li><a href="perl.html">Perl</a></li>
+  	<li><a href="python.html">Python</a></li>
+  	<li><a href="php.html">PHP</a></li>
+  	<li><a href="javascript_eg.html">javascript_eg</a></li>
+   	<li>gcc</li>
+  	<li><a href="gdb.html">gdb</a></li>
+   	<li>java</li>
+   	<li>rcs, cvs, p4, subversion</li>
+	<li><a href="vi.html">vi</a></li> 
+	</ul>
+
+        <div class="azul">Network</div>
+	<ul>
+        <li> <a href="net.html">Network</a></li>
+        <li> <a href="infiniband.html">InfiniBand</a><br></li>
+        <li> <a href="acopia.html">Acopia</a></li>
+	</ul>
+
+        <div class="azul">Misc</div>
+	<ul>
+        <li> <a href="ldap.html">LDAP</a><BR></li>
+        <li> <a href="admin.html">General Unix Sys Admin </a></li>
+        <li> <a href="toul>.html">Sys Admin tools and performance tuning</a></li>
+        <li> <a href="vnc.html">VNC, X Emulation</a></li>
+        <li> <a href="backup.html">Unix backup</a></li>
+        <li> <a href="general_unix.html">Generic Unix Commands</a></li>
+        <li> <a href="veritas.html">Veritas</a></li>
+        <li> <a href="legato.html">Legato Networker</a></li>
+        <li> <a href="mysql.html">MySQL</a></li>
+        <li> <a href="html.txt">HTML tags</a></li>
+        <li> <a href="wiki.html">WiKi tags</a></li>
+        <li> <a href="3rdParty">3rd Party and Vendor Docs Cache</a></li>
+	</ul>
+
+        <div class="azul">IMHO</div>
+	<ul>
+        <li> <a href="monitor.html">Network monitoring toul> review</a></li>
+        <li> <a href="netArch.html">Network Architecture Approaches</a></li>
+        <li> <a href="docPlatform.html">Documentation platform</a></li>
+	</ul>
+
+        <div class="azul">Prod Review</div>
+	<ul>
+        <li><a href="termSvr.html">Terminal (Serial Console) Servers</a></li>
+        <li><a href="ent_prod.html">Enterprise Products</a></li>
+        <li><a href=""></a></li>
+        <li> &nbsp; </li>
+	</ul>
+
+        <div class="azul"><a href="psg1.html">Full TOC on main page</A></div>
+            
+  </div> <!-- closes #navigation -->
+
+
+  <!-- ########################################################## -->
+  <!-- ########################################################## -->
+  
+  <div id="content">
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/1425"><IMG SRC="fig/xkcd_tasks.png"></A>
+</div>
+
+      <p>
+  
+  <H1>Big Data</H1>
+
+
+  <A ID="hdfs"></A>
+  <H2>HDFS</H2>
+    <UL>
+    <LI> Hadoop Distributed File System.  Part of the Apache Hadoop project, but the FS can be used as back-end storage by other project such as Spark and HBase.
+    <LI> Originally designed as I/O system for Hadoop's MapReduce engine, thus good for large file stream access, not so good for small file random access.
+    <LI> HDFS focus on extensive read and few writes.  It actually does not have a random write mechanism.
+    <LI> HDFS security is weak.  It uses POSIX (UNIX) conventions, but intended to prevent accidental overwite.  It is easy to circumvent securities.    some admin may even set dfs.permissions to false and not deal with file permissions at all.
+    <LI>
+    <LI> config stored in /etc/hadoop, gazillion xml files in here :(  <BR>
+         need to duplicate this config on all nodes of the hadoop cluster.
+    <LI> NameNode: stores metadata only (Think of MDS in Lustre).  <BR>
+         defined in fs.default.name, eg: hdfs://dumbo:9000  <BR>
+     	 This tends to be a single node and presents a SPOF.  Cloudera provides an active/passive HA setup.  <BR>
+	 Actual storage location of the metadata is defined in dfs.name.dir, default to /tmp, 
+    <LI> DataNode: store file data (block)  (Think of OSS in Lustre).  <BR>
+    	 Defined in dfs.data.dir, Hadoop default to /tmp.  <BR>
+	 Different nodes can use diff path.  One possibility is each /dev/sdX be mounted as /hdfs/dataX   (but would it not be better use RAID and have single /hdfs/data? who is better at stripping and distributing load?  HDFS algorithm or RAID controller?)<BR>
+    <LI> Web interface runs on NameNode.  config in <TT>hadoop-site.xml :: dfs.http.address</TT>.   eg http://dumbo:50070/ 
+    <LI> Each DataNode has a basic file browser on <TT>dfs.datanode.http.address</TT> eg http://dumbo-data007:50075.  
+
+    <LI> Yahoo Implementation of Google's GFS and MapReduce.
+    <LI>
+    </UL>
+
+<H5>HDFS usage</H5>
+
+Ref: <A HREF="https://developer.yahoo.com/hadoop/tutorial/module2.html">YDN Hadoop</A>  This guide likely written before hdfs split off from hadoop.  Thus, the "hdfs" command was called "hadoop".
+
+<PRE>
+
+hdfs dfs -ls			# list user's HDFS BASE dir (/user/$USER)
+hdfs dfs -ls /		# list files from root of HDFS
+hdfs dfs -mkdir /user/bofh 	# make user's home dir, special priv requeired.
+
+hdfs dfs -put   foo  bar	# copy file/dir "foo" from unix to hdfs and name it bar  
+				# -put will copy file to ALL dataNodes.  
+				# -put will error if destination file "bar" already exist.
+				# -put will recursive copy if "foo" is a directory.
+hdfs dfs -put   foo     	# copy file foo from unix.  Destination is HDFS BASE dir since not specified.   ??  or not allowed ??
+
+hdfs dfs -get bar baz		# -get is to retrieve file/dir "bar" from HDFS to unix, saving it as "baz".
+				# only -put and -get deal with file exchange b/w hdfs and unix
+				# all other commands are manipulating files w/in hdfs
+
+hdfs dfs -setrep		# set replication level
+hdfs dfs -help CMD		# get help on command
+
+hdfs dfs -cat bar		# like cat inside HDFS
+hdfs dfs -lsr 		# ls -r inside hdfs
+hdfs dfs -du path		
+hdfs dfs -dus			# du -s, ie display summary data
+hdfs dfs -mv src dest		# move WITHIN hdfs
+hdfs dfs -cp src dest		# copy WITHIN hdfs
+hdfs dfs -rm path		# rm   WITHIN hdfs.  use -rmr for rm -r
+hdfs dfs -touchz path		# z for zero
+hdfs dfs -test -e|z|d  path	# Exist, Zero legth, Directory 
+hdfs dfs -stat FORMAT  path	# 
+hdfs dfs -tail -f      bar   	# tail [-f] bar (file inside HDFS)
+hdfs dfs -chmod -R 750 path
+hdfs dfs -chown -R OWNER path	# chown, if no owner defined, change to me
+hdfs dfs -chgrp -R GRP   path
+
+
+hdfs distcp -help		# read up on distributed cp, it starts MapReduce task to lighten large copy 
+
+hdfs dfsadmin -report 
+hdfs dfsadmin -help
+
+hdfs fsck PATH OPTIONS		# check health of hdfs
+
+</PRE>
+
+
+
+  <A ID="hadoop"></A>
+  <H2>Apache Hadoop</H2>
+    <UL>
+    <LI> MapReduce engine, disk centric.
+    <LI> Batch processing only.  Think of HPC, but not using a queue manager to submit shell script, general unix commands job.
+    <LI> Run specialized map-reduce program in a cluster (parallel) environment.
+    <LI>
+    <LI> Hadoop YARN: Hadoop's own scheduler to run jobs and resource management.
+    </UL>
+
+
+  <A ID="hbase"></A>
+  <H2>HBase</H2>
+    <UL>
+    <LI> Provides a NoSQL database access on top of Hadoop/HDFS.  Modeled after Google BigTable
+    <LI> Allow for efficient random read/write access, making it good for real-time data processing.
+    <LI> Data stored in key/value columnar format.
+    <LI> HBase is good when data is read and written using keys, and when records have varying number of fields so traditional SQL/Relational DB won't be a good fit.
+    <LI> NoSQL also means it is not good at joins and other complex SQL queries.
+    <LI> 
+    <LI>Adopters: Hulu, ...
+    </UL>
+
+  <A ID="hive"></A>
+  <H2>Apache Hive</H2>
+    <UL>
+    <LI> Big Data Warehouse facility on top of Hadoop/HDFS.
+    <LI> Provides HiveQL, a SQL-like way to read/write data.  
+    <LI> Can map HBase table to Hive and use its SQL feature.
+    <LI> Can map HDFS file to Hive table and use HiveQL.
+    <LI> Under the hood, Hive is converted into MapReduce.  It saves a lot of tedious coding!
+    <LI> Originally developed by Facebook.
+    <LI> Commercial support: Hortonworks
+    </UL>
+
+
+  <A ID="spark"></A>
+  <H2>Apache Spark</H2>
+    <UL>
+    <LI>in-memory for "medium data" , much faster performance than disk-based Hadoop (which tends to want to write data back to disk for syncs of distributed processing.)
+    <LI> long term storage can be stored in variety of "disk" based system, such as HDFS.
+    <LI> Can be installed and run alongside Hive.
+    <LI> Support MapReduce, but native model is RDD (resilient distributed dataset), which also allows for imperative programming.
+    <LI> Provides a uniform access to data irrespective to its underlaying source (Hive, JSON, JDBC, etc)
+    <LI> Touted as using columnar store for fast data access.  Wonder how it compares to Vertica DB.  
+    <LI>
+    <LI> My <A HREF="python.html#pyspark">Python</A> page has an example code for submitting a spark job into a Cloudera YARN cluster.
+    <LI> 
+    <LI> 
+	 <A ID="bdas"></A>
+	 Berkeley Data Analytics Stack (BDAS, or "Bad Ass"), the originator of Spark, has it implemented like this: <BR>
+         <A HREF="http://amplab.cs.berkeley.edu/software"><IMG SRC="fig/bdas-stack.png" alt="bdas stack diagram" width="96%"></A>
+     <LI> Above the Spark Core, there are several access mechanism: 
+    	<UL>
+    	<LI> Spark SQL: good for traditional Relational DB style queries <BR>
+             <A HREF="https://spark.apache.org/docs/latest/sql-programming-guide.html#getting-started">
+	     Spark SQL, DataFrames</A> getting started.
+    	<LI> Spark Streaming
+    	<LI> MLlib for machine learning
+    	</UL>
+    <LI>
+    <LI> Spark fit into a very diverse Big Data ecosystem.  It can use a wide variety of input data source, even combining them to provide a single analytics.  
+    <LI> Promising use case scenaries as described by <A HREF="http://www.informationweek.com/big-data/big-data-analytics/apache-spark-3-promising-use-cases/a/d-id/1319660">Information Week</A>:<BR>
+    <A HREF="http://www.informationweek.com/big-data/big-data-analytics/apache-spark-3-promising-use-cases/a/d-id/1319660"><IMG SRC='fig/infoweek-Spark-2015-Vision.jpg' alt="spark use cases" width="96%"></A>
+    <LI> 
+    <LI> Interesting deployment scenarios: 
+    	<UL>
+    	<LI> Spark on Mesos 
+    	<LI> Spark and Cassandra
+	<LI> GPU Computing with Spark and Python
+	<LI> Spark and Distributed Monte Carlo
+	<LI> Spark inside a Docker container
+	<LI> SparkSQL using Solr, Couchbase, Vertica DB as data source
+    	</UL>
+   <LI>
+    <LI>
+    </UL>
+
+  <A ID="kafka"></A>
+  <H2>Apache Kafka</H2>
+    <UL>
+    <LI> A Message queue for stream processing (use publish-subscribe model)
+    <LI>
+    </UL>
+
+
+
+  <A ID="storm"></A>
+  <H2>Apache Storm</H2>
+    <UL>
+    <LI>
+Storm makes it easy to reliably process unbounded streams of data, doing for realtime processing what Hadoop did for batch processing. Storm is simple, can be used with any programming language
+    <LI>
+    </UL>
+
+   <A ID="cassandra"></A>
+    <H2>Cassandra</H2>
+    <UL>
+    <LI>high scale db.  
+    <LI>Non-Relational, Schema-Free, No-SQL
+    <LI>Aggregate most data as they are written, instead of running MapReduce as post processing.  
+        (ref: <A HREF="http://blog.markedup.com/2013/02/cassandra-hive-and-hadoop-how-we-picked-our-analytics-stack/">http://blog.markedup.com/2013/02/cassandra-hive-and-hadoop-how-we-picked-our-analytics-stack/</A>
+    <LI>Adopters: ebay, ...
+    <LI>eg of commercial player: DataStax
+    </UL>
+
+   <A ID="couchdb"></A>
+   <H2>CouchDB, PouchDB, memcached, Couchbase</H2>
+    <UL>
+    <LI> Non relational, NoSQL, Schema-Free, document-oriented database for interactive application.
+    <LI> Support peer-to-peer sync, where copies of a DB can go offline, get updates, and resync with rest of network copies when reconnect online.
+    <LI> CouchDB written in the functional language Erlang!! 
+    <LI> Couchbase server is from the merching of CouchDB and memcached.
+    </UL>
+
+
+   <A ID="mongodb"></A>
+   <H2>MongoDB</H2>
+    <UL>
+    <LI> NoSQL "huMONGOus DB"
+    <LI> schema-free, store data as BSON (derivative of JSON).
+    <LI> focus on unstructured documents.  
+    <LI> User pick a shard key, and DB is load balanced using horizontal partitioning.  
+    <LI> Provide a Grid File System with automatic load balancing (based on sharding above).  
+    <LI> 
+    </UL>
+
+   <A ID="scidb"></A>
+   <H2>SciDB</H2>
+    <UL>
+    <LI> Database and code execution in the same cluster
+    <LI> Need postgres eg v8.4
+    <LI> 
+    <LI>  /opt/scidb-1.0/etc/config.ini file list nodes in cluster.  a given node can have more than 1 worker.
+    <LI> http://www.paradigm4.com/try_scidb/
+    <LI> paradigm4's SciDB: large, many dimension array.  use hpc to process large data without learning MPI, MapReduce.  
+    </UL>
+
+    <PRE>
+    su - scidb
+    scidb.py init all mycluster
+    scidb.py startall mycluster
+    scidb.py status   mycluster
+    iquery -aq "list('arrays')" 	# list avail arrays.  [] means empty list
+    iquery -q 
+    iquery -q 'create array X < x: uint64 > [ i=1:10001,1000,0, j=1:10001,1000,0]' 	# creates a test array
+    </PRE>
+
+  <H2>Docker</H2>
+    <UL>
+    <LI>container for apps.  
+    <LI>much thinner than a whole VM.
+    <LI>provides a consistent env for app to run, irrespective of underlaying OS.
+    <LI>
+    <LI>Think of yum for a mesos cluster
+    <LI>see <A HREF="docker.html">docker.html</A> for more info.
+    </UL>
+
+  <A ID="aurora"></A>
+  <H2>Apache Aurora</H2>
+    <UL>
+    <LI>support phased rollout
+    <LI>support complex rollout, at the expense of hard to use.
+    <LI>so does not support docker?  
+    </UL>
+
+
+
+  <H2>Node.JS</H2>
+    <UL>
+    <LI>App server, think of Tomcat, JBoss.  
+    <LI>Support Java Script for Map Reduce queries.  (eg, as opposed to using C#)
+    <LI>npm is the "yum" for node.js
+    <LI>
+    </UL>
+
+  <H2>Parallel Environment</H2>
+    <UL>
+    <LI> See <A HREF="mpi.html">mpi.html</A> (include OpenMP, ScaleMP, PVM). 
+    </UL>
+
+
+
+
+  <A ID="mesos"></A>
+  <H2>Apache Mesos</H2>
+    <UL>
+    <LI>Cluster manager.  Scheduler + Provider (client) model.  In addition to a typical HPC queue manager/scheduler, Mesos clients are setup as resource provider of resources, allowing for granular resource provisioning.  Client run daemon to advertise what's available, with memory, cpu and whatever portion that it wants to advertise for scheduler to dispatch job to it.
+    <LI>It is like doing time sharing of mainframe for cluster.  Allows multiple user to run (eg Hardoop) jobs at the same time.  Utilize Linux Container (like lightweight Virtual Machine) to create compartmentalization between users, and give each user a share of the hardware.  ref: https://www.youtube.com/watch?v=gVGZHzRjvo0
+    <LI>Compare to secretive Google Omega scheduler
+    <LI>
+    <LI>http://mesos.apache.org/
+    <LI>http://www.meetup.com/Bay-Area-Mesos-User-Group/
+    <LI>mesos can bootstrap various types of cluster, such as hadoop, spark.  and resize each of these cluster dynamically.
+    <LI>traditional cluster manager queue job, make user wait.  no feedback.  when job run, may fail, and a little fix may have to wait long ago.  some maybe contrain specification fix...
+    <LI>traditional cluster hard to create complex specification, eg version of GPU needed for diff app.
+    <LI>Marathon on top of Mesos... provide PaaS.  
+    <LI>Chronos... run cron job, also support dependecies.  used by Tweeter... so closer to SGE jobs? 
+
+    <LI>Support Hardoop, MPI, Torque frameworks (ie as "apps")<A HREF="http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&cad=rja&uact=8&ved=0CDMQFjAD&url=http%3A%2F%2Fpeople.csail.mit.edu%2Fmatei%2Ftalks%2F2011%2Fnsdi_mesos.ppt&ei=M9EZVfi-A-PYmAXo8YHIAw&usg=AFQjCNGrg3tXdiuV1sRCXKswd8Xw0G0Dng&sig2=ZgC596M5N2IWlRWf1jZmaQ&bvm=bv.89381419,d.dGY">mesos slide deck, 2011, amplab</A>
+    <LI> Mesos originally came from Berkeley's AMPLab.  It graduated and was donated to Apache to mature as a community project.
+    <LI>
+    </UL>
+
+  <H2>AirBnB Chronos (Mesos Framework)</H2>
+    <UL>
+    <LI>http://nerds.airbnb.com/introducing-chronos/
+    <LI>Cron replacement, for Mesos.  run any ba/sh scripts.  
+    <LI>But nature is to run job at certain time, so does not pack jobs to run like SGE queue manager.  
+    <LI>supports dependency, but multiple job scheduled to run at same time, then depends on mesos to deploy resource to run job?  potentially run jobs in parallel and slow down everyone?
+    </UL>
+
+
+<A ID="cfncluster"></A>
+<H2>CfnCluster</H2>
+
+cfncluster is a framework that deploys and maintains HPC clusters on AWS. It is reasonably agnostic to what the cluster is for and can easily be extended to support different frameworks. The CLI is stateless, everything is done using CloudFormation or resources within AWS
+<BR>
+http://cfncluster.readthedocs.org/en/latest/getting_started.html
+<BR>
+
+<A ID="starcluster"></A>
+<H2>MIT StarCluster</H2>
+Also a way to deploy and maintains HPC in AWS.  but cfncluster seems to be where the action is now.
+see <A HREF="aws.html#starcluster">aws.html</A> for sample POC setup session.
+
+<PRE>
+</PRE>
+
+<A ID="terminology"></A>
+<A ID="vocab"></A>
+<H1>Terminology</H1>
+
+<A NAME="rdd"></A>
+<H5>RDD, DataFrame</H5>
+<UL>
+<LI> RDD = Resiliet Distributed Dataset.  This is the basic data abstraction used by Spark to represent data <BR>
+     Operation on RDD revolves around MapReduce, thus needing many lambda functions in its coding.
+<LI> DataFrame, often abreviated DF, is a new, higher level construct. <BR> 
+     DF codes are closer to javaScript.  It is based in Functional approach, but the code does not require much lambda declarations to map out the deail on how to iterate thru the dataset.  <BR>
+<LI> <A HREF="https://ogirardot.wordpress.com/2015/05/29/rdds-are-the-new-bytecode-of-apache-spark/">RDDs are the new bytecode of apache spark</A> highlight a very cleaver example.  The DF code shown is:  <BR>
+     data.groupBy("dept").avg("age")
+
+
+</UL>
+
+<A ID="shard"></A>
+<H5>shard</H5>
+
+<UL>
+<LI> Shard is partitioning db into horizontal slices.  eg. using 2 letter symbols as shard keys to create  50 partitions, 1 for each state.   
+<LI> Natural way of scaling a large db across many servers.  but may not have natural shard key.
+<LI> Tend to create a single point of failure.  HA, failover, backup all get more complications.
+<LI> Adopted by quite a number of DB: MongoDB, HBase, MySQL Cluster.  
+<LI>
+</UL>
+<BR><BR>
+
+
+
+<A ID="parquet"></A>
+<H5>Apache Parquet</H5>
+
+<UL>
+<LI> Parquet provides a column-based storage for the Hadoop env.
+<LI> It provides per column compression, with special attention to complex and nested data structure
+<LI> For data that repeats inside the column, the compression and encoding puts similar data together and reduces disk I/O.
+<LI> 
+<LI> Ref: <A HREF="https://parquet.apache.org/documentation/latest/">Parquet doc</A>
+<LI> Ref: <A HREF="https://spark.apache.org/docs/latest/sql-programming-guide.html#parquet-files">https://spark.apache.org/docs/latest/sql-programming-guide.html#parquet-files</A>
+<LI>
+</UL>
+<BR><BR>
+
+<A ID="scala"></A>
+<A ID="skala"></A>
+<H5>scala</H5>
+
+<UL>
+<LI> 
+<LI> Provide functional programming, modern constructs like closures, parametric types and virtual type members.
+<LI> Compatible with java: classes b/w scala and java can call each other w/o glue code.  Thus, Scala does not force functional programming, but allows OOP as well.
+<LI> (Java 8 included annonymous (lambda) functions)
+<LI> Spark, Kafka written using Scala.
+<LI> 
+</UL>
+
+
+
+<H2>Links</H2>
+<UL>
+<LI> <A HREF="http://www.smartdatacollective.com/mtariq/120791/hadoop-toolbox-when-use-what">Hadoop toolbox</A>, gives a brief description of what Hadoop tool do what.  Also covers Hive, Pig, Sqoop, Oozie, etc.
+<LI>
+</UL>
+
+<div class="quote">
+</div>
+
+<PRE>
+</PRE>
+
+<BR><BR>
+
+<HR>
+<!-- google custom search. site-specific set to psg.skinforum.org, cuz may not be able to search dropbox -->
+<!-- need configuration at https://cse.google.com/cse/create/getcode?cx=009863428534768709666%3Amqjt3pr91t4 -->
+Search within the PSG pages:
+<script>
+  (function() {
+    var cx = '009863428534768709666:mqjt3pr91t4';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:searchbox-only></gcse:searchbox-only>
+<!-- end google custom search -->
+
+
+<A NAME="cc"></A>
+<A NAME="CreativeCommon"></A>
+<H3>Copyright info about this work
+</H3>    
+
+<p>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">Creative Commons Attribution-NonCommercial-ShareAlike2.5 License</a>.
+       <!--/Creative Commons License-->
+       <!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+       <Work rdf:about="">
+       <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/" />
+            <dc:title>Pocket Sys Admin Survival Guide</dc:title>
+            <dc:date>2005</dc:date>
+            <dc:description>A series of concise system administration notes</dc:description>
+            <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
+            <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+            <dc:source rdf:resource="http://www.cs.fiu.edu/~tho01/psg/" />
+            </Work>
+            <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+                                       <requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/>
+                                       <prohibits rdf:resource="http://web.resource.org/cc/CommercialUse"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/><requires rdf:resource="http://web.resource.org/cc/ShareAlike"/>
+            </License>
+            </rdf:RDF> -->
+
+
+<Strong>Pocket Sys Admin Survival Guide</Strong>: for content that I wrote, (<a
+ href="http://creativecommons.org/licenses/by-nc-sa/2.5/">CC</a>)  
+ <a href="http://creativecommons.org/learnmore"> <i>some rights reserved</i></a>.  
+ 2005,2012 Tin Ho [ tin6150 (at) gmail.com ]  <br>
+ 
+Some contents are "cached" here for easy reference. Sources include man pages, 
+vendor documents, online references, discussion groups, etc. Copyright of those 
+are obviously those of the vendor and original authors.  I am merely caching them here for quick reference and avoid broken URL problems.
+</p>
+
+  <br><br>
+
+
+<h3>Where is PSG hosted these days?</h3>
+  <div id="psg-url">
+  <a href="http://tiny.cc/BIGD"</a>tiny.cc/BIGD</a><br>
+  <a href="http://dl.dropbox.com/u/31360775/psg/psg2.html">http://dl.dropbox.com/u/31360775/psg/psg2.html</a> 
+  This new home page at dropbox<br>
+  
+  <A HREF="http://tiny.cc/tin6150"> 
+  http://tiny.cc/tin6150/</A>
+  New home in 2011.06.  <BR>
+
+
+
+<A HREF="http://unixville.com/~sn/psg/psg.html">http://unixville.com/~sn/psg/psg.html</A> 
+(coming soon)
+<BR>
+<a href="ftp://read:only@sn.is-a-geek.com/psg/psg.html">ftp://sn.is-a-geek.com/psg/psg.html</a> 
+My home "server".  Up sporadically.
+<BR>
+
+<!--
+Other caches in decreasing order of update frequency:  <BR>
+
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg.html
+</A> 
+(Google site, they are changing their policy and I may not be update these pages in the near future.  Last updated 2009-10-10)<BR>
+-->
+
+
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/psg.html">http://www.cs.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-06)<BR>
+<A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
+
+</div>       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  </div> <!-- #content -->
+  
+  
+  <div id="tailer">      
+            <div class="noicon">
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">
+                <img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights20.png"></a>
+            <a href="http://jigsaw.w3.org/css-validator/check/referer">
+                <img style="border:0;width:88px;height:31px"
+                    src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+                    alt="Valid CSS!">
+            </a>
+            <a href="http://validator.w3.org/check?uri=referer">
+                <img src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88">
+            </a>
+        </div>
+  </div> <!-- #tailer -->
+
+  
+  
+  
+  
+  <div id="footer"> (CC 2012) Some Rights Reserved.</div>
+  
+</div> <!-- closes wrapper --> 
+</body>
+</html>

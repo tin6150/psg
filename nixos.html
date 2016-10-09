@@ -1,0 +1,873 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+ 
+
+   
+<!--  xhtml format, hw6 (tables) had to use transitional instead of strict dtd.  -->    
+<!--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+the one below for strict html:
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+sttrict xhtml:
+
+-->
+
+
+
+
+
+<!--  
+CSS Class - UCSCX - 2012.07 - Final Project 
+Also making it as part of my PSG page remake.
+
+CSS validator: http://jigsaw.w3.org/css-validator/#validate_by_uri
+HTML validator: http://validator.w3.org/
+-->    
+    
+<head>
+	<title>Sys Admin Pocket Survival Guide</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="psg2.css"                type="text/css" media="screen">
+        <link rel="stylesheet" href="psg-table.css"           type="text/css">
+        <link rel="stylesheet" href="psg2-links-icons.css"    type="text/css">
+        <link rel="stylesheet" href="psg-positioning.css"     type="text/css">
+        <link rel="stylesheet" href="psg-print.css" type="text/css" media="print">
+</head>
+
+    
+<body>
+  <div id="fixie"> <!-- add a fixed position example for css final project.   potentially use to place ad, which will appear like a 3rd column on right -->
+          <div id="one"   class="skinny"><a href="plug/plug.html"><img src="plug/nema-5-20R-drawing.gif" alt="nema5pic" width="100" height="100"></a></div>
+          <div id="two"   class="skinny"><a href="fig/unixoid_hell.gif"><img src="fig/unixoid_hell.gif"  alt="vi-hell"   width="100" height="77" ></a></div>
+          <div id="three" class="skinny"><a href="fig/Assistant.gif"><img    src="fig/Assistant.gif"     alt="clippie"   width="100" height="77" ></a></div>
+          <div id="four"  class="skinny"><!-- empty for now --></div>
+  </div> <!-- closes #fixie -->
+
+    
+<div id="wrapper">
+  <div id="header">
+    <div id="title">Sys Admin Pocket Survival Guide - NixOS</div>
+    <div id="sub-title">A Quick Reference Guide for Sys Admins with Alzeimer :)</div>
+  </div> <!-- closes header -->
+  
+  <div id="navigation">
+      <!-- the replace was not inside hightlight area, but whole page, finc and put back some strong and em in doc...-->
+   <!--  strong, em, h5, or div are not allowed to be nested inside ul !!  -->
+       <div class="azul">Unix</div>
+	<ul>
+        <li> <a href="linux.html">Linux</a></li>
+        <li> <a href="nixos.html">NixOS</a></li>
+        <li> <a href="coreos.html">CoreOS</a></li>
+        <li> <a href="sol.html">Solaris</a></li>
+        <li> <a href="hpux.html">HP-UX</a> and <br>
+                <a href="hpux.supl.html">supplement</a></li>
+        <li> <a href="aix.html">AIX</a> and <br>
+                <a href="aix_cd_catalog.html">AIX CD catalog</a><br></li>
+        <li> <a href="irix.html">Irix</a></li>
+        <li> <a href="dos.html">Windows</a></li>
+        <li> <a href="apple.html">Apple Mac</a></li>
+	</ul>
+
+        <div class="azul">Storage</div>
+	<ul>
+        <li> <a href="netapp.html">NetApp</a></li>
+        <li> <a href="emc.html">EMC SAN - Clariion</a></li>
+        <li> <a href="emcCelerra.html">EMC NAS - Celerra</a></li>
+        <li> <a href="isilon.html">Isilon</a></li>     
+        <li> <a href="fs.html">Unix File System</a></li>
+	</ul>
+
+        <div class="azul">Big Data</div>
+	<ul>
+        <li> <a href="lsf.html">SGE/UGE, PBS/Torque, LSF.</a></li>
+        <li> <a href="mpi.html">MPI, PVM</a></li>
+        <li> <a href="sci-file.html">Science File Format/Info</a></li>
+        <li><a href="sci-app.html">Sci-App</a></li>
+        <li> <a href="bigdata.html">Big Data engines</a></li>
+	</ul>
+            
+      
+        <div class="azul">Unix Dev</div>
+	<ul>
+  	<li><a href="development.html">compilers, etc</a></li>
+  	<li><a href="shellScript.txt">sh/bash, csh/tcsh</a></li>
+  	<li><a href="awk.txt">AWK</a></li>
+  	<li><a href="perl.html">Perl</a></li>
+  	<li><a href="python.html">Python</a></li>
+  	<li><a href="php.html">PHP</a></li>
+  	<li><a href="javascript_eg.html">javascript_eg</a></li>
+   	<li>gcc</li>
+  	<li><a href="gdb.html">gdb</a></li>
+   	<li>java</li>
+   	<li>rcs, cvs, p4, subversion</li>
+	<li><a href="vi.html">vi</a></li> 
+	</ul>
+
+        <div class="azul">Network</div>
+	<ul>
+        <li> <a href="ipmi.html">IPMI</a></li>
+        <li> <a href="ipv6.html">IPv6</a></li>
+        <li> <a href="net.html">Network</a></li>
+        <li> <a href="infiniband.html">InfiniBand</a><br></li>
+        <li> <a href="acopia.html">Acopia</a></li>
+	</ul>
+
+        <div class="azul">Other</div>
+	<ul>
+        <li> <a href="softenv+modules.html">SoftEnv, Environment Modules</a></li>
+        <li> <a href="puppet.html">Puppet</a></li>
+        <li> <a href="cfengine.html">CfEngine</a></li>
+        <li> <a href="factory_pw.html">factory password</a></li>
+        <li> <a href="ldap.html">LDAP</a><BR></li>
+        <li> <a href="admin.html">General Unix Sys Admin </a></li>
+        <li> <a href="toul>.html">Sys Admin tools and performance tuning</a></li>
+        <li> <a href="vnc.html">VNC, X Emulation</a></li>
+        <li> <a href="backup.html">Unix backup</a></li>
+        <li> <a href="general_unix.html">Generic Unix Commands</a></li>
+        <li> <a href="veritas.html">Veritas</a></li>
+        <li> <a href="legato.html">Legato Networker</a></li>
+        <li> <a href="mysql.html">MySQL</a></li>
+        <li> <a href="html.txt">HTML tags</a></li>
+        <li> <a href="wiki.html">WiKi tags</a></li>
+        <li> <a href="3rdParty">3rd Party and Vendor Docs Cache</a></li>
+	</ul>
+
+        <div class="azul">IMHO</div>
+	<ul>
+        <li> <a href="monitor.html">Network monitoring tool review</a></li>
+        <li> <a href="netArch.html">Network Architecture Approaches</a></li>
+        <li> <a href="docPlatform.html">Documentation platform</a></li>
+	</ul>
+
+        <div class="azul">Prod Review</div>
+	<ul>
+        <li><a href="termSvr.html">Terminal (Serial Console) Servers</a></li>
+        <li><a href="ent_prod.html">Enterprise Products</a></li>
+        <li><a href=""></a></li>
+        <li> &nbsp; </li>
+	</ul>
+            
+	<div class="azul">More</div>
+	<ul>
+	<li><a href="psg1.html">Full TOC</A></li>
+	</ul>
+
+  </div> <!-- closes #navigation -->
+
+
+  <!-- ########################################################## -->
+  <!-- ########################################################## -->
+  
+  <div id="content">
+
+      <p>
+  
+<H2><div class="azul">NixOS 101</div></H2>
+
+<p>
+A variant of Linux that uses declarative approach.  
+Like how Cisco use a single IOS config file to define the function of a switch, router, firewall, NixOS can use a single configuration.nix file to declare all its settings.
+<br>
+Instead of using Puppet or Chef to configure the OS, NixOS natively use its own declarative language to define how the OS is to be configured.  Their emphasis is on the "what" of the config instead of the "how".  
+ie.  define that you need an apache httpd server, instead of finding what rpm to install.
+But fact is, all the unix admin knowledge is still there, just condensed into a single parameter definition file.  eg.  enable sshd.  use port 22.  define user foo.  assign the home dir /home/foo.  give it /bin/zsh as shell.
+<br>
+I also blogged <A HREF="http://geekyap.blogspot.com/2015/10/why-declarative-os-like-nixos-is-way-of.html">another reason</A> why declarative OS like NixOS is the right new paradigm.
+</p>
+Ref: 
+<A HREF="https://nixos.org/nixos/about.html">About NixOS</A>
+<BR>
+
+<H3>Terminology</H3>
+
+
+<UL>
+<li>NixOS - This refers to the Operating System </li> 
+<li>Nix - This is the package manager, new as part of the NixOS, but it can be run in other Linux distribution and OS X.  Conceptually it is source-based, but it used cached binary to speed installation.  Non-root user can install packages, and multiple versions can be maintained.   Ref: <A HREF="https://nixos.org/nix/">About Nix</A> <BR>
+Nix can be installed on Linux, even as normal user!  <A HREF="https://nixos.org/wiki/How_to_install_nix_in_home_(on_another_distribution)">details</A>
+
+</li>
+<li>Derivation:  official name of package in Nix.</li>
+<li></li>
+</UL>
+
+<PRE>
+</PRE>
+<BR><BR>
+
+<H3>Initial install</H3>
+
+<OL>
+<li>Create a bootable USB using Unetbootin based on a live dvd iso.
+(Unetbootin is like Lili usb creator, but this didn't work as of 2015.09.15 as it didn't know about NixOS yet and used generic Linux, which failed to boot).   
+    ref: <A HREF="https://nixos.org/wiki/Installing_NixOS_from_a_USB_stick">NixOS wiki</A></li>
+<li>Pre create the file system on the desired hard drive (fdisk, mkfs, lvm if desired)
+    ref: <A HREF="http://nixos.org/nixos/manual/sec-installation.html">NixOS manual install page</A></li>
+<li>mount /dev/sda1 /mnt</li>
+<li>swapon /dev/sda2</li>
+<li>nixos-generate-config --root /mnt</li>
+<li>vi /mnt/etc/nixos/configuration.nix  <BR>
+     enable grub boot loader.   add additional desired pkg.  (nano is avail if vi is not)</li>
+<li>cat /mnt/etc/nixos/hardware-config.nix <BR>
+     ensure right disk is defined as device#1.  use blkid /dev/sda1 to check disk UID.</li>
+<li>nixos-install  # this command must somehow be preprogrammed to write to /mnt, and look for configuration.nix rooted in there.</li>
+<li>give a pw for the root acc when prompted.   If it didn't ask to set a password, something went wrong and nixos install need to be run again.</li>
+<li>reboot</li>
+</OL>
+TBA: how to install behing a proxy.  this seems to be a difficult task at this time.
+
+<A ID="configuration.nix"></A>
+<H5>Basic configuration.nix for a laptop with KDE gui</H5>
+
+<!-- code has gray background, cf use normal page background -->
+<PRE class="code">
+
+# Edit this configuration file to define what should be installed on
+# your system.  Help is available in the configuration.nix(5) man page
+# and in the NixOS manual (accessible by running 'nixos-help').
+
+
+## run sudo nixos-rebuild switch 
+## to apply changes
+
+{ config, pkgs, ... }:
+
+{
+  imports =
+    [ # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+    ];
+
+  # Use the GRUB 2 boot loader.
+  boot.loader.grub.enable = true;
+  boot.loader.grub.version = 2;
+  # Define on which hard drive you want to install Grub.
+  # boot.loader.grub.device = "/dev/sda";
+  ##
+  boot.loader.grub.device = "/dev/sda";
+
+  # networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "nixon"; # Define your hostname.
+  networking.hostId = "b6e466c1";
+  networking.firewall.enable = true;
+  networking.firewall.allowPing = true;
+  networking.networkmanager.enable = true;  # https://nixos.org/nixos/manual/sec-networking.html#sec-wireless 10.1
+  #networking.wireless.enable = true;  	# true means use wpa_supplicant
+  #networking.useDHCP = false; 		# Don't run dhclient on wlan0, but break DNS
+  networking.wicd.enable = false;	# https://nixos.org/wiki/WICD wicd-gtk to run gui client
+
+  # Select internationalisation properties.
+  # i18n = {
+  #   consoleFont = "lat9w-16";
+  #   consoleKeyMap = "us";
+  #   defaultLocale = "en_US.UTF-8";
+  # };
+
+  # List packages installed in system profile. To search by name, run:
+  # $ nix-env -qaP | grep wget
+  # environment.systemPackages = with pkgs; [
+  #   wget
+  # ];
+
+  # List services that you want to enable:
+
+  # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
+  services.openssh.enable = true;
+
+  # Enable CUPS to print documents.
+  # services.printing.enable = true;
+
+  # Enable the X11 windowing system.
+   services.xserver.enable = true;
+   services.xserver.layout = "us";
+  # services.xserver.xkbOptions = "eurosign:e";
+
+  # Enable the KDE Desktop Environment.
+   services.xserver.displayManager.kdm.enable = true;
+   services.xserver.desktopManager.kde4.enable = true;
+
+  # Define a user account. Don't forget to set a password with 'passwd'.
+  # users.extraUsers.guest = {
+  #   isNormalUser = true;
+  #   uid = 1000;
+  # };
+
+  users.extraUsers.sn = {
+    isNormalUser = true;
+    uid = 1001;
+    home = "/home/sn";
+    extraGroups = [ "wheel" "networkmanager" ];
+    openssh.authorizedKeys.keys = [ "ssh-dss AABB... sn@grumpyxmas.com" ];
+  };
+
+  users.extraUsers.sa9 = {
+    isNormalUser = true;
+    uid = 999;
+    home = "/home/sa9";
+    extraGroups = [ "networkmanager" ];
+    openssh.authorizedKeys.keys = [ "ssh-dss AABB... sa@grumpyxmas.com" ];
+    hashedPassword = "testtesttest";
+  };
+  # removing a user from the config file will trigger a userdel.  
+  #but the home dir remains (understandably don't want to delete files)
+
+
+  environment.systemPackages = with pkgs; [
+        zsh wget htop nmap netcat telnet wireshark-qt
+	vim vimPlugins.ipython vimPlugins.vim-addon-syntax-checker vimPlugins.vim-addon-nix
+ 	vimNox #vimHugeX
+	python27Packages.ipython 	python34Packages.ipython
+	gpgme dos2unix bzip2 		#gzip avail by def
+	# commenting out pkg will remove the sym links and take them out of the path, 
+	# but pkg and executable is actually still avail in /nix/store
+	#gcc34                                                               
+	#gcc44   
+	# automake 	autoconf 	cmake 		gnumake
+	#couchdb			# unable to compile :(
+	aws		awscli		
+	docker 		kubernetes 	vagrant
+ 	# uge   			# gridengine not yet avail
+        #chromiumWrapper    		# this doens't seems to exist anymore
+        chromium
+	firefoxWrapper 	firefox   
+
+	# virtualisation need pkg installed, plus config param (see below)
+	linuxPackages_3_19.virtualboxHardened
+
+        kde4.networkmanagement 	kde4.kdemultimedia 	kde4.kdegraphics
+        kde4.kdeutils 		kde4.applications 	#pkgs.kde4.kdegames
+        #pkgs.kde4.kdeedu 	
+	kde4.kdebindings 	kde4.kdeaccessibility 	kde4.kde_baseapps
+        kde4.kactivities 	kde4.kdeadmin 		kde4.kdeartwork
+        kde4.kde_base_artwork 	kde4.kdenetwork 	kde4.kdepim
+        kde4.kdepimlibs 	kde4.kdeplasma_addons 	kde4.kdesdk
+        kde4.kdetoys 		kde4.kde_wallpapers 	kde4.kdewebdev
+        kde4.oxygen_icons 	kde4.kdebase_workspace 	kde4.kdelibs
+        kde4.kdevelop 		kde4.kdevplatform 	kde4.qtcurve
+        kde4.ColorSchemes 	kde4.desktopthemes 	kde4.kscreensaver
+        kde4.kwin_styles 	kde4.partitionManager 	kde4.qt4
+        kde4.yakuake 		kde4.kgpg
+
+	tightvnc 		ssvnc 			xterm
+	x86info  		binutils
+
+  ];
+
+  # package configuration
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.firefox.enableAdobeFlash = true; # for Firefox
+
+  nixpkgs.config.chromium.enableAdobeFlash = true; # for Chromium
+  nixpkgs.config.chromium.enablePepperFlash = true;
+  nixpkgs.config.chromium.enablePepperPDF = true;
+
+  security.sudo.wheelNeedsPassword = false;
+  #security.sudo.extraCOnfig
+
+  # apparently virtualbox should NOT be added just as a package
+  # https://nixos.org/wiki/Installing_VirtualBox_on_NixOS
+  # but could not get below to work, so just added as a package afterall
+  # run it by calling VirtualBox
+  # virtualisation.virtualbox.host.enable = true;
+  # probably changed to this clause below:
+  # services.virtualboxGuest.enable = true;
+  users.extraGroups.vboxusers.members = [ "sn" ];
+  # https://nixos.org/wiki/NixOS_and_Xen
+  # virtualisation.xen.enable = true;
+
+}
+
+</PRE>
+
+This is an example of 
+<A HREF="conf/configuration.nix.txt">configuration.nix</A>
+from my last nixos install.
+
+<H5>Basic hardware-configuration.nix</H5>
+
+<!-- code has gray background, cf use normal page background -->
+<PRE class="code">
+# Do not modify this file!  It was generated by 'nixos-generate-config'
+# and may be overwritten by future invocations.  Please make changes
+# to /etc/nixos/configuration.nix instead.
+{ config, lib, pkgs, ... }:
+
+{
+  imports =
+    [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
+    ];
+
+  boot.initrd.availableKernelModules = [ "ehci_pci" "ata_piix" "firewire_ohci" "usb_storage" ];
+  boot.kernelModules = [ "kvm-intel" ];
+  boot.extraModulePackages = [ ];
+
+  fileSystems."/" =
+    ##{ device = "/dev/disk/by-uuid/81c298dc-64e4-4dde-9986-069753dcdece";
+    { device = "/dev/sda1";
+      # aka /dev/sda1  label=nixos
+      fsType = "ext4";
+    };
+
+  swapDevices =
+    ##[ { device = "/dev/disk/by-uuid/3a9de093-d26c-464a-b900-0ca5e1243bb8"; }
+    [ { device = "/dev/sda5"; }
+      # aka /dev/sda5  label=swapspace
+    ];
+
+  nix.maxJobs = 4;
+}
+</PRE>
+
+This is an example of 
+<A HREF="conf/hardware-configuration.nix.txt">hardware-configuration.nix</A>
+from my last nixos install.
+
+<P>
+One can create many additional *.nix config and import them into the configuration.nix.  Some like the modularity of it.  The default config separate the hardware into its own specific file.    
+Other may place a GUI desktop part into its own file, thus easy to trim it out for a headless server.  
+Beyond that, I personally like one monolithic file, so that it is easy to run a diff between two servers to find what difference have been made that may explain functionality differences.  
+<BR>
+
+Other example config:
+<A HREF="http://ordinatechnic.com/os-specific-guides/nixos/nixos-configuration">ordinatechnic</A> <BR>
+</P>
+
+<H5>Notes on *.nix config file</H5>
+
+
+There should be a single <TT>{ config, pkgs, ... }: </TT> section.  If needed additional clause, change it , but don't add new {section}.  eg:
+<TT>{ config, <EM>lib</EM>, pkgs, ... }: </TT>.
+<BR>
+
+
+There are a couple of ways to add software package, I like:
+
+<!-- code has gray background, cf use normal page background -->
+<PRE class="cf">
+environment.systemPackages = with pkgs; [      # it is a semi-colon in there, i do find it weired...
+  kde4.applications
+  kde4.kdeutils
+  firefox
+  vim
+  emacs
+  zsh
+  w3m
+  elinks
+];
+
+</PRE>
+
+Another format used often in the 
+
+<!-- code has gray background, cf use normal page background -->
+<A HREF="http://nixos.org/nixos/manual/sec-configuration-syntax.html">NixOS manual</A>
+<PRE class="cf">
+environment.systemPackages =
+  [ pkgs.thunderbird
+    pkgs.vim
+    pkgs.emacs
+    pkgs.kde4.pgpg        
+  ];
+
+# not sure for  pkgs.kde4.pgpg        
+
+</PRE>
+
+This is the 
+<A HREF="conf/nix-env-qaP--description.txt">list of available packages</A> as of 2015.09
+
+
+<H3>Changing config</H3>
+<OL>
+<li>sudo vi /etc/nixos/configuration.nix</li>
+<li>sudo nixos-rebuild switch
+    Reboot is NOT needed.</li>
+<li>nixpkgs is for 
+    <A HREF="http://nixos.org/nixpkgs/manual/">  
+    creating new Nix Packages</A>.  
+    But sometime may need to refer to it to see what config parameters are exposed for setting in configuration.nix.  
+    eg of nixpkgs locations: 
+    /nix/store/pilijx70f4bf81w1i01pp63s5lrqlqya-nixos-14.12.875.bb79e19/nixos/nixpkgs  
+    ~/.nixpkgs  
+</li>
+</OL>
+
+<H3>Update package and OS</H3>
+
+<PRE>
+
+nix-channel --update		# apt-get update.  
+				# run as root for system-wide update (root env is used by everyone)
+				# run as user for personal's env update only.
+				# need to run this at least once to get an initial db, eg use by command-not-found
+				# This update w/in current channel, so just get bug fixes, minor changes.
+
+sudo nix-channel --add https://nixos.org/channels/nixos-15.09 nixos 	# eg upgrade from 14.12 to 15.09
+sudo nix-channel --add https://nixos.org/channels/nixos-unstable nixos 	# bleeding edge
+
+nixos-rebuild  switch		# apt-get upgrade
+				# run this after channel update to update the whole OS (pkg in environment.systemPackages)
+
+nixos-rebuild  switch --upgrade	# ie nix-channel --update nixos; nixos-rebuild switch
+
+nix-channel --list		# run as root for system-wide config
+				# generally safe to switch back and forth b/w channels, so long as they did not have Nix schema upgrade!
+
+
+
+
+nix-store --verify --check-contents		# verify all installed packages.  eg apt-get check, debsums
+nix-store --verrify --check-contents --repair	# fix/reinstall broken package (ie failed checksum)
+
+nix-env -u --keep-going				# per-user package upgrade
+nix-env -u --keep-going	-leq			# -leq will update if the dependencies are the one that changed 
+
+
+
+
+
+nix-channel --list
+            --add https://nixos.org/channels/nixpkgs-unstable	# Add additional channel (eg yum repository)
+            --remove CHANNELNAME
+
+
+</PRE>
+
+ref: <A HREF="http://nixos.org/releases/nixos/14.12/nixos-14.12.203.e3986e3/manual/sec-upgrading.html">NixOS manual ch 4 - Upgrade</A>
+<BR>
+
+<H3>SW Pakcage Versioning</H3>
+
+The configuration.nix file has provision to specify a specific version of the software to install.
+eg 
+<A HREF="https://nixos.org/wiki/Install/remove_software">remove software</A> 
+shows an example in using <TT>nixpkgs.config.packageOverrides</TT> to specify an older version of KDE.  
+<BR><BR>
+
+However, there may not be any easy provision to switch mix of different software versions and combination at will, as 
+could be done with 
+<A HREF="softenv+module.html#softenv">
+SoftEnv</A> or 
+<A HREF="softenv+module.html#module">
+modules</A>.  
+Theoretically, the different versions can all just be installed.  They are symlinks anyway, so it is just a matter of 
+having a wrapper to change out the links to pick the right versions and combinations into the user's profile.
+
+<BR><BR>
+
+On the other hand, for shops that setup a large respository of software in a centralized NFS location such as /mnt/programs, and use SoftEnv or Modules to switch between desired version depending on user's desire, Nix/NixOS will not hinter such setup.   Such NFS world is essentially a parallel universe :)
+
+<BR><BR>
+
+As to compiling program from source because Nix didn't provide it, this is still possible, but not as straight forward as say compiling a program in Ubuntu or RedHat. These problems are likely transient as NixOS matures and get wider support from the community.  Example complications are:
+<OL>
+    <LI>Depenencies are no longer in a centralized place such as /lib.  One would have to hunt for such location and feed them into ./configure .  It is worth noting that the dependencies can still be provided thru Nix, one does not have to install everything from source.  It is just that ./configure may need help finding where these dependencies are, since there is no "centralized" LD_LIBRARY_PATH where dependencies would typically be installed in most other Unix OS.</LI>
+    <LI>./configure may not correctly determine it is running in NixOS, and may use flags designating compilation for a wrong OS Environment.  eg, my last compilation of couchdb, I had to seed CFLAGS="-D _DEFAULT_SOURCE" so that configure did not create makefile for BSD.</LI>
+    <LI></LI>
+</OL>
+
+
+
+<H3>Ad-hoc package addition</H3>
+
+<P>
+NixOS allows the use of nix-env -i PKGNAME to add package.  this is similar to yum install PKGNAME.
+But for a declarative OS, I think it is best to put everything in the config file (system-wide configuration.nix or per-user ~/nixpkgs/config.nix..  
+
+<BR>
+One nice thing, say for a development machine, user can add their own package without needing root password and so such commands would be run by the user.
+<BR>
+</P>
+
+<PRE>
+nix-env -i PKGNAME 		# add   package, like yum install PKGNAME.
+nix-env -e PKGNAME 		# erase package, like rpm -e ...
+nix-env -u 			# upgrade all pkg that has update
+nix-env -q			# list packages installed by user and not as root
+nix-env -q --installed		# no diff than above
+??				# rpm -qa 
+				# no equiv of nix-env -q for root/system-wide settings (as of 8jun2011)
+nix-store -q --references /var/run/current-system/sw | cut -d'-' -f2- 	# list all downloaded packages for all user (root and per-user basis), incl deleted pkg (but not yet cleaned/garbage collected)
+
+nix-env -qa \*			# list avail pkg for install.  ie: yum list
+nix-env -qaP '*' --description	# --query --available --attr-path
+nix-env --rollback		# undo last "nix-env -i" (eg user pkg install, could be root if done as sudo and with -p)
+nix-env -p /nix/var/nix/profiles/system --list-generations	# list avail generations (one generation created per each nixos-rebuild)
+								# generation list is also present in grub menu
+
+
+nix-env --delete-generations old	# remove sw that is no longer needed to free up space, but can no longer rollback
+nix-collect-garbage 
+nix-collect-garbage -d
+
+
+
+
+nix-search  vim
+nix-install vim
+
+
+</PRE>
+
+<A HREF="https://nixos.org/wiki/Cheatsheet">Cheatsheet</A> says that as a user, can run dpkg -i packagename.deb to add a debian package!!  (not sure where files will be installed).
+Need to have the dpkg command/package installed in NixOS for this.
+
+
+<H3>Per-User package collection</H3>
+
+<PRE class="code">
+
+# https://nixos.org/wiki/Cheatsheet
+# personal's collection, here called 'all'
+# TBA, was not able to change name to sn-pkg
+# it is really just like any other pkg
+# Place file in ~/.nixpkg/config.nix
+# add the whole collection via nix-env -i all
+# NOTE: pkg installed on cli via nix-env -i dropbox would 
+# conflict with a dup listed in this file
+# also, nix-env -q will only show "all" as installed, not the individual pkg.
+# this is perhaps a problem of treating it as pkg rather than a container, now things are opaque.
+{
+  packageOverrides = pkgs_: with pkgs_; {
+    all = with pkgs; buildEnv {
+    #sn-pkg = with pkgs; buildEnv {
+      name = "all";
+      paths = [
+	#dropbox 	roxterm 	transmission
+	vlc 		w3m 		tcsh
+	file
+      ];
+    };
+  };
+}
+
+</PRE>
+
+
+<H3>Commands/Troubleshooting</H3>
+
+<PRE>
+nixos-rebuild switch	# change/update system as per /etc/nixos/configuration.nix 
+nixos-rebuild boot
+nixos-rebuild switch -p test
+nixos-rebuild build
+nixos-rebuild switch --rollback		# undo last "nixos-rebuild switch"  this will stop service, etc, whatever that were enabled would be reverted back.
+					# but will not rewrite /etc/nixos/configuration.nix (it just uses a diff cached version stored in /nix/store?)
+					# ref https://nixos.org/wiki/Install/remove_software#How_to_roll_back_software
+
+
+nixos-option services.xserver.enable	# find out what the config file has resulted.  ie, this is a read, not a set.
+
+systemctl start apache		# start a service (apache daemon), need to run as root, but best to set it perm in configuration.nix
+systemctl stop  apache		
+
+command-not-found xterm		# tell what package to install to provide a given command 
+				# DB is updated via nix-channel --update
+nox xterm                     	# present a list of packages matching the queried command
+
+
+nix-store --query --requisites $(readlink -f /run/current-system) 	# list package dependencies, eg
+									# apt-cache depends couchdb
+nix-store --query --references $(which roxterm)				# for installed package at user level
+
+??				# list files installed by a pkg,    eg dpkg -L nmap
+??				# which pkg installed a given file, eg dpkg -S /usr/bin/vim
+
+
+
+nixos-version			# tell version of running os 
+passwd username			# 
+
+</PRE>
+
+<H3>TBA</H3>
+
+environment.env		# settings for default ?
+
+
+<H3>Pros and Cons of NixOS/Nix dogma</H3>
+
+<OL>
+<LI>From <A HREF="https://lists.debian.org/debian-devel/2008/12/msg01092.html">debian devel</A>:
+    <OL>
+	<LI>Not everything can be functional.  solution such as ridding ldcache may make system slow.</LI>
+	<LI>run time and build time dependcies are intermingled.</LI>
+	<LI>Being able to go back to any previous version means never getting ride of any code, even those with security flaws.</LI>
+	<LI>May not be scalable to OS the size of Debian</LI>
+    </OL>
+</LI>
+
+
+
+<LI>From <A HREF="https://news.ycombinator.com/item?id=9708282">Y combinator</A>
+    <OL>
+	<LI>Idempotency, atomicity</LI>
+	<LI></LI>
+    </OL>
+</LI>
+
+<LI><A HREF="https://www.domenkozar.com/2014/03/11/why-puppet-chef-ansible-arent-good-enough-and-we-can-do-better/">Why Puppet/Chef/Ansible aren't good enough (and we can do better)</A>
+    <OL>
+	<LI>Chef and Fabric provides Automated Imperative Configuration</LI>
+	<LI>Puppet and Ansible provides Declarative Configuration</LI>
+	<LI>Docker... ??</LI>
+	<LI>NixOS/Nix provides stateless Declarative Config</LI>
+	<LI></LI>
+    </OL>
+</LI>
+
+<LI></LI>
+<LI></LI>
+</OL>
+<H3>Reference</H3>
+
+<UL>
+<li><A HREF="http://nixos.org/nixos/manual/index.html">NixOS manual</A> (latest version). 
+    The Appendix shows 
+    <A HREF="http://nixos.org/nixos/manual/ch-options.html">
+    Configuration Options</A> (but for v13.10) 
+    for the many packages that are added by Nix and support config directly from the configuration.nix file.
+</li>
+<li><A HREF="http://nixos.org/releases/nixos/14.04-small/nixos-14.04.610.71c13be/manual/">NixOS 14.04 manual</A> (abbreviated version in single large page, covers firewall, container, troubleshooting, the Config Options appendix, etc.  The appendix (Configuration Options) is more current than the wiki page).</li>
+<li><A HREF="http://nixos.org/releases/nixos/14.12-small/nixos-14.12.884.4137703/manual/">NixOS 14.12 manual</A>.
+</li>
+<li><A HREF="http://nixos.org/releases/nixos/15.09-small/nixos-15.09.454.71b93c7/manual/">NixOS 15.09 manual</A>(beta?).</li>
+
+<li><A HREF="https://nixos.org/wiki/Cheatsheet">NixOS cheatsheet</A>.  Also a good comparison of ubuntu commands vs NixOS, and implication of a declarative config OS.</li>
+<li><A HREF="https://github.com/NixOS/nixpkgs/issues">NixOS bug tracker</A></li>
+<li><A HREF="">tba</A></li>
+<li><A HREF="http://tba/">tba</A></li>
+</UL>
+
+<pre>
+# 
+</pre>
+
+<div class="quote">
+...
+</div>
+    
+
+<BR><BR>
+<HR>
+<BR><BR>
+
+<A NAME="cc"></A>
+<A NAME="CreativeCommon"></A>
+<H3>Copyright info about this work
+</H3>    
+
+<p>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">Creative Commons Attribution-NonCommercial-ShareAlike2.5 License</a>.
+       <!--/Creative Commons License-->
+       <!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+       <Work rdf:about="">
+       <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/" />
+            <dc:title>Pocket Sys Admin Survival Guide</dc:title>
+            <dc:date>2005</dc:date>
+            <dc:description>A series of concise system administration notes</dc:description>
+            <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
+            <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+            <dc:source rdf:resource="http://www.cs.fiu.edu/~tho01/psg/" />
+            </Work>
+            <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+                                       <requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/>
+                                       <prohibits rdf:resource="http://web.resource.org/cc/CommercialUse"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/><requires rdf:resource="http://web.resource.org/cc/ShareAlike"/>
+            </License>
+            </rdf:RDF> -->
+
+
+<Strong>Pocket Sys Admin Survival Guide</Strong>: for content that I wrote, (<a
+ href="http://creativecommons.org/licenses/by-nc-sa/2.5/">CC</a>)  
+ <a href="http://creativecommons.org/learnmore"> <i>some rights reserved</i></a>.  
+ 2005,2012 Tin Ho [ tin6150 (at) gmail.com ]  <br>
+ 
+Some contents are "cached" here for easy reference. Sources include man pages, 
+vendor documents, online references, discussion groups, etc. Copyright of those 
+are obviously those of the vendor and original authors.  I am merely caching them here for quick reference and avoid broken URL problems.
+</p>
+
+  <br><br>
+
+
+<h3>Where is PSG hosted these days?</h3>
+  <div id="psg-url">
+  <a href="http://tiny.cc/nixos">tiny.cc/nixos</a><br>
+  <a href="http://dl.dropbox.com/u/31360775/psg/psg2.html">http://dl.dropbox.com/u/31360775/psg/psg2.html</a> 
+  This new home page at dropbox<br>
+  
+  <A HREF="http://tiny.cc/tin6150"> 
+  http://tiny.cc/tin6150/</A>
+  New home in 2011.06.  <BR>
+
+
+
+<A HREF="http://unixville.com/~sn/psg/psg.html">http://unixville.com/~sn/psg/psg.html</A> 
+(coming soon)
+<BR>
+<a href="ftp://read:only@sn.is-a-geek.com/psg/psg.html">ftp://sn.is-a-geek.com/psg/psg.html</a> 
+My home "server".  Up sporadically.
+<BR>
+
+<!--
+Other caches in decreasing order of update frequency:  <BR>
+
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg.html
+</A> 
+(Google site, they are changing their policy and I may not be update these pages in the near future.  Last updated 2009-10-10)<BR>
+-->
+
+
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/psg.html">http://www.cs.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-06)<BR>
+<A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
+
+</div>       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  </div> <!-- #content -->
+  
+  
+  <div id="tailer">      
+            <div class="noicon">
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">
+                <img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights20.png"></a>
+            <a href="http://jigsaw.w3.org/css-validator/check/referer">
+                <img style="border:0;width:88px;height:31px"
+                    src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+                    alt="Valid CSS!">
+            </a>
+            <a href="http://validator.w3.org/check?uri=referer">
+                <img src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88">
+            </a>
+        </div>
+  </div> <!-- #tailer -->
+
+  
+  
+  
+  
+  <div id="footer"> (CC 2015) Some Rights Reserved.</div>
+  
+</div> <!-- closes wrapper --> 
+</body>
+</html>

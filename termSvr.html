@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Terminal Server</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - Terminal Server</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>Terminal Servers</H1>
+
+<PRE>
+Serial Console Servers
+- Digi CM32  -- very good
+  Standard cableing, good web interface for end user, 
+  target as serial console server and nothing else.
+  (more from gmail archive)...
+  ...
+  MSRP $80 per port.
+
+- Lantronix SecureLinx 
+  Feature rich, rock solid, but confusing dizzy array of config.
+  ssh included.
+  web interface for admin only, centered as dial-up modem pool.
+  VAR price, $50 per port, except 48 port one which is at $60.
+
+- Lantronix (old white box)
+  Standard RJ45 pin out, same connector as SecureLinx.
+  No SSH
+  A bit cheaper than SecureLinx
+  No https.
+  No SSH.....  NO SSH ?!?!?!  :)
+
+
+- Perle
+  Worse POS I have seen :(
+  Albeit RJ45, it uses propietary pin out => propietary connector.
+  Very clumsy web interface.
+  Bad CLI.
+  Overall, stay away if you can!
+
+- IOLAN
+  Non standard pin out also, but probably cheap.
+  Who want gazillion different type of adaptors?  
+  Stay away from it!
+
+
+- CyClades
+  Probably as good as Lantronix
+  Probably same pin out as Lantronix (ie "standard pinout")
+  Much more customizable, drop into Linux shell.
+  Know how to use vi?
+  More heavily discounted than Lantronix by VAR (FusionStorm).
+
+
+</PRE>
+
+<H2>Digi</H2>
+
+<BR>
+<PRE>
+User can be added thru https or vi /etc/ files once logged in as root.
+
+Can create access control list containing group of users.
+All port can have default access for given ACL.
+Then specific port can have its own ACL that overwrite the default ACL,
+thereby allowing specific remote admin to control specific port.
+Such remote admin would be in ACL that is listed by no access granted for "all ports".
+"all port" must not give access to "everyone"
+
+
+(Ch 8 discuss about user port access security, p70 or 40 talks about ACL)  All setup thru WebGUI. 
+</PRE>
+
+
+<H2>Lantronix</H2>
+
+(still in old serial.ref file)
+
+<BR><HR><BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/termSvr.html">http://www.cs.fiu.edu/~tho01/psg/termSvr.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

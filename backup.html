@@ -1,0 +1,627 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Backup</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/backup.html">Sys Admin Pocket Survival Guide - Unix Backup</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>Unix Native OS Backup</H1>
+
+<PRE>
+backup commands for unix.
+Ref: 
+UBR    = W Curtis Preston: Unix Backup and Recovery 
+USAH   = Unix Sys Admin Handbook, 2nd ed (the red book)
+USAH3  = The purple book
+</PRE>
+<BR>
+<BR>
+
+<H2>Backup Commands</H3>
+
+<PRE>
+
+tar	: tape archive, typical command to put many files into a single archive file
+cpio	: equiv to tar, different format.
+pax	: 
+
+dump		: backup dir, originally intented to go to tape, but can be to a file now.
+ufsdump 	: solaris version of dump command
+ufsrestore 	: 
+
+
+cpio -i [opts] [pattern]	# IN mode = extract (think tar xf)
+				# pattern should be quoted to avoid being interpreted by shell
+				# "*" would extract all files?
+
+cpio -o [opts]			# OUT mode = create a backup file (think tar cf)
+
+cpio opts:
+-B		# block input
+-c 		# use ASCII for header, more portable
+-d 		# create dir as needed
+-m		# retain file modification time
+-u		# unconditional copy, overwrite old files
+-v 		# print a list of filenames.  Think of tar tvf. ??
+-t		# display a toc of input file.  resemble ls -l  (not tar tvf??)
+
+find . -depth -print | cpio -padm /newTree	# -p copy create a tree strucutre, not creating files.
+</PRE>
+
+<H2>Solaris Backup</H3>
+
+<PRE>
+Solaris tar command eg (usable from solaris 8)
+GNU tar is better.  Solaris will not replace absolute path starting as /usr and replace it as ./usr ...
+
+tar cfv test.tar  $HOME
+
+     +----+
+     |    |
+    VV    V
+tar cfX test.tar exclude.list -I include.list
+      ^             ^         ^^     ^
+      |             |          |     |
+      +-------------+          +-----+
+
+	cf = create tar file (called test.tar)
+	v  = verbose, list files as they are tar-ed up
+   	X  = exclude list, followed by a filename (exclude.list), which 
+	     contain one file/dir per line
+	XX = list TWO exclude file list (according to man page)
+	-I = include list, followed by the filename (include.list).
+
+eg of exclude.list ::
+/tmp/logs
+/tmp/cores
+/var/cores
+
+eg of include.list ::
+/home
+/var
+/tmp	
+
+whatever that is in both include and excluce, it will be excluded.
+
+
+For Linux, GNU TAR support all of the above, and more.  
+
+-M for multi-volume support
+tar  cf -M ... ?
+
+
+
+</PRE>
+
+
+<!-- backup.ref verbatim in here, 
+    later can decide if disect this content and place 
+    different pieces in other docs.
+-->
+
+<H3>Solaris quick and dirty backup to tape</H3>
+
+<PRE>
+[UBR p 75]
+ufsdump 0ubdsf 64 1000000 1000000 /dev/rmt/0cbn /
+0 = level 0 dump
+u = update /etc/dumpdates (make sure it exist or else nothing will be done)
+b = blocking factor, default is 64 (or 126)
+d = density, just use large number
+s = size in ft, just use large number
+f = file/device to place the dump, eg /dev/rmt/0n /dev/rmt/0cbn
+	0 = tape drive number 0
+	c = use hardware compression (omit = no compression)
+	b = Berkeley style (no adv to next rec when reaching 
+	    end of current rec.  w/o b means 
+	    ATT style, which will auto adv)
+	n = non rewinding (omit = rewind)
+last param are the filesys to backup, this eg it is the root fs /.
+Note that this is only the / fs, any other fs, eg /var or /opt, will need 
+to be backed up separately.  ufsdump will not take multiple FS in a single 
+command!!
+
+Note, ufsdump support remote devices, but need to be able to rsh to that 
+remote host where the tape is. Can turn on /.rhost for root, finish 
+backup, and remove it... but it does need rsh to be on, which is more 
+involved to turn off...
+</PRE>
+
+
+<H4>solaris restore command</H4>
+
+<PRE>
+ufsrestore tbfy 64 /dev/rmt/0n
+t = table of content
+b = blocking size, usually it is 64 
+f = file/device 
+y = yes on try to continue after error, alwyas use this 
+
+other options:
+s = seek, eg dump created by hostdump.sh req restore tsbfy 2, ie, seek to 2nd record (first one by hostdump.sh is a lable)
+x = extract only listed files (provide at end of cmd), if none specified, extract all.  
+i = interactive restore, provide subshell that allows ls, pwd, add, extract, etc cmds.  For interactive restore, volume number asked by restore starts with 1 for the first volume (not 0) [USAH p195].
+v = verbose: list file as they are extracted.
+
+NOTE: I experienced some issue with tape backuped up by ufsdump from sol7 
+and then sol8 restore complained about it.  
+
+
+</PRE>
+<BR>
+
+<H3>Linux Backup</H3>
+
+<PRE>
+dump -0 -b 64    -f /mnt/vfat/dump/etc   /etc
+dump -0 -b 64 -M -f /mnt/vfat/dump/home  /home
+
+-0 = level 0 dump, may want to use 
+-0u= level 0, update dump date, for when doing incremental backup with tapes
+-b = block, 64 is good for disk xfer
+-f = output file to dump to, could be a tape device
+-M = create multi volume.  Filename is treated as prefix, 2GB file for ext2, 4GB for vfat.
+     For multi-volume, when end of tape of max FS limit reached, 
+     dump will present two prompts like:
+  	DUMP: Do you want to rewrite this volume?: ("yes" or "no") 
+  	DUMP: Do you want to start the next tape?: ("yes" or "no") 
+     Answering no to the first, and yes to the second question will 
+     make dump create a new volume, incrementing the file sequence number as needed.
+
+Note:
+- dump by default will use bzip level 2 compression, ie -j2
+- dump will generate relative path, so restore won't be forced  to overwrite fs/dir.
+- dump will NOT cross fs
+- Source path consideration:
+  If the source path is a mount point, eg /boot, then the dir name "boot" 
+  itself won't appear on the dump volume.
+  On the other hand, if the source path is a dir that is not an actual mount point, 
+  eg /etc, then the dir name "etc/" itself will be in the dump volume.
+  So, when restoring, watch out where files will be placed.  
+  restore -i first to check things our would be a good idea. 
+  See below for more details.
+
+
+restore -i -f /mnt/vfat/dump/etc
+-i = enter interactive restore, 
+-f = source file to use for restore to read data from
+     The restored file will be placed in the current dir
+
+restore -t -M -V -f /mnt/vfat/dump/home > home_restore.txt
+-t = generate table of content, but really list of all files dump 
+     expected to copy, which may not be actual list in the tape/volume, 
+     as data maybe in subsequent tape/volume that is lost and unretrievable.
+     It is somewhat similar to tar tvf, but don't offer a real test.
+-M = expect filename from -f as prefix, add 001, 002, 003, etc.
+
+</PRE>
+<BR><BR>
+
+<H3>Copying whole fs using dump</H3>
+
+<PRE>
+ufsdump of a filesystem create file of the form ./path/filename, thus 
+ufsrestore can just cd into a desired directory and restore w/o 
+overwriting existing files.  note that the relative path means other 
+mechanism need to be provided to know what fs dump is a given image.
+
+eg for Solaris:
+cd /newhd
+ufsdump 0ubdsf 64 1000000 1000000 - / | ufsrestore xbfvy 64 - 
+cd /newhd/export/home
+ufsdump 0ubdsf 64 1000000 1000000 - /export/home | ufsrestore xbfvy 64 -
+
+eg for Linux: 
+mount /mnt/newhd
+dump -0 -f - /      | (cd /mnt/newhd ; restore rf - )
+mount /mnt/newhd_boot
+dump -0 -f - /boot  | (cd /mnt/newhd_boot ; restore rf - )
+
+# Be careful that source path itself is a mount point,
+# or restore place files in undesired location.
+# Say eg if /opt is a separate fs on source, but just dir in new hd, then do:
+mkdir /mnt/newhd/opt	
+# cd-ing of this dir is important!
+# or else opt/* will be dumpted to the dst dir
+dump -0 -f - /opt  | (cd /mnt/newhd/opt ; restore rf - )
+
+# eg2, say just want to copy /home dir (part of / FS), 
+# then, there is no need to create the home dir, 
+# as dump will have it.  
+# The following will place a copy of /home /mnt/newhd/home
+dump -0 -f - /home  | (cd /mnt/newhd ; restore rf - )
+
+</PRE>
+
+
+<H3>solaris magnetic tape tool</H3>
+
+<PRE>
+solaris magnetic tape tool, for moving around inside a tape among various 
+volume (separate dump, tar, etc instace on the tape) [unix Backup and 
+Recovery book, page 84]:
+
+mt -f /dev/rmt/0n <cmd>    
+cmd: 
+rewind	= rewind the tape 
+fsf x	= seek forward to next x dump image (eg use x = 1 to forward to next record)
+bsf x 	= seek backward x  (to backup to previous image, use x=2, then check where pointer is...)
+status	= show status of tape driv.  file 0 is first image, file 1 is 2nd, etc.  
+Make sure to use device with 'n' option to specify non rewinding device!
+
+NOTE: mt and restore use of record number is offset by 1.  [UBR p100]
+mt, move to 2nd record when tape is newly inserted, use mt fsf 1
+while for restore, use (s)eek of 2.
+
+NOTE: 
+
+- make sure use non rewind device.  or else whatever tape positioning will 
+be gone as soon as the cmd is finished!
+
+- Be very careful with use of (b)erkeley or att style access to tape. b = 
+won't advance to next image on tape, useful when just dd-ing a block, 
+having restore command retrieve list of files, etc.  omitting the b (thus 
+access tape a la att style), it will advance to next image when current 
+command is done, this is the case even when asking for status!  use of 
+this is useful when one is at last block of current image and just want to 
+advance enough to the next image.  then just use mt -f /dev/rmt/0cn 
+status.  it will generate report, and advance tape just 1 block to the 
+beginning of new image.
+
+So, use mt -f /dev/rmt/0cbn status to see current pos in tape.
+If at the end of the record, and just want to advance to the begining of 
+the record, do this ONCE: mt -f /dev/rmt/0cn
+
+In general, 'b'erkeley mode is good in that it doesn't waste time for tape 
+to reposition.
+
+</PRE>
+
+<H2>hostdump.sh</H2>
+
+<PRE>
+[UBR] p86, its eg use /dev/rmt/0cbn too..
+hostdump.sh 0 /dev/rmt/0cbn backup.log host1 host2
+0 = level 0 dump
+/dev/rmt/0cbn is the device to use
+backup.log is the log file, they seems to suggest use of full path for this
+host1 host2 are the host to do the backup
+
+hostdump.sh creates 3 files in the tape (and it eject when done, so expect 
+only 1 run of hostdump.sh on a tape, i guess it will even check lable and 
+complain if try to append or something...)
+
+record 1 is a tar archieve, having a BACKUP.LABEL on details of the tape.
+record 2 is the dump archieve, restrore as per instruction in label
+record 3 is another tar archieve, containing the stdout and stderr of the 
+backup process done by hostdump.sh, it contain a list of files backed up.  
+retrieve as mt fsf 4 (not sure why this number, in theory it should be 
+2... but last try had 3 + 1)
+
+Record 1 extraction method:
+cd <restoreDir>
+tar xvf /dev/rmt/0cbn
+
+</PRE>
+
+<H1> </H1>
+
+<PRE>
+To find out what is the block size of the tape.  Note the bs=1024k, if 
+omited, get weired error such as not enough space!.  UBR suggested size of 
+128k, but larger size for this test is just safer).
+
+dd if=/dev/rmt/0cbn of=/space/junk2 count=1024 bs=1024k
+
+for the device, can use /dev/rmt/0n too, it doesn't seems to matter in 
+this case
+
+---
+
+http://docs.sun.com/ab2/coll.47.11/SYSADV1/@Ab2PageView/idmatch(BKUPTAPEDEVICE-42512)?Ab2Lang=C&Ab2Enc=iso-8859-1#BKUPTAPEDEVICE-42512
+
+describe in more detail the solaris backup device naming convention
+l = low
+m = medium
+h = high
+u = ultra
+c = compress
+
+if unspecified density, device use its preference.  most scsi tape sense 
+this correctly.
+
+
+</PRE>
+
+
+
+<H2>Veritas VxFS backup</H2>
+
+<PRE>
+
+Veritas VxFS need their own backup commands.  hostdump.sh should have been 
+able to take care of this, but well... vxdump is a command similar to 
+ufsdump.  Note that in both cases, only 1 fs can be specified at a time 
+for the backup!
+
+eg
+nohup /usr/sbin/vxdump 0ubf 64  mis10:/dev/rmt/0cbn /disks/bigdump              >> /ufsdump-staging01.log    2>&1
+
+- i backed up the /dev/vx/dsk/rootvol using ufsdump, it was mounted as ufs 
+too, althought it was veritas encapsulated... 
+
+restoring files from vxdump
+
+vxrestore tbfy 64 mis10:/dev/rmt/0cbn  = list files in the dump
+
+---
+
+note: ufsdump to restore device use the remote shell stuff, which seems to 
+use port 514, 513, 512, plus new port that it fork off for the real 
+continuous talk.  read up on firewall how to allow rsh to remote machine 
+with command.  but right now it is becoming a pain for the qa net. :( will 
+use bb2...
+
+</PRE>
+
+
+<H3>Backup thru rsh and dd</H3>
+
+&lt; !-- <BR>
+<!-- restore approach, didn't really work for me... -->
+
+
+<PRE>
+(This is quite tricky to get everything working correctly, 
+error message are usually lost and/or cryptic).
+
+
+MACHINE='172.17.17.11'
+DUMP="/usr/sbin/ufsdump 0ubdsf 64 1000000 1000000 -"
+TAPE='/dev/rmt/0cbn'
+rsh $MACHINE "$DUMP /"          | dd obs=64k of=$TAPE
+
+restore as:
+dd if=/dev/rmt/0cbn obs=64k | ufsrestore tbfy 64 - > dump-qa01.fil3list
+
+dd if=/dev/rmt/0cbn obs=64k | rsh $MACHINE "ufsrestore tbfy 64 - > dump-qa01.fil3list"
+
+from tinman prompt, this worked (listed content of file 1 (2nd dump image) of tape
+dd if=/dev/rmt/0cbn obs=64k of=/space/qa01.fil1dd 
+ufsrestore tvbf 64 qa01.fil1dd
+
+hmm, not sure if i was right above, another test, after copy the dd file 
+over, still need dd to read the file and pipe to ufsrestore, i guess it 
+has to deal with the blocking factor dd write the stream.  so, used :
+
+ssh mis02.dmz2 "$DUMP /"      | dd obs=64k of=$TAPE
+mt rewind
+dd if=/dev/rmt/0cbn of=test03a
+dd if=test03a | ufsrestore tbfy 64 -  > /tmp/list2
+
+and that produced a list of files
+
+seems to have managed to do it w/o first copy to disk.  the trick was 
+apperently specify ibs=64k instead of just bs=64k... default block size of 
+dd is apperently not 64k, which was what was used as input during the 
+backup...
+
+dd if=/dev/rmt/0cbn ibs=64k | ufsrestore tvbfy 64 - > /tmp/qa01.fil2.list
+</PRE>
+
+<H2>Issues about backup and restore</H2>
+
+<PRE>
+
+ufsrestore sometime give the error message (especially when i try to use 
+dd first, but i think i got the req command now, so it is really a bug on 
+their part): "xtrmap: too many map entries" read from some amanda posting 
+that it is cuz of bug in ufsrestore, it can't handle the really large 
+number of files that was created by ufsdump... they say it was just a bug 
+in giving file listing, but apperently no red panic that the files could 
+not be restored.  look into patching ufsrestore when needing to extract 
+these archives.
+
+if the backup was dumped to the tape using dd, ufsrestore may not get a 
+chance to complain that the tape if full.  not sure what will happen then.  
+did a dd to disk, copy part of the dd image to diff file, and did 
+ufsrestre tvbfy and it generated the table of content w/o complain.  not 
+sure which one is the last file physically on tape, does not necessarily 
+be the last file in the toc generated bu ufsdump...
+
+</PRE>
+
+<H1> </H1> 
+
+<PRE>
+
+etc bit stuff.
+
+dd and solaris floppy drive.  
+
+first, use volcheck, the it will setup the links for use w/ dd.
+/vol/dev/diskette0/ 
+/vol/dev/rdiskette0/
+
+If there are no floppy accessible, those dirs show no entries.
+If there is a floppy, then there will be a volume name in there.
+
+ls -l /vol/dev/rdiskette0/
+total 0
+crw-rw-rw-   1 nobody   nobody    91, 12 Dec 11 11:28 unnamed_floppy#1
+
+
+copy raw image to floppy:
+dd if=bootnet.img  of=/vol/dev/rdiskette0/volume_1
+dd if=pcmciadd.img of=/vol/dev/rdiskette0/unnamed_floppy#1 
+etc, depending on what the floppy volume got named by vold.
+seems to take rather long to finish.  at time i end it with ^C...
+
+
+use eject floppy before manually taking out disk, or vold will get rather 
+confused about it.
+
+
+tar stuff to floppy drive as raw device (floppy will be a stream device 
+like tape then):
+
+tar cf /vol/dev/rdiskette0/unlabeled prog.c prog.C prog.f
+
+
+----
+
+2004/02
+restoring oracle backup from outsource, on oa11i as user oracle:
+mt -f /dev/rmt/0cbn status
+dd if=/dev/rmt/0cbn of=./tape_rec1.dd count=1024 bs=1024k
+file tape_rec1.dd
+tar tvf tape_rec1.dd		# ensure extract to desireble place
+mt -f /dev/rmt/0cbn rewind
+tar xvf /dev/rmt/0cbn 
+mt -f /dev/rmt/0cbn fsf 1
+dd if=/dev/rmt/0cbn of=./tape_rec2.dd count=1024 bs=1024k	# chk no 2nd rec.
+
+
+
+---
+
+hardware
+
+Sun DDS4
+really HP C5683A   (firmware C005, Ultra2-SE)
+
+device	tape	cap in gb/compressed	speed/@comp	access time in sec
+DDS-3 	DDS-3  	12 / 24     		1   / 2  	40 
+DDS-4 	DDS-4  	20 / 40     		1.5 / 3  	50
+
+DLT2		20 / 40  ??
+DLT3		35 / 70  ??
+DLT4		40 / 80  ?
+SuperDLT1	160/320
+
+The DDS-4 drive can read and write DDS-2, DDS-3, and DDS-4 tapes. 
+
+tape latch 	right, see white blocker 	= 
+		left,  see hole			=
+
+open  = write protected (read-only)
+close = write ok
+
+cost		dds-3	dds-4
+drive			1300
+tape (ea,sun)	  	45
+tape (ea,web)		10
+
+
+----
+
+/dev/st0	= scsi tape, similar to solaris /dev/rmt/0
+
+
+----
+
+
+restoring in linux via tar
+
+tar -b 40 -x -f /dev/st0 # codetree tape
+tar -b 40 -x -f /dev/st1 # db data file tape #2
+
+
+--
+
+gnu tar will automatically convert apsolute path to relative, 
+but dropping the leading / when creating the tape archive.
+
+-M multi volume
+
+
+172.27.7.208:1	knoppix tmp
+172.27.5.76	unixbackup
+
+
+
+linux dd from file created on solaris gnu tar, bs=1024 result in unable to 
+allocate memory error! 
+dd if=/dev/st1 of=data_tape_2.dd bs=2048k
+
+</PRE>
+<BR>
+<BR>
+
+<H4>Sync Sort</H4>
+
+<!--backex.ref-->
+<!--sync sort was used in titaniumleg.com circa 2002-2003-->
+<PRE>
+sync sort backup express 
+
+/opt/BackEx/bin/bexps
+
+to see if backup is running
+
+    root  9537     1  0 10:38:37 pts/1    0:00 cmagent
+    root  9536     1  0 10:38:37 ?        0:00 ./nibbler
+
+
+cmagent is the daemon that always run, 
+nibbler is usually a zombie process
+
+/etc/rc2.d/S95BackEx stop often cannot kill nibbler
+at that point, nuke process with kill cmd
+
+if rc script starts afresh and nibbler comes on, bad sign!
+
+</PRE>
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/backup.html">http://www.cs.fiu.edu/~tho01/psg/backup.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos-ad.crash-fix.gif"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - WiKi Tags</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - WiKi Tags</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emc.html">EMC</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/285:_Wikipedian_Protester"><IMG SRC="fig/xkcd_wikipedian_protester.png"></A>
+</div>
+
+<A ID="markdown"></A>
+<H2>Markdown</H2>
+
+To write docs, with emphasis on writability and readability of the text, 
+but still want to render it into nice HTML, Markdown is the way to go. <BR>
+However, web browser does NOT render markdown document directly (maybe eventually they will?).  As of now, a program take the markdown doc as input and convert it to html.  
+<BR>
+
+<A HREF="http://daringfireball.net/projects/markdown/syntax">Markdown syntax</A> provides a concise overview and reference.
+
+<BR>
+To a large extend, markdown convey the spirit of LaTeX, focus on content, let a render engine worry about the pretty facing work.  I am not sure how tables are handled, which was the deal breaker for me in LaTeX.
+
+
+<BR><BR>
+
+<A NAME="concluence"></A>
+<A NAME="jira"></A>
+<H2>Confluence WiKi Tags</H2>
+
+<PRE>
+@Person 	
+@username		# hyperlink to the person being tagged on the page.
+
+[[wiki-page-name]]	# hyperlink to another wiki page
+
+{{
+block of code		# monospaced , preformatted text
+}}
+
+don't work in comment section, not sure how P.Killer does it...
+</PRE>
+
+
+<H2>Trac WiKi Tags</H2>
+
+
+<PRE>
+
+
+''italic''
+'''bold'''
+__underline__
+~~strike thru~~
+
+= heading =
+== subheading ==
+
+[[BR]] line break.   wiki does not interpret normal CR/LF as new line, it will parse text continuously like html does, it will only break into new paragraph if there is a blank line between two block of text.  Kinda anoying :(
+
+List = Use space, asterisk, space, like this:
+ * list entry 1
+ * list entry 2
+   * list entry 2a  
+
+- - - -		# horizontal line
+
+CamelCaseText	# automatically create a new file link w/in WiKi, click to edit.
+		# CamelCase req start with Uppercase followed immediately by at 
+		# at least one lower case.  No dash, symbol, number, only text.
+!NotCamelCase	# WiKi escape so that it doesn't treat it as a link 
+
+{{{
+	pre formatted text goes inside triple braces
+}}}
+
+http://... 	# automatic link
+
+http://file.gif 
+http://file.png	# automatic inline image into WiKi page
+
+
+
+trac		= ticket tracking system with build in WiKi
+	Allows for html code via:
+	{{{
+	!#html
+		HTML code goes in this area
+	}}}
+
+
+
+</PRE>
+
+
+<H2>Docu WiKi Tags</H2>
+
+
+<A HREF="http://pollux/wiki/doku.php?id=wiki:syntax">
+syntax for doku wiki</A>
+
+
+<PRE>
+(mediawiki?)
+
+====== Level 1 Headline ======   (6 equals)
+==== Level 3 Headline ====       (4 equals, each level has 1 FEWER equals)
+== Level 5 Headline ==           (2 equals min, less than that will be verbatim)
+
+[[ linktonewdoc ]]		(seems to have a directory structure in place, inherit from first doc link was created?)
+[[ dir:linktonewdoc ]]
+
+\\ 	(two backslash + one space)	Force new line
+
+
+
+</PRE>
+
+
+
+<BR><HR><BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/">http://www.cs.fiu.edu/~tho01/psg/</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

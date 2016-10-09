@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - Apple/Mac</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/apple.html">Sys Admin Pocket Survival Guide - Apple/Mac</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emc.html">EMC</a>	</td>
+      <td align="center"><a accesskey="e" href="python.html">Python</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<!-- ######################################################################### -->
+
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/456"><IMG SRC="fig/xkcd_cautionary.png"></A>
+</div>
+
+
+
+
+<H1>Package managers for Mac OS/X</H1>
+
+<PRE>
+
+MacPort 	- formerly Darwin port
+		  contain lot of "unix style" software packages.
+		  install to /opt/local
+
+fink		= package manager like Ubuntu apt-get.
+		  need to be installed separately.
+		  more cutting edge that Mac OS Port.
+		  install to /sw
+
+rudix		= pre-compiled unix sw for OS X (Yosemite in progress, Maverick and older okay)
+		  hassle-free.  http://rudix.org/
+
+
+homebrew	= http://brew.sh/
+		  install to /usr/local, which is said why it works!  changing path not recommended!
+		  have not been able to get it to install/work behind a proxy :( 
+
+nix		= from NixOS, meant to be a declarative (stateless) package management.  
+		  package are build from source, but cached to provide performance close to traditional binary-based package manager.
+
+
+dmg are sw image that are &quot;mounted&quot;, accessible from /Volumes.  
+Firefox can run off inside such mount.  
+Other apps req copying the files there to /Applications folder.  
+Yet other require an install from there.
+
+installer -pkg Fink*pkg -target LocalSystem
+	# similar to rpm -i sw.rpm 
+  	# -target LocalSystem is the equiv of the GUI telling where to put the program.  Should be able to use / also.
+
+
+pkgutil --pkgs 		# list packages installed on system (.pkg, not stuff that Fink install, which are .deb packages).
+
+
+
+
+
+fink install all software to /sw
+. /sw/bin/init.sh
+
+
+fink selfupdate
+ 			# update fink db, support http_proxy env var if proxy need to be set.
+fink list 
+fink install ...
+
+apt-get
+dpkg --list 		# list debian packages (installed by fink)
+
+</PRE>
+
+<H2>intel-based mac stuff</H2>
+
+<PRE>
+
+while booting up:
+option	= select OS to boot with (when bootcamp is configured)
+apple+t = target firewire disk mode  (or just press T key?)
+apple+v = verbose mode (this time only)
+apple+s = single user mode (but don't run fsck from here! boot from DVD for such action!)  (or just s ?)
+
+shift   = Safe Boot mode - https://support.apple.com/en-us/HT201262
+
+
+
+command+r = recovery mode (same as a the recovery choice when "option" key boot).
+
+Permanently disable flashy non-useful boot screen (ie, verbose unix-like booting):
+go to terminal, run
+	sudo nvram boot-args="-v"
+To see current settings:
+	nvram -p   			
+
+
+
+
+</PRE>
+
+<!--mac.ref-->
+<H2>Older mac stuff</H2>
+
+<PRE>
+
+key binding:
+
+cmd key is the apple key
+option = alt
+ctrl  = control (^)
+
+cmd+tab = similar to windoze alt+tab
+boot, option key = boot current os
+boot, c = boot from cd
+apple + control + power = reboot
+
+---
+
+Enable unix mode boot:
+Older Macs:
+While booting, enter cmd+opt+O-F
+then,
+setenv boot-args=-v
+shut-down 
+This will cause machine to boot like sun machines.
+
+
+switching between XDarwin X session and Aqua:
+ctrl+opt+A
+(10.5, they can coexist together)
+
+---
+
+
+NIS info from
+http://www.bresink.de/osx/nis.html
+
+OS X can act as NIS server.
+yp files are in /var/yp
+init rc file (?) at
+/System/Library/StartupItems/DirectoryServices/DirectoryServices 
+
+
+OS X NIS client.
+Some minimal info in lookupd.
+Leopard 10.5 has NIS client build-in.  Just need to specify NIS domain and servers.
+
+
+NFS mount.  Can specify the mounts in /etc/fstab, linux format.
+
+</PRE>
+
+
+
+<H5>Troubleshooting boot up</H5>
+
+<PRE>
+
+Info from Jim.  Appicable to old Mac (PowerPC) 
+
+If the critter won't start up with the C key held down, try the
+following (with the CD in the drive)
+Hold the Option key on startup, and choose the CD icon and then click
+the right-pointing arrow, or
+hold control-option-shift-delete on startup.
+
+The former is an Open Firmware method, and the latter is a shortcut to
+tell the MacOS Rom to boot form the next available system volume.
+
+If both of these methods fail, restart and hold down option-apple-p-r
+for four startup chimes, then try the above methods again. (this resets
+pram)
+
+
+</PRE>
+
+<H1>Progies</H1>
+
+<PRE>
+iTerm : a better terminal prog than the one that comes with OS X.
+</PRE>
+
+<H3>References</H3>
+
+<LI>http://www.osxfaq.com/Tutorials/LearningCenter/HowTo/Startup/index.ws
+sample startup script in location which is now deemed archaic: <BR>
+/System/Library/StartupItems - Apple's only
+/Library/StartupItems  - User's customization
+<BR>
+<LI>http://developer.apple.com/macosx/launchd.html launchd article from ADC
+<LI>http://oreilly.com/pub/a/mac/2002/10/22/macforunix.html  Mac tips for Unix geeks
+
+
+
+<BR><HR><BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/apple.html">http://www.cs.fiu.edu/~tho01/psg/apple.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

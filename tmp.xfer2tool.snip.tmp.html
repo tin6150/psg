@@ -1,0 +1,53 @@
+
+
+<A NAME="Performance"></A>
+<A NAME="Tuning"></A>
+<A NAME="Performance_&_Tuning"></A>
+<H1>
+Performance & Tuning
+</H1>
+
+<CENTER>
+<A HREF="http://www.linux.com/news/enterprise/systems-management/785426-a-template-for-monitoring-linux-performance-tools-like-from-netflix-">
+<IMG src="linux_observability_tools.png" alt="observability tool diagram cache from linux.com" width="70%">
+</A><BR>
+<A HREF="http://www.linux.com/news/enterprise/systems-management/785426-a-template-for-monitoring-linux-performance-tools-like-from-netflix-">(article in linux.com)</A>
+</CENTER>
+
+<BR>
+Linux performance monitoring and tracing tools 
+<UL>
+<LI>top, ntop, htop
+<LI>mpstat
+<LI>sar
+<LI>free, swapon, cat /proc/meminfo
+<LI>pidstat  (sysstat rpm)
+<LI>iotop    (iostat rpm)
+<LI> perf    (linux-tools-generic rpm, + kernel specific rpm) , eg:<BR>
+     perf top
+     perf stat -a   # hit ^C to end collection of stat and view result.
+<LI>slaptop
+<LI>fio      (fio rpm)
+<LI>sysbench (sysbench rpm) eg cmd:   <BR>
+    sysbench --test=cpu run <BR> 
+    sysbench --test=fileio --file-test-mode=seqrewr run <BR>
+<LI>stap     (systemtap rpm)
+    need some script...    
+<LI>lttng    (lttng-tools rpm)
+<LI>dtrace   (systemtap-sdt-dev rpm)
+</UL>
+<BR>
+
+<BR>
+<BR>
+
+advanced tools to perform full software stack analysis such as 
+<UL>
+<LI>systemtap 
+<LI>perf        (linux-tools-common rpm)
+<LI>sysdig
+</UL>
+
+
+
+

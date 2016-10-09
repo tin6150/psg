@@ -1,0 +1,1125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - Notworking</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://tiny.cc/NETWORK">Sys Admin Pocket Survival Guide - Notworking</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emc.html">EMC</a>	</td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>Networking</H1>
+<H2>
+Network Ports 
+</H2>
+<PRE>
+
+TCP
+21	ftp
+22	ssh
+23	telnet
+6642	TIPCO Spotfire Pro Server
+8111	Isentris application server (main web gui used in URL)
+8405	Isentris admin
+
+23221	Isentris back end server
+
+UDP
+
+</PRE>
+
+
+<H2>
+Network technologies, standards, info.
+</H2>
+<PRE>
+
+802.3ad		IEEE standard for link aggregation, replacing old proprietary protocol
+		such as Cisco EtherChannel which req same brand fn.
+		Provides more bandwidth and redundancy.  1999.
+
+802.3af		Power over Ethernet (existing cat 5) over 4 wires.  
+		48 V AC, 350 mA, 12.95 Watts.
+		Contain detection mechanism, only equip w/ signature auth will get power, 
+		thus safe for mixing old and new equip.
+
+802.1q		aka dot1q.  VLAN Tagging.
+
+802.11		WiFi. b=11 Mbps, a=55 in new freq, g=11/55 in same freq of b.  n=110
+</PRE>
+
+<!--ip.ref -->
+<H2>looseends</H2>
+
+<PRE>
+
+List different configuration files that need to be updated when moving machine from one ip/subnet to another.
+
+
+solaris:
+
+/etc/hostname.hme0	{name or ip}
+/etc/nodename
+/etc/inet/hosts
+/etc/inet/netmasks
+	172.27.4.0	255.255.252.0	# fffffc00 quad class C .4, .5, .6 + .7 
+					# broadcast is 172.27.7.255
+	172.27.28.0	255.255.255.0	# normal class C.
+
+/etc/resolv.conf
+/etc/nsswitch.conf
+
+/etc/defaultrouter
+/etc/defaultdomain	{used to set domainname for NIS domain name}
+/var/yp/binding/`domainname`/ypservers	{bind use this to find list of NIS servers}
+
+note that a damn system that uses NIS, but don't have network setup properly, 
+will have issues at boot time as NIS hangs boot process.   it is before even inetd starts, 
+so can't even telnet in (normally, start NIS so that telnet can authenticate NIS users).
+
+</PRE>
+<BR>
+
+<A ID="cisco"></A>
+<H1>Cisco</H1>
+<!-- cisco.switch.ref -->
+
+<PRE>
+
+config term
+  interface fa0/37 
+  no shutdown
+
+  spanning-tree portfast	# immediate enable port, run spanning tree later.
+
+Implications:
+If a switch is plugged into a port that is not pre configured to allow spanning tree, 
+it will be blocked, and not even link light will come up.  
+'no shutdown' will free up the port for use again.  
+spanning-tree fast port, or something like that, enables the spanning tree alg on that port, 
+thus allowing the switch to be cascaded.
+
+--
+
+show running-config interface gi6/48	! see config for specific interface
+
+
+
+show running-config vlan   ! see list of avail vlan, no ports
+show vlan brief		   ! list all vlan and its member ports 
+show vlan id 1		   ! show only info for vlan 1
+	
+show interfaces port-channel 2 
+show etherchannel    summary		! (P) means port is up as part of port-channel
+show etherchannel 13 summary 
+
+show etherchannel port-channel
+show int port-channel 14
+
+! when looking at running-config
+! etherchannel are setup without any port listing
+! search for port-group PO#  under each interface definition to see
+! what ports are in a given ether-channel.
+
+
+show inter status 	! auto/half/100/etc info
+show inter status | include a-10 	! include is similar to grep but more exact match.
+
+show inter accountin			! statistics, pkg in/out count.
+
+show interface stat
+show interface counters
+
+
+show mac-address-table int gi5/12	! mac seen on specific port
+sh ip arp		   	   ! find mac and pair up with IP
+				   ! need to run in L3 (router) to have IP info.
+
+
+show mac-address-table dynamic vlan 30	! list all mac address fwd table.
+					! not sure what fwd means...
+show mac-address-table dynamic | include Fa0/9	! get mac address on putter on the specified port
+
+
+
+--
+clear arp			! clean all arp entries
+				! no way to erase single ip/arp entry
+
+logging console			! get alert when things change
+				! how?
+
+</PRE>
+
+<A NAME="mds"></A>
+<H2>Cisco MDS SAN switch</H2>
+
+Cisco MDS 9124 Fibre Channel switch.  <BR>
+Cisco MDS 9222i FCIP switch.   <BR>
+<BR>
+
+<PRE>
+
+show terminal           		# display term char
+terminal length 0       		# disable --more-- paging
+
+terminal session-timeout 0		# expect this to disable auto logout, but then take out "callhome" from running-config
+terminal session-timeout 525600		# set to max allowed timeout, no changing "callhome" from running-config
+
+show tech-support details               # grab tons of info
+show tech-support details create        # suppose to prompt for ftp server to put output info to
+
+
+show running-config diff		# see changes that are not saved to startup yet
+show accounting log			# show a log of changes made on the switch, good to find vsan config changes, etc.
+
+
+
+copy running-config startup-config	# save run time config to permanent config store
+config term				# get into config mode using terminal
+do (cmd)				# run exec mode command while in config mode.
+
+
+show interface brief			# see which port is up, what VSAN it is assigned to, etc
+show interface fc1/4			# see all info about port, but not wwn of dev connected to it.
+show int mgmt 0				# find IP assigned to the device
+
+show fcs database			# see wwn of attached devices (sort by vsan, interface)
+show fcs database vsan 300		# for specific vsan (instead of all)
+
+show flogi database			# similar to "fcs" above, good in telling vsan assignment problem.
+
+
+
+show device-alias database		# list attached-pWWN wwn to name map database
+show device-alias pending		# list what will become live once commit will run
+show device-alias pending-diff		# diff b/w live database and pending
+
+show zone
+show zoneset				# display zone info in slightly diff format that show running-conf
+show zoneset active			# any pwwn that is not active has missing * in the front, good to spot problem!
+show vsan				# list all vsan and which port is assigned to which vsan
+show wwn ...				# wwn info for switch/port internal wwn
+
+
+show cli alias				# list command aliases
+
+
+GUI tool.
+http://switch-mgnt-ip
+download java program.
+- device manager: control port, link status, etc.  login directly to the switch using switch username credentials.
+- fabric manager: control zoning info.  login to localhost, admin/password,
+  then discover the switch by entering its IP, and username+password that is
+  in the switch.
+
+</PRE>
+<BR>
+
+
+<H5>
+    <A NAME="Sample_zoning"  HREF="#Sample_zoning">
+        Sample zoning addition command
+    </A>
+</H5>
+<BR>
+
+
+EMC recommended best practice is one initator and one terminator per zone.  
+In practice I found placing both terminator of the Clariion on the same zone to have no adverse effect and make for smaller list of zones.  <BR>
+One host for each zone.  Even in a cluster access environment, zoning does not include multiple host.  Storage group configurtaion in Navishere provides LUN access to multiple hosts.
+
+<!--see config-backup/...-fc/fc1.addition.txt for sample zoning addition commands. -->
+<PRE class="cf">
+
+! (config term)
+device-alias database
+  device-alias name JAWS3_HBA1 pwwn 10:00:00:00:c9:5f:2e:95
+        ! pwwn can be found from "show fcs database" under attached-pWWNs
+        ! pwwn match "PortName" in FLOGI tab of GUI
+  exit
+
+        ! (do) show device-alias pending-diff
+        !       ! will show new entry as not commited (live?) yet
+
+  device-alias commit
+
+! zoning is done per wwn of the attached devices
+! not the physical port number of the switch
+zone name JAWS3_HBA1-cX3_1828_SPB1 vsan 30
+        member device-alias JAWS3_HBA1
+        member device-alias CX3_1828_SPB1
+        exit
+
+        ! show running-config will translate above to
+                zone name JAWS3_HBA1-cX3_1824_SPB1 vsan 30
+                    member pwwn 10:00:00:00:c9:5f:2e:95
+                !               [JAWS3_HBA1]
+                    member pwwn 50:06:01:69:41:e0:7b:37
+                !               [CX3_1828_SPB1]
+
+
+zoneset name vsan30_prod vsan 30
+        member JAWS3_HBA1-cX3_1824_SPB1
+        ! above will add member, not replace any existing
+        ! to remove, use "no member"
+
+
+zoneset activate name vsan30_prod vsan 30
+!  activation IS needed !!
+!  can be verified by "show zoneset active"
+
+
+
+!  add the same host with the alternate SP :
+zone name JAWS3_HBA1-cX3_1828_SPA3 vsan 30
+        member device-alias JAWS3_HBA1
+        member device-alias CX3_1828_SPA3
+zoneset name vsan30_prod vsan 30
+        member JAWS3_HBA1-cX3_1828_SPA3
+zoneset activate name vsan30_prod vsan 30
+
+
+
+copy running-config startup-config
+
+</PRE>
+
+Changing a specific port's vsan membership.  <BR>
+In addition to definining zoning info, the switch port that a host is plugged into need to have its VSAN defined, or else data won't flow thur it!
+
+<PRE>
+
+! (config term)
+vsan database
+  vsan 30 interface fc1/2
+  vsan 30 interface fc1/3
+  vsan 50 interface fc2/2
+  vsan 50 interface fc2/3
+  ! etc...
+  exit
+
+! show flogi database      
+! is a good way to see if a swich port (host node) is in the desired vsan.
+
+! show interface brief
+! should list all switch ports and which VSAN they belongs to.
+! no assignment will default to VSAN 1
+</PRE>
+
+
+<H3>Cascaded (ISL Linked) Switches</H3>
+
+In a cascaded switch environment, Inter Switch Link (ISL) can be used to 
+daisy chain the switches.  Port Trunking can be used, and all VSANs data would be carried on this trunk if it is not explicitly coded to do certain VSAN.
+<BR>
+One switch would act as the "main" and would usually get all the config.
+All zone config should be done on the primary, and when downstream switch come online, they will read such config.
+Downstream switch would have some basic info specific to them.  
+eg Port VSAN config would be on each switch.
+<BR>
+One piece that I am still no clear is that, ISL linked switch exchange zone config info.  A <TT>copy running-config startup-config</TT> would write down such config on both switches.  When one issue commands to remove zoning info, it will probably mean doing the <TT>copy run start</TT> on both switches, less the partner has some old info and re-add such info to the runnig-config when it reboots...  <BR>
+
+To be safe, config should be saved on all switches, upstream and downstream.  <BR>
+If downstream don't have any zoning config at all, then it is fine and when it reload, it will get the info from the upstream switch.  But in a failure scenario, it seems to work out better if each switch has the config.  It also 
+prevent other tool like ESRS making configs that diverges and create DB discrepancy when both swtiches reboot, 
+creating a whole SAN zoning mess up.
+If the running config is the same on both switch and they reboot, then they will at least provide basic consistency.
+<BR>
+
+<BR>
+Config should be done on "principle" switch.  But if there are NPIV switch involved, then zoning config should be done
+on the CORE NPIV switch, even if it is not the priciple swithc.  Again, save running-config on all switches, check that 
+there "show zoneset active" matches up on both switches!!
+<BR>
+
+
+<PRE>
+Show fcs ie
+# Figuring out switch connectivity/topology, figure out switch's WWN
+# loc = switch command ran on
+# adj = peer switch (upstream/downstream not showed)
+ 
+ 
+ 
+Show fcdomain domain-list
+# see which one is principal (upstream) switch
+# each vsan has a principal swtich, though ISL linked swich, each one could be principal for diff vsan
+# zone config should be done on principal switch to avoid sync problems
+# but if NPIV is used, the zoning should be done on NPIV core switch even if it is not the principal for the vsan
+ 
+ 
+ 
+ 
+ 
+---
+ 
+ 
+Show zone pending-diff
+# see what changes would take place when making a zoneset live
+ 
+Show zone status
+# see how many zones and zoneset are there, sync status with other switches
+ 
+ 
+ 
+clear zone database vsan
+# hopefully never need to use this
+# clear the (full zone database?) on a switch, not sure if it affect the linked switch (parent/child)
+ 
+ 
+Zoneset import interface fcX/Y vsan #
+# import (all?) zoneset from one switch to another
+# eg use after zone info has been cleared
+# or force direction of DB sync when two linked switch has out-of-sync DB.
+ 
+zoneset import interface port-channel # vsan #
+# altered form when ISL port channel is in use b/w linked switch
+# ISL can be "bonded" together to create port-channel, just like cisco ethernet switch
+ 
+ 
+ 
+ 
+ 
+Zone copy active-zoneset full-zoneset vsan #
+# copy the active zoneset into a "full-zoneset" db,
+# ie, creating the passive "full zoneset" db from the live current config
+# maybe needed if full-zoneset db is out of sync
+# but live running config from active zoneset is correct
+ 
+ 
+ 
+# bottom line
+# if the active zoneset on the ISL linked switch are the same
+# then config is stable
+# copy run start (on all switches) from this point would produce consistent result
+# (this should dump active zoneset config to config that will be loaded at boot)
+ 
+ 
+</PRE>
+
+
+<H3>Non-ISL Linked / "Dumb" Access Gateway switch</H3>
+
+
+If the complexity is not overwhelming and Access Gateway (NPV+NPIV) mode
+can be used, this seems to be a much easier config than using ISL.  <BR>
+ISL is good for large fabric interconnect that need multiple VSAN traffic, trunk port, etc.  <BR>
+Access Gateway mode should be simple and efficient to add ports to connect
+more hosts or tape drives than is available from a single switch, 
+and just need a simple extension to add more ports.  <BR>
+<BR>
+
+Tech jargons: <BR>
+
+NPIV - allows switch to see multiple WWN on the same port w/o configuring ISL.  
+<BR>
+
+NPV  - kind of turn switch into "HBA mode", where multiple blades can be viewed as VM on the same server, and NPV mode switch port is viewed like an HBA port that presents multiple WWN to "upstream" switch.  NPV is like emulating server.  <BR>
+<BR>
+
+
+
+
+
+Brocade don't seems to emphasize the diff between NPIV and NPV.  It calls the "dumed" switch in "Access Gateway" mode, so that no programming is done on it.  
+It marely pass traffic and WWN to upstream/parent switch (the non-Access Gateway switch), which has all zoning info.  This has benefits of saving Domain ID (limited to 16?), removing inter-vendor interoperability problem (because it does not need ISL config).  The tech allows "merging" multiple physical switch into a single larger virtual switch with many more ports.  
+See <A HREF="http://www.brocade.com/downloads/documents/white_papers/Virtualizing_Embedded_Switches_Access_Gateway_WP_01.pdf">Access Gateway whitepaper</A> for more details.
+<BR><BR>
+
+
+<!--
+not too useful anymore.
+It allows for multiple N_Port (HBA port) to be connected to a single F_port (switch port).
+Think of ESX HBA providing multiple N_ports to VM but the switch that it connects is dummy 
+(no domain id, no zoning config).
+-->
+
+
+eg In Dell blade chassis switch where multiple 
+host is consolidated into a single physical port.  In Access Gateway mode, the 4 WWN will show up, 
+but the fc switch act transparently, so avoid the need to have an inter-switch link config, 
+which could be quite painful when diff vendors switches are mixed.
+With Access Gateway mode, the zoning is all done by the smart switch, and the blade chassis switch is like "dummy" or 
+transparent to all the config.
+<BR><BR>
+
+Technically, E_Port are used to connect switches together.  F_Ports are the port on the switch that HBA/host node connects to.  N_Port is the port on the HBA card itself.  Access Gateway essentially makes the switch in the blade chassis "disapear" from the logical view of the fabric config, and upstream switch will see N-port WWN connected to it when in fact it is connected to the Access Gateway switch.  E_Port will not show up as ISL is not used.
+
+<BR><BR>
+Essentially, the "smart" (upstream) switch is the NPIV switch, and the "dumb" (downstream, access gateway mode) switch is the NPV switch.  <BR>
+If want to worry the difference between NPIV (N-port ID Virtualization) vs NPV (N-Port Virtualization), here are a couple of blogs explaining it:
+<UL>
+<LI><A HREF="http://thamarai-stor.blogspot.com/2010/05/npv-and-npiv-from-first-look-everyone.html">
+stor blog</A>
+<BR>
+<LI><A HREF="http://blog.scottlowe.org/2009/11/27/understanding-npiv-and-npv/"> 
+Scott Lowe's blog</A>
+</UL>
+
+
+<H5>Config</H5>
+
+<PRE>
+feature npiv		# enable the npiv feature (off by default in stand alone switch)
+</PRE>
+
+Borcade switch that fit inside a blade chasis has Access Gateway config as default.  If not, issue:<BR>
+
+<PRE>
+siwtchMode access gateway mode
+</PRE>
+
+
+need to go into command config mode via
+<TT>cmsh</TT>	
+(get to ethernet portion of switch), show run, copy run etc will work in here.
+<BR>
+
+FCoE is default, FCoE has special vlan 1002 dedicated to it.
+
+<PRE>
+switchport converged allow vlan all
+</PRE>
+
+
+
+
+<BR>
+<BR>
+<A ID="termSvr"></A>
+<H2>Cisco Terminal Server</H2>
+<!--cisco.termSvr.ref-->
+
+Cisco Terminal Server ref commands
+(aka Communitaion Server?)
+
+<PRE>
+
+to dig out the online doc, go to section inside IOS 
+(they don't have terminal server listed as its own section! A site map may help):
+
+-Cisco Product Documentation
+-Cisco IOS Software config
+-System Software Release 9.21 (or whatever newest number)
+-Then find secions called Communication Server ...
+(IOS 8.3 and 9.0 has it listed as Terminal Server)
+
+
+---
+
+(machine at cc is cisco 2600 series, maybe 2621 (or 2632?)
+
+Connection to machine via terminal server:
+
+telnet axecess
+> telnet 2.2.2.2 2036
+
+or, for named connections, just enter telnet db03.
+other connection exist, like
+connect db03 
+rlogin db03
+
+
+to disconnect from a 'telnet' session to a server, use:
+
+        CTRL-6 x, then type 'disc' at the axecess prompt
+
+to generate a BREAK:
+
+        CTRL-6 b
+
+
+other telnet escape seq inside the terminal server:
+first hit ctrl+shift+6  (ie ctrl+^), 
+then enter ? for list of escape seq for the specific telnet session 
+with the cisco terminal server.
+
+---
+
+clearing existing connection (to free up for use again)
+
+axecess> enable
+password: 
+axecess# clear line 36
+[confirm] <CR>
+
+(line 36 was the line of connector 1 line 4, listed as 2036)
+(add 2032 to the line cable number that want to connect)
+
+[ from joanne email 
+really just 2000+ line number, 
+but somehow internally already reserved 32 async lines.  
+thus the module we add need 32 + cable number, prepended with 20 in front.
+connector 1 would be 2033 to 2040, 
+connector 2 would be 2041 to 2048, etc
+
+
+</PRE>
+
+(TBD: cisco*config sample config files after clean up and masking)
+
+<A ID="Foundry"></A>
+<A ID="foundry"></A>
+<H1>Foundry</H1>
+<!--foundry.ref-->
+
+
+foundry network gear commands
+allegedly extremely similar to cisco, direct competitor
+thoug tab completion is not as nice as extreme net gears.
+
+<PRE>
+
+load balancer:
+
+
+enable		= enter into priviledged (admin) mode.
+show config	= show configuration
+
+show version	= show sw and hw version
+show flash		= show firmware/image version number
+show tech		= pull all info that can possilbly have so that tech support has absolutely everything
+
+show interface ethernet 1 	= show eth1 info (duplex, utilization, collision, etc)
+show interface				= show all interface information
+
+---
+
+change network mask to /24 bit (from /20)
+ie change ip from 172.16.0.5/20 to 172.16.0.5/24
+the ip is inside a vlan
+
+show vlan on the switch had:
+PORT-VLAN 361, Name [None], Priority level0, Spanning tree Off
+ Untagged Ports: None					
+    Tagged Ports:  1  2 			! trunk port 1 and 2 into 2 GigE pipe
+	Uplink Ports: None
+
+
+config term
+	vlan 361		! specify the vlan of the network to be configured
+					! this case, 361 is for the vlan of 172.16.0.0
+	ip-subnet 172.16.0.0 255.255.255.0 name shared5-1
+	end
+					! note that no changes were done on Tagged, so old settings remain
+					! presumably, for tftp config image, better specify everything 
+					! so as to not leave residue from previous config and get unexected result
+					! then again, tftp config should completely wipe out old setting.
+
+config term
+	ip address 172.16.0.5/24		! config ip and subnet of the load balancer itself
+	end
+
+write mem
+
+
+---
+
+updating firmware (OS)
+
+login via serial (for later reboot monitoring)
+enter into enable mode
+
+backup running config (to tftp server):
+	copy running tftp ServerIP SavedFileName
+	eg: copy run tftp 10.0.1.103 nlb.cfg
+Note that cuz of permission problems, one may need to create a file (size 0) in the tftp 
+server storage dir so that the uploaded file can be written to disk, and not get failure errors.
+
+actually get the image:
+	copy  tftp flash SvrIP FILENAME primary
+	eg: copy tftp flash 10.0.1.103 BSI07118T8.bin primary
+
+
+save old running config:
+	write memory
+
+reboot the load balancer for the new firmware/OS to kick in
+	reload
+
+verify version after reboot.
+	show ver
+
+---
+copy cmd is of form [FROM] [TO] [additional params]
+
+---
+
+# erase virutal server stuff
+# will see these info in 'show server bind'
+no server real
+no server virtual
+
+
+# erase ALL config!!
+erase start
+
+
+
+
+----
+
+some additional cmds used in cifs but not documented.
+
+show server bind
+
+show server
+tcp-age
+sticky-age
+session-age
+
+server real <name>
+  no health check
+
+server virtual <name> <real_svr_name>
+  no port default translate
+  no port default dsr   (direct server response)
+  port default 5001
+
+</PRE>
+<BR>
+
+
+<A ID="extreme"></A>
+<H2>Extreme Network</H2>
+<!--ExtremeNet.ref-->
+<PRE>
+
+
+telnet IP
+login...
+
+
+show config			= like cisco, config of the switch
+
+show port config	= show A=active, R=ready, 10/100 half/full/auto
+
+show port rxerrors  = show receive errors
+show port txerrors	= show transmit errors
+
+show port collisions
+
+
+config:
+config port 1:10 auto on						= autosensing config
+config port 1:10 auto off duplex full speed 100	= forced config
+
+port id of 1:10 is blade 1, port 10.  range can be specified as 1:10-1:20, or comma list as 1:10,1:15
+
+save config		
+	save the configuration, so boot will come back to this state
+	option to save as primary.
+	(contrast to cisco write mem)
+
+
+show vlan			= list configured vlan
+show vlan <vname>	= list ports used for the specified vlan
+
+
+show iparp		= show arp table
+show iparp <ip> = detailed info about specific ip, arp level.
+
+show iproute	
+	show ip routing info
+	  r = rip
+	  d = dynamic, from other router
+	  s = static
+
+show ipr IP / bitMask	
+	show routing info of specific ip range
+	eg. 192.168.0.0 / 16 will be for all address starting 192.168.*.*, 
+	even if no specific class B net defined
+
+show ipr stat	= show packet discard info per vlan
+
+show ipconfig	= ip config, some vlan info
+
+
+
+show flow-redirect	
+	policy based flow control
+    limit what source ip packets go to which output
+delete {flow} <name>	
+	remove a specific policy rule about flow control.
+
+show access-list	
+	port blocking features, include ICMP and sub protocols
+delete {access-list} <name>	
+	remove a specific acl, eg deny-icmp, 
+	which block certain traceroute info (extreme bug?).
+
+
+
+download image <tftp-svr-ip> file prim
+	should be the one to download a new os into the primary store.
+	ExtremeNet seems to support a secondary etc.  
+	i guess bootable via alternate cmd.
+
+clear couter	
+	reset all counters (collision stats, etc)
+
+
+upload config tftpSvrIP Filename
+	save the configuration to the tftp server at IP with name filename
+	Note that tftp server may need to have the file with mode 666 to write.
+
+download config tftpSvrIP Filename
+	grab complete config for the switch from a file at the remote tftp svr.
+	(never tried)
+
+
+---
+
+some brief notes when adding an ip to the switch, and upgrading the os via tftp.
+
+conf default de port 23
+create vlan temp
+conf temp ipaddr 172.16.17.50 /20
+conf temp add port 23
+en ipf temp
+
+--
+change the netmask of the switch (by specifiying the ip and new netmask bit numbers on the main vlan? 
+Or, I suppose for each vlan, the switch has an IP, thus specify that IP and the netmask for it)
+
+conf shared5-1 ipaddress 172.16.0.1/24
+
+shared5-1 is the vlan name shown in show vlan
+/24 indicate a class C network, and system automatically convert to use the netmask of 255.255.255.0
+note that /20 would convert to netmask of 255.255.240.0
+
+
+---
+
+trunking:
+	ports that are grouped together to form a trunk is called tagging in ExtremeNet.  
+	Thus, a tag on port 1 and 2 would form a 2 GigE trunk
+
+
+---
+
+
+
+configuring switch from ground up.
+this was done by jacinto for ngw1, i copy over, might have missed a few commands.
+
+# This will ERASE EVERYTHING on the config of the switch, and
+# reset to factory defaults.
+unconfigure switch all
+
+
+# do not use bootp, which may get ip, config, etc that we don't want
+disable bootp default		
+
+config snmp sysName	ngw1-nsw1
+
+# create account for user admin
+config account admin			
+
+# ngw1-1 is the primary vlan where all linux modules are in
+create vlan ngw1-1
+config ngw1-1 ipaddress 172.24.53.1/24
+config ngw1-1 add port 1:1-1:32
+enable ipf ngw1-1
+enable rip 
+config rip add vlan ngw1-1
+
+# ??
+config rip txmode v1compatible vlan ngw1-1
+
+# this one assign a vlan id to the vlan ngw1-1.
+# will need to match on switch for them to actually talk correctly.
+config ngw1-1 tag 422
+
+# this is the vip for the load balancer
+create vlan ngw1-vip1
+config ngw1-vip1 ipaddress 192.168.214.1/24
+enable ipf ngw1-vip1
+config ngw1-vip1 tag 766
+enable rip ngw1
+
+# then are some port config tagging that i did not fully get.
+# port 3:1 is the uplink port (separate vlan)
+# port 3:2 is the load balancer
+# End result is: 
+# ngw1-vip1 has 2 ports: untag: 3:1  tag: 3:2
+# ngw1-1 has ports 1:1 - 1:32 and tag 3:2
+
+config rip add ngw1-vip1
+config ngw1-1 add port 3:2
+config ngw1-vip2 add port 3:1
+
+
+
+---
+
+loading new firmware to switch
+
+
+download image 10.0.1.80 FILENAME primary
+# also recommend download to secondary so it can boot in case of disaster
+
+can change use of primary or secondary by: use config ... (?)
+
+show ver
+
+
+---
+
+blocking most of the ICMP access list in the cluster
+(needed to emulate production config, where gateway in compute modules dying will NOT send ICMP to client to reset NFS moutns).
+
+create access-list permit-icmp-vm1-1 icmp dest 172.24.67.0 /24 source any type 3 code 3 permit ports any precedence 10
+
+create access-list deny-icmp icmp dest any source any type 3 code 3 deny ports any precedence 100
+
+The precedence number is to sort how the switch analyzed these rules.  
+lowest number = highest priority = applied first (#1).  
+largest, last applied rule is #25600.
+
+The above eg, ICMP from outside to the internam machines are allowed.
+The next rule to be analyzed block all otherwise not specified ICMP to be blocked.  
+Thus effectively blocking any ICMP originating from the cluster machine to the outside are blocked.  
+I have no details of what kind of ICMP commands are in type 3 code 3.
+
+
+
+---
+
+vlan tag stuff, self notes after layoff.
+
+config vlan <vlan_name>
+  add ip address
+  add tag <tag number>
+
+  add port X tag 
+  add port y,z untag
+
+
+multiple vlan can use the same port as long as the port is added as tag.
+the tag will defferentiate the vlan.
+the peer router will have the port as multiple vlan also, and will therefore 
+be able to route them as necessary.
+
+switch to switch vlan tag, then the port will just behave as if they were separate switch port.  
+or think of port needing <port#, tagId> to identify it into a vlan.
+
+in each subnet, only port that need to be shared with other subnet need to be tagged.  
+port that goes to computer don't need to be tagged.
+note that if tag does not match peer switch/router, then there will be no traffic flowing thru them.
+
+
+</PRE>
+<BR>
+
+
+<A ID="router"></A>
+<H1>Router</H1>
+
+
+
+
+<A ID="fw"></A>
+<H1>FireWall</H1>
+
+<A ID="pix"></A>
+<H2>PIX</H2>
+<PRE>
+(TBD, mask, clean up and combine ~/ref/pix.ref cc*)
+</PRE>
+<BR>
+
+<A ID="checkPoint"></A>
+<H2>CheckPoint</H2>
+<!--checkpoint.ref  -->
+Check Point Firewall-1 commands:
+<PRE>
+
+cplic print	# print licenses info (expiration, modules)
+
+fwinstall	# install check point fw s/w ??
+
+fw commands:
+fw ver [-h] ...                                 # Display version
+fw kill [-sig_no] procname                      # Send signal to a daemon
+fw putkey ...                                   # Client server keys
+fw sam ...                                      # Control sam server
+fw fetch targets                                # Fetch last policy
+fw tab [-h] ...                                 # Kernel tables content
+fw monitor [-h] ...                             # Monitor VPN-1/FW-1 traffic
+fw ctl [args]                                   # Control kernel
+fw lichosts                                     # Display protected hosts
+fw log [-h] ...                                 # Display logs
+fw logswitch [-h target] [+|-][oldlog]          # Create a new log file;
+                                                # the old log is moved
+fw repairlog ...                                # Log index recreation
+fw mergefiles ...                               # log files merger 
+fw lslogs ...                                   # Remote machine log file list
+fw fetchlogs ...                                # Fetch logs from a remote host
+
+
+
+/etc/ipsoinfo		# get info for troubleshooting, save to tar.gz file
+
+
+
+	
+# password recovery for Nokia IP120 (FreeBSD based).
+-s		# at boot prompt of Nokia IP120, boot into single user mode, no password
+/etc/overpw	# reset to temp password, eg to blank.
+dbpasswd admin newpassword ""		# reset network voyager password.
+</PRE>
+<BR>
+
+
+<A ID="lb"></A>
+<H1>Load Balancer</H1>
+
+<A ID="ArrowPoint"></A>
+<H2>ArrowPoint</H2>
+<!--arrowPoint.ref-->
+ArrowPoint ContentSwitch Load Balancer (Now part of Cisco CSM)
+<PRE>
+
+
+Ref:
+ArrowPoint/Cisco
+Content Smart Web Switch 
+Configuration Guide 
+(700+ page doc Mike Kail printed from online doc)
+
+Adding user:
+(config)# username <NAME> password <PASS> {superuser}
+
+Add the keyword superuser at the end to indicate account can access priviledged sueruser commands.  (like the default admin account)
+
+Listing user:
+(config)# no username ?
+
+Note: default admin acc can be erased, but make sure has other user with superuser priviledges!
+
+Showing user info:
+(config)# show user-database
+
+Erasing user:
+
+no username <NAME>
+
+---
+
+Show runtime config, such as prompt, hostnae, ip, etc
+(config)# show running-config global
+
+---
+
+Setting the hostname:
+host <HOSTNAME> <IP>
+
+
+---
+
+changing CLI prompt:
+prompt <NEW STRING>
+
+
+</PRE>
+<BR>
+
+
+
+
+
+<PRE>
+
+
+</PRE>
+
+
+<BR><HR><BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL] 
+<A HREF="http://tiny.cc/NETWORK">tiny.cc/NETWORK</A><BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/tool.html">https://dl.dropboxusercontent.com/u/31360775/psg/tool.html</A><BR>
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/net.html">http://www.cs.fiu.edu/~tho01/psg/net.html</A> 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+   <A HREF="http://www.taos.com"><img SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+
+ <div class="validator">
+
+    <p>
+    <a href="http://jigsaw.w3.org/css-validator/check/referer">
+        <img style="border:0;width:88px;height:31px"
+            src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+            alt="Valid CSS!">
+    </a>
+    <a href="http://validator.w3.org/check?uri=referer"><img
+      src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88"></a>
+    </p> 
+ </div>
+
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"
+</div>
+
+
+
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   
+Will actually need to add this code to every page for full tracking!    
+(still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    
+<script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  
+</script>
+
+
+
+</html>

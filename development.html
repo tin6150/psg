@@ -1,0 +1,392 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Development</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://tiny.cc/DEV">Sys Admin Pocket Survival Guide - Development</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="development.html">Development</a></td>
+      <td align="center"><a accesskey="p" href="php.html">PHP</a></td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a></td>
+      <td align="right"><a accesskey="a" href="shellScript.html">shellScript</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>Mobile Programming </H1>
+
+
+<A ID="cordova"></A>
+<A ID="phonegap"></A>
+<H2>Adobe PhoneGap/Apache Cordova</H2>
+
+Cordova provides a way to turn traditional HTML/CSS/JavaScript-based web-app into a hybrid mobile app.
+It provides with a platform independent API (plugins) to access camara, geolocation, contact list, etc that is avail on mobile devices.   Support for iOS, Android, FireOS, WindowsPhone, and a few other.  There are also platform-dependent plugins if desired (the main logic can still be in a platform-independent core when principled).  <BR>
+
+PhoneGap was acquired by Adobe, but turned it into open source, which became Cordova.  <BR>
+Currently, PhoneGap is largely the same as Cordova 3.0.  But PhoneGap does add a mobile app to test the program without needing installation of the app itself (thus by-passing the certificate signing, deploymnet in app/play store, etc).  Pretty handy.
+
+<BR>
+
+<A ID="ios"></A>
+<H2>iOS</H2>
+
+need a mac to run Xcode, which comes with iOS emulator <BR>
+.ipa is the file extension of the app, for ARM processor.  
+Mostly a zip file packing structure, with .app being the main binary.  
+This is a product of cross-compiler, and the resulting .app binary is not expected to run on x86 cpu so not always runnable by Xcode emulator<BR>
+
+<A ID="android"></A>
+<H2>android</H2>
+
+Use Android Studio (and Android SDK).   <BR>
+Given the large number of devices, need to create (probably many) Android Virtual Device (AVD).<BR>
+Amazon Web Services may have a simple basic sanity test for all mobile devices. <BR>
+
+.apk is the file format <BR>
+
+
+
+
+
+<H1>Unix Programming </H1>
+
+<H2>Development 101</H2>
+
+<PRE>
+gcc
+gdb
+profiling
+
+Intel vs Portland vs GNU compilers...
+Libraries
+
+</PRE>
+
+
+<BR>
+<BR>
+
+<BR>
+
+
+<BR>
+<BR>
+
+
+<H2>Libraries</H2>
+
+<PRE>
+.a = static lib, not for sharing.
+     these are for build time linking, 
+     created by gcc -c  (MS VC++ create .lib)
+     so typically intermediate output of make that goes to a place holder dir, 
+     not to be used in LD_LIBRARY_PATH
+     
+.so = dynamic lib, like dll.  
+      It is run time linking library, 
+      created by gcc -o (MS VC++ .dll, .ocx, even .exe)
+      these files would go to a place where LD_LIBRARY_PATH would point to.
+
+# .so cannot be linked with .a   
+# in ./configure, there are --enable-shared, --disable-shared, and --static ??
+
+
+-fPIC is for Position Independent Code.  Usually .so files are for --enable-shared.
+    allegedly this was for the big-endian vs little-endian issue.  this flag can be added just to be safe.
+
+
+ldd   /path/to/some/program	# list direct dependencies 
+				# find what .so is needed by a binary executable, and if they are in LD_LIBRARY_PATH
+ldd -r 				# find indirect deps
+
+				# ldd output list dependent .so, their location, and memory address
+				# VDSO is Virtual Dynamic Shared Object,, which export kernel routine to user space
+				# as such, no file name path would be given, but a randomized memory address is created for such calls to use.
+
+
+
+ldconfig -vNX			# show all the libraries (LD_LIBRARY_PATH*, /etc/ld.so.conf)
+nm    someobj.a		# list symbols
+nm -o a.out		# include filename/dependent object in each line for easier grep
+			# symbol types (more in nm man page):
+			# U = undefined (caps are global/external)
+			# T = text/code section
+			# r = read only data section (lower case = local symbol)
+
+
+objdump -T executable | grep ABS	# if bin store source code name, hint where things are from
+
+ar		# create a libraries archive .a file, holding a set of subroutines
+		# some .a files are created using the ar command
+		# instead of directly by the compiler.
+ar tf jkweb.a   # list obj contained in the library archive (think of it as tar tf)
+
+ranlib jkweb.a	# generate index to library archive
+		# can use nm -s jkweb.a to list the index  
+		# ar now embed the funcion of ranlib and so manual run of this no longer necessary.
+
+readelf	libxx.so	# list symbols in a shared lib
+
+</PRE>
+
+Ref: <BR>
+<LI><A HREF="http://www.yolinux.com/TUTORIALS/LibraryArchives-StaticAndDynamic.html">YoLinux tutorial</A>
+
+<LI>According to this 
+<A HREF="http://stackoverflow.com/questions/2954387/can-i-mix-static-and-shared-object-libraries-when-linking">
+thread</A> 
+ , mixing static .a lib with dynamic .so lib is possible.  (explicit parameters to ld is passed via -Wl, option of gcc).  <BR>
+Also see 
+<A HREF="http://www.bnikolic.co.uk/blog/gnu-ld-mixed-shared-static.html">
+this post</A>
+<BR>
+
+
+<H2>Environment Variables</H2>
+
+These are probably best set in the Makefile, as would be set by autoconfigure, but some old code, well...
+
+<PRE>
+export CFLAGS="$CFLAGS -fPIC"     
+export CXXFLAGS="$CXXFLAGS -fPIC"
+make
+--or--
+make CLFAGS="-fPIC" CXXFLAGS="-fPIC" 
+
+SHARED_LIBRARY
+LOADABLE_MODULE
+
+LD_PRELOAD	# avoid this, some prog, eg SGE, complains of exploits and unset/ignore this.
+
+</PRE>
+
+<PRE>
+
+LIBPATH         aix
+SHLIB_PATH      hp-ux 32-bit programs
+LD_LIBRARY_PATH hp-ux 64-bit programs (GCC only??)
+LIB             hp-ux, not sure if it is really needed.
+LD_LIBRARY_PATH         solaris
+LD_LIBRARY_PATH_64      solaris 64-bit
+
+
+Some possibilities of preloading the lib before calling a program so that it do
+es not depends on LD_LIBRARY_PATH
+
+LD_PRELOAD      Manually preload a given set of libs, use only when above fail
+and need to fix specifi c bug
+Though programs that may have compiled in the lib with hard path will invariabl
+y need to have the
+path to be present, not sure if preloading will help.
+
+PRELOAD=/path/library
+LD_PRELOAD=$PRELOAD ldd $OCTAVE
+
+/etc/ld.so.preload      systemwide preload lib, intented for for debug/temp fix
+ use.  (Linux only?)
+
+
+</PRE>
+
+<H2>Makefile</H2>
+
+
+<PRE>
+TAB is important, preserve it during cut-n-paste!!  space cannot work as substitute!!
+
+
+
+make    -j4     # gnu make, spread load over 4 threads/cpu in parallel.
+gmake
+gcc
+        -L/path/to/lib
+                the way how these are defined matter which lib file is loaded 1st,
+                which can potentially cause the use of oldever version if >1 exist.
+                weired linker err about symbols not found.
+                It over ride the LD_LIBRARY_PATH.
+        -R/path/to/lib
+                Similar to -L, "it is only necessary if you are linking with shared
+                libraries (lib*.so) that are not in "standard" places like /usr/lib
+cc
+
+
+</PRE>
+
+
+<A ID="gdb"></A>
+<H2>Debuggers</H2>
+
+<PRE>
+
+gdb program [corefile]
+        debug a core dump producted by a gcc/g++ program.
+
+dbx
+        solaris debugger in /opt/SUNWspro/bin/
+        gdb largely similar to it.
+
+ddd --dbx [program [corefile]]
+        GUI on top of dbx, allow cli also.
+        get from blastwave.org or simply "pkg-get install ddd" (install to /opt/csw)
+        Maybe in /opt/sfw/bin/ already.
+        --dbx use dbx instead of gdb.  dbx must be in $PATH
+
+
+nm libfile
+                list symbols defined in a given .o, .a or .so file.
+
+distcc  set of deamon that runs and allow make -j8 or so to do distributed compiling
+        and make use of idle cpu on other computers
+        http://distcc.samba.org/
+        Not hard to setup for simple config, near linear scale for small number
+        of computers.
+        Presumably complex setup where cross compiler can be used to compile for other
+        platform.
+
+</PRE>
+
+
+<H5>gdb cmd</H5>
+
+<!-- gdb.ref -->
+<PRE>
+To use gdb, program need to be compiled with debug symbol table, use -g:
+gcc -g file.c ...
+
+
+Starting gdb as new session debugging a new program:
+gdb program [core-dump]
+program is the binary program name (look for source in same dir, or alt specified dir)
+
+Attaching gdb to a running program:
+run program as normal, then, 
+gdb program 
+(for whatever reason, need to know name of binary program again, even though pid is required. 
+Note that gdb will try look for core file named pid. Ignore the warning, gdb will not find it and then attach to the process.
+
+
+gdb startup file:
+.gdbinit
+
+
+
+gdb/dbx cmd	Action
+-----------	-------------------
+where           display stack trace
+
+</PRE>
+
+<BR>
+
+
+
+<H2>Solaris kernel core dump analysis</H2>
+
+<PRE>
+
+solaris analysis of OS (kernel) core dump.
+need to know platform, os version.
+maybe need kernel auditing abilities also.
+
+kernel core dump to swap.  boot savecore will put it in /var/crash
+There need to be enough room here that fit all physical memory.
+It will do some compression, and it is done in init script (rc2.d/S85savecore),
+
+so all normally mountable filesystem would be up (barring fsck problem),
+thus it is ok to link /var/crash to another fs w/ more free space.
+
+file corefile
+        determine program that dumped the core
+
+pstack corefile
+        produce strack trace &gt; pstack.out
+
+c++filt &lt; pstack.out &gt; filtered.out
+
+
+crash -d corefile
+        Analyze core file dumped during system panico, from SUNWcsu, SUNWcsxu
+        overall, can just see that it is an os kernel dump file, but don't know
+        how to extract info from it yet.
+        help
+        trace   produce a bit of tracing info, last error.
+        proc    display list
+
+
+
+mdb
+        supposed never version than crash, after sol8
+
+adb
+
+SEE ALSO
+     adb(1),  mdb(1),   kadb(1M),   savecore(1M),   soconfig(1M),
+     rt_dptbl(4), ts_dptbl( 4), attributes(5), largefile(5)
+
+
+</PRE>
+
+
+<H2>java</H2>
+
+<PRE>
+
+java/jvm cli option for heap/memory utilization control
+java
+        -version
+        -Xms3584k       JVM min heap (working memory)
+        -Xmx64m         JVM max heap (def=64m, should give more for app server)
+
+
+</PRE>
+
+
+
+<BR><HR>
+<div align="CENTER">
+  Doc URL<BR>
+<A HREF="https://tiny.cc/DEV">tiny.cc/DEV</A><BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/development.html">https://dl.dropboxusercontent.com/u/31360775/psg/development.html</A><BR>
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/development.html">http://www.cs.fiu.edu/~tho01/psg/development.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

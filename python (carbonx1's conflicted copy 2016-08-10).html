@@ -1,0 +1,1101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Python</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://tiny.cc/Python">Sys Admin Pocket Survival Guide - Python</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="python.html">Python</a></td>
+      <td align="center"><a accesskey="p" href="php.html">PHP</a></td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a></td>
+      <td align="right"><a accesskey="a" href="shellScript.html">shellScript</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<!-- ######################################################################### -->
+
+<H1>Python</H1>
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/353"><IMG SRC="fig/xkcd_python.png"></A>
+</div>
+
+
+
+<H2>Python 101</H2>
+
+<OL>
+
+<LI>Python, a programming language, where space matters!!  With that, files portability between Windows and Unix becomes a huge problem, due to the use of CR/LF vs LF in these platforms.
+<LI>Python3 is a new language that supersedes Python 2, it adds additional construct, so program written in Python3 won't necessarily run in Python 2.x
+<LI>; is largely uneeded.  lines ends with CR.  ; can be used to separate commands when trying to write one-liner in the interactive shell.
+<LI>
+<LI>Anaconda: a distribution of python, managed core modules and some 195 libraries.  It is especially useful for getting Python in Windows and mac.  
+    <UL>
+    <LI>It also has a package management (conda, <A HREF="http://www.slideshare.net/teoliphant/effectively-using-open-source-with-conda">ppt</A>) 
+    <LI>Conda Environent provides a virtual env that indlues isolation of dependent binaries.  it has a way to provide for system-level environment, which base python's virtualenv can't.  for setup, see 
+    <A HREF="http://uoa-eresearch.github.io/eresearch-cookbook/recipe/2014/11/20/conda/">http://uoa-eresearch.github.io/eresearch-cookbook/recipe/2014/11/20/conda/</A> 
+    <LI>many libraries are in conda (hosted by continuum), for things not in conda, can still run pip (which come with anaconda) to install such library.  
+    <LI>(Pypi is the equivalent of CPAN?  EzInstall??)
+    </UL>
+<LI>Miniconda is a lightweight version of anaconda.  don't come with the huge library of anaconda, let user to pull only whatever that is needed.
+<LI>Pypi - Python Package Index, intended to be comprehensive catalog of all open source pyton packages.
+<LI>pip - pypi install packager?? as of 2015, mostly just use pip
+
+<LI>iPython: interactive shell for python (and other lang now).    <BR>
+    pip install ipython  <BR>
+    pip install ipython[notebook]  <BR>
+    ref: http://ipython.org/install.html  <BR>
+
+<LI>iPython notebook: This allow writting text interspearsed into python code.
+    good for testing ideas, data crunching and visualization type of project.
+    Anaconda comes with this, and typically run the server at
+    <A HREF="http://localhost:8888/">http://localhost:8888</A>   <BR>
+    Ref: <A HREF="http://nbviewer.ipython.org/github/ipython/ipython/blob/2.x/examples/Notebook/Index.ipynb">nbviewer</A><BR>
+    And this <A HREF="http://blog.ouseful.info/2014/12/12/seven-ways-of-running-ipython-notebooks/">OUseful blog</A> describes 7 ways of running iPython notebooks.  I particularly liked <A HREF="https://chrome.google.com/webstore/detail/colaboratory-notebook/pianggobfjcgeihlmfhfgkfalopndooo">CoLaboratory</A> implementation on Google Drive.
+    <A HREF="https://authorea.com/">Authorea</A> support for iPhython notebook (as part of its web authoring platform) on the cloud was pretty neat too.
+    <BR>
+
+<LI> No pointers??  <A HREF="#asterisks">see below</A>
+
+<LI> <A HREF="https://docs.python.org/2/faq/programming.html">Python2 FAQ</A> is a good read once beyond the syntahtic sugar and need to know more internals in a real programming project.
+    
+</OL>
+
+<H2>Tools from Python Libraries</H2>
+
+<UL>
+<LI> python -m json.tool   myfile.json 	# check a syntax of json file, if correct, spill json out to stdout.  if err, will complain.  <BR>
+
+<LI>numpy - basic numerical analysis
+<LI>scipy - build on numpy, more data analysis for scientific applications.
+<LI><A HREF="http://pandas.pydata.org/">pandas</A> - kinda provide an equiv of R.  
+</UL>
+
+<H2>Python idiosyncracies</H2>
+
+If running a .py script and get an error of " : File not found", check to ensure that the python script does not end with DOS ^M characters.  If needed, 
+<TT>cat old_script.py | dos2unix > new_script.py</TT>
+ and run the new script.  It is a weired error, and I thought most program can handle ^M these days...
+
+<BR>
+<BR>
+
+<TT>#!/usr/bin/env python</TT>
+<BR>
+many python script starts as that.  It effectively look at user's Environment variable and find out what (where) python is defined and run it as the interpreter.
+Calling #!/home/username/bin/python may not always work, as PYTHONLIB won't be setup (unless done in the code). 
+<BR>
+<BR>
+Python can both be interpreted or compiled into byte-code.    <BR>
+Typically .pyc is produced on execution now, so first run incur a JIT compilation delay.
+<BR>
+<BR>
+
+<A NAME="2vs3"></A>
+<H2>Python 2 vs Python 3</H2>
+
+Things to watch out for to write code that is more portable between python2 and python3  <BR>
+<BR>
+
+avoid has_key() in python2.  <BR>
+ie, avoid <TT>dict.has_key(k)</TT> <BR>
+instead use  <TT>k in dict.iterkeys() </TT>  
+or simply 
+<TT>k in dict </TT>
+which works in both python2/3 
+
+<BR><BR>
+
+<PRE>
+use print(x) rather than print x, the latter does not work in python 3.
+
+float division: in 7/3, python3 will automatically floating division, python2 will assume int unless "from __future__ import division"  or 7/float(3) 
+
+
+</PRE>
+
+<BR><BR>
+
+
+<H2>Distributions of Python </H2>
+
+<OL>
+<LI>python.org.  avail for Windows, Linux, ... 
+<LI>anaconda, by continuum.io.  Win, OS X, Linux.  Free for commercial use too.  Include 300 popular packages.  Additional packages can be installed via pip (eg awscli).  
+	<UL>
+	<LI>Python 2.7 will be installed with Anaconda 2.  Can be installed as user.  Will setup PATH environment automatically.
+	<LI>Include iPython (run in DOS command prompt) 
+	<LI>Jupyter (launch a web interface).  
+	<LI>Jipyter Qt run in a unix terminal-like environment.  Much better than the iPython (in DOS) env.
+	<LI>No easy way to run pip.  Need to use "Anaconda Prompt", which is DOS.  So hard to run python packages like aws cli.  May still want to use cygwin to provide a good terminal (at which point, may just want to use the cygwin python/pip).
+	<LI>Python 3.5 also avail.
+	</UL>
+<LI>ActiveState  (mostly for windows?  personally try to avoid, even though nothing wrong with it really, just kinda non standard).
+</OL>
+
+<H2>Environment</H2>
+
+<LI>PYTHONPATH - module search path
+<LI>sys.path   - this should be system path, but https://docs.python.org/2/tutorial/modules.html#the-module-search-path made sound python modules will be searched in this path... (cuz they are essentially python programs?)
+<LI>PYTHONSTARTUP - interactive startup file (commands listed here would be run as if they were typed in interactive shell).
+
+<PRE class="code">
+# one good way to use the environment's PATH, but if not set, can at least have some default.
+# https://districtdatalabs.silvrback.com/getting-started-with-spark-in-python
+import os
+import sys
+
+if 'SPARK_HOME' not in os.environ:
+	os.environ['SPARK_HOME'] = '/srv/spark'
+
+SPARK_HOME = os.environ['SPARK_HOME']
+sys.path.insert(1, os.path.join( SPARK_HOME, "python", "build"))
+
+
+if 'PYTHONPATH' not in os.environ:
+        os.environ['PYTHONPATH'] = "/home/system_web/local_python_2.7.9/lib/python2.7/site-packages/"
+PYTHONPATH = os.environ['PYTHONPATH']
+sys.path.insert(1, os.path.join(PYTHONPATH, "/home/system_web/local_python_2.7.9/lib/python2.7/site-packages/", "/opt/python/2.7.9/lib/python2.7/site-packages/"))
+## not sure if insert will check for duplicates...
+## it will certainly complain if it doesn't exist.
+
+</PRE>
+
+<H2>Setting up the program on NixOS </H2>
+
+System-wide, edit 
+<A HREF="nixos.html#configuration.nix">
+/etc/nixos/configuration.nix</A>
+<PRE>
+environment.systemPackages = with pkgs; [
+    python27Packages.ipython 			# does NOT provide python
+    python34Packages.ipython
+    python27Full 				# ipython does NOT depends on this package
+]
+</PRE>
+
+
+As user:
+<PRE>
+nix-env -i python-2.6.9
+</PRE>
+
+<H2>Setting up the program on Windows </H2>
+
+http://www.howtogeek.com/197947/how-to-install-python-on-windows/ has a step-by-step install, including how to setup environment variables.  <BR>
+
+https://www.continuum.io/downloads is download page for Anaconda, include version for winsows (and os x, linux).
+
+
+<H1>PIP</H1>
+
+PyPI = Python Package Index - equiv of CPAN.
+<BR>
+Allow for installation of python library installation using "pip" 
+<BR>
+
+
+<PRE class="cmd">
+sudo yum install python-pip
+    -or- python setup.py install 
+pip install easybuild
+
+pip list
+pip show      easybuild
+pip uninstall enum
+pip   install enum34
+</PRE>
+
+Libraries are installed to /usr/lib/pythonN.N/site-packages/  <BR>
+
+
+<H5>List installed modules/librarys/packages</H5>
+
+pip list
+<!-- programlisting and code have same formatting -->
+<PRE class="programlisting">
+import pip
+sorted(["%s==%s" % (i.key, i.version) for i in pip.get_installed_distributions()])
+</PRE>
+Ref: 
+<A HREF="http://stackoverflow.com/questions/739993/how-can-i-get-a-list-of-locally-installed-python-modules">
+http://stackoverflow.com/questions/739993/how-can-i-get-a-list-of-locally-installed-python-modules</A>
+
+<BR><BR>
+
+<H2>Python Environment/Virtual Environment</H2>
+
+(Contrast this with Continuum's Conda, which do this and some more)
+
+<PRE>
+pyvenv ~/local_python_3.4		# create a virtual env (python 3.4)
+					# in python 2.7, use <TT>virtualenv ~/local_python_2.7</TT> instead
+					# create vir env once for each version of python being used
+source ~/local_python_3.4/bin/activate	# activate virt env (change path accordingly for diff version of python)
+
+pip install  scipy			# install module into virtual env using pip  (eg for installing scipy)
+easy_install scipy			# install module into virtual env using easy_install (alternate of pip, don't need to do both)
+
+
+</PRE>
+
+<H2>Python Module</H2>
+
+Python libraries are provided as module, which can be imported.  Python search for modules listed in the environment variable PYTHONPATH.  <BR>
+
+Types of modules:
+<UL>
+<LI>build-in modules.  eg: <TT>import sys, os</TT>
+<LI>C library written as python extension.  eg: <TT>from math import *; sin(5)</TT>
+<LI>a directory containing the specially created  __init__.py file
+<LI>.py  file.  ie, don't need any special keyword to declare the file as module.  just have list of functions <TT>def</TT>-ined in the file, and (typically) not actual actions when the .py file is "run".   
+<LI>.pyc file.  ie, byte-compiled version of a .py
+<LI>.pyo file.  ie, -O optimized byte-compiled .py
+<LI>.pth  file  (as alternative to setting PYTHONPATH)
+<LI>.zip files can also be imported
+</UL>
+
+<BR>
+
+when writting python modules, best if it does not output anything.  else, when consumer do <TT>import module_foo</TT> it would essentially execute codes in that module and output things that may not be desirable.  
+<BR>
+<A HREF="https://docs.python.org/2/tutorial/modules.html#the-module-search-path">
+https://docs.python.org/2/tutorial/modules.html#the-module-search-path</A> has a good overview of modules:
+<LI> __name__ contains the module itself
+<LI> if __name__ ==  __main__ :  # module is being executed directly, can place desired execution statement in here
+<LI> when <TT>import module</TT>, all statement and definition will be executed when the import is run (once).  This is why if there are any print statement in the main body of the module, they will be printed out at the <TT>import</TT>
+<LI> dir( __builtin__ ) list all the names defined by python built-in.  Can use dir() with any modules.
+
+<BR><BR>
+
+Packages - python dotted modules name.  ie, provide hierarchy.
+https://docs.python.org/2/tutorial/modules.html#packages
+
+
+<PRE>
+</PRE>
+
+<BR>
+<BR>
+<BR>
+
+<H1>Python Language</H1>
+
+
+
+<PRE>
+
+0 is the index of the first element (like perl.  unlike awk, which is 1).
+
+[ ] = list.  ordered items.  think of array in most languages., 
+      in python, it behave somewhat like a stack.  ie think push/pop.  
+      [].append() add items (push).
+      in reality is is a linked-list.  items can be removed from the middle of the list..
+      	myList = [ 'a', 'b', 'c', 'c' ]
+	myList[1] 	# evals to 'b'		# array syntax, 0-based index
+	myList[-2]				# -ve wraps around, return 2nd from last item
+	myList[1:3]				# slice
+	myList.append( 'e' )			# add item to list
+	del myList[2]				# strink list
+	L2 = [ 'ab' ['cde', 'fgh' ] ]		# nested list
+	len(L2)					# length of list, in this eg returns 2
+	L2[i][j]				# 2D array index for nested array.
+	for x in myList 			# items will be expanded for consecutyve x
+
+( ) = tuple, set.  as in a math set, ordered, contain uniq elements.  *immutable*  
+	point = (x, y)
+	t1 = ( 2, 4, 6, 8 )
+	t2 =   2, 4, 6, 8  			# () syntax is optional when there is no ambiguity
+	t3 = ('xy', ('abc', 'def', 'ghi') )	# nested tuples
+	t3[i][j]				# 2D array syntax works on nested tuples as well
+	t2[1:3]					# slide syntax works on set/tuples too
+	for x in t2	 			# items will be expanded for consecutyve x
+	items = set( myList )			# dup 'c' will be removed
+
+{ } = dictionary/hash.  key -> value list.   eg ENV[HOME]  = '/nfshome/tin'      # Perl: %ENV{HOME} = "/nfshome/tin"
+	dictionaries are mappings, not sequences.
+	codon[ATG] = 'lysine'
+	codon.keys()				# or iterkeys() or both?
+	codon.values()
+	len( codon )
+	resultTable['species']['homo sapiens'] = 1
+	resultTable{ 'species' : { 'homo sapiens': 1} }	# nesting, what is really happening for 2D hash above
+	for k in codon : 			# same as for k in codon.iterkeys()
+		print codon[k]			# iteration for hash is automatically on hash key 
+
+Additional container datatypes, see 
+<A HREF="https://docs.python.org/3/library/collections.html">python3 collections</A>
+
+namedtuple()  
+ChainMap
+OrderedDict
+etc
+
+
+Things that evaluate to False: 
+False    	# build-in boolean. but does not take FALSE
+0
+0.0		# float
+0j		# complex
+bool( 0j )	# type-cast
+""		# empty string
+[]		# empty list
+{}		# empty dictionary
+()		# empty set
+
+when __len__() is 0		# eg user-defined function return 0 length list
+when __bool__() is False	# eg user-defined function returning false as boolean value
+
+</PRE>
+
+<H5>constants</H5>
+
+<A HREF="https://docs.python.org/2/library/constants.html">https://docs.python.org/2/library/constants.html</A>
+
+<PRE>
+
+True		# build-in bool type, does not take TRUE. 
+False
+None		# types.NoneType  a function that should return an object but just issue "return" will get None. kinda like NULL
+NotImplemented
+Ellipsis	# used in slicing syntax
+__debug__ 	# true if not started as python -O 
+
+</PRE>
+
+<A NAME="asterisks">
+<H5>* and **</H5>
+
+<A HREF="http://stackoverflow.com/questions/3394835/args-and-kwargs">http://stackoverflow.com/questions/3394835/args-and-kwargs</A>
+
+<PRE>
+*  eg *args 	# list of args
+** eg **kwargs	# dictionary (key, val) variable list of args
+
+def fn1( *args ) :
+	enumerate( args )
+	# *args  is for variable number of arguments
+def fn2( **kwargs ) :
+	for (name,val) in kwargs.items() :
+		print( name )
+	# **kwargs is for variable number of named arguments
+
+</PRE>
+
+
+<H5>Strings</H5>
+
+<PRE>
+
+% is the new magic in python , but it is old magic.  new one is {}
+print( "most c-style string %s works" % stringvar )
+print( "num %d, fixed point $8.2f, exponent %12e"  % ( 123, 6.1234, 0.0000123 ) )
+ref <A HREF="https://docs.python.org/2/library/string.html#format-specification-mini-language">https://docs.python.org/2/library/string.html#format-specification-mini-language</A>
+
+print( "Total rows processed: {:,}".format(rows )  )  # {:,} provides thousand separators$
+ref <A HREF="https://pyformat.info/">https://pyformat.info/</A>
+
+strings, like tuple, are immutable.
+
+if 'abc' in StringVariable : 	# searching string to see if it contain a substring:
+if 'abc' == StringVariable :	# the two strings are the same
+if  Foo  is  Bar :		# see if two objects are the same (which would then means same string, but this is OBJECT comparison!)
+
+"" vs ''	# very subtle difference that i have yet to hit.  It is NOT like shell where variables are not evaluated inside ''
+[] vs ()	# really depends if function is expecting a list or a tuple/set
+
+Strings examples:
+
+description = """Topspin NMR software (data processing option only)"""
+
+"""this can be multiline string
+and can serve as 
+comment out code
+etc"""
+
+'''here is another multiline string
+that includes line break'''
+
+Note that while multi line string can be treated as multi-line comment, the indentation matter!
+the quotes must start at the right indent level of the preceding line.  
+if it starts flust left margin, it can breaks code
+
+source = [ 'topspin.%s.tgz' % version ]
+
+%s %s % (path,version)
+
+install_cmd = [ 'tar xfzp %s/%s' % (source_urls,sources) ]     ## file:/// screws up tra
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in ['moe', 'moebatch', 'chemcompd', 'rism3d', 'sdwash']],
+    'dirs': [],
+}
+
+
+postinstallcmds = [ 'pwd', 'ls -la', 'touch TesT.txt', 'mkdir %(installdir)s/prog/curdir/wongja7', 'chgrp emv-structchem prog/curdir', 'chmod g+w prog/curdir' ]
+
+
+
+modextravars = {
+    #'TOPSPIN_HOME': '/usr/prog/topspin/3.5pl2',
+    'TOPSPIN_HOME': '%(installdir)s',
+}
+
+
+toolchain = {'name': 'dummy', 'version': 'dummy'}
+
+</PRE>
+
+
+<A ID="globals"></A>
+<H2>Globals, Module's var</H2>
+
+<PRE>
+
+Best way to make modules variables?
+This maybe one way, which is what i used in taxo reporter.
+
+Define variable at top of module, and comment that other who import it would change it?
+Similar in spirit to __debug__ and __builtin__
+
+import mydb
+mydb.foo = bar
+
+this way, bar could be set as cli args (eg parsed by argsparse and many file path can set on run time, yet have some defaults defined as the module's global var)
+
+
+<A HREF="http://stackoverflow.com/questions/142545/python-how-to-make-a-cross-module-variable">cross-mudule var discussion</A> suggested:
+__builtins__.foo = bar
+which may seems to be done enough, but new version of python may run into conflicts.
+Note __builtin__ is global counterpart that need to be import before use.  python also changed this to builtin.
+
+
+ 
+<A HREF="https://docs.python.org/2/faq/programming.html#how-do-i-share-global-variables-across-modules">Python2 FAQ</A> 
+recommends the creation of  a global module for the project, calling it config.py or cfg.py, 
+put all variables there,
+and have all consumer refer to it.
+For a large project with multiple, cross-module references, this avoid a spagetti of "globals" in each module .py file.
+OOP's use of mutator/constructor to set them isn't necessary.  Just modify the var, python don't offer protection, just conventions.
+
+</PRE>
+
+<A ID="scoping"></A>
+<H2>Scoping rules</H2>
+
+<PRE>
+LEGB Rule.
+Local
+Enclosing function locals
+Global   (module)
+Build-in (python)
+
+Python3 added a <TT>nonlocal</TT> clause
+<A HREF="http://stackoverflow.com/questions/291978/short-description-of-python-scoping-rules">Python Scoping rules discussion</A>
+
+
+</PRE>
+
+<A ID="snipplets"></A>
+<H2>Snipplets in stand alone program</H2>
+
+<PRE class="code">
+# tab nanny 
+python -t   # display warnings
+python -tt  # display errors
+
+# use SPACES in python!!  
+# avoid TAB, which is treated as 8 spaces.
+# space is what delineate a block.  
+#
+# code indented 4 spaces is at diff block level than those with 2 spaces !!
+# also note the use of :  after evaluation of condition, the else clause
+if ( A < B and C < D) :
+    print( "and will be optimized, C < D is evaluated only if A < B is True" )
+    print( "python &, | are  bitwise operator" )
+    print( "this is still part of the if-condition" )
+elif ( P == Q ):
+    print( "string and numeric equality is tested by ==" )
+elif ( P != Q ):
+    print( "!= can be used to test whether two objects are different" )
+elif ( 1.5 < X < 4.8 or 178 > Y > 188 ):
+    print( "range test can be carried out as condition evaluation" )
+else:
+    print( "final else part" )
+print "this line is beyond the end of the if/elif/else block"
+# note there is no brackets or endif command to delineate the block !!
+
+
+for x in list:
+    cmd1
+    cmd2
+cmd3
+
+while( X < 10 ):
+    cmd1
+cmd2
+
+</PRE>
+
+
+<PRE class="code">
+# string equality comparision using == 
+txt = "abc"
+if( txt == "abc" ):
+    print( "match" )
+
+</PRE>
+
+<PRE class="code">
+# get command line argument
+import sys
+option1 = sys.argv[1]
+# argv[0] is the name of the command, eg full path of python, or script name
+</PRE>
+
+<PRE class="code">
+
+# example for enumeration and 2D hash 
+
+# enum functional style, need python3 
+# <A HREF="https://docs.python.org/3/library/enum.html#functional-api">https://docs.python.org/3/library/enum.html#functional-api</A>
+
+
+from enum import Enum
+
+RankSet = Enum( 'Rank',   'species genus family order superkingdom' )
+RankSet = Enum( 'Rank',  ['species', 'genus', 'family', 'order', 'class', 'phylum', 'superkingdom', 'no rank', 'NoLineageData']  )       
+
+def example2Dhash( giList ) :
+    # 2D dictionary is really a hash nested inside another hash
+    # simple usage can use a decent format.  
+    # but initialization is pretty hairly, 
+    # Under some circumstance may not need to init the 2D dictionary, 
+    # but in this eg there 2D hash is evaluated before it is set
+    # in the line "if lineage in resultTable2[rank]:"i
+    # therefore init is needed (or add more test condition before the if-line).
+    # may really want to create a class, and go with OOP for at least this data structure...
+    # 2D hash ref: 
+    # http://stackoverflow.com/questions/3817529/syntax-for-creating-a-dictionary-into-another-dictionary-in-python
+    # http://www.python-course.eu/python3_dictionaries.php
+
+    resultTable2 = {"species": {}}
+    resultTable2 = {"NoLineageData": {}}
+
+    for nom in RankSet.__members__ :
+                resultTable2.update( { nom: {"NoLineageData":0} } )     # seed both hash keys, may not need this complication for init sake
+                resultTable2.update( { nom: {} } )                      # seed only first hash key
+    # other example of init elements of the 2D hash:
+    #resultTable2.update( { "NoLineageData": {"NoLineageData":0} } )
+    #resultTable2 =       { "species": {"homo":0} }
+    #resultTable2.update( { "species": {},         "genus":   {},          "family":  {} } )
+    #resultTable2.update( { "species": {"HOmo":0}, "genus":   {"GEnus":0}, "family":  {} } )
+
+    # if did not initialize the 2D hash above, assignment below would fail.
+    for gi in giList:
+          for rank_item in RankSet:
+                print( rank_item.name )      # .name ref https://docs.python.org/3/library/enum.html#programmatic-access-to-enumeration-members-and-their-attributes
+                rank = str(rank_item.name)    
+                lineage = getLineageByGi( gi, rank )
+                dbg( "%s \t %s \t %s " % (gi, rank, lineage) )
+                if lineage in resultTable2[rank]:               # python3 changed  has_key to "KEY in" python3 https://docs.python.org/3/library/2to3.html?highlight=has_key#2to3fixer-has_key
+                    resultTable2[rank][lineage] += 1		
+                else:
+                    resultTable2[rank][lineage]  = 1
+                    ###resultTable2.update( { rank }: {[lineage]: 1} )	# don't really need this convoluted syntax!
+          #for-end rank_set
+    #for-end gi
+    print( resultTable2["species"]["Aedes pseudoscutellaris reovirus"] )
+
+</PRE>
+
+
+Ref for Enumeration :
+
+<LI><A HREF="http://www.tech-thoughts-blog.com/2013/09/first-look-at-python-enums-part-1.html">tech blog</A> cover .name, .value, Enum( n ), Enum['name'] 
+<LI><A HREF="https://docs.python.org/3/library/enum.html#autonumber">python3 standard library autonumber eg</A>
+
+<PRE class="code">
+
+# Auto numbering Enumeration in a class, so as to be able to define functions
+# It demo some construct, but a hash maybe simpler and less overhead
+# Enum was a python3 feature, thus
+# in python2, need to "pip install enum34"  (which is diff than enum module, out of fashion now)
+
+from enum import Enum
+
+class AutoNumber( Enum ) :
+        def __new__( cls ) :
+                value = len( cls.__members__ ) + 1
+                obj = object.__new__( cls )
+                obj._value_ = value
+                return obj
+
+class RankSet( AutoNumber ) :
+        species         = ()    # order in this list matter!!
+        genus           = ()    # RankSet.__x__.name
+        family          = ()    # can add other ranks in middle if desired
+        superkingdom    = ()    # code expects sk to be highest
+        #'no rank'       = ()   # can't do this, but new class-way of RankSet should not need this anyway
+
+        @classmethod
+        def getLowest( cls ) :
+                #(name, member) = cls.species
+                #return cls.species     # return RankSet.species  (what is needed programatically for getParent() etc
+                return cls( 1 )         # know that lowest rank in Enum class starts with 1
+        				# http://www.tech-thoughts-blog.com/2013/09/first-look-at-python-enums-part-1.html
+                #return cls.species.name        # return species  # http://stackoverflow.com/questions/24487405/python-enum-getting-value-of-enum-on-string-conversion
+                # below will do the equivalent, but much slower
+                for (name, member) in cls.__members__.items() :
+                        if member.value == 1 :
+                                return name
+                #return cls.__members__
+        @classmethod
+        def getHighest( cls ) :
+                return cls.superkingdom      # how to use value=max ??
+        # getParent(species)
+        @classmethod
+        def getParent( cls, rank ) :
+                if( rank == cls['superkingdom']  ) :
+                        return None         # return None, as no parent for sk
+                return cls( rank.value + 1)
+                # below will do the equivalent, but much slower
+                for (name, member) in cls.__members__.items() :
+                        if member.value == rank.value + 1 :
+                                return member
+        @classmethod
+        def getChild( cls, rank ) :
+                if( rank.value == 1 ) :
+                        return          # return None, as no child for species
+                return cls( rank.value - 1)
+                # below will do the equivalent, but much slower
+                for (name, member) in cls.__members__.items() :
+                        if member.value == rank.value - 1 :
+                                return member
+
+
+# RankSet class end
+# RankSet is meant to be a static class, not to be instantiated.
+# support calls like these:
+#        RankSet.getLowest()                            # RankSet.species
+#        RankSet.getLowest().name                       # species
+#        RankSet.getParent( RankSet.getLowest() )       # RankSet.genus
+#        r = RankSet.getChild( RankSet.getLowest() )    # get None when "out of range"
+#        if r is None :					# r == None works, but may break when == gets overloaded
+#                print( "got None from RankSet fn call..." )
+#        RankSet(1).value  RankSet(3).names   RankSet['genus']  are valid attributes
+ 
+</PRE>
+
+
+Snipplet with example of namedtuple ::
+
+<PRE class="code">
+def eg_of_create_namedtuple() :
+    giList = { }                
+    f = open( filename, 'r' )
+    for line in f:
+        lineList = line.split( '|' )
+        g = lineList[1]                         # python list index start at 0
+        GiNode = namedtuple( 'GiNode', ['Freq', 'Taxid'] )
+        if g not in giList :
+                taxid = getTaxidByGi( g )
+                giList[g] = GiNode( Freq=1, Taxid=taxid)
+        else :
+                #(freq, taxid) = giList[g]  # this works
+                gin = giList[g]		    # but this keep to the spirit of namedTuple as an entity
+                giList[g] = GiNode( gin.Freq+1, gin.Taxid )
+    f.close()
+    return giList
+
+
+def egConsumer_of_namedtuple( giList ) :
+        for g in giList :
+                print( "looking at gi:%s \t with freq: %s \t and taxid=%s" % (g, giList[g].Freq, giList[g].Taxid) )
+                if giList[g].Taxid not in resultTable4[currentRank] :
+			# the "key" to the namedtuple is available here even when it is not defined here
+                        parentTaxid = getParentByTaxid( giList[g].Taxid )
+                        rankName = getLineageByTaxid( giList[g].Taxid, currentRank )
+                        node = TaxoNode( parentTaxid, rankName, giList[g].Freq, giList[g].Taxid )
+                        resultTable4[lowestRank][giList[g].Taxid] = node
+
+</PRE>
+
+
+<PRE class="code">
+
+# reading text file
+
+f = open( filename, 'r' )
+print f			# print whole file
+for line in f:
+        print line$
+        lineList = line.split( ',' )
+f.close()$
+
+
+# write to file
+
+outFH = open( outfile, 'w' )
+outFH.write( "typical write method\n" )
+print( "print redirect write method, need to add 'from __future__ import print_function' in python2 to work" , file = outFH )
+displayText = '{0: ^50}'.format( entry )
+print( "%5d \t %8.4f %% \t %s" % intNum, floatNum, stringVar , file = outFH )
+outFH.close()
+
+</PRE>
+
+
+<A name="sort"></A>
+<H5>Sort</H5>
+
+The 
+<A HREF="https://docs.python.org/3/howto/sorting.html#sortinghowto">
+python Sort HowTo</A> is a concise read on how to sort iterables by specifying which field to use as key.
+__repr__ ...
+
+<BR>
+<BR>
+mylist.sort()  sorts in-place, so save space and slightly faster.  return None.
+sorted(mylist) returns a new sorted list, so a tad slower, but not said to be not too significant.
+<BR>
+
+By default, Python use timsort, an optmized mergesort.  It is heavily optimized on sorted input and can return as fast as o(N-1).  Typical performance is lg(N!).  
+<BR>
+More info at 
+<A HREF="http://stackoverflow.com/questions/1436962/python-sort-method-on-list-vs-builtin-sorted-function">
+http://stackoverflow.com/questions/1436962/python-sort-method-on-list-vs-builtin-sorted-function</A>
+
+
+<BR>
+
+<A name="db"></A>
+<H5>DB connectivity</H5>
+
+
+
+<PRE class="code">
+
+# http://dgg32.blogspot.com/2013/07/pyphy-wrapper-program-for-ncbi-sqlite.html?view=sidebar
+
+import sqlite3
+db = "/db/taxo/ncbi-taxo-acc-stable.db"
+
+def getRankByTaxid(taxid):
+    conn = sqlite3.connect(db)
+    cursor = conn.cursor()
+    command = "SELECT rank FROM tree WHERE taxid = '" + str(taxid) +  "';"
+    cursor.execute(command)
+    result = cursor.fetchone()
+    cursor.close()
+    if result:
+        #return result[0]
+        return str(result[0])
+    else:
+        return no_rank
+
+pyphy.getRankByTaxid("2")
+
+</PRE>
+
+If running many SQL repeatedly, it will have better performance by using "prepare"
+and "execute" many queries in a loop than open the database many times over and setting cursor, etc.
+
+cursor.prepare "SELECT rank from tree WHERE taxid = ?"
+cursor.execute( "10" )
+for taxidList in ...
+	cursor.execute(name) 
+
+would make bulk query a lot faster
+
+
+
+<A name="fp"></A>
+<A name="FP"></A>
+<H1>
+Functional Programming in python
+</H1>
+
+Python supports imperative(procedural), OOP, as well as functional style.  Since it is not dictated/required, hybrid approach is possible.  A few observations:
+
+<OL>
+
+<LI> avoiding side effects (core of functional programming) may not always be possible.  eg.  printing message to screen, writting to file.
+<LI> functional programming center on being stateless.  easier to achieve for a function with specific input and produce output deterministically.  but the inside of the funciton may need to be stateful for more complex tasks.  
+Well, sorting is complex, can be done procedurally (bubble sort) but can also done by divide and conquer without state, as can be done via merge sort.
+<LI> focusing on stateless, functional programming is in this sense at opposite spectrum of OOP, which is object with methods to provide internal state change.
+
+</OL>
+
+
+The following slide from my colleague Wes provide the gist of FP in Python:
+
+<PRE class="cf">
+
+lambda functions: create anonymous functions
+    	addFive = lambda x: x + 5
+    	addFive(8) 		# result: 13
+
+map()
+    	map(func, sequence) 	# Applies func() to every element of sequence.
+
+filter()
+	filter(func, sequence) 	# Returns elements where func() returns True.
+
+reduce()
+	reduce(func, sequence) 	# Reduces a list to a single value.
+	sum = reduce(lambda x,y: (x+y), [1,2,3]) 	# result: 6 
+
+
+list comprehensions: syntactic sugar, clearer than map() or filter()
+	[x.upper() for x in seq]              vs.    map(lambda x: x.upper(), seq)
+	[x         for x in seq if x > 0]     vs. filter(lambda x: x > 0,     seq)
+
+</PRE>
+<PRE class="cf">
+
+collect() 	# Return a list of all elements
+
+</PRE>
+
+
+<PRE>
+maybe useful books...
+
+http://www.amazon.com/Guide-Functional-Python-Comprehension-Constructs-ebook/dp/B00CUZDOSI/ref=tmm_kin_swatch_0?_encoding=UTF8&qid=1453132773&sr=8-8
+
+concise intro to functional programming.  likely using python as construct.
+about 45 pages.  maybe better than some web stuff?
+talks about lambda fn, map/reduce/filter, then go into recursion, comprehension, generators.
+
+the above is Section III of Treading on Python Volume 2: Intermediate Python
+
+(seems like I don't like either).
+
+
+http://www.amazon.com/Functional-Python-Programming-Steven-Lott/dp/1784396990/ref=sr_1_1?ie=UTF8&qid=1453132773&sr=8-1&keywords=functional+programming+python
+
+start out with procedural/functional hybrid.
+maybe easier to follow to get more functional code into programs.
+some 330 pages.  dive into many specific of iter(), where they are used, etc.
+worthwhile if start programming a lot in python.
+
+
+PS.  LISP is the early functional language.  code was pretty hard to read.  Erlang is more modern.  CouchDB is coded in Erlang.
+
+</PRE>
+
+
+<H3>iterators</H3>
+
+<PRE>
+even if don't really want to get fully functional, understanding iterator goes a long way in understanding many procedural constructs.
+
+eg.  for X in Y is really for X in iter(Y) 
+list and dictionaries are iterable.
+
+dictionaries especially!
+m = { 'jan', 1, 'feb', 2, 'mar', 3 }
+for key in m: 		# same as for key in iter(m)   
+    print key, m[key]   
+
+			# side note: python2 allowed 
+			# if m.has_key( k ) 
+			# the has_key() is no longer avail in python3
+			# so use the syntax of
+			# if k in m  
+
+iter( m )		# create iterator from dictionary.  see  https://docs.python.org/3/library/stdtypes.html#typesmapping 
+m.iterkeys() 
+m.itervalues()
+m.items()		# python2 use m.iteritems()
+
+in 2D dictionaries... ??
+table = { 'species', { 'HBV', 13, 'BK', 28, 'HIV', 14 }, 
+          'genus',   { 'H',   27, 'B',  28 }
+          'family',  { 'tot', 55 }
+        }
+
+ranks = table.iterkeys()
+
+familySum = table[genus].itervalues()
+
+table.iteritems()  ??
+table.iter()     
+
+
+there are the 
+iter()
+tuple() 
+that help understand list/tuple generations/conversion. 
+
+</PRE>
+
+Ref: <A HREF="https://docs.python.org/2/howto/functional.html#iterators">
+Python 2 - Functional - iterators</A>
+
+<H3>Generator and Comprehension</H3>
+
+<PRE>
+
+This is probably key to wrap head around functional programming.
+
+() is for generator ... return iterator
+[] is for function  ... return list
+the content inside the parenthesis and brackets will tell it is not tuple or dictionary/hash
+
+( obj.count for obj in list_all_objects() )
+
+</PRE>
+<BR>
+
+Ref: 
+<A HREF="https://docs.python.org/2/howto/functional.html#generator-expressions-and-list-comprehensions">
+Python 2 - Functional - generator...</A>
+
+<BR>
+<BR>
+
+
+
+<A name="OOP"></A>
+<H1>
+Object Oriented Programing in Python
+</H1>
+
+OOP, especially data structure with functions to modify its state, is like the 
+opposite of Functional Programming.
+</A>
+GUI are probably natual with OOP, 
+but biz logics probably better with FP, and Procedural approach good enough.
+Python modules provides encapsulation and separation, yielding some benefits of OOP w/o the altered logic imposed by classes.
+see
+<A HREF="http://docs.python-guide.org/en/latest/writing/structure/">
+http://docs.python-guide.org/en/latest/writing/structure/</A>
+
+
+<PRE>
+class myClass(parentClass1, parentClass2) : 
+	classwideVar = "this is shared by all object/instances of this class. "		# be careful with this, not like Java!
+	def __init__( self )
+		instanceVar = "this is instance specific"
+	def fn( self ) : 
+		print( "hello world" )
+		# super() refer to parent class
+
+
+parentClass can be blank if not inheriting anything.  this is defined in the class clause, obj declaration need not state anything here. 
+standard data type can be used for parentClass.  eg object, Enum, 
+multiple parent classes can be listed, (comma?) delimited.
+
+
+x = myClass()
+xf = x.fn	# this is valid!  a method name is an attribute of the class... this define an alias to the function...  
+xf()		# actually calls x.f()
+
+myClass.fn(x) 	# this is what is happeneing when calling x.fn(), which is why first param of fn is called self.
+
+
+Data attributes override method attributes with the same name !! 
+Use some standard to avoid bugs, eg verbs for methods, nouns for data.  
+well, Java says data should be private and accessed via methods provided by the class...
+
+
+
+
+
+
+class Pizza(object):
+    shape = "round"					# ie, all pizzas will have the same shape.  
+    favoriteIngredient = "pepperoni"
+    def __init__(self, ingredients):
+            self.ingredients = ingredients		# variables comes to live when they are first executed
+
+    @classmethod					# define a class-static method, ie not variable by object instantiation
+    def getFavoriteIngredient( cls ):
+    	return cls.favoriteIngredient
+
+
+
+p = Pizza( "pineapple" )
+print( p.ingredients )					# attributes in python are "public" in the C++/Java nomenclature
+							# nothing in python enfoce data hiding, it is all done by convention!!
+
+print( Pizza.shape ) 
+
+# class is object too in python!
+# Exceptions are classes
+
+
+
+@staticmethod
+
+@classmethod
+
+@abstractmethod
+
+
+
+nonlocal
+global
+
+
+</PRE>
+
+ref: 
+<A HREF="https://julien.danjou.info/blog/2013/guide-python-static-class-abstract-methods">static class in python tutorial</A>
+<BR>
+<A HREF="https://docs.python.org/3/tutorial/classes.html#class-objects">Python 3 tutorial on classes</A>
+<BR>
+
+<!-- ######################################################################### -->
+
+<BR><HR>
+<div align="CENTER">
+  Doc URL<BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/python.html">https://dl.dropboxusercontent.com/u/31360775/psg/python.html</A><BR>
+<A HREF="http://tiny.cc/Python">tiny.cc/Python</A><BR>
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/python.html">http://www.cs.fiu.edu/~tho01/psg/python.html</A> 
+<BR>
+(cc) Tin Ho. See 
+<A HREF="psg.html#cc">main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98" ALT="taos.com"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

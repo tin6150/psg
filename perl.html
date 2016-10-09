@@ -1,0 +1,763 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Perl</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://tiny.cc/Perl">Sys Admin Pocket Survival Guide - Perl</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="python.html">Python</a></td>
+      <td align="center"><a accesskey="p" href="php.html">PHP</a></td>
+      <td align="right"><a accesskey="a" href="shellScript.html">shellScript</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>Perl</H1>
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/208:_Regular_Expressions"><IMG SRC="fig/xkcd_regular_expressions.png"></A>
+</div>
+
+
+<H2>Perl 101</H2>
+
+
+<BR>
+
+Perl is an interpreted language, but exist tool to turn them into binary.
+Perl script can be setuid!!
+<BR>
+<BR>
+
+The first column is $_[0], next one is $_[1], the whole line is $_ (or @_)
+<BR>
+Contrast to Awk first column is $1, second is $2, and $0 is the whole input line.
+<BR>
+
+
+<PRE>
+reference = pointer.
+@array     isn an array, like:  [,,]   ($array[0], $array[1], etc)
+\@array    address of array [,,]  (a pointer, stored as 32-bit integer, ie scalar)
+
+@$array    $array is a pointer, take that as address, and there is the array. 
+	   Ie decypher \@array
+           when declaring ref, use my $array.
+           so, that should be what is returned in a fn call.
+
+Finding array size:
+my @arr = (2);
+print scalar @arr; # first way to print array size
+print $#arr; # second way to print array size
+my $arrSize = @arr;
+print $arrSize; # third way to print array size
+</PRE>
+<BR>
+
+<H4>Perl Variables</H4>
+<PRE>
+$scalar = 1;
+@array = ( 'a', 'b' );
+%hash = ( 'key1' => 'value1',   'key2' => 'value2' );
+FILEHANDLE
+</PRE>
+<BR>
+<H4>Objects and Class</H4>
+<PRE>
+It is essentially a hack on Packages, but bless()ed into a class.
+Default Package variables are class-wide variables.  
+Instance/method variables need to be inside data structure that has been
+bless()ed.  But at time may need to check whether method was called
+as class subroutine or as object's method!!
+First param for a method call, $_[0], is a ref to the object (or its class), it is done automatically by Perl (using unshift or something).
+
+Be sure to "use strict", or Perl may think of some closure need to applied
+to specific variables declared in methods and those may become like 
+class-wide data, but in fact "use strict" would mean they should be scoped correctly and destroyed when method is completed.
+
+constructor can be named anything, new() is just the most popular name.
+Destructor is called automagically and must be named DESTROY.
+
+
+ref: perltoot, perltooc, perlref
+</PRE>
+
+<H4>specifying libraries</H4>
+<LI>perl -I/path/to/my/lib
+<LI>export PERL5LIB=$PERL5LIB:/path/to/my/lib
+<LI>export PERL5LIB=$PERL5LIB:/usr/prog/perl/current/lib/5.10.1:/usr/prog/perl/current/lib/site_perl/5.10.1/    # for CPAN installed lib, add path to the point where all files/dirs are added by CPAN.
+<LI>inside perl program: use lib "/path/to/my/lib" 
+<PRE>
+Note that :: is used as directory separator from the "library root dir".  eg
+use Bio::Perl::foo;
+should find something in $PERL5LIB/Bio/Perl/foo.pm
+</PRE>
+
+<H2>One-Liner PERL in shell as AWK replacement</H2>
+
+<PRE>
+command line options:
+	-e  = inline input for program file
+	-n  = do not print/display input line
+	-p  = print input line
+	-a  = split array automatically (input line into @F field)
+	-F: = Use : as field separator (like AWK)
+	-l  = add \n at the end of each array element...  may or may not be what is needed!!
+
+
+ls -l | perl -nle  'print $_;'				# plain pass thru
+ls -l | perl -lne  'if ($_ =~ pattern) {print $_}'	# like grep pattern
+
+
+ls -l | perl -lane 'print @F'				# split input into @F "field" array
+ypcat passwd | perl -F: -lane 'print "$F[0]  $F[2]";'	# print 1st and 3rd column only (ie username and uid)
+
+ls -l | perl -lane 'if ($F[2] !~ $F[8]) { print $_ };'	# find out dir not owned by the user (eg run in /nfshome)
+							# $F[2] is owner column, $F[8] is last column with file/dir name
+
+ls -l | perl -lane 'if ($F[2] !~ $F[8]) { print "chown $F[8] $F[8]"};' &gt; fix.sh  
+							# edit fix.sh and run to fix ownership
+
+
+cat /etc/passwd | perl -F: -lane 'print "$F[6] $F[0]"'
+
+cat /etc/passwd | perl -F: -nle 'chomp; @F = split( /:/, $_ ); print "$F[6] $F[0]";'
+	
+# above 2 lines should be equivalent, 
+# but sometime newline is attached to last column and automatic
+# array split can't chop it off, and so need
+# to do it manually
+
+
+
+echo "az" | perl -nle 'print ++$_'			# increment an alpha string, eg return "ba" 
+
+
+perl -e 'use Bio::Perl;'				# test whether a given package is installed
+perl -e 'use DBI;'
+
+
+perl -spi 's/ftp/FTP-disabled/'  /etc/passwd 		# inline substitution in a file, no (manual) tmp file creation needed.
+							# same as: sed -i 's/ftp/FTP-disabled/' /etc/passwd
+
+
+# print the directory stack  one line at a time with a number prefix usable with pushd +N
+# have not figure out a way to put this as an alias, thus, place in script called Dirs
+dirs | perl -lane 'for( $N=0; $N &lt; @F; $N++ )   {print "$N: $F[$N]"}'
+
+
+</PRE>
+
+
+
+
+<H2>Bunch of baby things... </H2>
+
+<A NAME="regular expression"></A>
+<A NAME="regexp"></A>
+<div align="CENTER">
+<A HREF="https://xkcd.com/1171/"><IMG SRC="fig/xkcd_perl_problems.png"></A>
+</div>
+
+
+<H4>RegExp</H4>
+
+<PRE>
+
+\d		digit: ie [0-9]
+\w		word: ie [A-Za-z0-9_]
+\W		non-word
+\s		space
+\S		non-space
+
+([\w]+)\s([\w]+)	beomce $1 $2 for two words separated by white space
+
+if( $string =~ "patter" ) {
+	# regexp pattern is a substring in $string
+}
+
+String comparison operators:
+ne	not equal
+eq	equal
+lt 	less than (how?)
+
+numeric comparison operators:
+==	numeric equal
+!=	not equal, ie different
+<=	numeric less than
+
+
+= 	single equal sign is for assignment
+	var = value
+
+
+</PRE>
+
+
+<H4>Loops</H4>
+<PRE class="code">
+
+OUTER: while( <> ) {
+
+	INNER: while( ... ) {
+
+		if( $string1 eq $string2 ) {
+			next;	# break INNER loop
+		} else {
+			last OUTER;	# 
+		}
+	
+	}
+	# statements that will continue at end of INNER
+	# 
+	stm1;
+	stm2;
+	
+	# last OUTER will reach here
+	# and won't run stm1, stm2 above.
+}
+
+
+# LABEL: (those var ending with :) are optional in simple loop.
+# next and last will jump to end of such loop automatically if no label are present.
+# there is also redo.
+# if-statement does not count as loop block.
+
+
+# break is used to jump out of if-else block?
+# ref: Learning Perl pp 104
+
+</PRE>
+
+
+<H2>Snipplets in stand alone program</H2>
+<A ID="Snipplets"></A>
+
+
+<BR>
+
+<PRE class="code">
+
+# generating unix password crypt
+
+my $en = crypt( "FixMyPw!", "pw");
+print "$en\n";
+
+</PRE>
+
+<PRE class="code">
+
+# eg of command line argument
+# 0 is not the command itself, but the first argument 
+
+print "arg 0:  $ARGV[0] \n";
+print "arg 1:  $ARGV[1] \n";
+
+</PRE>
+
+<PRE class="code">
+
+# ls -l but only for file of non zero size
+
+my @lsOut = qx "ls -l" ;
+foreach my $line ( @lsOut ) { 
+  if( $line =~ /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\d+)\s+/ ) { 
+    if( $5 != 0 ) { 
+	print $line;
+    }   
+  }
+}   
+
+</PRE>
+
+
+
+<A ID="Sample"></A>
+<A ID="Code"></A>
+<A ID="Sampel_Code"></A>
+<H2>Sample Code Useful in Bioinformatics</H2>
+
+
+
+<PRE class="code">
+
+
+# Input  file: 34 column .maf file (tab delimited)
+# Output file:  9 column tab delimited
+# eg for use with Genome MuSiC pfam
+
+cat 34col.maf | perl -F\\\t -a -ne 'for ( $c = 0; $c < 8; $c++ ) {print $F[$c] . "\t"} ; print $F[$c] . "\n"' > 9col.tsv
+
+
+# add column 10 thru column 34 with dummy "0" 
+
+cat 9col.tsv | perl -F\\\t -ne 'chomp; print $_; for ( $c = 10; $c <= 34; $c++ ) {print "\t0"}; print "\n"'   > 34col.tsv
+
+
+
+# print a comment line at the top of the file that contains column number
+# and header lines from the original source maf file
+
+(perl -e 'print "#" ; for ( $c = 1; $c <= 34; $c++) { print $c . "\t" }; print "\n"' ; \
+ head -2 source.maf ;  cat 34col.tsv) > 34col+header.maf
+
+
+
+# print column 1 of a tab delimted file
+# perl column numbering starts with 0
+# awk  column numbering starts with 1
+# cut  column numbering starts with 1
+
+cat file.tsv | perl -F\\\t -lane ' print "$F[0]"; '
+cat file.tsv | awk  -F\\\t       '{print    $1}   '
+
+cat /etc/passwd | cut  -d:  -f3   # display UID field
+
+
+## in vim, use :set tabstop=20  and :set nowrap  to get better view of tab-delimited file
+
+
+</PRE>
+
+
+sample code in ~/dp/code/...
+
+
+<H2>POD/Perldoc</H2>
+
+Plain Old Doc can be embeded inside perl code itself, and perldoc perl.html (this file)
+will produce man page like documentation.
+pod commands start with = , and most often, need to have blank line before 
+and after it!
+<BR>
+
+eg:
+
+<PRE class="code">
+
+=head1  Description
+
+Plain text can now go in here, and it will be wrapped.
+New line isn't really  headed, and formatter will
+join them and wrap at end of screen line.
+
+=cut
+
+=pod
+
+  = pod doesn't do much, other than it is text to be placed in pod doc.
+  when space/tab is prefixed in
+  the begining of the line
+  then perldoc will treat it like quoted text
+  and format them verbatim
+
+
+  lastly, for html OL item list stuff, need to have a block delimited as
+  = over
+  = back
+  and add entries with 
+  = item  itemName
+
+=cut
+
+
+=over
+
+=item  ItemName
+
+what ever describe an item, these will be indented
+
+=item *
+
+instead of name, * should produce bullet, but seems to be formated as ?  :(
+in real life, don't mix name with bullet was a best practice...
+
+
+=back
+
+=cut
+
+
+# the =cut is needed to indicate the end of pod in the =over/=back block 
+
+</PRE>
+
+
+<PRE>
+
+perldoc -t perllocal		# list set of installed CPAN modules
+
+</PRE>
+
+ref: 
+<LI><A HREF="http://perldoc.perl.org/perlpod.html">perldoc.perl.org</A> <BR>
+<LI><A HREF="http://juerd.nl/site.plp/perlpodtut">5 min pod</A> <BR>
+
+
+
+<H1> </H1>
+
+<PRE>
+
+
+quick perl ref
+
+
+for( my $i; $i < 10; $i++ ) { ... }
+foreach my $entry ( @list ) { ... }
+
+# specify where perl will search for the libraries, @INC define the search path.
+BEGIN {
+    push(@INC, '/zambeel/lib/perl/site_perl');
+	push(@INC, '/opt/zambeel/lib');
+}
+
+
+open( FH-IN,  "< /path/to/inputfile" );
+open( FH-OUT, "< /path/to/outputfile" );
+while( <FH-IN> ) { print (FH-OUT $_); }
+close( FH-IN );
+
+Note that it seems that while the file handle is open, a self-recursive call will mangle up the FH internal db, thereby closing it when inner code returns.  One solution is read file into memory bugger and close FH before making recursive call.
+
+
+calling main will all input args:
+main($#ARGV+1, @ARGV);
+
+see email ref folder for more perl stuff
+
+---
+# Perl module creation
+# ch 11.2 of Programming Perl
+
+
+package Bestiary;		# store this in file Bestiary.pm
+
+require Exporter; 		# copy these two lines verbatim 
+our @ISA = ("Exporter");	# work as inheritance from exporter class.
+
+# then, have these:
+our @EXPORT    = qw($camel %wolf ram);              # Export by default
+our @EXPORT_OK = qw(leopard @llama $emu);           # Export by request
+our %EXPORT_TAGS = (                                # Export as group
+                     camelids => [qw($camel @llama)],
+                     critters => [qw(ram $camel %wolf)],
+                   );
+
+
+# so, in a program that "use Bestiary", 
+# by default, it can access ram instead of having to do Restiary::ram
+
+# The export as group need to be imported as "use Bestiary qw( :camelids )"
+# colon is needed for tags, not for the export by request list.
+
+# for variables declared in the module w/o my, they can be accessed as
+# $Bestiary::emu  (funny symbol before package name).
+
+
+#  running cmd in shell.
+$| = 1;      # avoid buffering
+$exitCode = system( 'ls -l' );
+$exitCode /= 256;
+
+# Manish said that system use lot of buffering, and can something get confused and stuck if the are closed output... use $! = 1 to get around the problem.
+
+
+
+
+###### styles ########
+
+for sizable script, use a file to define all the commands, scripts, etc that will be called, eg defineCmd.pm.
+This way, the defineCmd.pm can be smart enough to detect platform changes of where commands are, or the need to move script to different dir.  
+
+if( os == rh )
+ping = ...
+ifconfig = ...
+elsif( os = sunos )
+pint = ...
+ifconfig = ...
+
+
+if sys admin, think about setting a dir where all executable are located, independent of platform, but this will result to non-portable code.
+
+
+############### net stuff  #################
+
+C:\refMaterial.YaEnCasa\ref.from.cd\oreileyPerlCDbookShelf\perlnut\c13_001.htm
+inet_ntoa 
+inet_aton
+
+convert from/to dotted ip (and english name) to 32bit number for low level manipulation of the strings.
+
+inet_aton() will convert single integer number (eg 19) and treat that as last octet and create IP (32 bit bin) equivalent to 0.0.0.19, so that two 32bit number can be ORed together (via |)
+Numberic addition will not work :(
+
+
+
+---
+
+Big endian = MSB = most significant bit first = network order = 
+ie, normal human looking pattern order for 32bit num, right most bit = 1, left most bit is most significant, highest value.
+
+C:\refMaterial.YaEnCasa\ref.from.cd\oreileyPerlCDbookShelf\cookbook\ch02_05.htm
+
+
+perl 
+N format = network order, (those produced by inet_aton).
+B32 = bit by bit (the "normal" perl scalar data?)
+
+
+</PRE>
+
+<H2>CPANMINUS</H2>
+
+a newer approach to cpan lib install.  User will install this module in their own dir.  
+When installed to say NFS mounted home dir, setting perl5lib to include such dir, then the cpan mod will be avail to the user on any machine with NFS access to the dir<BR>
+<PRE>
+curl -L http://cpanmin.us | perl - App::cpanminus
+cpanm -l ~/perl5.20  DBD
+</PRE>
+
+
+
+
+<H2>CPAN</H2>
+
+<H4>Sample session</H4>
+
+<PRE>
+cpan  			# rest of commands are inside cpan shell
+ h			# display help
+ o conf 		# display config
+ o conf ftp_proxy	# display config of given scalar (CPAN config)
+ o conf ftp_proxy myproxy:2010		# change settings (permanent)
+ 
+ m DBD::mysql		# search for (m)odule, display info
+ i /DBD::mysql/		# search for (m)odule, (b)undle, etc, REGEXP match
+
+ install DBD::mysql	# do everyone in one command
+
+ get     DBD::mysql	# the command chain to download, compile, test, install
+ make    DBD::mysql 
+ test    DBD::mysql
+ install DBD::mysql 
+ look    DBD::mysql	# create a shell in the dir where modules is stored.
+ clean   DBD::mysql 	# in case need to remove and restart
+
+ readme  DBD::mysql	# get basic info about the module
+ perldoc DBD::mysql	# perldoc inline doc of module/bundle...
+
+# note: DBD::mysql requires mysql-devel rpm, and the user running cpan install
+#   	to be granted priv to drop tables etc in the TEST db
+# 	the mysql db server need to be running on the local machine
+# 	mysql -u root -e "grant all privileges on test.* to 'sysadm'@'localhost'"
+# 	force install DBD:mysql may be able to install without test passing...
+</PRE>
+
+<H4>more details...</H4>
+
+
+<PRE>
+Download CPAN modules and install automatically as root to local system:
+Note that which perl is invoked is important.
+sun stock perl used cc for compile, prefer to use sunfreeware.com that install to /usr/local, and use gcc.
+Also, remember that module names are case sensitive.
+
+
+If there are more than one compiler, 
+def env var may help:
+CC=/usr/local/bin/gcc		(does it really use a CC compiler??)
+MAKE= ...  (is it $MAKE?)
+Best to config CPAN as root and define the setting of where all the programs are located.
+
+perl -MCPAN -e shell			# abreviated as cpan in perl5
+o conf prerequisites_policy 		# learn about the config
+o conf prerequisites_policy follow	# set to automatically get dependencies (def?)
+o conf prerequisites_policy ask		# change to prompt before adding prereq
+install Mail::SpamAssasin                (spell?)
+install Digest::Nilsima
+install URI::Escape
+quit
+
+or in non-interactive mode:
+perl -MCPAN -e 'install Chocolate::Belgian'
+perl -MCPAN -e 'install Net::DNS'
+
+Files are stored in a variety of places :(
+@INC is probably set differently, and multiple version can exist :(
+
+/usr/local/lib/perl5/site_perl/5.8.0...
+
+find /usr/local/lib/perl5/ -name '*SHA1*'
+/usr/local/lib/perl5/site_perl/5.8.0/sun4-solaris/auto/Digest/SHA1
+/usr/local/lib/perl5/site_perl/5.8.0/sun4-solaris/auto/Digest/SHA1/SHA1.so
+/usr/local/lib/perl5/site_perl/5.8.0/sun4-solaris/auto/Digest/SHA1/SHA1.bs
+/usr/local/lib/perl5/site_perl/5.8.0/sun4-solaris/Digest/SHA1.pm
+/usr/local/lib/perl5/site_perl/5.8.0/Digest/HMAC_SHA1.pm
+/usr/local/lib/perl5/site_perl/5.8.0/Digest/SHA1.pm
+/usr/local/lib/perl5/site_perl/5.8.0/Mail/SpamAssassin/SHA1.pm
+
+
+One can set PERL5LIB to desired root location, but this may still happen I think.
+
+--
+
+Clearing CPAN config setup (eg, to change proxy settings, compiler locations, etc)
+Need to remove (or edit) Config.pm, at:
+    SMCperl that install to /usr/local:   /usr/local/lib/perl5/5.8.0/CPAN/Config.pm
+
+
+</PRE>
+
+<H4>Troubleshooting CPAN install</H4>
+
+<H5>Uninstalling/Reinstalling a module</H5>
+
+There is no easy way to uninstall a module.  CPAN is not a package manager :(
+But most package have a .package list.  It list all the files and the path they were installed.
+Can use this to remove the files.
+After this step, cpan can be run and installing the module should start from scratch again.
+(cpan should not complain that the module is already installed, given it find the files are not there.  partial file delete should work, but if trying to make backup, be careful to copy/move all files).
+<BR>
+eg.  cpan install of DBD::Pg left package list at 
+/usr/prog/perl/5.16.3_gcc/lib/site_perl/5.16.3/x86_64-linux/auto/DBD/Pg/.packlist
+
+
+<H5>Manual install of modules</H5>
+
+<PRE>
+
+If a CPAN module won't install, go to the shell and 
+cd to the dir where the build location is, and try to run "make" manually, eg
+
+cd /home/tin/.cpan/build/Inline-Java-0.53-Fyk_8W
+perl Makefile.PL
+
+
+
+</PRE>
+
+
+
+<H2>Perl Debugger</H2>
+
+<!--perl.dbg.ref-->
+<PRE class="quote">
+
+
+
+
+perl debugger.
+
+invoked by calling perl with -d option:
+perl -d <program-to-debug>
+
+
+perl debugger is really just perl running with addional support (from DB module to store state info).  It is not totally seprated from the program as traditional debugger.
+
+To execute any perl code w/in a debugging program, just enter the perl code.  Anything that is not understood by debugger is considered perl code and executed via eval, in the context at the debugging point of the program.
+
+Debugger uses csh-like cmd edit.  ! num, ! cmd, etc to excute cmd, H for history
+
+debugger cmd (commoner stuff):
+
+t				: toggle trace mode (on emulate sh -x, print all code as executed)
+R				: reload/restart the debugger
+
+b fn-name		: set breakpoint at fn
+b LINE			: set breakpoint at line num (breakable lines has colon after num)
+b sub-name		: set breakpoint at a subroutine name
+b load FILE		: set breakpint when FILE is first loaded (by use, require?)
+d LINE			: remove breakpoint at line
+D				: remove all breakpoint
+L				: list all breakpoint
+
+c				: continue 
+s				: step (will enter into subroutine)
+n				: next (execute subroutine completely and return, ie "step over")
+<ENTER>			: previous n or s cmd is repeated
+r				: return from current running subroutine
+
+T				: backTrace of fn call seq
+S pattern		: list all subroutines (with optional pattern for name)
+w lineNum		: look at "window" of source code around break point (or around lineNum)
+w w				: display more lines than single w by itself.
+-				: print previous few lines
+l LINE|SUB		: display Lines of code around LINE, SUB, (etc).
+/PATTERN		: search fwd in prog for PATTERN (think of vi search)
+
+p $varname		: print value of $varname.
+f				: something about switching file (to be read, set breakpoint?)
+o				: set lot of option stuff about the dbg
+
+
+h				: help.  Use h h for concise usage.
+h CMD			: help on the given command.
+H				: cmd line History
+
+use pipe preceding cmd will run cmd thru the pager.  eg |h to page thru help
+
+
+Inlined debugger command inside perl programs.  If debugger isn't running, these command will be harmless.
+
+$DB::single = 1		: s = stop program, return command to debugger.
+$DB::single = 2		: n
+$DB::trace  = 1		: t = trace on ?
+
+</PRE>
+
+<H2>TBD</H2>
+
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL] <BR>
+<A HREF="http://tiny.cc/Perl">tiny.cc/Perl</A><BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/perl.html">https://dl.dropboxusercontent.com/u/31360775/psg/perl.html</A><BR>
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/perl.html">http://www.cs.fiu.edu/~tho01/psg/perl.html</A>
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

@@ -1,0 +1,1046 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Admin Commands</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <!--th colspan="0" align="center"-->
+      <th colspan="6" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/admin.html">Sys Admin Pocket Survival Guide - Admin Commands</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="d" href="ldap.html">LDAP</a></td>
+      <td align="center"><a accesskey="l" href="linux.html">Linux</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/149"><IMG SRC="fig/xkcd_sudo_sandwich.png"></A>
+</div>
+
+
+<H1>Admin Commands</H1>
+This document will cover the Unix Admin commands that are largely the same on all
+flavors of Unix.
+
+(Lot of clean up is needed.  For now, just dumping commands from cmd.admin.ref that should 
+not go to sol.html)
+<BR><BR>
+
+<H1>Config Files</H1>
+
+<PRE>
+/etc/passwd
+/etc/groups
+/etc/shadow
+/etc/group
+
+/etc/init.d/ (linux: /etc/rc.d/init.d/)
+
+/etc/inet/inetd.conf
+/etc/printcap  or /etc/printer.conf
+/etc/motd
+/etc/release            # see which os cd was used eg sol 8 01/00 for Jan 2000 build. 
+
+/etc/resolv.conf        # dns setup
+/etc/nsswitch.conf      # order of search for files/dns/nis
+/etc/init.d/            # list of programs that are configured for possible start up/shutdown automatically.
+                        # actual start in /etc/rc2.d and rc3.d
+
+
+</PRE>
+
+
+
+<H1>CMD</H1>
+<PRE>
+
+dmesg   : display error log messages, like /var/adm/message, etc 
+          obsolete by syslogd
+
+
+du -kxS *       = display space usage Summary for only (x) one file sys (ie local)
+        -d      = solaris native du, do not cross fs boundary, good for du -dsk / and only report ufs, sans nfs.
+                  BUT du -dsk * will cross ufs and nfs that are mounted at the root level, such as /nfshome :(
+        -x      = gnu du, "only 1 fs", but only Linux has desired behaviour like solaris -d
+du -dk  / | sort -n | less      # use in solaris
+du -skx * | sort -n | less      # use in linux          ??
+
+df -kl          = report fs space usage of local fs, solaris and linux
+
+
+## port mapper, remote procedure call.  NFS, YP etc use this protocol.
+rpcinfo -b ypserv 1 (and 2)     find out all nis server on the subnet
+rpcinfo -p tin-linux                            : show all rpc progs on machine tin-linux
+rpcinfo -n 2049 -u tin-linux 100003 : see if nfs server is running
+rpcinfo -n  802 -u tin-linux 100005 : see mountd info
+rpcinfo -n 1048 -u tin-linux 100005 : see mountd info
+        # note that mountd port may differ, see output of rpcinfo -p
+
+
+nice, renice, priocntl:         change scheduling priority of process
+        (ps/top, higher priority has higher numberic value 0=lowest, 100?=highest
+        nice, higher number = nicer = lower priority
+        -ve value of nice means not-nice, ie get more sys res, settable by root)
+
+        eg renice 10 -p [pid]   : renice the process to 10 (from usual 0), thus making it to have less priority and demand less sys resource
+
+        priocntl -s -p -5 -i pid 8200 :
+        set the priority of process #8200 to -5.
+        -s = set
+        -p = priority
+        -i pid = specify class of process, can group by parent pid, etc.
+
+
+
+date --set [datestring] : linux, set date/time of machine, the string can almost be anything.
+catman -w -M /usr/local/man     : rebuild the man page index for the dir /usr/local/man
+catman -w       : probably rebuild based on $MANPATH
+
+
+
+dhclient        = get dhcp address from server for current client.
+(linux only?  move...)
+
+
+---
+99.999% uptime allow for 5.26 min of downtime in 1 year.
+99.99%  allow for  52 min of downtime.
+99.95%  allow for 263 min of downtime, a bit less than  4.5 hours.
+99.9%   allow for 526 min of downtime, a bit less than 10   hours.
+
+
+</PRE>
+
+<A ID="chroot"></A>
+<H2>chroot</H2>
+<!--mkchrootdir.sh-->
+<PRE class="code">
+
+#!/bin/sh
+
+#The following shell script builds a chroot environment for OpenSSH 3.7.1p2 on a Solaris 7 Sparc system.
+# source:
+#http://www.brandonhutchinson.com/chroot_ssh.html
+# instructions:
+# 1. get openssh source w/ chroot from chrootssh.sourceforge.net
+# 2. Create the chroot environment.
+#Note: the file system containing the chroot jail must be mounted suid. Attempting to use a chroot jail in a nosuid-mounted file system may result in the following error message:
+#ld.so.1: /bin/sh: fatal: /dev/zero: open failed: No such file or directory
+#Killed
+#Remounting the nosuid file system with mount -o remount,suid file_system will not fix the problem. You must unmount the file system, remove nosuid from /etc/vfstab (if applicable), and remount the file system.
+
+#CHROOT_DIRECTORY=chroot_directory
+CHROOT_DIRECTORY=/lhome/chroot
+
+#mkdir $CHROOT_DIRECTORY
+cd $CHROOT_DIRECTORY
+
+# Create directories
+mkdir -m 755 -p bin dev usr/local/ssl/lib usr/local/lib usr/local/libexec usr/lib usr/bin usr/platform/`uname -i`/lib
+
+# Copy files
+cp -p /bin/sh $CHROOT_DIRECTORY/bin/sh
+cp -p /usr/bin/cp /usr/bin/ls /usr/bin/mkdir /usr/bin/mv /usr/bin/rm /usr/bin/rmdir $CHROOT_DIRECTORY/usr/bin
+cp -p /usr/lib/ld.so.1 /usr/lib/libc.so.1 /usr/lib/libdl.so.1 /usr/lib/libgen.so.1 /usr/lib/libmp.so.2 /usr/lib/libnsl.so.1 /usr/lib/libsocket.so.1 /usr/lib/librt.so.1 /usr/lib/libaio.so.1 $CHROOT_DIRECTORY/usr/lib
+
+cp -p /usr/local/lib/libz.so $CHROOT_DIRECTORY/usr/local/lib
+cp -p /usr/local/libexec/sftp-server $CHROOT_DIRECTORY/usr/local/libexec
+cp -p /usr/local/ssl/lib/libcrypto.so.0.9.6 $CHROOT_DIRECTORY/usr/local/ssl/lib
+cp -p /usr/platform/`uname -i`/lib/libc_psr.so.1 $CHROOT_DIRECTORY/usr/platform/`uname -i`/lib
+
+# Create required character devices
+mknod $CHROOT_DIRECTORY/dev/zero c 13 12
+mknod $CHROOT_DIRECTORY/dev/null c 13 2
+chmod 666 $CHROOT_DIRECTORY/dev/zero $CHROOT_DIRECTORY/dev/null
+
+# 3. Create the chroot user. The chroot user's home directory should use the following format:
+# /path_to_chroot/./home_directory
+
+# To support chrooted ssh and sftp, choose /bin/sh as the chroot user's shell.
+# To support chrooted sftp-only, choose /usr/local/libexec/sftp-server as the chroot user's shell.
+# ex. grep hutch /etc/passwd
+# hutchib:x:1000:1:Brandon Hutchinson:/home/chroot/./home/hutch:/bin/sh
+# When user "hutch" logs in via ssh or sftp, he will be chrooted to /home/chroot and placed in the /home/hutch directory.
+
+
+##CHROOT_DIRECTORY=/lhome/chroot
+# additional files needed for sftp
+# files needed for ldd usr/local/libexec/sftp-server
+cp -p /usr/lib/libresolv.so.2 $CHROOT_DIRECTORY/usr/lib
+cp -p /usr/lib/libz.so 	 $CHROOT_DIRECTORY/usr/lib
+cp -p /usr/lib/libmd5.so.1 	 $CHROOT_DIRECTORY/usr/lib
+cp -p /usr/local/lib/libgcc_s.so.1  $CHROOT_DIRECTORY/usr/local//lib
+# somehow not copied:
+cp -p /usr/local/ssl/lib/libcrypto.so.0.9.7 $CHROOT_DIRECTORY/usr/local/ssl/lib
+
+</PRE>
+
+
+<A NAME="nis"></A>
+<H1>NIS</H1>
+<!-- cmd.admin.ref.tr -->
+
+<PRE>
+
+ypcat (group, passwd)
+ypstart         # linux
+ypbind
+ypinit          # client, specify machines to bind to
+                # server, specify whether master or slave
+ypwhich         # tell what NIS server machine is bound to.
+passwd
+yppasswd (obsolete, for combatibility only)
+
+ypcat -k auto.master    (-k to display the key name too!)
+ypcat -k auto.direct    (the direct map, use /-)
+
+/var/yp/binding/DOMAIN/ypservers        # list of ypservers that can be used (non broadcast mode)
+
+
+
+passwd 
+
+pwconv  update shadow file based on new user additon to passwd (does not set password)
+passwd  [uid]           change password for user
+chown   [uid]:[gid]     /home/[user]    change user home dir ownership
+
+
+shadow fields (all numbers are in days):
+eg: username:cV5MnNBnaUIbM:13362:0:99999:7:::
+    [---1--] [-----2-----] [-3-] 4 [-5-] 6 (78)
+1: username 
+2: encrypted password 
+3: last password change - days since 1970/01/01.  Substract this number by:
+ 	12775 = days since 2005/01/01
+	13140 = days since 2006/01/01
+	13505 = days since 2007/01/01 
+4: password next change  	   - 0 means password can change at any time.
+5: password req change in X days   - 99999 means next life time :)
+6: warning for expiration
+7: account disactivation in X days - usually empty
+8: acc expiration  		   - usually empty
+9: reserved
+
+
+w change : allowed next change : 
+
+
+---
+
+NIS+
+
+nismatch  -M name=tin passwd.org_dir
+nismatch  tinh        passwd 
+nismatch  grpname     netgroup.org_dir
+
+nisgrep ...
+
+</PRE>
+<H3>NIS server setup</H3>
+<!--nis.ref-->
+
+<PRE>
+
+vi map files
+make
+
+(eg /var/ypmaps, /var/yp).
+
+NIS client
+/etc/defaultdomain
+/etc/hosts		list of all nis servers
+
+ypinit -c 
+setup NIS client.
+Use a predefined list nis servers,  thus avoid the need to use broadcast.
+
+
+NOTE: a user can belongs to a max of 16 groups, surplus will not be recongnized by the system
+and suffer non group membership error.  
+Client OS specific, defined in limits.h ::
+limits.h:#define        NGROUPS_MAX     16      /* max number of groups for a user */
+
+---
+
+master server
+
+domainname NISdomainName
+ypinit -m
+ypserv
+
+
+removing old slaves, p69:
+ypcat -k ypservers | grep -v oldsvr | makedbm - /var/yp/`domainname`/ypservers
+
+Hon's approach (-u = undo)
+/usr/lib/yp/makedbm -u ypservers /tmp/ypservers
+vi /tmp/ypservers			# update file, need all slave and master
+makdebm /tmp/ypservers ypservers	# recreate the ypservers map
+makdebm ypservers /tmp/ypservers	# not sure of param seq
+# at the end, ypcat -k ypservers need to list the master server as well.
+
+
+in practice, I did:
+
+cat /var/ypmaps/yp_slave.txt | makedbm - ypservers
+or
+cd /var/yp/arbor..com
+cat yp_slave.txt | makedbm - ypservers
+
+ypstop; ypstart # maybe needed, kill all yp* process, expecially yppush
+
+and that will recreate ypservers.pag and timestamp ypservers.dir
+yp_slave.txt is a text file that I create myself.  List all the slave servers, 
+hostname should be okay if they are in /etc/hosts, but sometime used IP.
+
+update the db w/o pushing the maps to the clients, which maybe down:
+./make NOPUSH=true passwd
+
+
+2004/01 getting issues about after update NIS master passwd, make and stuff
+client don't see the latest changes, even if they appear on ypcat.
+Seems to be client side resolver, editing nsswitch remove/readd nis seems to reset things.
+Not sure if cuz NIS master need to timestamp other things.
+
+
+1996/11/03 geneusa
+
+ypservers.txt need to have key and actual entry, so file needed to be:
+(and no # comments, # is not treated specially)
+
+verso           verso.geneusa.com
+papp-bapp1 papp-bapp1.geneusa.com
+pdir-nis01 pdir-nis01.geneusa.com
+
+and watch out for tailing space at the end of the line, which will be incorporated into the server name!
+and result in host not found!!
+
+cat ypservers.txt | /usr/lib/yp/makedbm - ypservers
+
+the final dbdump file named ypservers need to be in the folder of the domain name, eg
+/var/yp/tularik.com/ypservers
+
+
+
+Hmm... very strange... more testing using make reveals that the makdebm for ypservers is not needed!
+
+all that make wants is that there is a plain text file in /var/yp/ypservers
+one host per line, no other format.  make depend on this to do push.
+
+eg:
+# cat ypservers   # the orig file
+verso.geneusa.com
+firth.geneusa.com
+
+
+
+
+---
+
+setting up slave server  (on linux)
+
+Linux:
+http://www.linux.org/docs/ldp/howto/NIS-HOWTO/ypserv.html
+
+get ypserv rpm
+domainname ...
+ypinit -s MASTER-hostname	(/usr/lib64/yp)
+ypserv				(/etc/init.d/ypserv)
+
+don't forget to update appropriate files:
+/etc/nsswitch.conf
+/etc/sysconfig/network 
+/etc/yp.conf		can have localhost, and ypwhich will return current machine
+need to be setup correctly to be in NIS DOMAIN to begin with.
+
+
+rpcinfo -u localhost ypserv	# test it
+
+update slave's crontab to grp info using ypxfr
+
+
+
+
+
+---
+
+
+Adding new maps.
+
+On master server, edit 
+auto_master
+plus any additional files, such as auto_products
+Then, need to update Makefile to create dbm file out of the source.
+Remember the pickiness of Makefile req Tab as separator in many places!
+
+Then, after the Makefile is updated, the slave servers need to be updated also.
+
+On the NIS slave, redo ypinit -s <NIS MASTER SERVER NAME>
+so that it will reread what maps are available and load them all.
+Otherwise, they will never get the new maps!!
+
+
+
+----
+
+
+NIS client setup for RH9 in brio.  (2003/07)
+
+vi /etc/sysconfig/network :
+HOSTNAME=<Put_unquantified_name_here>
+NISDOMAIN=brio.com
+DOMAINNAME=brio.com
+
+vi /etc/nsswitch.conf, edit lines to match the following:
+passwd:     files nis
+shadow:     files nis
+group:      files nis
+automount:  files nis
+
+# create startup scripts
+cd /etc/rc.d/rc3.d
+ln -s ../init.d/ypbind ./S27ypbind
+cd /etc/rc.d/rc5.d
+ln -s ../init.d/ypbind ./S27ypbind
+
+start NIS client:
+/etc/init.d/ypbind start
+
+start automounter:
+/etc/init.d/autofs start
+
+restart ssh daemon (if you forget to do this, NIS user will NOT be able to loing!):
+/etc/init.d/sshd restart
+
+
+</PRE>
+<BR><BR>
+
+<A NAME="ntp"></A>
+<H1>NTP</H1>
+<!--ntp.ref-->
+<PRE>
+
+
+</PRE>
+
+<H3>Solaris</H3>
+
+<PRE>
+
+"central ntp server", ie, main machine that sync to outside time server 
+of (startus 1 or 2), and in turn act like main time server for local office.
+At TiLeg, this was blazer, 10.215.20.8
+
+cp /etc/inet/ntp.server /etc/inet/ntp.conf
+
+change:
+
+server 204.87.183.6 prefer
+fudge  204.87.183.6 1 stratum 4
+broadcast 10.215.20.255 ttl 4           # port 123
+# 204.87.183.6 is reloj.kjsl.com in Salinas, CA, USA.
+# there are other public clock server.
+
+
+
+Then, on each subnete, wants to have a broadcast server that send out
+NTP info, so any clients on that network can listen to it and sync its clock.
+
+
+server 10.215.20.8 prefer		# blazer, which is "master NTP server"
+broadcast 10.215.11.255 ttl 4           # port 123
+
+</PRE>
+
+<H3>Solaris client config</H3>
+
+<PRE>
+
+On each client, setup to listen to NTP.
+
+cp /etc/inet/ntp.client /etc/inet/ntp.conf
+
+Really just need one line in it, indicating it listen to broadcast NTP packets:
+
+broadcastclient
+
+Alternatively, it can listen to a specific server via:
+server 10.215.20.8 prefer
+
+
+</PRE>
+
+<H3>Linux, as client</H3>
+
+<PRE>
+cp -pa /etc/rc3.d/K74ntpd /etc/rc3.d/S74ntpd
+cp -pa /etc/rc5.d/K74ntpd /etc/rc5.d/S74ntpd
+/etc/rc3.d/S74ntpd start
+
+There is already a file /etc/ntp.conf with lot of comments, need to update it
+as:
+
+A simple client config that listen to broadcast clock:
+/etc/ntp.conf ::
+	broadcastclient
+
+A client that listen to specific server:
+	server cookoo.unixville.com
+	server ticktick.unixville.com
+
+A more involved linux config (details TBA):
+	server  127.127.1.0     # local clock
+	fudge   127.127.1.0 stratum 10
+	server  cookoo.unixville.com
+
+	driftfile /var/lib/ntp/drift
+	broadcastdelay  0.008
+	authenticate yes
+	keys            /etc/ntp/keys		# need to actually setup own key
+
+
+
+</PRE>
+
+<H3>AIX</H3>
+
+<PRE>
+
+AIX, as client that listen to broadcast clock:
+
+/etc/ntp.conf ::
+	broadcastclient
+	driftfile /etc/ntp.drift
+	tracefile /etc/ntp.trace
+
+startsrc -s xntpd
+
+init script to uncomment /etc/rc.tcpip
+
+
+
+</PRE>
+
+<H3>HPUX</H3>
+
+<PRE>
+
+/etc/ntp.conf
+	broadcastclient
+	driftfile /var/ntp/ntp.drift
+	statsdir  /var/ntp/ntpstats
+
+
+/etc/rc.config.d/netdaemon, change:
+	export NTPDATE_SERVER=10.215.22.5       #bigsur
+	export XNTPD=1				# def=0, so it won't start
+	export XNTPD_ARGS=
+
+
+/sbin/rc2.d/S660xntpd start
+
+</PRE>
+
+<H3>NTP-like for windows</H3>
+
+<PRE>
+
+
+An article covering time sync optioins for windows:
+
+http://geodsoft.com/howto/timesync/wininstall.htm
+
+Precompiled SNTP client for windows NT system, refered from above.
+
+http://sourceforge.net/projects/nettime/
+
+Install it as adminstrator, say yes to setup as service.
+Do configuration, use 10.215.20.8 (blazer) as server.
+It request for 5 machines, but right now we don't have that many NTP server.
+Could use the server in the various vlan, which really sync to blazer.
+
+
+</PRE>
+
+<A NAME="snmp"></A>
+<A NAME="snmp"></A>
+<H1>SNMP (Solaris)</H1>
+
+<!--snmp.ref-->
+<PRE>
+
+/usr/local/ucd-snmp  aka net snmp, sunfreeware pkg.
+
+snmpwalk  rlau-sun public 
+snmpget   rlau-sun public iso.3.6.1.2.1.1.6.0
+
+
+/etc/rc3.d/S76snmpdx
+
+/etc/snmp/conf
+
+snmpd.conf
+snmpdx.acl	
+
+but could not change which manchine allowed to query it.
+acl list doesn't seems to work.
+manager list in snmpd.conf doesn't seem to respond either.
+
+solaris also have a mibiisa "sub-agent" which listen to non std snmp port (161).
+It seems to be random port and talk to master agent snmpdx.
+
+essentially, no way to change which ip it binds to (eg in firewall).
+no way to restrict which client the agent will respond to.
+Lacking man pages, and thing is probably buggy.
+
+
+solaris package:
+
+SUNWmibii       Solstice Enterprise Agents 1.0.3 SNMP daemon
+SUNWsacom       Solstice Enterprise Agents 1.0.3 files for root file system
+SUNWsasnm       Solstice Enterprise Agents 1.0.3 Simple Network Management Protocol
+SUNWmipr        Mobile-IP (Root)	# mip, not mib
+SUNWmipu        Mobile-IP (Usr)
+
+---
+
+stopping snmp in solaris
+
+stopping 
+
+/etc/rc3.d/S76snmpdx stop
+/etc/rc3.d/S77dmi stop
+cd rc3.d
+mv S76snmpdx            _s76snmpdx
+mv S77dmi               _s77dmi
+
+</PRE>
+<BR>
+
+<A NAME="net-snmp"></A>
+<A NAME="net-snmp"></A>
+<H1>Net-SNMP</H1>
+
+<H2>Linux</H2>
+
+<PRE>
+RPM for tools: net-snmp-utils-...
+
+Sample query commands: 
+
+snmpget -v1 -c snmp4CSI machinename sysDescr.0
+snmpget -v1 -c snmp4CSI machinename sysContact.0
+snmpget -v1 -c snmp4CSI machinename sysLocation.0
+
+RPM for snmp client config: net-snmp-5.1.2-11.EL4.7 + libraries (32 and 64 bit versions)
+
+
+(snmpwalk command from From ZenOss package??)
+
+snmpwalk -v1  -d -cpublic mybox.myco.net system
+snmpwalk -v2c -d -cpublic mybox.myco.net system
+	# -v1 or -v2c, use specific version that is supported by the client machine
+	# -d = debug dump
+	# -cCommunityName 
+	# system keyword to limit what is walked, omit will return lot more info
+
+snmpcmd	# cmd wrapped by snmpwalk, read man page for options.
+
+</PRE>
+
+
+<PRE class="cf">
+##/etc/snmp/snmpd.conf 
+
+# -----------------------------------------------------------------------------
+com2sec local localhost snmp4ESI
+## servers in the following area will not be allowed to do query with this client.
+com2sec privnet 172.27.0.0/16 snmp4CSI
+com2sec privnet 10.0.0.0/8 snmp4CSI
+ 
+group rogroup v1 local
+group rogroup v2c local
+group rogroup usm local
+group rogroup v1 privnet
+group rogroup v2c privnet
+group rogroup usm privnet
+ 
+view all included .1
+ 
+access rogroup "" any noauth exact all none none
+ 
+# -----------------------------------------------------------------------------
+# System Information
+syslocation -use snmpd.local.conf instead-
+syscontact  -use snmpd.local.conf instead-
+ 
+# -----------------------------------------------------------------------------
+# System Monitors
+storageUseNFS 1
+ignoredisk /proc
+ignoredisk /etc/mnttab
+ignoredisk /tmp
+proc /usr/lib/ssh/sshd 10 1
+proc /usr/sbin/cron 1 1
+proc /usr/lib/inet/xntpd 1 1
+disk / 10%
+agentSecName internal
+rouser internal
+defaultMonitors yes
+ 
+# -----------------------------------------------------------------------------
+# Traps -- use the two closest ones to the region where the system will be installed.
+informsink 172.27.166.43 
+informsink 172.27.166.87
+authtrapenable 1
+  
+# -----------------------------------------------------------------------------
+# Extensions
+master agentx
+
+
+</PRE>
+
+<PRE class="cf">
+##/etc/snmp/snmpd.local/conf
+
+syslocation USCA-SF
+syscontact  US-Unix-Admin
+
+</PRE>
+
+Snooping for traffic:
+
+<PRE>
+tcpdump -vv -s0 -i eth0 host 172.140.92.112 and port 161
+</PRE>
+
+<H2>NetApp</H2>
+
+NetApp's build in SNMP works with NetSNMP.  
+
+<PRE>
+snmp				# display SNMP config
+options snmp.access		# display which remote host can make SNMP queries
+
+# sample config
+snmp community delete               all
+snmp community add                  ro   my-snmp-RO-cummunity
+snmp traphost add                   172.27.166.43 
+snmp traphost add                   172.27.180.87
+snmp authtrap                       1
+snmp init                           1
+ 
+options snmp.access                 host=172.27.166.43,172.27.180.87,netapp-dfm,admin-host
+options snmp.enable                 on
+
+</PRE>
+
+<H2>Solaris</H2>
+
+
+For Solaris, don't use the stock snmp, but get Net-SNMP Agent package 
+and the same linux config file above will work, placing it in 
+/etc/snmp/conf/snmpd.conf.
+http://www.net-snmp.org
+
+
+<BR><BR>
+
+
+<H2>Concord nhSnmpTool MibWalk</H2>
+
+<PRE>
+CA provides this tool for Solaris (and windows?).  
+Can query a machine and retrieve all the MIB thru automatic MIB-WALK.
+
+It is just a tar file, no install required.
+
+./nhSnmpTool -c snmp4CSI 10.222.2.19
+
+And it will write output to dir/file under the tmp dir of where the tool is installed.
+The output would consist of a very large number of OID numbers,
+they are incomprehensible without more tools, 
+but at least one can tell that the SNMP config is working.
+
+</PRE>
+
+
+
+<A NMAE="sudo"></A>
+<H1>SUDO</H1>
+
+<PRE>
+
+sudo cmd			# run a specific command as root
+
+sudo -u svc-acct -H  bash	# become a specific user (-u), setting home dir (-H)
+				# and run the specific shell as command
+
+
+</PRE>
+
+<!--sudoers voivod-->
+<PRE class="cf">
+
+# simple sudoers file to allow specific users to become root.
+# minimal fuss :)
+
+User_Alias SUPERUSERS = sa admin toor
+SUPERUSERS      ALL=(ALL) ALL
+
+# User privilege specification
+root    	ALL=(ALL) ALL
+tinh            ALL=(ALL) ALL		# could have placed this user in alias section also
+# user		hostlist=(userlist) commandlist
+
+
+</PRE>
+
+
+<!--sudoers-eg2.ref-->
+<PRE class="cf">
+
+
+# sudoers eg (2)
+# simple file that enable apache/oracle to start as root
+
+sys_hudson ALL=(ALL) NOPASSWD: /etc/init.d/tomcat
+
+# User alias specification
+User_Alias      APACHE = applmgr
+
+# Cmnd alias specification
+Cmnd_Alias      HTTP_CMD = /u01/applmgr/ORADEVcomn/admin/scripts/ORADEV_oadevapp1/adapcctl.sh, \
+                           /u01/applmgr/ORADEVora/iAS/Apache/Apache/bin/apachectl,  \
+                           /u01/applmgr/ORADEVora/iAS/Apache/Apache/bin/httpd
+Cmnd_Alias      TEST_CMD = /usr/bin/cat, /usr/bin/echo
+
+
+APACHE  ALL = NOPASSWD: HTTP_CMD, TEST_CMD
+
+
+# eg 2b:
+
+Cmnd_Alias SU_MDL = /bin/su - mdl, /bin/su mdl
+User_Alias MDL=thom,jay
+Cmnd_Alias CHOWN_MDL = /bin/chown mdl\:mdl /usr/mdl/*
+MDL ALL=(mdl) ALL, (root) SU_MDL, NOPASSWD: CHOWN_MDL
+
+
+# eg 2c:
+
+Cmnd_Alias SU = /usr/sbin/visudo, /bin/su
+Cmnd_Alias SHELL = /bin/bash, /bin/csh, /bin/ksh, /bin/sh, /bin/tcsh, /bin/zsh
+Cmnd_Alias FILE_READ = /bin/ls, /usr/bin/tail, /bin/cat, /bin/grep
+Cmnd_Alias APP_SVR = /etc/init.d/httpd, /etc/init.d/tomcat, /etc/init.d/jboss
+User_Alias ADMIN = username1, username2"
+
+ADMIN ALL=(ALL) ALL, !SU, !SHELL,  NOPASSWD: FILE_READ, APP_SVR
+# there is no need to prefix "NOPASSWD:" in front of APP_SVR commands, the clause will be applied to EOL.
+
+</PRE>
+
+<!--sudoers.ref-->
+<PRE class="cf">
+
+
+# longer sudoers eg, (probably for the older version of sudo)
+# http://www.courtesan.com/sudo/man/sudoers.html#examples
+#
+
+# User alias specification
+
+User_Alias     REAL_ADMIN = tho, joycec, hhuynh
+User_Alias     PSEUDO_ADMIN = jmedlin, terry
+User_Alias     HELPDESK = wtang, sa
+User_Alias     WEBMASTERS = lonly
+
+Runas_Alias    OP = root, operatora
+Runas_Alias    DB = oracle, sybase
+
+# Host alias specification
+
+Host_Alias     SPARC = its01, ges-sun2, trout :\
+                HPUX  = cod, riptide :\
+                AIX   = brine, chicklet :\
+                LINUX = toolbox, ldap09 :\
+                SGI = grolsch, dandelion, black :\
+                ALPHA = widget, thalamus, foobar :\
+                HPPA = boa, nag, python
+Host_Alias     VLAN28 = 172.27.28.0/255.255.255.0
+Host_Alias     CSNETS = 128.138.243.0, 128.138.204.0/24, 128.138.242.0
+Host_Alias     SERVERS = master, mail, www, ns
+Host_Alias     CDROM = orion, perseus, hercules
+
+# Cmnd alias specification
+
+Cmnd_Alias     DUMPS = /usr/bin/mt, /usr/sbin/dump, /usr/sbin/rdump,\
+                        /usr/sbin/restore, /usr/sbin/rrestore
+Cmnd_Alias     KILL = /usr/bin/kill
+Cmnd_Alias     PRINTING = /usr/sbin/lpc, /usr/bin/lprm
+Cmnd_Alias     SHUTDOWN = /usr/sbin/shutdown
+Cmnd_Alias     HALT = /usr/sbin/halt
+Cmnd_Alias     REBOOT = /usr/sbin/reboot
+Cmnd_Alias     SHELLS = /usr/bin/sh, /usr/bin/csh, /usr/bin/ksh, \
+                         /usr/local/bin/tcsh, /usr/bin/rsh, \
+                         /usr/local/bin/zsh
+Cmnd_Alias     SU = /usr/bin/su
+Cmnd_Alias     TEST = /bin/cat
+
+# User privilege specification
+
+# %group indicate /etc/group
+
+root           ALL = (ALL) ALL
+%briosa        ALL = (ALL) ALL
+%puser         localhost=/sbin/shutdown -h now
+
+# CAPS are group defined here in sudoers file
+REAL_ADMIN     ALL = NOPASSWD: ALL
+PSEUDO_ADMIN   ALL = ALL
+HELPDESK       ALL = KILL, DUMPS, /bin/ls, /bin/cat
+
+babuv          VLAN28 = ALL
+
+#operatora      ALL = DUMPS, KILL, SHUTDOWN, HALT, REBOOT, PRINTING,\
+#               sudoedit /etc/printcap, /usr/oper/bin/
+
+joe            ALL = /usr/bin/su operatora
+bob            SPARC = (OP) ALL : SGI = (OP) ALL
+
+
+# +netgroup membership (host or username)
+jim            +biglab = ALL
++secretaries   ALL = PRINTING, /usr/bin/adduser, /usr/bin/rmuser
+
+WEBMASTERS     www = (www) ALL, (root) /usr/bin/su www
+
+
+ALL            CDROM = NOPASSWD: /sbin/umount /CDROM,\
+               /sbin/mount -o nosuid\,nodev /dev/cd0a /CDROM, \
+               /sbin/mount  /cdrom, \
+               /sbin/umount /cdrom, \
+               /sbin/mount  /mnt/cdrom, \
+               /sbin/umount /mnt/cdrom 
+
+# end
+
+</PRE>
+
+<PRE class="cf">
+# user	       	hostlist=(userlist) commandlist
+MDL 		ALL=(mdl) ALL, (root) SU_MDL, NOPASSWD: CHOWN_MDL
+tin 		ALL=(all) /etc/init.d/httpd, /etc/init.d/jboss, NOPASSWD: /bin/cat, /bin/tail
+</PRE>
+
+
+<!-- sudoers eVille -->
+<PRE class="cf">
+Cmnd_Alias NETWORKING = /sbin/route, /sbin/ifconfig, /bin/ping, /sbin/dhclient, /usr/bin/net, /sbin/iptables, /usr/bin/rfcomm, /usr/bin/wvdial, /sbin/iwconfig, /sbin/mii-tool
+Cmnd_Alias SVC_APP_SVR = /sbin/service sonatype_nexus
+Cmnd_Alias FILE_READ = /bin/ls, /usr/bin/tail, /bin/cat, /bin/grep
+User_Alias ADMIN = root, sa1, sa2
+Cmnd_Alias WINESXAPRIVS = /sbin/shutdown, /sbin/init, /sbin/reboot
+Cmnd_Alias WINAPRIVS = /sbin/shutdown, /sbin/init, /sbin/reboot
+Cmnd_Alias LINUXAPRIVS = /usr/sbin/vgdisplay, /sbin/vgdisplay, /sbin/lvdisplay, /usr/sbin/lvdisplay, /sbin/pvdisplay, /usr/sbin/pvdisplay, /sbin/lspci, /usr/sbin/dmidecode, /usr/sbin/lsof, /usr/bin/md5sum, /usr/bin/shasum, /usr/bin/head, /sbin/fdisk -l, /sbin/service * status, /sbin/ethtool, /sbin/service nscd *, /usr/sbin/adreload, /usr/sbin/adflush, /usr/bin/tail, /bin/cat, /sbin/chkconfig --list
+User_Alias ORA_DB_ADMINS = dba1,dba2
+ORA_DB_ADMINS ALL=(ALL)NOPASSWD:/bin/su - oracle
+Defaults env_keep = "COLORS DISPLAY HOSTNAME HISTSIZE INPUTRC KDEDIR LS_COLORS MAIL PS1 PS2 QTDIR USERNAME LANG LC_ADDRESS LC_CTYPE LC_COLLATE LC_IDENTIFICATION LC_MEASUREMENT LC_MESSAGES LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER LC_TELEPHONE LC_TIME LC_ALL LANGUAGE LINGUAS _XKB_CHARSET XAUTHORITY"
+User_Alias OPERATOR = rajshau1,willijos,galmifr1
+User_Alias ORACLE=bielida1,gournaj1,hongli5,karnaha1,stockrai,maddeto1,karnaha1,oracle,shahsha
+Cmnd_Alias SU = /usr/sbin/visudo, /bin/su
+Cmnd_Alias FILE_WRITE = /bin/chown, /bin/chmod, /bin/chgrp, /usr/bin/emacs, /usr/bin/co, /usr/bin/ci, /usr/bin/rcsdiff, /usr/bin/rcs2log, /usr/sbin/cfagent, /bin/tar, /usr/bin/vi, /usr/bin/vim
+User_Alias NAGIOSUSERS = nagios, nrpe
+Cmnd_Alias NAGIOSCMDS = /usr/local/nagios/libexec/check_logfiles *, /usr/lib/nagios/plugins/check_logfiles *
+Cmnd_Alias SU_MDL = /bin/su - mdl, /bin/su mdl
+User_Alias MDL=thomproa,kondrja1,cheminfor
+Cmnd_Alias APP_SVR = /etc/init.d/httpd, /etc/init.d/tomcat, /etc/init.d/jboss
+Cmnd_Alias SOFTWARE = /bin/rpm, /usr/bin/up2date, /usr/bin/yum
+Cmnd_Alias SERVICES = /sbin/service, /sbin/chkconfig
+Cmnd_Alias LOCATE = /usr/bin/updatedb
+Cmnd_Alias STORAGE = /sbin/fdisk, /sbin/sfdisk, /sbin/parted, /sbin/partprobe, /bin/mount, /bin/umount
+Cmnd_Alias DELEGATING = /usr/sbin/visudo, /bin/chown, /bin/chmod, /bin/chgrp
+Cmnd_Alias PROCESSES = /bin/nice, /bin/kill, /usr/bin/kill, /usr/bin/killall
+Cmnd_Alias DRIVERS = /sbin/modprobe
+Cmnd_Alias CHOWN_MDL = /bin/chown mdl\:mdl /usr/mdl/*
+Cmnd_Alias SHELL = /bin/bash, /bin/csh, /bin/ksh, /bin/sh, /bin/tcsh, /bin/zsh
+Defaults    always_set_home
+
+
+# user	       	hostlist=(userlist) commandlist
+root  ALL=(ALL) ALL
+NAGIOSUSERS ALL = (root) NOPASSWD: NAGIOSCMDS
+ORACLE ALL=(ALL) ALL
+MDL ALL=(mdl) ALL, (root) SU_MDL, NOPASSWD: CHOWN_MDL
+OPERATOR ALL=(ALL) NOPASSWD: FILE_READ
+ADMIN  ALL=(ALL)  ALL, NOPASSWD: FILE_READ, NOPASSWD: /usr/prog/cfengine/2.2.10/sbin/cfagent, FILE_WRITE
+%admins_nis_grp   ALL=(ALL) ALL,NOPASSWD:LINUXAPRIVS
+
+
+</PRE>
+
+
+<BR><HR><BR>
+
+<H1>TBD</H1>
+
+
+<PRE>
+old *.ref file content in here.
+</PRE>
+
+
+<BR><HR><BR>
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/admin.html">http://www.cs.fiu.edu/~tho01/psg/admin.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

@@ -1,0 +1,961 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=ISO-8859-1">
+  <title>Sys Admin Pocket Survival Guide - AIX</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <MEA NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+  
+  
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="3" align="center">
+	  <A HREF="http://www.cs.fiu.edu/~tho01/psg/aix.html">Sys Admin Pocket Survival Guide - AIX</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left" width="20%"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center" width="60%">* * *</td>
+      <td align="right" width="20%"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+    </tr>
+
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+
+
+
+<H2>AIX CD Catalog</H2>
+AIX does not have a "install everything" option.  
+So, one often has to dig thru CDs to find the right package to add a desired feature.
+Here is what is in some of the CD.  The vary by releases, so pretty long list.
+But easier to search here than keep on swapping CDs :)
+
+<!-- set tab to 8 spaces, which is what Firefox and IE use -->
+
+<PRE>
+
+
+AIX 5.1L cd (5 cd set 10/2002)
+
+CD 1 - bos.adt, termcap, perftools, X11, 
+CD 3 - Java 1.3.0, X11.Dt, ldap, printers, 
+cd 4,5,6 seems to be localization related cds.
+
+
+
+AIX 5.2L cd installation.  7 cd set from 05/2004.
+
+CD 1 - cifs, termcap info, bos.net, bos.perf, perfagent.tools.   (def: java 1.3.1)
+       dos utilities, fonts for hp laster jet printer
+CD 2 - CDE, fonts
+cd 3 - some ldap, ldap_db2 stuff (2003 version with 6 cd set)
+cd 5,6,7 seems to be localization related cds (lang, OS msg file map).
+
+cd1 has bos.perf, which allow installation of bos.perf.perftools 
+a package that provides Sys V /proc tools similar to solaris proctree, 
+
+http://www-106.ibm.com/developerworks/eserver/articles/AIX5.2PerfTools.html
+
+---
+
+AIX 5.2 cd catalog.
+
+Disk 1:
+
+/mnt/cdrom/installp/ppc
+IMNSearch.bld                     bos.rte_5.2.0.30.bff              devices.pci.14106001
+IMNSearch.msg.en_US.rte.com       bos.svprint                       devices.pci.14106602
+IMNSearch.rte                     bos.sysmgt                        devices.pci.14106802
+IMNSearch.rte.httpdlite           bos.terminfo                      devices.pci.14106902
+Java131.rte                       bos.terminfo.data                 devices.pci.14106e01
+Tivoli_Management_Agent.client    bos.txt                           devices.pci.14107001
+bos                               bos.txt.data                      devices.pci.14107802
+bos.64bit                         bos.up                            devices.pci.14107c00
+bos.INed                          bos.vendor.profile                devices.pci.14107d01
+bos.acct                          csm.client                        devices.pci.14108802
+bos.adt                           csm.core                          devices.pci.14108902
+bos.adt.data                      csm.diagnostics                   devices.pci.14108c00
+bos.alt_disk_install              csm.dsh                           devices.pci.14108e00
+
+bos.atm                           csm.gui.dcem                      devices.pci.14109100
+bos.cdmount                       csm.gui.websm                     devices.pci.14109f00
+bos.cifs_fs                       csm.msg.EN_US                     devices.pci.1410b800
+bos.compat                        csm.msg.en_US                     devices.pci.1410c101
+bos.compat.data                   csm.server                        devices.pci.1410e601
+bos.content_list                  devices.artic960                  devices.pci.1410ff01
+bos.cpr                           devices.chrp.base                 devices.pci.22100020
+bos.data                          devices.chrp.base.ServiceRM       devices.pci.22106974
+bos.diag                          devices.chrp.pci                  devices.pci.23100020
+bos.dlc                           devices.chrp_lpar.base            devices.pci.2b101a05
+bos.docregister                   devices.common.IBM.async          devices.pci.2b102005
+bos.docsearch                     devices.common.IBM.atm            devices.pci.33103500
+bos.dosutil                       devices.common.IBM.cx             devices.pci.331121b9
+bos.eim                           devices.common.IBM.disk           devices.pci.48110040.diagsa
+bos.games                         devices.common.IBM.ethernet       devices.pci.4f111100
+bos.help.msg.en_US                devices.common.IBM.fc             devices.pci.4f111b00
+bos.help.msg.en_US.smit           devices.common.IBM.fda            devices.pci.5a107512
+bos.html.en_US.topnav             devices.common.IBM.fddi           devices.pci.77101223
+bos.iconv                         devices.common.IBM.hdlc           devices.pci.86806019
+bos.iocp                          devices.common.IBM.ide            devices.pci.99172704
+bos.loc.com                       devices.common.IBM.iscsi          devices.pci.ad100501
+bos.loc.fnt                       devices.common.IBM.ktm_std        devices.pci.c1110358
+bos.loc.iso.en                    devices.common.IBM.modemcfg.data  devices.pci.df1000f7
+bos.lrn                           devices.common.IBM.mpio           devices.pci.df1000f9
+bos.lrn.data                      devices.common.IBM.ppa            devices.pci.df1080f9
+bos.man.en_US                     devices.common.IBM.scsi           devices.pci.e414a816
+bos.mh                            devices.common.IBM.son            devices.pci.ibmccm
+bos.mp                            devices.common.IBM.ssa            devices.pci.isa
+bos.mp64                          devices.common.IBM.tokenring      devices.pci.pci
+bos.msg.en_US                     devices.common.IBM.usb            devices.scsi.disk
+bos.msg.en_US.other               devices.common.base               devices.scsi.safte
+bos.net                           devices.common.rspcbase           devices.scsi.scarray
+bos.perf                          devices.fcp.disk                  devices.scsi.ses
+bos.pkcs11                        devices.fcp.disk.array            devices.scsi.tape
+bos.pmapi                         devices.fcp.tape                  devices.scsi.tm
+bos.rte.ILS_5.2.0.30.bff          devices.graphics                  devices.serial.gio
+bos.rte.SRC_5.2.0.10.bff          devices.ide.cdrom                 devices.serial.sb1
+bos.rte.aio_5.2.0.30.bff          devices.ide.disk                  devices.serial.tablet1
+bos.rte.archive_5.2.0.30.bff      devices.isa_sio.IBM0017           devices.ssa.IBM_raid
+bos.rte.bind_cmds_5.2.0.30.bff    devices.isa_sio.IBM0019           devices.ssa.disk
+bos.rte.boot_5.2.0.30.bff         devices.isa_sio.chrp.8042         devices.ssa.tm
+bos.rte.bosinst_5.2.0.30.bff      devices.isa_sio.chrp.ecp          devices.tty
+bos.rte.commands_5.2.0.30.bff     devices.isa_sio.pnpPNP.400        devices.usbif.030101
+bos.rte.compare_5.2.0.30.bff      devices.isa_sio.pnpPNP.501        devices.usbif.030102
+bos.rte.console_5.2.0.10.bff      devices.isa_sio.pnpPNP.700        ifor_ls.base
+bos.rte.control_5.2.0.30.bff      devices.iscsi.disk                ifor_ls.java
+bos.rte.cron_5.2.0.30.bff         devices.iscsi.tape                ifor_ls.msg.en_US
+bos.rte.date_5.2.0.30.bff         devices.iscsi_sw                  invscout.com
+bos.rte.devices_5.2.0.30.bff      devices.msg.en_US                 invscout.ldb
+bos.rte.devices_msg_5.2.0.30.bff  devices.pci.00100100              invscout.msg.en_US
+bos.rte.diag_5.2.0.30.bff         devices.pci.00100300              invscout.rte
+bos.rte.edit_5.2.0.30.bff         devices.pci.00100b00              perfagent.tools
+bos.rte.filesystem_5.2.0.30.bff   devices.pci.00100c00              perl.rte
+bos.rte.iconv_5.2.0.10.bff        devices.pci.00100f00              ppe.xprofiler
+bos.rte.ifor_ls_5.2.0.10.bff      devices.pci.00102100              printers.msg.en_US
+bos.rte.im_5.2.0.10.bff           devices.pci.13100560              printers.rte
+bos.rte.install_5.2.0.30.bff      devices.pci.14100401              rpm.rte
+bos.rte.libc_5.2.0.30.bff         devices.pci.14101800              rsct.basic
+bos.rte.libcfg_5.2.0.30.bff       devices.pci.14101b02              rsct.compat.basic
+bos.rte.libcur_5.2.0.30.bff       devices.pci.14101c02              rsct.compat.clients
+bos.rte.libpthreads_5.2.0.30.bff  devices.pci.14102e00              rsct.core
+bos.rte.libs_5.2.0.10.bff         devices.pci.14103302              rsct.msg.EN_US
+bos.rte.loc_5.2.0.30.bff          devices.pci.14103600              rsct.msg.en_US
+bos.rte.lvm_5.2.0.30.bff          devices.pci.14103c00              xlC.aix50
+bos.rte.man_5.2.0.30.bff          devices.pci.14103e00              xlC.aix50.rte_6.0.0.11
+bos.rte.methods_5.2.0.30.bff      devices.pci.14104300              xlC.cpp
+bos.rte.misc_cmds_5.2.0.30.bff    devices.pci.14104500              xlC.msg.en_US
+bos.rte.odm_5.2.0.30.bff          devices.pci.14104e00              xlC.msg.en_US.cpp
+bos.rte.printers_5.2.0.30.bff     devices.pci.14104f00              xlC.rte
+bos.rte.security_5.2.0.30.bff     devices.pci.14105000              xlsmp.aix50.rte
+bos.rte.serv_aid_5.2.0.30.bff     devices.pci.14105300              xlsmp.msg.en_US.rte
+bos.rte.shell_5.2.0.30.bff        devices.pci.14105400              xlsmp.rte
+bos.rte.streams_5.2.0.30.bff      devices.pci.14105e00
+bos.rte.tty_5.2.0.30.bff          devices.pci.14105e01
+
+
+
+
+Disk 2:
+
+/mnt/cdrom/installp/ppc
+Java14.debug             X11.compat.X11R5         X11.vsm
+Java14.ext               X11.compat.other         invscout.websm
+Java14.license           X11.fnt                  sysmgt.help.en_US
+Java14.samples           X11.fnt.ucs.ttf          sysmgt.help.msg.en_US
+Java14.sdk               X11.help.en_US           sysmgt.msg.en_US.sguide
+Java14.source            X11.loc.en_US            sysmgt.msg.en_US.websm
+X11.Dt                   X11.man.en_US            sysmgt.sguide
+X11.Dt.other             X11.motif                sysmgt.websm
+X11.adt                  X11.msg.en_US            sysmgt.websm.diskarray
+X11.apps                 X11.samples
+X11.base                 X11.vfb
+
+
+cd #3
+
+/mnt/cdrom/installp/ppc 
+bos.clvm            printers.can        printers.ibm_3      printers.qms
+bos.loc.adt         printers.dp         printers.ibm_asian  printers.star
+bos.svpkg           printers.epson      printers.ibm_plot   printers.ti
+ipx.base            printers.hp         printers.lex        pssp.pssp_to_csm
+ipx.msg.en_US       printers.ibm_1      printers.oki        rsct.lapi
+printers.bull       printers.ibm_2      printers.pt         rsct.vsd
+
+cd#4
+
+
+/mnt/cdrom/installp/ppc 
+OpenGL.OpenGL_X.adt        ldap.server
+OpenGL.OpenGL_X.dev        ldap_db2_07_01.adt
+OpenGL.OpenGL_X.rte        ldap_db2_07_01.client
+OpenGL.OpenGL_X.tools      ldap_db2_07_01.cnvucs
+PEX_PHIGS.dev              ldap_db2_07_01.conn
+PEX_PHIGS.graPHIGS.adt     ldap_db2_07_01.conv
+PEX_PHIGS.graPHIGS.fnt     ldap_db2_07_01.cs
+PEX_PHIGS.graPHIGS.rte     ldap_db2_07_01.das
+PEX_PHIGS.msg.en_US        ldap_db2_07_01.db2
+ldap.client                ldap_db2_07_01.elic
+ldap.html.en_US            ldap_db2_07_01.html.en_US
+ldap.msg.en_US             ldap_db2_07_01.tspf
+
+
+
+Expansion pack for 5.2 (2004/05) disk 1
+Java 1.4 64 bit
+Netscape Communicator
+OpenSSH
+http_server (IBM version of Apache?)
+
+disk 2
+db2 v8
+
+-------------------------------------------
+
+CD #2/6 AIX 5.2 2003/05
+
+IMNSearch.bld                bos.cpr                      bos.msg.en_US.other
+IMNSearch.msg.en_US.rte.com  bos.data                     bos.pkcs11
+IMNSearch.rte                bos.dlc                      bos.pmapi
+IMNSearch.rte.httpdlite      bos.docregister              bos.svprint
+X11.compat.X11R5             bos.docsearch                csm.diagnostics
+X11.fnt.ucs.ttf              bos.dosutil                  csm.gui.dcem
+bos.INed                     bos.eim                      csm.gui.websm
+bos.adt.data                 bos.games                    csm.server
+bos.alt_disk_install         bos.html.en_US.topnav        perfagent.tools
+bos.atm                      bos.iocp                     ppe.xprofiler
+bos.cifs_fs                  bos.loc.adt                  sysmgt.websm.diskarray
+bos.compat                   bos.loc.fnt                  xlsmp.aix50.rte
+bos.compat.data              bos.lrn                      xlsmp.msg.en_US.rte
+bos.content_list             bos.lrn.data                 xlsmp.rte
+
+
+CD #3/6 AIX 5.2 2003/05
+
+"lslpp -l" packages on this disk.
+  X11.compat.adt.Motif12    5.2.0.10  COMMITTED  AIXwindows Motif 1.2
+/mnt/cdrom/usr/sys/mvCD/vol%3
+
+Java131.adt                invscout.websm             printers.can
+Java131.ext                ipx.base                   printers.dp
+Java131.samples            ipx.msg.en_US              printers.epson
+OpenGL.OpenGL_X.adt        ldap.client                printers.hp
+OpenGL.OpenGL_X.dev        ldap.html.en_US            printers.ibm_1
+OpenGL.OpenGL_X.rte        ldap.msg.en_US             printers.ibm_2
+OpenGL.OpenGL_X.tools      ldap.server                printers.ibm_3
+PEX_PHIGS.dev              ldap_db2_07_01.adt         printers.ibm_asian
+PEX_PHIGS.graPHIGS.adt     ldap_db2_07_01.client      printers.ibm_plot
+PEX_PHIGS.graPHIGS.fnt     ldap_db2_07_01.cnvucs      printers.lex
+PEX_PHIGS.graPHIGS.rte     ldap_db2_07_01.conn        printers.oki
+PEX_PHIGS.msg.en_US        ldap_db2_07_01.conv        printers.pt
+X11.Dt.other               ldap_db2_07_01.cs          printers.qms
+X11.compat.other           ldap_db2_07_01.das         printers.star
+X11.help.en_US             ldap_db2_07_01.db2         printers.ti
+X11.man.en_US              ldap_db2_07_01.elic        rsct.basic
+X11.vfb                    ldap_db2_07_01.html.en_US  rsct.compat.basic
+bos.clvm                   ldap_db2_07_01.tspf        rsct.compat.clients
+bos.svpkg                  printers.bull
+
+
+CD #4/6 AIX 5.2 2003/05 - localization files.
+X11.help.*
+X11.loc.*
+bos.loc.utf.*		# base OS localization support, utf fonts, etc.
+ifor_ls.html.*
+ldap.html.*
+sysmgt.help.*
+perl.man.en_US
+*.msg.*		system messages in other lang.
+
+
+
+-------------------------------------------
+-------------------------------------------
+</PRE>
+<H2>AIX 5.3 8 CD set catalog</H2>
+
+
+<H4>aix 5.3 disk 1/8</H4>
+
+Boot cd, OS installation.
+<PRE>
+ls /cdrom/lcd4_7463_03_volume_1/installp/ppc
+bos                               bos.rte.security_5.3.0.10.bff     devices.iscsi.tape                devices.pci.77101223
+bos.64bit                         bos.rte.serv_aid_5.3.0.10.bff     devices.msg.en_US                 devices.pci.86806019
+bos.acct                          bos.rte.shell_5.3.0.10.bff        devices.pci.00100100              devices.pci.99172704
+bos.adt                           bos.rte.SRC_5.3.0.10.bff          devices.pci.00100300              devices.pci.ad100501
+bos.adt.data                      bos.rte.tty_5.3.0.10.bff          devices.pci.00100b00              devices.pci.c1110358
+bos.alt_disk_install              bos.suma                          devices.pci.00100c00              devices.pci.df1000f7
+bos.atm                           bos.svprint                       devices.pci.00100f00              devices.pci.df1000f9
+bos.cdmount                       bos.sysmgt                        devices.pci.00102100              devices.pci.df1000fa
+bos.cifs_fs                       bos.terminfo                      devices.pci.13100560              devices.pci.df1080f9
+bos.compat                        bos.terminfo.data                 devices.pci.14100401              devices.pci.e414a816
+bos.compat.data                   bos.txt                           devices.pci.14101800              devices.pci.ibmccm
+bos.content_list                  bos.txt.data                      devices.pci.14101b02              devices.pci.isa
+bos.cpr                           bos.vendor.profile                devices.pci.14101c02              devices.pci.pci
+bos.data                          csm.client                        devices.pci.14102e00              devices.scsi.disk
+bos.diag                          csm.core                          devices.pci.14103302              devices.scsi.safte
+bos.dlc                           csm.diagnostics                   devices.pci.14103600              devices.scsi.scarray
+bos.dosutil                       csm.dsh                           devices.pci.14103c00              devices.scsi.ses
+bos.eim                           csm.gui.dcem                      devices.pci.14103e00              devices.scsi.tape
+bos.games                         csm.gui.websm                     devices.pci.14104300              devices.scsi.tm
+bos.help.msg.en_US                csm.msg.en_US                     devices.pci.14104500              devices.serial.gio
+bos.help.msg.en_US.smit           csm.msg.EN_US                     devices.pci.14104e00              devices.serial.sb1
+bos.iconv                         csm.server                        devices.pci.14104f00              devices.serial.tablet1
+bos.INed                          devices.artic960                  devices.pci.14105000              devices.ssa.disk
+bos.iocp                          devices.chrp.base                 devices.pci.14105300              devices.ssa.IBM_raid
+bos.loc.com.utf                   devices.chrp.base.ServiceRM       devices.pci.14105400              devices.ssa.tm
+bos.loc.fnt                       devices.chrp_lpar.base            devices.pci.14105e00              devices.tty
+bos.loc.iso.en                    devices.chrp.pci                  devices.pci.14105e01              devices.usbif.030101
+bos.lrn                           devices.chrp.vdevice              devices.pci.14106001              devices.usbif.030102
+bos.lrn.data                      devices.common.base               devices.pci.14106402              devices.usbif.08025002
+bos.mh                            devices.common.IBM.async          devices.pci.14106602              devices.usbif.080400
+bos.mp                            devices.common.IBM.atm            devices.pci.14106802              devices.vdevice.hvterm1
+bos.mp64                          devices.common.IBM.cx             devices.pci.14106902              devices.vdevice.hvterm-protocol
+bos.msg.en_US                     devices.common.IBM.disk           devices.pci.14106e01              devices.vdevice.IBM.l-lan
+bos.msg.en_US.other               devices.common.IBM.ethernet       devices.pci.14107001              devices.vdevice.IBM.v-scsi
+bos.net                           devices.common.IBM.fc             devices.pci.14107802              ifor_ls.base
+bos.perf                          devices.common.IBM.fda            devices.pci.14107c00              ifor_ls.java
+bos.pkcs11                        devices.common.IBM.fddi           devices.pci.14107d01              ifor_ls.msg.en_US
+bos.pmapi                         devices.common.IBM.hdlc           devices.pci.14108802              infocenter.aix.EN_US.commands
+bos.rte_5.3.0.10.bff              devices.common.IBM.ide            devices.pci.14108902              invscout.com
+bos.rte.aio_5.3.0.10.bff          devices.common.IBM.iscsi          devices.pci.14108c00              invscout.ldb
+bos.rte.archive_5.3.0.10.bff      devices.common.IBM.ktm_std        devices.pci.14108e00              invscout.msg.en_US
+bos.rte.bind_cmds_5.3.0.10.bff    devices.common.IBM.modemcfg.data  devices.pci.14109100              invscout.rte
+bos.rte.boot_5.3.0.10.bff         devices.common.IBM.mpio           devices.pci.14109f00              perfagent.tools
+bos.rte.bosinst_5.3.0.10.bff      devices.common.IBM.ppa            devices.pci.1410b800              perl.libext
+bos.rte.commands_5.3.0.10.bff     devices.common.IBM.scsi           devices.pci.1410ba02              perl.rte
+bos.rte.control_5.3.0.10.bff      devices.common.IBM.son            devices.pci.1410bb02              ppe.xprofiler
+bos.rte.cron_5.3.0.10.bff         devices.common.IBM.ssa            devices.pci.1410c101              printers.msg.en_US
+bos.rte.devices_5.3.0.10.bff      devices.common.IBM.tokenring      devices.pci.1410cf02              printers.rte
+bos.rte.devices_msg_5.3.0.10.bff  devices.common.IBM.usb            devices.pci.1410d002              rpm.rte
+bos.rte.diag_5.3.0.10.bff         devices.common.rspcbase           devices.pci.1410e601              rsct.basic
+bos.rte.edit_5.3.0.10.bff         devices.fcp.disk                  devices.pci.1410ff01              rsct.compat.basic
+bos.rte.filesystem_5.3.0.10.bff   devices.fcp.disk.array            devices.pci.22100020              rsct.compat.clients
+bos.rte.iconv_5.3.0.10.bff        devices.fcp.tape                  devices.pci.22106474              rsct.core
+bos.rte.ILS_5.3.0.10.bff          devices.graphics                  devices.pci.22106974              rsct.msg.en_US
+bos.rte.install_5.3.0.10.bff      devices.ide.cdrom                 devices.pci.23100020              rsct.msg.EN_US
+bos.rte.libc_5.3.0.10.bff         devices.ide.disk                  devices.pci.2b101a05              Tivoli_Management_Agent.client
+bos.rte.libcfg_5.3.0.10.bff       devices.isa_sio.chrp.8042         devices.pci.2b102005              xlC.aix50
+bos.rte.libcur_5.3.0.10.bff       devices.isa_sio.chrp.ecp          devices.pci.33103500              xlC.cpp
+bos.rte.libpthreads_5.3.0.10.bff  devices.isa_sio.IBM0017           devices.pci.3310e000              xlC.msg.en_US
+bos.rte.lvm_5.3.0.10.bff          devices.isa_sio.IBM0019           devices.pci.331121b9              xlC.msg.en_US.cpp
+bos.rte.man_5.3.0.10.bff          devices.isa_sio.pnpPNP.400        devices.pci.48110040.diagsa       xlC.rte
+bos.rte.methods_5.3.0.10.bff      devices.isa_sio.pnpPNP.501        devices.pci.4f111100              xlsmp.aix50.rte
+bos.rte.net_5.3.0.10.bff          devices.isa_sio.pnpPNP.700        devices.pci.4f111b00              xlsmp.msg.en_US.rte
+bos.rte.odm_5.3.0.10.bff          devices.iscsi.disk                devices.pci.4f11c800              xlsmp.rte
+bos.rte.printers_5.3.0.10.bff     devices.iscsi_sw                  devices.pci.5a107512
+</PRE><H4>aix 5.3 disk 2/8</H4>
+<PRE>
+<BR>
+ls /cdrom/lcd4_7463_03_volume_2/usr/sys/inst.images/
+ls /cdrom/lcd4_7463_03_volume_2/installp/ppc/
+produce the same list:
+
+invscout.websm           sysmgtlib.libraries      X11.adt                  X11.Dt.other             X11.msg.en_US
+Java14.license           sysmgt.msg.en_US.sguide  X11.apps                 X11.fnt                  X11.samples
+Java14.sdk               sysmgt.msg.en_US.websm   X11.base                 X11.help.en_US           X11.vfb
+sysmgt.help.en_US        sysmgt.sguide            X11.compat.other         X11.loc.en_US            X11.vsm
+sysmgt.help.msg.en_US    sysmgt.websm             X11.compat.X11R5         X11.man.en_US
+sysmgtlib.framework      sysmgt.websm.diskarray   X11.Dt                   X11.motif
+
+
+
+</PRE>
+<H4>aix 5.3 disk 3/8</H4><PRE>
+
+ls /net/tin-sun/cdrom/lcd4_7463_03_volume_3/usr/sys/inst.images/
+.toc                           infocenter.aix.FR_FR.commands  printers.ibm_2
+ICU4C.adt                      infocenter.aix.HU_HU.commands  printers.ibm_3
+ICU4C.man.en_US                infocenter.aix.IT_IT.commands  printers.ibm_asian
+ICU4C.rte                      infocenter.aix.JA_JP.commands  printers.ibm_plot
+Java14.debug                   infocenter.aix.KO_KR.commands  printers.lex
+Java14.ext                     infocenter.aix.PL_PL.commands  printers.oki
+Java14.samples                 infocenter.aix.PT_BR.commands  printers.pt
+Java14.source                  infocenter.aix.RU_RU.commands  printers.qms
+bos.clvm                       infocenter.aix.SK_SK.commands  printers.star
+bos.loc.adt                    infocenter.aix.ZH_CN.commands  printers.ti
+bos.perf.gtools                infocenter.aix.ZH_TW.commands  pssp.pssp_to_csm
+bos.svpkg                      printers.bull                  radius.base
+eclipse2.rte                   printers.can                   rsct.lapi
+infocenter.aix.CA_ES.commands  printers.dp                    rsct.lapi.msg.EN_US
+infocenter.aix.CS_CZ.commands  printers.epson                 rsct.lapi.msg.en_US
+infocenter.aix.DE_DE.commands  printers.hp                    rsct.vsd
+infocenter.aix.ES_ES.commands  printers.ibm_1
+
+</PRE><H4>aix 5.3 disk 4/8</H4><PRE>
+
+
+db2_08_01.ca                   db2_08_01.pext
+db2_08_01.cc                   db2_08_01.repl
+db2_08_01.ch.en_US.iso88591    db2_08_01.sqlproc
+db2_08_01.cj                   ldap.client
+db2_08_01.client               ldap.html.en_US
+db2_08_01.cnvucs               ldap.msg.en_US
+db2_08_01.conn                 ldap.server
+db2_08_01.conv                 ldap.webdadmin
+db2_08_01.cs.rte               OpenGL.OpenGL_X.adt
+db2_08_01.das                  OpenGL.OpenGL_X.dev
+db2_08_01.db2.engn             OpenGL.OpenGL_X.rte
+db2_08_01.db2.rte              OpenGL.OpenGL_X.tools
+db2_08_01.db2.samples          PEX_PHIGS.dev
+db2_08_01.essg                 PEX_PHIGS.graPHIGS.adt
+db2_08_01.icuc                 PEX_PHIGS.graPHIGS.fnt
+db2_08_01.icut                 PEX_PHIGS.graPHIGS.rte
+db2_08_01.jdbc                 PEX_PHIGS.msg.en_US
+db2_08_01.jhlp.en_US.iso88591  xlfrte
+db2_08_01.ldap                 xlfrte.aix51
+db2_08_01.msg.en_US.iso88591   xlfrte.msg.en_US
+
+</PRE><H4>aix 5.3 disk 5/8</H4><PRE>
+
+
+Used this for additional language/locale for: JP, FR, DE, IT
+ 
+/cdrom/lcd4_7463_03_volume_5/usr/sys/inst.images/
+bos.help.msg.de_DE       bos.msg.FR_FR            sysmgt.help.DE_DE        X11.loc.ET_EE
+bos.help.msg.DE_DE       bos.msg.it_IT            sysmgt.help.EN_US        X11.loc.fi_FI
+bos.help.msg.EN_US       bos.msg.IT_IT            sysmgt.help.fr_FR        X11.loc.FI_FI
+bos.help.msg.fr_FR       bos.msg.ja_JP            sysmgt.help.FR_FR        X11.loc.fr_BE
+bos.help.msg.FR_FR       bos.msg.Ja_JP            sysmgt.help.it_IT        X11.loc.FR_BE
+bos.help.msg.it_IT       bos.msg.JA_JP            sysmgt.help.IT_IT        X11.loc.fr_CA
+bos.help.msg.IT_IT       csm.msg.de_DE            sysmgt.help.ja_JP        X11.loc.FR_CA
+bos.help.msg.ja_JP       csm.msg.DE_DE            sysmgt.help.Ja_JP        X11.loc.fr_CH
+bos.help.msg.Ja_JP       csm.msg.fr_FR            sysmgt.help.JA_JP        X11.loc.FR_CH
+bos.help.msg.JA_JP       csm.msg.FR_FR            sysmgt.help.msg.de_DE    X11.loc.fr_FR
+bos.loc.com.JP           csm.msg.it_IT            sysmgt.help.msg.DE_DE    X11.loc.FR_FR
+bos.loc.iso.da           csm.msg.IT_IT            sysmgt.help.msg.EN_US    X11.loc.fr_LU
+bos.loc.iso.de           csm.msg.ja_JP            sysmgt.help.msg.fr_FR    X11.loc.FR_LU
+bos.loc.iso.el           csm.msg.Ja_JP            sysmgt.help.msg.FR_FR    X11.loc.hr_HR
+bos.loc.iso.et           csm.msg.JA_JP            sysmgt.help.msg.it_IT    X11.loc.HR_HR
+bos.loc.iso.fi           devices.msg.de_DE        sysmgt.help.msg.IT_IT    X11.loc.id_ID
+bos.loc.iso.fr           devices.msg.DE_DE        sysmgt.help.msg.ja_JP    X11.loc.ID_ID
+bos.loc.iso.hr           devices.msg.EN_US        sysmgt.help.msg.Ja_JP    X11.loc.is_IS
+bos.loc.iso.id           devices.msg.fr_FR        sysmgt.help.msg.JA_JP    X11.loc.IS_IS
+bos.loc.iso.is           devices.msg.FR_FR        sysmgt.msg.de_DE.sguide  X11.loc.it_CH
+bos.loc.iso.it           devices.msg.it_IT        sysmgt.msg.DE_DE.sguide  X11.loc.IT_CH
+bos.loc.iso.ja           devices.msg.IT_IT        sysmgt.msg.de_DE.websm   X11.loc.it_IT
+bos.loc.iso.lt           devices.msg.ja_JP        sysmgt.msg.DE_DE.websm   X11.loc.IT_IT
+bos.loc.iso.lv           devices.msg.Ja_JP        sysmgt.msg.EN_US.sguide  X11.loc.ja_JP
+bos.loc.iso.mk           devices.msg.JA_JP        sysmgt.msg.EN_US.websm   X11.loc.Ja_JP
+bos.loc.iso.ms           ifor_ls.html.en_US       sysmgt.msg.fr_FR.sguide  X11.loc.JA_JP
+bos.loc.iso.nl           invscout.msg.de_DE       sysmgt.msg.FR_FR.sguide  X11.loc.KK_KZ
+bos.loc.iso.no           invscout.msg.DE_DE       sysmgt.msg.fr_FR.websm   X11.loc.lt_LT
+bos.loc.iso.ro           invscout.msg.EN_US       sysmgt.msg.FR_FR.websm   X11.loc.Lt_LT
+bos.loc.iso.sh           invscout.msg.fr_FR       sysmgt.msg.it_IT.sguide  X11.loc.LT_LT
+bos.loc.iso.sl           invscout.msg.FR_FR       sysmgt.msg.IT_IT.sguide  X11.loc.lv_LV
+bos.loc.iso.sq           invscout.msg.it_IT       sysmgt.msg.it_IT.websm   X11.loc.Lv_LV
+bos.loc.iso.sr           invscout.msg.IT_IT       sysmgt.msg.IT_IT.websm   X11.loc.LV_LV
+bos.loc.iso.sv           invscout.msg.ja_JP       sysmgt.msg.ja_JP.sguide  X11.loc.ms_MY
+bos.loc.iso.tr           invscout.msg.Ja_JP       sysmgt.msg.Ja_JP.sguide  X11.loc.MS_MY
+bos.loc.pc               invscout.msg.JA_JP       sysmgt.msg.JA_JP.sguide  X11.loc.nl_BE
+bos.loc.utf.DA_DK        Java14.msg.ja_JP         sysmgt.msg.ja_JP.websm   X11.loc.NL_BE
+bos.loc.utf.DE_AT        Java14.msg.Ja_JP         sysmgt.msg.Ja_JP.websm   X11.loc.nl_NL
+bos.loc.utf.DE_CH        ldap.html.de_DE          sysmgt.msg.JA_JP.websm   X11.loc.NL_NL
+bos.loc.utf.DE_DE        ldap.html.fr_FR          X11.fnt.ucs.ttf          X11.loc.no_NO
+bos.loc.utf.DE_LU        ldap.html.it_IT          X11.help.de_DE           X11.loc.NO_NO
+bos.loc.utf.EL_GR        ldap.html.ja_JP          X11.help.DE_DE           X11.loc.ro_RO
+bos.loc.utf.EN_AU        ldap.html.Ja_JP          X11.help.EN_US           X11.loc.RO_RO
+bos.loc.utf.EN_BE        ldap.msg.de_DE           X11.help.fr_FR           X11.loc.sh_SP
+bos.loc.utf.EN_CA        ldap.msg.fr_FR           X11.help.FR_FR           X11.loc.SH_SP
+bos.loc.utf.EN_GB        ldap.msg.it_IT           X11.help.it_IT           X11.loc.sh_YU
+bos.loc.utf.EN_HK        ldap.msg.ja_JP           X11.help.IT_IT           X11.loc.SH_YU
+bos.loc.utf.EN_IE        ldap.msg.Ja_JP           X11.help.ja_JP           X11.loc.sl_SI
+bos.loc.utf.EN_IN        perl.man.en_US           X11.help.Ja_JP           X11.loc.SL_SI
+bos.loc.utf.EN_NZ        PEX_PHIGS.msg.de_DE      X11.help.JA_JP           X11.loc.sq_AL
+bos.loc.utf.EN_PH        PEX_PHIGS.msg.DE_DE      X11.loc.da_DK            X11.loc.SQ_AL
+bos.loc.utf.EN_SG        PEX_PHIGS.msg.EN_US      X11.loc.DA_DK            X11.loc.sr_SP
+bos.loc.utf.EN_US        PEX_PHIGS.msg.fr_FR      X11.loc.de_AT            X11.loc.SR_SP
+bos.loc.utf.EN_ZA        PEX_PHIGS.msg.FR_FR      X11.loc.DE_AT            X11.loc.sr_YU
+bos.loc.utf.ET_EE        PEX_PHIGS.msg.it_IT      X11.loc.de_CH            X11.loc.SR_YU
+bos.loc.utf.FI_FI        PEX_PHIGS.msg.IT_IT      X11.loc.DE_CH            X11.loc.sv_SE
+bos.loc.utf.FR_BE        PEX_PHIGS.msg.ja_JP      X11.loc.de_DE            X11.loc.SV_SE
+bos.loc.utf.FR_CA        PEX_PHIGS.msg.Ja_JP      X11.loc.DE_DE            X11.loc.tr_TR
+bos.loc.utf.FR_CH        PEX_PHIGS.msg.JA_JP      X11.loc.de_LU            X11.loc.TR_TR
+bos.loc.utf.FR_FR        printers.msg.de_DE       X11.loc.DE_LU            X11.msg.de_DE
+bos.loc.utf.FR_LU        printers.msg.DE_DE       X11.loc.el_GR            X11.msg.DE_DE
+bos.loc.utf.HR_HR        printers.msg.EN_US       X11.loc.EL_GR            X11.msg.EN_US
+bos.loc.utf.ID_ID        printers.msg.fr_FR       X11.loc.en_AU            X11.msg.fr_FR
+bos.loc.utf.IS_IS        printers.msg.FR_FR       X11.loc.EN_AU            X11.msg.FR_FR
+bos.loc.utf.IT_CH        printers.msg.it_IT       X11.loc.en_BE            X11.msg.it_IT
+bos.loc.utf.IT_IT        printers.msg.IT_IT       X11.loc.EN_BE            X11.msg.IT_IT
+bos.loc.utf.JA_JP        printers.msg.ja_JP       X11.loc.en_CA            X11.msg.ja_JP
+bos.loc.utf.KK_KZ        printers.msg.Ja_JP       X11.loc.EN_CA            X11.msg.Ja_JP
+bos.loc.utf.LT_LT        printers.msg.JA_JP       X11.loc.en_GB            X11.msg.JA_JP
+bos.loc.utf.LV_LV        rsct.lapi.msg.de_DE      X11.loc.EN_GB            xlC.msg.EN_US
+bos.loc.utf.MS_MY        rsct.lapi.msg.DE_DE      X11.loc.en_HK            xlC.msg.EN_US.cpp
+bos.loc.utf.NL_BE        rsct.lapi.msg.fr_FR      X11.loc.EN_HK            xlC.msg.ja_JP
+bos.loc.utf.NL_NL        rsct.lapi.msg.FR_FR      X11.loc.en_IE            xlC.msg.Ja_JP
+bos.loc.utf.NO_NO        rsct.lapi.msg.it_IT      X11.loc.EN_IE            xlC.msg.JA_JP
+bos.loc.utf.RO_RO        rsct.lapi.msg.IT_IT      X11.loc.en_IN            xlC.msg.ja_JP.cpp
+bos.loc.utf.SH_SP        rsct.lapi.msg.Ja_JP      X11.loc.EN_IN            xlC.msg.Ja_JP.cpp
+bos.loc.utf.SH_YU        rsct.lapi.msg.JA_JP      X11.loc.en_NZ            xlC.msg.JA_JP.cpp
+bos.loc.utf.SL_SI        rsct.msg.de_DE           X11.loc.EN_NZ            xlfrte.msg.En_US
+bos.loc.utf.SQ_AL        rsct.msg.DE_DE           X11.loc.en_PH            xlfrte.msg.EN_US
+bos.loc.utf.SR_SP        rsct.msg.fr_FR           X11.loc.EN_PH            xlfrte.msg.ja_JP
+bos.loc.utf.SR_YU        rsct.msg.FR_FR           X11.loc.en_SG            xlfrte.msg.Ja_JP
+bos.loc.utf.SV_SE        rsct.msg.it_IT           X11.loc.EN_SG            xlfrte.msg.JA_JP
+bos.loc.utf.TR_TR        rsct.msg.IT_IT           X11.loc.EN_US            xlsmp.msg.EN_US.rte
+bos.msg.de_DE            rsct.msg.ja_JP           X11.loc.en_ZA            xlsmp.msg.ja_JP.rte
+bos.msg.DE_DE            rsct.msg.Ja_JP           X11.l.msg.fr_FR          sysmgt.help.de_DE        
+X11.loc.Et_EE
+
+
+
+</PRE><H4>aix 5.3 disk 6/8</H4><PRE>
+
+
+for localization of: ES, RU, 
+maybe catalan, hungarian, PT, PL (polish?), SK, CZ
+
+ls /cdrom/cdrom0/usr/sys/inst.images/
+bos.help.msg.ca_ES       csm.msg.SK_SK            rsct.lapi.msg.ru_RU      X11.help.HU_HU
+bos.help.msg.CA_ES       devices.msg.ca_ES        rsct.lapi.msg.RU_RU      X11.help.pl_PL
+bos.help.msg.cs_CZ       devices.msg.CA_ES        rsct.lapi.msg.sk_SK      X11.help.PL_PL
+bos.help.msg.CS_CZ       devices.msg.cs_CZ        rsct.lapi.msg.SK_SK      X11.help.pt_BR
+bos.help.msg.es_ES       devices.msg.CS_CZ        rsct.msg.ca_ES           X11.help.PT_BR
+bos.help.msg.ES_ES       devices.msg.es_ES        rsct.msg.CA_ES           X11.help.ru_RU
+bos.help.msg.hu_HU       devices.msg.ES_ES        rsct.msg.cs_CZ           X11.help.RU_RU
+bos.help.msg.HU_HU       devices.msg.hu_HU        rsct.msg.CS_CZ           X11.help.sk_SK
+bos.help.msg.pl_PL       devices.msg.HU_HU        rsct.msg.es_ES           X11.help.SK_SK
+bos.help.msg.PL_PL       devices.msg.pl_PL        rsct.msg.ES_ES           X11.loc.be_BY
+bos.help.msg.pt_BR       devices.msg.PL_PL        rsct.msg.hu_HU           X11.loc.BE_BY
+bos.help.msg.PT_BR       devices.msg.pt_BR        rsct.msg.HU_HU           X11.loc.bg_BG
+bos.help.msg.ru_RU       devices.msg.PT_BR        rsct.msg.pl_PL           X11.loc.BG_BG
+bos.help.msg.RU_RU       devices.msg.ru_RU        rsct.msg.PL_PL           X11.loc.ca_ES
+bos.help.msg.sk_SK       devices.msg.RU_RU        rsct.msg.pt_BR           X11.loc.CA_ES
+bos.help.msg.SK_SK       devices.msg.sk_SK        rsct.msg.PT_BR           X11.loc.cs_CZ
+bos.loc.com.EE           devices.msg.SK_SK        rsct.msg.ru_RU           X11.loc.CS_CZ
+bos.loc.iso.be           invscout.msg.ca_ES       rsct.msg.RU_RU           X11.loc.es_AR
+bos.loc.iso.bg           invscout.msg.CA_ES       rsct.msg.sk_SK           X11.loc.ES_AR
+bos.loc.iso.ca           invscout.msg.cs_CZ       rsct.msg.SK_SK           X11.loc.es_BO
+bos.loc.iso.cs           invscout.msg.CS_CZ       sysmgt.help.ca_ES        X11.loc.ES_BO
+bos.loc.iso.es           invscout.msg.es_ES       sysmgt.help.CA_ES        X11.loc.es_CL
+bos.loc.iso.hu           invscout.msg.ES_ES       sysmgt.help.cs_CZ        X11.loc.ES_CL
+bos.loc.iso.pl           invscout.msg.hu_HU       sysmgt.help.CS_CZ        X11.loc.es_CO
+bos.loc.iso.pt           invscout.msg.HU_HU       sysmgt.help.es_ES        X11.loc.ES_CO
+bos.loc.iso.ru           invscout.msg.pl_PL       sysmgt.help.ES_ES        X11.loc.es_CR
+bos.loc.iso.sk           invscout.msg.PL_PL       sysmgt.help.hu_HU        X11.loc.ES_CR
+bos.loc.iso.uk           invscout.msg.pt_BR       sysmgt.help.HU_HU        X11.loc.es_DO
+bos.loc.utf.BE_BY        invscout.msg.PT_BR       sysmgt.help.msg.ca_ES    X11.loc.ES_DO
+bos.loc.utf.BG_BG        invscout.msg.ru_RU       sysmgt.help.msg.CA_ES    X11.loc.es_EC
+bos.loc.utf.CA_ES        invscout.msg.RU_RU       sysmgt.help.msg.cs_CZ    X11.loc.ES_EC
+bos.loc.utf.CS_CZ        invscout.msg.sk_SK       sysmgt.help.msg.CS_CZ    X11.loc.es_ES
+bos.loc.utf.ES_AR        invscout.msg.SK_SK       sysmgt.help.msg.es_ES    X11.loc.ES_ES
+bos.loc.utf.ES_BO        ldap.html.cs_CZ          sysmgt.help.msg.ES_ES    X11.loc.es_GT
+bos.loc.utf.ES_CL        ldap.html.es_ES          sysmgt.help.msg.hu_HU    X11.loc.ES_GT
+bos.loc.utf.ES_CO        ldap.html.hu_HU          sysmgt.help.msg.HU_HU    X11.loc.es_HN
+bos.loc.utf.ES_CR        ldap.html.pl_PL          sysmgt.help.msg.pl_PL    X11.loc.ES_HN
+bos.loc.utf.ES_DO        ldap.html.pt_BR          sysmgt.help.msg.PL_PL    X11.loc.es_MX
+bos.loc.utf.ES_EC        ldap.html.ru_RU          sysmgt.help.msg.pt_BR    X11.loc.ES_MX
+bos.loc.utf.ES_ES        ldap.html.sk_SK          sysmgt.help.msg.PT_BR    X11.loc.es_NI
+bos.loc.utf.ES_GT        ldap.msg.cs_CZ           sysmgt.help.msg.ru_RU    X11.loc.ES_NI
+bos.loc.utf.ES_HN        ldap.msg.es_ES           sysmgt.help.msg.RU_RU    X11.loc.es_PA
+bos.loc.utf.ES_MX        ldap.msg.hu_HU           sysmgt.help.msg.sk_SK    X11.loc.ES_PA
+bos.loc.utf.ES_NI        ldap.msg.pl_PL           sysmgt.help.msg.SK_SK    X11.loc.es_PE
+bos.loc.utf.ES_PA        ldap.msg.pt_BR           sysmgt.help.pl_PL        X11.loc.ES_PE
+bos.loc.utf.ES_PE        ldap.msg.ru_RU           sysmgt.help.PL_PL        X11.loc.es_PR
+bos.loc.utf.ES_PR        ldap.msg.sk_SK           sysmgt.help.pt_BR        X11.loc.ES_PR
+bos.loc.utf.ES_PY        PEX_PHIGS.msg.ca_ES      sysmgt.help.PT_BR        X11.loc.es_PY
+bos.loc.utf.ES_SV        PEX_PHIGS.msg.CA_ES      sysmgt.help.ru_RU        X11.loc.ES_PY
+bos.loc.utf.ES_US        PEX_PHIGS.msg.cs_CZ      sysmgt.help.RU_RU        X11.loc.es_SV
+bos.loc.utf.ES_UY        PEX_PHIGS.msg.CS_CZ      sysmgt.help.sk_SK        X11.loc.ES_SV
+bos.loc.utf.ES_VE        PEX_PHIGS.msg.es_ES      sysmgt.help.SK_SK        X11.loc.es_US
+bos.loc.utf.HU_HU        PEX_PHIGS.msg.ES_ES      sysmgt.msg.ca_ES.sguide  X11.loc.ES_US
+bos.loc.utf.MK_MK        PEX_PHIGS.msg.hu_HU      sysmgt.msg.CA_ES.sguide  X11.loc.es_UY
+bos.loc.utf.PL_PL        PEX_PHIGS.msg.HU_HU      sysmgt.msg.ca_ES.websm   X11.loc.ES_UY
+bos.loc.utf.PT_BR        PEX_PHIGS.msg.pl_PL      sysmgt.msg.CA_ES.websm   X11.loc.es_VE
+bos.loc.utf.PT_PT        PEX_PHIGS.msg.PL_PL      sysmgt.msg.cs_CZ.sguide  X11.loc.ES_VE
+bos.loc.utf.RU_RU        PEX_PHIGS.msg.pt_BR      sysmgt.msg.CS_CZ.sguide  X11.loc.hu_HU
+bos.loc.utf.SK_SK        PEX_PHIGS.msg.PT_BR      sysmgt.msg.cs_CZ.websm   X11.loc.HU_HU
+bos.loc.utf.UK_UA        PEX_PHIGS.msg.ru_RU      sysmgt.msg.CS_CZ.websm   X11.loc.mk_MK
+bos.msg.ca_ES            PEX_PHIGS.msg.RU_RU      sysmgt.msg.es_ES.sguide  X11.loc.MK_MK
+bos.msg.CA_ES            PEX_PHIGS.msg.sk_SK      sysmgt.msg.ES_ES.sguide  X11.loc.pl_PL
+bos.msg.cs_CZ            PEX_PHIGS.msg.SK_SK      sysmgt.msg.es_ES.websm   X11.loc.PL_PL
+bos.msg.CS_CZ            printers.msg.ca_ES       sysmgt.msg.ES_ES.websm   X11.loc.pt_BR
+bos.msg.es_ES            printers.msg.CA_ES       sysmgt.msg.hu_HU.sguide  X11.loc.PT_BR
+bos.msg.ES_ES            printers.msg.cs_CZ       sysmgt.msg.HU_HU.sguide  X11.loc.pt_PT
+bos.msg.hu_HU            printers.msg.CS_CZ       sysmgt.msg.hu_HU.websm   X11.loc.PT_PT
+bos.msg.HU_HU            printers.msg.es_ES       sysmgt.msg.HU_HU.websm   X11.loc.ru_RU
+bos.msg.pl_PL            printers.msg.ES_ES       sysmgt.msg.pl_PL.sguide  X11.loc.RU_RU
+bos.msg.PL_PL            printers.msg.hu_HU       sysmgt.msg.PL_PL.sguide  X11.loc.sk_SK
+bos.msg.pt_BR            printers.msg.HU_HU       sysmgt.msg.pl_PL.websm   X11.loc.SK_SK
+bos.msg.PT_BR            printers.msg.pl_PL       sysmgt.msg.PL_PL.websm   X11.loc.Uk_UA
+bos.msg.ru_RU            printers.msg.PL_PL       sysmgt.msg.pt_BR.sguide  X11.loc.UK_UA
+bos.msg.RU_RU            printers.msg.pt_BR       sysmgt.msg.PT_BR.sguide  X11.msg.ca_ES
+bos.msg.sk_SK            printers.msg.PT_BR       sysmgt.msg.pt_BR.websm   X11.msg.CA_ES
+bos.msg.SK_SK            printers.msg.ru_RU       sysmgt.msg.PT_BR.websm   X11.msg.cs_CZ
+csm.msg.ca_ES            printers.msg.RU_RU       sysmgt.msg.ru_RU.sguide  X11.msg.CS_CZ
+csm.msg.CA_ES            printers.msg.sk_SK       sysmgt.msg.RU_RU.sguide  X11.msg.es_ES
+csm.msg.cs_CZ            printers.msg.SK_SK       sysmgt.msg.ru_RU.websm   X11.msg.ES_ES
+csm.msg.CS_CZ            rsct.lapi.msg.ca_ES      sysmgt.msg.RU_RU.websm   X11.msg.hu_HU
+csm.msg.es_ES            rsct.lapi.msg.CA_ES      sysmgt.msg.sk_SK.sguide  X11.msg.HU_HU
+csm.msg.ES_ES            rsct.lapi.msg.cs_CZ      sysmgt.msg.SK_SK.sguide  X11.msg.pl_PL
+csm.msg.hu_HU            rsct.lapi.msg.CS_CZ      sysmgt.msg.sk_SK.websm   X11.msg.PL_PL
+csm.msg.HU_HU            rsct.lapi.msg.es_ES      sysmgt.msg.SK_SK.websm   X11.msg.pt_BR
+csm.msg.pl_PL            rsct.lapi.msg.ES_ES      X11.help.ca_ES           X11.msg.PT_BR
+csm.msg.PL_PL            rsct.lapi.msg.hu_HU      X11.help.CA_ES           X11.msg.ru_RU
+csm.msg.pt_BR            rsct.lapi.msg.HU_HU      X11.help.cs_CZ           X11.msg.RU_RU
+csm.msg.PT_BR            rsct.lapi.msg.pl_PL      X11.help.CS_CZ           X11.msg.sk_SK
+csm.msg.ru_RU            rsct.lapi.msg.PL_PL      X11.help.es_ES           X11.msg.SK_SK
+csm.msg.RU_RU            rsct.lapi.msg.pt_BR      X11.help.ES_ES
+csm.msg.sk_SK            rsct.lapi.msg.PT_BR      X11.help.hu_HU
+
+</PRE><H4>aix 5.3 disk 7/8</H4><PRE>
+
+
+for localization of: ZH_CN (Chinese simplified), ZH_TW (traditional taiwan), KO
+everything in the cd seems to be lang/localization related.
+
+</PRE><H4>aix 5.3 disk 8/8</H4><PRE>
+localization of: ZH_HK, ZH_SG, VI_VN, TH_TH, TA_IN, MR_IN, GU_IN, AR_SY, HE_IL, HI_IN, Iw_I)L
+
+
+
+
+</PRE>
+
+<H2>AIX 4.3.3 CD catalog</H2>
+<H4>aix 4.3.3 disk 1</H4><PRE>
+
+boot cd, installation.
+
+/mnt/cdrom/usr/sys/mvCD/vol%1/      
+IMNSearch.rte.httpdlite           bos.rte.install_4.3.3.0.bff       devices.pci.14103e00
+Java.rte                          bos.rte.libc_4.3.3.0.bff          devices.pci.14104500
+U455645.bff                       bos.rte.libcfg_4.3.3.0.bff        devices.pci.14104a00
+U459240.bff                       bos.rte.libcur_4.3.3.0.bff        devices.pci.14104e00
+U459252.bff                       bos.rte.libdbm_4.3.3.0.bff        devices.pci.14104f00
+U459277.bff                       bos.rte.libpthreads_4.3.3.0.bff   devices.pci.14105000
+U459293.bff                       bos.rte.libqb_4.3.3.0.bff         devices.pci.14105300
+U459297.bff                       bos.rte.libs_4.3.3.0.bff          devices.pci.14105400
+U459299.bff                       bos.rte.loc_4.3.3.0.bff           devices.pci.14105e00
+U459302.bff                       bos.rte.lvm_4.3.3.0.bff           devices.pci.14106e01
+U459324.bff                       bos.rte.man_4.3.3.0.bff           devices.pci.14107001
+U459328.bff                       bos.rte.methods_4.3.3.0.bff       devices.pci.14107a01
+U459745.bff                       bos.rte.misc_cmds_4.3.3.0.bff     devices.pci.14107c00
+U462732.bff                       bos.rte.net_4.3.3.0.bff           devices.pci.14107d01
+U462745.bff                       bos.rte.odm_4.3.3.0.bff           devices.pci.14108c00
+U462777.bff                       bos.rte.printers_4.3.3.0.bff      devices.pci.14108e00
+U462779.bff                       bos.rte.security_4.3.3.0.bff      devices.pci.14109100
+U462962.bff                       bos.rte.serv_aid_4.3.3.0.bff      devices.pci.14109b01
+U462974.bff                       bos.rte.shell_4.3.3.0.bff         devices.pci.1410a500
+U462980.bff                       bos.rte.streams_4.3.3.0.bff       devices.pci.1410a600
+U462989.bff                       bos.rte.tty_4.3.3.0.bff           devices.pci.1410a800
+U463004.bff                       bos.rte_4.3.3.0.bff               devices.pci.1410b800
+U463019.bff                       bos.sysmgt                        devices.pci.1410be00
+X11.Dt                            bos.terminfo                      devices.pci.22100020
+X11.apps                          bos.terminfo.data                 devices.pci.23100020
+X11.base                          bos.txt                           devices.pci.2b101a05
+X11.compat.X11R5                  bos.txt.data                      devices.pci.2b102005
+X11.fnt                           bos.up                            devices.pci.31114571
+X11.loc.Ar_AA                     devices.base                      devices.pci.31114571.diag
+X11.loc.Iw_IL                     devices.buc.00004001              devices.pci.31114671
+X11.loc.Ja_JP                     devices.buc.00004002              devices.pci.31114671.diag
+X11.loc.Uk_UA                     devices.buc.00004005              devices.pci.331121b9
+X11.loc.Vi_VN                     devices.buc.00004006              devices.pci.33531188
+X11.loc.Zh_CN                     devices.buc.00004007              devices.pci.3353c088
+X11.loc.Zh_TW                     devices.chrp.base                 devices.pci.3353c188
+X11.loc.ar_AA                     devices.chrp.pci                  devices.pci.3353c288
+X11.loc.be_BY                     devices.common.IBM.ARTIC          devices.pci.3353c388
+X11.loc.bg_BG                     devices.common.IBM.async          devices.pci.48110040.diagsa
+X11.loc.ca_ES                     devices.common.IBM.atm            devices.pci.4f111100
+X11.loc.cs_CZ                     devices.common.IBM.bbl            devices.pci.4f111b00
+X11.loc.da_DK                     devices.common.IBM.cx             devices.pci.86808404
+X11.loc.de_CH                     devices.common.IBM.disk           devices.pci.PNP0A00
+X11.loc.de_DE                     devices.common.IBM.ethernet       devices.pci.PNP0A03
+X11.loc.el_GR                     devices.common.IBM.fc             devices.pci.b7105090
+X11.loc.en_AU                     devices.common.IBM.fda            devices.pci.df1000f7
+X11.loc.en_BE                     devices.common.IBM.fddi           devices.pci.isa
+X11.loc.en_GB                     devices.common.IBM.hdlc           devices.pci.pci
+X11.loc.en_US                     devices.common.IBM.ktm_std        devices.pcmcia.a4000200
+X11.loc.en_ZA                     devices.common.IBM.modemcfg.data  devices.pcmcia.a4001d00
+X11.loc.es_ES                     devices.common.IBM.pmmd_chrp      devices.pcmcia.a4001e00
+X11.loc.fi_FI                     devices.common.IBM.ppa            devices.pcmcia.a4003900
+X11.loc.fr_BE                     devices.common.IBM.rby            devices.pcmcia.ethernet
+X11.loc.fr_CA                     devices.common.IBM.scsi           devices.pcmcia.serial
+X11.loc.fr_CH                     devices.common.IBM.son            devices.pcmcia.tokenring
+X11.loc.fr_FR                     devices.common.IBM.ssa            devices.raid_vsm
+X11.loc.hr_HR                     devices.common.IBM.tokenring      devices.rs6ksmp.base
+X11.loc.hu_HU                     devices.common.base               devices.rspc.base
+X11.loc.is_IS                     devices.common.rspcbase           devices.scsi.disk
+X11.loc.it_CH                     devices.fcp.disk                  devices.scsi.scarray
+X11.loc.it_IT                     devices.fcp.disk.array            devices.scsi.ses
+X11.loc.iw_IL                     devices.fcp.tape                  devices.scsi.tape
+X11.loc.ja_JP                     devices.graphics                  devices.scsi.tm
+X11.loc.ko_KR                     devices.ide.cdrom                 devices.serial.gio
+X11.loc.mk_MK                     devices.ide.disk                  devices.serial.sb1
+X11.loc.nl_BE                     devices.isa.IBM0010               devices.serial.tablet1
+X11.loc.nl_NL                     devices.isa.PNP80CC               devices.sio.fda
+X11.loc.no_NO                     devices.isa.c1x                   devices.sio.ktma
+X11.loc.pl_PL                     devices.isa.cxia                  devices.sio.ppa
+X11.loc.pt_BR                     devices.isa.cxia128               devices.sio.sa
+X11.loc.pt_PT                     devices.isa.mm2                   devices.ssa.IBM_raid
+X11.loc.ro_RO                     devices.isa.pc8s                  devices.ssa.disk
+X11.loc.ru_RU                     devices.isa_sio.IBM0005.IBM8301   devices.ssa.network_agent
+X11.loc.sh_SP                     devices.isa_sio.IBM000E           devices.ssa.tm
+X11.loc.sk_SK                     devices.isa_sio    	            ifor_ls.msg.Ja_JP
+X11.msg.Zh_CN                     devices.isa_sio.PNP0401           ifor_ls.msg.de_DE
+X11.msg.Zh_TW                     devices.isa_sio.PNP0501           ifor_ls.msg.en_US
+X11.msg.ca_ES                     devices.isa_sio.PNP0600           ifor_ls.msg.es_ES
+X11.msg.cs_CZ                     devices.isa_sio.PNP0700           ifor_ls.msg.fr_FR
+X11.msg.de_DE                     devices.isa_sio.PNP0E00           ifor_ls.msg.it_IT
+X11.msg.en_US                     devices.isa_sio.PNP0F03           ifor_ls.msg.ko_KR
+X11.msg.es_ES                     devices.isa_sio.baud              ifor_ls.msg.pt_BR
+X11.msg.fr_FR                     devices.isa_sio.chrp.8042         ifor_ls.msg.zh_CN
+X11.msg.hu_HU                     devices.isa_sio.chrp.ecp          ifor_ls.msg.zh_TW
+X11.msg.it_IT                     devices.isa_sio.km                invscout.ldb
+X11.msg.ja_JP                     devices.isa_sio.pnpPNP.400        invscout.rte
+X11.msg.ko_KR                     devices.isa_sio.pnpPNP.501        fx.msg.nl_NL.rte
+bos.help.msg.hu_HU                devices.mca.8f97                  ipfx.msg.no_NO.rte
+bos.help.msg.it_IT                devices.mca.8f98                  ipfx.msg.pt_PT.rte
+bos.help.msg.ja_JP                devices.mca.8f9a                  ipfx.msg.sv_SE.rte
+bos.help.msg.ko_KR                devices.mca.8f9d                  ipfx.msg.zh_CN.rte
+bos.help.msg.pl_PL                devices.mca.8fa2                  ipfx.msg.zh_TW.rte
+bos.help.msg.pt_BR                devices.mca.8fba                  ipfx.rte
+bos.help.msg.ru_RU                devices.mca.8fbc                  perl.rte
+bos.help.msg.sk_SK                devices.mca.8fc8                  printers.rte
+bos.help.msg.zh_CN                devices.mca.8ff4                  sysmgt.help.msg.Ja_JP
+bos.help.msg.zh_TW                devices.mca.dee6                  sysmgt.help.msg.Zh_CN
+bos.html.en_US.topnav             devices.mca.deff                  sysmgt.help.msg.Zh_TW
+bos.iconv                         devices.mca.df5f                  sysmgt.help.msg.ca_ES
+bos.loc.com                       devices.mca.df9f                  sysmgt.help.msg.cs_CZ
+bos.loc.iso                       devices.mca.dfe5                  sysmgt.help.msg.de_DE
+bos.loc.pc                        devices.mca.e1ff                  sysmgt.help.msg.en_US
+bos.loc.pc_compat                 devices.mca.edd0                  sysmgt.help.msg.es_ES
+bos.mp                            devices.mca.edd1                  sysmgt.help.msg.fr_FR
+bos.msg.Ja_JP                     devicbos.msg.zh_TW                devices.msg.es_ES                 
+sysmgt.msg.fr_FR.websm
+bos.net                           devices.msg.fr_FR                 sysmgt.msg.hu_HU.websm
+bos.powermgt                      devices.msg.hu_HU                 sysmgt.msg.it_IT.websm
+bos.rte.ILS_4.3.3.0.bff           devices.msg.it_IT                 sysmgt.msg.ja_JP.websm
+bos.rte.SRC_4.3.3.0.bff           devices.msg.ja_JP                 sysmgt.msg.ko_KR.websm
+bos.rte.aio_4.3.3.0.bff           devices.msg.ko_KR                 rte.ifor_ls_4.3.3.0.bff       
+devices.pci.14102e00              xlC.rte
+bos.rte.im_4.3.3.0.bff            devices.pci.14103c00
+
+
+
+
+
+
+Disk 2 of aix 4.3.3 cd
+
+Content of /mnt/cdrom/usr/sys/mvCD/vol%2/
+
+bos.perf         
+perfagent.tools
+
++
+
+IMNSearch.bld                U454161.bff                  db2_05_00.client_5.2.0.7
+IMNSearch.rte                U458641.bff                  db2_05_00.cnvucs_5.2.0.7
+Java.adt                     U458647.bff                  db2_05_00.conv_5.2.0.7
+Java.rmi-iiop                U458655.bff                  db2_05_00.cs_5.2.0.7
+Java.samples                 U458659.bff                  db2_05_00.das_5.2.0.7
+Java.security                U458662.bff                  db2_05_00.db2_5.2.0.7
+Java.swing                   U458681.bff                  db2_05_00.msg.De_DE_5.2.0.7
+OpenGL.GL32.adt              U458684.bff                  db2_05_00.msg.En_US_5.2.0.7
+OpenGL.GL32.dev              U458693.bff                  db2_05_00.msg.Es_ES_5.2.0.7
+OpenGL.GL32.rte              U458702.bff                  db2_05_00.msg.Fr_FR_5.2.0.7
+OpenGL.OpenGL_X.adt          U459247.bff                  db2_05_00.msg.It_IT_5.2.0.7
+OpenGL.OpenGL_X.dev          U459261.bff                  db2_05_00.msg.Ja_JP_5.2.0.7
+OpenGL.OpenGL_X.rte          U459280.bff                  db2_05_00.msg.Zh_TW_5.2.0.7
+OpenGL.OpenGL_X.tools        U459283.bff                  db2_05_00.msg.cs_CZ_5.2.0.7
+OpenGL.msg.Ca_ES             U459284.bff                  db2_05_00.msg.de_DE_5.2.0.7
+OpenGL.msg.De_DE             U459296.bff                  db2_05_00.msg.es_ES_5.2.0.7
+OpenGL.msg.En_US             U459305.bff                  db2_05_00.msg.fr_FR_5.2.0.7
+OpenGL.msg.Es_ES             U459332.bff                  db2_05_00.msg.hu_HU_5.2.0.7
+OpenGL.msg.Fr_FR             U459333.bff                  db2_05_00.msg.it_IT_5.2.0.7
+OpenGL.msg.It_IT             U459742.bff                  db2_05_00.msg.ja_JP_5.2.0.7
+OpenGL.msg.Ja_JP             U459743.bff                  db2_05_00.msg.ko_KR_5.2.0.7
+OpenGL.msg.ZH_CN             U459749.bff                  db2_05_00.msg.pl_PL_5.2.0.7
+OpenGL.msg.Zh_CN             U459762.bff                  db2_05_00.msg.pt_BR_5.2.0.7
+OpenGL.msg.Zh_TW             U459769.bff                  db2_05_00.msg.ru_RU_5.2.0.7
+OpenGL.msg.ca_ES             U459770.bff                  db2_05_00.msg.sl_SI_5.2.0.7
+OpenGL.msg.cs_CZ             U459772.bff                  db2_05_00.msg.zh_CN_5.2.0.7
+OpenGL.msg.de_DE             U459773.bff                  db2_05_00.msg.zh_TW_5.2.0.7
+OpenGL.msg.en_US             U459781.bff                  db2_05_00.odbc_5.2.0.7
+OpenGL.msg.es_ES             U459797.bff                  db2_05_00.wsrv_5.2.0.7
+OpenGL.msg.fr_FR             U462731.bff                  ipx.base
+OpenGL.msg.hu_HU             U462785.bff                  ipx.msg.en_US
+OpenGL.msg.it_IT             U462792.bff                  ipx.rte
+OpenGL.msg.ja_JP             U462973.bff                  ldap.client
+OpenGL.msg.ko_KR             U463013.bff                  ldap.html.Ja_JP
+OpenGL.msg.pl_PL             bos.INed                     ldap.html.Zh_CN
+OpenGL.msg.pt_BR             bos.acct                     ldap.html.ca_ES
+OpenGL.msg.ru_RU             bos.adt.data                 ldap.html.cs_CZ
+OpenGL.msg.sk_SK             bos.alt_disk_install         ldap.html.de_DE
+OpenGL.msg.zh_CN             bos.atm                      ldap.html.en_US
+OpenGL.msg.zh_TW             bos.cns                      ldap.html.es_ES
+PEX_PHIGS.dev                bos.compat                   ldap.html.fr_FR
+PEX_PHIGS.graPHIGS.adt       bos.compat.data              ldap.html.hu_HU
+PEX_PHIGS.graPHIGS.fnt       bos.content_list             ldap.html.it_IT
+PEX_PHIGS.graPHIGS.rte       bos.data                     ldap.html.ko_KR
+PEX_PHIGS.msg.Ca_ES          bos.dlc                      ldap.html.pl_PL
+PEX_PHIGS.msg.De_DE          bos.dosutil                  ldap.html.pt_BR
+PEX_PHIGS.msg.En_US          bos.games                    ldap.html.ru_RU
+PEX_PHIGS.msg.Es_ES          bos.loc.adt                  ldap.html.sk_SK
+PEX_PHIGS.msg.Fr_FR          bos.loc.fnt                  ldap.html.zh_TW
+PEX_PHIGS.msg.It_IT          bos.lrn                      ldap.msg.Ca_ES
+PEX_PHIGS.msg.Ja_JP          bos.lrn.data                 ldap.msg.De_DE
+PEX_PHIGS.msg.ZH_CN          bos.msg.Ca_ES.other          ldap.msg.Es_ES
+PEX_PHIGS.msg.Zh_CN          bos.msg.De_DE.other          ldap.msg.Fr_FR
+PEX_PHIGS.msg.Zh_TW          bos.msg.En_US.other          ldap.msg.It_IT
+PEX_PHIGS.msg.ca_ES          bos.msg.Es_ES.other          ldap.msg.Ja_JP
+PEX_PHIGS.msg.cs_CZ          bos.msg.Fr_FR.other          ldap.msg.Zh_CN
+PEX_PHIGS.msg.de_DE          bos.msg.It_IT.other          ldap.msg.Zh_TW
+PEX_PHIGS.msg.en_US          bos.msg.Ja_JP.other          ldap.msg.ca_ES
+PEX_PHIGS.msg.es_ES          bos.msg.ZH_CN.other          ldap.msg.cs_CZ
+PEX_PHIGS.msg.fr_FR          bos.msg.Zh_CN.other          ldap.msg.de_DE
+PEX_PHIGS.msg.hu_HU          bos.msg.Zh_TW.other          ldap.msg.en_US
+PEX_PHIGS.msg.it_IT          bos.msg.ca_ES.other          ldap.msg.es_ES
+PEX_PHIGS.msg.ja_JP          bos.msg.cs_CZ.other          ldap.msg.fr_FR
+PEX_PHIGS.msg.ko_KR          bos.msg.de_DE.other          ldap.msg.hu_HU
+PEX_PHIGS.msg.pl_PL          bos.msg.en_US.other          ldap.msg.it_IT
+PEX_PHIGS.msg.pt_BR          bos.msg.es_ES.other          ldap.msg.ja_JP
+PEX_PHIGS.msg.ru_RU          bos.msg.fr_FR.other          ldap.msg.ko_KR
+PEX_PHIGS.msg.sk_SK          bos.msg.hu_HU.other          ldap.msg.pl_PL
+PEX_PHIGS.msg.zh_CN          bos.msg.it_IT.other          ldap.msg.pt_BR
+PEX_PHIGS.msg.zh_TW          bos.msg.ja_JP.other          ldap.msg.ru_RU
+U443551.bff                  bos.msg.ko_KR.other          ldap.msg.sk_SK
+U443586.bff                  bos.msg.pl_PL.other          ldap.msg.zh_CN
+U445304.bff                  bos.msg.pt_BR.other          ldap.msg.zh_TW
+U445321.bff                  bos.msg.ru_RU.other          ldap.server
+U449956.bff                  bos.msg.sk_SK.other          perfagent.tools
+U453249.bff                  bos.msg.zh_CN.other          perl.man.en_US
+U453262.bff                  bos.msg.zh_TW.other          pkg_gd
+U454062.bff                  bos.net.other                sysback.rte.update
+U454066.bff                  bos.perf                     sysback.sbom.update
+U454071.bff                  bos.rcs                      sysmgt.help.en_US
+U454107.bff                  bos.som
+U454114.bff                  bos.twintail
+
+
+aix 4.3.3 cd
+disk 3
+X11.dtd, X11.dt.other
+localization stuff, 
+
+
+
+X11.Dt.other             X11.loc.IT_IT            X11.msg.it_IT.other      ifor_ls.msg.it_IT.other
+X11.adt                  X11.loc.Is_IS            X11.msg.ja_JP.other      ifor_ls.msg.ko_KR.other
+X11.compat.other         X11.loc.It_IT            X11.msg.ko_KR.other      ifor_ls.msg.pt_BR.other
+X11.help.Ja_JP           X11.loc.JA_JP            X11.msg.pl_PL.other      ifor_ls.msg.zh_CN.other
+X11.help.Zh_CN           X11.loc.KO_KR            X11.msg.pt_BR.other      ifor_ls.msg.zh_TW.other
+X11.help.Zh_TW           X11.loc.LT_LT            X11.msg.ru_RU.other      printers.bull
+X11.help.ca_ES           X11.loc.LV_LV            X11.msg.sk_SK.other      printers.can
+X11.help.cs_CZ           X11.loc.Lt_LT            X11.msg.zh_CN.other      printers.dp
+X11.help.de_DE           X11.loc.Lv_LV            X11.msg.zh_TW.other      printers.epson
+X11.help.en_US           X11.loc.MK_MK            X11.samples              printers.hp
+X11.help.es_ES           X11.loc.NL_BE            X11.vfb                  printers.ibm_1
+X11.help.fr_FR           X11.loc.NL_NL            X11.vsm.other            printers.ibm_2
+X11.help.hu_HU           X11.loc.NO_NO            X11.x_st_mgr             printers.ibm_3
+X11.help.it_IT           X11.loc.Nl_BE            bos.help.msg.Ca_ES       printers.ibm_asian
+X11.help.ja_JP           X11.loc.Nl_NL            bos.help.msg.De_DE       printers.ibm_plot
+X11.help.ko_KR           X11.loc.No_NO            bos.help.msg.En_US       printers.lex
+X11.help.pl_PL           X11.loc.PL_PL            bos.help.msg.Es_ES       printers.msg.Ca_ES
+X11.help.pt_BR           X11.loc.PT_BR            bos.help.msg.Fr_FR       printers.msg.De_DE
+X11.help.ru_RU           X11.loc.PT_PT            bos.help.msg.It_IT       printers.msg.En_US
+X11.help.sk_SK           X11.loc.Pt_PT            bos.help.msg.ZH_CN       printers.msg.Es_ES
+X11.help.zh_CN           X11.loc.RO_RO            bos.mh                   printers.msg.Fr_FR
+X11.help.zh_TW           X11.loc.RU_RU            bos.msg.Ca_ES            printers.msg.It_IT
+X11.loc.AR_AA            X11.loc.SH_SP            bos.msg.De_DE            printers.msg.Ja_JP
+X11.loc.BE_BY            X11.loc.SK_SK            bos.msg.En_US            printers.msg.ZH_CN
+X11.loc.BG_BG            X11.loc.SL_SI            bos.msg.Es_ES            printers.msg.Zh_CN
+X11.loc.CA_ES            X11.loc.SQ_AL            bos.msg.Fr_FR            printers.msg.Zh_TW
+X11.loc.CS_CZ            X11.loc.SR_SP            bos.msg.It_IT            printers.msg.ca_ES
+X11.loc.Ca_ES            X11.loc.SV_SE            bos.msg.ZH_CN            printers.msg.cs_CZ
+X11.loc.DA_DK            X11.loc.Sv_SE            devices.msg.Ca_ES        printers.msg.de_DE
+X11.loc.DE_CH            X11.loc.TH_TH            devices.msg.De_DE        printers.msg.en_US
+X11.loc.DE_DE            X11.loc.TR_TR            devices.msg.En_US        printers.msg.es_ES
+X11.loc.Da_DK            X11.loc.UK_UA            devices.msg.Es_ES        printers.msg.fr_FR
+X11.loc.De_CH            X11.loc.VI_VN            devices.msg.Fr_FR        printers.msg.hu_HU
+X11.loc.De_DE            X11.loc.ZH_CN            devices.msg.It_IT        printers.msg.it_IT
+X11.loc.EL_GR            X11.loc.ZH_TW            devices.msg.ZH_CN        printers.msg.ja_JP
+X11.loc.EN_AU            X11.man.en_US            ifor_ls.base.other       printers.msg.ko_KR
+X11.loc.EN_BE            X11.man.en_US.base       ifor_ls.html.Ja_JP       printers.msg.pl_PL
+X11.loc.EN_GB            X11.msg.Ca_ES            ifor_ls.html.de_DE       printers.msg.pt_BR
+X11.loc.EN_US            X11.msg.Ca_ES.other      ifor_ls.html.en_US       printers.msg.ru_RU
+X11.loc.EN_ZA            X11.msg.De_DE            ifor_ls.html.es_ES       printers.msg.sk_SK
+X11.loc.ES_ES            X11.msg.De_DE.other      ifor_ls.html.fr_FR       printers.msg.zh_CN
+X11.loc.ET_EE            X11.msg.En_US            ifor_ls.html.it_IT       printers.msg.zh_TW
+X11.loc.En_GB            X11.msg.En_US.other      ifor_ls.html.ko_KR       printers.oki
+X11.loc.En_US            X11.msg.Es_ES            ifor_ls.html.pt_BR       printers.pt
+X11.loc.Es_ES            X11.msg.Es_ES.other      ifor_ls.html.zh_CN       printers.qms
+X11.loc.Et_EE            X11.msg.Fr_FR            ifor_ls.html.zh_TW       printers.star
+X11.loc.FI_FI            X11.msg.Fr_FR.other      ifor_ls.ipf.Ja_JP        printers.ti
+X11.loc.FR_BE            X11.msg.It_IT            ifor_ls.ipf.de_DE        sysmgt.help.msg.Ca_ES
+X11.loc.FR_CA            X11.msg.It_IT.other      ifor_ls.ipf.en_US        sysmgt.help.msg.De_DE
+X11.loc.FR_CH            X11.msg.Ja_JP.other      ifor_ls.ipf.es_ES        sysmgt.help.msg.En_US
+X11.loc.FR_FR            X11.msg.ZH_CN            ifor_ls.ipf.fr_FR        sysmgt.help.msg.Es_ES
+X11.loc.Fi_FI            X11.msg.ZH_CN.other      ifor_ls.ipf.it_IT        sysmgt.help.msg.Fr_FR
+X11.loc.Fr_BE            X11.msg.Zh_CN.other      ifor_ls.ipf.ko_KR        sysmgt.help.msg.It_IT
+X11.loc.Fr_CA            X11.msg.Zh_TW.other      ifor_ls.ipf.pt_BR        sysmgt.help.msg.ZH_CN
+X11.loc.Fr_CH            X11.msg.ca_ES.other      ifor_ls.ipf.zh_CN        sysmgt.msg.Ca_ES.websm
+X11.loc.Fr_FR            X11.msg.cs_CZ.other      ifor_ls.ipf.zh_TW        sysmgt.msg.De_DE.websm
+X11.loc.HE_IL            X11.msg.de_DE.other      ifor_ls.msg.Ja_JP.other  sysmgt.msg.En_US.websm
+X11.loc.HR_HR            X11.msg.en_US.other      ifor_ls.msg.de_DE.other  sysmgt.msg.Es_ES.websm
+X11.loc.HU_HU            X11.msg.es_ES.other      ifor_ls.msg.en_US.other  sysmgt.msg.Fr_FR.websm
+X11.loc.IS_IS            X11.msg.fr_FR.other      ifor_ls.msg.es_ES.other  sysmgt.msg.It_IT.websm
+X11.loc.IT_CH            X11.msg.hu_HU.other      ifor_ls.msg.fr_FR.other  sysmgt.msg.ZH_CN.websm
+
+
+disk 4
+presumably localization.
+
+
+</PRE>
+
+man pages.
+AIX don't install them by default.  And they are on separate documentation CD.
+fileset listed by lslpp -l are like:
+
+  bos.html.en_US.cmds.cmds1  4.3.3.0  COMMITTED  AIX Commands Reference 1 - U.
+  bos.html.en_US.cmds.cmds2  4.3.3.0  COMMITTED  AIX Commands Reference 2 -
+  bos.html.en_US.cmds.cmds3  4.3.3.0  COMMITTED  AIX Commands Reference 3 -
+  bos.html.en_US.cmds.cmds4  4.3.3.0  COMMITTED  AIX Commands Reference 4 -
+  bos.html.en_US.cmds.cmds5  4.3.3.0  COMMITTED  AIX Commands Reference 5 - U.S
+  bos.html.en_US.cmds.cmds6  4.3.3.0  COMMITTED  AIX Commands Reference 6 -
+
+
+
+
+<HR>
+<CENTER>
+  [Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/aix_cd_catalog.html">http://www.cs.fiu.edu/~tho01/psg/aix_cd_catalog.html</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#CreativeCommon>main page</A>
+ for copyright info. <BR>
+</CENTER>
+<BR>
+<!--Taos banner-->  
+<div align="right">
+  <font size="-4"> "ting" <BR>
+  "AUHAUH on the outside, LAPPLAPP on the inside" </font> </div> 
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

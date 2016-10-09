@@ -1,0 +1,727 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP, PSG101, sn50, tin6150"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - DB2</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/">Sys Admin Pocket Survival Guide - DB2</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
+      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
+      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>DB2</H1>
+
+
+<PRE>
+
+Main DB2 interface components:
+
+. db2profile	profile in each instance to be sourced to setup path, 
+		db2 register variable, java stustuff, etc
+		File in instance dir, eg /lhome/db2inst8/sqllib/
+
+db2fs		db2 first steps, a getting started wizard.
+
+db2cc		Control Center, GUI, lead to many other GUI.
+db2		DB2>  The CLI for all db2 admin.
+
+db2ca		config assistant, help client config of connectivity.
+		also as lightweight Control Ctr
+db2hc		health center, for monitoring and stuff
+
+
+db2ilist	list db2 instances 
+		AIX: /usr/opt/db2_08_01/bin
+		Sol:    /opt/IBM/db2/V8.1/bin
+
+db2icrt	 -u FENCEID INST_NAME		# create instance eg db2fenc8 db2inst8
+	# !! 	Note: before creating instance, do:
+	# !! 	cd /lhome/INST_NAME ; touch .profile .login
+	# !! 	It maybe the case that db2 does not like instance name w/ - in them
+	# !!	At least, db2sampl failed when instance/username was uca2-db2
+
+db2idrop INST_NAME			# delete instance
+		AIX: /usr/opt/db2_08_01/instance/
+		Sol:    /opt/IBM/db2/V8.1/instance/
+
+
+db2 catalog tcpip node pecan remote pecan.brio.com server 50000
+db2 catalog database epam    as epam_p  at node pecan
+db2 catalog database epam1   as epam_p1 at node pecan
+db2 catalog database epam_ea7           at node pecan
+
+
+db2 update dbm cfg using svcename 50000
+db2 get    dbm cfg | grep SVCENAME
+db2set DB2COMM=TCPIP
+		allow remote admin via db2cc, port 50000
+db2set -all
+		list db2 registry var
+
+
+Prodecure for stopping the DB2 server (all db2 related process).
+
+
+Log on as root and enter the following commands for each instance:
+
+    su - iname
+    . $HOME/sqllib/db2profile
+    db2 force applications all
+    db2 terminate
+    db2stop
+    db2licd end      # run at each physical node	(license svr)
+    exit
+
+
+where iname is the instance owner name.
+
+Then, while still logged on as root, enter the following commands:
+
+    su - aname
+    . $HOME/sqllib/db2profile
+    db2admin stop
+    exit
+
+where aname is the administration server name.
+
+
+---
+
+Installation and Configuration Supplement.pdf
+p 17 and 138:
+
+license management.  needed after manual install.
+INSTHOME/.../db2diag.log  will also show expiration in X day(s).
+
+adm/db2licm 	-l list licenses, including prod password for futher update
+		-n PASSWORD 4	increase to 4 cpu
+	    	-? help
+adm/db2licm 	-a FILENAME
+where FILENAME is license file on cdrom /db2/license/db2ese.lic
+Stored in /var/ifor (AIX) or /var/lum (Unix,Linux)
+
+license files needed before running products:
+(potentially need to run db2licm on all avail lic)
+db2ese.lic	enterprise svr ed (used in tahoe from soft access catalog download)
+db2dlm.lic	data link 
+db2wsue.lic	work group serv unlimed ed
+db2conee.lic	connect ent ed (seen a few on sandpail)
+...		plus other, see list in pdf.
+
+----
+
+
+db2 commands from class exercise
+
+
+Course 2: CF 453 : DB2 Universal DB Advance Admin Workshop (Intermediate)
+
+*** ATTACH cmd *** p2-5
+
+db2 list node directory		
+	see list of catalogged machines avail for remote admin (via DAS)
+db2 attach to NODENAME user USERNAME using PASSWORD
+	connects to the remote db2 machine for admin
+
+db2 -tvf scriptname.ext
+	Run a db2 script from the cli.  eg to create a db.
+
+db2 get dbm cfg | grep SVCENAME
+	list the port that db2 listen on 
+	(may be in /etc/services or c:\winnt\system32\drivers\etc\services)
+	typically 50000, 60000
+
+db2sampl
+	create the db2 sample db (think it ship standard with the software)
+
+
+db2 catalog tcpip node db2rem remote 192.168.254.121 server 30010 remote_instance db2
+                       NODENAME      HOSTNAME               SVCENNAME             REMOTE_INSTANCE-NAME 
+	add the node (instance) of the remote machine. 
+	ie catalog its instance.
+
+db2 list node directory
+	verify above
+
+db2 catalog db            sample as smaple1 at node db2rem
+            aka DATABASE  DB-NAME   Local-Alias     NODENAME
+	add a db from the remote machine 
+	ie catalog a db associated w/ the node entry of the remote system instance
+
+db2 list db directory
+	verify above
+
+db2 attach to db2rem user adminNN using admin
+              NODENAME    USERNAME      PASSWORD
+	attach to the remote node
+
+db2 get db cfg for sample1
+	view config parameter for remote db aliased to sample1
+
+*** Admin remote instance *** p 2-10
+
+db2 get db cfg for sample1 | find /i "logfil"
+	find the log file size (in number of pages if (4) KB each).  sample1 is the db name.  find is dos cli
+
+db2 update db cfg for smaple1 using logfilsiz 200
+	change db config parameter for logfilsiz to use 200 pages
+
+db2 GET SNAPSHOT FOR DATABASE ON sample1 > outputfile.txt
+	Use snapshot monitor to get info about the number of connects to the remote db sample1
+
+
+
+=== Section 3: The Governor === p 3-1
+
+db2 terminate
+db2 list db directory
+db2 connect to sample		# stock sample db
+				# to disconnect, use db2 connect reset
+db2 select * from department
+db2 select * from adminNN.staff,adminNN.sales		# actually from p3-3
+
+db2 connect to sample user admin using admin
+               DB-NAME     USERNAME    PASSWORD
+	connect to a database (local instance will not req password).
+
+db2gov start sample sample_gov_01.cfg    sample_gov_01.txt
+                    governor-config-file log-file-name
+	start the governor, storing the log file in SQLLIB\inst-name\log\
+
+[...]
+
+db2 list applications
+	list user/application that have connections to the database
+
+db2gov stop sample
+	stops the governor
+
+
+
+*** Audit *** p 3-10
+
+db2audit describe
+	tell whether the audit function is active or not
+
+db2 force application all
+db2 terminate
+db2stop
+	disconnect and terminate all connectivity, stop the db
+
+db2audit start
+	start auditor, log in ..\sqllib\db2\security\db2audit.log
+
+db2audit stop
+	stop auditor, must stop db first??
+
+db2audit extract
+	creates a sqllib\db2\security\db2audit.out file (text)
+	(also see db2audit flush)
+
+db2audit prune all
+	clear out the audit internal log
+
+*** Create audit db *** 
+
+db2audit configure scope all status both
+db2 get db cfg | grep AUDIT_BUF_SZ
+db2 update dbm cfg using AUDIT_BUF_SZ 10
+db2audit flush
+	flush the audit buffer   (from p 3-14)
+	(ready to be extracted w/o having to stop the auditor?)
+db2audit extract delasc delimiter !
+	extract all events to files in ASCII delimited with ! 
+	Each event category will get its own file
+db2audit stop
+db2 connect reset
+db2 create db audit
+db2 -tf db2_audit.ddl	# class script, non std?
+
+
+
+=== ch 4 Problem determination === p 4-2
+
+db2 attach to INSTANCE-NAME   	# eg db2
+db2 update dbm cfg using heath_mon on
+	turn on Health Monitor for a particular instance 
+
+db2 inspect check db results keep check1
+                                  an intermediate binary file
+
+db2level
+	determine db2 version 
+db2inspf check1 check1.txt
+	turn binary file into text version for human reading
+
+
+db2 attach to inst1
+db2 force application all	# wait for a while for everything to shut off.
+
+db2 update db cfg for musicdb using logretain recovery
+	config db for archive logging
+db2 backup db musicdb to X:\cf45\backup with 2 buffers buffer 1024 parallelism 1 without prompting
+	create a backup of the db on the file system.  
+	NOTE the timestamp , which is used for restore.
+
+db2 list tablespaces
+	list the storage area for the tables (see if there are corruptions)
+
+db2 restore db MUSICDB tablespace (DMSCR01) online from X:\cf45\backup taken at 20030323101926 with 2 buffers buffer 1024 parallelism 1 without prompting
+                                  from tablespace list  filesystem loc          timestamp      ^^^^^^^^^ params used to do backup above ^^^^^^^^^^^^^^^^^
+	restore db from image dumped onto filesystem.
+
+db2 rollforward db MUSICDB to end of logs and complete tablespace (DMSCR01) online
+	needed as part of the restore.
+
+db2support DESTINATION-DIR               -d MUSICDB -c
+           dir where .zip will be placed    name of db to gather info from
+	Collect info about a db (no user info) to be send to IBM Support.
+
+
+ch 5 SMP - See exercise book.
+
+=== ch 6 Advance Util === p 6-2
+
+
+db2look -d MUSICDB -a -e -l -x -c
+	??
+
+db2move MUSICDB export
+	automatically export all data of the musicdb and store it in the current dir.
+	It generates a file called db2move.lst, may need to change owner name before import
+
+db2move COPYDB import
+	import the database from info in the current dir, renaming it to COPYDB
+
+db2move MUSICDB export -tn ARTISTS
+        dbname             table-name
+	export a specific table of db first, for when there are depencies on table load.
+
+db2move COPYDB import -io insert
+	somehow this would insert the special table first
+
+db2cfexp PATH-to-CF-FILE template
+db2cfimp PATH-to-CF-FILE
+	Export and import of config info of connectivity info (eg deploy workstation client).
+
+
+*** container space management *** p 6-5
+
+db2 alter tablespace dmsc2d drop   (file 'X:\dms\copydb\dmsc2d_c02')
+db2 alter tablespace dmsc2i drop   (file 'X:\dms\copydb\dmsc2i_c02')
+db2 list  tablespace containers for 7 show detail 
+db2 alter tablespace dbsc2i resize (file 'X:\dms\copydb\dmsc2i_c01' 76)
+db2 alter tablespace dmsc2i reduce (all containers 65) 
+db2 alter tablespace dms04d add    (file 'X:\dms\musicdb\dms04D_c02' 2000)	# from p 9-6
+
+db2 drop database COPYDB
+	remove a database completely.
+
+
+=== ch 9 Load === p 9-2
+
+db2 update dbm cfg using diaglevel 4
+db2 update db cfg for musicdb using logfilsiz 2500 logprimary 5 logretain recovery indexrec access
+
+db2 +c insert into overview values (999,'XXX','XXX')
+
+db2 load query table acct
+
+db2 describe indexes for table acct
+db2 drop index acctindx
+
+	
+
+=== ch 10 distributed mgnt ===
+
+db2 query client
+db2 set client connect 2
+db2 set client connect 2 sqlrules db2 syncpoint onephase
+db2 set client connect 2 sqlrules std syncpoint onephase
+
+
+=== ch 11 federated db ===
+
+db2 list node directory
+
+
+
+
+--0--
+
+SQL like commands
+db2 connect to SAMPLE user db2inst8
+db2 list tables
+db2 list tablespaces
+db2 list tablespaces show detail 
+db2 create table test_t1(test_c1 char(10))
+db2 select COLUMN-NAME from TABLE-NAME
+db2 select COLUMN-NAME from TABLE-NAME where CONDITION
+db2 select count(*) from TABLE-NAME
+
+NOTE: db2 command automatically do commit, to turn it off, use param '+c'
+
+
+---------------
+
+DB2 user priviledges stuff.  These SLQ commands does not work in Oracle.
+
+user exist as std unix acc user.
+
+grant DBADM,CREATETAB,BINDADD,CONNECT,CREATE_NOT_FENCED_ROUTINE,IMPLICIT_SCHEMA,
+LOAD,CREATE_EXTERNAL_ROUTINE,QUIESCE_CONNECT on database to user THO;
+
+db2 grant DBADM,CREATETAB,BINDADD,CONNECT on database to user THO;
+
+--- 
+
+db2osconf	display kernel param needed by db2, os config dependent.
+
+For Solaris /etc/system:
+
+set msgsys:msginfo_msgmax=65535
+set msgsys:msginfo_msgmnb=65535
+set msgsys:msginfo_msgmni=2560
+set msgsys:msginfo_msgtql=2560
+set semsys:seminfo_semmni=3072
+set semsys:seminfo_semmns=6452
+set semsys:seminfo_semmnu=3072
+set semsys:seminfo_semume=240
+set shmsys:shminfo_shmmni=3072
+set shmsys:shminfo_shmseg=240
+set shmsys:shminfo_shmmax=1869321830
+
+The last entry, shminfo_shmmax, seems to suck up 1.8 GB out of a 2 GB system.  
+Oracle setup only wanted 1 GB.  However, setting it to 1 GB seems to have caused
+some GUI tools like configuration advisor not being able to perform update.
+So set it to 1.5 GB and seems a bit better.  Too high, and the system don't seems to have resources for other task.
+
+
+Other config param
+
+db2 get dbm cfg			# dbm is shortcut for database manager
+db2 get db cfg			# need db2 connect to DATABASE 1st, DB specific
+db2 get admin configuration	# DAS config
+
+dbheap
+memory for connection, freed when last app disconnect. 
+Also space for logbufsz and catalogcache_sz are allocated from here.
+
+default = 1200, range 32-60k.
+
+
+many params can be set on db2cc GUI via right click on DB, then configure parameters or configure advisor that walk thru std scenarios.  Good to tell DB to use less than 80% of memory as target for system that is more than just a DB.
+
+
+
+
+---
+
+
+db2 
+
+install program via db2setup
+update FixPack, it comes with script
+
+config kernel param.
+reboot.
+(db2 process is in /etc/inittab !!)
+
+Create instance and fence user
+
+For instance user, touch .profile and .login
+
+as root, run:
+/opt/IBM/db2/V8.1/instance/db2icrt -u db2fenc8 db2inst8  #last one match instance user.
+
+as db2inst8 user (or db2i81 in tahoe), run
+. sqllib/db2profile (actually in .profile).
+
+db2ilist	# list intances
+db2level	# get version info
+db2sampl	# create sample db
+db2start
+
+testing:
+db2 connect to sample
+db2 "select * from staff where dept = 20"
+db2 connect reset
+
+# eg2, running user is general user, connect to db as db2i81
+# which get all table as its own schema space.
+db2 connect to sample user db2i81
+db2 "select * from db2i81.staff"
+
+
+************************************************************
+
+DAS - db2 admin server - central point for remote control
+	See Admin Guide: Implementation, p44
+
+server side config:
+
+dascrt -u das-username
+	in /opt/IBM/db2/V8.1/instance/
+	create DAS instanve as a specific user.
+
+dasdrop ASName
+		/opt/IBM/db2/V8.1/instance/
+		ASName is the das instance being removed.
+		typically match das-username
+		remove previous instance as needed.
+
+db2admin start|stop
+	in /opt/IBM/db2/V8.1/das/bin/
+	start, stop or (no param) check das status
+	also add/remove db2 users (apart from os user)
+
+dasupdt
+	update das from fix pack 
+
+db2 create tools catalog TOOLS_CAT create new database TOOLS_DB
+	Create a tools catalog db, used by DAS to store schedule task, etc.
+	usually it is setup at install time.
+
+db2set -i db2i81 db2comm=tcpip
+db2 update dbm   cfg using svcename        50000
+	# change to use port 50000, could also be name listed in /etc/services
+db2stop
+db2start
+
+db2 update admin cfg using toolscat_inst   db2i81
+db2 update admin cfg using toolscat_db	   TOOLS_DB
+db2 update admin cfg using toolscat_schema TOOLS_CAT	# catalog name
+db2 update admin cfg using smtp_server     MAILHOST
+db2 get    admin cfg | egrep TOOLSCAT_INST\|TOOLSCAT_DB
+	change and verify param of admin (=DAS) 
+	need to db2admin stop , start to make changes takes place.
+	NOTE: at the end, did db2stop, db2start, and das worked w/o above conf.
+
+db2 reset admin cfg
+	reset all admin (=DAS) configuration to system default. 
+	Essentially, it will erase prev setting.
+	
+DAS, client side config (but never got it to work)
+- Admin Guide, Implementation, p 53
+- Course #1, p 1-37
+- Exercise   p 1-11
+
+db2 catalog admin tcpip node TAHOE remote TAHOE system TAHOE ostype SUN
+	admin refers to DAS config
+	node is local client reference use only, can be any name
+	ostype could also be AIX, LINUX, NT (or WIN?)
+
+db2 catalog admin tcpip node TAHOE remote TAHOE server 50000 remote_instance DB2I81 system TAHOE ostype SUN
+	command ref says "admin" cannot mix with "SERVER", think should rm admin
+	node name again is local ref, need to be unique.
+	And it may not be needed, maybe only for scheduler task storage...
+
+db2 catalog db TOOLS_DB as TTOOLSDB at node TAHOE
+	This add additional database for use in local sys.
+	TOOLS_DB is the tools database used by DAS
+	TTOOLSDB need to be locally unique name, not sure why needed
+	again, i didn't get this to work, some sort of comm err, so may need revising
+	NOTE, using GUI db2cc to add db seems to work much better!
+
+
+
+---
+
+
+Checking errors:
+
+eg INSTHOME=/lhome/db2inst8
+   DASHOME=/lhome/db2das8
+
+
+$INSTHOME/sqllib/db2dump/
+	db2diag.log 	text file
+	INSTANCE.nfy	notification log, smaller text file than db2diag.log.  
+	db2eventlog.nnn	?
+$DASHOME/das/dump/db2dasdiag.log
+
+
+
+---
+
+Patching a Fix Pack, after instance has been created.
+
+shutdown db2
+
+cd to dir containing the untared patch files, run install script as root.
+./install_...
+
+The patch each instance:
+
+cd INSHOME/instance/
+INSHOME=/opt/IBM/db2/V8.1
+./db2iupdt INSNAME      
+                eg INSNAME db2i81
+./dasupdt  DASNAME
+                eg DASNAME db2das8
+
+db2start
+
+then some binding stuff for the tools...
+
+su - db2i81
+db2 terminate
+db2 connect to <dbname> 
+                        eg dbname tools_db
+
+db2 bind /export/lhome/db2i81/sqllib/bnd/@db2ubind.lst blocking all grant public
+db2 bind /export/lhome/db2i81/sqllib/bnd/@db2cli.lst   blocking all grant public
+	 <path>                         /@...
+
+should be all done at this point.
+
+
+----------
+
+db2 performance and tunning class 
+
+ch 10.  Health Monitor
+
+Run GUI health monitor, all info details , right click db, choose to start health monitor.
+
+db2 get health snapshot for database on tp1
+db2 get health snapshot for database on tp1 show detail
+db2 get health snapshot for tablespaces on tp1
+
+tp1 is a sample database name
+**********************************************************
+In solaris, there is a special version of ps that shows correct 
+db2 engine process name instead of having it display db2cc.
+See various binaries at:
+
+/opt/IBM/db2/V8.1/bin/
+	db2_ps		: 
+	db2nps N	: node ps
+
+They seems to req a DB2INSTANCE var set.
+
+**********************************************************
+
+http://www-106.ibm.com/developerworks/db2/library/techarticle/dm-0401chong/index.html
+DB2 UDB Connectivity Cheat Sheets: Part 4
+article from IBM that may help config DB2 client connectivity to server.
+
+
+
+----
+
+various database troubleshooting commands learned at job.
+
+db2 ? 
+	get help, list all commands
+
+db2 ? list
+        help on list command
+
+db2 list database directory | grep 'Database alias'
+        display list of databases (seems to be more than db2cc)
+db2 list active databases
+        see which database is active
+
+db2 activate database <Database-Alias-name>
+	activate a given database
+	Note that error such as back end store removed does not seems to 
+	return error on cli!
+db2 deactivate database
+
+db2 list applications
+	List all active applications using the database.
+
+
+Environment variable to check if things fails strangely:
+DB2DIR="/usr/lpp/db2_07_01"		# DB2 ver 7
+DB2DIR="/usr/opt/db2_08_01"		# DB2 ver 8
+DB2INSTANCE=db2inst7
+INSTHOME=/lhome/db2inst7
+
+
+----
+
+Note on DB2 and ldap.
+If the system (AIX) search LDAP first instead of the local passwd account, 
+and if there are some issues on the LDAP account that prevents login (/bin/false for shell),
+then DB2 will not work at all.  Even if this is only a db2 client instance installation.
+This is because DB2 client still depends on a instance installed locally on the machine,
+and so the instance owner account need to be available for db2 to work at all.
+
+
+DB2 on HP-UX.
+kmtune parameter msgmax must be set to 65535 for db2 (client) to work.
+maybe enhanced autofs changed it when it recompiles the kernel.
+
+
+</PRE>
+
+
+<font face=monospace>
+</font>
+<BR>
+<TT>
+</TT>
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/">
+http://dl.dropboxusercontent.com/u/31360775/psg/
+</A>] <BR>
+Last Updated: 2006-07-05
+  <!--[Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/">http://www.cs.fiu.edu/~tho01/psg/</A>] <BR>-->
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"<BR>
+  psg101 sn50 tin6150</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

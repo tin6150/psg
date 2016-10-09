@@ -1,0 +1,1068 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+   content="text/html; charset=utf-8">
+  <title>Pocket Survival Guide - Tools</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>  
+  
+</head>
+<body> 
+<!-- -->
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	<A HREF="http://tiny.cc/TOOL">Sys Admin Pocket Survival Guide</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr>
+</div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+
+
+<A NAME="Performance"></A>
+<A NAME="Tuning"></A>
+<A NAME="Performance_&_Tuning"></A>
+<H1>
+Performance, Benchmark, Troubleshooting, Tuning
+</H1>
+
+<CENTER>
+<A HREF="http://www.brendangregg.com/linuxperf.html">
+<IMG src="fig/linux_observability_tools.png" alt="observability tool diagram cache from linux.com" width="70%">
+</A><BR>
+<A HREF="http://www.brendangregg.com/linuxperf.html">
+Brendan Gregg on Linux Performance</A>
+</CENTER>
+
+<BR>
+
+<PRE>
+<!-- something is wrong, H5 should not put these texts in all caps :( -->
+
+<H5>CPU and memory</H5>
+<LI> uptime
+<LI> free -m, cat /proc/meminfo
+<LI> top 
+<LI> htop			# tends to return a different "top" process list than top/pidstat/nmon
+<LI> pidstat 1 			# like top, run every 1 sec, but loggable. from sysstat rpm
+<LI> mpstat -P ALL 1		# cpu utilization stat every 1 second (if no number defined, give avg of past X sec, not too useful)
+<LI>
+<LI> procinfo 			# procinfo.rpm, <A HREF=http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo>http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo</A>
+<LI> slabtop 			# realtime kernel slab cache utilization
+<LI>
+
+
+<H5>kernel, system calls </H5>
+<LI> strace -tttT -p `pgrep java` 2>&1 | head -100 	# see system calls, exit after getting 100 trace calls.
+							# eg is it reading 0 or 1 bytes at a time and thus spinning the CPU?  
+							# note that strace cause ~100x delay
+<LI>
+<LI> perf top		# see <A HREF="#perf_events">perf_events</A>
+
+<H5>Network</H5>
+<LI> sar -n DEV 1     	# check network utilization.  reported in kBytes/s.
+<LI> sar -n TCP,ETCP 1	# check TCP stats, eg retransmit.  active = outbound, passive = inbound
+<LI> iptraf (ubuntu) iptraf-ng (rhel7) 	# TUI network IO by port, protocol, live trace [easy]
+<LI> iftop		
+<LI> nicstat 1		# read/write KB/s, repeat every 1 second
+<LI> netstat
+<LI> ethtool eth0	# speed, duplex, but no collision info
+<LI> mii-tool -vv eth0	
+<LI> ibstat		# from ofed
+<LI>
+<LI> nfsstat
+<LI>
+<LI> ntop  		# run server, then http://localhost:3000 or https://localhost:3001 
+<LI> tcpdump		# trace network packages, advance
+<LI>
+
+<H5>Disk I/O</H5>
+<LI> iostat -xz 1	# -x = extended stats; -z = ommit zero / idle entries
+<LI> iostat -xn 1	# NFS stats only
+<LI> iotop		# iostat in top-like fashion, show top process using disk.  from iostat rpm
+<LI> swapon -s
+<LI>
+<LI> hdparam
+<LI> fio      		# Flexible IO tester (fio rpm)
+
+<H5>Multipurpose</H5>
+
+<LI> nmon 		
+<LI> vmstat    
+<LI> sar
+<LI> Virtual Adrian Performance Monitor (<A HREF="#se">SE</A> Toolkit) for Solaris 6 onward.
+<LI> Ganglia
+
+</PRE>
+
+
+<H5> Advanced tools, eg to perform full software stack analysis </H5>
+<UL>
+<LI> systemtap 
+<LI> sysdig
+<LI>sysbench (sysbench rpm) eg cmd:   <BR>
+    sysbench --test=cpu run <BR> 
+    sysbench --test=fileio --file-test-mode=seqrewr run <BR>
+<LI>lmbench
+<LI>stap     (systemtap rpm)
+    need some script...    
+<LI>lttng    (lttng-tools rpm)
+<LI>dtrace   (systemtap-sdt-dev rpm)
+<LI>dstat
+<LI>collectl (sar like, designed for distributed computing/hpc)
+<LI>
+</UL>
+
+
+<H3>Determining memory utilization of a process</H3>
+
+<PRE>
+Goal is to determine how much memory to request for an hpc batch job.  eg, what value to give "qsub -l m_mem_free".
+
+Ideally, there is a memory calculation equivalent to "time -p CMD".  
+But, AFAIK, there isn't.  
+So, these things will help finding a decent number for memory request.  
+
+- ps aux, look at VSZ column of the running process.
+- cat /proc/PID/status, and look for VmSize (should be similar to ps aux above) and VmPeak.
+- run top/htop and find the process and see how much memory is being reported under VIRT .
+- qacct -j JOBID, if accounting is enabled.  
+     	The "mem" entry is in "GBytes CPU seconds" :(, but divide that by ru_wallclock and it give some idea.
+	The "maxvmem" is largest amount memory the job used.
+- perf_events don't seems to offer anything useful for this :(
+- TCMalloc ?
+- Valgrind ?
+
+</PRE>
+
+
+
+
+
+<A NAME="performance"></A>
+<A NAME="performance_measurements_commands"></A>
+<H1>Performance Measurements Commands</H1>
+<BR>
+
+
+<H3>
+SAR - System Activity Reporter
+</H3>
+<!--sar.ref-->
+<A ID="sar"></A>
+
+Tool to collect performance stat, 
+often a cronjob to collect iostat, vmsat, etc and put them in a nicely accessible directory structure.  
+very similar in HP-UX, Sun, AIX, and now even for Linux.
+Very lightweight, can run on all machines and keep logs for when trouble arises.
+
+<BR>
+
+Also check out
+<a href="http://sourceforge.net/projects/ksar/">
+ksar</a>
+
+and sar2rrd
+(
+<A HREF="http://www.trickytools.com/php/sar2rrd.php">
+http://www.trickytools.com/php/sar2rrd.php</A>
+)
+<BR>
+SARReporter is moneywre.
+<BR><BR>
+
+
+<h4>SAR in Linux</h4>
+<PRE>
+
+yum install sysstat
+It install /etc/init.d/sysstat, run sadc to collect the stats.
+Data saved in /var/log/sa/saNN, where NN is the calendar day for which the stat is collected.  
+Data is kept for 1 week.
+
+
+
+sar         # shows most common stats
+sar -r      # reports on memory and swap utilization  (98% util for 4 days on end is okay)
+sar -q      # shows load avg, run queue length
+sar -A      # shows all recorded activities
+
+# show report recorded on named file with start time of 8pm, end time of mid-nite, 
+# at interval of 1800sec (30min)  (default is 10min interval)
+sar -f /var/log/sa/sa22 -s 22:00:00 -e 23:59:00 -i 1800 
+
+</PRE>
+
+
+<h4>SAR in HP-UX</h4>
+
+<PRE>
+
+Basic SAR Setup (from HP-UX sys admin handbook and tooltips, p503):
+
+sar -o /tmp/sar.data 60 300 		# run sar every 60 sec for 300 count, 
+	-o store info in file (bin)
+
+sar -u -f /var/adm/sa/saXX		# read data from file (Solaris, XX = date number)
+sar -u -f /tmp/sar.data			# read data from file (HP-UX)
+	-u display cpu info (similar to iostat and vmstat)
+	-b buffer cache activity, imp for oracle
+	-d disk activity
+	-q avg queue length (if run queue > num of cpu, will have to wait).
+	-w swap info
+
+
+Solaris starts sadc in /etc/rc2.d/S21perf , a deamon to collect sar info.
+	the script really run /usr/lib/sa/sadc /var/adm/sa/sa`date +%d`
+
+------------
+
+Setup SAR data collection for HP-UX (should also work for other platform):
+
+http://www.sarcheck.com/sarhowto.htm	(Actually SarCheck.com, but cost money!)
+
+mkdir  /var/adm/sa, 
+then setup root crontab:
+
+#collect sar data  	# every 20 min 8-5, hourly outside normal work 
+0 * * * * /usr/lbin/sa/sa1
+20,40 8-17 * * 1-5 /usr/lbin/sa/sa1
+#reduce the sar data	# generate pre-formated report focus for business hrs
+5 18 * * * /usr/lbin/sa/sa2 -s 8:00 -e 18:01 -i 1200 -A
+
+# sample for SF + Minsk work hours (10 hours diff)
+0 * * * * /usr/lbin/sa/sa1
+15,30,45 0-8,10-19,23 * * 1-5 /usr/lbin/sa/sa1
+05 21 * * * /usr/lbin/sa/sa2 -i 3600 -A
+
+# sa1 is data collection to /var/adm/sa/saXX
+# sa2 really produce condense version of report to /var/adm/sa/sarXX (sar vs sa)
+
+# filenames are reused every month.
+# use sar -A -f /var/adm/sa/saXX to get more detail report than std summary.
+
+-------------
+AIX has preset entries in crontab for 'adm'.  Check to ensure script exsit.
+sar logs are stored in /var/adm/sa
+-------------
+
+</PRE>
+
+
+<A ID="perf"></A>
+<A ID="perf_events"></A>
+<H2>perf_events</H2>
+
+perf_events aka "perf" is a sophisticated observation tool for linux that does in-kernel counts (as opposed to top's sampling at regular interval, which tends to miss really short lived process).
+<BR>
+perf is more friendly to sysadmin, DTrace is more targetted toward developers.  But perf still has lots of gotchas to get it fully working (broken stack, missing symbol tables, etc).  See slide 40 of 
+<A HREF="http://www.brendangregg.com/blog/2015-02-27/linux-profiling-at-netflix.html">http://www.brendangregg.com/blog/2015-02-27/linux-profiling-at-netflix.html</A>
+<BR>
+
+
+Installing perf_events: <BR>
+<UL>
+<LI> Ubuntu  use linux-tools-common + kernel specific rpm eg linux-tools-generic 
+<LI> RHEL6   use perf-2.6.32-431.el6.x86_64.rpm
+<LI> RHEL7   rpm ??
+</UL>
+
+<BR>
+
+<H5>Sample performance troubleshooting session with perf  (pretty much run everything as root)</H5>
+
+<!-- more details in https://mail.google.com/mail/u/0/#inbox/15441607e570416e -->
+<!-- mostly from http://www.brendangregg.com/linuxperf.html  SCaLE13x (2015)  -->
+<!-- also in     http://www.slideshare.net/brendangregg/scale2015-linux-perfprofiling -->
+
+ref: <A HREF="http://www.brendangregg.com/perf.html">http://www.brendangregg.com/perf.html</A>
+<BR>
+
+<PRE>
+perf list    			# list events
+perf list | grep ext4		# look for fs related event
+
+perf stat CMD 			# count events from execution of "cmd", perf stat collect data till the CMD completes 
+perf stat uptime		# run the command uptime and show general cpu usage stat
+perf stat -p PID 		# hit ^C to see CPU usage stat of a running process collected while perf ran
+perf stat -a sleep 5		# system wide CPU usage, collect till CMD "sleep 5" completes
+perf stat -e 'ext4:*' ls	# run the command ls and capture ext4 related events
+perf stat -e 'ext4:*' -a sleep 5     # collect ext4 events of all process, for 5 seconds, then exit and print output to screen
+
+
+perf record -F 99 -a -g -- sleep 10    	# capture stack at freq of 99 Hz for 10 seconds
+					# result captured to file perf.data
+perf record -F 99 -p PID		# profile a running process, until ^C
+
+
+perf report   			# view perf record data stored in perf.data (interactive TUI)
+perf report --sort comm,dso
+perf report -n --stdio		# output report to console
+
+perf annotate --stdio		# annotated instructions w/ %, need debuginfo or will feel like reading assembly dump!
+
+perf script  			  	# print out all events as text
+
+# generate a "flamegraph"  
+perf script &gt; out.perf02  	
+cat out.perf02 | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg 	
+</PRE>
+
+flamegraph is stack trace across time (on x-axis), so to get idea what fn call is taking lot of time.
+<!-- see it at http://www.brendangregg.com/blog/2015-02-27/linux-profiling-at-netflix.html -->
+The tool is avail from 
+<A HREF="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html">http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html</A>,
+which will generate an image map on top of the SVG, allowing for interactive drill down!
+<BR>
+
+<A HREF="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html">
+<IMG src="fig/brendangregg-cpu-bash-flamegraph.svg" alt="brendan gregg flamegraph svg" width="80%">
+</A>
+<BR>
+
+
+
+<H5>perf one liners</H5>
+From <A HREF="http://www.brendangregg.com/blog/2015-02-27/linux-profiling-at-netflix.html">http://www.brendangregg.com/blog/2015-02-27/linux-profiling-at-netflix.html</A>
+<BR>
+
+<PRE>
+
+# Sample CPU stack traces for the specified PID, at 99 Hertz, for 10 seconds:
+perf record -F 99 -p PID -g -- sleep 10
+
+# Sample CPU stack traces for the entire system, at 99 Hertz, for 10 seconds:
+perf record -F 99 -ag -- sleep 10
+
+# Sample CPU stack traces, once every 10,000 Level 1 data cache misses, for 5 s:
+perf record -e L1-dcache-load-misses -c 10000 -ag -- sleep 5
+
+# Sample CPU stack traces, once every 100 last level cache misses, for 5 seconds:
+perf record -e LLC-load-misses -c 100 -ag -- sleep 5 
+
+# Sample on-CPU kernel instructions, for 5 seconds:
+perf record -e cycles:k -a -- sleep 5 
+
+</PRE>
+
+<A ID="se"></A>
+<A ID="RICHP"></A>
+<!--setoolkit-install.ref-->
+<!--setoolkit.ref-->
+<H2>SE Toolkit</H2>
+
+Virtual Adrian Performance Monitor (SE) Toolkit for Solaris 6 to 10.
+<BR>
+Download: 
+<A HREF="http://www.sunfreeware.com/setoolkit.html">SunFreeware</A>
+<A HREF="http://sourceforge.net/projects/setoolkit/">SourceForge</A>
+
+
+<PRE>
+
+setup env:
+
+export PATH=$PATH:/opt/RICHPse/bin
+export SEPATH=/opt/RICHPse/examples:/opt/RICHPse/toptool
+
+interactive tools:
+
+se zoom.se		# gui, summary status for all components.  Main Window. 
+se live_test.se		# text version of zoom.se
+se multimeter.se	# gui, cpu, cache, vm and locks meter
+
+se toptool.se		# gui, just like top
+se xload.se		# gui, just like xload, show hostname :)
+se infotool.se		# gui, menu to lot of sys info (cpu, net, disk, etc)
+se xit			# gui  wrap on text disk stat dump (xiostat.se)
+
+se -DWIDE pea.se 10	# text, dump top like info to stdout every 10 sec
+se disks.se		# text, dump lot of disk usage info
+
+se webtune.se		# display current, min and max values for perf params
+
+se virtual_adrain.se &	# text, dump warning to stdout if perf problem found 
+			# run cli in background, non permanent, only output to
+			# login screen; process end, all cleared.
+
+-------------------------
+
+# install:
+# pkgrm RICHPse
+# gunzip RICHPse.tar.gz
+# tar xf RICHPse.tar
+# pkgadd -d . RICHPse
+# edit /opt/RICHPse/etc/se_defines, enable "disk nfs"
+
+# alt, can just copy to network drive, and set PATH and SEPATH
+# at least for the interactive tools above
+
+# always run monitor:
+/opt/RICHPse/etc/init.d/vader start     # init.d script to start vader
+se /opt/RICHPse/examples/vader.se       # the "Virtual Adrian Daemon", 
+                                        # start on host to be monitored
+
+se /opt/RICHPse/examples/darth.se -h remotehost # gui, start on client.
+	# This gui is the front end of the bg monitor
+
+</PRE>
+
+
+<PRE class="code">
+
+#!/bin/sh
+
+# setoolkit-install.sh
+# quick script to setup  and start se toolkit
+
+cd /mnt/sa/share/software/SEtoolkit
+
+pkgadd -d . RICHPse.331
+
+
+(cd /opt/RICHPse/etc; tar cf - *.d) | (cd /etc ; tar xvf - )
+
+# /etc/init.d/mon_cm start
+/etc/init.d/monlog start
+/etc/init.d/percol start
+/etc/init.d/va_monitor start
+/etc/init.d/vader start
+
+</PRE>
+
+
+<A ID="sol"></A>
+<H2>Solaris Build-In tools</H2>
+                                                                                                      
+<!-- cmd.admin.ref.tr -->
+
+<PRE>
+netstat -ta     show current intenet services/connections
+        -a  : show (a)ll  (include listening port process)
+        -n  : ip (n)umber only (no dns lookup)
+        -r  : (r)outing table   (change with route cmd)
+        -i  : show stat for diff nic (i)nterfaces
+        -k ce0 : lot of interface specific info, ce NIC will have duplex stat.
+
+netstat -p	: print ip to mac address table known to host
+netstat -k 	: print lot of kernel stat, among it hme0 is for the sun's build in 
+		  happy meal ethernet nic (see sunsolve infodoc 17416 for explanation of these 
+		  undocumented stats, good for trobleshooting network latency, comare agaist cisco stat.)
+netstat -s	: show high level packet send/receive/fragment info
+
+
+
+vmstat -a   : all 
+       -n   : 
+       -p   : process owning port
+
+iostat -xn 30	: check for disk activity, anything more than 5% busy and avg resp time > 30 ms is bad.
+
+nfsstat
+
+mpstat	10	: processor stats, repeat every 10 seconds
+		: In Solaris, it reports context switch, interrupt, mutex spin, xcal, etc
+		: see http://sunsite.uakom.sk/sunworldonline/swol-08-1998/swol-08-perf.html
+
+cpustat		: find out what cpu is doing...
+
+lockstat sleep 5	: gather kernel lock stats during the sleep period (5 sec)
+			: solaris, run as root
+
+truss -c -p PID		: find number of system call and usr time for a process (sol).  ??
+
+top
+protocol
+sysmon
+
+trapstat, thread list, kmastat, kmausers
+
+
+GUDS
+
+Guds is a script to gather performance stats for Solaris.
+Sample usage is
+./guds_2.4.5
+./guds_2.4.5 -qX -H3 -s65040465
+
+-qX is for quite mode
+-H3 is for running it for 3 hours
+-sNNNNN is the sun case number (info embeded in dirs created by guds to
+store the files).
+
+It collects lots of info in /var/tmp/CASEID/guds-DATE-TIME/...
+
+May need lot of know how to analyze data.
+Having a baseline when things is good and when there are 
+performance problems would help.
+
+
+
+
+
+date; mkfile 1000m test; date			 	# create a 1 GB file (filled with 0)
+date; dd if=/dev/urandom of=test bs=1024 count=100000 	# same, file has random data.
+</PRE>
+
+<H5>Performance Tunning</H5>
+
+<LI>Use Jumbo Frame (MTU of 9000) if running specilized application (eg, cluster, RAC).
+<LI>NFS, use TCP instead of UDP, and specify a larger rsize and wsize of 32K instead of default 8K.  (noac?)
+
+<BR><BR>
+
+
+
+
+<A ID="ganglia"></A>
+<H2>ganglia</H2>
+
+Ganglia is a good cluster stat collection tool.  It does need an agent to be installed, 
+and Apache + PHP server to record the stat and serve out graphs.
+It claims to be very thin and efficient, thus not rubbing performance from an HPC cluster.
+<BR>
+<A HREF="http://ganglia.sourceforge.net/">
+http://ganglia.sourceforge.net/</A>
+
+<BR><BR>
+
+
+
+<!-- tcpdump.ref -->
+<!-- ethereal.ref -->
+<!-- ttcp.ref -->
+<H1>Network Tracing</H1>
+
+traceroute DESTINATION-HOST
+<BR> <BR>
+
+
+<A NAME="tcpdump"></A>
+<H2>tcpdump</H2>
+
+tcpdump is the de-facto standard network tracing command, available in just about every unix platform.
+It is powerful, but not exactly easy to use.  
+
+
+<PRE>
+
+tcpdump parameters
+-n: ip number, do no resolve hostname
+-e: ethernet (?)
+-i: interface
+-s 16000		: set capture frame size to 16k 
+-w [FILE]		: write output to file (capture use, more info than redirect output)
+host IP-or-NAME		: capture info only related to the specified host
+
+operators accepted:
+&&	= and
+||	= or
+!	= not
+
+eg cmd of tcpdump [expression]  :
+
+tcpdump host 10.0.71.165
+tcpdump src  10.0.71.165
+tcpdump 'dst net 128.3'
+tcpdump 'src or dst port ftp-data'   
+tcpdump 'ether host 0:d0:b7:a9:c9:5a'
+
+
+
+</PRE>
+
+
+<H3>Sample trace output</H3>
+
+<PRE>
+showmount -e 192.168.209.30 # VIP
+tcpdump -n host 172.24.51.182  # misconfigured NAT
+18:49:41.964873 eth0 < 172.24.51.182 > tin-linux.zambeel.com: icmp: 172.24.51.182 udp port sunrpc unreachable [tos 0xc0] 
+18:56:24.677264 eth0 < 172.24.51.182 > 10.0.15.11: icmp: 172.24.51.182 udp port sunrpc unreachable [tos 0xc0] 
+18:56:24.679401 eth0 < 172.24.51.182 > 10.0.15.11: icmp: 172.24.51.182 udp port sunrpc unreachable [tos 0xc0] 
+timestamp     src-if ?   source ip     destination prtl  err message
+
+tcpdump -n port sunrpc
+18:54:31.055821 eth0 > 10.0.15.11.1388 > 192.168.209.30.sunrpc: udp 56
+              src-if ? source  ip.port ? dest        ip.port  : protocol + port
+
+
+   [z-00D0B7A873CE] # tcpdump -e port sunrpc
+18:15:55.628675 eth2 < 0:e0:52:d:7e:18 0:0:0:0:0:1 ip 74: 10.0.15.11.2499 > 172.24.51.182.sunrpc: S 4260207884:4260207884(0) win 32120 <mss 1460,sackOK,timestamp 80437494 0,nop,wscale 0> (DF)
+time            if   ? src mac         dst-mac(host)      src ip.port            dest ip.port    TCP SYN and other protocol info
+18:15:55.628696 eth2 > 0:0:0:0:0:0 0:2:e3:0:3b:9d ip 54: 172.24.51.182.sunrpc > 10.0.15.11.2499: R 0:0(0) ack 4260207885 win 0
+time            if   ? src mac         dst-mac(host)      src ip.port            dest ip.port    TCP SYN and other protocol info
+
+Here is an example of messed up translation.
+Note that source & dest mac-address is rewritten on each router hop.
+
+
+   [z-00D0B7A871DF] # tcpdump -n | egrep '10\.0\.15\.11|192\.168'
+19:02:43.964206 eth2 > 172.24.51.12.telnet >   10.0.15.11.2411:   P 2646085534:2646085754(220) ack 2623622447 win 32120 {nop,nop,timestamp 2624922 80719743} (DF)
+19:02:43.982115 eth2 < 10.0.15.11.2411     > 172.24.51.12.telnet: . 1:1(0) ack 220 win 31856 {nop,nop,timestamp 80720053 2624922} (DF)
+19:02:45.277592 eth2 B 172.24.51.1.route   > 172.24.51.255.route: rip-resp 25: {192.168.13.0/255.255.255.0}(2) {192.168.14.0/255.255.255.0}(2) {192.168.15.0/255.255.255.0}(2) {192.168.16.0/255.255.255.0}(2) {192.168.17.0/255.255.255.0}(2)[|rip]
+
+
+</PRE>
+
+
+<A NAME="snoop"></A>
+<H2>snoop</H2>
+
+snoop is the default network tracer tool installed on solaris.  
+Its default use is much easier than tcpdump
+and give output that is more verbose, ie easier to read.
+
+<PRE>
+snoop host [IP]			# traffic with a given host (as src or dst)
+snoop -r port 25		# all traffic in port 25 (smtp), 
+				# do not resolve ip to dns names
+-s 	= sniplet length (def is whole packet)
+	= 80 ip hdr only, 120 = nfs header only
+
+-V	= layer info
+-v	= more verbose than -V, lot of info.
+
+
+from cli :
+
+Usage:  snoop
+        [ -a ]                  # Listen to packets on audio
+        [ -d device ]           # settable to le?, ie?, bf?, tr?
+        [ -s snaplen ]          # Truncate packets
+        [ -c count ]            # Quit after count packets
+        [ -P ]                  # Turn OFF promiscuous mode
+        [ -D ]                  # Report dropped packets
+        [ -S ]                  # Report packet size
+        [ -i file ]             # Read previously captured packets
+        [ -o file ]             # Capture packets in file
+        [ -n file ]             # Load addr-to-name table from file
+        [ -N ]                  # Create addr-to-name table
+        [ -t  r|a|d ]           # Time: Relative, Absolute or Delta
+        [ -v ]                  # Verbose packet display
+        [ -V ]                  # Show all summary lines
+        [ -p first[,last] ]     # Select packet(s) to display
+        [ -x offset[,length] ]  # Hex dump from offset for length
+        [ -C ]                  # Print packet filter code
+
+</PRE>
+
+<H3>Sample snoop</H3>
+
+<PRE>
+
+Capture traffic on NIC hme0 specific to a host, capture up 8K of the packet, 
+and dump result to an output file:
+snoop -d hme0 -s 8192 -o /tmp/snoop.out host 10.215.55.211
+
+Read input file back.  May wish to use ethereal to read this file for easier access.
+snoop -i /tmp/snoop.out		
+
+
+snoop -s 120 port 25 host 211.196.53.194
+
+titaniumleg.com  mail server traffic monitor
+snoop -r -D -P -s 1500 -c 100000 -o /export/tmp/smtp01.20030122.snoop port 25
+
+snoop -n /dev/null  -D -P -s 1500 -c 100000 -o /export/tmp/smtp01.20030122.snoop port 25
+snoop -D -s 9000 -c 100000 -o jumpstartclient.snoop host jumpstartclient
+-r = do not resolve hostname  # not in sol 7 snoop
+-D = display num of dropped packets
+-P = non promiscuous mode capture   (don't use in troubleshooting jumpstart problems).
+-s snipplet length
+-c count num of backets to capture
+-o output file
+
+
+
+###
+### more explanations TBA
+###
+
+</PRE>
+
+<A NAME="ethereal"></A>
+<H2>Ethereal</H2>
+
+Ethereal (or the new July 2006 name of Wireshark) is a much easier tool for use than tcpdump (or snoop).  
+However, the GUI tool need to be installed to the machine you run on.  
+It is typically easiest to run tcpdump to capture to a file, then open it with
+the GUI ethereal running on Linux or Windows.
+
+<PRE>
+ethereal (GUI)
+tethereal (CLI)
+
+most flags work for both.
+
+
+
+snoop-like behaviour (mostly for ethereal):
+-l	: scroll capture 
+-S 	: update as capture is in progress.
+-k 	: start capture immediately  (disable interaction?)
+
+--
+
+-i [IF] : specify interface, eg eth0, hme0
+-n 	: no dns resolution, use ip Number
+
+
+-V 	: more verbose output, captured data displayed in tree mode instead of 1 line per packet.
+
+
+-f 	: capture filter expression  (tcpdump notation needed), eg:
+
+	>	tcp port 23 and host 10.0.0.5
+	>   src net 10.0.15.0/24
+	>   dst net 10.0.15.0 mask 255.255.255.0
+	>> 	[src|dst] host <host>
+	>>	ether [src|dst] host 00:E0:2B:DE:0E:00
+	>> 	[tcp|udp] [src|dst] port <port>
+
+	host 10.215.20.152 || host 10.215.2.21 || host 10.215.19.73
+
+
+
+------------------------------------------------------------
+
+ethereal view filter expression 
+[ work in GUI filter box when viewing, 
+NOT as capture filter (which is tcpdump format ]
+
+operatos:
+           eq, ==    Equal
+           ne, !=    Not equal
+           gt, >     Greater than
+           lt, <     Less Than
+           ge, >=    Greater than or Equal to
+           le, <=    Less than or Equal to
+
+           and, &&   Logical AND
+           or, ||    Logical OR
+           not, !    Logical NOT
+
+boolean: true (1) or false (0)
+
+some commonly used filter fields:
+
+           eth.src == aa-aa-aa-aa-aa-aa
+           ip.dst eq www.mit.edu
+           ip.src == 192.168.1.1
+           ip.addr == 129.111.0.0/16
+           eth.src == aa-aa-aa-aa-aa-aa
+           eth.src[0:3] == 00:00:83			# filter by vendor by use of slide
+           tcp.port == 80 and ip.src == 192.168.2.1
+		   ip.addr is for both src or dest, these multiple ocurring field is a bit confusing for packet filtering.
+
+for generic filter dealing with a specific host, but not necessary filtering by tcp/udp/icmp
+ip.dst
+ip.src
+ip.addr
+
+udp
+udp.port
+udp.dstport
+udp.srcport
+
+tcp
+tcp.port
+tcp.dstport
+tcp.srcport
+tcp.seq
+
+icmp
+
+
+bootp.dhcp==true		: frame is dhcp
+bootp.hw.addr
+
+smb.cmd==(unsigned 8 bit int)	: smb protocol command number
+smb.cmd == 0x06  		: cmd is smb unlink
+smb.status != 0x0000	: Error code, 4 bytes aka status, lot of items.
+smb.errcls != 0x0		: error class, 1 byte represent the categories
+              0x0       = Success
+              0x1       = DOS Error
+              0x2       = Server Error
+              0x3 	= hardware error
+              0x4	= not a smb cmd
+			Note, netBench Fail code 32 maybe in Dos or Hrd.
+smb.pid
+smb.mid		(multiplex id)
+smb.uid		(user id, maybe per process)
+nfs.*
+nfs.fh.version != 3		= not sure what this is, not nfs protocol version!
+rpc.programversion != 3		= all packet that are rpc program nfs version 3.
+
+lot of higher level protocol stuff available, including vlan on switches, etc.
+see the man page on ethereal or tethereal (very long!)
+
+
+GUI version, filter can just enter a protocol type.  eg: smb
+That means smb protocol is present.  A protocol in the filter w/o any comparison operator means filter packets where such field is present in the packet.  
+eg: smb.errcls  filter packet that contain smb error class.
+
+
+
+
+Network trace capture with tcpdump or snoop, save to file for viewing with ethereal
+
+tcpdump -i [interface] -s 1500 -w [some-file]
+tcpdump -s 8192 -w netuse.tcpdump 'host 10.0.71.232 or host 10.0.71.15'
+snoop -d hme0  -o /tmp/snoop.out host 10.215.55.211
+
+editcap can be used to trim captured file, or convert between formats
+(tcpdump, ethereal, snoop, ms netmon, etc).
+
+</PRE>
+
+Good read on ethereal:
+<A HREF="http://www.ns.aus.com/ethereal/user-guide/ch03capfilt.html">
+http://www.ns.aus.com/ethereal/user-guide/ch03capfilt.html</A>
+
+<BR>
+
+
+<H1>Network Scanner</H1>
+<A NAME="nmap"></A>
+<H2>nmap</H2>
+<PRE>
+nmap: network scanner
+nmapfe: w/ gui front end, supposed to need gtk, but worked anyway.
+
+nmap -sT -O -PI -PT 172.27.31.0/24	# scan whole class C vlan 31, with os identification.  long output.
+
+sudo nmap -p1-62000 somehost		# scan port 1 to 62000 against machine named somehost
+sudo nmap -sU somehost -p8255		# check UDP port 8255 to see if it is open
+	
+
+echo "hi" | nc -4u somehost 8255	# send string "hi" via netcat on IPv4 UDP port 8255 to a remote machine named somehost
+</PRE>
+
+<BR><BR>
+
+<A ID="IDS"></A>
+<H1>Intrusion Detection</H1>
+
+<A NAME="tripwire"></A>
+<H2>tripwire</H2>
+
+A popular Host-Based IDS.  Best place to get is from OS vendor package, if not available, then go to source forge.
+FC5 currently don't have a port from yum (as of 2006-09), it is in orphan status.  Older binary will work with a compat-glibc.
+
+<PRE>
+
+genereate site-key, host-key:
+twadmin --generate-keys --site-keyfile ./site.key
+twadmin --generate-keys --local-keyfile ./$HOSTNAME-local.key
+
+
+compile config and policy file from text to binary format:
+
+twadmin --create-cfgfile --cfgfile ./tw.cfg --site-keyfile ./site.key  /floppy/twcfg.txt
+twadmin --create-polfile --cfgfile ./tw.cfg --site-keyfile ./site.key  /floppy/twpol.txt
+
+
+tripwire -m i   	# or --init, to create initial DB of host config.
+
+run tw periodically and monitor db changes, check that all binary and db have not been changed.
+
+tripwire -m c		# or --check
+
+
+twprint --print-report --twrfile  $TRIPWIRE-REPORT/host.date.twr
+	# generate a human readable report from result of --check
+
+
+
+Securing tripwire:
+cd $TRIPWIRE-BIN		# Tripwire binaries, eg /usr/local/tripwire/bin, /usr/sbin
+chmod 0500 siggen tripwire twadmin twprint
+md5sum * > tripwire-bin-md5sum.txt	
+cp tripwire-bin-md5sum.txt		# eject floppy when done!
+
+
+cd $TRIPWIRE-CF		# Tripwire config files, eg /usr/local/tripwire/etc, /var/lib/tripwire
+chmod 0600 tw.cfg* tw.pol*
+
+mv twcfg.txt* twpol.txt* /floppy	
+	# move text config and policy file offline, eject floppy when done!
+
+
+cd $TRIPWIRE-DB		# tripwire DB, eg /usr/local/tripwire/var/db
+
+md5sum * > db-md5sum.txt
+cp db-md5sum.txt /floppy		# eject floppy when done!
+
+chmod -R u=rwX,go-rwx $TRIPWIRE		# eg /usr/local/tripwire
+
+
+
+updating twpol.txt:
+
+/home  -> $(Dynamic) ;
+
+There maybe ref specific to given OS/Distro that may need to be updated acordingly.
+eg /var/lost+found may not exist if it is not a dedicated partition.
+/etc/mail/statistics is probably no longer used, etc
+
+
+
+</PRE>
+
+
+<A HREF="http://linuxgazette.net/106/odonovan.html"> 
+Linux Gazette "Intrusion Dection with Trip Wire</A>
+A good guide to get overview and installation.
+<BR><BR>
+
+
+<A HREF="http://www.linuxjournal.com/article/8758">
+Linux Journal "How to setup Tripwire</A>
+A bit more extensive that above (and makes the reading longer).
+<BR><BR>
+
+
+http://www.robertb.id.au/tutorial/tripwire/
+Tripwire on FC4 
+
+
+<BR><BR>
+
+<A NAME="aide"></A>
+<H2>AIDE</H2>
+
+A newer Host-based IDS developed by Perdue University.
+Better supported in FC5.
+
+<BR>
+<PRE>
+</PRE>
+
+http://security.linux.com/article.pl?sid=05/01/19/2238249&tid=129&tid=49&tid=47&tid=35
+
+
+<A NAME="snort"></A>
+<H2>snort</H2>
+
+A very popular Network-Based IDS.
+<PRE>
+
+</PRE>
+
+<BR><BR>
+
+<H1>Network Benchmark</H1>
+
+<H5>ttcp</H5>
+
+<PRE>
+ttcp
+speed performance test for tcp & udp
+mostly, download a java program, can be placed in user's home dir.
+no root priv req
+
+receiving comptuer:
+java ttcp -r
+java ttcp -r -l 4096 -n 100     # 4096 bytes buffer, 100 of them.
+java ttcp -r -l 32768 -n 4096
+
+Sending computer:
+java ttcp -t 10.215.2.124
+
+
+args: (try these in receiving computer)
+-l N 		= buffer size, 			def 8192, try 32768
+-n N  		= num of buffer to xfer, 	def 2048, try  4096  ==> gives 128 MB xfer.
+
+java version doesn't seems to suppport these:
+-u		= udp test
+-b N		= change system buffer size.
+-v		= verbose, more stat
+-d 		= dbg
+
+----
+
+various port avail.
+linux rh come with a package
+but seems rather old and no central org support.
+
+http://www.netcordia.com/network-services.html
+</PRE>
+
+
+<H5>iozone</H5>
+
+
+wget http://www.iozone.org/src/current/iozone3_434.tar
+tar xf iozone3_434.tar
+cd iozone3_434/current/src
+make linux
+
+./iozone -a
+./iozone -a -s 1000 -O
+./iozone -A -b result.xls 
+
+or
+
+THREAD=2
+DIR=2012.1127.1445
+mkdir $DIR
+time -p ../iozone -i 0 -c -e -w -r 1024k -s 16g -t $THREAD -+n -b $DIR/result.xls
+
+
+
+as qsub script in cluster (mostly to generate random storage traffic):
+
+	
+
+                qsub -b y -p 1024 -l exclusive=true  -l h_rt=600 -q admin.q@$TARGETHOST  $BINDIR/iozone -i 0 -c -e -w -r 1024k -s 4g -t $THREAD -+n -b $DIR/result.xls && \
+                echo "   ... submitted iozone on  $TARGETHOST "
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL]<BR>
+<A HREF="http://tiny.cc/TOOL">tiny.cc/TOOL</A><BR>
+<A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/index.html">https://dl.dropboxusercontent.com/u/31360775/psg/index.html</A><BR>
+<A HREF=http://www.cs.fiu.edu/~tho01/psg/tool.html">http://www.cs.fiu.edu/~tho01/psg/tool.html</A> 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html>main page</A>
+ for copyright info. <BR>
+</div>
+<!--Taos banner-->
+  
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

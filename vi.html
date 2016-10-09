@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - OS</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/vi.html">Sys Admin Pocket Survival Guide - vi</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
+      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
+      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/378"><IMG SRC="fig/xkcd_real_programmers.png"></A>
+</div>
+
+
+
+<H1>Text Editor</H1>
+
+In progressively less "real" order :)
+
+<H2>ed</H2>
+a few ed commands, in case you are somehow stuck in this archaic world...
+
+<PRE>
+1d      =       delete 1 line
+w       = write (save) file
+q       = quit
+
+in shell scripts, can do edits like:
+
+ed FILE &lt;&lt;EOF
+1d
+w
+q
+EOF
+
+
+or
+echo "1d
+w
+q" | ed FILE
+</PRE>
+
+
+<H2>sed</H2>
+
+<PRE>
+
+echo abc    | sed 's/abc/123/'		# s for search and replace abc -> 123
+echo abcabc | sed 's/abc/123/g'		#   g suffix = globally.
+echo a/b/c  | sed 's:/:-:g'		# use : instead of /, so that / is not matched.
+echo abc    | sed 's:.*::'		# . = any char, * = any repeat
+					# .* matches everything, 
+					# replaced with empty string
+
+echo a b c  | sed 's:\(.*\) \(.*\) \(.*\):\2 \1 \3:'	# \1 for first (.*), \2 for second one, etc.  
+							# () need to be escaped thus the ugly \( \) syntax.
+
+sed -i "s/#Protocol 2,1/Protocol 2/" /etc/ssh/sshd_config
+# -i = inline replace.    but it still create a temp file and copy over, so will break hard links.
+
+sed -i.bak 's/\tkernel.*/& elevator=deadline/' /boot/grub/grub.conf
+# add 'elevator=deadline' to the end of the kernel line
+# & stands for all pattern that matched in the search
+# -i.bak  save orig file with .bak extension
+
+
+sed '1d'    file.txt	# for line #N (1),   Delete it.  ie, delete first line
+sed '3d'    file.txt	# for line #N (3),   Delete it.  ie, delete the third line only.  it is NOT deleting 3 lines!!
+sed '2,4d'  file.txt	# for line #2 to #4, Delete them
+sed -i '$d' file.txt	# delete the last line, saving the data to same filename (and no output to std out)
+
+sed -i '/mnt\/cchome[124]/d' /etc/fstab # remove lines matching reg exp pattern from the fstab file
+sed '/^ *$/d'        file.txt	# remove lines that are blank or have white space only. regexp delimted by // 
+
+
+sed -e 's/,/\n/g' -e "s/'/ '/g"		# run two substitution at the same time, think of tr below 
+					# sed can deal with multi-character match substitution, tr can't
+):
+tr  ",'" "\n "				# replace (,) with newline.  (') with space
+</PRE>
+
+More complex sed string matching:
+<!~-- sed.ref -->
+<PRE>
+string-starts-here\(tagged-1\)[0-9]\(tagged-2\).*
+
+expression in parenthesis are the tagged ones, and refered to as \1, \2, etc.
+Note that w/in the sed 'cmd', the parenthesis has to be quoted with \ or will
+get error from sed.  Also, it seems sed reg exp repeat is only *, no +
+support.
+
+
+(note in perl it is $1 $2 etc)
+
+
+Not sure in awk, but it is not $1 cuz that's input file field 1, did not like
+\1 either.
+
+
+eg string matching:
+switch add vm1-nsw1 -type alpine -loadBalancer vm1-nlb1 -ulink 4:1 -slink 4:2 -glink 9:9 -mlink 1:1-1:16,2:1-2:4,3:1-3:4 -vp
+n 172.30.117.0/24 -vpnPort 80 -conServer 10.30.0.21 -conPort 2029 -vipSubnet 192.168.15.0/24 -dummyVIP 192.168.15.254 -vlan
+172.24.67.0/24 -vlanName vm
+
+sed 's/.*-vipSubnet \(192.168[^ ]*\)\.0\/.*/\1/'`
+
+will reduce the above whole line to just 192.168.15 (nuber after the -vipSubnet).
+
+</PRE>
+
+Other sed edit command, incl delete matching line + line after/before, etc:  <BR>
+<A HREF="http://www.theunixschool.com/2012/06/sed-25-examples-to-delete-line-or.html">
+http://www.theunixschool.com/2012/06/sed-25-examples-to-delete-line-or.html</A>
+
+
+
+<H1>vi</H1>
+
+
+<H3>Dealing with Python </H3>
+
+.vimrc:
+set tabstop=8 shiftwidth=8 expandtab
+
+
+:retab
+" will convert tab to spaces
+:set list	
+" see ^I for tab instead
+
+
+cat dictionary_dump.txt | sed -e 's/,/\n/g' -e "s/u'/ '/g"
+
+
+<H3>Basic VI editing commands</H3>
+
+Note: meta-x means ESC, then x, M-C-x means ESC, then C-x (bash man page)
+
+
+<H4>core commands</H4>
+<PRE>
+q! = quit vi no matter what, get me out of this hell hole!
+w  = write, save file.
+i  = insert at cursor
+A  = add at end of line
+o  = add line below current
+J  = join lines (current and one below)
+dd = delete whole {n} line (each invocation clear the anon. buffer)
+Y  = yank current line to anonymous buffer (used by y and d)
+P  = paste before cursor  (linewise if buffer contain whole line) 
+</PRE>
+
+<H4>other oft use commands</H4>
+<PRE>
+a = add after current char
+I = insert at beginning of line
+O = add line above current and edit it
+{n}J  = join lines (current and one below)
+   D  = delete from cursor till end of line 
+{n}dd = delete whole {n} line (each invocation clear the anon. buffer)
+   dw = delete word
+{n}Y  = yank current line to anonymous buffer (used by y and d)
+    p = paste after  cursor  (from anonymous buffer)
+    P = paste before cursor  (linewise if buffer contain whole line) 
+ {n}x = delete the character {n chars, default = 1}
+ {n}X = backspace
+r = replace char ( {n}r = replaces next n char with a new single char )
+R = infinite replacement
+C = change remaining of the line
+cc= change the whole line (ie rewrite the line)
+cw= change word
+u = undo
+:x  = exit and save
+:q! = quit w/o save
+:w FILENAME  = write  (note, vi continue work on current file)
+/   = serch
+</PRE>
+
+<H4>Navigation control while in INSERT mode</H4>
+<PRE>
+^F = scroll fwd (down)  1 screen
+^B =        back        1
+^D = scroll down        1/2
+^U =        up          1/2
+^E =        down  	1 line
+^Y =        up    	1 line
+H = go to top     of screen
+M =       middle
+L =       bottom
+G =       end of file
+w = move to next word
+b = move back 1 word
+) = next sentence    ( = previous sentence
+} = next paragraph   { = previous paragraph
+
+
+
+(most usable in bash interactive cli too)
+^W	= previous word erase
+^U	= erase from cursor till begin of line
+^E	= go to end       of line
+^A  = go to beginning of line
+^D	= undo 1 level of auto indent
+
+</PRE>
+
+<H3>Search and Replace</H3>
+
+<PRE>
+
+/findme		serch for word "findme"
+n		find next hit
+
+search PATTERN1 and replace it with PATTERN2
+:/PATTERN1/s//PATTERN2/
+  this only replace 1 instance
+:s/PATTERN1/PATTERN2/gc
+  g= global.  ie replace all instance on the current line
+  c = confirm each replacement
+
+from line 1 till last line ($)
+substitute PATTERN1 with PATTERN2
+globally (all apperearance in the line)
+    :1,$s/PATTERN1/PATTERN2/g
+	:%s/PATTERN1/PATTERN2/g
+
+NOTE: can use %s instead of 1,$ for entire file search and replace
+
+vim flags:
+g= global
+c= confirm (interactive prompt)
+I= case sensitive (even if ignore case flag is set)
+
+
+</PRE>
+
+
+<H3>environment settings</H3>
+
+<PRE>
+:set nu		enable line numbering
+:set nonu	turn off line numbering
+:set ic		   = insenstive case, for case insenstive searching
+:set showmode | noshowmode = show mode or not in status bar
+:set beautify      = remove some ugly control char
+:set noerrorbell   = no beeps
+:set tabstop=4     = set tab to 4 spaces (default = 8)
+:set ai | noai	   = auto indent   ^D = back one indent
+				  O^D = cancel all indent
+				hat^D = tmp suspend indent
+</PRE>
+
+
+<H3>slightly more advanced commands</H3>
+
+<PRE>
+:syntax on	= (VIM only), use color highlight syntax
+:set list	= show all control char, tab as ^I. newline as $, etc
+
+:r FILE	= read FILE into current doc (after current cursor pos)
+:r !CMD	= run unix CMD and write the output after current cursor pos
+		  eg ':r !date' will write the current date into the document
+
+press control-v, then the control char to save a control char in doc
+^G (in command mode) = show status of file
+
+
+</PRE>
+
+<H3>VIM Split Windows commands</H3>
+
+<PRE>
+:sp		= SPlit open file in new window frame
+^W ArrowKey	= move cursor to window Up, Down
+^W s	= split into two horizontal windows
+^W _	= maximize current windwow frame
+^W +  	= make current window frame bigger
+^W v    = split into two vertical windows  (vim 6.0)
+^W &lt    = reduce number of columns in current window
+^W &gt    = increate columns
+</PRE>
+
+<H3>VIM visual mode (cut-n-paste)</H3>
+<PRE>
+v = enter visual mode
+	use arrow to highlight blocks
+	y = copy block to memory (subsequent paste with p)
+	x = cut block  (remove from text and place into memory)
+
+	&gt = indent (shift) block 1 "tab"
+	&lt = back indent block 1 "tab"
+
+</PRE>
+
+
+
+<H2>VI etc</H2>
+
+<PRE>
+keyboar arrow keys, good for my sgi drug-adic keyboard!
+
+   h   j   k   l  
+   lf  dn  up  rt
+
+      +----+
+      |  k |
+  +---+----+---+	   
+  | h | j  | l |
+  +---+----+---+	   
+</PRE>
+
+<HR>
+
+<PRE>
+vim is Vi clone, more features: vim -g or gvim = X based vim 5.3
+^R = redo, after some undo  (in command mode)
+^T = go Back in help, etc.  ^O = go forward.  bookmark stuff.
+^] = get into help topic.
+
+
+compatible = vi compatible mode (only 1 level undo, etc)
+ default on unless there is .vimrc file
+:help  (or :h) online help
+
+-X : no X server connection, always text mode (vim 6 only?)
+
+:e  = (Edit) open a new file in the current window (closing current file)
+:sp = (SPlit) open a new file in a separate (new) window (:q in the window to close it)
+:vs = (Vertical Split)  vim 6.0 only.  
+
+^W+arrow = jumpt to next window
+		
+
+:syntax on = to get syntax highlight (those that come with distribution)
+		source external syntax hightlight definition file:
+   		source ~/perl.vim
+
+** Features of vim **
+- multi level undo
+- supposedly better keyboard map!!
+- ctrl+arrow works as meta word moving in edit mode!!
+- HOME, END, PgUp, PgDn, INS and DEL key all works too!!
+- one anonying feature of vim 4.2, it is like pico, auto cr at end of line
+  (don't think it is true in vim 5.3, or else find way to disable this!)
+- wider terminal support.  vi can handle only up to 163 columns (inclusive).
+
+
+
+
+
+************************************************************
+.vimrc
+************************************************************
+
+" eg of .vimrc:
+
+" (quote) is used to delimiter comment.
+
+" can use 
+:set ignorecase
+" or 
+set ignorecase
+" ie, : in front don't matter.  
+
+
+set tabstap=4 shiftwidth=4 expandtab
+" above is pretty much a necessity for python
+" thanksfully old solaris vfstab and other that insist on seeing a tab is no longer present
+" .tsv, ie, tab delimited file would be screwed with this setting :(
+" :retab will convert tab to space on existing file
+
+
+set tw:0
+:set textwidth=0
+" # textwidth=0 = don't break long lines automatically, good for coding
+" # but somehow the god damened textwidth is ignored, 
+" # and vim always default to 78. :(
+" # so that probably need to be done manually
+:set wrap
+" set wrap-off  = use horizontal scroll to see long line
+
+" gqG 
+" will format / fold rest of doc to 80 columns max width 
+" http://stackoverflow.com/questions/3033423/vim-command-to-restructure-force-text-to-80-columns
+
+
+:set ignorecase
+" # case insensitive search
+:set wrapscan
+" # search wrap around EOF
+
+:set number
+" display line numbering
+" set nonu 
+" will turn off line numbering
+syntax on
+" use color syntax highlight
+
+************************************************************
+************************************************************
+
+command ref: 
+http://www.vim.org/html/
+
+ref:
+http://www.vim.org/html/version6.html
+
+vim 6.0 has a vimdiff program to do diff.
+also a evim thing that behave more like notepad (no cmd/edit mode).
+
+
+</PRE>
+
+Also see 
+<A HREF="3rdParty/viref.txt">
+vi reference</A> (don't remember where I got the cache from)  <BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/vi.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/vi.html
+</A>] <BR>
+Last Updated: 2008-03-22
+  <!--[Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/">http://www.cs.fiu.edu/~tho01/psg/</A>] <BR>-->
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

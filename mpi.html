@@ -1,0 +1,429 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - MPI</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - OS</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<H1>Parallel Environment</H1>
+
+
+<!-- this section, many notes formerly in Evernote -->
+
+
+
+<H3>MPI vs OpenMP</H3>
+
+
+<LI> Both are designed to allow programmer to use more CPU by leveraging parallel processing.  
+<LI> Perhaps the biggest difference is CPU vs Memory locality.  
+<LI> OpenMP is newer than MPI, it leverages the newer multi-core CPU and multi-CPU machines.  Memory is local to the machine.  At the basic level, OpenMP run within a single machine, so it is shared-memory system and so accessible to all "threads" of the program.
+<LI> MPI is an older API and does NOT use shared-memory.  Host kinda expected to have single CPU/core.  So, each MPI process ("thread") is independent and don't have access of memory of other threads. 
+<LI> with the above mindset, it is easier to see what MPI and OpenMP audiences are.
+
+<H3>MPI</H3>
+
+<LI> MPI is considered to be a lower level API than OpenMP.  To coordinate distributed processing, MPI program need to ship the data to remote node/process (cuz not sharing memory).  
+<LI> The main programming paradigm is scatter-gather.  Ship data to remote node, have them run specific process, then collect results from them.  So, this often lend to SIMD processing.
+<LI> To carry our the scatter-gather processing, a diverse number of functions are provided, via the Message Passing approach (which means they are low-level programming constructs):
+<UL>
+	<LI> send / receive operations (think of multiple threads doing client/server send/receive of data, point-to-point rendezavous-type ops).
+	<LI> process sync (barrier)
+	<LI> fn to find out network size, topology, neigbour info (perhaps weather similation need to know what neigbour data is but not those of far off nodes, this topology info is not simple map-reduce), but these fn are also what makes MPI hard (and the fact that it is lower level than a Map-Reduce API). 
+	<LI> gather and reduce ( the MapReduce paradigm of Hardoop?)
+</UL>
+<LI> The constructs diversity means that MPI program isn't really restricted to scather/gather.  It can be MIMD, it is up to the programmer on how to utilize the communication API to process data.
+<LI> Because of the programming model, MPI tends to require its own "mindset" and pretty much program has to be written from the ground up with this MPI mindset.  
+
+
+<H3>OpenMP</H3>
+	<LI> OpenMP was build with focus on symmetric multiprocessing.   Leverage multi-core CPU, multiple CPU on same host, with memory readily available to process.  So parallelization is simpler.
+	<LI> use a multi-threading model.  different threads can do different things.  not limited to SIMD.
+
+	<LI> The multi-threading model allows programmer to adopt a core piece of the program to use OpenMP gradually, instead of write whole program in MPI style code.
+	
+	<LI> code is #pragma directive that guide compiler to use openMP.   Non-OpenMP compiler produces serial code.
+	<LI> gcc 4.2 supports openMP.  
+	<LI> at least when running in "single-host" shared memory SMP machine, probably no need to do anything at the sys admin level once program is compiled with proper compiler (and appropriate LD_LIBRARY stuff included).
+	<LI> Cluster OpenMP and other works on distributed memory system.  
+	<LI> https://computing.llnl.gov/tutorials/openMP/exercise.html has simple hello_world exercise for OMP.  
+		<UL> 
+			<LI> seems like it will expands automatically as many threads as there are CPU cores within the SMP machine.
+			<LI> example shows with icc, pgcc, and gcc.   from 2005!
+
+		</UL> 
+	<LI> SGE -sp smp and OpenMP is largely the same.  no special daemon needed... so, if on shared-memory system, not sure what diff OpenMP has vs pthreads.  perhaps only ability to scale to other nodes when appropriate compiler/library is used?
+
+
+<BR>
+<BR>
+
+<PRE>
+Further notes on OpenMP:
+	* by itself not for shared memory design
+	* run w/in a single (SMP) computer
+	* not spanning machines by default, so was not told about it in grad school (also v1.0 for C/C++ released in Oct 1998)
+	* so really think of it as alternative to pthreads... 
+	* in hpc/cluster environment, SGE use of PE called OpenMP has limited things it need to do, since generated code just run.  Mostly, it would sets the correct OMP_NUM_THREADS for the node, and know where to launch the job.
+	* a couple of web example of openmp in sge suggest just specify a PE that allows defining how many core to take, eg -pe threads 2-8, then in the qsub script to define OMP_NUM_THREADS=$NSLOTS   (NSLOTS defined in SGE inside the qsub)
+
+
+</PRE>
+
+
+
+<PRE class="code">
+sky/code/openMP > cat hello_slac.c
+
+/* http://www.slac.stanford.edu/comp/unix/farm/openmp.html */
+#include <stdio.h>
+#include <omp.h>
+
+int main(int argc, char *argv[]) {
+  int iam = 0, np = 1;
+
+  #pragma omp parallel default(shared) private(iam, np)
+  {
+    #if defined (_OPENMP)
+      np = omp_get_num_threads();
+      iam = omp_get_thread_num();
+    #endif
+    printf("Hello from thread %d out of %d\n", iam, np);
+  }
+}
+
+
+
+# http://www.dartmouth.edu/~rc/classes/intro_openmp/compile_run.html
+# gcc 4.4 and above
+cc  -fopenmp hello_llbl.c
+gcc -fopenmp hello_llbl.c
+icc -openmp  hello_slac.c
+
+
+export OMP_NUM_THREADS=4
+# if not specified, run as many threads as available cpu cores (or hyperthreads if enabled)
+# if ask for more threads than avail cores, the OS will sequentialize them.
+./a.out
+
+</PRE>
+<H3>ScaleMP</H3>
+		<LI> marketed as vSMP Foundation, scale across multiple physical server rather than depends on shared-memory or NUMA host. 
+		<LI> http://www.scalemp.com/products/product-comparison/ there is a vSMP Foundation Free for up to 8 nodes / 1TB shared memory.  but essentially a commercial product.
+		<LI> can use IB as interconnect to speed data/memory xfer, even bonding IB in adv version. 
+		<LI> but then presumably need to run some sort of daemon process on each nodes.  the cheaper licensing model lic is node-locked.  so create quite a complex env to use in an batch scheduler env.  
+		<BR>
+			This and the cost issue maybe why folks just use MPI ?  don't seems to see much ScaleMP or OpenMP, at least not in life science space.
+
+		<LI> http://www.scalemp.com/industries/lifescience/computational-chemistry/ list Schrodinger Jaguar, DOCK.  Glide.  Amber.  Gaussian.  OpenEye Fred, Omega.  HMMER.  mpiBLAST (but not the GPU blast?).   touted for dept w/o dedicated IT.   
+
+
+
+
+<BR><BR>
+
+
+<A NAME="mpi"></A>
+<H1>MPI API Implementation Details</H1>
+
+
+<H2>MPICH versions</H2>
+
+<UL>
+<LI>MPICH 1.x - Original implementation by Argonne Nat Lab and MSU.  Schrodinger is compiled with MPICH 1.2
+<LI>MPICH 2 - Extension of MPICH1.x.  Ohio State, mostly on C.
+<LI>MVAPICH - MPI-1 implementation by Ohio State Univ.  Doesn't work with Schrodinger Jaguar ?
+<LI>OpenMPI - one of the latest implementation, based on MPI-2.  It absorbed from the original LAM/MPI.  
+It is quite popular now and widely supported.  Infiniband OFED stack is compiled for it (and MVAPICH).
+SGE toutes OpenMPI as the best thing to use as it is integrated and SGE has full control of it, start/stop it as needed.  Ditto, OpenMPI automatically communicate with Torque/PBS Pro and retrieve host and np info.  Jobs were to be submitted using mpirun rather than qsub...
+<A HREF="http://www.open-mpi.org/faq/?category=tm">
+http://www.open-mpi.org/faq/?category=tm</A>
+<BR>
+But many of the older program compiled for MPICH won't work out of the box
+with OpenMPI.
+</UL>
+There are many other implementations, including commercial ones, MATLAB, Java, etc.
+See: 
+<A HREF="http://en.wikipedia.org/wiki/Message_Passing_Interface#Implementations">wikipedia MPI Implemenatation</A>
+
+
+<BR>
+<BR>
+
+<PRE>
+</PRE>
+
+
+
+
+<H2>MPICH v1</H2>
+
+<PRE>
+(See config-backup/sw/mpi/mpich1.test.txt for more info).
+
+<H3>Starting MPICH</H3>
+
+Environment VARs:
+MPI_HOME
+MPI_USEP4SSPORT=yes
+MPI_P4SSPORT=4644
+
+/etc/hosts.equiv or .rhosts need to be setup, even if using ssh !!  some sys call in MPICH need this for auth.
+
+$MPI_HOME/share/machines.LINUX		# host (+cpu) definition file
+					# node1:2 would be a 4 cpu machine, but then indicate shared memory
+					# which parallel Jaguar don't support.  Instead, repeat lines per node 
+					# for number of CPU, eg :
+					# node1
+					# node1
+					# node2
+					# node2
+
+To start a shared daemon as root:
+ssh node1 "serv_p4 -o -p 1235 -l /nfs/mpilogs/node1.log"
+ssh node2 "serv_p4 -o -p 1235 -l /nfs/mpilogs/node2.log"
+# rc script on each node to start up would be good, 
+# but centralized script in above form to start/kill would also be useful.
+# Alternatively, Schrodinger mpich utility can start serv_p4 correctly
+# (without the problem of chp4_sers which results in non-sharable deamons).
+
+
+For a per-user process, can start/monitor MPICH as:
+
+tools (scripts) in $MPI_HOME/sbin/
+chp4_servs -port=4644           # script to start serv_p4 on all nodes, DOESN'T obey  MPI_P4SSPORT (def to 1234)
+                                # at some point in the past also used port 1235
+chp4_servs -hosts=filename      # use filename to get list of hosts to start serv_p4 (def to machines.LINUX)
+chp4_servs -hunt                # list all serv_p4 process on all mpi nodes (on all ports)
+
+chkserv -port 4644              # see which node don't have mpi daemon running
+                                # DOESN'T obey  MPI_P4SSPORT (def to 1234)
+                                # no output = all good.
+                                # (parallel jaguar will trigger it to start anyway)
+
+</PRE>
+NOTE: schrodinger has mpich utility to monitor MPICH status also.
+
+<H3>Testing MPICH</H3>
+<PRE>
+
+$MPI_HOME/sbin/tstmachines -v
+	# see if daemons are fine.
+
+cat $HOME/.server_apps
+	exact path to each binary, should be populated automatically.
+
+
+cd $MPI_HOME/examples
+mpirun -np 16 cpi
+	# run pi calculation test on 16 procs.
+        # doesn't really start a serv_p4 process, so can't use to test sharing daemon b/w users.
+
+</PRE>
+
+
+<H4> Per-User Environment </H4>
+<!-- originally posted in Pollux WiKi, but plan to remove it -->
+<I>(There is no need for this unless the shared root daemon process don't work)
+</I>
+<BR>
+MPICH allows a per-user instance of MPICH daemon rings instead of depending on a shared daemon run by root. This has been tested to work with Parallel Jaguar. To use this, add an environment defining the port you want to use with your set of MPI daemon ring. Your 4 digit phone extension would be a good number to use. It maybe best to add it to your $HOME/.cshrc, like this: 
+<BR>
+<PRE class="cf">
+  setenv MPI_P4SSPORT     4644                    #change number to a unique port for yourself
+</PRE>
+After this, parallel jaguar (or mpirun) jobs should work. If there are problem, check that you have sourced /protos/package/skels/local.cshrc.linux.apps and these variables are defined: 
+<BR>
+<PRE class="cf">
+  setenv MPI_HOME /protos/package/linux/mpich	
+  setenv PATH "${PATH}:${MPI_HOME}/bin"	
+  setenv MPI_USEP4SSPORT yes
+  setenv P4_RSHCOMMAND ssh	
+  setenv SCHRODINGER_MPI_START yes                  # Parallel Jaguar to start its own MPICH serv_p4 on user defined port	
+</PRE>
+
+After these setup, can run parallel jaguar job like: <BR>
+	<TT>$SCHRODINGER/jaguar run -HOST "vic1 vic2 vic3 vic4" -PROCS 4 piperidine </TT> <BR>
+
+<PRE>
+</PRE>
+
+
+<BR><HR><BR>
+
+<A NAME="pvm"></A>
+<H1>PVM</H1>
+
+Ref: <A HREF="http://www.csm.ornl.gov/pvm/">
+http://www.csm.ornl.gov/pvm/</A>
+
+<PRE>
+
+
+
+source pvm.env           # get PVM_ROOT, etc
+pvm                      # starts monitor, starting pvmd* daemon if needed.
+
+$PVM_ROOT/lib/pvmd   pvmhost.conf
+# starts PVM daemon on lists specified in the conf file, whereby hosts is listed one per line.
+# may want to put it in background.  ^C will end everything.
+# it uses RSH (ssh if defined correctly) to login to remote host to start process
+# Need to ensure ssh login will source the env correctly for pvm/pvmd to run.
+# Can be started by any user   (what about more than one user??)
+
+
+kill -SIGTERM <PVMID>   can be used to kill the daemon
+if use kill -9 (or other non-catchable signal), be sure to clean up /tmp/pvmd.<uid>
+
+
+pvm> commands
+ps 
+conf
+halt
+exit
+
+
+To run OpenEye omega/rocs job, the 
+$PVM_ROOT/bin/$PVM_ARCH dir must have access to the desired binary (eg sym link to omega).
+PATH from .login will not be sourced.
+
+run command as:
+omega  -pvmconf omega.pvmconf -in carboxylic_acids_1--100.smi -out carboxylic_acids_1--100.oeb.gz -log omega_pvm.log
+
+
+Each user that start pvm will have her own independent instance of pvmd3.
+pvm rsh/ssh to remote host to start itself, so ports numbers are likely not going to be static.  
+It uses UDP for communication.
+
+										   
+from lsof -i4 -n
+										   
+process name / pid uid   ...
+pvmd3     27808    tinh    7u  IPv4 17619158       UDP 10.220.3.20:33430
+pvmd3     27808    tinh    8u  IPv4 17619159       UDP 10.220.3.20:33431
+
+
+tin     27808     1  0 14:25 pts/29   00:00:00 /app/pvm/pvm345/lib/LINUX/pvmd3
+</PRE>
+
+<PRE class="cf">
+
+## omega.pvmconf
+## host = req keyword
+## hostname, sometime may need to be FQDN, depending on what command "hostname" returns
+## n = number of instance of PVM to run
+host  phpc-cn01 1
+host  phpc-cn02 2
+host  phpc-cn03 2
+
+</PRE>
+
+
+<PRE class="cf">
+##/home/common/Environments/pvm.env
+
+# csh environment setup for PVM 3.4.5
+# currently only available for LINUX64 (LSF cluster)
+
+setenv PVM_ROOT /app/pvm/pvm345
+
+source ${PVM_ROOT}/lib/cshrc.stub
+
+# http://mail.hudat.com/~ken/help/unix/.cshrc
+#alias ins2path  'if ("$path:q" !~ *"\!$"* ) set path=( \!$ $path )'
+#alias add2path  'if ("$path:q" !~ *"\!$"* ) set path=( $path \!$ )'
+##add2path ${PVM_ROOT}/bin
+
+## : has special meaning in cshrc, so need to escape it for it to be taken verbatim
+## there is no auto shell conversion between $manpath and $MANPATH as it does for PATH
+## csh is convoluted.
+setenv MANPATH $MANPATH\:${PVM_ROOT}/man
+
+
+</PRE>
+
+
+<H1>Links</H1>
+
+<UL>
+<LI><A HREF="http://www.clustermonkey.net">Cluster Monkey</A>
+    eg, see articles on <A HREF="http://www.clustermonkey.net//content/view/141/33/">Parallel Molecular Dynamics</A>.
+<LI><A HREF="http://www.linuxhpc.org/">LinuxHPC.org/</A>
+<LI><A HREF="http://beowulf.org">Beowulf.org</A>
+<LI><A HREF=""></A>
+<LI><A HREF=""></A>
+
+</UL>
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL]<BR>
+  <A HREF="http://tiny.cc/mpi2">http://tiny.cc/mpi2</A> <BR>
+  <A HREF="https://dl.dropboxusercontent.com/u/31360775/psg/mpi.html">https://dl.dropboxusercontent.com/u/31360775/psg/mpi.html</A><BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+
+<!-- Just for fun. this google ad is actually from unixguide.net -->
+<script type="text/javascript">
+<!--
+google_ad_client = "pub-9786751149916387";
+google_ad_width = 728;
+google_ad_height = 30;
+google_ad_format = "728x90_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+//-->
+</script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+
+</script>
+
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"<BR>
+  tin6150 sn50</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

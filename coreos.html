@@ -1,0 +1,450 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+ 
+
+   
+<!--  xhtml format, hw6 (tables) had to use transitional instead of strict dtd.  -->    
+<!--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+the one below for strict html:
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+sttrict xhtml:
+
+-->
+
+
+
+
+
+<!--  
+CSS Class - UCSCX - 2012.07 - Final Project 
+Also making it as part of my PSG page remake.
+
+CSS validator: http://jigsaw.w3.org/css-validator/#validate_by_uri
+HTML validator: http://validator.w3.org/
+-->    
+    
+<head>
+	<title>Sys Admin Pocket Survival Guide</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="psg2.css"                type="text/css" media="screen">
+        <link rel="stylesheet" href="psg-table.css"           type="text/css">
+        <link rel="stylesheet" href="psg2-links-icons.css"    type="text/css">
+        <link rel="stylesheet" href="psg-positioning.css"     type="text/css">
+        <link rel="stylesheet" href="psg-print.css" type="text/css" media="print">
+</head>
+
+    
+<body>
+  <div id="fixie"> <!-- add a fixed position example for css final project.   potentially use to place ad, which will appear like a 3rd column on right -->
+          <div id="one"   class="skinny"><a href="plug/plug.html"><img src="plug/nema-5-20R-drawing.gif" alt="nema5pic" width="100" height="100"></a></div>
+          <div id="two"   class="skinny"><a href="fig/unixoid_hell.gif"><img src="fig/unixoid_hell.gif"  alt="vi-hell"   width="100" height="77" ></a></div>
+          <div id="three" class="skinny"><a href="fig/Assistant.gif"><img    src="fig/Assistant.gif"     alt="clippie"   width="100" height="77" ></a></div>
+          <div id="four"  class="skinny"><!-- empty for now --></div>
+  </div> <!-- closes #fixie -->
+
+    
+<div id="wrapper">
+  <div id="header">
+    <div id="title">Sys Admin Pocket Survival Guide - CoreOS</div>
+    <div id="sub-title">A Quick Reference Guide for Sys Admins with Alzeimer :)</div>
+  </div> <!-- closes header -->
+  
+  <div id="navigation">
+      <!-- the replace was not inside hightlight area, but whole page, finc and put back some strong and em in doc...-->
+   <!--  strong, em, h5, or div are not allowed to be nested inside ul !!  -->
+       <div class="azul">Cloud</div>
+	<ul>
+        <li> <a href="docker.html">docker</a></li>
+        <li> <a href="aws.html">AWS</a></li>
+	</ul>
+
+       <div class="azul">Unix</div>
+	<ul>
+        <li> <a href="linux.html">Linux</a></li>
+        <li> <a href="nixos.html">NixOS</a></li>
+        <li> <a href="coreos.html">CoreOS</a></li>
+        <li> <a href="sol.html">Solaris</a></li>
+        <li> <a href="hpux.html">HP-UX</a> and <br>
+                <a href="hpux.supl.html">supplement</a></li>
+        <li> <a href="aix.html">AIX</a> and <br>
+                <a href="aix_cd_catalog.html">AIX CD catalog</a><br></li>
+        <li> <a href="irix.html">Irix</a></li>
+        <li> <a href="dos.html">Windows</a></li>
+        <li> <a href="apple.html">Apple Mac</a></li>
+	</ul>
+
+        <div class="azul">Storage</div>
+	<ul>
+        <li> <a href="netapp.html">NetApp</a></li>
+        <li> <a href="emc.html">EMC SAN - Clariion</a></li>
+        <li> <a href="emcCelerra.html">EMC NAS - Celerra</a></li>
+        <li> <a href="isilon.html">Isilon</a></li>     
+        <li> <a href="fs.html">Unix File System</a></li>
+	</ul>
+
+        <div class="azul">Big Data</div>
+	<ul>
+        <li> <a href="lsf.html">SGE/UGE, PBS/Torque, LSF.</a></li>
+        <li> <a href="mpi.html">MPI, PVM</a></li>
+        <li> <a href="sci-file.html">Science File Format/Info</a></li>
+        <li><a href="sci-app.html">Sci-App</a></li>
+        <li> <a href="bigdata.html">Big Data engines</a></li>
+	</ul>
+            
+      
+        <div class="azul">Unix Dev</div>
+	<ul>
+  	<li><a href="development.html">compilers, etc</a></li>
+  	<li><a href="shellScript.txt">sh/bash, csh/tcsh</a></li>
+  	<li><a href="awk.txt">AWK</a></li>
+  	<li><a href="perl.html">Perl</a></li>
+  	<li><a href="python.html">Python</a></li>
+  	<li><a href="php.html">PHP</a></li>
+  	<li><a href="javascript_eg.html">javascript_eg</a></li>
+   	<li>gcc</li>
+  	<li><a href="gdb.html">gdb</a></li>
+   	<li>java</li>
+   	<li>rcs, cvs, p4, subversion</li>
+	<li><a href="vi.html">vi</a></li> 
+	</ul>
+
+        <div class="azul">Network</div>
+	<ul>
+        <li> <a href="ipmi.html">IPMI</a></li>
+        <li> <a href="ipv6.html">IPv6</a></li>
+        <li> <a href="net.html">Network</a></li>
+        <li> <a href="infiniband.html">InfiniBand</a><br></li>
+        <li> <a href="acopia.html">Acopia</a></li>
+	</ul>
+
+        <div class="azul">Other</div>
+	<ul>
+        <li> <a href="softenv+modules.html">SoftEnv, Environment Modules</a></li>
+        <li> <a href="puppet.html">Puppet</a></li>
+        <li> <a href="cfengine.html">CfEngine</a></li>
+        <li> <a href="factory_pw.html">factory password</a></li>
+        <li> <a href="ldap.html">LDAP</a><BR></li>
+        <li> <a href="admin.html">General Unix Sys Admin </a></li>
+        <li> <a href="tool.html">Sys Admin tools and performance tuning</a></li>
+        <li> <a href="vnc.html">VNC, X Emulation</a></li>
+        <li> <a href="backup.html">Unix backup</a></li>
+        <li> <a href="general_unix.html">Generic Unix Commands</a></li>
+        <li> <a href="veritas.html">Veritas</a></li>
+        <li> <a href="legato.html">Legato Networker</a></li>
+        <li> <a href="mysql.html">MySQL</a></li>
+        <li> <a href="html.txt">HTML tags</a></li>
+        <li> <a href="wiki.html">WiKi tags</a></li>
+        <li> <a href="3rdParty">3rd Party and Vendor Docs Cache</a></li>
+	</ul>
+
+        <div class="azul">IMHO</div>
+	<ul>
+        <li> <a href="monitor.html">Network monitoring tool review</a></li>
+        <li> <a href="netArch.html">Network Architecture Approaches</a></li>
+        <li> <a href="docPlatform.html">Documentation platform</a></li>
+	</ul>
+
+        <div class="azul">Prod Review</div>
+	<ul>
+        <li><a href="termSvr.html">Terminal (Serial Console) Servers</a></li>
+        <li><a href="ent_prod.html">Enterprise Products</a></li>
+        <li><a href=""></a></li>
+        <li> &nbsp; </li>
+	</ul>
+            
+	<div class="azul">More</div>
+	<ul>
+	<li><a href="psg1.html">Full TOC</A></li>
+	</ul>
+
+  </div> <!-- closes #navigation -->
+
+
+  <!-- ########################################################## -->
+  <!-- ########################################################## -->
+  
+  <div id="content">
+
+      <p>
+
+
+
+<A HREF="https://en.wikipedia.org/wiki/CoreOS#/media/File:Coreos-wordmark-horiz-color.png">
+<IMG SRC="fig/coreos-logo-by-Rob-Szumski.png"  alt="CoreOS logo (by Rob-Szumski)" width="100%" ></A> <!-- stock ~792x306 px -->
+<BR><BR>
+
+
+  
+<H2><div class="azul">CoreOS 101</div></H2>
+
+
+A DevOps approach to Linux.  Minimalist OS.  Dual booting partion, so run live on one, upgrade on the other, then a quick reboot to have a complete upgraded system.  Easy revert to previous known state.  
+<BR>
+There are 3 main building components for CoreOS:
+<LI>etcD, which provides a centralized configuration mechanism for cluster of CoreOS machines.
+<LI>Docker.   Applications/services are provided via container instead of yum/apt
+<LI>SystemD
+<BR>
+DevOps is taking over the role of traditional sys admins, and CoreOS may just be the ticket for their world dominance :)
+<A HREF="http://www.infoworld.com/article/2692889/open-source-software/coreos-an-existential-threat-to-linux-vendors.html">InfoWorld article that CoreOS poses an existential threat to Linux vendors</A>
+<BR>
+So, if you can't beat 'em, join 'em :)
+<BR>
+<BR>
+
+<H3>Core OS Characteristics and Technologies</H3>
+
+<A HREF="https://en.wikipedia.org/wiki/CoreOS#/media/File:CoreOS_Architecture_Diagram.svg">
+<IMG SRC="fig/CoreOS_Architecture_Diagram_by_Offnfopt.svg"
+alt="CoreOS Architecture Diagram by Offnfopt - Own work. Licensed under Public Domain via Commons - https://commons.wikimedia.org/wiki/File:CoreOS_Architecture_Diagram.svg#/media/File:CoreOS_Architecture_Diagram.svg" 
+width="100%" ></A> <!-- stock 512x393 px -->
+<BR><BR>
+
+
+<UL>
+<li> FastPatch update a second partition of the dual partition boot system for consisten upgrade and stable roll back.
+<li> kexec (kernel exec) can be used for fastbooting.  Essentially, kernel from the standby partition is loaded into memory, and it starts executing right away.  This bypass BIOS hardware initialization and bootloader.
+<li> /usr is mounted as read-only, since update is done as a whole new OS is installed on the passive partition.
+<li> etcd, fleetd written in the GO programming language. 
+<li> Intra-node communication use std unix socket.  
+<li> inter-node communication uses SSH tunnel and auth (fleetctl).
+<li> Originally used Docker exclusively, now have support for Rocket (rkt).
+<li>
+<li> fleet and locksmith may make CoreOS into a very interesting HPC system... 
+<li>
+</UL>
+
+<BR><BR>
+
+<H3>Initial install</H3>
+
+<PRE>
+CoreOS is build using ChromeOS' SDK.  
+The doc all points to running CoreOS as a VM in the cloud, but 
+it can actually run on bare metal.
+The install ISO is 211 MB.  https://coreos.com/os/docs/latest/booting-with-iso.html
+
+It provides only essentials so that it can run conainers (eg docker), 
+utilizing cgroup and namespace for resource management and security.  
+There are minimal additional functionality for service discovery and configuration sharing (via etcd).
+
+Disk partition uses the newer GUID method.  
+fdisk doesn't fully work.  coreos don't ship with gparted.  use cgpt instead.
+
+partiton 3 (and 4 are the active/standby for USR-A and USR-B, respectively.  
+GTP is flagged to boot from either one of this, and such boot partition will be set as read-only.
+/usr in AWS CoreOS image used about 500 MB.
+There are 482 uniq commands in /usr/bin, 260 in /usr/sbin 
+(my cygwin has about 800 and 16 command in /bin and /sbin)
+
+parttion 9 is for stateful / partition (only one of this, no standby.  upgrade don't change anything here?)
+/ used about 666 MB
+
+sudo cgpt show /dev/xvda	# show partition table, /usr will be booted on part with priority=1
+
+</PRE>
+<A HREF="https://coreos.com/os/docs/latest/sdk-disk-partitions.html">CoreOS partition doc</A> says:
+<BR>
+<DIV class="quote">
+Due to the unique disk layout of CoreOS, an rm -rf / is an un-supported but valid operation to do a "factory reset". The machine should boot and operate normally afterwards.
+</DIV>
+
+
+<H3>etcd</H3>
+
+<OL>
+<LI> etcd provides a replicated key-value store of all system configuration
+<LI> each node in the cluster run a copy of etcd, thus HA and all data avail to all nodes.
+<LI> Utilizes Raft algorithm for master election and consensus.  
+<LI> etcd also double as service discovery.  Application announce themselves to etcd.
+<LI> communication with etcd is thru REST (JSON on top of HTTP) http://127.0.0.1:4001/v2/keys/.  These is accessible inside the container as well.
+<LI> etcdctl is the cli interface.  can read and set key-value pair
+<LI> 
+</OL>
+
+<H3>fleetd</H3>
+
+<OL>
+<LI> cluster manager to control the systemd of each coreos node.  ie, a distributed Init system
+<LI> fleetclt provides a single point to manage process across the cluster, which is especially useful for managing HA apps.
+<LI> 
+<LI> 
+</OL>
+
+<H3>locksmithd</H3>
+
+locksmith is a mechanism to control the booting of a cluster of CoreOS machines.  This is so that less than half the cluster is upgraded at any point in time, ensuring some basic level of service functionality.
+<BR>
+Each node run a locksithd daemon
+<BR>
+locksmithctl is a cli to control this.
+<BR>
+
+<H3>Update/Reboot</H3>
+
+CoreOS perform update automatically.  It wries the upgraded OS into the standby usr, then reboot when system is idle.  
+System idle is determined by etcd, if etcd-lock can perform the lock, then it can invoke reboot.
+Well, in a cluster environment where CoreOS is intended, services are migrated to other nodes, thus eventually etcd-lock will succeed, and it will be able to invoke a reboot.
+<BR>
+For details, see 
+<A HREF="https://coreos.com/os/docs/latest/update-strategies.html">CoreOS update strategies</A> and 
+<A HREF="https://groups.google.com/forum/#!topic/coreos-user/3qvoMb_MRkY">forum</A>
+<BR>
+<A HREF="https://gist.github.com/ianblenke/4256e61a812327416dd9">manually update CoreOS</A>
+<BR>
+
+So, not too sure about stand alone system (eg one in lab/test use)...
+
+
+<H3>Pros and Cons of CoreOS vs traditional Linux </H3>
+<BR>
+<BR>
+
+<H3>Commands/Troubleshooting</H3>
+
+<PRE>
+sudo update_engine_client -update		# manually run upgrade, for debug/troubleshooting (update are automatic normally)
+</PRE>
+
+
+
+<H3>Reference</H3>
+
+<UL>
+<li><A HREF="https://en.wikipedia.org/wiki/CoreOS">wikipedia: CoreOS</A></li>
+<li><A HREF="https://www.digitalocean.com/community/tutorials/an-introduction-to-coreos-system-components">CoreOS components tutorial</A></li>
+<li><A HREF="https://coreos.com/using-coreos/">Using CoreOS</A></li>
+<li><A HREF="https://coreos.com/docs/">CoreOS doc</A></li>
+<li><A HREF=""></A></li>
+<li><A HREF=""></A></li>
+<li><A HREF="http://tba/">tba</A></li>
+</UL>
+
+<div class="quote">
+...
+</div>
+    
+
+<BR><BR>
+<HR>
+<BR><BR>
+
+<A NAME="cc"></A>
+<A NAME="CreativeCommon"></A>
+<H3>Copyright info about this work
+</H3>    
+
+<p>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">Creative Commons Attribution-NonCommercial-ShareAlike2.5 License</a>.
+       <!--/Creative Commons License-->
+       <!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+       <Work rdf:about="">
+       <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/" />
+            <dc:title>Pocket Sys Admin Survival Guide</dc:title>
+            <dc:date>2005</dc:date>
+            <dc:description>A series of concise system administration notes</dc:description>
+            <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
+            <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+            <dc:source rdf:resource="http://www.cs.fiu.edu/~tho01/psg/" />
+            </Work>
+            <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+                                       <requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/>
+                                       <prohibits rdf:resource="http://web.resource.org/cc/CommercialUse"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/><requires rdf:resource="http://web.resource.org/cc/ShareAlike"/>
+            </License>
+            </rdf:RDF> -->
+
+
+<Strong>Pocket Sys Admin Survival Guide</Strong>: for content that I wrote, (<a
+ href="http://creativecommons.org/licenses/by-nc-sa/2.5/">CC</a>)  
+ <a href="http://creativecommons.org/learnmore"> <i>some rights reserved</i></a>.  
+ 2005,2012 Tin Ho [ tin6150 (at) gmail.com ]  <br>
+ 
+Some contents are "cached" here for easy reference. Sources include man pages, 
+vendor documents, online references, discussion groups, etc. Copyright of those 
+are obviously those of the vendor and original authors.  I am merely caching them here for quick reference and avoid broken URL problems.
+</p>
+
+  <br><br>
+
+
+<h3>Where is PSG hosted these days?</h3>
+  <div id="psg-url">
+  <a href="http://tiny.cc/coreOS">tiny.cc/coreOS</a><br>
+  <a href="http://dl.dropbox.com/u/31360775/psg/psg2.html">http://dl.dropbox.com/u/31360775/psg/psg2.html</a> 
+  This new home page at dropbox<br>
+  
+  <A HREF="http://tiny.cc/tin6150"> 
+  http://tiny.cc/tin6150/</A>
+  New home in 2011.06.  <BR>
+
+
+
+<A HREF="http://unixville.com/~sn/psg/psg.html">http://unixville.com/~sn/psg/psg.html</A> 
+(coming soon)
+<BR>
+<a href="ftp://read:only@sn.is-a-geek.com/psg/psg.html">ftp://sn.is-a-geek.com/psg/psg.html</a> 
+My home "server".  Up sporadically.
+<BR>
+
+<!--
+Other caches in decreasing order of update frequency:  <BR>
+
+<A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/psg.html">
+http://dl.dropboxusercontent.com/u/31360775/psg/psg.html
+</A> 
+(Google site, they are changing their policy and I may not be update these pages in the near future.  Last updated 2009-10-10)<BR>
+-->
+
+
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/psg.html">http://www.cs.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-06)<BR>
+<A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
+
+</div>       
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  </div> <!-- #content -->
+  
+  
+  <div id="tailer">      
+            <div class="noicon">
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">
+                <img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights20.png"></a>
+            <a href="http://jigsaw.w3.org/css-validator/check/referer">
+                <img style="border:0;width:88px;height:31px"
+                    src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+                    alt="Valid CSS!">
+            </a>
+            <a href="http://validator.w3.org/check?uri=referer">
+                <img src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88">
+            </a>
+        </div>
+  </div> <!-- #tailer -->
+
+  
+  
+  
+  
+  <div id="footer"> (CC 2015) Some Rights Reserved.</div>
+  
+</div> <!-- closes wrapper --> 
+</body>
+</html>

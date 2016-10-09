@@ -1,0 +1,738 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Pocket Survival Guide - Isilon</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon">
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin">
+  <META NAME="keyword" content="PSG101 sn50 tin6150 Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP">
+  <META NAME="Robots" CONTENT="all">
+  <META NAME="Author" CONTENT="Tin Ho">
+</head>
+
+<body> 
+<div class="navheader">
+    <table summary="Navigation header" width="100%">
+    <tbody>
+        <tr>
+        <th colspan="7" align="center">
+
+    <A HREF="http://dl.dropboxusercontent.com/u/31360775/psg/isilon.html">Sys Admin Pocket Survival Guide - Isilon</A>
+        </th>
+        </tr>
+        <tr>
+        <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+        <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
+        <td align="center"><a accesskey="c" href="emcCelerra.html">EMC(NAS)</a></td>
+        <td align="center"><a accesskey="e" href="emc.html">EMC(SAN)</a></td>
+        <td align="center"><a accesskey="v" href="veritas.html">Veritas</a></td>
+        <td align="center"><a accesskey="l" href="ldap.html">LDAP</a></td>
+        <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
+        <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+        <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
+        </tr>
+    </tbody>
+    </table>
+    <hr>
+</div> <!--navheader--> 
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<div>
+<!-- Place this tag where you want the +1 button to render -->
+<g:plusone> </g:plusone>
+&lt;-- Please click if you found this site useful ;-)    If you want to add comments, please use Google's SideWiki.
+<!--  Place this tag after the last plusone tag -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+</div>
+
+<H1>Isilon</H1>
+
+<H2>101</H2>
+
+<PRE>
+
+isilon stores both windows sid and unix uid/gid with each file.
+When nfs client look at file created on windows, file may not have uid/gid in it.   
+isilon looks up the conversion from its mapping db.
+if it can't find one, it will generate a number, starting at 10000.
+
+
+isi stat		# quick overview of cluster nodes and job status
+isi stat -q		# quite (skip) the bottom job status
+isi stat -q -d		# see status aggregated by diskpools 
+
+</PRE>
+
+<H2>maintenance commands</H2>
+
+<PRE>
+isi_gather_info		# collect status of cluster and send to support (usually auto upload via ftp)
+
+isi_gather_info --nologs --local-only -i isi_hw_status -f ... 	# selectively collect info
+
+shutdown -p now		# shutdown a single node (the one logged in to).  it will put in read-only mode and then power it off.
+
+uname -a		# At least from OneFS 7, tell Isilon version (and not the underlaying BSD info)
+uname -rs
+</PRE>
+
+
+<H4>HD Replacement</H4>
+
+<EM>Ensure drive is in REPLACE state before removing it, even when LED is RED!!</EM>
+
+Sometime SmartFail is running on a drive, it will put LED as RED, but then still actively copying data out.  Removing the drive at this time 
+is NOT good.  Especially at reduced redundancy state, this could result in data lost!!  <BR>
+<BR>
+Typical protection policy is +2:1 which can tolerate two drive failure at the same time.  But under some certain circumpstance, eg node fail and autobalance job did not complete, protection could drop down to just 2x.  ie mirror, and two disks within a protection group could fail at the same time and it would have data lost.   Protection group can and typically do span multiple nodes.  Files (LIN) at 2x scenario may just span mirrored pair across two nodes and one can hit the lotto and have those two disks fails at same time.  <BR>
+
+/var/log/messages would spill error like too many restrape error.  Complain about LIN=... having problems.  <BR>
+
+On each disk, Isilon lay a two digits lnum N on it, and refers to it when smart failing drive, running FlexProtect job.  
+When drives are pulled out, replaced or swapped out in a bay, can tell system what/how to use the disk based on this lnum.  It is kept track of also until all necessary data has been recovered by FlexProtect job.  (and at time may need to manually remove them, stopfail command?)
+
+<PRE>
+ 
+
+isi devices 				# list all devices of the node logged in
+isi devices -a status -d 14:bay28	# see status of node 14, drive 28
+isi devices -a status -d 14      	# see status of node 14, all info
+isi devices           -d 14      	# "-a status" is assumed 
+
+
+
+
+isi devices -a add    -d 14:28		# add the drive (after being replaced)
+isi devices -a format -d 14:28		# often need to format the drive for OneFS use first
+					# it seems that after format it will automatically use drive (no ADD needed)
+
+# other actions are avail, eg smartfail a drive.
+
+isi_for_array -s 'isi devices | grep -v HEALTHY'	# list all problematic dev across all nodes of the cluster.
+isi_for_array -n 14 isi devices status			# node on node 14 only, the command isi devices status
+							# this case equiv to isi devices -d 14
+
+
+isi statistics drive --long		# 6.5 cmd to see utilization of a hd.
+</PRE>
+
+
+Use these with care!!  eg when Sr Support Engineer says to use them::
+
+<PRE>
+isi devices -a stopfail -d nodeN:bayN	# isi devices use node number, not internal LNN
+</PRE>
+
+<H2>user mapper stuff</H2>
+
+<PRE>
+
+# OneFS 6.x stuff... slight changes in 7.x, see below.
+
+id username
+id windowsDomain\\windowsUser
+    # Note that, username maybe case sensitive!!
+
+isi auth ads users  list --uid=50034
+isi auth ads users  list --sid=S-1-5-21-1202660629-813497703-682003330-518282
+isi auth ads groups list --gid=10002
+isi auth ads groups list --sid=S-1-5-21-1202660629-813497703-682003330-377106
+
+isi auth ads user list -n=ntdom\\username
+
+
+# find out Unix UID mapping to Windows SID mapping:
+# OneFS 6.5 has new commands vs 6.0
+isi auth mapping list  --source=UID:7868
+isi auth mapping rm    --source=UID:1000014
+isi auth mapping flush --source=UID:1000014   # this clear the cache
+isi auth mapping flush --all 
+isi auth local user list -n="ntdom\username" -v	# list isilon local mapping
+
+isi auth mapping delete --source-sid=S-1-5-21-1202660629-813497703-682003330-518282 --target-uid=1000014 --2way
+	# should delete the sid to uid mapping, both ways.
+isi auth mapping delete --target-sid=S-1-5-21-1202660629-813497703-682003330-518282 --source-uid=1000014
+	# may repeat this if mapping not deleted.
+
+isi auth mapping dump | grep S-1-5-21-1202660629-813497703-682003330-518282
+
+isi auth ads group list --name
+
+isi auth local users delete --name=ntdom\\username --force
+
+rcf2307 is prefered auth mechanism... windows ad w/ services for unix.
+
+
+isi smb permission list --sharename=my_share
+
+
+
+
+
+
+# finding windows sid??  rm --2way ??
+
+
+
+    # find out Unix UID mapping to Windows SID mapping:
+    # OneFS 6.0: 
+    isi auth ads users map list --uid=7868
+    isi auth ads users map list --sid=S-1-5-21-1202660629-813497703-682003330-305726
+
+    isi auth ads users map delete --uid=10020
+    isi auth ads users map delete --uid=10021
+    isi_for_array -s 'lw-ad-cache --delete-all'		# update the cache on all cluster node 
+    # windows client need to unmap and remap drive for new UID to be looked up.
+
+    # for OneFS 6.0.x only (not 6.5.x as it has new CIFS backend and also stopped using likewise)
+    # this was lookup uid to gid map.
+    
+    sqlite3 /ifs/.ifsvar/likewise/db/idmap.db 'select sid,id from idmap_table where type=1;'	# list user  sid to uid map
+    sqlite3 /ifs/.ifsvar/likewise/db/idmap.db 'select sid,id from idmap_table where type=2;'	# list group sid to gid map
+</PRE>
+<div class="quotebox"><PRE>
+    1:  The DB that you are looking at only has the fields that you are seeing listed.  
+    With the current output it will give you the SID and UID of the users mapped.  
+    With these commands you can find the username that is mapped to that information:
+    #isi auth ads users list --uid={uid}
+    or
+    #isi auth ads users list --sid={sid}
+
+    2:  The entries in the DB are made as the users authenticate to the cluster.  
+    So when a client tries to access the share, the client sends over the SID, 
+    we check the DB and if no entry is found, we check with NIS/LDAP, 
+    if nothing is found there, we generate our own ID (10000 range) and add it to the DB.  
+    Any subsequent access from that SID will be mapped to the UID in that DB.
+
+    3:  You can run the following to get the groups and the same rules 
+    apply for the GID and SID lookups:
+    #sqlite3 /ifs/.ifsvar/likewise/db/idmap.db 'select sid,id from idmap_table where type=2;'
+    #isi auth ads groups list --gid={gid}
+    #isi auth ads groups list --sid={sid}
+
+    4:  You can delete the entries in the database, 
+    but the current permissions on files will remain the same.  
+    So when the user re-accesses the cluster he will go through the 
+    process outlined in question 1.
+    </PRE></div>
+<PRE>
+
+
+
+</PRE>
+
+<H5>user mapper in OneFS 7.x</H5>
+
+<PRE>
+isi auth users flush				# flush whole cachedb
+isi auth mapping flush --sid WindowID		# flush only a specific user mapping
+# note that the cache is per node, so may want to run w/ isi_for_array 
+
+isi auth users view         Username		# get UID
+isi auth users view         AdDomain\\Username	# get SID
+isi auth users view   --uid UnixID
+isi auth users view   --sid WindowsID
+isi auth users list				# long list
+isi auth users list  --provider file		# list only "/etc/passwd" user, should be short
+isi auth users list  --provider local		# not sure how local differ from file...
+isi auth mapping view --uid UnixID
+isi auth mapping view --sid WindowsID
+
+id Username
+id AdDomain\\Username
+
+
+isi auth ads		# info about which AD server isilon is connected to
+isi auth nis
+isi auth file list	# list which files are used for local user db (it is a berkeley db for user)
+</PRE>
+
+Lastly, ensure on the windows 7 machine don't have any poisoned cache stored in the Credential Manager.
+
+<H3>
+Kerberos/AD
+</H3>
+
+<OL>
+<LI>If changing from one domain to another (that is still trustted), ensure Server object is removed from old domain.  Else, user authentication may fail, as AD will try to lookup server object from old domain, which now has stale password and no longer functional for communicating with Isilon.
+<LI>new view \\IP-of-isilon-node will use NTLM authentication, no kerberos.
+<LI>new view \\SmartConnect_DNS_NAME will use Kerberos.  Assuming SPN defined.
+</OL>
+
+<PRE>
+
+isi auth ads status -v          # check domain controller connectivity.  
+				# mode=unprovisioned is fine
+				# Status better be online.  disabled or offline are bad news!
+isi auth ads dc --list --domain=mydomain.com	# list avail domain controllers
+						# there is a --site option to force use of local DC
+
+isi auth ads user list --domain=mydom.com  	# list all users... filter thru head or so
+
+isi_for_array -n 7-14 'isi auth mapping token --name=ADDOM\\sysadm |wc -l'	# check for auth token
+isi_for_array -n 7-14 'isi auth ads time --domain=nibr.novartis.net'		# check clock on specified nodes
+
+isi services -a 		# list (all) isilon services
+
+
+isi auth ads de --reset-schannel	# force a reset of the secure channel used to talk to AD
+
+
+isi auth ads spn list		# list all the Service Princial Name
+isi auth ads spn check		# system will report if missing SPN
+
+# recommend adding CIFS SPN record so that domain controller can better communicate to machine auth for software installation and global policy push
+isi auth ads spn create --spn=cifs/icylone.mydomain.com --user=administrator
+isi auth ads spn create --spn=cifs/icylone              --user=administrator
+
+
+# check for authentication service daemon being running on all nodes
+isi_for_array -s 'ps -auxw |grep lwiod  |grep -v grep'
+isi_for_array -s 'ps -auxw |grep srvsvcd |grep -v grep'
+
+# other daemons that should be checked: lsassd, isi_msd, lwregd
+# Isilon 6.5 uses Likewise internally
+isi_mcp 	# restart mcp (if did killall -9 isi_mcp).  
+		# this get lsas auth daemon running again
+
+
+# count SMB connections
+isi_for_array -s 'isi smb session list|grep -i computer |wc -l'
+
+
+SVR record in DNS is recommended (but work without)
+# nslookup
+> set type=srv
+> ldap._tcp.dc._msdcs.mydomain.com
+...
+** server can't find ldap._tcp.dc._msdcs.mydomain.com: NXDOMAIN
+> ldap._tcp.USEM-0._sites.dc._msdcs.mydomain.com
+...
+** server can't find ldap._tcp.mysite-0._sites.dc._msdcs.mydomain.com: NXDOMAIN
+
+
+
+
+klist	# kerberos list
+kinit	# some reinitialization??
+
+isi_run -l user@mydomain.com		# switch to command as if login with specified user (test auth)
+	
+</PRE>
+
+<H3>
+SmartConnect/Network
+</H3>
+
+Isilon SmartConnect is essentially DNS Round Robin.  Lot of address to each node, so that it can load balance, fail over, etc.
+NFS is stateless, this works well (with Dynamic IP allocation).
+SMB is stateful.  One support guy recommended that a different SmartConnect pool of IP address be created for windows client to use.  And this pool to use STATIC IP mapping to the node, so that no IP change will take place in load balance, avoiding potential stateful protocol violation (but don't think ever experienced).  
+
+
+
+<H3>
+Snapshot
+</H3>
+
+<p>
+Snapshots take up space reported as usable space on the fs.   <BR>
+cd .snapshot <BR>
+Admin can manually delete snapshot, or take snapshot of a specific directory tree instead of the whole OneFS. <BR>
+
+</p>
+
+<H3>
+Quotas
+</H3>
+
+<PRE>
+isi quota list
+
+Each directory tree that has quota setup make up a Quota Domain.
+Files can NOT be moved between quota domains.  Copy and remove must be used in such case!!
+
+</PRE>
+
+<H3>CIFS</H3>
+<H4>ACL</H4>
+
+<PRE>
+ACE = Access Control Entry
+ACL = Access Control List, a list of ACE
+DACL = Deny ACL ??
+
+ls -led			# show ACL for the current dir (or file if filename given)
+ls -lze   		# display ACE of a file
+ls -l			# regular unix ls, but + after the permission bits indicate presence of CIFS ACL
+setfacl -b     filename	# remove all ACL for the file, turning it back to unix permission    # works in OneFS 6.x only
+chmod   -b 600 filename	# OneFS 7 onward consolidated setfacl into chmod.  chmod -b req specification of new unix perms to give the file
+
+chmod   -D filename     # remove all ACE, does NOT only strip NTFS ACL, but result in equiv of chmod 000  !!
+chmod   -N filename     # set NULL to DACL, esentially open file for EVERYBODY.  avoid!!
+chmod  700 filename	# will set unix bit as commanded, and drop th ACL (or only cuz all ACE were null?)
+chmod +a user DOMAIN\\username  allow generic_all /ifs/path/to/file.txt		# place NTFS ACL on file, granting user full access
+
+
+ACL/ACE related flags in chmod:
+
+     -E      Reads the ACL from stdin, as a sequential list of ACEs, separated
+             by newlines, and ending in a new line.  If the input parses cor-
+             rectly, the existing ACL is replaced.  If the user/group name is
+             multiple words it must be placed in double quotes.  For example:
+             group "domain users" allow file_read.
+
+     -C      Returns false if any of the named files have ACLs in non-canoni-
+             cal order.
+
+     -D      Removes all ACEs in the security descriptor's DACL for all named
+             files.  This results in implictly denying everything.
+
+     -N      Removes the security descriptor's DACL and sets it to NULL for
+             all named files.  This results in implicitly allowing everything.
+
+     -i      Removes the 'inherited' bit from all entries in the named file(s)
+             ACLs.
+
+     -I      Removes all inherited entries from the named file(s) ACL(s).
+
+     -b      Removes the ACL and replaces with the specified mode.
+
+
+
+ls -lR | grep -e "+" -e "/" | grep -B 1 "+"				# recursively list files with NTFS ACL, short version
+ls -lR | grep -e "^.......... +" -e "/"  | grep -B 1 "^.......... +"	# morse code version, works better if there are files w/ + in the name
+
+</PRE>
+
+
+<H4>windows shares</H4>
+
+isi smb share list		# list shares
+isi smb share view SHARENAME	# give details of the named share
+isi smb share create ...	# can create shares via cli as well, but that's not a very windowy thing to do :p   but the create mask thing is very tedious in OneFS 7.x WebGUI...
+
+isi smb shares create --name=ccdc$ --path=/ifs/db/ccdc --impersonate-user=sys_ccdc --directory-create-mask=0770 --directory-create-mode=0770 --file-create-mode=0660 --file-create-mask=0660 --ntfs-acl-support=no
+isi smb shares permission delete --share=ccdc$ --wellknown=everyone		# remove the default  "Everyone" access
+isi smb shares permission create --share=ccdc$ --group=ADDOM\\grp_site_user --permission=read   --permission-type=allow
+isi smb shares permission create --share=ccdc$ --group=ADDOM\\grp_ccdc      --permission=change --permission-type=allow
+isi smb shares view --share=ccdc$		# in windows, share ending with $ are "hidden" 
+
+
+<H4>Time Sync</H4>
+
+<PRE>
+
+isi_for_array -s 'isi auth ads dc'	# check which Domain Controller each node is using
+isi_for_array -s 'isi auth ads dc --set-dc=MyDomainController	# set DC across all nodes
+isi_for_array -s 'isi auth ads time' 	# check clock on each node
+
+isi auth ads time --sync 		# force cluster to sync time w/ DC (all nodes)
+
+isi auth ads status			# check join status to AD
+isi auth ads status --refrsh		#
+killall  lsassd				# reset daemon, auth off for ~30sec, should resolve offline AD problems
+
+isi auth ads join --domain=mydom.com --user=administrator --ou=CrossPlatform/USSF/Storage
+	# join isilon cluster to a domain, opt specify OU that obj will be created in AD tree
+	# there is a rejoin option for if something is awry but don't want to unjoin
+	# join need to be done one per cluster, NO need to run on each node
+	
+
+</PRE>
+
+<H3>NFS</H3>
+
+<PRE>
+isi nfs exports list | grep hpc
+isi nfs exports view   --id 81
+isi nfs exports delete --id 81
+
+
+</PRE>
+
+
+<H3>"unix" config</H3>
+
+<H4>Syslog</H4>
+
+
+<PRE>
+isi_log_server add SYSLOG_SVR_IP [FILTER]
+-or-
+vi /etc/mcp/templates/syslog.conf
+isi_for_array -sq 'killall -HUP syslogd'
+</PRE>
+
+<H4>Disable user ssh login to isilon node</H4>
+
+<div>
+For Isilon OneFS 6.0:  <BR>
+
+<PRE>
+vi /etc/mcp/templates/sshd_config
+</PRE>
+add line 
+<PRE class="cf">
+AllowUsers root@* 
+</PRE>
+
+Then copy this template to all the nodes:
+<PRE>
+cp /etc/mcp/templates/sshd_config /ifs/ssh_config
+isi_for_array 'cp /ifs/ssh_config /etc/mcp/templates/sshd_config'
+</PRE>
+
+One may need to restart sshd, but in my experience sshd pick up this new template in less than a minute and users will be prevented from logging in via ssh.
+
+
+<BR>
+In OneFS 6.5, maybe the template will be replicated to all nodes?
+Or maybe that's only for syslogd, but not sshd, as they are 
+concerned it may lock user out from all the nodes from ssh access...
+
+</div>
+
+<H2>
+events, jobs
+</H2>
+
+<PRE>
+isi job status -v
+isi job view   12345
+isi job cancel 12345
+isi_classic job status -v 
+isi_classic job history 	# display last 10 jobs
+isi_classic job history -l0	# display all history
+
+isi job start FlexProtect
+
+isi_classic job history -j 12345 -v -l5 | egrep -o '[0-9a-f](:[0-9a-f]{4}){2}(::(HEAD|[0-9a-f]*))?' | sort -u	# look for bad LIN found in a FlexProject job #12345   (-l5 give lots of info)
+
+
+
+isi alert -wide
+isi alert cancel nn.12345678 		# clear the alert
+
+isi job events list --job -type=FlexProtect 
+
+# sync jobs reporting
+isi sync reports ls --policy-name=... --limit=1
+isi sync job ls
+
+# list the first line status of each sync job
+for n in `isi sync policy list --no-footer --no-header | awk '{print $1}'`; do
+    isi sync reports ls --policy-name=${n} --limit=1
+done
+
+isi sync policy view home_mirror
+isi sync report list --policy-name=home_mirror 
+
+job logs in 
+/var/log/isi_migrate
+/ifs/.ifsvar/modules/tsm/.../policy-id
+
+
+</PRE>
+
+
+<H2>
+HW.  Understanding cluster layout
+</H2>
+
+<PRE>
+isi_nodes %{node}    %{id}    %{lnn}	# xref LNN
+isi_nodes %{node} :: %{id} :: %{lnn}	# display node name, user device number, internal node ID
+
+
+sysctl efs.gmp.group	# see internal disk grouping layout (think of raid group definition).
+			# Note that unit id displayed is LNN and NOT node id used in commands like isi devices -d NodeID
+
+isi_group_info		# same output as sysctl efs.gmp.group  (at least on OneFS 7.1.1)
+
+
+isi filepool default-policy view 		# see when new data write to disk, which node will store it
+isi filepool policies list 
+isi filepool policies list --verbose | less
+
+isi sync policies list				# see if/how data are mirrored to a DR cluster
+
+
+</PRE>
+
+<H2>
+Troubleshooting
+</H2>
+
+
+<PRE>
+
+isi_hw_status
+
+
+Case data often stored in /ifs/data/Isilon_Support/nnnn
+/var/log/messages is specific to the node
+
+grep gmp-drive-update 	messages
+grep restripe 		messages
+
+
+isi get -DD /path/to/file		# info on inodes of file (which node has its data), protection level, and many other stats.
+					# add -d to ensure it does not error out on a directory
+					# at any rate, really large directory, isi get fails with MemoryError() anyway.
+isi get -DDLC 1:30f8:be05::HEAD		# lots of info about file, based on LIN
+
+isi_radish -q		# query drive status, but don't read.
+			# essentially display what drive is in which bay, model, serial num.
+
+isi_radish 		# get usage info, without option won't do anything
+			# has option for reading SMART data, etc.  
+
+
+isi get -L 1:30f8:be05::HEAD	# get file path that correspond to specified linsid 
+isi get -L 1:6208:2f2b::174438  # inode info do not always ends in HEAD, but maybe 99% do... 
+
+cat  /var/log/messages  | grep linsid=1 | awk '{print $16}'  | awk -F= '{print "isi get -L " $2}' | bash
+			# linsid= is message in log stating inode(?) that cannot be accessed.
+
+egrep EIO /var/log/messages | egrep -o '[0-9a-f](:[0-9a-f]{4}){2}(::(HEAD|[0-9]*))?' | sort -u | xargs isi get -L 
+			# similar effect to above
+
+
+
+disi -I diskpools ls -v
+
+du -chs ./
+
+isi_cpr -f SomeHexCode   # hex code for first portion of LIN ?
+isi_cpr -r ...
+
+
+</PRE>
+
+
+<H2>
+Caveats 
+</H2>
+
+<UL>
+<LI>Isilon does not by default keep track of atime, one has to enable it.  see <A HREF="http://doc.isilon.com/onefs/7.1.0/help/en-us/GUID-29A0548E-C9C6-4692-A608-67DF9657F47B.html">OneFS 7.1.0 doc</A>.  This has an implication that if want to delete old files by last access time (find -atime +30 -delete), it seems to be silently reverting to depends on ctime :(
+<LI> atime = access time (when file is read)
+<LI> ctime = change time, kept by system.  chmod, chown are considered changes and thus update the ctime of the file.
+<LI> mtime = modification time, and refer to actual file data content (and ignore meta data changes).  Furthermore, user can set mtime using the <TT>touch -t nnn</TT> command against the file.
+<LI> <A HREF="http://www.unix.com/tips-and-tutorials/20526-mtime-ctime-atime.html">ctime vs mtime</A> (postmark vs hand written date)
+</UL>
+
+<H1>
+Links
+</H1>
+
+<OL>
+<LI><A HREF="http://www.isilon.com/">Isilon.com</A>	<BR>
+<LI>
+</OL>
+
+<H1>
+History
+</H1>
+
+<div>
+
+    OneFS 5.0
+    <BR>
+    OneFS 5.5
+    <BR>
+    OneFS 6.0   ca 2011.03 - Support mixed type of nodes - IQ 10000 and IQ 6000 in the same cluster.  Single host entry in AD for whole Isilon cluster.
+    <BR>
+    OneFS 6.5   EA 2011.04 ?  - SSD on the more high end node will catch meta data even for data in lower end node w/o SSD.   CIFS is a completely new rewrite, and authentication with AD has changed.  Test test test!!
+    <BR>
+    (2011) Acquired by EMC.  
+    <BR>
+    OneFS 7.2   Has Deduplication feature.
+    <BR>
+    (2016) Adquisition by Dell.
+    <BR>
+
+
+</div>
+
+<PRE>
+</PRE>
+
+<div class="ctr">
+<BR><HR>
+    [Doc URL: <A HREF="http://dl.dropbox.com/u/31360775/psg/isilon.html">
+    http://dl.dropbox.com/u/31360775/psg/isilon.html</A>] <BR>
+<BR>
+(cc) Tin Ho. See  
+<A HREF="psg.html#cc">main page</A>
+ for copyright info. <BR>
+Last Updated: 2012-06-21<BR>
+
+
+
+<HR>
+
+<A HREF="http://www.climateprediction.net"><IMG SRC="banner/climateprediction.jpg" alt="climate prediction banner"></A>
+<A HREF="http://boinc.berkeley.edu"><IMG SRC="banner/boinc_transparent.png" alt="boinc logo"></A>
+</div>
+
+    <p>
+    <a href="http://jigsaw.w3.org/css-validator/check/referer">
+        <img style="border:0;width:88px;height:31px"
+            src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+            alt="Valid CSS!">
+    </a>
+    </p>
+    <p>
+    <a href="http://validator.w3.org/check?uri=referer"><img
+      src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88"></a>
+    </p>
+
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"<BR>
+  psg101 sn50 tin6150</div>
+
+
+
+<!-- Google analytics new tracking code ga.js.  
+Will actually need to add this code to every page for full tracking!  
+Using my gmail login 2008-05-25-->
+
+<script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    
+(still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    
+<script type="text/javascript">    
+    var _gaq = _gaq || [];   
+    _gaq.push(['_setAccount', 'UA-4515095-4']);  
+    _gaq.push(['_trackPageview']);    
+    (function() {     
+        var ga = document.createElement('script'); 
+        ga.type = 'text/javascript'; 
+        ga.async = true;     
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     
+        var s = document.getElementsByTagName('script')[0]; 
+        s.parentNode.insertBefore(ga, s);   
+    })();  
+</script>
+
+</body>
+
+</html>

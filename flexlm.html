@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - OS</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://www.cs.fiu.edu/~tho01/psg/">Sys Admin Pocket Survival Guide - OS</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emc.html">EMC</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>FlexLM</H1>
+
+<PRE>
+http://www.ics.com/support/docs/bx/5.0/bxref/ref_5f.htm
+
+http://www.macrovision.com/support/by_category/FLEXlm_faqs.shtml	Macrovision flexlm faq
+
+install
+/usr/local/flexlm
+
+lmutil		# main flexlm util
+
+
+
+
+startup eg:
+
+su  username   -c "umask 022;  lmgrd   -c  license.dat   -l  logfile "
+
+# any username can work, as long as license files is readable
+# (and presumably log writable)
+# but no real need to create a flexlm user.
+# user name tied to an app server that use lmgrd works well.
+
+
+init.d/flexlm
+su sbio -c lmgrd -c /usr/local/flexlm/lsf.dat $OPTIONS
+
+
+S98msi_license
+su accelrys -c "/usr/local/flexlm/lmgrd -c $license_list -l /tmp/msilicense_1715.log"
+
+Logs
+
+
+
+</PRE>
+
+!--
+<!--
+/borua/app/schrodinger/lmgrd.log
+/borua/app/Tripos/AdminTools9.2/LicenseLog
+
+
+user		process pdir
+
+sbio      /usr/local/flexlm/lmgrd -c /usr/local/flexlm/lsf.dat
+sbio       lsf_ld -T ussf-pdir-nis01 9.5 3 -c /usr/local/flexlm/lsf.dat --lmgrd_start 45005b7c
+
+sbio      /borua/app/schrodinger/mmshare-v15113/bin/Linux-x86/lmgrd -c /borua/app/schrodinger/license -l /borua/app/schrodinger/lmgrd.log
+sbio      SCHROD -T ussf-pdir-nis01.amgen.com 9.5 3 -c /borua/app/schrodinger/license -lmgrd_port 6978 --lmgrd_start 4509c9c7
+
+accelrys  /usr/local/flexlm/lmgrd -c /borua/app/Accelrys/LicensePack/Licenses/msi.lic -l /tmp/msilicense_1715.log
+accelrys  msi -T ussf-pdir-nis01.amgen.com 9.5 3 -c /borua/app/Accelrys/LicensePack/Licenses/msi.lic --lmgrd_start $PATH
+
+triposl   triposlm -T ussf-pdir-nis01.amgen.com 9.2 3 -c /borua/app/Tripos/AdminTools9.2/tables/license_file --lmgrd_start 450059c5
+
+
+
+-->
+
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://www.cs.fiu.edu/~tho01/psg/">http://www.cs.fiu.edu/~tho01/psg/</A>] 
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  "ting" <BR>
+  "ting"</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://dl.dropbox.com/u/31360775/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>
