@@ -1,0 +1,243 @@
+# Edit this configuration file to define what should be installed on
+# your system.  Help is available in the configuration.nix(5) man page
+# and in the NixOS manual (accessible by running ‘nixos-help’).
+
+
+## run sudo nixos-rebuild switch 
+## to apply changed
+
+
+#{ config, libs, pkgs, ... }:
+{ config, pkgs, ... }:
+
+{
+  imports =
+    [ # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+    ];
+
+  # Use the GRUB 2 boot loader.
+  boot.loader.grub.enable = true;
+  boot.loader.grub.version = 2;
+  # Define on which hard drive you want to install Grub.
+  # boot.loader.grub.device = "/dev/sda";
+  ## ++ ++
+  boot.loader.grub.device = "/dev/sda";
+
+  # networking.hostName = "nixos"; # Define your hostname.
+  ## ++ ++
+  networking.hostName = "nixon"; # Define your hostname.
+  ## ++ ++
+  networking.hostId = "b6e466c1";
+  networking.firewall.enable = false;			# https://nixos.org/nixos/manual/sec-networking.html
+  networking.firewall.allowPing = true;
+  networking.firewall.allowedTCPPorts = [ 80 443 ];  	# 22 auto allowed when ssh service is enabled
+  networking.networkmanager.enable = true;  # https://nixos.org/nixos/manual/sec-networking.html#sec-wireless 10.1  ## prefered
+  #networking.wireless.enable = true;  	    # true means use wpa_supplicant
+  #networking.useDHCP = false; 		    # Don't run dhclient on wlan0, but break DNS
+  #networking.wicd.enable = false;	    # https://nixos.org/wiki/WICD wicd-gtk to run gui client (def=false)
+
+  # Select internationalisation properties.
+  # i18n = {
+  #   consoleFont = "lat9w-16";
+  #   consoleKeyMap = "us";
+  #   defaultLocale = "en_US.UTF-8";
+  # };
+
+  # List packages installed in system profile. To search by name, run:
+  # $ nix-env -qaP | grep wget
+  # environment.systemPackages = with pkgs; [
+  #   wget
+  # ];
+
+  # List services that you want to enable:
+
+  # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
+  services.openssh.enable = true;
+
+  # Enable CUPS to print documents.
+  # services.printing.enable = true;
+
+  # Enable the X11 windowing system.
+   services.xserver.enable = true;
+   services.xserver.layout = "us";
+  # services.xserver.xkbOptions = "eurosign:e";
+
+  # Enable the KDE Desktop Environment.
+   services.xserver.displayManager.kdm.enable = true;
+   services.xserver.desktopManager.kde4.enable = true;
+
+   services.httpd.enable = true;
+   services.httpd.adminAddr = "boft@grumpyxmas.com";
+   services.httpd.documentRoot = "/var/www/html";
+   #services.vsftpd.enable = true;
+
+  # http://nixos.org/releases/nixos/14.04-small/nixos-14.04.610.71c13be/manual/
+  #                                                                             <nixpkgs/nixos/modules/services/databases/couchdb.nix> 
+  # ie /nix/store/pilijx70f4bf81w1i01pp63s5lrqlqya-nixos-14.12.875.bb79e19/nixos/nixpkgs/nixos/modules/services/databases/couchdb.nix
+  # def run as couchdb:couchdb log to /var/log/couchdb.log, db in /var/lib/couchdb, uri in /var/run/couchdb/couchdb.uri
+  # services.couchdb.enable = true; 	
+  # services.couchdb.bindAddress = 0.0.0.0;   # def 127.0.0.1
+  services.couchdb.user = "couchdb";
+
+  #users.defaultUserShell = "/run/current-system/sw/bin/zsh";
+
+  # the line services.couchdb.user = "couchdb"; does not create the user  
+  # (at least when service isn't asked to be enabled, so no attempt to build couchdb by nixos-rebuild)
+  users.extraUsers.couchdb = {
+    isSystemUser = true;			# allocate UID < 500
+    #uid = 488;
+    group = "couchdb";				# this does not create the group 
+    description = "CouchDB Admin";
+    home = "/usr/local/var/lib/couchdb";
+    shell = "/bin/bash";
+    password = "FixMe!";			# clear text!!
+    #hashedPassword = "$6$V7AV5nT6$nq3s1nmoWl/43QzISWiIVAG3mnTbeyXZGoqcYSkuuwt4mBkQiIb3Hh84e6jd6Q6HrS4nWovkn8CsjJkbYC9k1.";
+  };
+  users.extraGroups.couchdb = { };	# this will let system generate a GID instead of hard coding one with gid=nnn .  not synced with uid of same name.
+
+
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # or use mkpasswd -sha-521  from the mkpassword pkg (or copy from shadow)
+  # users.extraUsers.guest = {
+  #   isNormalUser = true;
+  #   uid = 1000;
+  # };
+
+  users.extraUsers.sn = {
+    isNormalUser = true;
+    uid = 1001;
+    home = "/home/sn";
+    extraGroups = [ "wheel" "networkmanager" ];
+    openssh.authorizedKeys.keys = [ "ssh-dss AABBCC--- sn@grumpyxmas.com" ];
+    initialHashedPassword = "$6$V7AV5nT6$nq3s1nmoWl/43QzISWiIVAG3mnTbeyXZGoqcYSkuuwt4mBkQiIb3Hh84e6jd6Q6HrS4nWovkn8CsjJkbYC9k1.";  # seems to behave same as hashedPassword , won't overwrite shadow if changed...
+  };
+
+
+  users.extraUsers.sa9 = {
+    isNormalUser = true;
+    uid = 999;
+    home = "/home/sa9";
+    extraGroups = [ "networkmanager" ];
+    openssh.authorizedKeys.keys = [ "ssh-dss AABBCCDD--- sa@grumpyxmas.com" ];
+    hashedPassword = "$6$V7AV5nT6$nq3s1nmoWl/43QzISWiIVAG3mnTbeyXZGoqcYSkuuwt4mBkQiIb3Hh84e6jd6Q6HrS4nWovkn8CsjJkbYC9k1.";   # this is not expected to overwrite a shadow file during nixos-rebuild
+    shell = "/run/current-system/sw/bin/zsh";         # maybe they should provide link from /bin ! 
+  };
+  # removing a user from the config file will trigger a userdel.  
+  # but the home dir remains (understandably don't want to delete files)
+
+
+
+  environment.systemPackages = with pkgs; [
+        zsh wget htop nmap netcat wireshark-qt
+	telnet inetutils
+	vim vimPlugins.ipython vimPlugins.vim-addon-syntax-checker vimPlugins.vim-addon-nix
+ 	vimNox #vimHugeX
+	python27Packages.ipython 	python34Packages.ipython
+	gpgme dos2unix bzip2 #gzip avail by def
+	# commenting out pkg will remove the sym links and take them out of the path, 
+	# but pkg and executable is actually still avail in /nix/store
+	nox		# find package to provide a command (alt to command-not-found which don't work)
+	#file  mt   #cmd needed by couchdb 
+	#couchdb 	# unable to compile :(
+	aws		awscli		
+	docker 		kubernetes 		vagrant
+ 	# uge   # gridengine not yet avail
+        #chromiumWrapper    # this doens't seems to exist anymore
+        chromium
+        firefox   firefoxWrapper
+
+
+	# VirtualBox need pkg installed, plus config param (see below)
+	linuxPackages_3_19.virtualboxHardened
+
+	wpa_supplicant_gui	# sudo wpa_gui to config wifi (prob not needed, kde has something)
+        kde4.networkmanagement 	kde4.kdemultimedia 	kde4.kdegraphics
+        kde4.kdeutils 		kde4.applications 	#pkgs.kde4.kdegames
+        #pkgs.kde4.kdeedu 	
+	kde4.kdebindings 	kde4.kdeaccessibility 	kde4.kde_baseapps
+        kde4.kactivities 	kde4.kdeadmin 		kde4.kdeartwork
+        kde4.kde_base_artwork 	kde4.kdenetwork 	kde4.kdepim
+        kde4.kdepimlibs 	kde4.kdeplasma_addons 	kde4.kdesdk
+        kde4.kdetoys 		kde4.kde_wallpapers 	kde4.kdewebdev
+        kde4.oxygen_icons 	kde4.kdebase_workspace 	kde4.kdelibs
+        kde4.kdevelop 		kde4.kdevplatform 	kde4.qtcurve
+        kde4.ColorSchemes 	kde4.desktopthemes 	kde4.kscreensaver
+        kde4.kwin_styles 	kde4.partitionManager 	kde4.qt4
+        kde4.yakuake 		kde4.kgpg
+
+	tightvnc 	ssvnc 		xterm		
+	x86info  	binutils	elfutils
+
+	# trying deps needed by couchdb but somehow autodeps fails??...
+	file
+	help2man 	texinfo 	busybox
+	icu		libbsd		openssl 	spidermonkey_185 
+	#gcc34                                                               
+	gcc44   
+	automake 	autoconf 	cmake 		gnumake
+	erlangR17_odbc
+
+	# test / demo, see services section for config rather than just install app
+	#apacheHttpd
+	#vsftpd 
+
+	finalterm	# a new breed terminal
+
+	# git related 
+	gitAndTools.gitFull
+	gitAndTools.git-extras
+	gitAndTools.gitSVN
+	gitAndTools.gitFastExport
+
+	#gitAndTools.qgit    # Graphical front-end to Git
+	#gitAndTools.qgitGit # Graphical front-end to Git , not sure what the diff is...
+
+	kde4.dolphin_plugins
+	#gitg	# gnome gui for git
+	#gitAndTools.hub #A GitHub specific wrapper for git
+
+	#vimPlugins.a	# not sure what the "a" plug in is... have some git relations...
+	#vimPlugins.github:MarcWeber/vim-addon-vim2nix	
+	# actually, no VIM syntax for git is there??!!
+
+	nfs-utils	# mount.nfs, showmount
+  ];
+
+  # package configuration
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.firefox.enableAdobeFlash = true; # for Firefox		## tend to break in fresh install
+
+  nixpkgs.config.chromium.enableAdobeFlash = true; # for Chromium 	## tend to break in fresh install
+  nixpkgs.config.chromium.enablePepperFlash = true;
+  nixpkgs.config.chromium.enablePepperPDF = true;
+
+  security.sudo.wheelNeedsPassword = false;
+  #security.sudo.extraCOnfig
+
+  # VirtualBox  <-- also the command name, with CamelCase
+  # https://nixos.org/wiki/Installing_VirtualBox_on_NixOS
+  # should not need to add package, just set to run the service... 
+  # but could not get below to work, so just added as a package afterall
+  #services.virtualboxGuest.enable = true;
+  # http://nixos.org/nixos/manual/ch-options.html#opt-services.virtualboxHost.enable
+  services.virtualboxHost.enable = true;			# enable this when NixOS is on physical hw and will host VM
+  # services.virtualboxGuest.enable = true;			# enable this when NixOS is running as a VM
+  services.virtualboxHost.enableHardening = true;
+  # Enable hardened VirtualBox, which ensures that only the binaries in the system path get access to the devices exposed by the kernel modules 
+  # instead of all users in the vboxusers group.
+  # Disabling put system at risk.  
+  # Enabling means non root user can run VirtualBox w/o being in the vboxusers group 
+  users.extraGroups.vboxusers.members = [ "sn" "root" ];	# also govern USB pass-thru access
+
+  # Xen stuff - https://nixos.org/wiki/NixOS_and_Xen
+  # virtualisation.xen.enable = true;
+
+  time.hardwareClockInLocalTime = true;
+  time.timeZone = "America/Los_Angeles";
+  # must have _ in L_A.  space render machine unbootable!!
+
+
+}
+

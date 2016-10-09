@@ -1,0 +1,43 @@
+<HTML>
+
+Sample java script that queries client machine for system date/time 
+and display its as HTML 
+<BR><BR>
+Source:
+<A HREF="http://www.tizag.com/javascriptT/javascriptdate.php">
+http://www.tizag.com/javascriptT/javascriptdate.php</A>
+
+
+<h4>It is now  
+<script type="text/javascript">
+<!--
+var currentTime = new Date()
+var month = currentTime.getMonth() + 1
+var day = currentTime.getDate()
+var year = currentTime.getFullYear()
+document.write(month + "/" + day + "/" + year)
+//-->
+</script>
+</h4>
+
+
+<h4>It is now  
+<script type="text/javascript">
+<!--
+var currentTime = new Date()
+var hours = currentTime.getHours()
+var minutes = currentTime.getMinutes()
+if (minutes < 10)
+minutes = "0" + minutes
+document.write(hours + ":" + minutes + " ")
+if(hours > 11){
+document.write("PM")
+} else {
+document.write("AM")
+}
+//-->
+</script>
+</h4>
+
+
+</HTML>

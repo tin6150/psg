@@ -1,0 +1,552 @@
+Script started on Tue 22 Sep 2015 05:33:24 AM CEST
+]2;nixon:sn:/home/sn-dropbox/Dropbox/Public/psg/conf/couchdb
+[1;32m[sn@nixon:/home/sn-dropbox/Dropbox/Public/psg/conf/couchdb]$[0m which sc[K[K[K[K[K[K[K[K
+]2;nixon:sn:/home/sn-dropbox/Dropbox/Public/psg/conf/couchdb
+[1;32m[sn@nixon:/home/sn-dropbox/Dropbox/Public/psg/conf/couchdb]$[0m 
+]2;nixon:sn:/home/sn-dropbox/Dropbox/Public/psg/conf/couchdb
+[1;32m[sn@nixon:/home/sn-dropbox/Dropbox/Public/psg/conf/couchdb]$[0m sudo nix-env -i couchdb
+installing ‘couchdb-1.6.1’
+these derivations will be built:
+  /nix/store/59m01jkkhisp8nqv3l7fkw74g0lxl39d-couchdb-1.6.1.drv
+building path(s) ‘/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1’
+building /nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1
+unpacking sources
+unpacking source archive /nix/store/avhc53hdfiimvc0r9np8j6rqcr2wibw0-apache-couchdb-1.6.1.tar.gz
+source root is apache-couchdb-1.6.1
+patching sources
+configuring
+fixing libtool script ./build-aux/ltmain.sh
+configure flags: --disable-static --disable-dependency-tracking --prefix=/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1 --enable-js-trunk
+ 
+checking for a BSD-compatible install... /nix/store/wc472nw0kyw0iwgl6352ii5czxd97js2-coreutils-8.23/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /nix/store/wc472nw0kyw0iwgl6352ii5czxd97js2-coreutils-8.23/bin/mkdir -p
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking how to create a ustar tar archive... gnutar
+checking for style of include used by make... GNU
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking dependency style of gcc... none
+checking how to run the C preprocessor... gcc -E
+checking for grep that handles long lines and -e... /nix/store/g9qkr44yllgy5cb03vmfdksmh3pbmp1s-gnugrep-2.20/bin/grep
+checking for egrep... /nix/store/g9qkr44yllgy5cb03vmfdksmh3pbmp1s-gnugrep-2.20/bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking for minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+checking for gcc... (cached) gcc
+checking whether we are using the GNU C compiler... (cached) yes
+checking whether gcc accepts -g... (cached) yes
+checking for gcc option to accept ISO C89... (cached) none needed
+checking dependency style of gcc... (cached) none
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking how to print strings... printf
+checking for a sed that does not truncate output... /nix/store/nmdv0xnimpyajw8faydi8kh6dw1s3gjm-gnused-4.2.2/bin/sed
+checking for fgrep... /nix/store/g9qkr44yllgy5cb03vmfdksmh3pbmp1s-gnugrep-2.20/bin/grep -F
+checking for ld used by gcc... /nix/store/w1lj2s6v2wjmgd44fdi9i1p53qbxrqdc-gcc-wrapper-4.8.3/bin/ld
+checking if the linker (/nix/store/w1lj2s6v2wjmgd44fdi9i1p53qbxrqdc-gcc-wrapper-4.8.3/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /nix/store/b8qhjrwf8sf9ggkjxqqav7f1m6w83bh0-binutils-2.23.1/bin/nm -B
+checking the name lister (/nix/store/b8qhjrwf8sf9ggkjxqqav7f1m6w83bh0-binutils-2.23.1/bin/nm -B) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 1572864
+checking whether the shell understands some XSI constructs... yes
+checking whether the shell understands "+="... yes
+checking how to convert x86_64-unknown-linux-gnu file names to x86_64-unknown-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-unknown-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /nix/store/w1lj2s6v2wjmgd44fdi9i1p53qbxrqdc-gcc-wrapper-4.8.3/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ar... ar
+checking for archiver @FILE support... @
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /nix/store/b8qhjrwf8sf9ggkjxqqav7f1m6w83bh0-binutils-2.23.1/bin/nm -B output from gcc object... ok
+checking for sysroot... no
+./configure: line 7802: /usr/bin/file: No such file or directory
+checking for mt... no
+checking if : is a manifest tool... no
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if gcc supports -fno-rtti -fno-exceptions... no
+checking for gcc option to produce PIC... -fPIC -DPIC
+checking if gcc PIC flag -fPIC -DPIC works... yes
+checking if gcc static flag -static works... yes
+checking if gcc supports -c -o file.o... yes
+checking if gcc supports -c -o file.o... (cached) yes
+checking whether the gcc linker (/nix/store/w1lj2s6v2wjmgd44fdi9i1p53qbxrqdc-gcc-wrapper-4.8.3/bin/ld) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... no
+checking whether ln -s works... yes
+checking for pkg-config... /nix/store/hpnsswyh6qkjy5yvrf0a50k6cgm8cws8-pkg-config-0.28/bin/pkg-config
+checking pkg-config is at least version 0.9.0... yes
+checking for g++... g++
+checking whether we are using the GNU C++ compiler... yes
+checking whether g++ accepts -g... yes
+checking dependency style of g++... none
+checking how to run the C++ preprocessor... g++ -E
+checking for ld used by g++... /nix/store/w1lj2s6v2wjmgd44fdi9i1p53qbxrqdc-gcc-wrapper-4.8.3/bin/ld
+checking if the linker (/nix/store/w1lj2s6v2wjmgd44fdi9i1p53qbxrqdc-gcc-wrapper-4.8.3/bin/ld) is GNU ld... yes
+checking whether the g++ linker (/nix/store/w1lj2s6v2wjmgd44fdi9i1p53qbxrqdc-gcc-wrapper-4.8.3/bin/ld) supports shared libraries... yes
+checking for g++ option to produce PIC... -fPIC -DPIC
+checking if g++ PIC flag -fPIC -DPIC works... yes
+checking if g++ static flag -static works... yes
+checking if g++ supports -c -o file.o... yes
+checking if g++ supports -c -o file.o... (cached) yes
+checking whether the g++ linker (/nix/store/w1lj2s6v2wjmgd44fdi9i1p53qbxrqdc-gcc-wrapper-4.8.3/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether byte ordering is bigendian... no
+checking for stdint.h... (cached) yes
+checking stddef.h usability... yes
+checking stddef.h presence... yes
+checking for stddef.h... yes
+checking sys/mman.h usability... yes
+checking sys/mman.h presence... yes
+checking for sys/mman.h... yes
+checking sys/resource.h usability... yes
+checking sys/resource.h presence... yes
+checking for sys/resource.h... yes
+checking for mmap... yes
+checking if the compiler supports __builtin_expect... yes
+checking if the compiler supports __builtin_ctzll... yes
+checking for pthread_create in -lpthread... no
+checking for erl... /nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erl
+checking for escript... /nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/escript
+checking for JS... yes
+checking jsapi.h usability... yes
+checking jsapi.h presence... yes
+checking for jsapi.h... yes
+checking for JS_NewContext in -lmozjs185... yes
+checking for JS_NewCompartmentAndGlobalObject in -lmozjs185... yes
+checking for JS_ThrowStopIteration in -lmozjs185... yes
+checking for JS_GetStringCharsAndLength in -lmozjs185... yes
+checking for JSScript*... no
+./configure: line 18138: fg: no job control
+checking for icu-config... /nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/bin/icu-config
+checking for ICU >= 3.4.1... yes
+checking ICU_CPPFLAGS... -I/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/include 
+checking ICU_CFLAGS...  
+checking ICU_CXXFLAGS... --std=c++0x 
+checking ICU_LIBS...  -L/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/lib -licui18n -licuuc -licudata  
+checking for curl-config... /nix/store/b2x79vbr7z6bq42a7j95ylx6v7dr1ybs-curl-7.42.1/bin/curl-config
+checking for curl (7.42.1) >= 7.18.0... yes
+checking Erlang version compatibility... detected Erlang version: 5.10.4...compatible
+checking for erlc... /nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc
+checking erl_driver.h usability... yes
+checking erl_driver.h presence... yes
+checking for erl_driver.h... yes
+checking location of init directory... not found
+checking location of launchd directory... not found
+checking for help2man... yes
+checking for pdflatex... no
+configure: WARNING: You will be unable to regenerate PDF documentation.
+checking for makeinfo... no
+configure: WARNING: You will be unable to regenerate info documentation.
+checking for install-info... no
+configure: WARNING: You will be unable to install info documentation.
+checking for sphinx-build... yes
+checking python module: pygments... yes
+checking pygments version >= 1.5... yes
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating bin/couch-config.tpl
+config.status: creating bin/couchdb.tpl
+config.status: creating bin/couchdb.bat.tpl
+config.status: creating bin/Makefile
+config.status: creating etc/couchdb/Makefile
+config.status: creating etc/couchdb/default.ini.tpl
+config.status: creating etc/default/Makefile
+config.status: creating etc/init/couchdb.tpl
+config.status: creating etc/init/Makefile
+config.status: creating etc/launchd/org.apache.couchdb.plist.tpl
+config.status: creating etc/launchd/Makefile
+config.status: creating etc/logrotate.d/couchdb.tpl
+config.status: creating etc/logrotate.d/Makefile
+config.status: creating etc/windows/Makefile
+config.status: creating etc/Makefile
+config.status: creating share/Makefile
+config.status: creating share/doc/Makefile
+config.status: creating share/doc/build/Makefile
+config.status: creating src/Makefile
+config.status: creating src/couch_dbupdates/Makefile
+config.status: creating src/couch_index/Makefile
+config.status: creating src/couch_mrview/Makefile
+config.status: creating src/couch_plugins/Makefile
+config.status: creating src/couch_replicator/Makefile
+config.status: creating src/couchjs-node/Makefile
+config.status: creating src/couchdb/couch.app.tpl
+config.status: creating src/couchdb/Makefile
+config.status: creating src/couchdb/priv/Makefile
+config.status: creating src/erlang-oauth/Makefile
+config.status: creating src/etap/Makefile
+config.status: creating src/ibrowse/Makefile
+config.status: creating src/mochiweb/Makefile
+config.status: creating src/snappy/Makefile
+config.status: creating src/snappy/google-snappy/snappy-stubs-public.h
+config.status: creating src/ejson/Makefile
+config.status: creating test/Makefile
+config.status: creating test/bench/Makefile
+config.status: creating test/etap/Makefile
+config.status: creating test/etap/test_util.erl
+config.status: creating test/javascript/Makefile
+config.status: creating test/view_server/Makefile
+config.status: creating utils/Makefile
+config.status: creating var/Makefile
+config.status: creating config.h
+config.status: creating src/snappy/google-snappy/config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+
+You have configured Apache CouchDB, time to relax.
+
+Run `make && sudo make install' to install.
+building
+make flags: SHELL=/nix/store/r5sxfcwq9324xvcd1z312kb9kkddqvld-bash-4.3-p30/bin/bash    
+building config.h
+building all
+make  all-recursive
+make[1]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1'
+building all-recursive
+Making all in bin
+make[2]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/bin'
+building all
+make  all-am
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/bin'
+building couchdb
+sed -e "s|%ERL%|/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erl|g" \
+    -e "s|%ICU_CONFIG%|/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/bin/icu-config|g" \
+    -e "s|%bindir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/bin|g" \
+    -e "s|%localerlanglibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib|g" \
+    -e "s|%defaultini%|default.ini|g" \
+    -e "s|%localini%|local.ini|g" \
+    -e "s|%localconfdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/etc/couchdb|g" \
+    -e "s|%localstatelogdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/log/couchdb|g" \
+    -e "s|%localstatelibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/lib/couchdb|g" \
+    -e "s|%localstatedir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var|g" \
+    -e "s|%locallibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb|g" \
+    -e "s|%bug_uri%|https://issues.apache.org/jira/browse/COUCHDB|g" \
+    -e "s|%package_author_address%|dev@couchdb.apache.org|g" \
+    -e "s|%package_author_name%|The Apache Software Foundation|g" \
+    -e "s|%package_name%|Apache CouchDB|g" \
+    -e "s|%version%|1.6.1|g" \
+    -e "s|%couchdb_command_name%|`echo couchdb | sed 's,x,x,'`|g" > \
+couchdb < couchdb.tpl
+chmod +x couchdb
+building couch-config
+sed -e "s|%ERL%|/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erl|g" \
+    -e "s|%bindir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/bin|g" \
+    -e "s|%localerlanglibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib|g" \
+    -e "s|%localconfdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/etc/couchdb|g" \
+    -e "s|%localdatadir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/share/couchdb|g" \
+    -e "s|%localbuilddatadir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/share/couchdb|g" \
+    -e "s|%localstatelogdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/log/couchdb|g" \
+    -e "s|%localstatelibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/lib/couchdb|g" \
+    -e "s|%localstatedir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var|g" \
+    -e "s|%localstaterundir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/run/couchdb|g" \
+    -e "s|%couchlibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib/couch-%version%|g"\
+    -e "s|%couchincludedir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib/include|g"\
+    -e "s|%couchebindir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib/ebin|g"\
+    -e "s|%couchprivlibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib/couch-%version%/priv/lib|g"\
+    -e "s|%bug_uri%|https://issues.apache.org/jira/browse/COUCHDB|g" \
+    -e "s|%package_author_address%|dev@couchdb.apache.org|g" \
+    -e "s|%package_author_name%|The Apache Software Foundation|g" \
+    -e "s|%package_name%|Apache CouchDB|g" \
+    -e "s|%version%|1.6.1|g" \
+    -e "s|%erlangversion%|R16B03-1|g" \
+    -e "s|%erlangbin%|/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erl|g" \
+    -e "s|%couchdb_command_name%|`echo couchdb | sed 's,x,x,'`|g" > \
+couch-config < couch-config.tpl
+chmod +x couch-config
+building couchjs_dev
+ln -s -f "/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb/priv/couchjs" "couchjs_dev"
+building couch-config_dev
+sed -e "s|%ERL%|/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erl|g" \
+    -e "s|%bindir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/bin|g" \
+    -e "s|%localerlanglibdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1\/src\/couchdb|g" \
+    -e "s|%couchlibdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1\/src\/couchdb|g"\
+    -e "s|%couchincludedir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1\/src\/couchdb|g"\
+    -e "s|%couchebindir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1\/src\/couchdb|g"\
+    -e "s|%couchprivlibdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb/priv/.libs|g"\
+    -e "s|%localdatadir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/share|g" \
+    -e "s|%localbuilddatadir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/share|g" \
+    -e "s|%localstatelibdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/tmp/lib|g" \
+    -e "s|%localstatelogdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/tmp/log|g" \
+    -e "s|%localstatedir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/tmp|g" \
+    -e "s|%localstaterundir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/tmp/run|g" \
+    -e "s|%bug_uri%|https://issues.apache.org/jira/browse/COUCHDB|g" \
+    -e "s|%package_author_address%|dev@couchdb.apache.org|g" \
+    -e "s|%package_author_name%|The Apache Software Foundation|g" \
+    -e "s|%package_name%|Apache CouchDB|g" \
+    -e "s|%version%|1.6.1|g" \
+    -e "s|%erlangversion%|R16B03-1|g" \
+    -e "s|%erlangbin%|/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erl|g" \
+    -e "s|%couchdb_command_name%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/utils/run|g" > \
+couch-config_dev < couch-config.tpl
+chmod +x couch-config_dev
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/bin'
+make[2]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/bin'
+Making all in etc
+make[2]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc'
+building all-recursive
+Making all in couchdb
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/couchdb'
+building default.ini
+sed -e "s|%bindir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/bin|g" \
+    -e "s|%localconfdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/etc/couchdb|g" \
+    -e "s|%localdatadir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/share/couchdb|g" \
+    -e "s|%localbuilddatadir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/share/couchdb|g" \
+    -e "s|%locallibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb|g" \
+    -e "s|%localstatelibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/lib/couchdb|g" \
+    -e "s|%localstatelogdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/log/couchdb|g" \
+    -e "s|%localstaterundir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/run/couchdb|g" \
+    -e "s|%couchprivlibdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib/couch-1.6.1/priv/lib|g" \
+    -e "s|%couchjs_command_name%|`echo couchjs | sed 's,x,x,'`|g" \
+    -e "s|%package_author_name%|The Apache Software Foundation|g" \
+    -e "s|%version%|1.6.1|g" \
+< default.ini.tpl > default.ini
+building default_dev.ini
+sed -e "s|%bindir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/bin|g" \
+    -e "s|%localconfdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/couchdb|g" \
+    -e "s|%localdatadir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/share|g" \
+    -e "s|%locallibdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/tmp|g" \
+    -e "s|%localbuilddatadir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/share|g" \
+    -e "s|%localstatelibdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/tmp/lib|g" \
+    -e "s|%localstatelogdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/tmp/log|g" \
+    -e "s|%localstaterundir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/tmp/run|g" \
+    -e "s|%couchprivlibdir%|/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb/priv/.libs|g" \
+    -e "s|%couchjs_command_name%|`echo couchjs_dev | sed 's,x,x,'`|g" \
+    -e "s|%package_author_name%|The Apache Software Foundation|g" \
+    -e "s|%version%|1.6.1|g" \
+< default.ini.tpl > default_dev.ini
+building local_dev.ini
+if test ! -f "local_dev.ini"; then \
+    cp local.ini local_dev.ini; \
+    chmod +w local_dev.ini; \
+fi
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/couchdb'
+Making all in default
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/default'
+make[3]: Nothing to be done for `all'.
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/default'
+Making all in init
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/init'
+make[3]: Nothing to be done for `all'.
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/init'
+Making all in launchd
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/launchd'
+make[3]: Nothing to be done for `all'.
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/launchd'
+Making all in logrotate.d
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/logrotate.d'
+make[3]: Nothing to be done for `all'.
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/logrotate.d'
+Making all in windows
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/windows'
+make[3]: Nothing to be done for `all'.
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc/windows'
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc'
+building logrotate.d/couchdb
+sed -e "s|%localstatelogdir%|/nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/var/log/couchdb|g" < logrotate.d/couchdb.tpl > logrotate.d/couchdb
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc'
+make[2]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/etc'
+Making all in src
+make[2]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src'
+building all-recursive
+Making all in couch_dbupdates
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_dbupdates'
+building ebin/couch_dbupdates.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -I../../src/couchdb -o ebin/   src/couch_dbupdates.erl;
+building ebin/couch_dbupdates_httpd.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -I../../src/couchdb -o ebin/   src/couch_dbupdates_httpd.erl;
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_dbupdates'
+Making all in couch_index
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_index'
+building ebin/couch_index.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -I../../src/couchdb -o ebin/   src/couch_index.erl;
+building ebin/couch_index_compactor.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -I../../src/couchdb -o ebin/   src/couch_index_compactor.erl;
+building ebin/couch_index_server.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -I../../src/couchdb -o ebin/   src/couch_index_server.erl;
+building ebin/couch_index_updater.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -I../../src/couchdb -o ebin/   src/couch_index_updater.erl;
+building ebin/couch_index_util.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -I../../src/couchdb -o ebin/   src/couch_index_util.erl;
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_index'
+Making all in couch_mrview
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_mrview'
+building ebin/couch_mrview.app
+sed -e "s|%version%|1.6.1|g" \
+< src/couch_mrview.app.src > ebin/couch_mrview.app
+building ebin/couch_mrview.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview.erl;
+building ebin/couch_mrview_cleanup.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview_cleanup.erl;
+building ebin/couch_mrview_compactor.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview_compactor.erl;
+building ebin/couch_mrview_http.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview_http.erl;
+building ebin/couch_mrview_index.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview_index.erl;
+building ebin/couch_mrview_show.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview_show.erl;
+building ebin/couch_mrview_test_util.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview_test_util.erl;
+building ebin/couch_mrview_updater.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview_updater.erl;
+building ebin/couch_mrview_util.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_mrview_util.erl;
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_mrview'
+Making all in couch_plugins
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_plugins'
+building ebin/couch_plugins.app
+sed -e "s|%version%|1.6.1|g" \
+< src/couch_plugins.app.src > ebin/couch_plugins.app
+building ebin/couch_plugins.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+	-o ebin/   src/couch_plugins.erl;
+src/couch_plugins.erl:231: Warning: crypto:sha/1 is deprecated and will be removed in in a future release; use crypto:hash/2
+building ebin/couch_plugins_httpd.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+	-o ebin/   src/couch_plugins_httpd.erl;
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_plugins'
+Making all in couch_replicator
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_replicator'
+building ebin/couch_replicator_api_wrap.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_api_wrap.erl;
+building ebin/couch_replicator_httpc_pool.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_httpc_pool.erl;
+building ebin/couch_replicator_httpc.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_httpc.erl;
+building ebin/couch_replicator_httpd.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_httpd.erl;
+building ebin/couch_replicator_job_sup.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_job_sup.erl;
+building ebin/couch_replicator_notifier.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_notifier.erl;
+building ebin/couch_replicator_manager.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_manager.erl;
+building ebin/couch_replicator_utils.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_utils.erl;
+building ebin/couch_replicator_worker.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator_worker.erl;
+building ebin/couch_replicator.app
+sed -e "s|%version%|1.6.1|g" \
+< src/couch_replicator.app.src > ebin/couch_replicator.app
+building ebin/couch_replicator.beam
+/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/bin/erlc -Wall -I../../src -I../../src/couchdb \
+        -o ebin/   src/couch_replicator.erl;
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couch_replicator'
+Making all in couchdb
+make[3]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb'
+building all-recursive
+Making all in priv
+make[4]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb/priv'
+building all
+make  all-am
+make[5]: Entering directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb/priv'
+building icu_driver/.dirstamp
+building icu_driver/.deps/.dirstamp
+building icu_driver/couch_icu_driver_la-couch_icu_driver.lo
+/nix/store/r5sxfcwq9324xvcd1z312kb9kkddqvld-bash-4.3-p30/bin/bash ../../../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I../../.. -I../../../src/snappy/google-snappy  -I/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/include  -I/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/lib/erlang/usr/include -D_XOPEN_SOURCE  -I/opt/local/include -I/opt/local/include/js -I/usr/local/include -I/usr/local/include/js -I/usr/include -I/usr/include/js   -O2 -g -O2 -c -o icu_driver/couch_icu_driver_la-couch_icu_driver.lo `test -f 'icu_driver/couch_icu_driver.c' || echo './'`icu_driver/couch_icu_driver.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I../../.. -I../../../src/snappy/google-snappy -I/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/include -I/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/lib/erlang/usr/include -D_XOPEN_SOURCE -I/opt/local/include -I/opt/local/include/js -I/usr/local/include -I/usr/local/include/js -I/usr/include -I/usr/include/js -O2 -g -O2 -c icu_driver/couch_icu_driver.c  -fPIC -DPIC -o icu_driver/.libs/couch_icu_driver_la-couch_icu_driver.o
+icu_driver/couch_icu_driver.c:171:9: warning: initialization from incompatible pointer type [enabled by default]
+         couch_drv_control,  /* F_PTR control, port_command callback */
+         ^
+icu_driver/couch_icu_driver.c:171:9: warning: (near initialization for 'couch_driver_entry.control') [enabled by default]
+building couch_icu_driver.la
+/nix/store/r5sxfcwq9324xvcd1z312kb9kkddqvld-bash-4.3-p30/bin/bash ../../../libtool --tag=CC   --mode=link gcc  -O2 -g -O2 -module -avoid-version  -L/opt/local/lib -L/usr/local/lib  -o couch_icu_driver.la -rpath /nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib/couch-1.6.1/priv/lib icu_driver/couch_icu_driver_la-couch_icu_driver.lo -L/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/lib -licui18n -licuuc -licudata   -L/opt/local/lib -L/usr/local/lib  -lcrypt
+libtool: link: gcc -shared  -fPIC -DPIC  icu_driver/.libs/couch_icu_driver_la-couch_icu_driver.o   -L/opt/local/lib -L/usr/local/lib -L/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/lib -licui18n -licuuc -licudata -lcrypt  -O2 -O2   -Wl,-soname -Wl,couch_icu_driver.so -o .libs/couch_icu_driver.so
+libtool: link: ( cd ".libs" && rm -f "couch_icu_driver.la" && ln -s "../couch_icu_driver.la" "couch_icu_driver.la" )
+building couch_ejson_compare/.dirstamp
+building couch_ejson_compare/.deps/.dirstamp
+building couch_ejson_compare/couch_ejson_compare_la-couch_ejson_compare.lo
+/nix/store/r5sxfcwq9324xvcd1z312kb9kkddqvld-bash-4.3-p30/bin/bash ../../../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I../../.. -I../../../src/snappy/google-snappy  -D_BSD_SOURCE -I/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/include  -I/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/lib/erlang/usr/include -D_XOPEN_SOURCE  -I/opt/local/include -I/opt/local/include/js -I/usr/local/include -I/usr/local/include/js -I/usr/include -I/usr/include/js   -O2 -g -O2 -c -o couch_ejson_compare/couch_ejson_compare_la-couch_ejson_compare.lo `test -f 'couch_ejson_compare/couch_ejson_compare.c' || echo './'`couch_ejson_compare/couch_ejson_compare.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I../../.. -I../../../src/snappy/google-snappy -D_BSD_SOURCE -I/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/include -I/nix/store/9z0f7jsw0cvkkf1v6wjgpjadwk3kizks-erlang-16B03-1/lib/erlang/usr/include -D_XOPEN_SOURCE -I/opt/local/include -I/opt/local/include/js -I/usr/local/include -I/usr/local/include/js -I/usr/include -I/usr/include/js -O2 -g -O2 -c couch_ejson_compare/couch_ejson_compare.c  -fPIC -DPIC -o couch_ejson_compare/.libs/couch_ejson_compare_la-couch_ejson_compare.o
+In file included from /nix/store/la5imi1602jxhpds9675n2n2d0683lbq-glibc-2.20/include/stdio.h:27:0,
+                 from couch_ejson_compare/couch_ejson_compare.c:15:
+/nix/store/la5imi1602jxhpds9675n2n2d0683lbq-glibc-2.20/include/features.h:148:3: warning: #warning "_BSD_SOURCE and _SVID_SOURCE are deprecated, use _DEFAULT_SOURCE" [-Wcpp]
+ # warning "_BSD_SOURCE and _SVID_SOURCE are deprecated, use _DEFAULT_SOURCE"
+   ^
+building couch_ejson_compare.la
+/nix/store/r5sxfcwq9324xvcd1z312kb9kkddqvld-bash-4.3-p30/bin/bash ../../../libtool --tag=CC   --mode=link gcc  -O2 -g -O2 -module -avoid-version  -L/opt/local/lib -L/usr/local/lib  -o couch_ejson_compare.la -rpath /nix/store/g8bf3xf9hrf546c6hrk8mmm7ggbwanfs-couchdb-1.6.1/lib/couchdb/erlang/lib/couch-1.6.1/priv/lib couch_ejson_compare/couch_ejson_compare_la-couch_ejson_compare.lo -L/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/lib -licui18n -licuuc -licudata   -L/opt/local/lib -L/usr/local/lib  -lcrypt
+libtool: link: gcc -shared  -fPIC -DPIC  couch_ejson_compare/.libs/couch_ejson_compare_la-couch_ejson_compare.o   -L/opt/local/lib -L/usr/local/lib -L/nix/store/s4syvddcsw9vly934w88rcq0k8ivas33-icu4c-53.1/lib -licui18n -licuuc -licudata -lcrypt  -O2 -O2   -Wl,-soname -Wl,couch_ejson_compare.so -o .libs/couch_ejson_compare.so
+libtool: link: ( cd ".libs" && rm -f "couch_ejson_compare.la" && ln -s "../couch_ejson_compare.la" "couch_ejson_compare.la" )
+building couchspawnkillable
+cp spawnkillable/couchspawnkillable.sh couchspawnkillable
+chmod +x couchspawnkillable
+building couch_js/.dirstamp
+building couch_js/.deps/.dirstamp
+building couch_js/couchjs-http.o
+
+
+gcc -DHAVE_CONFIG_H -I. -I../../.. -I../../../src/snappy/google-snappy   -D_XOPEN_SOURCE  -I/opt/local/include -I/opt/local/include/js -I/usr/local/include -I/usr/local/include/js -I/usr/include -I/usr/include/js  -g -Wall -Werror -D_BSD_SOURCE -I/nix/store/b2x79vbr7z6bq42a7j95ylx6v7dr1ybs-curl-7.42.1/include -DXP_UNIX -I/nix/store/m0qi5q1rim3s3grn9vj6j0wrjwx0dmn6-spidermonkey-185-1.0.0/include/js -I/nix/store/kj8m3rvgz7x35f6j7rxs122cckq731k3-nspr-4.10.8/include/nspr  -O2 -g -O2 -c -o couch_js/couchjs-http.o `test -f 'couch_js/http.c' || echo './'`couch_js/http.c
+In file included from /nix/store/la5imi1602jxhpds9675n2n2d0683lbq-glibc-2.20/include/stdio.h:27:0,
+                 from couch_js/http.c:13:
+/nix/store/la5imi1602jxhpds9675n2n2d0683lbq-glibc-2.20/include/features.h:148:3: error: #warning "_BSD_SOURCE and _SVID_SOURCE are deprecated, use _DEFAULT_SOURCE" [-Werror=cpp]
+ # warning "_BSD_SOURCE and _SVID_SOURCE are deprecated, use _DEFAULT_SOURCE"
+   ^
+
+
+cc1: all warnings being treated as errors
+make[5]: *** [couch_js/couchjs-http.o] Error 1
+make[5]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb/priv'
+make[4]: *** [all] Error 2
+make[4]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb/priv'
+make[3]: *** [all-recursive] Error 1
+make[3]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src/couchdb'
+make[2]: *** [all-recursive] Error 1
+make[2]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1/src'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/tmp/nix-build-couchdb-1.6.1.drv-0/apache-couchdb-1.6.1'
+make: *** [all] Error 2
+builder for ‘/nix/store/59m01jkkhisp8nqv3l7fkw74g0lxl39d-couchdb-1.6.1.drv’ failed with exit code 2
+[31;1merror:[0m build of ‘/nix/store/59m01jkkhisp8nqv3l7fkw74g0lxl39d-couchdb-1.6.1.drv’ failed
+]2;nixon:sn:/home/sn-dropbox/Dropbox/Public/psg/conf/couchdb
+[1;32m[sn@nixon:/home/sn-dropbox/Dropbox/Public/psg/conf/couchdb]$[0m exit
+exit
+
+Script done on Tue 22 Sep 2015 05:34:59 AM CEST
