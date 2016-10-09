@@ -1,0 +1,38 @@
+/* Attribute Selectors */
+/* add icons next to links */
+
+a[href^="http:"], a[href^="https:"], a[href^="ftp:"]{
+    padding:0 12px 0 0px;
+    background:url(AttributeIcons/mini_icons2/arrow_right.gif) no-repeat top right;
+}
+a[href^="mailto:"] {
+    padding: 0 16px 0 0;
+    background:url(AttributeIcons/mini_icons2/mail.gif) no-repeat bottom right;
+}
+a[href$=".pdf"] {
+    padding: 0 0px 0 20px;
+    background:url(AttributeIcons/pdficon_small.gif) no-repeat center left;
+}
+a[href$=".txt"] {
+    padding: 0 0 0 10px;  /* mini icons need 10px of space, they have transparent bg */
+    background:url(AttributeIcons/mini_icons2/document.gif) no-repeat center left;
+}
+
+a[href$=".rtf"], a[href$=".doc"] {
+    padding:0 0 0 20px;  /* larger icons need 20px, white bg */
+    background:url(AttributeIcons/MSWord_icon.gif) no-repeat center left;
+}
+a[href$=".cal"] {
+    padding:0 20px 0 0;
+    background:url(AttributeIcons/mini_icons2/calendar.gif) no-repeat center left;
+}
+
+/* for links with icons and no text, omit icons for these */
+.noicon a[href^="http:"],
+.noicon a[href^="https:"],
+.noicon a[href^="ftp:"]
+{
+    padding-left:0;
+    background:#fff;
+}
+

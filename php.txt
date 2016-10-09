@@ -1,0 +1,56 @@
+To add php support, update httpd.conf with:
+
+LoadModule php5_module        /usr/lib64/httpd/modules/libphp5.so
+AddType application/x-httpd-php .php .phps .php3 .fds
+AddHandler php5-script .php
+## AddHandler not absolutely necessary.
+
+/usr/lib64/httpd/modules/libphp5.so was installed by a compilation of php source as
+./configure --with-apxs2=/usr/sbin/apxs
+make; make install
+
+
+
+create .php file like normal .html file
+code appears between <?php   ... ?> tags.
+html won't render them (but will show up in source html code.
+php handler will run the php and put output in those tags.
+
+.php don't need to be in cgi-bin directory/environment.  It can go 
+anywhere where .html files are served by the web server.
+
+
+
+
+
+eg:
+
+This is HTML text here.
+<BR>
+PHP code follows...
+<BR>
+
+
+<I>Calling php echo hello world ...</I><BR>
+<?php
+    echo 'Hello world';
+?>
+<BR>
+<I>...Done php echo hello world</I><BR>
+
+
+
+
+<I>Calling incl eg-php-html2.php ...</I><BR>
+
+<?php
+include('eg-php-html2.php');
+?>
+<BR>
+<I>Done Calling incl eg-php-html2.php</I><BR>
+
+
+
+<?php phpinfo() ?>
+
+

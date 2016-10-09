@@ -1,0 +1,311 @@
+/*
+Tin Ho
+CSS Class - UCSCX - 2012.06xx
+Final Project - (remake PSG front page)
+
+direct link for the CSS Validator is:
+http://jigsaw.w3.org/css-validator/#validate_by_upload
+*/
+
+
+/* css only take comment like this */
+/* css does not take # or // as comment! :( */
+
+/* only 16 colors in html/css, see http://www.utexas.edu/learn/html/colors.html
+   and allegedly it has to be Capitalized!  */
+
+body { 
+  font:.8em Verdana, Arial, Helvetica, sans-serif; 
+  color:#000; 
+  background-color:#996;  /* some beige-green color as side column */
+  text-align:center;   
+  margin:0; 
+  padding:0; 
+} 
+
+#wrapper { 
+  /* width: 760px;   */
+  width: 80%;              /* using % so that page main text adj with broswer window width */
+  background: #eeb;        /* #eeb = slightly yellow, off white, easier on the eye for long reading.  ff0 is yellow */
+  text-align: left;  
+  margin: 0 auto; 
+} 
+
+#header { 
+    background:#dccbac;  /* some pinkish beige color */ 
+} 
+
+#header #title { 
+ font: 4.2em lucida, helvetica, arial, sans-serif; 
+ font-variant: small-caps;
+ color: #060;    /* 060= dark green;  008000 = green */
+ margin:0; 
+ padding: 20px 10px 0 10px;  
+} 
+
+#header #sub-title { 
+ font: 1.5em lucida, helvetica, arial, sans-serif; 
+ font-variant: small-caps;
+ color: #060;    /* 060= dark green;  008000 = green */
+ margin:0; 
+ padding: 0px 10px 10px 10px;  
+} 
+
+
+/* pseudo-classes for link highlight in main page*/
+a:link{     color: teal;   text-decoration: underline;  }
+a:visited{  color: teal;   text-decoration: underline;    font-weight: bold;  }     
+a:hover{    color: Red;    text-decoration: underline;    background-color: Yellow }     
+a:active{   color: Olive;  text-decoration: overline;     background-color: #334433 }
+
+
+
+#navigation {
+    width: 160px;         /* this width is important to #content 2nd column "trick" */
+    float: left;          /* float creates the extra column of text */
+    padding: 10px 0px; 
+    margin: 1px 4px;
+}
+
+
+#navigation ul li { 
+ list-style:none; 
+ line-height:1.7em; 
+} 
+
+
+#navigation em, .azul {
+    color: blue;
+    font-weight: bold;
+    font-size: larger;
+}
+
+#navigation a:link { 
+ color: green; /*#030;  /* dark green */ 
+ text-decoration: none; 
+} 
+
+#navigation a:hover, #navigation a:focus, #navigation a:active { 
+ color: lime; 
+ text-decoration: none;
+ background-color: #060;  /*dark green*/
+}
+
+
+#content { 
+  margin: 0 0 0 165px;   /* this use of margin pushes the text to the right, creating the 2nd column of text all the way thru this container (#content) */
+  padding: 15px; 
+  border-left: thin solid #ccc;
+} 
+
+#tailer {
+  margin: 0 0 0 165px;   /* was 1 pixel off from #content :) */
+  padding: 15px; 
+  border-left: thin solid #aaa;   /* and slightly darker line */
+}
+
+#psg-url {
+    text-align: left;
+}
+
+#footer { 
+  padding: 10px; 
+  background:#fff;  
+  border-top:1px solid #ccc; 
+  color:#999; 
+  font-size:.7em; 
+} 
+  
+
+p em { color: red;   /* !important here would leave text as red indeed, but if omitted, universal rule above marked with !important overwrite this */ 
+       font-weight: bolder; 
+       /*font-family: Western, fantasy;*/
+       font-size: larger;   /* size still honored because universal rule above only dictated color */
+}
+
+
+strong {
+    color: blue;
+    font-weight: bolder;  
+    font-size: larger;
+}
+
+
+/* largely original settings used in psg.css */
+H1, H2, H3, H4 {
+	color: green;
+	padding: 	0.1em;
+	margin-top: 	0.2em;
+	margin-bottom: 	0.4em;
+	font-family: helvetica, arial, lucida, sans-serif;
+}
+
+
+
+H1 {
+	/*background-color: #BBF0BB;*/
+	font-size: 	170%;
+	font-weight: 	bolder;
+	text-transform: uppercase;
+	text-align: 	center;
+	border-style: 	solid;
+        list-style-type: decimal
+}
+
+H2 {
+	/*background-color: 	#D0F0D0;*/
+	font-size: 		150%;
+	font-variant: 		small-caps;
+	/* text-transform: 	uppercase; */
+	text-transform: 	capitalize;
+; list-style-type: decimal
+}
+
+H3 {
+	/*background-color: #DEF0DE;*/
+	font-size: 	140%;
+	font-style: 	italic;
+        list-style-type: decimal
+}
+
+H4 {
+	font-size: 120%;
+	color: green;
+}
+
+H5, H6 {
+	color:          blue; 
+	padding: 	0.1em;
+	margin-top: 	0.1em;
+	margin-bottom: 	0.1em;
+	padding-top:	0.2em;
+	padding-bottom:	0.2em;
+	/* font-family: helvetica, arial, lucida sans, sans-serif; */
+}
+
+
+H5 {	
+	font-size: 112%;  
+	font-variant: 	small-caps; 
+}
+H6 {	
+	font-size: 106%;  
+}
+
+
+
+/* largely from orig psg.css */
+PRE { 	
+    color: #347;   /*#444*/     
+    font-family: monospace;
+    font-size: medium;
+}
+
+PRE.cmd, PRE.code, PRE.programlisting, PRE.screen PRE.cf {
+	/*//border: 	#630 1px dashed; */
+	border: 	#630 1px solid;
+	color: 		#630;
+	padding-left:  	0.5em;
+	background-color: lightgray;
+}
+
+PRE.cmd {
+	border:		none;
+	color: 		green;
+}
+
+PRE.screen {
+	/*
+        //background-color: #FFD;
+	//color:  	#0B8;
+	//background-color: #000;
+	//color:   	#CC0;
+        */
+        background-color: #333;
+	color:   	yellow;
+	padding-top:	0.5em;
+	padding-bottom:	0.5em;
+	padding-left:  	0.5em;
+	margin-top:	0.5em;
+	margin-bottom:	0.5em;
+	border: 	solid;
+	border-width: 	3px;
+}
+
+.quote {
+	color:  	#622;
+	border-width: 	0px;
+	margin-left:  	2em;
+	padding-left:   2em; /*0.5em;*/
+}
+
+
+/* 
+   put vendor and materials copied from elsewhere inside a blocked box 
+   so that copyright is obvious that it is not mine. 
+*/
+.quotebox {
+	border: 		solid;
+	border-width: 		1px;
+	color:   		#622;
+	background-color: 	#BBB;
+	padding-left: 	 	0.5em;
+	margin-left:            2em;
+        width:                  95%;
+	background-color:       #EEF;
+
+	/*
+        border: 	dashed 1px;
+        // padding-top:		0.5em;
+	// padding-bottom:	0.5em;
+	// margin-top:		0.5em;
+	// margin-bottom:	0.5em;
+        */
+}
+
+/* comments */
+
+.cf {
+	border: 	#630 1px solid;
+	color:  	#630;
+	margin-left:  	4em;
+	padding-left:  0.5em;
+	/* hmm, this was originally PRE.cf, maybe it should just be DIV class cf, 
+	   but works well like this now...
+         */
+}
+
+
+
+TT {
+	border:		none; 
+	/*border: 	#630 1px solid; */
+	color:  	blue; /* formerly reddish brown #630;  too close to black */
+    	font-family: 	monospace;
+    	font-size: 	larger;
+}
+
+	
+DIV.box {
+        border-style:   solid;
+}
+
+
+
+DIV.ctr {
+        text-align:     center;
+        font-size:      90%;
+}
+
+DIV.tomb {
+        font-size:      220%;
+        font-weight:    bolder;
+        text-align:     center;
+        border-style:   solid;
+        padding:        0.1em;
+        margin-top:     0.2em;
+        margin-bottom:  0.4em;
+   	text-decoration: none;  /* dont work, link is nested inside this, oh well */
+}
+
+

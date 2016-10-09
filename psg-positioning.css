@@ -1,0 +1,54 @@
+
+/*
+    fixed-positioning, potentially place ads in this space :)  
+    (but do i really want ad that does not scroll away?)
+    tIN
+*/
+
+.skinny {
+    /* absolute positioning will scroll away, good if put ads on 
+       fixed positioning will remain in the browser window 
+    */
+    /*position: absolute;*/  
+    position: fixed;
+    width: 100px;
+    /*height: 100px;*/   
+    border:1px solid #999;
+}
+
+/* 1 = logo */
+#one {
+    background:pink;
+    top:0;
+    right:0;
+    /*position: absolute;*/
+    height: 100px;
+    z-index: 100;
+}
+
+/* 2 = vi hell pic 649x499  */
+#two {
+    background:blue;
+    top:100px;
+    right:0;
+    height: 77px;
+    z-index: 200;
+}
+
+/* 3 = clippie */
+#three {
+    background:green;
+    top:177px;
+    right:0;
+    height: 77px;
+    z-index: 300;
+}
+
+/* future ad :)  */
+#four {
+    background:yellow;
+    top:254px;
+    right:0;
+    height: 100px;
+    z-index: 400;  /* use -ve values to send them to behind page background */
+}

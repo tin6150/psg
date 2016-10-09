@@ -1,0 +1,431 @@
+
+tiny.cc/BASH
+
+
+former shellScript.ref
+lot of work to convert to HTML as all > will need to be converted to &gt; etc
+even when inside <PRE> block.
+
+
+
+================================================================================
+limit
+================================================================================
+
+csh:
+limit                   # shows limit
+unlimit                 # lift all limits, include fd
+
+bourne:
+ulimit -a       # show all limit
+ulimit -s unlimited     # no bound for stack size lilmit
+ulimit -n 1024          # number of open file descriptor, sh need this separate
+ from -s unlimited
+                        # somehow can't seems to go above 1024 on sh
+        -H              # hard limit
+        -S              # soft limit (default set both)
+
+open file descriptor limit need to be reset in /etc/system as
+        set rlim_fd_max=4096
+kernel default 8=1024,9+=64k, but different shell limit -n are soft limit, and
+lock it to 1024 to 4096, which is probably still okay
+/etc/system param change should not be needed in sol 9 and 10, few program can
+use more than 64k.
+check "sysdef | grep file\ desc"   # current:max pair
+
+--------------------------------------------------------------------------------
+
+
+mail.
+use /usr/ucb/Mail, exist in linux and solaris
+
+cat FILE | Mail -s "subject line" tho01@cs
+
+(linux mail does not support -s subject option, while solaris will not use the
+first line of the message that has 'Subject: bla' in it as the subject.)
+
+
+wisdom from Mohit:
+set absolute path at the beginning of the script.  
+this way, no need to define commands with full path.
+The only other issue is, same command, such as awk, maybe in multiple places,
+which is not really same (linux awk is solaris nawk).  Path sequence need to
+be assigned carefully for such commands.  In a very heterogeneous platform,
+maybe hard and hard path prefered...
+
+
+********************************************************************************
+sh/bash
+********************************************************************************
+
+---
+
+echo $PATH | tr ':' '\012'
+\012 is the octal value for linefeed, note that \015, CR, will not work in unix.
+
+---
+
+NUM = `expr 10 + 10`
+NUM = `expr 10 \* 10`
+NUM = `expr 10 \/ 10`
+
+
+New bash4 
+
+NUM = $(( 10+10 ))
+echo $(( 10 * 2 )) 	# no escape needed for * 
+echo $(( 10 / 3 )) 	# no escape needed for / , Note, $(( )) only return integer portion of result
+echo $(( 10 % 3 )) 	# modulus operation, ie, give reminder 
+
+X=10
+Y=3
+Z=$(( X / Y )) 		# the $VAR don't need to be used inside $(( )).
+Z=$(( $X/$Y )) 		
+
+
+One dimentional array in bash
+userlist=( foo bar baz )
+echo ${userlist[0]}		# get foo, first element of array is at index 0. 
+echo ${userlist[*]}		# get foo bar baz, all the elemnts are listed with * as index.
+echo ${userlist[@]}		# get foo bar baz, all the elemnts are listed with @ as index.
+echo ${#userlist[@]}		# get 3, the size of the array.
+
+
+for i in 0 1 2; do echo ${userlist[i]};  done	# can use either i or $i as index variable inside the ${var[]} syntax
+for i in 0 1 2; do echo ${userlist[$i]}; done
+
+more examples, array slides ${userlist[1]:1:2}, etc in http://www.tldp.org/LDP/abs/html/arrays.html
+
+--------
+
+LD_PRELOAD_OPTS=...
+This environemnt will allow specific library to be "preloaded", before LD_LIBRARY_PATH modules get loaded.  This way, program that has specific requirements for libs but may otherwise conflict with studd in LD_LIBRARY_PATH can be preferentially loaded first, thus used first and resolve incomptabilities issues.
+
+eg:
+make LD_PRELOAD_OPTS=/apps/lib 
+
+
+other important env var (at least for RHEL):
+PATH   MANPATH   LD_LIBRARY_PATH   LD_RUN_PATH   INCLUDE_PATH   C_INCLUDE_PATH
+
+
+compiling program with static lib  (glibc-static needed!)
+./configure LDFLAGS=-static 
+make LDFLAGS=-all-static
+
+-------
+
+emulating main:
+
+have fn called
+main() 
+{ ... }
+
+then at end of file, call it as 
+main $*
+
+$* = all arguments
+
+inside the function, 
+$1 = first argument
+use x=$1  if want to assigne the argument to a variable, don't use set x=$1
+
+
+The actual calling of the fn does not need () before args.
+fn really become mini shell scripts w/in the script.
+(fn implementation is really like a kludgy after-thought)
+
+define -F	# list all defined fn
+
+----
+
+
+for programs that insist of having a terminal attached to it, 
+use this in the shell script, and the whole script will seems to have a terminal attached to it (don't know what is implication of stdin).
+
+exec 0</dev/null
+
+-----
+
+if syntax:
+
+if [ cond ]; then
+	cmd
+elif [ cond ]; then
+	cmd
+else
+	cmd
+fi
+
+eg ksh:
+if [[ `echo $OUTPUT1 | wc -l` != 0 || `echo $OUTPUT2 | wc -l` != 0 ]]; then
+
+eg sh:
+if [ `echo $OUTPUT1 | wc -l` != 0 -o `echo $OUTPUT2 | wc -l` != 0 ]; then
+
+
+----
+
+.bashrc vs .bash_profile  vs .profile
+
+** just put everything in .bashrc **
+
+http://superuser.com/questions/183870/difference-between-bashrc-and-bash-profile 
+has a long post about it.
+.bash_profile/.profile should have been more extensive than .bashrc
+just so that old slow modem don't have to source login shell stuff more than once.
+nowadays, have .bash_profile source .bashrc is perfectly fine, and is done by most OS by default now. 
+
+
+Some gory details:
+
+- bash will not source .profile if .bashrc exist
+- .bashrc isn't sourced when it is executed as the login shell (eg ssh, su -)
+    - the GUI is the interactive login shell, each terminal is a non-login interactive shell, thus xterm source .bashrc only.
+- .bashrc IS sourced as new screen session.
+- .profile had some sort of conflict for module and bash.  time to forget /bin/sh :)
+
+
+----
+
+#.profile from db2profile for setting up path
+# eg use after declaration:
+# AddtoString PATH /usr/local/bin
+#
+# Function to avoid repetitive environment variable entries
+#
+# addition by Tin, add only if dir actually exist
+#
+AddtoString()
+{
+  var=$1
+  addme=$2
+  if [ -d $2 ]; then
+    awkval='$1 != "'${addme?}'"{print $0}'
+    newval=`eval /usr/bin/echo \\${$var} | /usr/bin/awk "${awkval?}" RS=:`
+    eval ${var?}=`/usr/bin/echo $newval | /usr/bin/sed 's/ /:/g'`:${addme?}
+    unset var addme awkval newval
+  fi
+}
+
+
+Size() { ls -l $* | awk '{sum+=$5} END {print sum}' ; }         # Size *.txt  # not /usr/bin/size!
+
+
+qhostTot() { qhost | awk '{h+=1; c+=$3} END {print "host="h " core="c}'  ; }
+
+# this one below isn't better than above.  as awk can't handle memory M or G suffix
+qhostTot() { 
+   qhost | awk '/[KMG0-9]$/ {h+=1; c+=$3; m+=8; print $0} END {print "host="h " core="c " mem="m}'  
+}  
+
+
+---
+
+
+
+heredocs for sh:
+
+cat > /tmp/heredoc.txt << END_HEREDOC
+some long text
+that span
+many lines
+END_HEREDOC
+
+
+it can be hacked to emulate goto which doesn't exist in bash:
+cat >/dev/null << LABEL
+# sh code 
+# that will 
+# be skipped
+LABEL
+
+# code that will be exeucted
+
+
+
+
+bash support multiline echo, so heredocs are less critical:
+echo "
+some long text
+that span
+many lines
+" > /tmp/heredoc.txt
+
+
+
+
+shell editor
+set -o vi 
+
+emacs mode is default
+^R  (ctrl+shift+r)   backward history search (like vi mode ESC,?)
+
+
+
+*** keyboard shortcut for bash ***
+probably natura to emacs users...
+
+^R      reverse search in history, any arrow key will enter edit mode of that l
+ine cmd.
+^W      word backward erase
+^U      whole line erase
+^A      goto beginning of the line
+^E      goto end of the line
+^L      refresh screen
+^S      suspend scroll
+^Q      continue scroll
+^P      = up arrow, ie prev command
+^B      = left arrow
+^J      = enter
+^M      = enter
+
+================================================================================
+ksh
+================================================================================
+
+set -o vi
+/ = forward search of command history
+? = backward search
+use vi commands to edit history, enter to run it.
+
+
+
+================================================================================
+terminal
+================================================================================
+
+stty -a
+        display settings for terminal
+        HP-UX seems to default "kill" to @, which cause anoying problem of mapping @ to line erase.
+        solaris seems to use ^u for "kill".  reset via key strokes of
+        stty kill <ctrl-u>   or stty kill <ctrl-v><ctrl-u>
+        stty intr ^V^C          # HP default don't take ^C for break, map to DEL which isn't delete key.
+        stty susp ^V^Z          # for suspend process
+
+
+
+
+
+================================================================================
+csh/tcsh
+================================================================================
+
+csh has a GOTO command (bash don't, but can use heredocs to emulate the fn):
+
+goto label
+echo this won't execute
+
+label:
+echo this will execute
+
+
+
+
+** CSH Anoyance **
+
+csh craps:
+
+set path = ( $path /bin /usr/local/bin /usr/bin /usr/bin/X11 ~/bin /sbin /usr/sbin . )
+##***  don't use $PATH above, it must be lower case $path in the parenthesis.  
+##***  or else it will consider the colon delimited list as a unit and path won't work,
+##***  even when displayed correctly!!  another reason why csh is bad!! =)
+
+setenv PATH            "${PATH}:${AMGEN_HOME}/bin"
+###*** above works, ${PATH} is the right thing to use.  (it seems braces {} are required around var name.
+
+##** $path is a space delimited list
+##** $PATH is a colon delimited list
+##** setenv expects a colon delimited list
+##** set    expects a space delimited list
+
+##** check path using env | grep -i path
+##**  and NOT echo $PATH as csh treat such evaluation specially and 
+##**  it will produce confusing results! 
+
+###  Still don't know what the hell is the differentce between PATH and path
+###  only reliable way to set path is
+###  CSH treats : in variable name as manipulation token,
+###  so setting path with colon in them is likely going to have issues 
+###
+###  *** CONCLUSION: Best use space and the lower case version!!
+###  set path ( $path /more/path )
+
+### LD_LIBRARY_PATH seems to be okay with the setenv LD_LIBRARY_PATH 
+### and colon separated list...
+
+setenv  DISPLAY hostname:1
+unsetenv DISPLAY		# undo setenv
+set ...
+unset ...			# undo set
+
+
+CSH variable evaluation.
+If a variable is not defined, trying to access it will give an error.
+I guess it is like C programming language after all.
+sh will just print blank, which I think is easier to deal with in shell script.
+
+But anyway, in CSH, to guard against such error, need to test the variable 
+being defined before using it.  eg
+
+if ($?TRACE_LOG) then
+        setenv TRACE_LOG "$TRACE_LOG openeye_processed"
+else
+        setenv TRACE_LOG "openeye_processed"
+endif
+
+
+if ($?MANPATH) then
+        setenv MANPATH "${MANPATH}:/usr/share/man:/usr/man:/usr/local/man"
+else
+        setenv MANPATH "/usr/share/man:/usr/man:/usr/local/man"
+endif
+
+These kind of check should be done for things like LD_LIBRARY_PATH, etc.
+There is probably an easier way, using :q or something
+
+
+
+csh if statement, string comparison
+
+set machine = `hostname`
+if !( ( ${machine} == "firth" ) || ( ${machine} == "firth.amgen.com" ) ) then
+        echo "no Firth here... do work"
+else
+        echo "it is Firth here"
+endif
+
+http://www.unet.univie.ac.at/aix/aixuser/usrosdev/c_shell_cmds.htm#A279911bb ::
+C Shell Expressions and Operators
+Operator 	What it Means
+() 	change precedence
+~ 	complement
+! 	negation
+* / % 	multiply, divide, modulo
++ - 	add, subtract
+<< > > 	left shift, right shift
+<= >= < > 	relational operators
+== != =~ !~ 	string comparison/pattern matching
+& 	bitwise "and"
+^ 	bitwise "exclusive or"
+| 	bitwise "inclusive or"
+&& 	logical "and"
+|| 	logical "or"
+
+
+
+Things to have in .cshrc ::
+
+ http://mail.hudat.com/~ken/help/unix/.cshrc
+#alias ins2path  'if ("$path:q" !~ *"\!$"* ) set path=( \!$ $path )'
+#alias add2path  'if ("$path:q" !~ *"\!$"* ) set path=( $path \!$ )'
+add2path ${JAVA_HOME}/bin
+
+
+I/O redirection
+
+cat foo >& bar		# >& = stdout + stderr  (sh use  2>&1 at the end)
+cat foo |& tee bar	# | instead of >, otherwise same as above.
+
+
+</PRE></HTML>

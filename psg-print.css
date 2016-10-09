@@ -1,0 +1,193 @@
+/*
+Tin Ho
+CSS Class - UCSCX - 2012.06xx
+
+Final project, largely adapted from CSS media homework.  
+
+
+From video lecture notes:
+sans-serif font easier to read on screen,
+serif font easier to read on paper
+
+most browser use 16px for font, which in print typically comes out to 12pt.
+
+media type paper
+use simpler color that prints well.
+remove background color, image
+
+direct link for the CSS Validator is:
+http://jigsaw.w3.org/css-validator/#validate_by_upload
+*/
+
+/* only 16 colors in html/css, see http://www.utexas.edu/learn/html/colors.html
+   and allegedly it has to be Capitalized!  */
+
+body { 
+    background-color: #FFF;
+    background-image: none;    /* the main css used by screen should not affect this, but just to be safe, declare it as none */    
+}
+
+
+#navigation, #footer, #tailer, #fixie{
+    display: none;
+    /* visibility: hidden;*/
+}
+
+#header, #content {
+width: auto;
+margin: 0;
+padding: 0;
+}
+
+/*
+It essentially tells every tag to use black text no matter what. The * (universal
+selector) is a quick way of specifying a style for every single element on a page, while the
+!important declaration cancels out any conflicts caused by the cascade. 
+*/
+/* ! is a delimiter, don't read !important as "NOT imporant", just pretend didn't see the '!'  
+   ref http://www.w3.org/TR/CSS21/cascade.html#important-rules
+*/
+* {
+color: #000 !important; /* ensures that all text will be black */
+}
+
+h1, #header, #header #title {
+font-size: 24pt !important;
+}
+h2 {
+font-size: 20pt !important;
+}
+h3 {
+font-size: 18pt !important;
+}
+h4, #header #sub-title {
+font-size: 16pt !important;
+}
+h5 {
+font-size: 14pt !important;
+}
+h6 {
+font-size: 12pt !important;
+}
+
+p {
+font-size: 11pt !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;   /* this should keep title with rest of content when printed out */
+    font-family: "Times New Roman", Georgia, serif;
+}
+
+/*
+    Float the class applied to your paragraph for the box model:
+    Float an image so text wraps around the image. 
+    Make sure to include a bit of padding to the image.
+*/
+.float_eg {
+    width:   100%;  /* 100% for print output vs diff value for screen output */
+    font-size: 5pt;
+    /*padding: 2em; */
+    margin:  0;
+    border: Gray solid 1px;   
+    /* use a border box in leu of floating at 40% in print 
+    but box seems a bit gabled in FF12, okay in chrome */
+    float:   right;
+    background-color: #FFF; /*white*/
+}
+
+img {
+    float: left;
+    padding: 1em;
+    /* display: none;   /* don't print images */
+}
+
+
+
+h1 em, h2 em { color: red }
+
+p { /*color:gray*/ ; 
+    /* font-family: Times, "Times New Roman", Georgia, serif;  */
+    font-family: sans-serif;
+}
+p em { color: blue;   /* !important here would leave text as blue indeed, but if omitted, universal rule above marked with !important overwrite this */ 
+       font-weight: bold; 
+       font-family: Western, fantasy;
+       font-size: larger;   /* size still honored because universal rule above only dictated color */
+}
+
+
+
+ul {
+        list-style-type:  square;
+        page-break-inside: avoid;    /* single li would still be printed on a page separate from the rest in FF12 */
+}
+ul ul {
+	list-style-type: disc;
+        /*list-style-image: url(sqpurple.gif); */
+        /* note that if the parent has a list-style-image and this child does not, the parent image will overwrite the list-style-type!! */
+        page-break-inside: avoid;
+
+}
+
+.decimal-list ol{
+    list-style-type: decimal-leading-zero;
+    /* some other possibilities
+    none, disc, circle, square, decimal, decimal-leading-zero, lower-roman, upper-roman, lower-alpha, upperalpha,
+    lower-greek, lower-latin, upper-latin, hebrew, armenian, georgian, cjk-ideographic, 
+    */
+}
+
+.greek-list ol{
+    list-style-type: lower-greek;
+    border: 4px dotted #000;
+    /* shorthad above replaces next 3 longhand form below:
+    border-style: dotted;
+    border-width: 4px;
+    border-color: #000;
+    */
+    margin: 4px 8px;        /* note position of the "bullet" */
+    padding: 8px 2px; 
+}
+
+
+
+.code  {
+        page-break-inside: avoid;         /* does not prevent long stretch of text from splitting across page, at least not in Firefox12 */
+        page-break-before: always;        /* thus, this line is best method to keep code together in same page, at the expense of more trees! */
+        /*  font-family: "Courier New", Courier, monospace;  */
+        font-family: Courier, monospace;
+        color: Yellow;
+        background-color: black;
+        line-height: 100%;    /* 120% */
+        text-indent: 0%;
+        
+        border-style: solid;
+        border-width: 4em;
+        border-color: #666;
+
+        margin:  2em 4em;
+        padding: 6em;
+}
+
+
+
+/*
+UCSC EXTENSION Instructor: Audrey Blumeneau
+Designing with Cascading Style Sheets (CSS) I 5
+
+For any links that may appear within the text of our main content (such as “Click here to learn
+more”), we may want to display the actual URL in the printed format. To enable this, we can use
+a psuedo-class selector called: :after
+Unfortunately this uses some advanced CSS that Internet Explorer 6 and 7 does not support
+however, IE 8 does as do Firefox, Safari and others. If it is not supported, nothing happens at all.
+*/
+/* print actual url inside () so paper output get the link  */
+a:after {
+    content: " ("   attr(href)  ")";
+    color:  #ccc;  /*grayish*/    
+    font-size:60%;
+    
+}
+
+

@@ -1,0 +1,110 @@
+/*
+Tin Ho
+CSS Class - UCSCX - 2012.06xx
+Assignment 6 - Table Styles
+
+
+direct link for the CSS Validator is:
+http://jigsaw.w3.org/css-validator/#validate_by_upload
+*/
+
+/* only 16 colors in html/css, see http://www.utexas.edu/learn/html/colors.html
+   and allegedly it has to be Capitalized!  */
+
+
+table {
+text-align:left;
+border-collapse:collapse; /* not supported by IE6 */
+width: 86%;
+margin:0 auto;
+}
+th.noBorder, td.noBorder {
+padding:0 10px 0 10px;
+border-bottom:0px;
+}
+
+th.wBorder, td.wBorder {
+padding:0 10px 0 10px;
+border-bottom:1px solid #666;
+}
+tr {
+vertical-align: top;
+padding: 0;
+}
+th {
+font-size:1em;
+}
+td.plug {
+font-size: 1em /*.875em*/;
+}
+/* no easy way to select odd/even row in css 2.1, 
+   For this, manual setting in html req. */
+
+tr.altColor2 {    
+    background-color: #dccbac;  /* some pinkish beige color used in title section */ /*#090; /*#fc9; */
+}
+tr.altColor1 {
+    background-color: #eeb; /* match normal page bg color defined in psg2.css */
+}
+
+
+tr:hover {
+background:#696;
+color: yellow;
+}
+
+thead {
+font-size:1em;
+color: Teal;
+font-weight:bold;
+border-bottom: 2px solid #666;
+}
+
+tfoot {
+font-size:.8em;
+color:#686;
+font-style:italic;
+text-align:left;
+border-bottom:1px solid #666;
+}
+
+.last {
+background:#fff;
+padding:0;
+border-top: 2px solid #666;
+}
+.last.noBorder {
+border-top: 0px;
+}
+
+
+
+.plug-type{
+    border-right: 2px solid #666;
+}
+.plug, .receptacle {
+    text-align: center;
+}
+
+caption {
+font-size:1.4em;
+font-weight:bold;
+font-variant:small-caps;
+letter-spacing:.2em;
+margin: 0em 0; /* for IE 7 use padding instead of margin! */
+caption-side: top;  /* bottom;  /* puts caption at the bottom the table, but not IE6/7! */
+border-bottom: 2px solid #666;
+}
+
+
+/* ****Styles for the col**** 
+.Love {
+background:#F33;
+}
+.Angel {
+background:#FCF;
+}
+.CalPoly {
+background:#FFC;
+}
+*/
