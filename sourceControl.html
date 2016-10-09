@@ -191,7 +191,11 @@ Example instructions to add files as git repo into github
 <PRE>
 git config user.email "tin6150@gmail.com"
 git config user.name  "tin"
+
 # can use git config --global  if no need to use diff settings per repository
+git config --global credential.helper 'cache --timeout=3600'
+git config --global github.user   tin6150
+git config --global github.token  mytoken
 
 git remote add origin https://github.com/tin6150/psg.git
 git push -u origin master
