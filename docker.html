@@ -247,7 +247,7 @@ Under the hood</A>: <BR>
 	<LI> <A HREF="bigdata.html#mesos">Mesos</A>
 	<LI>Vagrant 
 	<LI>ClusterHQ
-	<LI>CoreOS
+        <li> <a href="coreos.html">CoreOS</a>
 	<LI> OpenVC
 	<LI> LXC = namespace + cgroup
 	<LI> Rocket (rkt), a newer, open source container/pod contender.
@@ -263,7 +263,10 @@ Under the hood</A>: <BR>
 
 <H3>Docker Hub</H3>
 
-Docker images can be placed in a central repository.  The "app store" equivalent for docker is at  https://hub.docker.com.
+Docker images can be placed in a central repository.  The "app store" equivalent for docker is at  
+<A HREF="https://hub.docker.com">hub.docker.com</A>.  <BR>
+This Pocket Survival Guide web site is served by an apache container with all the necessary web content in 
+<A HREF="https://hub.docker.com/r/tin6150/apache_psg3/">https://hub.docker.com/r/tin6150/apache_psg3/</A>  <BR>
 <BR>
 No account is needed to pull docker images from the hub.  <BR>
 Account IS needed to post image to the hub.  <BR>
@@ -280,7 +283,8 @@ Account IS needed to post image to the hub.  <BR>
 <H3>Docker and CoreOS</H3>
 
 <UL>
-	<LI>CoreOS is much thinner than traditional Linux distro.
+        <li> <a href="coreos.html">CoreOS</a>
+	is much thinner than traditional Linux distro.
 	<LI>Built intend to host many docker containers.
 	<LI>
 	<LI>
@@ -560,10 +564,11 @@ docker run -it rhel7 /bin/bash
 CoreOS
 </H5>
 
-<PRE>
-CoreOS relies on docker to provide packages.  no rpm, dpkg, yum, apt-get
-has two boot partition, active/standby, where OS upgrade is done on standby.
+<a href="coreos.html">CoreOS</a> 
+relies on docker to provide packages.  no rpm, dpkg, yum, apt-get <BR>
+All CoreOS install has two boot partition, active/standby, where OS upgrade is done on standby. <BR>
 
+<PRE>
 docker pull httpd
 docker run -p 80:80 httpd
 
