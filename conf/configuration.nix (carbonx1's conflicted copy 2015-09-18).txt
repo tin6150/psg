@@ -1,0 +1,153 @@
+# Edit this configuration file to define what should be installed on
+# your system.  Help is available in the configuration.nix(5) man page
+# and in the NixOS manual (accessible by running ‘nixos-help’).
+
+
+## run sudo nixos-rebuild switch 
+## to apply changed
+
+{ config, pkgs, ... }:
+
+{
+  imports =
+    [ # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+    ];
+
+  # Use the GRUB 2 boot loader.
+  boot.loader.grub.enable = true;
+  boot.loader.grub.version = 2;
+  # Define on which hard drive you want to install Grub.
+  # boot.loader.grub.device = "/dev/sda";
+  ##
+  boot.loader.grub.device = "/dev/sda";
+
+  # networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "nixon"; # Define your hostname.
+  networking.hostId = "b6e466c1";
+  networking.firewall.enable = true;
+  networking.firewall.allowPing = true;
+  networking.networkmanager.enable = true;  # https://nixos.org/nixos/manual/sec-networking.html#sec-wireless 10.1
+  #networking.wireless.enable = true;  	# true means use wpa_supplicant
+  #networking.useDHCP = false; 		# Don't run dhclient on wlan0, but break DNS
+  networking.wicd.enable = false;	# https://nixos.org/wiki/WICD wicd-gtk to run gui client
+
+  # Select internationalisation properties.
+  # i18n = {
+  #   consoleFont = "lat9w-16";
+  #   consoleKeyMap = "us";
+  #   defaultLocale = "en_US.UTF-8";
+  # };
+
+  # List packages installed in system profile. To search by name, run:
+  # $ nix-env -qaP | grep wget
+  # environment.systemPackages = with pkgs; [
+  #   wget
+  # ];
+
+  # List services that you want to enable:
+
+  # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
+  services.openssh.enable = true;
+
+  # Enable CUPS to print documents.
+  # services.printing.enable = true;
+
+  # Enable the X11 windowing system.
+   services.xserver.enable = true;
+   services.xserver.layout = "us";
+  # services.xserver.xkbOptions = "eurosign:e";
+
+  # Enable the KDE Desktop Environment.
+   services.xserver.displayManager.kdm.enable = true;
+   services.xserver.desktopManager.kde4.enable = true;
+
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # users.extraUsers.guest = {
+  #   isNormalUser = true;
+  #   uid = 1000;
+  # };
+
+  users.extraUsers.sn = {
+    isNormalUser = true;
+    uid = 1001;
+    home = "/home/sn";
+    extraGroups = [ "wheel" "networkmanager" ];
+    openssh.authorizedKeys.keys = [ "ssh-dss AABB... sn@grumpyxmas.com" ];
+  };
+
+  users.extraUsers.sa9 = {
+    isNormalUser = true;
+    uid = 999;
+    home = "/home/sa9";
+    extraGroups = [ "networkmanager" ];
+    openssh.authorizedKeys.keys = [ "ssh-dss AABB... sa@grumpyxmas.com" ];
+    hashedPassword = "testtesttest";
+  };
+  # removing a user from the config file will trigger a userdel.  but the home dir remains (understandably don't want to delete files)
+
+
+  environment.systemPackages = with pkgs; [
+        zsh wget vim 
+  	htop
+	openbox-menu 
+	python27Packages.ipython 
+	python34Packages.ipython
+	gpgme
+ 	# uge   # no uge, sge, gridengine yet
+	docker kubernetes
+        #chromiumWrapper    # this doens't seems to exist anymore
+        chromium
+        firefox   firefoxWrapper
+        kde4.networkmanagement
+        kde4.kdemultimedia
+        kde4.kdegraphics
+        kde4.kdeutils
+        kde4.applications
+        #pkgs.kde4.kdegames
+        #pkgs.kde4.kdeedu
+        kde4.kdebindings
+        kde4.kdeaccessibility
+        kde4.kde_baseapps
+        kde4.kactivities
+        kde4.kdeadmin
+        kde4.kdeartwork
+        kde4.kde_base_artwork
+        kde4.kdenetwork
+        kde4.kdepim
+        kde4.kdepimlibs
+        kde4.kdeplasma_addons
+        kde4.kdesdk
+        kde4.kdetoys
+        kde4.kde_wallpapers
+        kde4.kdewebdev
+        kde4.oxygen_icons
+        kde4.kdebase_workspace
+        kde4.kdelibs
+        kde4.kdevelop
+        kde4.kdevplatform
+        kde4.qtcurve
+        kde4.ColorSchemes
+        kde4.desktopthemes
+        kde4.kscreensaver
+        kde4.kwin_styles
+        kde4.partitionManager
+        kde4.qt4
+        kde4.yakuake
+        kde4.kgpg
+  ];
+
+  # package configuration
+  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.firefox.enableAdobeFlash = true; # for Firefox
+
+  nixpkgs.config.chromium.enableAdobeFlash = true; # for Chromium
+  nixpkgs.config.chromium.enablePepperFlash = true;
+  nixpkgs.config.chromium.enablePepperPDF = true;
+
+  security.sudo.wheelNeedsPassword = false;
+  #security.sudo.extraCOnfig
+
+}
+
