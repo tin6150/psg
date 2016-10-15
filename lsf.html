@@ -266,8 +266,10 @@ here is quick way to list hosts in au and/or E state:
 <PRE>
 qstat -f | grep au$								# will get most of the nodes with alarm state, but misses adu, auE...
 qstat -f | awk '$6 ~ /[a-zA-Z]/ {print $0}'                                     # some host have error state in column 6, display only such host
-qstat -f | awk '$6 ~ /[a-zA-Z]/  &&  $1 ~ /default.q@compute/  {print $0}'      # add an additional test for nodes in a speci
-fic queue
+qstat -f | awk '$6 ~ /[a-zA-Z]/  &&  $1 ~ /default.q@compute/  {print $0}'      # add an additional test for nodes in a specific queue
+
+alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/ {print \$0}'"				# this escape seq works for alias
+alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/  &&  \$1 ~ /default.q@/  {print \$0}'"	# this escape seq works for alias
 </PRE>
 
 

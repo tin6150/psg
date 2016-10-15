@@ -182,6 +182,9 @@ git pull --rebase		# may want to do this before commit... so conflicts are local
 # and have everyone look at changes at the global level, 
 # which may cause lot of conflict in other's code.
 
+# config git to use proxy
+git config --global http.proxy http://proxy01.eville.com:2011
+
 </PRE>
 
 <H5>github</H5>
@@ -201,6 +204,21 @@ git remote add origin https://github.com/tin6150/psg.git
 git push -u origin master
 
 </PRE>
+
+<H5>git in windows</H5>
+
+Cygwin and MobaXterm has provided a quite usable unix-like bash environment for windoze.  However, getting git to work has been very tricky :(
+The following info from 
+<A HREF="http://stackoverflow.com/questions/14774159/git-warning-unable-to-access-p-gitconfig-invalid-argument#15498965">stack overflow</A> 
+may help...
+<BR>
+unset HOMEPATH    <BR>
+export HOME=/c    # in MINGW64 from PortableGit bash terminal  <BR>
+<BR>
+in the git-bash terminal, git push will prompt for username in the cli, and a pop up GUI window for password. <BR>
+
+
+
 
 <A NAME="cvs"></A>
 <H4>cvs</H4>

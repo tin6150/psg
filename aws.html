@@ -236,7 +236,7 @@ aws_secret_access_key = /LYSquieremuchoWanhWahnFAKE123xfake123Ti
 <PRE>
 
 
-aws config --profile user2	# create additional profile (eg personal vs work)
+aws configure --profile user2	# create additional profile (eg personal vs work)
 
 
 complete -C $(which aws_completer) aws		# allows for TAB completion of aws sub commands
@@ -264,6 +264,9 @@ sudo apt-get install awscli		# ubuntu, mint now have .deb for the python package
 
 aws ec2 describe-regions --output=text
 aws ec2 describe-subnets --output=table
+
+aws --region us-west-2 --output=table ec2 describe-instances | egrep  '(Value|PrivateIp|\ Name)'
+
 
 aws --region us-east-1 ec2 describe-subnets --query 'Subnets[*].[SubnetId,CidrBlock,AvailabilityZone,Tags[?Key==`Name`] | [0].Value]' --filters "Name=vpc-id,Values=vpc-abcd1234" "Name=tag-value,Values=\*HPC\*"
 
@@ -476,6 +479,35 @@ Be forwarned that each little file retrieval add to the cost.  A web site may ha
 <LI>
 <LI>There are options to set a DNS domain to point to the S3 web site, see AWS Route 53 or even a DNS CNAME to the S3 endpoint, eg <A HREF="http://tiny.cc/TIN">tiny.cc/TIN</A>.
 </UL>
+
+<A ID="s3_cli"></A>
+<A ID="s3_commands"></A>
+<H5>S3 commands</H5>
+
+
+<PRE>
+
+# S3 buckets are accessible globally, so while hosted in a region, I/O commands can work w/o specifying any region.
+
+aws s3 ls					# list buckets
+aws s3 ls sn-s3-bucket-oregon-webhosting	# list content of bucket named "sn-s3-bucket-oregon-webhosting"		## cat@grumpy
+aws s3 ls sn-s3-bucket-oregon-webhosting/fig/	# it is more like "ls -ld", add tailing / to see content inside a dir
+aws s3 ls s3://sn-s3-bucket-oregon-webhosting	# can prefix bucket name with s3://
+
+aws s3 ls s3://sn50				# t6@g 
+aws s3 ls s3://tin6150				# 
+
+aws s3 sync . s3://sn50		# xfer-in is free, so okay to test upload to s3 like this :)
+aws s3 sync . s3://sn50		# xfer-in is free, so okay to test upload to s3 like this :)
+
+aws s3 sync conf     s3://sn-s3-bucket-oregon-webhosting/conf   --acl public-read	# sync is more like rsync, skip files that are the same.  conf is a directory in this eg.
+aws s3 sync conf     s3://nibr/conf   --acl public-read		# need to replicate the dir name for files to go into a dir!
+aws s3 sync script/  s3://nibr   --acl public-read		# files in script/ got into     nope!!
+
+
+
+</PRE>
+<A HREF="http://docs.aws.amazon.com/cli/latest/userguide/using-s3-commands.html">S3 commands</A>
 
 
 <H1>HPC in EC2</H1>
