@@ -492,17 +492,19 @@ Be forwarned that each little file retrieval add to the cost.  A web site may ha
 aws s3 ls					# list buckets
 aws s3 ls sn-s3-bucket-oregon-webhosting	# list content of bucket named "sn-s3-bucket-oregon-webhosting"		## cat@grumpy
 aws s3 ls sn-s3-bucket-oregon-webhosting/fig/	# it is more like "ls -ld", add tailing / to see content inside a dir
-aws s3 ls s3://sn-s3-bucket-oregon-webhosting	# can prefix bucket name with s3://
+aws s3 ls s3://sn-s3-bucket-oregon-webhosting	# prefixing bucket name with s3:// is req with older awscli
 
-aws s3 ls s3://sn50				# t6@g 
-aws s3 ls s3://tin6150				# 
+aws s3 ls s3://sapsg				# t6@g 
+aws s3 ls s3://tin6150				# t6@g
+aws s3 ls s3://ask-margo			# t6@g
+aws s3 ls s3://nibr				# cat@grump
 
-aws s3 sync . s3://sn50		# xfer-in is free, so okay to test upload to s3 like this :)
-aws s3 sync . s3://sn50		# xfer-in is free, so okay to test upload to s3 like this :)
+aws s3 sync . s3://tin6150  --acl public-read	# sync is like rsync, skip files already in destination
+aws s3 sync . s3://sapsg    --acl public-read	# xfer-in is free, so okay to test upload to s3 like this :)
 
-aws s3 sync conf     s3://sn-s3-bucket-oregon-webhosting/conf   --acl public-read	# sync is more like rsync, skip files that are the same.  conf is a directory in this eg.
-aws s3 sync conf     s3://nibr/conf   --acl public-read		# need to replicate the dir name for files to go into a dir!
-aws s3 sync script/  s3://nibr   --acl public-read		# files in script/ got into     nope!!
+aws s3 sync conf     s3://nibr/conf   --acl public-read		# conf is name of a dir in this eg
+aws s3 sync conf     s3://ask-margo   --acl public-read		# the dirname must be stated in the destination too, or all files in the script/* dir will be placed at one level higher!
+aws s3 sync conf/    s3://nibr        --acl public-read		# whether / is added to explicity state src is a dir.
 
 
 
