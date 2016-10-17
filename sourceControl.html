@@ -243,11 +243,16 @@ Additionally, git can sync to a remote server (think github), and this is the re
 
 <PRE>
 git clone			# create a local copy of a source code tree
+git commit -a 			# most basic workflow after edit, most like svn, commit all changes
+
+
 git commit file1 file2		# check into local copy (but other don't see this change yet)
 git commit file1 -m "comment"	# provide check in comment on cli rather than launch editor
 
 git add file			# kinda feel like "add new file to be tracked"
 				# but really is adding changes into the git db
+git add -p 			# patch-based add (allow committing chunk of code at a time rather than whole file)
+
 git status			# show commit staatus within the local copy of repo only.  
 				# if the clone had been some time and master had seen other commits, 
 				# it will NOT show up in the status command.  
@@ -259,13 +264,35 @@ git status			# show commit staatus within the local copy of repo only.
 
 git log file1
 git log 
+git log --oneline         	# compact log, easier to read!
+git log --oneline file		# changes pertaining to the specified file only
+git log --oneline issue123	# changes pertaining to the specified branch only  (?)
+git log --decorate
+git log --graph			# 
+git log --oneline --graph --decorate	# can alias to "lol" for this oft use combo
+git log -p 			# patch: show diff introduced by each change (instead of just commit msg for the log)
+
+git log issue123 ^master	# branch diff, changes in branch issue123 but NOT in master
+				# ^ indicate "not in"
+
 git show COMMIT_HASH		# details of the commit
 
-git checkout -b issue123	# create a branch called "issue123" (eg after a bug#)
+git branch			# list branches.  * indicate the current branch working on.
+git branch issue123		# create a branch called "issue123" (eg after a bug#)
+git branch -r			# list all branches avail in (r)emote server
+
+git checkout -b issue123	# 
 git checkout master		# swich to the master branch (master is trunk branch created by default)
 
 
+git mergetool			# launch visual diff tool
+
+
+
 git init 			# create a git repo based on content of the current dir (and sub dirs)
+
+
+git config --global alias.lol "log --online --graph --decorate"		# create alias "git lol"
 
 
 </PRE>
@@ -275,6 +302,9 @@ git init 			# create a git repo based on content of the current dir (and sub dir
 <PRE>
 git push			# get local copy pushed into "central", or source of clone.  other will get the changes now.
 				# this uses the default, which really means git push origin master # for primary source, master branch.
+
+git push origin master		# what "git push" is doing when other params are omitted
+				# pushes my current "master" branch to central repo "origin" by uploading data (to github)
 
 git pull			# sync local git db with the remote server db (eg github, aka central)
 				# recommend to do this before pushing changes back to central.
@@ -308,7 +338,15 @@ git config --global http.proxy http://proxy01.eville.com:2011
 
 <H5>git terminology</H5>
 
-Fast Forward Changes <BR>
+<UL>
+	<LI>Fast Forward Changes <BR>
+	    See git help push explanations. <BR>
+	<LI>HEAD <BR>
+	    A symbolic ref to current branch. <BR>
+	    It is the parent of the commit.
+
+</UL>
+<BR>
 
 
 <H5>github</H5>
@@ -323,6 +361,7 @@ git config user.name  "tin"
 git config --global credential.helper 'cache --timeout=3600'
 git config --global github.user   tin6150
 git config --global github.token  mytoken
+git config --global color.ui      true
 
 git remote add origin https://github.com/tin6150/psg.git
 git push -u origin master
@@ -342,7 +381,13 @@ export HOME=/c    # in MINGW64 from PortableGit bash terminal  <BR>
 in the git-bash terminal, git push will prompt for username in the cli, and a pop up GUI window for password. <BR>
 
 
+<H5>git references</H5>
 
+<UL>
+<LI><A HREF="https://www.youtube.com/watch?v=ZDR433b0HJY">Comprehensive git workshop video</A>
+<LI><A HREF="https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell">git branching</A> philosophy well explained (part of online book)
+
+</UL>
 
 
 <A NAME="hg"></A>
