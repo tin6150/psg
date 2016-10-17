@@ -42,6 +42,15 @@
 
 <H1>Source Control</H1>
 
+Jump to:
+<UL>
+    <LI><A HREF="#svn">svn</A>
+    <LI><A HREF="#cvs">cvs</A>
+    <LI><A HREF="#p4">perforce (p4)</A>
+    <LI><A HREF="#git">git</A>
+    <LI><A HREF="#hg">mercurial hg</A>
+</UL>
+
 <PRE>
 
                                 centralized scm                 distributed scm
@@ -128,13 +137,93 @@ Tortoise SVN is a simple, lightweight SVN client avail in windows.
 
 
 
-<A NAME="hg"></A>
-<H4>mercurial hg commands</H4>
+
+<A NAME="cvs"></A>
+<H4>cvs</H4>
+<!--ref.cs/cvs.ref-->
 
 <PRE>
-hg clone https://bitbucket.org/galaxy/galaxy-dist/
-hg update stable
-	# setup and download the galaxy repo from bitbucket
+$CVSROOT                the source dir
+$PROJROOT               the local dir where copy of cvs is placed, this is the
+edit place till changes are commited
+
+so far, only successful by checking out files while pwd=$PROJROOT, and then spe
+cify full path for file.  if just specify dir name, the whole sub dir is checke
+d out
+
+cvs co dir/filename     check out file
+cvs add                 add file to c vs tree
+cvs commit              make changes permanenet
+
+</PRE>
+
+<A NAME="perforce"></A>
+<A NAME="p4"></A>
+<H4>perforce</H4>
+<!--ref.cs/cmd.p4.ref-->
+
+<PRE>
+
+
+if submit has problems, can do:
+
+p4 revert -a    = revert files that have not been edited (no changes)
+                                  very useful after accidental p4 edit ... !!!
+p4 revert               = note, old changes to file will be DELETED.
+p4 change -d {change#}  = remove change request
+
+p4 changes -m100        = check for list of changes, use grep to find my own.  (-m100 show last 100 changes only.  the cmd shows all historical data).
+
+
+to sync files in selected dir only.
+cd to the desired dir, then do:
+p4 sync ...
+
+or, pf sync /path/to/dir/...
+the '...' indicate the 'files in this position at the depot'.
+
+sync against a known date/time
+
+p4 sync ...@"2002/06/22 00:01"
+Time can be omitted, it will default to the beginning of that date (not the end!)
+
+sync against a label?
+
+
+p4 diff FILE
+the entries marked by '&lt;' is my own file
+and those in '&gt;' is the file in p4
+
+(diff file1 file2, &lt; is left file1, &gt; is right file2, so I guess p4 diff check
+out a file as temp and use that as file2).
+
+p4 diff FILE#1 FILE#3
+compare version 1 and 3 of FILE
+
+p4 sync -n ...          # just see changes for current dir
+p4 sync -f ...          # force all update on current dir (only force refresh of
+files not checked out, as in refresh accidental removal of non locked file.
+those that have been updated remains open, no accidental erasure cuz of
+refresh )
+
+p4 opened ...           # list of files opened
+p4 edit {file}          # open a file for editing
+
+p4 branches                     # list p4 branches that can be added to client view.
+
+p4 log... ?             # see revision history of file
+
+
+
+zmbl stuff?
+p4rename        : script to rename a file checked into P4.
+
+-t {FILETYPE}
+   FILETYPE one of symlink, etc
+
+change file to executable
+p4 edit -t kxtext FILE
+p4 submit
 
 </PRE>
 
@@ -255,94 +344,18 @@ in the git-bash terminal, git push will prompt for username in the cli, and a po
 
 
 
-<A NAME="cvs"></A>
-<H4>cvs</H4>
-<!--ref.cs/cvs.ref-->
+
+<A NAME="hg"></A>
+<H4>mercurial hg commands</H4>
 
 <PRE>
-$CVSROOT                the source dir
-$PROJROOT               the local dir where copy of cvs is placed, this is the
-edit place till changes are commited
-
-so far, only successful by checking out files while pwd=$PROJROOT, and then spe
-cify full path for file.  if just specify dir name, the whole sub dir is checke
-d out
-
-cvs co dir/filename     check out file
-cvs add                 add file to c vs tree
-cvs commit              make changes permanenet
+hg clone https://bitbucket.org/galaxy/galaxy-dist/
+hg update stable
+	# setup and download the galaxy repo from bitbucket
 
 </PRE>
 
-<A NAME="perforce"></A>
-<A NAME="p4"></A>
-<H4>perforce</H4>
-<!--ref.cs/cmd.p4.ref-->
 
-<PRE>
-
-
-if submit has problems, can do:
-
-p4 revert -a    = revert files that have not been edited (no changes)
-                                  very useful after accidental p4 edit ... !!!
-p4 revert               = note, old changes to file will be DELETED.
-p4 change -d {change#}  = remove change request
-
-p4 changes -m100        = check for list of changes, use grep to find my own.  (-m100 show last 100 changes only.  the cmd shows all historical data).
-
-
-to sync files in selected dir only.
-cd to the desired dir, then do:
-p4 sync ...
-
-or, pf sync /path/to/dir/...
-the '...' indicate the 'files in this position at the depot'.
-
-sync against a known date/time
-
-p4 sync ...@"2002/06/22 00:01"
-Time can be omitted, it will default to the beginning of that date (not the end!)
-
-sync against a label?
-
-
-p4 diff FILE
-the entries marked by '&lt;' is my own file
-and those in '&gt;' is the file in p4
-
-(diff file1 file2, &lt; is left file1, &gt; is right file2, so I guess p4 diff check
-out a file as temp and use that as file2).
-
-p4 diff FILE#1 FILE#3
-compare version 1 and 3 of FILE
-
-p4 sync -n ...          # just see changes for current dir
-p4 sync -f ...          # force all update on current dir (only force refresh of
-files not checked out, as in refresh accidental removal of non locked file.
-those that have been updated remains open, no accidental erasure cuz of
-refresh )
-
-p4 opened ...           # list of files opened
-p4 edit {file}          # open a file for editing
-
-p4 branches                     # list p4 branches that can be added to client view.
-
-p4 log... ?             # see revision history of file
-
-
-
-zmbl stuff?
-p4rename        : script to rename a file checked into P4.
-
--t {FILETYPE}
-   FILETYPE one of symlink, etc
-
-change file to executable
-p4 edit -t kxtext FILE
-p4 submit
-
-</PRE>
 
 <!-- ###################################################### -->
 
