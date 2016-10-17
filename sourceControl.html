@@ -44,19 +44,25 @@
 
 <PRE>
 
-
-task:  			tool:	svn		rcs		hg/mercurial	git 
+                                centralized scm                 distributed scm
+                                --------------- ------------    ----------------------- -------------
+task:  			tool:	svn		rcs		git 			hg/mercurial	
 update repo:			up		co?
-check out			co 		co				clone
-lock file for edit		not needed?	co -l
-check in			ci		ci
+check out			co 		co		clone			clone
+lock file for edit		not needed?	co -l		not needed
+check in			ci		ci		commit -a, push	
 
-what has changed?		status	
-diff b/w current and repo:	diff		rcsdiff		diff
-change list:			log		rcs log
-
+what has changed?		status				status
+diff b/w current and repo:	diff		rcsdiff		diff			diff
+change list:			log		rcs log		log --oneline
 
 </PRE>
+
+git (and mercurial hg) is a distributed source control system.
+Traditional scm like svn, cvs, p4, rcs, are centralized system and has a single primary repo.
+git has a very different mode operandi than the traditional system, thus the table of 
+"equivalent" commands above is somewhat misleading.  RTFM!! =)
+
 
 
 <A NAME="svn"></A>
@@ -137,6 +143,10 @@ hg update stable
 
 git is a very different beast than the other traditional source control system.  
 Instead of having a "code centric" view to create trees and branches, git is more of a "developer centric" paradigm.  As such, many actions don't have the same parallel as say SVN, even though some commands seems similar on the surface.
+<BR>
+git works as a two stage commit.  
+commands to manipulate the local git database which is the central view of the scm.
+Additionally, git can sync to a remote server (think github), and this is the repo server where many collaborators "check in" their codes for sharing.
 
 <BR>
 <H5>git against local copy of repository</H5>
@@ -147,24 +157,28 @@ git clone			# create a local copy of a source code tree
 git commit file1 file2		# check into local copy (but other don't see this change yet)
 git commit file1 -m "comment"	# provide check in comment on cli rather than launch editor
 
-git add file			# add new file to be tracked
+git add file			# kinda feel like "add new file to be tracked"
+				# but really is adding changes into the git db
 git status			# show commit staatus within the local copy of repo only.  
-				# if the clone had been some time and master had seen other commits, it will NOT show up in the status command.  
+				# if the clone had been some time and master had seen other commits, 
+				# it will NOT show up in the status command.  
 				# only another git fetch would get these changes.
-
-git fetch 			# get changes on master repo and sync them to local copy of the repo.  
-				# conflict may arise from this.  
-				# better resolve conflict here before committing/pushing.
-
 
 
 ## think these are still acting on local copy.  in fact, it is likely that 
 ## git act on local copy, except for few commands to interact with master repo...
 
 git log file1
+git log 
 git show COMMIT_HASH		# details of the commit
 
-git checkout production		# something about production branch, what is "checkout" ?
+git checkout -b issue123	# create a branch called "issue123" (eg after a bug#)
+git checkout master		# swich to the master branch (master is trunk branch created by default)
+
+
+git init 			# create a git repo based on content of the current dir (and sub dirs)
+
+
 </PRE>
 
 <H5>git against central repository</H5>
@@ -172,10 +186,26 @@ git checkout production		# something about production branch, what is "checkout"
 <PRE>
 git push			# get local copy pushed into "central", or source of clone.  other will get the changes now.
 				# this uses the default, which really means git push origin master # for primary source, master branch.
-git pull
+
+git pull			# sync local git db with the remote server db (eg github, aka central)
+				# recommend to do this before pushing changes back to central.
+				# pull (from central) daily or so when working on a branch to keep code merges manageable
+				# and the pull does not "post" my local changes to central so no one knows about the local work 
+
 git pull --rebase		# may want to do this before commit... so conflicts are local.
 				# rebase has to do with where to insert changes into the original tree... 
 				# rebase is typically the most desirable option
+				# BUT...
+				# in corp env, almost always better to use fetch and merge than pull --rebase
+				# 
+
+
+git fetch 			# get changes on master repo and sync them to local copy of the repo.  
+				# conflict may arise from this.  
+				# better resolve conflict here before committing/pushing.
+
+git merge 			# merge branch
+
 
 # it is prefered to resolve conflicts in local copy, 
 # rather than push the changes out
@@ -186,6 +216,11 @@ git pull --rebase		# may want to do this before commit... so conflicts are local
 git config --global http.proxy http://proxy01.eville.com:2011
 
 </PRE>
+
+<H5>git terminology</H5>
+
+Fast Forward Changes <BR>
+
 
 <H5>github</H5>
 
