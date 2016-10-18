@@ -58,16 +58,18 @@ that spans many lines
 I want to de-emphasize lines marked as # comment, not emphasize them!
 Thus, places where i want to use # as comment, has to delineate it as a code block
 
-** italics are two asterisks **
-__ or two underlines __
+**italics are two asterisks**
+__or two underlines, but remember no spaces after the symbols__
 
-don't start with asterisks...  * single asterisks for bold * 
-_ or single underscore _
+*single asterisks for bold* 
+_or single underscore_
 
-___ triple underscore or asterisks for both italic and bold ___
+___triple underscore or asterisks for both italic and bold___
 
 
 a regular line here
+no way to make text italic?!
+
 
 stackoverflow pretty much use all the markdown syntax (except for code highlight block).
 and its summary is more concise than the markdown project doc.
