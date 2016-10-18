@@ -33,6 +33,11 @@ git push -u origin master
 ------------------------------------------------------------
 # Playing with markdown...
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.md ext is for MarkDown format -- see wiki.html#markdown
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 ~~~~
 use of 4 ~ to mark
 a code block
@@ -47,11 +52,24 @@ that spans many lines
     maybe these are for bitbucket only?
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-(.md ext is for MarkDown format -- see wiki.html#markdown)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## the comment sign is a heading marker in markdown.
 ###this is my biggest gripe about .md !!
+I want to de-emphasize lines marked as # comment, not emphasize them!
 Thus, places where i want to use # as comment, has to delineate it as a code block
+
+** italics are two asterisks **
+__ or two underlines __
+
+don't start with asterisks...  * single asterisks for bold * 
+_ or single underscore _
+
+___ triple underscore or asterisks for both italic and bold ___
+
+
+a regular line here
+
+stackoverflow pretty much use all the markdown syntax (except for code highlight block).
+and its summary is more concise than the markdown project doc.
+See: http://stackoverflow.com/editing-help
 
