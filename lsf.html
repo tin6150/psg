@@ -120,6 +120,14 @@ qlogin -q interactive.q			# often an interactive queue may have more relaxed loa
 					# yet granting a prompt for lightweight testing env use even when cluster is fully busy
 
 
+qsub -R y -pe smp 8 ./sge-script.sh     # -R y : Reservation yes... avoid starvation in busy cluster
+                                        # -pe smp 8 : req run with a Physical Env of 8 core (smp)
+
+
+
+
+
+
 qrsh
 
 
