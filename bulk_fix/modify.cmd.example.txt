@@ -1,0 +1,26 @@
+  157  [2015-08-05 16:19:05] ls | grep awk
+ 3659  [2016-07-18 09:54:15] grep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed \'s/LYS on the outside, LKS in the inside//\' " $0 }' 
+ 3660  [2016-07-18 09:54:27] grep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed \\\'s/LYS on the outside, LKS in the inside//\\\' " $0 }' 
+ 3661  [2016-07-18 09:56:56] grep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed s/LYS on the outside, LKS in the inside// " $0 }' 
+ 3662  [2016-07-18 09:57:27] grep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed -i \'s/LYS on the outside, LKS in the inside//\' " $0 }' 
+ 3663  [2016-07-18 09:57:54] grep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed -i \s/LYS on the outside, LKS in the inside//\" " $0 }' 
+ 3664  [2016-07-18 09:58:02] grep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed -i \"s/LYS on the outside, LKS in the inside//\" " $0 }' 
+ 3669  [2016-07-18 09:59:01] grep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed -i \"s/LYS on the outside, LKS in the inside//\" " $0 }' 
+ 3670  [2016-07-18 09:59:07] grep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed -i \"s/LYS on the outside, LKS in the inside//\" " $0 }'  > run1.sh
+ 3691  [2016-07-18 10:08:59] fgrep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS in the inside/ting/\" -e \"s/AUHAUH on the outside, LAPPLAPP in the inside/ting/\" " $0 }'  > run2.sh
+ 3726  [2016-07-18 10:22:08] fgrep -L "LYS on the outside, LKS on the inside" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS on the inside/ting/\" -e \"s/AUHAUH on the outside, LAPPLAPP in the inside/ting/\" " $0 }'  > run2.sh
+ 3735  [2016-07-18 10:24:07] fgrep -L "LYS on the outside, LKS on the inside" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS on the inside/ting/\" -e \"s/AUHAUH on the outside, LAPPLAPP in the inside/ting/\" " $0 }'  > run2.sh
+ 3739  [2016-07-18 10:26:06] fgrep -L "LYS on the outside, LKS in the inside" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS in the inside/ting/\" -e \"s/AUHAUH on the outside, LAPPLAPP on the inside/ting/\" " $0 }'  > run3.sh
+ 3740  [2016-07-18 10:26:27] fgrep -L "LYS" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS in the inside/ting/\" -e \"s/AUHAUH on the outside, LAPPLAPP on the inside/ting/\" " $0 }'  > run3.sh
+ 3747  [2016-07-18 10:29:39] fgrep -L "LYS.*side" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS in the inside/ting/\" " $0 }'  > run4.sh
+ 3753  [2016-07-18 10:34:28] fgrep -L "www.grumpyxmas.com" *html  | awk '{print " sed -i \"s/www.grumpyxmas.com/psg.skinforum.org/\" " $0 }'  > run5_grumpy.sh
+ 3758  [2016-07-18 10:37:44] fgrep -L "www.grumpyxmas.com" *html  | awk '{print " sed -i \"s/www.grumpyxmas.com/dl.dropboxusercontent.com\/u\/31360775\/psg\" " $0 }'  > run5a_grumpy.sh
+ 3761  [2016-07-18 10:38:35] fgrep -L "www.grumpyxmas.com" *html  | awk '{print " sed -i \"s/www.grumpyxmas.com/dl.dropboxusercontent.com\\\/u\\\/31360775\\\/psg\" " $0 }'  > run5a_grumpy.sh
+ 3765  [2016-07-18 10:39:16] fgrep -L "www.grumpyxmas.com" *html  | awk '{print " sed -i \"s/www.grumpyxmas.com/dl.dropboxusercontent.com\\\/u\\\/31360775\\\/psg/\" " $0 }'  > run5a_grumpy.sh
+ 3778  [2016-07-18 10:46:50] fgrep -l "www.grumpyxmas.com" *html  | awk '{print " sed -i \"s/www.grumpyxmas.com/dl.dropboxusercontent.com\\\/u\\\/31360775\\\/psg/\" " $0 }'  > run5a_grumpy.sh
+ 3791  [2016-07-18 10:51:43] fgrep -l "sonic" *html  | awk '{print " sed -i \"s/sn50.user.sonic.net/dl.dropboxusercontent.com\\\/u\\\/31360775/\" " $0 }'  > run6_sonic.sh
+ 3797  [2016-07-18 10:53:31] fgrep -l "LYS.*side" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS on the inside/ting/\" " $0 }'  > run4a.sh
+ 3799  [2016-07-18 10:54:04] fgrep -l "LYS.*side" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS on the inside/ting/\" " $0 }'  > run4a.sh
+ 3804  [2016-07-18 10:55:09] grep -l "LYS.*side" *html  | awk '{print " sed -i -e \"s/LYS on the outside, LKS on the inside/ting/\" " $0 }'  > run4a.sh
+ 3807  [2016-07-18 10:58:27] history | grep grep.*awk
+ 3808  [2016-07-18 10:58:43] history | grep grep.*awk > modify.cmd.example.txt

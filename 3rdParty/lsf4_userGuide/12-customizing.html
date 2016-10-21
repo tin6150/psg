@@ -1,0 +1,379 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Customizing Batch Jobs for LSF</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="11-checkpoint.html">[Prev]</A>
+<A HREF="13-multicluster.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="355"></A>Chapter 12. <A NAME="343"></A>Customizing Batch Jobs
+for LSF</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="2621"></A>This chapter describes how to customize your batch
+jobs to take advantage of LSF and LSF Batch features.</P>
+
+<H2><A NAME="3037"></A>Environment Variables</H2>
+
+<P><A NAME="2897"></A>When LSF Batch runs a batch job it sets several environment
+variables. Batch jobs can use the values of these variables to control
+how they execute. The environment variables set by LSF Batch are:</P>
+
+<DL>
+<DT><A NAME="4952"></A><TT>LSB_JOBID </TT></DT>
+
+<DD>The LSF Batch job ID number. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="5038"></A><TT>LSB_JOBFILENAME </TT></DT>
+
+<DD>The full path name of the batch job file. This is a <TT>/bin/sh</TT>
+script on UNIX systems or a <TT>.BAT</TT> command script on Windows NT
+systems that invokes the batch job. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="5088"></A><TT>LSB_HOSTS </TT></DT>
+
+<DD>The list of hosts selected by LSF Batch to run the batch job. If the
+job is run on a single processor, the value of <TT>LSB_HOSTS</TT> is the
+name of the execution host. For parallel jobs, the names of all execution
+hosts are listed separated by spaces. The batch job file is run on the
+first host in the list. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="5142"></A><TT>LSB_QUEUE </TT></DT>
+
+<DD>The name of the batch queue from which the job was dispatched. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="5153"></A><TT>LSB_JOBNAME </TT></DT>
+
+<DD>The name of the batch job as specified by the <TT>-J <I>job_name</I></TT>
+argument to <TT>bsub</TT>. If this argument was not given, the job name
+is the actual batch command as specified on the <TT>bsub</TT> command line.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="5172"></A><TT>LSB_RESTART </TT></DT>
+
+<DD>If this batch job was submitted with the <TT>-r</TT> option to <TT>bsub</TT>,
+has run previously, and has been restarted because of a host failure, <TT>LSB_RESTART</TT>
+is set to the value <TT>Y</TT>. If this is not a restarted job <TT>LSB_RESTART</TT>
+is not set. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9212"></A><TT>LSB_EXIT_PRE_ABORT </TT></DT>
+
+<DD>The value of this parameter can be used by a queue or job-level pre-execution
+command so that the command can exit with this value, if it wants the job
+be aborted instead of being requeued or executed. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9316"></A><TT>LSB_EXIT_REQUEUE </TT></DT>
+
+<DD>This variable is a list of exit values defined in the queue's <TT>REQUEUE_EXIT_VALUE</TT>
+parameter. If this variable is defined, a job will be requeued if it exits
+with one of these values. This variable is not set if the queue does not
+have <TT>REQUEUE_EXIT_VALUE</TT> defined. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12035"></A><TT>LSB_JOB_STARTER </TT></DT>
+
+<DD>This variable is defined if a Job Starter command is defined for the
+queue. See <A HREF="08-interactive.html#12109">'Job Starter'</A>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12040"></A><TT>LSB_INTERACTIVE </TT></DT>
+
+<DD>This variable is set to '<TT>Y</TT>' if the job is an interactive job.
+An interactive job is submitted using the <TT>-I</TT> option to <TT>bsub</TT>.
+This variable is not defined if the job is not interactive. See <A HREF="08-interactive.html#11905">'Interactive
+Batch Job Support'</A>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9202"></A><TT>LS_JOBPID </TT></DT>
+
+<DD>The process ID of the job. This is always a shell script process that
+runs the actual job. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12284"></A><TT>LS_SUBCWD </TT></DT>
+
+<DD>This is the directory on the submission host where the job was submitted.
+By default LSF Batch assumes a uniform user name and user ID space exists
+among all the hosts in the cluster, that is, a job submitted by a given
+user will run under the same user's account on the execution host. For
+situations where non-uniform user id/user name space exists, account mapping
+must be used to determine the account used to run a job. See <A HREF="05-lsbatch.html#12346">'User
+Controlled Account Mapping'</A>. </DD>
+</DL>
+
+<H2><A NAME="3050"></A>Parallel Jobs</H2>
+
+<P><A NAME="2944"></A>Each parallel programming package has different requirements
+for specifying and communicating with all the hosts used by a parallel
+job. LSF is not tailored to work with a specific parallel programming package.
+Instead, LSF provides a generic interface so that any parallel package
+can be supported by writing shell scripts or wrapper programs. Example
+shell scripts are provided for running PVM, P4, MPI, and POE programs as
+parallel batch jobs.</P>
+
+<H3><A NAME="5354"></A>Getting the Host List</H3>
+
+<P><A NAME="5514"></A>The hosts allocated for the parallel job are passed
+to the batch job in the <TT>LSB_HOSTS</TT> environment variable. Some applications
+can take this list of hosts directly as a command line parameter. For other
+applications you may need to process the host list. The following example
+shows a <TT>/bin/sh</TT> script that processes all the hosts in the host
+list, including identifying the host where the job script is executing.</P>
+
+<PRE><A NAME="7387"></A>#!/bin/sh
+# Process the list of host names in LSB_HOSTS
+
+for host in $LSB_HOSTS ; do
+handle_host $host
+done</PRE>
+
+<P><A NAME="12351"></A>LSF comes with a few scripts for running parallel
+jobs under LSF Batch, such as <TT>pvmjob</TT>, <TT>poejob</TT>, <TT>mpijob</TT>,
+<TT>p4job</TT>, etc. These scripts are installed In the <TT>LSF_BINDIR</TT>
+as defined in <TT>lsf.conf</TT> file. You can modify these scripts to support
+more parallel packages.</P>
+
+<H3><A NAME="5323"></A>Starting Parallel Tasks With <TT>lstools</TT></H3>
+
+<P><A NAME="5804"></A>For simple parallel jobs you can use the <TT>lstools</TT>
+commands to start parts of the job on other hosts. Because the <TT>lstools</TT>
+commands handle signals transparently, LSF Batch can suspend and resume
+all components of your job without additional programming.</P>
+
+<P><A NAME="5863"></A>The simplest parallel job runs an identical copy
+of the executable on every host. The <TT>lsgrun</TT> command takes a list
+of host names and runs the specified task on each host. The <TT>lsgrun
+-p</TT> option specifies that the task should be run in parallel on each
+host. The example below submits a job that uses <TT>lsgrun</TT> to run
+<TT>myjob</TT> on all the selected batch hosts in parallel:</P>
+
+<PRE><A NAME="7626"></A>% <B>bsub -n 10 'lsgrun -p -m &quot;$LSB_HOSTS&quot; myjob'
+</B>Job &lt;3856&gt; is submitted to default queue &lt;normal&gt;.</PRE>
+
+<P><A NAME="6135"></A>For more complicated jobs, you can write a shell
+script that runs <TT>lsrun</TT> in the background to start each component.</P>
+
+<H3><A NAME="6090"></A>Using <TT>lsmake</TT> to Run Parallel Batch Jobs</H3>
+
+<P><A NAME="6167"></A>For parallel jobs that have a variety of different
+components to run, you can use <TT>lsmake</TT>. Create a makefile that
+lists all the components of your batch job and then submit the <TT>lsmake</TT>
+command to LSF Batch. The following example shows a <TT>bsub</TT> command
+and Makefile for a simple parallel job.</P>
+
+<PRE><A NAME="7674"></A>% <B>bsub -n 4 lsmake -f Parjob.makefile
+</B>Job &lt;3858&gt; is submitted to default queue &lt;normal&gt;.</PRE>
+
+<PRE><A NAME="11206"></A>% <B>cat Parjob.makefile
+</B># Makefile to run example parallel job using lsbatch and lsmake
+
+all:    part1 part2 part3 part4
+
+part1 part2 part3:
+        myjob data.$@
+
+part4:
+        myjob2 data.part1 data.part2 data.part3</PRE>
+
+<P><A NAME="12318"></A>The batch job has four components. The first three
+components run the <TT>myjob</TT> command on the data.part1, data.part2
+and data.part3 files. The fourth component runs the <TT>myjob2</TT> command
+on all three data files. There are no dependencies between the components,
+so <TT>lsmake</TT> runs them in parallel.</P>
+
+<H3><A NAME="12322"></A>Submitting PVM Jobs to LSF Batch</H3>
+
+<P><A NAME="12328"></A>PVM is a parallel programming system distributed
+by Oak Ridge National Laboratories. PVM programs are controlled by a file,
+the <I>PVM hosts file</I>, that contains host names and other information.
+The <TT>pvmjob</TT> shell script supplied with LSF can be used to run PVM
+programs as parallel LSF Batch jobs. The <TT>pvmjob</TT> script reads the
+LSF Batch environment variables, sets up the PVM hosts file and then runs
+the PVM job. If your PVM job needs special options in the hosts file, you
+can modify the <TT>pvmjob</TT> script.</P>
+
+<P><A NAME="6307"></A>For example, if the command line to run your PVM
+job is</P>
+
+<PRE><A NAME="6309"></A>% <B>myjob data1 -o out1</B></PRE>
+
+<P><A NAME="6308"></A>the following command submits this job to LSF Batch
+to run on 10 hosts:</P>
+
+<PRE><A NAME="6314"></A>% <B>bsub -n 10 pvmjob myjob data1 -o out1</B></PRE>
+
+<P><A NAME="6939"></A>Other parallel programming packages can be supported
+in the same way. The <TT>p4job</TT> shell script runs jobs that use the
+P4 parallel programming library. Other packages can be handled by creating
+similar scripts.</P>
+
+<H3><A NAME="9567"></A>Submitting MPI Jobs to LSF Batch</H3>
+
+<P><A NAME="9570"></A>The Message Passing Interface (MPI) is a portable
+library that supports parallel programming. LSF supports MPICH, a joint
+implementation of MPI by Argonne National Laboratory and Mississippi State
+University. This version supports both TCP/IP and IBM's Message Passing
+Library (MPL) communication protocols.</P>
+
+<P><A NAME="9577"></A>LSF provides an <TT>mpijob</TT> shell script that
+you can use to submit MPI jobs to LSF Batch. The <TT>mpijob</TT> script
+writes the hosts allocated to the job by the LSF Batch system to a file
+and supplies the file as an option to MPICH's mpirun command. The syntax
+of the <TT>mpijob</TT> command is</P>
+
+<PRE><A NAME="9578"></A>mpijob <I>option</I> mpirun <I>program </I>[<I>arguments</I>]</PRE>
+
+<P><A NAME="9579"></A>where option is one of the following:</P>
+
+<DL>
+<DT><A NAME="9580"></A><TT>-tcp </TT></DT>
+
+<DD>Write the LSF Batch hosts to a <TT>PROCGROUP</TT> file, supply the
+<TT>-p4pg <I>procgroup_file</I></TT> option to the <TT>mpirun</TT> command,
+and use the TCP/IP protocol. This is the default. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9581"></A><TT>-mpl </TT></DT>
+
+<DD>Write the LSF Batch hosts to a <TT>MACHINE</TT> file, supply the <TT>-machinefile
+<I>machine_file</I></TT> option to the <TT>mpirun</TT> command, and use
+the MPL on an SP-2 system. </DD>
+</DL>
+
+<P><A NAME="9582"></A>The following examples show how to use <TT>mpijob</TT>
+to submit MPI jobs to LSF Batch.</P>
+
+<P><A NAME="9583"></A>To submit a job requesting four hosts and using the
+default TCP/IP protocol, use</P>
+
+<PRE><A NAME="9585"></A>% <B>bsub -n 4 mpijob mpirun myjob</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="9593"></A><B>Note<BR>
+</B><I>Before you can submit a job to a particular pool of IBM SP-2 nodes,
+an LSF administrator must install the SP-2 ELIM. The SP-2 ELIM provides
+the pool number and lock status of each node.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="9594"></A>To submit the same job to run on four nodes in pool
+1 on an IBM SP-2 system using MPL, use</P>
+
+<PRE><A NAME="9596"></A>% <B>bsub -n 4 -R &quot;pool == 1&quot; mpijob -mpl mpirun myjob</B></PRE>
+
+<P><A NAME="10715"></A>To submit the same job to run on four nodes in pool
+1 that are not locked (dedicated to using the High Performance Switch)
+on an SP-2 system using MPL, use</P>
+
+<PRE><A NAME="10716"></A>% <B>bsub -n 4 -q mpiq -R &quot;pool == 1 &amp;&amp; lock == 0&quot; mpijob -mpl mpirun myjob</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="9604"></A><B>Note<BR>
+</B><I>Before you can submit a job using the IBM SP-2 High Performance
+Switch in dedicated mode, an LSF administrator must set up a queue for
+automatic requeue on job failure. The job queue will automatically requeue
+a job that failed because an SP-2 node was locked after LSF Batch selected
+the node but before the job was dispatched.</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="8483"></A>Submitting POE Jobs to LSF Batch</H3>
+
+<P><A NAME="8486"></A>The Parallel Operating Environment (POE) is an execution
+environment provided by IBM on SP-2 systems to hide the differences between
+serial and parallel execution.</P>
+
+<P><A NAME="8490"></A>LSF provides a <TT>poejob</TT> shell script that
+you can use to submit POE jobs to LSF Batch. The <TT>poejob</TT> script
+translates the hosts allocated to the job by the LSF Batch system into
+an appropriate POE host list and sets up environment variables necessary
+to run the job.</P>
+
+<P><A NAME="8672"></A>The <TT>poejob</TT> script does not set the <TT>MP_EUILIB</TT>
+and <TT>MP_EUIDEVICE</TT> environment variables, so you have to do this.</P>
+
+<PRE><A NAME="8501"></A>% <B>setenv MP_EUILIB us</B></PRE>
+
+<P><A NAME="8567"></A>By default, <TT>MP_EUIDEVICE</TT> is <TT>css0</TT>.
+Or,</P>
+
+<PRE><A NAME="8503"></A>% <B>setenv MP_EUILIB ip
+</B>% <B>setenv MP_EUIDEVICE en0</B></PRE>
+
+<P><A NAME="8682"></A>The following are examples of how to submit POE jobs.</P>
+
+<P><A NAME="8506"></A>To submit a job requesting four SP-2 nodes configured
+for the poeq queue, use</P>
+
+<PRE><A NAME="8507"></A>% <B>bsub -n 4 -q poeq poejob myjob</B></PRE>
+
+<P><A NAME="8686"></A>By using LSF resource requirements, you can select
+appropriate nodes for your job.</P>
+
+<P><A NAME="8509"></A>To submit the same job requesting four SP-2 nodes
+from pool 2 configured for the poeq queue, use</P>
+
+<PRE><A NAME="8510"></A>% <B>bsub -n 4 -R &quot;pool == 2&quot; -q poeq poejob myjob</B></PRE>
+
+<P><A NAME="8512"></A>To submit the same job requesting four SP-2 nodes
+from pool 2 with at least 20 megabytes of swap space, use</P>
+
+<PRE><A NAME="8514"></A>% <B>bsub -n 4 -R &quot;(pool == 2) &amp;&amp; (swap &gt; 20)&quot; -q poeq poejob myjob</B></PRE>
+
+<P><A NAME="8515"></A>To submit the same job requesting four SP-2 nodes
+from pool 2 that are not locked (dedicated to using the High Performance
+Switch), use</P>
+
+<PRE><A NAME="8692"></A>% <B>bsub -n 4 -R &quot;(pool == 2) &amp;&amp; (lock == 0)&quot; -q poeq poejob myjob</B></PRE>
+
+<H2><A NAME="12419"></A>Using a Job Starter for Parallel Jobs</H2>
+
+<P><A NAME="12420"></A>The above examples use a script to run parallel
+jobs under LSF Batch. Alternatively, your LSF administrator could configure
+the script into your queue as a job starter. With a job starter configured
+at the queue, you can submit the above parallel jobs without having to
+type the script name. See <A HREF="07-manage-lsbatch.html#15643">'Using
+A Job Starter'</A> in the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I> for more information about a job starter. </P>
+
+<P><A NAME="12364"></A>To see if your queue already has a job starter defined,
+run the <TT>bqueues -l</TT> command.</P>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="11-checkpoint.html">[Prev]</A>
+<A HREF="13-multicluster.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><I><A HREF="mailto:doc@platform.com">doc@platform.com</A></I></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:29:59 --></P>
+
+</BODY>
+</HTML>

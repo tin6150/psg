@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Customizing xlsbatch Menu Items</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="14-nqs.html">[Prev]</A>
+<A HREF="b-new-features.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="26636"></A>Appendix A. <A NAME="26839"></A>Customizing <TT>xlsbatch</TT>
+Menu Items</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="26777"></A>You can customize the menu items of <TT>xlsbatch</TT>
+by specifying <TT>customizedMenu</TT> resource in the X resource file.
+With this feature, you can: </P>
+
+<UL>
+<LI><A NAME="26778"></A>Remove a pull-down menu from the menu bar </LI>
+
+<LI><A NAME="26779"></A>Remove a menu item from a pull-down menu </LI>
+
+<LI><A NAME="26780"></A>Remove a sub-pull-down menu from a pull-down menu
+</LI>
+
+<LI><A NAME="26781"></A>Remove a menu item from a sub-pull-down menu </LI>
+
+<LI><A NAME="26782"></A>Add a new item in the menu bar </LI>
+
+<LI><A NAME="26783"></A>Add a new item in a pull-down menu with an executable
+(the executable is run when the menu item is chosen) </LI>
+
+<LI><A NAME="26784"></A>Add a new item in a sub-pull-down menu with an
+executable </LI>
+
+<LI><A NAME="26785"></A>Replace an item's command in the pull-down menu
+by a new executable </LI>
+
+<LI><A NAME="26786"></A>Replace an item's command in the sub-pull-down
+menu by a new executable </LI>
+</UL>
+
+<P><A NAME="26787"></A>The format of the <TT>customizedMenu</TT> resource
+is:</P>
+
+<PRE><A NAME="26788"></A>xlsbatch*customizedMenu:&quot;A1 B1 C1 D1 A2 B2 C2 B2 ... An Bn Cn Dn&quot;</PRE>
+
+<P><A NAME="26789"></A>where the resource value is a character string enclosed
+in double quotes, whose components are separated by spaces.</P>
+
+<P><A NAME="26790"></A>From the beginning of the string, each four consecutive
+components constitute a group that customizes one menu item. Each component
+is either a character string or several character strings encompassed by
+parentheses.</P>
+
+<P><A NAME="26791"></A>The following define the valid syntax for a menu
+item group:</P>
+
+<UL>
+<LI><A NAME="26792"></A>Remove a pull-down menu from the menu bar:<BR>
+<TT>A<I>i</I></TT>: the pull-down menu name to be removed from the menu
+bar<BR>
+<TT>B<I>i</I></TT>: 0 (zero)<BR>
+<TT>C<I>i</I></TT>: 0 (zero)<BR>
+<TT>D<I>i</I></TT>: 0 (zero) </LI>
+
+<P><A NAME="26793"></A>For example, remove the '<TT>Calendar</TT>' pull-down
+menu from the menu bar:<BR>
+<A NAME="26794"></A><TT>xlsbatch*customizedMenu:&quot;Calendar 0 0 0&quot;</TT></P>
+
+<LI><A NAME="26795"></A>Remove a menu item from a pull-down menu:<BR>
+<TT>A<I>i</I></TT>: the pull-down menu name where some item will be removed<BR>
+<TT>B<I>i</I></TT>: the menu item name to be removed<BR>
+<TT>C<I>i</I></TT>: 0 (zero)<BR>
+<TT>D<I>i</I></TT>: 0 (zero) </LI>
+
+<P><A NAME="26796"></A>For example, remove the '<TT>Restart...</TT>' menu
+item from the '<TT>Job</TT>' pull-down menu:<BR>
+<A NAME="26797"></A><TT>xlsbatch*customizedMenu:&quot;Job Restart... 0
+0&quot;</TT></P>
+
+<LI><A NAME="26798"></A>Remove a sub-pull-down menu from a pull-down menu:<BR>
+<TT>A<I>i</I></TT>: the pull-down menu where some sub-pull-down will be
+removed<BR>
+<TT>B<I>i</I></TT>: the sub-pull-down menu name to be removed<BR>
+<TT>C<I>i</I></TT>: 0 (zero)<BR>
+<TT>D<I>i</I></TT>: 0 (zero) </LI>
+</UL>
+
+<P><A NAME="26799"></A>For example, remove the '<TT>View</TT>' sub-pull-down
+menu from the '<TT>Job</TT>' pull-down menu:<BR>
+<A NAME="26800"></A><TT>xlsbatch*customizedMenu:&quot;Job View 0 0&quot;
+</TT></P>
+
+<UL>
+<LI><A NAME="26801"></A>Remove a menu item from a sub-pull-down menu:<BR>
+<TT>A<I>i</I></TT>: the pull-down menu where the sub-pull-down menu resides<BR>
+<TT>B<I>i</I></TT>: the sub-pull-down menu name where some item will be
+removed<BR>
+<TT>C<I>i</I></TT>: the menu item name to be removed<BR>
+<TT>D<I>i</I></TT>: 0 (zero) </LI>
+
+<P><A NAME="26802"></A>For example, remove the '<TT>Chkpnt...</TT>' menu
+item from the '<TT>Manipulate</TT>' sub-pull-down menu of the '<TT>Job</TT>'
+pull-down menu:<BR>
+<A NAME="26803"></A><TT>xlsbatch*customizedMenu:&quot;Job Manipulate Chkpnt...
+0&quot;</TT></P>
+
+<LI><A NAME="26804"></A>Add a new item in the menu bar:<BR>
+<TT>A<I>i</I></TT>: new menu name to be added<BR>
+<TT>B<I>i</I></TT>: 0 (zero)<BR>
+<TT>C<I>i</I></TT>: 0 (zero)<BR>
+<TT>D<I>i</I></TT>: same as <TT>A<I>i</I></TT> </LI>
+
+<P><A NAME="26805"></A>For example, add the '<TT>Others</TT>' menu item
+in the menu bar:<BR>
+<A NAME="26806"></A><TT>xlsbatch*customizedMenu:&quot;Others 0 0 Others&quot;</TT></P>
+
+<LI><A NAME="26807"></A>Add a new item in a pull-down menu with an executable:<BR>
+<TT>A<I>i</I></TT>: the pull-down menu name where the new item will be
+added<BR>
+<TT>B<I>i</I></TT>: new menu item name to be added<BR>
+<TT>C<I>i</I></TT>: 0 (zero)<BR>
+<TT>D<I>i</I></TT>: executable name which will be executed when this item
+is chosen </LI>
+
+<P><A NAME="26808"></A>For example, add the '<TT>xlsadmin</TT>' menu item
+in the '<TT>File</TT>' pull-down menu which runs <TT>xlsadmin</TT> with
+gray background:<BR>
+<A NAME="26809"></A><TT>xlsbatch*customizedMenu:&quot;File xlsadmin 0 (xlsadmin
+-bg gray)&quot;</TT></P>
+
+<LI><A NAME="26810"></A>Add a new item in a sub-pull-down menu with an
+executable:<BR>
+<TT>A<I>i</I></TT>: the pull-down menu name where the sub-pull-down menu
+resides<BR>
+<TT>B<I>i</I></TT>: the sub-pull-down menu name where the new item will
+be added<BR>
+<TT>C<I>i</I></TT>: new menu item name to be added<BR>
+<TT>D<I>i</I></TT>: executable name which will be executed when this item
+is chosen </LI>
+
+<P><A NAME="26811"></A>For example, add the '<TT>My Job View</TT>' menu
+item in the '<TT>View</TT>' sub-pull-down menu of the '<TT>Job</TT>' pull-down
+menu, which runs the <TT>myView</TT> executable:<BR>
+<A NAME="26812"></A><TT>xlsbatch*customizedMenu:&quot;Job View (My Job
+View) myView&quot;</TT></P>
+
+<LI><A NAME="26813"></A>Replace an item's command in the pull-down menu
+by a new executable:<BR>
+<TT>A<I>i</I></TT>: the pull-down menu name where some item's command will
+be replaced<BR>
+<TT>B<I>i</I></TT>: the menu item name whose command will be replaced<BR>
+C<I><TT>i</TT></I>: 0<BR>
+<TT>D<I>i</I></TT>: executable name which will be executed when the item
+specified in <TT>B</TT><I>i</I> is chosen </LI>
+
+<P><A NAME="26814"></A>For example, replace the '<TT>Submit...</TT>' menu
+item's command in the '<TT>Job</TT>' pull-down menu by a new <TT>myBsub</TT>
+executable:<BR>
+<A NAME="26815"></A><TT>xlsbatch*customizedMenu:&quot;Job Submit...  0
+myBsub&quot;</TT></P>
+
+<LI><A NAME="26816"></A>Replace an item's command in the sub-pull-down
+menu by a new executable:<BR>
+<TT>A<I>i</I></TT>: the pull-down menu name where the sub-pull-down menu
+resides<BR>
+<TT>B<I>i</I></TT>: the sub-pull-down menu name where some item's command
+will be replaced<BR>
+<TT>C<I>i</I></TT>: the menu item name whose command will be replaced<BR>
+<TT>D<I>i</I></TT>: executable name which will be executed when the item
+specified in <TT>C</TT><I>i</I> is chosen </LI>
+
+<P><A NAME="26817"></A>For example, replace the '<TT>Chkpnt...</TT>' menu
+item's command in the '<TT>Manipulate</TT>' sub-pull-down menu by a new
+<TT>myChkpnt</TT> executable:<BR>
+<A NAME="26818"></A><TT>xlsbatch*customizedMenu:&quot;Job Manipulate Chkpnt...
+myChkpnt&quot;</TT></P>
+</UL>
+
+<P><A NAME="26819"></A><TT>xlsbatch</TT> puts the jobIDs of those selected
+in the job list of the Main Window into a group of UNIX environment variables:</P>
+
+<PRE><A NAME="26820"></A><TT>JOBID0 JOBID1 ... JOBIDk</TT></PRE>
+
+<P><A NAME="26821"></A>Starting with <TT>JOBID0</TT>, each variable contains
+at most 200 job IDs separated by spaces, the variable group ends with a
+null variable.</P>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="14-nqs.html">[Prev]</A>
+<A HREF="b-new-features.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:30:43 --></P>
+
+</BODY>
+</HTML>

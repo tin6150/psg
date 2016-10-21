@@ -1,0 +1,2002 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - LSF Batch Configuration Reference</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="10-lsf-reference.html">[Prev]</A>
+<A HREF="a-troubleshooting.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="163"></A>Chapter 10. <A NAME="154"></A>LSF Batch Configuration
+Reference</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="23017"></A>This chapter describes the LSF Batch configuration
+files <TT>lsb.params</TT>, <TT>lsb.users</TT>, <TT>lsb.hosts</TT>, and
+<TT>lsb.queues</TT>. These files use the same horizontal and vertical section
+structure as the LIM configuration files (see <A HREF="05-manage-lsf.html#33921">'Configuration
+File Formats'</A>). All LSF Batch configuration files are found in the
+<TT>LSB_CONFDIR/<I>cluster</I>/configdir</TT> directory.</P>
+
+<H2><A NAME="23026"></A>The <TT>lsb.params</TT> File</H2>
+
+<P><A NAME="23030"></A>The <TT>lsb.params</TT> file defines general parameters
+used by the LSF Batch cluster. This file contains only one section.</P>
+
+<P><A NAME="4273"></A>Most of the parameters that can be defined in the
+<TT>lsb.params</TT> file control timing within the LSF Batch system. The
+default settings provide good throughput for long running batch jobs while
+adding a minimum of processing overhead in the batch daemons.</P>
+
+<H3><A NAME="9925"></A>Parameters</H3>
+
+<P><A NAME="9933"></A>This section and all the keywords in this section
+are optional. If keywords are not present, LSF Batch assumes default values
+for the corresponding keywords. The valid keywords for this section are:</P>
+
+<DL>
+<DT><A NAME="168"></A><TT>DEFAULT_QUEUE = </TT><I>queue </I><TT>...</TT>
+</DT>
+
+<DD><A NAME="4234"></A><TT>DEFAULT_QUEUE</TT> lists the names of LSF Batch
+queues defined in the <TT>lsb.queues</TT> file. When a user submits a job
+to the LSF Batch system without explicitly specifying a queue and the user's
+environment variable <TT>LSB_DEFAULTQUEUE</TT> is not set, LSF Batch queues
+the job in the first default queue listed that satisfies the job's specifications
+and other restrictions.</DD>
+
+<DD><A NAME="10279"></A><BR>
+If this keyword is not present or no valid value is given, then LSF Batch
+automatically creates a default queue named <TT>default</TT> with all the
+default parameters (see <A HREF="11-lsbatch-reference.html#1523">'The <TT>lsb.queues</TT>
+File'</A>).</DD>
+</DL>
+
+<DL>
+<DT><A NAME="10538"></A><TT>DEFAULT_HOST_SPEC = <I>host_spec</I> </TT></DT>
+
+<DD><A NAME="10539"></A><I>host_spec</I> must be a host name defined in
+the <TT>lsf.cluster.</TT><I>cluster</I> file, or a host model defined in
+the <TT>lsf.shared</TT> file.</DD>
+
+<DD><A NAME="10541"></A><BR>
+The CPU time limit defined by the <TT>CPULIMIT</TT> parameter in the <TT>lsb.queues</TT>
+file or by the user through the <TT>-c </TT><I>cpu_limit</I> option of
+the <TT>bsub</TT> command is interpreted as the maximum number of minutes
+of CPU time that a job may run on a host of the default specification.
+When a job is dispatched to a host for execution, the CPU time limit is
+then normalized according to the execution host's CPU factor.</DD>
+
+<DD><A NAME="10543"></A><BR>
+If <TT>DEFAULT_HOST_SPEC</TT> is defined in both the <TT>lsb.params</TT>
+file and the <TT>lsb.queues</TT> file for an individual queue, the value
+specified for the queue overrides the global value. If a user explicitly
+gives a host specification with the CPU limit when submitting a job, the
+user specified host or host model overrides the values defined in both
+the <TT>lsb.params</TT> and the <TT>lsb.queues</TT> files.</DD>
+
+<DD><A NAME="10546"></A><BR>
+Default: the fastest batch server host in the cluster </DD>
+</DL>
+
+<DL>
+<DT><A NAME="18916"></A><TT>DEFAULT_PROJECT = <I>proj_name</I> </TT></DT>
+
+<DD><A NAME="4289"></A>The default project name for jobs. When a user submits
+a job without specifying any project name, and the user's environment variable
+<TT>LSB_DEFAULTPROJECT</TT> is not set, LSF Batch automatically assigns
+the job to this default project name. On IRIX 6, the project name must
+be one of the projects listed in the <TT>/etc/project</TT>(<TT>4</TT>)
+file. On all other platforms, the project name is a string used for accounting
+purposes.</DD>
+
+<DD><A NAME="19409"></A><BR>
+Default: If this parameter is not present, LSF Batch uses <TT>default</TT>
+as the default project name </DD>
+</DL>
+
+<DL>
+<DT><A NAME="18918"></A><TT>MBD_SLEEP_TIME = <I>integer</I> </TT></DT>
+
+<DD><A NAME="4329"></A>The LSF Batch job dispatching interval. It determines
+how often the LSF Batch system tries to dispatch pending batch jobs.</DD>
+
+<DD><A NAME="8327"></A><BR>
+Default: 60 (seconds) </DD>
+</DL>
+
+<DL>
+<DT><A NAME="4290"></A><TT>SBD_SLEEP_TIME = <I>integer</I> </TT></DT>
+
+<DD><A NAME="4345"></A>The LSF Batch job checking interval. It determines
+how often the LSF Batch system checks the load conditions of each host
+to decide whether jobs on the host must be suspended or resumed.</DD>
+
+<DD><A NAME="8346"></A><BR>
+Default: 30 (seconds) </DD>
+</DL>
+
+<DL>
+<DT><A NAME="4291"></A><TT>JOB_ACCEPT_INTERVAL = <I>integer</I> </TT></DT>
+
+<DD><A NAME="4358"></A>The number of <TT><A HREF="11-lsbatch-reference.html#18918">MBD_SLEEP_TIME</A></TT>
+periods to wait after dispatching a job to a host, before dispatching a
+second job to the same host. If <TT>JOB_ACCEPT_INTERVAL</TT> is zero, a
+host may accept more than one job in each job dispatching interval (<TT>MBD_SLEEP_TIME</TT>).
+</DD>
+
+<DD><A NAME="8357"></A><BR>
+Default: 1 </DD>
+</DL>
+
+<DL>
+<DT><A NAME="4294"></A><TT>MAX_SBD_FAIL = <I>integer</I> </TT></DT>
+
+<DD><A NAME="4573"></A>The maximum number of retries for reaching a non-responding
+slave batch daemon, <TT>sbatchd</TT>. The interval between retries is defined
+by <TT><A HREF="11-lsbatch-reference.html#18918">MBD_SLEEP_TIME</A></TT>. If the master batch daemon
+fails to reach a host, and has retried <TT>MAX_SBD_FAIL</TT> times, the
+host is considered unavailable. When a host becomes unavailable the <TT>mbatchd</TT>
+assumes that all jobs running on that host have exited, and all rerunable
+jobs (jobs submitted with <TT>bsub -r</TT>) are scheduled to be rerun on
+another host.</DD>
+
+<DD><A NAME="8434"></A><BR>
+Default: 3 </DD>
+</DL>
+
+<DL>
+<DT><A NAME="4295"></A><TT>CLEAN_PERIOD = <I>integer</I> </TT></DT>
+
+<DD><A NAME="4784"></A>The amount of time that job records for jobs that
+have finished or have been killed are kept in-core in the master batch
+daemon after they have finished. Users can still see all jobs after they
+have finished using the <TT>bjobs</TT> command. For jobs that finished
+more than <TT>CLEAN_PERIOD</TT> seconds ago, use the <TT>bhist</TT> command.
+</DD>
+
+<DD><A NAME="8460"></A><BR>
+Default: 3600 (seconds) </DD>
+</DL>
+
+<DL>
+<DT><A NAME="4421"></A><TT>MAX_JOB_NUM = <I>integer</I> </TT></DT>
+
+<DD><A NAME="4463"></A>The maximum number of finished jobs whose events
+are to be stored in an event log file (see the <TT>lsb.events</TT>(<TT>5</TT>)
+manual page). Once the limit is reached, <TT>mbatchd</TT> switches the
+event log file. See <A HREF="07-manage-lsbatch.html#14040">'LSF Batch Event
+Log'</A>. </DD>
+
+<DD><A NAME="8469"></A><BR>
+Default: 1000 </DD>
+</DL>
+
+<DL>
+<DT><A NAME="4422"></A><TT>HIST_HOURS = <I>integer</I> </TT></DT>
+
+<DD><A NAME="4622"></A>The number of hours of resource consumption history
+taken into account when calculating the priorities of users in a host partition
+(see <A HREF="11-lsbatch-reference.html#212">'Host Partitions'</A>) or
+a fairshare queue (see <A HREF="11-lsbatch-reference.html#1523">'The <TT>lsb.queues</TT>
+File'</A>). This parameter is meaningful only if a fairshare queue or a
+host partition is defined. In calculating a user's priority, LSF Batch
+uses a decay factor which scales the CPU time used by the user's jobs such
+that 1 hour of CPU time used is equivalent to 0.1 hour after <TT>HIST_HOURS</TT>
+have elapsed. </DD>
+
+<DD><A NAME="8476"></A><BR>
+Default: five (hours) </DD>
+</DL>
+
+<DL>
+<DT><A NAME="4423"></A><TT>PG_SUSP_IT = <I>integer</I> </TT></DT>
+
+<DD><A NAME="4651"></A>The time interval (in seconds) during which a host
+should be interactively idle (<TT>it &gt; 0</TT>) before jobs suspended
+because of a threshold on the <TT>pg</TT> load index can be resumed. This
+parameter is used to prevent the case in which a batch job is suspended
+and resumed too often as it raises the paging rate while running and lowers
+it while suspended. If you are not concerned with the interference with
+interactive jobs caused by paging, the value of this parameter may be set
+to 0.</DD>
+
+<DD><A NAME="8494"></A><BR>
+Default: 180 (seconds) </DD>
+</DL>
+
+<H3><A NAME="7030"></A>Handling Cray NQS Incompatibilities</H3>
+
+<P><A NAME="7031"></A>Cray NQS is incompatible with some of the public
+domain versions of NQS. Even worse, different versions of NQS on Cray are
+incompatible with each other. If your NQS server host is a Cray, some additional
+parameters may be needed for LSF to understand the NQS protocol correctly.</P>
+
+<P><A NAME="7032"></A>If the NQS version on a Cray is NQS 80.42 or NQS
+71.3, then no extra setup is needed. For other versions of NQS on a Cray,
+you need to define <TT>NQS_REQUESTS_FLAGS</TT> and <TT>NQS_QUEUES_FLAGS</TT>.</P>
+
+<DL>
+<DT><A NAME="7033"></A><TT>NQS_REQUESTS_FLAGS = <I>integer</I> </TT></DT>
+
+<DD><A NAME="7135"></A>If the version is NQS 1.1 on a Cray, the value of
+this flag is 251918848.</DD>
+
+<DD><A NAME="7136"></A><BR>
+For other versions of NQS on a Cray, see <A HREF="d-systems.html#9059">'Handling
+Cray NQS Incompatibilities'</A> to get the value for this flag.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="7228"></A><TT>NQS_QUEUES_FLAGS = <I>integer</I> </TT></DT>
+
+<DD><A NAME="7229"></A>See <A HREF="d-systems.html#9059">'Handling Cray
+NQS Incompatibilities'</A> to get the value for this flag. This flag is
+used by LSF to get the NQS queue information.</DD>
+</DL>
+
+<H2><A NAME="1492"></A>The <TT>lsb.users</TT> File</H2>
+
+<P><A NAME="167"></A>The <TT>lsb.users</TT> file contains configuration
+information about individual users and groups of users in an LSF Batch
+cluster. This file is optional.</P>
+
+<H3><A NAME="9180"></A>UNIX User Groups</H3>
+
+<P><A NAME="9181"></A>User groups defined by UNIX often reflect certain
+relationships among users. It is natural to control computer resource access
+using UNIX user groups.</P>
+
+<P><A NAME="9242"></A>You can specify a UNIX group anywhere an LSF Batch
+user group can be specified. The UNIX groups recognized by LSF Batch are
+the groups that are returned by a <TT>getgrnam</TT>(<TT>3</TT>) call. Note
+that only group members listed in the <TT>/etc/group</TT> file or the <TT>group.byname</TT>
+NIS map are accepted; the user's primary group as defined in the <TT>/etc/passwd</TT>
+file is ignored.</P>
+
+<P><A NAME="9184"></A>If both an individual user and a UNIX group have
+the same name, LSF assumes that the name refers to the individual user.
+In this case you can specify the UNIX group name by appending a slash '<TT>/</TT>'
+to the group name. For example, if you have both a user and a group named
+<TT>admin</TT> on your system, LSF interprets <TT>admin</TT> as the name
+of the user, and <TT>admin/</TT> as the name of the group.</P>
+
+<H4><A NAME="9185"></A>Limitations</H4>
+
+<P><A NAME="9186"></A>Although it is convenient to use UNIX groups as LSF
+Batch user groups, it may produce unexpected results if the UNIX group
+definitions are not homogeneous across machines. The UNIX groups picked
+up by LSF Batch are the groups obtained by calling <TT>getgrnam</TT>(<TT>3</TT>)
+on the master host. If the master host later changes to another host, the
+groups picked up might be different.</P>
+
+<P><A NAME="9187"></A>This will not be a problem if all the UNIX user groups
+referenced by LSF Batch configuration files are uniform across all hosts
+in the LSF cluster.</P>
+
+<H3><A NAME="173"></A>LSF Batch User Groups</H3>
+
+<P><A NAME="174"></A>A user group is a group of users with a name assigned.
+User groups can be used in defining the following parameters in LSF Batch
+configuration files: </P>
+
+<UL>
+<LI><A NAME="9152"></A><TT><A HREF="11-lsbatch-reference.html#200">USERS</A></TT> in the <TT><A HREF="11-lsbatch-reference.html#1523">lsb.queues</A></TT>
+file for authorized queue users. </LI>
+
+<LI><A NAME="9155"></A><TT><A HREF="11-lsbatch-reference.html#24035">USER_NAME</A> in the <A HREF="11-lsbatch-reference.html#1492">lsb.users</A></TT>
+file for user job slot limits. </LI>
+
+<LI><A NAME="9159"></A><TT>USER_SHARES</TT> in the <TT><A HREF="11-lsbatch-reference.html#1509">lsb.hosts</A></TT>
+file for host partitions or in the <TT><A HREF="11-lsbatch-reference.html#1523">lsb.queues</A></TT>
+file for queue fairshare policies. </LI>
+</UL>
+
+<P><A NAME="177"></A>The optional <TT>UserGroup</TT> section begins with
+a line containing the mandatory keywords <TT>GROUP_NAME</TT> and <TT>GROUP_MEMBER</TT>.
+Each subsequent line defines a single group. The first word on the line
+is the group name. The rest of the line contains a list of group members,
+enclosed in parentheses and separated by white space. A group can be included
+in another group; this means that every member of the first group is also
+a member of the second. For example:</P>
+
+<PRE><A NAME="22761"></A>Begin UserGroup
+GROUP_NAME   GROUP_MEMBER
+eng_users    (user1 user4)
+tech_users   (eng_users user7)
+acct_users   (user2 user3 user1)
+End UserGroup</PRE>
+
+<P><A NAME="3525"></A>A user or group can be a member of more than one
+group. The reserved name <TT>all</TT> can be used to specify all users.</P>
+
+<H3><A NAME="146"></A>User and Group Job Slot Limits</H3>
+
+<P><A NAME="8956"></A>Each user or user group can have a cluster-wide job
+slot limit and a per-processor job slot limit. These limits apply to the
+total number of job slots used by batch jobs owned by the user or group,
+in all queues. LSF Batch only dispatches the specified number of jobs at
+one time; if the user submits too many jobs, they remain pending and other
+users' jobs are run if hosts are available. </P>
+
+<P><A NAME="23946"></A>Detailed descriptions about job slot limits and
+how they are enforced by LSF Batch are described in <A HREF="03-concepts.html#3544">'Job
+Slot Limits'</A>. </P>
+
+<P><A NAME="150"></A>If a job slot limit is specified for a user group,
+the total number of job slots used by all users in that group are counted.
+If a user is a member of more than one group, each of that user's jobs
+is counted against the limit for all groups to which that user belongs.</P>
+
+<P><A NAME="24032"></A>This file can also contain a <TT>User</TT> section.
+The first line of this section gives the keywords that apply to the rest
+of the lines. The possible keywords include:</P>
+
+<DL>
+<DT><A NAME="24035"></A><TT>USER_NAME </TT></DT>
+
+<DD>Name of a user or user group. This keyword is mandatory. If the name
+is a group name and the name is appended with an '<TT>@</TT>', the job
+slot limits defined apply to each user in that group, as you could otherwise
+do by listing each user in that group in separate entries in this section.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="24037"></A><TT>MAX_JOBS </TT></DT>
+
+<DD>System-wide job slot limits. This limits the total number of job slots
+this user or user group can use at any time. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="3003"></A><TT>JL/P </TT></DT>
+
+<DD>Per processor job slot limit. This limits the maximum number of job
+slots this user or user group can use per processor. This number can be
+a fraction such as 0.5 so that it can also serve as a per-host limit. This
+number is rounded up to the nearest integer equal to or greater than the
+total job slot limits for a host. For example, if <TT>JL/P</TT> is 0.5,
+on a 4-CPU multiprocessor host, the user can only use up to 2 job slots
+at any time. On a uniprocessor machine, the user can use 1 job slot. </DD>
+</DL>
+
+<P><A NAME="3014"></A>The reserved user name <TT>default</TT> can be used
+for <TT>USER_NAME</TT> to set a limit for each user or group not explicitly
+named. If no default limit is specified, users and groups not listed in
+this section can run an unlimited number of jobs. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="1672"></A><B>Note<BR>
+</B><I>The default per-user job slot limit also applies to groups. If you
+define groups with many users, you may need to configure a job slot limit
+for that group explicitly to override the default setting.</I></P>
+</BLOCKQUOTE>
+
+<PRE><A NAME="147"></A>Begin User
+USER_NAME   MAX_JOBS  JL/P
+user3         10        -
+user2          4        1
+eng_users@    10        1
+default        6        1
+End User</PRE>
+
+<H2><A NAME="1509"></A>The <TT>lsb.hosts</TT> File</H2>
+
+<P><A NAME="175"></A>The <TT>lsb.hosts</TT> file contains host related
+configuration information for the batch server hosts in the cluster. This
+file is optional.</P>
+
+<H3><A NAME="186"></A>Host Section</H3>
+
+<P><A NAME="187"></A>The optional <TT>Host</TT> section contains per-host
+configuration information. Each host, host model or host type can be configured
+to run a maximum number of jobs and a limited number of jobs for each user.
+Hosts, host models or host types can also be configured to run jobs only
+under specific load conditions or time windows.</P>
+
+<P><A NAME="263"></A>If no hosts, host models or host types are named in
+this section, LSF Batch uses all hosts in the LSF cluster as batch server
+hosts. Otherwise, only the named hosts, host models and host types are
+used by LSF Batch. If a line in the <TT>Host</TT> section lists the reserved
+host name <TT>default</TT>, LSF Batch uses all hosts in the cluster and
+the settings on that line apply to every host not referenced in the section,
+either explicitly or by listing its model or type.</P>
+
+<P><A NAME="10776"></A>The first line of this section gives the keywords
+that apply to the rest of the lines. The keyword <TT>HOST_NAME</TT> must
+appear. Other supported keywords are optional.</P>
+
+<DL>
+<DT><A NAME="10777"></A><TT>HOST_NAME </TT></DT>
+
+<DD>The name of a host defined in the <TT>lsf.cluster.<I>cluster</I></TT>
+file, a host model or host type defined in the <TT>lsf.shared</TT> file,
+or the reserved word <TT>default</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="189"></A><TT>MXJ </TT></DT>
+
+<DD>The maximum number of job slots for the host. On multiprocessor hosts
+<TT>MXJ</TT> should be set to at least the number of processors to fully
+use the CPU resource. </DD>
+
+<DD><A NAME="8504"></A><BR>
+Default: unlimited </DD>
+</DL>
+
+<DL>
+<DT><A NAME="3131"></A><TT>JL/U </TT></DT>
+
+<DD>The maximum number of job slots any single user can use on this host
+at any time. See <A HREF="03-concepts.html#3544">'Job Slot Limits'</A>
+for details of job slot limits. </DD>
+
+<DD><A NAME="8508"></A><BR>
+Default: unlimited </DD>
+</DL>
+
+<DL>
+<DT><A NAME="191"></A><TT>DISPATCH_WINDOW </TT></DT>
+
+<DD>Times when this host will accept batch jobs. </DD>
+
+<DD><A NAME="6569"></A><BR>
+Dispatch windows are specified as a series of time windows. See <A HREF="03-concepts.html#3453">'Time
+Windows'</A> for detailed format of time windows. </DD>
+
+<DD><A NAME="24003"></A><BR>
+Default: always open </DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="7863"></A><B>Note<BR>
+</B><I>Earlier versions of LSF used the keyword </I><TT>RUN_WINDOW</TT><I>
+instead of </I><TT>DISPATCH_WINDOW</TT><I> in the </I><TT>lsb.hosts</TT><I>
+file. This keyword is still accepted to provide backward compatibility.</I></P>
+</BLOCKQUOTE>
+
+<DL>
+<DT><A NAME="494"></A><TT>MIG </TT></DT>
+
+<DD>Migration threshold in minutes. If a checkpointable or rerunable job
+dispatched to this host is suspended for more than <TT>MIG</TT> minutes,
+the job is migrated. The suspended job is checkpointed (if possible) and
+killed. Then LSF restarts or reruns the job on another suitable host if
+one is available. If LSF is unable to rerun or restart the job immediately,
+the job reverts to <TT><A HREF="03-concepts.html#3481">PEND</A></TT> status
+and is requeued with a higher priority than any submitted job, so it is
+rerun or restarted before other queued jobs are dispatched. </DD>
+
+<DD><A NAME="5049"></A><BR>
+Each LSF Batch queue can also specify a migration threshold. Jobs are migrated
+if either the host or the queue specifies a migration threshold. If <TT>MIG</TT>
+is defined both here and in <TT>lsb.queues</TT>, the lower threshold is
+used. </DD>
+
+<DD><A NAME="13904"></A><BR>
+Jobs that are neither checkpointable nor rerunable are not migrated. </DD>
+
+<DD><A NAME="5069"></A><BR>
+Default: no automatic migration </DD>
+</DL>
+
+<DL>
+<DT><A NAME="190"></A><TT>r15s</TT>, <TT>r1m</TT>, <TT>r15m</TT>, <TT>ut</TT>,
+<TT>pg</TT>, <TT>io</TT>, <TT>ls</TT>, <TT>it</TT>, <TT>tmp</TT>, <TT>swp</TT>,
+<TT>mem</TT>, and <I><TT>name </TT></I></DT>
+
+<DD>Scheduling and suspending thresholds for the dynamic load indices supported
+by LIM, including external load index names. Each load index column must
+contain either the default entry or two numbers separated by a slash '<TT>/</TT>',
+with no white space. The first number is the scheduling threshold for the
+load index; the second number is the suspending threshold. See the <A HREF="04-resources.html#356">'Resources'</A>
+chapter of the <I><A HREF="users-title.html#998232">LSF User's Guide</A></I>
+for complete descriptions of the load indices. </DD>
+
+<DD><A NAME="10942"></A><BR>
+Each LSF Batch queue also can specify scheduling and suspending thresholds
+in <TT>lsb.queues</TT>. If both files specify thresholds for an index,
+those that apply are the most restrictive ones. </DD>
+
+<DD><A NAME="8523"></A><BR>
+Default: no threshold </DD>
+</DL>
+
+<DL>
+<DT><A NAME="3423"></A><TT>CHKPNT </TT></DT>
+
+<DD>Defines the form of checkpointing available. Currently, only the value
+'<TT>C</TT>' is accepted. This indicates that checkpoint copy is supported.
+With checkpoint copy, all opened files are automatically copied to the
+checkpoint directory by the operating system when a process is checkpointed.
+Checkpoint copy is currently supported only on ConvexOS. </DD>
+
+<DD><A NAME="3424"></A><BR>
+Default: no checkpoint copy </DD>
+</DL>
+
+<P><A NAME="490"></A>The keyword line should name only the load indices
+that you wish to configure on a per-host basis. Load indices not listed
+on the keyword line do not affect scheduling decisions.</P>
+
+<P><A NAME="193"></A>Each following line contains the configuration information
+for one host, host model or host type. This line must contain one entry
+for each keyword on the keywords line. Use empty parentheses '<TT>()</TT>'
+or a dash '<TT>-</TT>' to specify the default 'don't care' value for an
+entry. The entries in a line for a host override the entries in a line
+for its model or type.</P>
+
+<PRE><A NAME="6419"></A>Begin Host
+HOST_NAME  MXJ  JL/U   r1m     pg   DISPATCH_WINDOW
+hostA      1      -  0.6/1.6  10/20 (5:19:00-1:8:30 20:00-8:30)
+SUNSOL     1      -  0.5/2.5    -   23:00-8:00
+default    2      1  0.6/1.6  20/40 ()
+End Host</PRE>
+
+<P><A NAME="202"></A>This example <TT>Host</TT> section shows host-specific
+configuration for a host and a host type, along with default values for
+all other load-sharing hosts. The server <I>hostA</I> runs one batch job
+at a time. A job will only be started on <I>hostA</I> if the <TT>r1m</TT>
+index is below 0.6 and the pg index is below 10; the running job is stopped
+if the <TT>r1m</TT> index goes above 1.6 or the <TT>pg</TT> index goes
+above 20. <I>hostA</I> only accepts batch jobs from 19:00 on Friday evening
+until 8:30 Monday morning, and overnight from 20:00 to 8:30 on all other
+days.</P>
+
+<P><A NAME="268"></A>For hosts of type <TT>SUNSOL</TT>, the <TT>pg</TT>
+index does not have host-specific thresholds and such hosts are only available
+overnight from 23:00 to 8:00. <TT>SUNSOL</TT> must be a host type defined
+in the <TT>lsf.shared</TT> file.</P>
+
+<P><A NAME="493"></A>The entry with host name <TT>default</TT> applies
+to each of the other hosts in the LSF cluster. Each host can run up to
+2 jobs at the same time, with at most one job from each user. These hosts
+are available to run jobs at all times. Jobs may be started if the <TT>r1m</TT>
+index is below 0.6 and the <TT>pg</TT> index is below 20, and a job from
+the lowest priority queue is suspended if <TT>r1m</TT> goes above 1.6 or
+<TT>pg</TT> goes above 40.</P>
+
+<H3><A NAME="203"></A>Host Groups</H3>
+
+<P><A NAME="204"></A>The <TT>HostGroup</TT> section is optional. This section
+defines names for sets of hosts. The host group name can then be used in
+other host group, host partition, and batch queue definitions, as well
+as on an LSF Batch command line. When a host group name is used, it has
+exactly the same effect as listing all of the host names in the group.</P>
+
+<P><A NAME="205"></A>Host groups are specified in the same format as user
+groups in the <TT>lsb.users</TT> file.</P>
+
+<P><A NAME="140"></A>The host group section must begin with a line containing
+the mandatory keywords <TT>GROUP_NAME</TT> and <TT>GROUP_MEMBER</TT>. Each
+other line in this section must contain an alphanumeric string for the
+group name, and a list of host names or previously defined group names
+enclosed in parentheses and separated by white space.</P>
+
+<P><A NAME="495"></A>Host names and host group names can appear in more
+than one host group. The reserved name <TT>all</TT> specifies all hosts
+in the cluster.</P>
+
+<PRE><A NAME="206"></A>Begin HostGroup
+GROUP_NAME  GROUP_MEMBER
+licence1   (hostA hostD)
+sys_hosts  (hostF license1 hostK)
+End HostGroup</PRE>
+
+<P><A NAME="211"></A>This example section defines two host groups. The
+group <I>license1</I> contains the hosts <I>hostA</I> and <I>hostD</I>;
+the group <I>sys_hosts</I> contains <I>hostF</I> and <I>hostK</I>, along
+with all hosts in the group <I>license1</I>. Group names must not conflict
+with host names.</P>
+
+<H3><A NAME="212"></A>Host Partitions</H3>
+
+<P><A NAME="213"></A>The <TT>HostPartition</TT> section is optional, and
+you can configure more than one such section. See <A HREF="07-manage-lsbatch.html#5356">'Controlling
+Fairshare'</A> for more discussions of fairshare and host partitions.</P>
+
+<P><A NAME="214"></A>Each <TT>HostPartition</TT> section contains a list
+of hosts and a list of user shares. Each host can be named in at most one
+host partition. Hosts that are available for batch jobs, but not included
+in any host partition are shared on a first-come, first-served basis. The
+special host name <TT>all</TT> can be specified to configure a host partition
+that applies to all hosts in a cluster.</P>
+
+<P><A NAME="215"></A>Each user share contains a single user name or user
+group name, and an integer defining the share of the total CPU time available
+to that user. The special user name '<TT>others</TT>' can be used to configure
+a total share for all users not explicitly listed. The special name '<TT>default</TT>'
+configures the default per-user share for each user not explicitly named.
+Only one of <TT>others</TT> or <TT>default</TT> may be configured in a
+single host partition.</P>
+
+<P><A NAME="9032"></A>The time sharing is calculated by adding up all the
+shares configured, and giving each user or group the specified portion
+of that total. Note that the share for a group specifies the total share
+for all users in that group, unless the group name has a trailing '<TT>@</TT>'.
+In this case, the share is for each individual user in the group. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="9040"></A><B>Note<BR>
+</B><I>Host partition fair share scheduling is an alternative to queue
+level fairshare scheduling. You cannot use both in the same LSF cluster.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="178"></A>This example shows a host partition applied to hosts
+<I>hostA</I> and <I>hostD</I>:</P>
+
+<PRE><A NAME="280"></A>Begin HostPartition
+HPART_NAME = part1
+HOSTS = hostA hostD
+USER_SHARES = [eng_users, 7] [acct_users, 3] [others, 1]
+End HostPartition</PRE>
+
+<P><A NAME="219"></A>In the example, the total of all the shares is 7 +
+3 + 1 = 11. This host partition specifies that all users in the user group
+<I>eng_users</I> should get 7/11 of the CPU time, the <I>acct_users</I>
+group should get 3/11, and all other users together get 1/11.</P>
+
+<P><A NAME="220"></A>CPU time usage is accumulated over a period of time
+configured by the <TT>HIST_HOURS</TT> optional parameter in the <TT>lsb.params</TT>
+file, with the default value of five hours. The batch system keeps track
+of the cumulative CPU usage of each user or group in the host partition.
+Each user or group is given a priority based on whether the group has received
+more or less than its share of the CPU over the time period. If jobs from
+more than one group are eligible to run on a host in the partition, the
+job from the group with lower CPU usage relative to the group's share is
+dispatched first. </P>
+
+<P><A NAME="221"></A>Host partitions are only enforced when jobs from more
+than one user or group are pending. If only one user or group is submitting
+jobs, those jobs can take all the available time on the partitioned hosts.
+If another user or group begins to submit jobs, those jobs are dispatched
+first until the shares reach the configured proportion.</P>
+
+<P><A NAME="269"></A>The following example shows a host partition that
+gives users in the <I>eng_users</I> group very high priority, but allows
+jobs from other users to run if there are no jobs from the <I>eng_users</I>
+group waiting:</P>
+
+<PRE><A NAME="281"></A>Begin HostPartition
+HPART_NAME = eng
+Hosts = all
+User_Shares = ([eng_users, 500] [others, 1])
+End HostPartition</PRE>
+
+<P><A NAME="11019"></A>Hosts belonging to a host partition should not be
+configured in the <TT>HOSTS</TT> parameter of a queue together with other
+hosts not belonging to the same host partition. Otherwise, the following
+two limitations may apply:</P>
+
+<UL>
+<LI><A NAME="10983"></A>Jobs in the queue sometimes may be dispatched to
+the host partition even though hosts not belonging to any host partition
+have lighter load. </LI>
+
+<LI><A NAME="10987"></A>If some hosts belong to one host partition and
+some hosts belong to another, only the priorities of one host partition
+are used when dispatching a parallel job to hosts from more than one host
+partition. </LI>
+</UL>
+
+<H2><A NAME="1523"></A>The <TT>lsb.queues</TT> File</H2>
+
+<P><A NAME="24589"></A>The <TT>lsb.queues</TT> file contains definitions
+of the batch queues in an LSF cluster. This file is optional. If no queues
+are configured, LSF Batch creates a queue named default, with all parameters
+set to default values (see the description of <TT><A HREF="11-lsbatch-reference.html#168">DEFAULT_QUEUE</A></TT>
+in <A HREF="11-lsbatch-reference.html#23026">'The <TT>lsb.params</TT> File'</A>).</P>
+
+<P><A NAME="24596"></A>Queue definitions are horizontal sections that begin
+with the line <TT>Begin Queue</TT> and end with the line <TT>End Queue</TT>.
+You can define at most 40 queues in an LSF Batch cluster. Each queue definition
+contains the following parameters:</P>
+
+<H3><A NAME="182"></A>General Parameters</H3>
+
+<H4><A NAME="183"></A><TT>QUEUE_NAME = <I>string</I></TT></H4>
+
+<P><A NAME="160"></A>The name of the queue. This parameter must be defined,
+and has no default. The queue name can be any string of non-blank characters
+up to 40 characters long. It is best to use 6 to 8 character names made
+up of letters, digits, and possibly underscores '<TT>_</TT>' or dashes
+'<TT>-</TT>'.</P>
+
+<H4><A NAME="184"></A><TT>PRIORITY = <I>integer</I></TT></H4>
+
+<P><A NAME="185"></A>This parameter indicates the priority of the queue
+relative to other LSF Batch queues. Note that this is an LSF Batch dispatching
+priority, completely independent of the UNIX scheduler's priority system
+for time-sharing processes. The LSF Batch <TT><A HREF="11-lsbatch-reference.html#8544">NICE</A></TT>
+parameter is used to set the UNIX time-sharing priority for batch jobs.</P>
+
+<P><A NAME="228"></A>LSF Batch tries to schedule jobs from queues with
+larger <TT>PRIORITY</TT> values first. This does not mean that jobs in
+lower priority queues are not scheduled unless higher priority queues are
+empty. Higher priority queues are checked first, but not all jobs in them
+are necessarily scheduled. For example, a job might be held because no
+machine with the right resources is available, or all jobs in a queue might
+be held because the queue's dispatch window or run window (see below) is
+closed. Lower priority queues are then checked and, if possible, their
+jobs are scheduled.</P>
+
+<P><A NAME="11848"></A>LSF Batch tries to suspend jobs from queues with
+smaller <TT>PRIORITY</TT> values first.</P>
+
+<P><A NAME="503"></A>If more than one queue is configured with the same
+<TT>PRIORITY</TT>, LSF Batch schedules jobs from all these queues in first-come,
+first-served order.</P>
+
+<P><A NAME="229"></A>Default: 1 </P>
+
+<H4><A NAME="8544"></A><TT>NICE = <I>integer</I></TT></H4>
+
+<P><A NAME="230"></A>Adjusts the UNIX scheduling priority at which jobs
+from this queue execute. The default value of 0 maintains the default scheduling
+priority for UNIX interactive jobs. This value adjusts the run time priorities
+for batch jobs on a queue-by-queue basis, to control their effect on other
+batch or interactive jobs. See the <TT>nice</TT>(<TT>1</TT>) manual page
+for more details.</P>
+
+<P><A NAME="8559"></A>Default: 0 </P>
+
+<H4><A NAME="2035"></A><TT>QJOB_LIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="2036"></A>Job slot limit for the queue. This limits the total
+number of job slots that this queue can use at any time. </P>
+
+<P><A NAME="8577"></A>Default: unlimited </P>
+
+<H4><A NAME="231"></A><TT>UJOB_LIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="232"></A>Per user job slot limit for the queue. This limits
+the total number of job slots any user of this queue can use at any time.
+</P>
+
+<P><A NAME="8595"></A>Default: unlimited </P>
+
+<H4><A NAME="2075"></A><TT>PJOB_LIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="2076"></A>Per processor job slot limit. This limits the total
+number of job slots this queue can use on any processor at any time. This
+limit is configured per processor so that multiprocessor hosts automatically
+run more jobs. </P>
+
+<P><A NAME="8608"></A>Default: unlimited </P>
+
+<H4><A NAME="22657"></A><TT>HJOB_LIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="24895"></A>Per host job slot limit. This limits the total number
+of job slots this queue can use on any host at any time. This limit is
+configured per host regardless of the number of processors it may have.
+This may be useful if the queue dispatches jobs which require a node-locked
+license. If there is only one node-locked license per host then the system
+should not dispatch more than one job to the host even if it is a multiprocessor
+host. For example, the following will run a maximum of one job on each
+of <I>hostA</I>, <I>hostB</I>, and <I>hostC</I>:</P>
+
+<PRE><A NAME="22651"></A>Begin Queue
+.
+HJOB_LIMIT = 1
+HOSTS=hostA hostB hostC
+End Queue</PRE>
+
+<P><A NAME="22677"></A>Default: unlimited </P>
+
+<H4><A NAME="233"></A><TT>RUN_WINDOW = <I>string</I></TT></H4>
+
+<P><A NAME="234"></A>The time windows in which jobs are run from this queue.
+Run windows are described in <A HREF="03-concepts.html#11540">'Run Windows'</A>.</P>
+
+<P><A NAME="6506"></A>When the queue run window closes, the queue stops
+dispatching jobs and suspends any running jobs in the queue. Jobs suspended
+because the run window closed are restarted when the window reopens. Suspended
+jobs also can be switched to a queue with run window open; the job restarts
+as soon as the new queue's scheduling thresholds are met.</P>
+
+<P><A NAME="8615"></A>Default: always open </P>
+
+<H4><A NAME="6507"></A><TT>DISPATCH_WINDOW = <I>string</I></TT></H4>
+
+<P><A NAME="6523"></A>The time windows in which jobs are dispatched from
+this queue. Once dispatched, jobs are no longer affected by the dispatch
+window. Queue dispatch windows are analogous to the host dispatch windows
+described above in <A HREF="11-lsbatch-reference.html#191">'<TT>DISPATCH
+WINDOW</TT>'</A>.</P>
+
+<P><A NAME="8624"></A>Default: always open </P>
+
+<H4><A NAME="17259"></A><TT>ADMINISTRATORS = <I>name ...</I></TT></H4>
+
+<P><A NAME="17243"></A>A list of queue-level administrators. The list of
+names can include any valid user name in the system, any UNIX user group
+name, and any user group name configured in the <TT>lsb.users</TT> file.
+Queue administrators can perform operations on any job in the queue as
+well as on the queue itself (for example, open/close, activate/deactivate).
+Switching a job from one queue to another requires the administrator to
+be authorized for both the current and the destination queues.</P>
+
+<P><A NAME="17285"></A>The <TT>-l</TT> option of the <TT>bqueues</TT> command
+will display configured administrators for each queue.</P>
+
+<P><A NAME="17232"></A>Default: No queue-level administrators are defined
+</P>
+
+<H3><A NAME="22681"></A>Processor Reservation for Parallel Jobs</H3>
+
+<P><A NAME="22682"></A>Parallel jobs requiring a large number of processors
+can often not be started if there are many lower priority sequential jobs
+in the system. There may not be enough resources at any one instant to
+satisfy a large parallel job, but there may be enough to allow a sequential
+job to be started. With the processor reservation feature the problem of
+starvation of parallel jobs can be reduced.</P>
+
+<P><A NAME="22683"></A>A host can have multiple 'slots' available for the
+execution of jobs. The number of slots can be independent of the number
+of processors and each queue can have its own notion of the number of execution
+slots available on each host. The number of execution slots on each host
+is controlled by the <TT>PJOB_LIMIT</TT> and <TT>HJOB_LIMIT</TT> parameters.
+When attempting to schedule parallel jobs requiring <I>N</I> processors
+(as specified with <TT>bsub -n</TT>), the system will attempt to find <I>N</I>
+execution slots across all eligible hosts. It ensures that each job never
+receives more slots than there are physical processors on any individual
+host.</P>
+
+<P><A NAME="22684"></A>When a parallel job cannot be dispatched because
+there are not enough execution slots to satisfy its minimum processor requirements,
+the currently available slots will be reserved for the job. These reserved
+job slots are accumulated until there enough available to start the job.
+When a slot is reserved for a job it is unavailable to any other job.</P>
+
+<P><A NAME="22685"></A>The processor reservation feature is disabled by
+default. To enable it, specify the <TT>SLOT_RESERVE</TT> keyword in the
+queue:</P>
+
+<PRE><A NAME="22686"></A>Begin Queue
+.
+PJOB_LIMIT=1
+SLOT_RESERVE = MAX_RESERVE_TIME[n]
+.
+End Queue</PRE>
+
+<P><A NAME="22687"></A>The value of the keyword is <TT>MAX_RESERVE_TIME[n]</TT>
+where <I>n</I> is a multiple of <TT><A HREF="11-lsbatch-reference.html#18918">MBD_SLEEP_TIME</A></TT>
+(defined in <TT>lsb.params</TT>). <TT>MAX_RESERVE_TIME</TT> controls the
+maximum time a slot is reserved for a job. It is required to avoid deadlock
+situations in which the system is reserving job slots for multiple parallel
+jobs such that none of them can acquire sufficient resources to start.
+The system will reserve slots for a job until <TT>n*MBD_SLEEP_TIME</TT>
+minutes. If an insufficient number have been accumulated, all slots are
+freed and made available to other jobs. The maximum reservation time takes
+effect from the start of the first reservation for a job and a job can
+go through multiple reservation cycles before it accumulates enough slots
+to be actually started.</P>
+
+<H3><A NAME="22288"></A>Flexible Expressions for Queue Scheduling </H3>
+
+<P><A NAME="22289"></A>LSF Batch provides a variety of possibly overlapping
+options for configuring job scheduling policies. </P>
+
+<H4><A NAME="22293"></A>Queue-Level Resource Requirement </H4>
+
+<P><A NAME="22294"></A>The condition for dispatching a job to a host can
+be specified through the queue-level <TT>RES_REQ</TT> parameter. Using
+a resource requirement string you can specify conditions in a more flexible
+manner than using the <TT>loadSched</TT> thresholds (see <A HREF="11-lsbatch-reference.html#239">'Load
+Thresholds'</A>). For example:</P>
+
+<PRE><A NAME="22295"></A>RES_REQ= select[((type==ALPHA &amp;&amp; r1m &lt; 2.0)||(type==HPPA &amp;&amp; r1m &lt; 1.0))]</PRE>
+
+<P><A NAME="22296"></A>will allow a queue, which contains <TT>ALPHA</TT>
+and <TT>HPPA</TT> hosts, to have different thresholds for the different
+types of hosts. Using the <TT>hname</TT> resource in the <TT>RES_REQ</TT>
+string allows you to set up different conditions for different hosts in
+the same queue, for example:</P>
+
+<PRE><A NAME="22297"></A>RES_REQ= select[((hname=hostA &amp;&amp; mem &gt; 50)||(hname==hostB &amp;&amp; mem &gt; 100))]</PRE>
+
+<P><A NAME="22298"></A>When <TT>RES_REQ</TT> is specified in the queue
+and no job-level resource requirement is specified, then <TT>RES_REQ</TT>
+becomes the default resource requirement for the job. This allows administrators
+to override the LSF default of executing only on the same type as the submission
+host. If a job level resource requirement is specified together with <TT>RES_REQ</TT>,
+then a host must satisfy both requirements to be eligible for running the
+job. Similarly, the <TT>loadSched</TT> thresholds, if specified, must also
+be satisfied for a host to be eligible.</P>
+
+<P><A NAME="23941"></A>The <TT>order</TT> and <TT>span</TT> sections of
+the resource requirement string can also be specified in the <TT>RES_REQ</TT>
+parameter. These sections in <TT>RES_REQ</TT> are ignored if they are also
+specified by the user in the job level resource requirement.</P>
+
+<H4><A NAME="22302"></A>Queue-Level Resource Reservation </H4>
+
+<P><A NAME="23893"></A>The resource reservation feature allows user's to
+specify that the system should reserve resources after a job starts. This
+feature is also available at the queue level.</P>
+
+<P><A NAME="23898"></A>The queue-level resource reservation can be configured
+as part of the <TT>RES_REQ</TT> parameter. The <TT>RES_REQ</TT> can include
+a <TT>rusage</TT> section to specify the amount of resources a job should
+reserve after it is started. For example:</P>
+
+<PRE><A NAME="23911"></A>Begin Queue
+.
+RES_REQ = swap&gt;50 rusage[swp=40:duration=5h:decay=1]
+.
+End Queue</PRE>
+
+<P><A NAME="23190"></A>If <I>duration</I> is not specified, the default
+is to reserve the resource for the lifetime of the job. If <I>decay</I>
+is specified as 1, then the reserved resource will be linearly decreased
+over the time specified by <I>duration</I>. If <I>decay</I> is not specified,
+then the resource reserved will not decrease over time. See <A HREF="06-submitting.html#26891">'Specifying
+Resource Reservation'</A> in the <I><A HREF="users-title.html#998232">LSF
+User's Guide</A></I> and <TT>lsfintro</TT>(<TT>1</TT>) for detailed syntax
+of the <TT>rusage</TT> parameter. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="22306"></A><B>Note<BR>
+</B><I>The use of </I><TT>RES_REQ</TT><I> affects the pending reasons as
+displayed by </I><TT>bjobs</TT><I>. If </I><TT>RES_REQ</TT><I> is specified
+in the queue and the </I><TT>loadSched</TT><I> thresholds are not specified
+the pending reasons for each individual load index will not be displayed.
+</I></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="22307"></A>Suspending Condition</H4>
+
+<P><A NAME="22308"></A>The condition for stopping a job can be specified
+using a resource requirement string in the queue level <TT>STOP_COND</TT>
+parameter. If <TT>loadStop</TT> thresholds have been specified, then a
+job will be suspended if either the <TT>STOP_COND</TT> is <TT>TRUE</TT>
+or the <TT>loadStop</TT> thresholds are violated. For example, the following
+will suspend a job based on the idle time for desktop machines and based
+on availability of swap and memory on compute servers. Note that <TT>cs</TT>
+is a boolean resource defined in the <TT>lsf.shared</TT> file and configured
+in the <TT>lsf.cluster.<I>cluster</I></TT> file to indicate that a host
+is a compute server:</P>
+
+<PRE><A NAME="22309"></A>Begin Queue
+.
+STOP_COND= select[((!cs &amp;&amp; it &lt; 5) || (cs &amp;&amp; mem &lt; 15 &amp;&amp; swap &lt; 50))]
+.
+End Queue</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="22311"></A><B>Note<BR>
+</B><I>Only the </I><TT>select</TT><I> section of the resource requirement
+string is considered when stopping a job. All other sections are ignored.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="22312"></A>The use of <TT>STOP_COND</TT> affects the suspending
+reasons as displayed by the <TT>bjobs</TT> command. If <TT>STOP_COND</TT>
+is specified in the queue and the <TT>loadStop</TT> thresholds are not
+specified, the suspending reasons for each individual load index will not
+be displayed. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="23871"></A><B>Note<BR>
+</B><I>LSF Batch will not suspend a job if the job is the only batch job
+running on the host and the machine is interactively idle (</I><TT>it &gt;0</TT><I>).
+</I></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="22313"></A>Resume Condition</H4>
+
+<P><A NAME="22314"></A>A separate <TT>RESUME_COND</TT> allows you to specify
+the condition that must be satisfied on a host if a suspended job is to
+be resumed. If <TT>RESUME_COND</TT> is not defined, then the <TT>loadSched</TT>
+thresholds are used to control resuming of jobs. The <TT>loadSched</TT>
+thresholds are ignored if <TT>RESUME_COND</TT> is defined.</P>
+
+<P><A NAME="22315"></A>Note that only the <TT>select</TT> section of the
+resource requirement string is considered when resuming a job. All other
+sections are ignored.</P>
+
+<H3><A NAME="239"></A>Load Thresholds</H3>
+
+<P><A NAME="23793"></A>The queue definition can contain thresholds for
+0 or more of the load indices. Any load index that does not have a configured
+threshold has no effect on job scheduling. A description of all the load
+indices is given in the <A HREF="04-resources.html#356">'Resources'</A>
+chapter of the <I><A HREF="users-title.html#998232">LSF User's Guide</A></I>.</P>
+
+<P><A NAME="21760"></A>Each load index is configured on a separate line
+with the format:</P>
+
+<PRE><A NAME="242"></A>index = loadSched/loadStop</PRE>
+
+<P><A NAME="243"></A><I>index</I> is the name of the load index, for example
+<TT>r1m</TT> for the 1-minute CPU run queue length or <TT>pg</TT> for the
+paging rate. <I>loadSched</I> is the scheduling threshold for this load
+index. <I>loadStop</I> is the suspending threshold.</P>
+
+<P><A NAME="23817"></A>The <TT>loadSched</TT> and <TT>loadStop</TT> thresholds
+permit the specification of conditions using simple AND/OR logic. For example,
+the specification:</P>
+
+<PRE><A NAME="23818"></A>MEM=100/10
+SWAP=200/30</PRE>
+
+<P><A NAME="23819"></A>translates into a <TT>loadSched</TT> condition of
+<TT>mem&gt;=100 &amp;&amp; swap&gt;=200</TT> and a <TT>loadStop</TT> condition
+of <TT>mem &lt; 10 || swap &lt; 30</TT>. The <TT>loadSched</TT> condition
+must be satisfied by a host before a job is dispatched to it and also before
+a job suspended on a host can be resumed. If the <TT>loadStop</TT> condition
+is satisfied, a job is suspended. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="23874"></A><B>Note<BR>
+</B><I>LSF Batch will not suspend a job if the job is the only batch job
+running on the host and the machine is interactively idle (</I><TT>it &gt;0</TT><I>).
+</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="23850"></A>The scheduling threshold also defines the host load
+conditions under which suspended jobs in this queue may be resumed. </P>
+
+<P><A NAME="23862"></A>When LSF Batch suspends or resumes a job, it invokes
+the <TT>SUSPEND</TT> or <TT>RESUME</TT> action as described in <A HREF="11-lsbatch-reference.html#23743">'Configurable
+Job Control Actions'</A>. The default <TT>SUSPEND</TT> action is to send
+signal <TT>SIGSTOP</TT>, while default action for <TT>RESUME</TT> is to
+send signal <TT>SIGCONT</TT>. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="255"></A><B>Note<BR>
+</B><I>The </I><TT>r15s</TT><I>, </I><TT>r1m</TT><I>, and </I><TT>r15m</TT><I>
+CPU run queue length conditions are compared to the effective queue length
+as reported by </I><TT>lsload -E</TT><I>, which is normalised for multiprocessor
+hosts. Thresholds for these parameters should be set at appropriate levels
+for single processor hosts.</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="249"></A>Resource Limits</H3>
+
+<P><A NAME="198"></A>Batch queues can enforce resource limits on jobs.
+LSF Batch supports most of the resource limits that the underlying operating
+system supports. In addition, LSF Batch also supports a few limits that
+the underlying operating system does not support.</P>
+
+<H4><A NAME="197"></A><TT>CPULIMIT = [<I>hour</I>:]<I>minute</I>[/<I>host_spec</I>]</TT></H4>
+
+<P><A NAME="24124"></A>Maximum CPU time allowed for a job running in this
+queue. This limit applies to the whole job, no matter how many processes
+the job may contain. If a job consists of multiple processes, the <TT>CPULIMIT</TT>
+parameter applies to all processes in a job. If a job dynamically spawns
+processes, the CPU time used by these processes is accumulated over the
+life of the job. Processes that exist for less than 30 seconds may be ignored.</P>
+
+<P><A NAME="24121"></A>The limit is scaled; the job is allowed to run longer
+on a slower host, so that a job can do roughly the same amount of work
+no matter what speed of host it is dispatched to.</P>
+
+<P><A NAME="12028"></A>The time limit is given in the form [<I>hour</I>:]<I>minute</I>[/<I>host_spec</I>].
+<I>minute</I> may be greater than 59. Three and a half hours can be specified
+either as 3:30, or 210. <I>host_spec</I> is shared by <TT>CPULIMIT</TT>
+and <TT><A HREF="11-lsbatch-reference.html#225">RUNLIMIT</A></TT>. It may be a host name or a host
+model name which is used to adjust the CPU time limit or the wall-clock
+run time limit. In its absence, the <TT><A HREF="11-lsbatch-reference.html#8154">DEFAULT_HOST_SPEC</A></TT>
+defined for this queue or defined for the whole cluster is assumed. If
+<TT>DEFAULT_HOST_SPEC</TT> is not defined, the LSF Batch server host with
+the largest CPU factor is assumed.</P>
+
+<P><A NAME="22189"></A>CPU time limits are normalized by multiplying the
+<TT>CPULIMIT</TT> parameter by the CPU factor of the specified or default
+host, and then dividing by the CPU factor of the execution host. If the
+specified host has a CPU factor of 2 and another host has a factor of 1,
+then a <TT>CPULIMIT</TT> value of 10 minutes allows jobs on the specified
+host to run for 10 minutes, and jobs on the slower host to run for 20 minutes
+(2 * 10 / 1). See <A HREF="10-lsf-reference.html#236">'Host Models'</A>
+and <A HREF="10-lsf-reference.html#819">'Descriptive Fields'</A> for more
+discussion of CPU factors.</P>
+
+<P><A NAME="8709"></A>Default: unlimited </P>
+
+<H4><A NAME="225"></A><TT>RUNLIMIT = [<I>hour</I>:]<I>minute</I>[/<I>host_spec</I>]</TT></H4>
+
+<P><A NAME="3383"></A>Maximum wall clock running time allowed for batch
+jobs in this queue. Jobs that are in the <TT><A HREF="03-concepts.html#3483">RUN</A></TT>
+state for longer than <TT>RUNLIMIT</TT> are killed by LSF Batch. <TT>RUNLIMIT</TT>
+is available on all host types. For an explanation of the form of the time
+limit, see <TT><A HREF="11-lsbatch-reference.html#197">CPULIMIT</A></TT> above.</P>
+
+<P><A NAME="8698"></A>Default: unlimited </P>
+
+<H4><A NAME="3369"></A><TT>FILELIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="12478"></A>The per-process (hard) file size limit (in KB) for
+all the processes belonging to a job from this queue (see <TT>getrlimit</TT>(<TT>2</TT>)).</P>
+
+<P><A NAME="12489"></A>Default: unlimited </P>
+
+<H4><A NAME="12490"></A><TT>MEMLIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="12479"></A>The per-process (hard) process resident set size
+limit (in KB) for all the processes belonging to a job from this queue
+(see <TT>getrlimit</TT>(<TT>2</TT>)). The process resident set size limit
+cannot be set on HP-UX and Sun Solaris 2.x, so this limit has no effect
+on an HP-UX or a Sun Solaris 2.x machine.</P>
+
+<P><A NAME="12822"></A>Default: unlimited </P>
+
+<H4><A NAME="12649"></A><TT>DATALIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="12480"></A>The per-process (hard) data segment size limit (in
+KB) for all the processes belonging to a job from this queue (see <TT>getrlimit</TT>(<TT>2</TT>)).
+The data segment size limit cannot be set on HP-UX, so this limit has no
+effect on an HP-UX machine.</P>
+
+<P><A NAME="13010"></A>Default: unlimited </P>
+
+<H4><A NAME="12846"></A><TT>STACKLIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="12481"></A>The per-process (hard) stack segment size limit
+(in KB) for all the processes belonging to a job from this queue (see <TT>getrlimit</TT>(<TT>2</TT>)).
+The stack segment size limit cannot be set on HP-UX, so this limit has
+no effect on an HP-UX machine.</P>
+
+<P><A NAME="13216"></A>Default: unlimited </P>
+
+<H4><A NAME="13052"></A><TT>CORELIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="137"></A>The per-process (hard) core file size limit (in KB)
+for all the processes belonging to a job from this queue (see <TT>getrlimit</TT>(<TT>2</TT>)).
+The core file size limit cannot be set on HP-UX, so this limit has no effect
+on an HP- UX machine.</P>
+
+<P><A NAME="8717"></A>Default: unlimited </P>
+
+<H4><A NAME="18893"></A><TT>PROCLIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="18894"></A>The maximum number of job slots that can be allocated
+to a parallel job in the queue. Jobs which request more job slots via the
+<TT>-n</TT> option of <TT>bsub</TT> than the queue can accept will be rejected.</P>
+
+<P><A NAME="22119"></A>Default: unlimited </P>
+
+<H4><A NAME="23216"></A><TT>PROCESSLIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="23305"></A>This limits the number of concurrent processes that
+can be part of a job. </P>
+
+<P><A NAME="23453"></A>Default: unlimited </P>
+
+<H4><A NAME="23218"></A><TT>SWAPLIMIT = <I>integer</I></TT></H4>
+
+<P><A NAME="23446"></A>The amount of total virtual memory limit (in kilobytes)
+for a job from this queue. This limit applies to the whole job, no matter
+how many processes the job may contain.</P>
+
+<P><A NAME="24146"></A>The action taken when a job exceeds its <TT>SWAPLIMIT</TT>
+or <TT><A HREF="11-lsbatch-reference.html#23216">PROCESSLIMIT</A></TT> is to send <TT>SIGQUIT</TT>,
+<TT>SIGINT</TT>, and <TT>SIGTERM</TT>, and then <TT>SIGKILL</TT> in sequence.
+For <TT><A HREF="11-lsbatch-reference.html#197">CPULIMIT</A></TT>, <TT>SIGXCPU</TT> is sent before
+<TT>SIGINT</TT>, <TT>SIGTERM</TT>, and <TT>SIGKILL</TT>.</P>
+
+<P><A NAME="24917"></A>Default: unlimited </P>
+
+<H4><A NAME="22479"></A><TT>NEW_JOB_SCHED_DELAY = <I>integer</I></TT></H4>
+
+<P><A NAME="22496"></A>This parameter controls when a scheduling session
+should be started after a new job is submitted. For example:</P>
+
+<PRE><A NAME="22445"></A>Begin Queue
+.
+NEW_JOB_SCHED_DELAY=0
+.
+End Queue</PRE>
+
+<P><A NAME="22503"></A>If <TT>NEW_JOB_SCHED_DELAY</TT> is 0 seconds, a
+new scheduling session is started as soon as a job is submitted to this
+queue. This parameter can be used to obtain faster response times for jobs
+in a queue such as a queue for interactive jobs.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="22447"></A><B>Note<BR>
+</B><I>Setting a value of 0 can cause </I><TT>mbatchd</TT><I> to be busy
+if there are a lot of submissions. </I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="22466"></A>Default: 10 seconds </P>
+
+<H4><A NAME="24337"></A><TT>JOB_ACCEPT_INTERVAL = <I>integer</I></TT></H4>
+
+<P><A NAME="24338"></A>This parameter has the same effect as <TT><A HREF="11-lsbatch-reference.html#4291">JOB_ACCEPT_INTERVAL</A></TT>
+defined in the <TT>lsb.params</TT> file, except that it applies to this
+queue. </P>
+
+<P><A NAME="24390"></A>Default: <TT>JOB_ACCEPT_INTERVAL</TT> defined in
+<TT>lsb.params</TT> or 1 if it is not defined in <TT>lsb.params</TT> file
+</P>
+
+<H4><A NAME="24391"></A><TT>INTERACTIVE = <I>NO</I>|<I>ONLY</I></TT></H4>
+
+<P><A NAME="24394"></A>An interactive job can be submitted via the <TT>-I</TT>
+option of the <TT>bsub</TT> command. By default, a queue would accept both
+interactive and background jobs. This parameter allows LSF cluster administrator
+to limit a queue to not accept interactive jobs (<TT>NO</TT>), or to only
+accept interactive jobs (<TT>ONLY</TT>). </P>
+
+<H3><A NAME="24393"></A>Eligible Hosts and Users</H3>
+
+<P><A NAME="22122"></A>Each queue can have a list of users and user groups
+who are allowed to submit batch jobs to the queue, and a list of hosts
+and host groups that restricts where jobs from the queue can be dispatched.</P>
+
+<H4><A NAME="200"></A><TT>USERS = <I>name ...</I></TT></H4>
+
+<P><A NAME="13427"></A>The list of users who can submit jobs to this queue.
+The list of names can include any valid user name in the system, any UNIX
+user group name, and any user group name configured in the <TT>lsb.users</TT>
+file. The reserved word <TT>all</TT> may be used to specify all users.
+</P>
+
+<BLOCKQUOTE>
+<P><A NAME="24334"></A><B>Note<BR>
+</B><I>LSF cluster administrator can submit jobs to any queue, even if
+the login name of the cluster administrator is not defined in the </I><TT>USERS</TT><I>
+parameter of the queue. LSF cluster administrator can also switch a user's
+jobs into this queue from other queues, even if this user's login name
+is not defined in the </I><TT>USERS</TT><I> parameter. </I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="13428"></A>Default: all </P>
+
+<H4><A NAME="260"></A><TT>HOSTS = <I>name</I>[+<I>pref_level</I>] ...</TT></H4>
+
+<P><A NAME="24263"></A>The list of hosts on which jobs from this queue
+can be run. Each name in the list must be a valid host name, host group
+name or host partition name as configured in the <TT>lsb.hosts</TT> file.
+The name can be optionally followed by +<I>pref_level </I>to indicate the
+preference for dispatching a job to that host, host group, or host partition.
+<I>pref_level </I>is a positive number specifying the preference level
+of that host. If a host preference is not given, it is assumed to be 0.
+</P>
+
+<P><A NAME="24264"></A>Hosts at the same level of preference are ordered
+by load. For example:</P>
+
+<PRE><A NAME="24271"></A>HOSTS = hostA+1 hostB hostC+1 servers+3</PRE>
+
+<P><A NAME="24272"></A>where <I>servers</I> is a host group name referring
+to all computer servers. This defines three levels of preferences: run
+jobs on <I>servers</I> as much as possible, or else on <I>hostA</I> and
+<I>hostC</I>. Jobs should not run on <I>hostB</I> unless all other hosts
+are too busy to accept more jobs. </P>
+
+<P><A NAME="24282"></A>If you use the reserved word 'others', it means
+jobs should run on all hosts not explicitly listed. You do not need to
+define this parameter if you want to use all batch server hosts and you
+do not need host preferences. </P>
+
+<P><A NAME="24265"></A>All the members of the host list should either belong
+to a single host partition or not belong to any host partition. Otherwise,
+job scheduling may be affected (see <A HREF="11-lsbatch-reference.html#212">'Host
+Partitions' on page 198</A>).</P>
+
+<P><A NAME="13512"></A>Default: all batch hosts.</P>
+
+<H3><A NAME="7474"></A>Scheduling Policy</H3>
+
+<P><A NAME="7485"></A>LSF Batch allows many policies to be defined at the
+queue level. These affect in what order jobs in the queue should be scheduled.
+</P>
+
+<H4><A NAME="24316"></A>Queue Level Fairshare</H4>
+
+<P><A NAME="24320"></A>The concept of queue level fairshare was discussed
+in <A HREF="03-concepts.html#24125">'Scheduling Policy'</A>. The configuration
+syntax for this policy is:</P>
+
+<PRE><A NAME="24169"></A>FAIRSHARE = USER_SHARES[ [<I>username</I>, <I>share</I>] [<I>username</I>, <I>share</I>] ......] </PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="24196"></A><B>Note<BR>
+</B><I>These are real square brackets, not syntactic notation.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="13815"></A><TT>username</TT><I> </I>is a user login name, a
+user group name, the reserved word <TT>default</TT>, or the reserved word
+<TT>others</TT>. <TT>share</TT> is a positive integer specifying the number
+of shares of resources that a user or user group has in the cluster. </P>
+
+<P><A NAME="24294"></A>The <TT>USER_SHARES</TT> assignment for a queue
+is interpreted in the same way as the <TT>USER_SHARES</TT> assignment in
+a host partition definition in the <TT>lsb.hosts</TT> file. See <A HREF="11-lsbatch-reference.html#212">'Host
+Partitions'</A> for explanation of <TT>USER_SHARES</TT>. In general, a
+job has a higher scheduling priority if the job's owner has more shares,
+fewer running jobs, has used less CPU time and has waited longer in the
+queue.</P>
+
+<P><A NAME="7416"></A>Note the differences between the following two definitions:</P>
+
+<PRE><A NAME="7417"></A>FAIRSHARE = USER_SHARES[[grp1, share1] [grp2, share2]]</PRE>
+
+<PRE><A NAME="7418"></A>FAIRSHARE = USER_SHARES[[grp1, share1] [grp2@, share2]]</PRE>
+
+<P><A NAME="7419"></A>The '<TT>@</TT>' immediately after a user group name
+means that the share applies to each individual user in the user group.
+Without '<TT>@</TT>', the share applies to the user group as a whole. </P>
+
+<P><A NAME="24350"></A>See <A HREF="07-manage-lsbatch.html#5356">'Controlling
+Fairshare'</A> for examples of fairshare configuration. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="22576"></A><B>Note<BR>
+</B><I>Queue level fair share scheduling is an alternative to host partition
+fair share scheduling. You cannot use both in the same LSF cluster for
+the same host(s).</I></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="24417"></A>Preemption Scheduling</H4>
+
+<P><A NAME="24420"></A>The concept of preemptive scheduling was discussed
+in <A HREF="03-concepts.html#26337">'Preemptive and Preemptable'</A>. <TT>PREEMPTION</TT>
+takes two possible parameters, <TT>PREEMPTIVE</TT> and <TT>PREEMPTABLE</TT>.
+The configuration syntax is:</P>
+
+<PRE><A NAME="24361"></A>PREEMPTION = PREEMPTIVE[<I>q1 q2</I> ...] PREEMPTABLE</PRE>
+
+<P><A NAME="24364"></A>where <TT>[q1,q2 ...]</TT> are an optional list
+of queue names of lower priorities. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="24923"></A><B>Note<BR>
+</B><I>These are real square brackets, not syntactic notation.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="24422"></A>If <TT>PREEMTIVE</TT> is defined, this defines a
+preemptive queue that will preempt jobs in <TT>[q1, q2, ...]</TT>. Jobs
+in a preemptive queue can preempt jobs from the specified lower priority
+queues running on a host by suspending some of them and starting the higher
+priority jobs on the host. </P>
+
+<P><A NAME="24382"></A>If <TT>PREEMPTIVE</TT> is specified without a list
+of queue names, then this queue preempts all lower priority queues. </P>
+
+<P><A NAME="7675"></A>If the <TT>PREEMPTIVE</TT> policy is not specified,
+jobs dispatched from this queue will not suspend jobs from lower priority
+queues. </P>
+
+<P><A NAME="18414"></A>A queue can be specified as being preemptable by
+defining <TT>PREEMPTABLE</TT> in the <TT>PREEMPTION</TT> parameter of the
+queue.</P>
+
+<P><A NAME="18507"></A>Jobs from a preemptable queue can be preempted by
+jobs in any higher priority queues even if the higher priority queues do
+not have <TT>PREEMPTIVE</TT> defined. A preemptable queue is complementary
+to the preemptive queue. You can define a queue that is both preemptive
+as well as preemptable by defining both <TT>PREEMPTIVE</TT> and <TT>PREEMPTABLE</TT>.
+Thus the queue will preempt lower priority queues while it can also be
+preempted by higher priority queues. </P>
+
+<H4><A NAME="13674"></A>Exclusive Queue</H4>
+
+<P><A NAME="13676"></A>An exclusive queue is created by specifying <TT>EXCLUSIVE</TT>
+in the policies of a queue.</P>
+
+<P><A NAME="13677"></A>If the <TT>EXCLUSIVE</TT> policy is specified, this
+queue performs exclusive scheduling. A job only runs exclusively if it
+is submitted to a queue with exclusive scheduling, and the job is submitted
+with the <TT>-x</TT> option to <TT>bsub</TT>. An exclusive job runs by
+itself on a host---it is dispatched only to a host with no other batch
+jobs running.</P>
+
+<P><A NAME="13678"></A>Once an exclusive job is started on a host, the
+LSF Batch system locks that host out of load sharing by sending a request
+to the underlying LSF so that the host is no longer available for load
+sharing by any other task (either interactive or batch) until the exclusive
+job finishes.</P>
+
+<P><A NAME="23672"></A>Because exclusive jobs are not dispatched until
+a host has no other batch jobs running, it is possible for an exclusive
+job to wait indefinitely if no batch server host is ever completely idle.
+This can be avoided by configuring some hosts to run only one batch job
+at a time; that way the host is certain to have no batch jobs running when
+the previous batch job completes, so the exclusive job can be dispatched
+there.</P>
+
+<P><A NAME="23673"></A>The exclusive scheduling policy is specified using
+the following syntax:</P>
+
+<PRE><A NAME="23674"></A>EXCLUSIVE = {Y | N}</PRE>
+
+<H3><A NAME="265"></A>Migration</H3>
+
+<P><A NAME="3475"></A>The <TT>MIG</TT> parameter controls automatic migration
+of suspended jobs.</P>
+
+<H4><A NAME="3476"></A><TT>MIG = <I>number</I></TT></H4>
+
+<P><A NAME="505"></A>If <TT>MIG</TT> is specified, then <I>number</I> is
+the migration threshold in minutes. If a checkpointable or rerunable job
+is suspended for more than <TT>MIG</TT> minutes and no other job on the
+same host is being migrated, LSF Batch checkpoints (if possible) and kills
+the job. Then LSF Batch restarts or reruns the job on another suitable
+host if one is available. If LSF is unable to rerun or restart the job
+immediately, the job reverts to <TT><A HREF="03-concepts.html#3481">PEND</A></TT>
+status and is requeued with a higher priority than any submitted job, so
+it is rerun or restarted before other queued jobs are dispatched.</P>
+
+<P><A NAME="13884"></A>The <TT>lsb.hosts</TT> file can also specify a migration
+threshold. Jobs are migrated if either the host or the queue specifies
+a migration threshold. If <TT>MIG</TT> is defined both here and in <TT>lsb.hosts</TT>,
+the lower threshold is used.</P>
+
+<P><A NAME="17416"></A>Jobs that are neither checkpointable nor rerunable
+are not migrated.</P>
+
+<P><A NAME="17417"></A>Default: no migration </P>
+
+<H3><A NAME="17433"></A>Queue-Level Pre-/Post-Execution Commands</H3>
+
+<P><A NAME="17434"></A>Pre- and post-execution commands can be configured
+on a per-queue basis. These commands are run on the execution host before
+and after a job from this queue is run, respectively. By configuring appropriate
+pre- and/or post-execution commands various situations can be handled such
+as: </P>
+
+<UL>
+<LI><A NAME="17452"></A>Creating and deleting scratch directories for the
+job </LI>
+
+<LI><A NAME="17453"></A>Assigning jobs to run on specific processors on
+SMP machines </LI>
+
+<LI><A NAME="17454"></A>Customized scheduling </LI>
+
+<LI><A NAME="20591"></A>License availability checking </LI>
+</UL>
+
+<P><A NAME="17456"></A>Note that the job-level pre-exec specified with
+the <TT>-E</TT> option of <TT>bsub</TT> is also supported. In some situations
+(for example, license checking) it is possible to specify a queue-level
+pre-execution command instead of requiring every job be submitted with
+the <TT>-E</TT> option.</P>
+
+<P><A NAME="17460"></A>The execution commands are specified using the <TT>PRE_EXEC</TT>
+and <TT>POST_EXEC</TT> keywords. For example:</P>
+
+<PRE><A NAME="17549"></A>Begin Queue
+QUEUE_NAME     = priority
+PRIORITY       = 43
+NICE           = 10
+PRE_EXEC       = /usr/people/lsf/pri_prexec
+POST_EXEC      = /usr/people/lsf/pri_postexec
+End Queue</PRE>
+
+<P><A NAME="17566"></A>The following points should be considered when setting
+up the pre- and post-execution commands for queues: </P>
+
+<UL>
+<LI><A NAME="17568"></A>The entire contents of the configuration line of
+the pre- and post-execution commands are run under <TT>/bin/sh -c</TT>,
+so shell features can be used in the command. For example, the following
+is valid: </LI>
+
+<PRE><A NAME="20612"></A>PRE_EXEC = /usr/local/lsf/misc/testq_pre &gt;&gt; /tmp/pre.out
+POST_EXEC = /usr/local/lsf/misc/testq_post | grep -v &quot;$USER&quot;</PRE>
+
+<LI><A NAME="25192"></A>Both the pre- and post-execution commands are run
+as the user by default. If you must run these commands as a different user,
+such as root (to do privileged operations, if necessary), you can configure
+the parameter <TT>LSB_PRE_POST_EXEC_USER</TT> in the <TT>lsf.sudoers</TT>
+file. See <A HREF="10-lsf-reference.html#12839">'The <TT>lsf.sudoers</TT>
+File'</A> for details. </LI>
+
+<LI><A NAME="17578"></A>The pre- and post-execution commands are run in
+<TT>/tmp</TT>. </LI>
+
+<LI><A NAME="17810"></A>Standard input and standard output and error are
+set to <TT>/dev/null</TT>. The output from the pre- and post-execution
+commands can be explicitly redirected to a file for debugging purposes.
+</LI>
+
+<LI><A NAME="17580"></A>If the pre-execution command exits with a non-zero
+exit code, then it is considered to have failed and the job is requeued
+to the head of the queue. This feature can be used to implement customized
+scheduling by having the pre-execution command fail if conditions for dispatching
+the job are not met. </LI>
+
+<LI><A NAME="19597"></A>The <TT>PATH</TT> environment variable is set to
+'<TT>/bin /usr/bin /sbin /usr/sbin</TT>'. </LI>
+
+<LI><A NAME="17585"></A>Other environment variables set for the job are
+also set for the pre- and post-execution commands. </LI>
+
+<LI><A NAME="17588"></A>When a job is dispatched from a queue which has
+a pre-execution command, LSF Batch will remember the post-execution command
+defined for the queue from which the job is dispatched. If the job is later
+switched to another queue or the post-execution command of the queue is
+changed, LSF Batch will still run the original post-execution command for
+this job. </LI>
+
+<LI><A NAME="17594"></A>When the post-execution command is run, the environment
+variable, <TT>LSB_JOBEXIT_STAT</TT>, is set to the exit status of the job.
+Refer to the manual page for <TT>wait</TT>(<TT>2</TT>) for the format of
+this exit status. </LI>
+
+<LI><A NAME="17597"></A>The post-execution command is also run if a job
+is requeued because the job's execution environment fails to be set up,
+or if the job exits with one of the queue's <TT>REQUEUE_EXIT_VALUES</TT>
+(see <A HREF="11-lsbatch-reference.html#17822">'Automatic Job Requeue'</A>).
+The environment variable, <TT>LSB_JOBPEND</TT>, is set if the job is requeued.
+If the job's execution environment could not be set up, <TT>LSB_JOBEXIT_STAT</TT>
+is set to 0. </LI>
+
+<LI><A NAME="19513"></A>If both queue and job level pre-execution commands
+are specified, the job level pre-execution is run after the queue level
+pre-execution command. </LI>
+</UL>
+
+<P><A NAME="17440"></A>Default: no pre- and post-execution commands </P>
+
+<H3><A NAME="22340"></A>Job Starter </H3>
+
+<P><A NAME="23744"></A>A Job starter can be defined for each queue to bring
+the actual job into the desired environment before execution. The configuration
+syntax for job starter is:</P>
+
+<PRE><A NAME="23889"></A>JOB_STARTER = starter</PRE>
+
+<P><A NAME="23890"></A>where starter string is any executable that can
+be used to start the job command line. When LSF Batch runs the job, it
+executes <TT>/bin/sh -c &quot;JOB_STARTER job_command_line&quot;</TT>.
+Thus a job starter can be anything that can be run together with the job
+command line. </P>
+
+<H3><A NAME="23743"></A>Configurable Job Control Actions</H3>
+
+<P><A NAME="23712"></A>Job control in LSF Batch refers to some well-known
+control actions that will cause a job's status to change. These actions
+include:</P>
+
+<DL>
+<DT><A NAME="23713"></A><TT>SUSPEND </TT></DT>
+
+<DD>Change a running job to <TT><A HREF="03-concepts.html#3507">SSUSP</A></TT>
+or <TT><A HREF="03-concepts.html#3505">USUSP</A></TT>. The default action
+is to send signal <TT>SIGTSTP</TT> for parallel or interactive jobs and
+<TT>SIGSTOP</TT> for other jobs. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="23714"></A><TT>RESUME </TT></DT>
+
+<DD>Change a suspended job to <TT><A HREF="03-concepts.html#3483">RUN</A></TT>
+status. The default action is to send signal <TT>SIGCONT</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="23715"></A><TT>TERMINATE </TT></DT>
+
+<DD>Terminate a job and possibly cause the job change to <TT><A HREF="03-concepts.html#5350">EXIT</A></TT>
+status. The default action is to send <TT>SIGINT</TT> first, then send
+<TT>SIGTERM</TT> 10 seconds after <TT>SIGINT</TT>, then send <TT>SIGKILL</TT>
+10 seconds after <TT>SIGTERM</TT>. </DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="23716"></A><B>Note<BR>
+</B><I>On Windows NT, actions equivalent to the above UNIX signals have
+been implemented to do the default job control actions.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="23710"></A>Several situations may require overriding or augmenting
+the default actions for job control. For example: </P>
+
+<UL>
+<LI><A NAME="22346"></A>A distributed parallel application requires that
+it receive a catchable signal when the job is suspended, resumed or terminated
+to propagate the signal to remote processes. </LI>
+
+<LI><A NAME="22347"></A>Notifying the user when their job is suspended.
+</LI>
+
+<LI><A NAME="22348"></A>An application holds resources (for example, licenses)
+that are not freed by suspending the job. The administrator can set up
+an action to be performed that causes the license to be released before
+the job is suspended and re-acquired when the job is resumed. </LI>
+
+<LI><A NAME="22349"></A>The administrator wants the job checkpointed before
+being suspended when a run window closes. </LI>
+</UL>
+
+<P><A NAME="22350"></A>It is possible to override the actions used for
+job control by specifying the <TT>JOB_CONTROLS</TT> parameter in the <TT>lsb.queues</TT>
+file. The format is:</P>
+
+<PRE><A NAME="22351"></A>Begin Queue
+.
+JOB_CONTROLS = SUSPEND[signal | CHKPNT | command] \ 
+               RESUME[signal | command]  \
+               TERMINATE[signal | CHKPNT | command]
+.
+End Queue</PRE>
+
+<P><A NAME="22352"></A>where <I>signal</I> is a UNIX signal name (such
+as <TT>SIGSTOP</TT>, <TT>SIGTSTP</TT>, etc.). <TT>CHKPNT</TT> is a special
+action, which causes the system to checkpoint the job. Alternatively <I>command</I>
+specifies a <TT>/bin/sh</TT> command line to be invoked.</P>
+
+<P><A NAME="22356"></A>When LSF Batch needs to suspend or resume a job
+it will invoke the corresponding action as specified by the <TT>SUSPEND</TT>
+or <TT>RESUME</TT> parameters, respectively.</P>
+
+<P><A NAME="22357"></A>If the action is a signal, then the signal is sent
+to the job. If the action is a command, then the following points should
+be considered: </P>
+
+<UL>
+<LI><A NAME="22358"></A>The contents of the configuration line for the
+action are run with '<TT>/bin/sh -c</TT>' so you can use shell features
+in the command. </LI>
+
+<LI><A NAME="22359"></A>The standard input, output, and error of the command
+are redirected to the <TT>NULL</TT> device. </LI>
+
+<LI><A NAME="22360"></A>The command is run as the user of the job. </LI>
+
+<LI><A NAME="22361"></A>All environment variables set for the job are also
+set for the command action. The following additional environment variables
+are set: </LI>
+</UL>
+
+<DL>
+<DL>
+<DT><A NAME="22362"></A><TT>LSB_JOBPGIDS </TT></DT>
+
+<DD>A list of current process group IDs of the job </DD>
+
+<DT><A NAME="22363"></A><TT>LSB_JOBPIDS </TT></DT>
+
+<DD>A list of current process IDs of the job. </DD>
+</DL>
+
+<DL>
+<P><A NAME="22364"></A>For the <TT>SUSPEND</TT> action command, the following
+environment variable is also set:</P>
+</DL>
+
+<DL>
+<DT><A NAME="22365"></A><TT>LSB_SUSP_REASON</TT></DT>
+
+<DD>An integer representing a bit map of suspending reasons as defined
+in <TT>lsbatch.h</TT>. </DD>
+</DL>
+
+<DL>
+<P><A NAME="22366"></A>The suspending reason can allow the command to take
+different actions based on the reason for suspending the job.</P>
+</DL>
+
+<P><A NAME="22367"></A>The <TT>SUSPEND</TT> action causes the job state
+to be changed from <TT><A HREF="03-concepts.html#3483">RUN</A></TT> state
+to the <TT><A HREF="03-concepts.html#3505">USUSP</A></TT> (in response
+to <TT>bstop</TT>) state or the <TT><A HREF="03-concepts.html#3507">SSUSP</A></TT>
+(otherwise) state when the action is completed. The <TT>RESUME</TT> action
+causes the job to go from <TT><A HREF="03-concepts.html#3507">SSUSP</A></TT>
+or <TT><A HREF="03-concepts.html#3505">USUSP</A></TT> state to the <TT><A HREF="03-concepts.html#3483">RUN</A></TT>
+state when the action is completed. </P>
+
+<P><A NAME="22368"></A>If the <TT>SUSPEND</TT> action is <TT>CHKPNT</TT>,
+then the job is checkpointed and then stopped by sending the <TT>SIGSTOP</TT>
+signal to the job atomically.</P>
+
+<P><A NAME="22372"></A>LSF Batch invokes the <TT>SUSPEND</TT> action to
+bring a job into <TT><A HREF="03-concepts.html#3507">SSUSP</A></TT> or
+<TT><A HREF="03-concepts.html#3505">USUSP</A></TT> status in the following
+situations:</P>
+
+<LI><A NAME="24453"></A>When the user or LSF administrator issued an bstop
+command on the job </LI>
+
+<LI><A NAME="24454"></A>When load condition on the execution host satisfies
+the suspend condition </LI>
+
+<LI><A NAME="24455"></A>When the queue's run window closes </LI>
+
+<LI><A NAME="24458"></A>When the job is being preempted by a higher priority
+job </LI>
+
+<P><A NAME="24452"></A>However, in certain situations you may want to terminate
+the job instead of calling the <TT>SUSPEND</TT> action. For example, you
+may want to kill jobs if the run window of the queue is closed. This can
+be achieved by configuring the queue to invoke the <TT>TERMINATE</TT> action
+instead of <TT>SUSPEND</TT> by specifying the following parameter:</P>
+
+<PRE><A NAME="22373"></A>TERMINATE_WHEN = WINDOW | LOAD | PREEMPT</PRE>
+
+<P><A NAME="22374"></A>If the <TT>TERMINATE</TT> action is <TT>CHKPNT</TT>,
+then the job is checkpointed and killed atomically.</P>
+
+<P><A NAME="22375"></A>If the execution of an action is in progress, no
+further actions will be initiated unless it is the <TT>TERMINATE</TT> action.
+A <TT>TERMINATE</TT> action is issued regardless of the current state of
+the job.</P>
+
+<P><A NAME="22376"></A>The following defines a night queue that will kill
+jobs if the run window closes. </P>
+
+<PRE><A NAME="22377"></A>Begin Queue
+NAME           = night
+RUN_WINDOW     = 20:00-08:00
+TERMINATE_WHEN = WINDOW
+JOB_CONTROLS   = TERMINATE[ kill -KILL $LS_JOBPIDS; mail -s &quot;job $LSB_JOBID \
+                 killed by queue run window&quot; $USER &lt;&nbsp;/dev/null ]
+End Queue</PRE>
+
+<P><A NAME="24549"></A>Note that the command line inside an action definition
+must not be quoted. </P>
+
+<P><A NAME="24546"></A>LSF Batch invokes the <TT>TERMINATE</TT> action
+when a <TT>SUSPEND</TT> action that is redirected to <TT>TERMINATE</TT>
+with the <TT>TERMINATE_WHEN</TT> parameter should be invoked, or when the
+job reaches its <TT>RUNLIMIT</TT>, or <TT>PROCESSLIMIT</TT>. </P>
+
+<P><A NAME="24541"></A>Since the <TT>stdout</TT> and <TT>stderr</TT> of
+the job control action command are redirected to <TT>/dev/null</TT>, there
+is no direct way of knowing whether the command runs correctly. You should
+make sure the command line is correct. If you want to see the output from
+the command line for testing purposes, redirect the output to a file inside
+the command line. </P>
+
+<H3><A NAME="17822"></A>Automatic Job Requeue</H3>
+
+<P><A NAME="17823"></A>A queue can be configured to automatically requeue
+a job if the job exits with particular exit value(s). The parameter <TT>REQUEUE_EXIT_VALUES</TT>
+is used to specify a list of exit codes that can cause an exited job to
+be requeued; for example: </P>
+
+<PRE><A NAME="17851"></A>Begin Queue
+PRIORITY            = 43
+REQUEUE_EXIT_VALUES = 99 100
+End Queue</PRE>
+
+<P><A NAME="17835"></A>This configuration enables jobs that exit with 99
+or 100 to be requeued to the head of the queue from which it was dispatched.
+When a job is requeued, the output from the failed run is not saved and
+no mail is sent. The user will only receive notification when the job exits
+with a value different from the values listed in the <TT>REQUEUE_EXIT_VALUES</TT>
+parameter. Additionally, a job terminated by a signal is not requeued.</P>
+
+<P><A NAME="17898"></A>Default: Jobs in a queue are not requeued </P>
+
+<H3><A NAME="22705"></A>Exclusive Job Requeue</H3>
+
+<P><A NAME="22706"></A>The queue parameter <TT>REQUEUE_EXIT_VALUE</TT>
+controls job requeue behaviour. It defines a series of exit code values.
+If batch job exit with one of those values, the job gets requeued. There
+is a special requeue method called exclusive requeue. If the exit value
+is defined as <TT>EXCLUDE(<I>value</I>)</TT>, the job will be requeued
+when it exits with the given value, but it will not be dispatched to the
+same host where it exited with the value. For example:</P>
+
+<PRE><A NAME="22707"></A>Begin Queue
+.
+REQUEUE_EXIT_VALUES=30 EXCLUDE(20)
+HOSTS=hostA hostB hostC
+.
+End Queue</PRE>
+
+<P><A NAME="22708"></A>The job in this queue can be dispatched to <I>hostA</I>,
+<I>hostB</I>, or <I>hostC</I>. If the job exits with value 30, it will
+be dispatched on any of <I>hostA</I>, <I>hostB</I>, or <I>hostC</I>. If
+the job exits with value 20 on <I>hostA</I>, when requeued, it will only
+be dispatched to <I>hostB</I> or <I>hostC</I>. Similarly, if the job again
+exits with a value of 20, it will only be dispatched on <I>hostC</I>. Finally,
+if the job exits with value 20 on <I>hostC</I>, the job will be pending
+forever. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="23683"></A><B>Note<BR>
+</B><I>If </I><TT>mbatchd</TT><I> is restarted, it will not remember the
+previous host(s) where the job exited with an exclusive requeue exit code.
+In this situation it is possible for a job to be dispatched to host(s)
+on which the job has previously exited with exclusive exit code. </I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="17418"></A>Default Host Specification for CPU Speed Scaling</H3>
+
+<P><A NAME="8190"></A>LSF runs jobs on heterogeneous machines. To set the
+CPU time limit for jobs in a platform independent way, LSF scales the CPU
+time limit by the CPU factor of the hosts involved.</P>
+
+<P><A NAME="8192"></A>The <TT>DEFAULT_HOST_SPEC</TT> defines a default
+host or host model that will be used to normalize the CPU time limit of
+all jobs, providing consistent behaviour for users.</P>
+
+<H4><A NAME="8154"></A><TT>DEFAULT_HOST_SPEC = <I>host_spec</I></TT></H4>
+
+<P><A NAME="8155"></A><I>host_spec</I> must be a host name defined in the
+<TT>lsf.cluster.<I>cluster</I></TT> file, or a host model defined in the
+<TT>lsf.shared</TT> file.</P>
+
+<P><A NAME="8162"></A>The CPU time limit defined in this file or by the
+user through the <TT>-c <I>cpu_limit</I></TT> option of the <TT>bsub</TT>
+command is interpreted as the maximum number of minutes of CPU time that
+a job may run on a host of the default specification. When a job is dispatched
+to a host for execution, the CPU time limit is then normalized according
+to the execution host's CPU factor.</P>
+
+<P><A NAME="8881"></A>If <TT>DEFAULT_HOST_SPEC</TT> is defined in both
+the <TT>lsb.params</TT> file and the <TT>lsb.queues</TT> file for an individual
+queue, the value specified for the queue overrides the global value. If
+a user explicitly gives a host specification when submitting a job, the
+user specified host or host model overrides the values defined in both
+the <TT>lsb.params</TT> and the <TT>lsb.queues</TT> files.</P>
+
+<P><A NAME="8774"></A>Default: <TT>DEFAULT_HOST_SPEC</TT> in the <TT>lsb.params</TT>
+file </P>
+
+<H3><A NAME="6942"></A>NQS Forward Queues</H3>
+
+<P><A NAME="6943"></A>To interoperate with NQS, you must configure one
+or more LSF Batch queues to forward jobs to remote NQS hosts. An NQS forward
+queue is an LSF Batch queue with the parameter <TT>NQS_QUEUES</TT> defined.</P>
+
+<H4><A NAME="7003"></A><TT>NQS_QUEUES = <I>queue_name</I>@<I>host_name
+...</I></TT></H4>
+
+<P><A NAME="14420"></A><I>host_name</I> is an NQS host name which can be
+the official host name or an alias name known to the LSF master host through
+<TT>gethostbyname</TT>(<TT>3</TT>). <I>queue_name</I> is the name of an
+NQS queue on this host. NQS destination queues are considered for job routing
+in the order in which they are listed here. If a queue accepts the job,
+then it is routed to that queue. If no queue accepts the job, it remains
+pending in the NQS forward queue.</P>
+
+<P><A NAME="14421"></A>The <TT>lsb.nqsmaps</TT> file (see <A HREF="11-lsbatch-reference.html#6855">'The
+<TT>lsb.nqsmaps</TT> File'</A>) must be present in order for LSF Batch
+to route jobs in this queue to NQS systems.</P>
+
+<P><A NAME="14416"></A>Since many features of LSF are not supported by
+NQS, the following queue configuration parameters are ignored for NQS forward
+queues: <TT>PJOB_LIMIT</TT>, <TT>POLICIES</TT>, <TT>RUN_WINDOW</TT>, <TT>DISPATCH_WINDOW</TT>,
+<TT>RUNLIMIT</TT>, <TT>HOSTS</TT>, and <TT>MIG</TT>. In addition, scheduling
+load threshold parameters are ignored because NQS does not provide load
+information about hosts.</P>
+
+<P><A NAME="8793"></A>Default: undefined </P>
+
+<H4><A NAME="253"></A><TT>DESCRIPTION = <I>text</I></TT></H4>
+
+<P><A NAME="270"></A>A brief description of the job queue. This information
+is displayed by the <TT>bqueues -l</TT> command. The description can include
+any characters, including white space. The description can be extended
+to multiple lines by ending the preceding line with a back slash '<TT>\</TT>'.
+The maximum length for the description is 512 characters.</P>
+
+<P><A NAME="6838"></A>This description should clearly describe the service
+features of this queue to help users select the proper queue for each job.</P>
+
+<H2><A NAME="6855"></A>The <TT>lsb.nqsmaps</TT> File</H2>
+
+<P><A NAME="6879"></A>The <TT>lsb.nqsmaps</TT> file contains information
+on configuring LSF for interoperation with NQS. This file is optional.</P>
+
+<H3><A NAME="14558"></A>Hosts</H3>
+
+<P><A NAME="14559"></A>NQS uses a machine identification number (MID) to
+identify each host in the network that communicates using the NQS protocol.
+This MID must be unique and must be the same in the NQS database of each
+host in the network. The MID is assigned and put into the NQS data base
+using the NQS program <TT>nmapmgr</TT>(<TT>1m</TT>) or Cray NQS command
+<TT>qmgr</TT>(<TT>8</TT>). <TT>mbatchd</TT> uses the NQS protocol to talk
+with NQS daemons for routing, monitoring, signalling, and deleting LSF
+Batch jobs that run on NQS hosts. Therefore, the MIDs of the LSF master
+host and any LSF host that might become the master host when the current
+master host is down must be assigned and put into the NQS database of each
+host which may possibly process LSF Batch jobs.</P>
+
+<P><A NAME="21787"></A>In the mandatory <TT>Hosts</TT> section, list the
+MIDs of the LSF master host (and potential master hosts) and the NQS hosts
+that are specified in the <TT>lsb.queues</TT> file. If an NQS destination
+queue specified in the <TT>lsb.queues</TT> file is a pipe queue, the MIDs
+of all the destination hosts of this pipe queue must be listed here. If
+a destination queue of this pipe queue is itself a pipe queue, the MIDs
+of the destination hosts of this queue must also be listed, and so forth.</P>
+
+<P><A NAME="14522"></A>There are three mandatory keywords in this section:</P>
+
+<H4><A NAME="14524"></A><TT>HOST_NAME</TT></H4>
+
+<P><A NAME="14525"></A>The name of an LSF or NQS host. It can be the official
+host name or an alias host name known to the master batch daemon (<TT>mbatchd</TT>)
+through <TT>gethostbyname</TT>(<TT>3</TT>).</P>
+
+<H4><A NAME="15619"></A><TT>MID</TT></H4>
+
+<P><A NAME="15620"></A>The machine identification number of an LSF or NQS
+host. It is assigned by the NQS administrator to each host communicating
+using the NQS protocol.</P>
+
+<H4><A NAME="14970"></A><TT>OS_TYPE</TT></H4>
+
+<P><A NAME="14971"></A>The operating system (OS) type of the NQS host.
+At present, its value can be one of <TT>ULTRIX</TT>, <TT>HPUX</TT>, <TT>AIX</TT>,
+<TT>SOLARIS</TT>, <TT>SUNOS</TT>, <TT>IRIX</TT>, <TT>OSF1</TT>, <TT>CONVEX</TT>,
+or <TT>UNICOS</TT>. It is used by <TT>mbatchd</TT> to deliver the correct
+signals to the LSF Batch jobs running on this NQS host. An incorrect OS
+type would cause unpredictable results. If the host is an LSF host, the
+type is specified by the <TT>type</TT> field of the <TT>Host</TT> section
+in the <TT>lsf.cluster.<I>cluster</I></TT> file. <TT>OS_TYPE</TT> is ignored;
+'<TT>-</TT>' must be used as a placeholder.</P>
+
+<PRE><A NAME="6842"></A>Begin Hosts
+HOST_NAME        MID    OS_TYPE
+cray001          1      UNICOS      #NQS host, must specify OS_TYPE
+sun0101          2      SOLARIS     #NQS host
+sgi006           3      IRIX        #NQS host
+hostA            4      -           #LSF host; OS_TYPE is ignored
+hostD            5      -           #LSF host
+hostC            6      -           #LSF host
+End Hosts</PRE>
+
+<H3><A NAME="15773"></A>Users</H3>
+
+<P><A NAME="15775"></A>LSF assumes shared and uniform user accounts on
+all of the LSF hosts. However, if the user accounts on NQS hosts are not
+the same as on LSF hosts, account mapping is needed so that the network
+server on the remote NQS host can take on the proper identity attributes.
+The mapping is performed for all NQS network conversations. In addition,
+the user name and the remote host name may need to match an entry either
+in the <TT>.rhosts</TT> file in the user's home directory, or in the <TT>/etc/hosts.equiv</TT>
+file, or in the <TT>/etc/hosts.nqs</TT> file on the server host. For Cray
+NQS, the entry may be either in the <TT>.rhosts</TT> file or in the <TT>.nqshosts</TT>
+file in the user's home directory.</P>
+
+<P><A NAME="15818"></A>This optional section defines the user name mapping
+from the LSF master host to each of the NQS hosts listed in the <TT>Host</TT>
+section above, that is, the hosts on which the jobs routed by LSF Batch
+may run. There are two mandatory keywords:</P>
+
+<H4><A NAME="15824"></A><TT>FROM_NAME</TT></H4>
+
+<P><A NAME="15825"></A>The name of an LSF Batch user. It is a valid login
+name on the LSF master host.</P>
+
+<H4><A NAME="15828"></A><TT>TO_NAME</TT></H4>
+
+<P><A NAME="15829"></A>A list of user names on NQS hosts to which the corresponding
+<TT>FROM_NAME</TT> is mapped. Each of the user names is specified in the
+form <TT><I>username</I>@<I>hostname</I></TT>. The <I>hostname</I> is the
+official name or an alias name of an NQS host, while the <I>username</I>
+is a valid login name on this NQS host. The <TT>TO_NAME</TT> of a user
+on a specific NQS host should always be the same when the user's name is
+mapped from different hosts. If no <TT>TO_NAME</TT> is specified for an
+NQS host, LSF Batch assumes that the user has the same user name on this
+NQS host as on an LSF host.</P>
+
+<PRE><A NAME="6920"></A>Begin Users
+FROM_NAME       TO_NAME
+user3          (user3l@cray001 luser3@sgi006)
+user1          (suser1@cray001) # assumed to be user1@sgi006
+End Users</PRE>
+
+<P><A NAME="6926"></A>If a user is not specified in the <TT>lsb.nqsmaps</TT>
+file, jobs are sent to NQS hosts with the same name the user has in LSF.</P>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="10-lsf-reference.html">[Prev]</A>
+<A HREF="a-troubleshooting.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:17:06 --></P>
+</DL>
+
+</BODY>
+</HTML>

@@ -1,0 +1,313 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - Events</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-contents.html">[Contents]</A> <A HREF="2-get-started.html">[Prev]</A>
+<A HREF="3-calendars.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1019601"></A>Chapter 3. <A NAME="1019490"></A>Events</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="1019618"></A>Events drive jobs in a JobScheduler cluster. This
+chapter presents the concepts and terms of events in JobScheduler. </P>
+
+<P><A NAME="1020018"></A>JobScheduler responds to four kinds of events:</P>
+
+<UL>
+<LI><A NAME="1020053"></A>Time events are points of time that can be used
+to trigger the scheduling of jobs. Time events are defined by calendars.
+See <A HREF="3-calendars.html#1006181">'Calendars'</A> for detailed
+descriptions about calendars. </LI>
+
+<LI><A NAME="1020056"></A>Prior job events are the starting and completion
+of other jobs. See <A HREF="6-job-define.html#1006504">'Inter-job Dependencies'</A>
+for more detail. </LI>
+
+<LI><A NAME="1019621"></A>File events are changes in the files residing
+in accessible file systems, such as the arrival (creation) of a specific
+file. </LI>
+
+<LI><A NAME="1019625"></A>User events are site specific occurrences such
+as a tape mount defined by the JobScheduler administrators for your system.
+</LI>
+</UL>
+
+<P><A NAME="1019682"></A>File events and user events are handled by an
+Event Server (<TT>eeventd</TT>)<SUP><A HREF="4-events.html#1019717">1.</A></SUP>. The
+JobScheduler comes with an <TT>eeventd</TT> that handles file events. A
+site can modify the <TT>eeventd</TT> to monitor any other site specific
+events and use them to drive jobs.</P>
+
+<P><A NAME="1020068"></A>Since file events and user events are events external
+to the JobScheduler, they are also referred to as <I>external events</I>,
+whereas time events and job events are referred to as <I>built-in events</I>.</P>
+
+<H2><A NAME="1019507"></A>Event Status</H2>
+
+<P><A NAME="1019510"></A>The <I>status</I> of an event has three possible
+values:</P>
+
+<DL>
+<DT><A NAME="1019511"></A>active </DT>
+
+<DD>The event is considered to have occurred. The dependency condition
+for jobs waiting on the event will evaluate to TRUE. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1019512"></A>inactive </DT>
+
+<DD>The event is considered to have not occurred. The dependency condition
+for jobs waiting on the event is considered FALSE. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1019654"></A>invalid </DT>
+
+<DD>This applies to external events only. The event is invalid and thus
+is ignored by the Event Server. This usually occurs due to a syntax error
+in the event statement. The dependency condition for jobs waiting on the
+event will evaluate to FALSE. </DD>
+</DL>
+
+<P><A NAME="1019516"></A>At any moment, the event is either active, inactive,
+or invalid.</P>
+
+<H2><A NAME="1020080"></A>Built-in Events</H2>
+
+<H3><A NAME="1019729"></A>Time Events</H3>
+
+<P><A NAME="1019831"></A>Time events are generated according to calendars.
+A calendar consists of one or more time expressions that define a sequence
+of time events. Each time event is featured by a starting time and a duration
+in which the event status is active. A calendar is said to be active if
+one or more of the time events produced by the calendar is active.</P>
+
+<P><A NAME="1020211"></A>Calendars are JobScheduler entities that can be
+created, modified, and deleted. A calendar has an owner and a name. The
+calendar owner is the user who created it. Only the owner can modify or
+delete the calendar. The JobScheduler cluster administrators can create
+system calendars. The owner of a system calendar is the virtual user SYS.
+A user can use his/her own calendars, and system calendars, as well as
+other users' calendars to trigger his/her job scheduling.</P>
+
+<P><A NAME="1020208"></A>See <A HREF="3-calendars.html#1006181">'Calendars'</A>
+for further details about time events and calendars.</P>
+
+<H3><A NAME="1020641"></A>Prior Job Events</H3>
+
+<P><A NAME="1020642"></A>In a production system, the status changes of
+some jobs can trigger the scheduling of other jobs. The event that the
+status of a job has changed is a job event. JobScheduler allows you to
+submit a job so that the scheduling of this job is dependent on the status
+of some prior job(s).</P>
+
+<P><A NAME="1020136"></A>Unlike time events, you do not need to define
+job events before you refer to them to specify an inter-job dependency.
+Four job event functions are provided to specify an inter-job dependency
+when you submit a job:</P>
+
+<DL>
+<DT><A NAME="1019732"></A><TT>started(job) </TT></DT>
+
+<DD>The condition is TRUE if the specified job has started running or has
+already finished. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1019733"></A><TT>done(job) </TT></DT>
+
+<DD>The condition is TRUE if the specified job has finished successfully
+in the DONE state. A job is considered to have finished successfully if
+it terminates with exit code 0 (zero). </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1019734"></A><TT>exit(job) </TT></DT>
+
+<DD>The condition is TRUE if the specified job has terminated abnormally
+in the EXIT state. A job is considered to have terminated abnormally if
+it terminates with a non-zero exit code. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1020106"></A><TT>ended(job) </TT></DT>
+
+<DD>The condition is TRUE if the specified job has finished. </DD>
+</DL>
+
+<P><A NAME="1020165"></A>The parameter <TT>job</TT> is either a jobID or
+a jobname. See <A HREF="6-job-define.html#1006504">'Inter-job Dependencies'</A>
+for examples of using the above functions when submitting a job.</P>
+
+<H2><A NAME="1020108"></A>External Events</H2>
+
+<P><A NAME="1020113"></A>External events allow your jobs to be triggered
+by conditions external to JobScheduler. This provides a lot of flexibility
+for you to integrate your site specific conditions with the scheduling
+of your production jobs.</P>
+
+<P><A NAME="1020226"></A>Typical examples of external events include the
+arrival of a file, the mount of a device, the detection of an exception
+situation in the system, etc.</P>
+
+<P><A NAME="1020231"></A>External events are detected by the External Event
+Daemon (<TT>eeventd</TT>), which resides on the same server host as the
+master scheduler daemon (<TT>mbatchd</TT>). The <TT>eeventd</TT> communicates
+with <TT>mbatchd</TT> using a well-defined protocol. The JobScheduler comes
+with an <TT>eeventd</TT> that detects file events. A site can easily modify
+the <TT>eeventd</TT> to integrate other events by adding event processing
+functions.</P>
+
+<H3><A NAME="1020203"></A>File Events</H3>
+
+<P><A NAME="1019860"></A>A file event condition is specified as:</P>
+
+<PRE><A NAME="1020275"></A>file(file_condition_expression)</PRE>
+
+<P><A NAME="1020276"></A>where the keyword <TT>file()</TT> tells the master
+scheduler (<TT>mbatchd</TT>) that this is a file condition so that the
+parameter <I>file_condition_expression</I> should be passed to the <TT>eeventd</TT>
+for processing. The <I>file_condition_expression</I> is a logical expression
+in terms of the following four file status functions:</P>
+
+<DL>
+<DT><A NAME="1020316"></A><TT>arrival(file_loc) </TT></DT>
+
+<DD>This function evaluates to TRUE when file specified by <I>file_loc</I>
+arrives. The arrival of a file refers to the transition from non-existence
+to existence of the file. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1020317"></A><TT>exist(file_loc) </TT></DT>
+
+<DD>This function evaluates to TRUE if the file specified by <I>file_loc</I>
+exists. Note that this function is different from <TT>arrival()</TT> in
+that a transition from a non-existence to existence is not needed. As long
+as the file exists, the function always evaluates to TRUE. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1020330"></A><TT>size(file_loc) </TT></DT>
+
+<DD>This function evaluates to the size of the file specified by <I>file_loc</I>
+in bytes. If the file does not exist, this function evaluates to 0. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1020335"></A><TT>age(file_loc) </TT></DT>
+
+<DD>This function evaluates to the age of the file specified by <I>file_loc</I>
+since the last modification in minutes. If the file does not exist, this
+function evaluates to 0. </DD>
+</DL>
+
+<P><A NAME="1020243"></A><TT>Th</TT>e <TT>file_loc</TT> in the above functions
+takes the following form:</P>
+
+<PRE><A NAME="1020327"></A>[hostname:]absolute_directory/filename</PRE>
+
+<P><A NAME="1020329"></A>where <I>hostname</I> is the name of the host
+on which the file can be accessed. Note that this host does not have to
+be the same host on which the job executes. If <I>hostname</I> is not specified,
+then the Event Server assumes that the file is accessible from any host.
+</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1020587"></A><B>Note<BR>
+</B><I>You must specify the absolute path name of the file being evaluated
+in the above expressions.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1020341"></A>An example of a file event condition using the
+above file event functions is:</P>
+
+<PRE><A NAME="1020342"></A>file(exist(/tmp/core) &amp;&amp; size(/tmp/core)&gt;10M)</PRE>
+
+<P><A NAME="1020340"></A>A file event is automatically created when a user
+submits a job with a file event dependency condition. The event is automatically
+removed when there are no dependent jobs.</P>
+
+<P><A NAME="1020408"></A>See <A HREF="6-job-define.html#1021937">'File
+Event Dependencies'</A> for examples of how to use file event conditions
+when submitting a job.</P>
+
+<H3><A NAME="1019842"></A>User Events</H3>
+
+<P><A NAME="1019843"></A>JobScheduler provides an open mechanism for sites
+to implement site specific events by adding more event processing functions
+into the External Event Daemon (<TT>eeventd</TT>). A user event condition
+is specified as:</P>
+
+<PRE><A NAME="1020387"></A>event(event_spec)</PRE>
+
+<P><A NAME="1020719"></A>where the keyword <TT>event()</TT> tells the master
+scheduler (<TT>mbatchd</TT>) that this is a user event so that the parameter
+<I>event_spec</I> should be passed to <TT>eeventd</TT> for processing.
+The site is responsible for writing the function that parses and processes
+the <I>event_spec</I>. See <A HREF="08-jobscheduler.html#11265">'External
+Event Management'</A> of the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I> for details of how to modify <TT>eeventd</TT>.</P>
+
+<P><A NAME="1020398"></A>A user event can be used to detect arbitrary site
+specific environmental status that can trigger production jobs. For example,
+a '<TT>diskisfull</TT>' event could be designed to detect the fact that
+a critical file system is full, and therefore, an exception handling job
+should be triggered to correct the situation. In this case, the user event
+condition might be specified as:</P>
+
+<PRE><A NAME="1020405"></A>event(diskisfull)</PRE>
+
+<P><A NAME="1020428"></A>This will create an event '<TT>diskisfull</TT>'
+which is monitored by <TT>diskisfull</TT> event processing function in
+the <TT>eeventd</TT>.</P>
+
+<P><A NAME="1020454"></A>See <A HREF="6-job-define.html#1020582">'User
+Event Dependencies'</A> for examples of associating user events with job
+submissions.</P>
+
+<H2><A NAME="1020460"></A>Viewing External Events</H2>
+
+<P><A NAME="1020463"></A>You can view all the external events monitored
+by <TT>eeventd</TT> using <TT>bevents</TT> command.</P>
+
+<PRE><A NAME="1020464"></A>% <B>bevents
+</B>EVENT               OWNER   STATUS   SOURCE    ATTRIBUTE      LAST_UPDATE
+arrival(/data/file) user1   active    file       -       Oct 31 14:30:15 1996
+size(/tmp/core)&gt;10M user1   inactive  file       -       Oct 31 14:30:15 1996
+diskisfull          user2   inactive  user      /usr     Oct 22 11:23:02 1996</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="1020539"></A><B>Note<BR>
+</B><TT>ATTRIBUTE</TT><I> is optional information that your user event
+function in the </I><TT>eeventd</TT><I> can pass to jobs triggered by the
+event. This is implemented using the environment variable </I><TT>LSB_EVENT_ATTRIB</TT><I>.</I></P>
+</BLOCKQUOTE>
+
+<P>
+<HR><SUP>1.<A NAME="1019717"></A></SUP> The administrators must install
+and configure an Event Server that interacts between JobScheduler and the
+site specific devices you need to monitor. For more details, see <A HREF="08-jobscheduler.html#11265">'External
+Event Management'</A> in the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I>.</P>
+
+<P>
+<HR WIDTH="100%"><A HREF="pjs-contents.html">[Contents]</A> <A HREF="2-get-started.html">[Prev]</A>
+<A HREF="3-calendars.html">[Next]</A> <A HREF="8-advanced.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

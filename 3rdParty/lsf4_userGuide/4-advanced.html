@@ -1,0 +1,484 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Programmer's Guide - Advanced Programming Topics</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="programmers-contents.html">[Contents]</A> <A HREF="3-lsblib.html">[Prev]</A>
+<A HREF="5-shell.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="52171"></A>Chapter 4. <A NAME="1339"></A>Advanced Programming
+Topics</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="35368"></A>LSF API provides flexibility for programmers to
+write complex load sharing applications. Previous chapters covered the
+basic programming techniques using LSF APIs. This chapter will look into
+a few more advanced topics in LSF application programming. </P>
+
+<P><A NAME="45422"></A>Both LSLIB and LSBLIB are used in the examples of
+this chapter.</P>
+
+<H2><A NAME="45424"></A>Getting Load Information on Selected Load Indices</H2>
+
+<P><A NAME="44145"></A><A HREF="2-lslib.html#48205">'Getting Dynamic Load
+Information'</A> showed an example that gets load information from the
+LIM. Depending on the size of your LSF cluster and the frequency at which
+the <TT>ls_load()</TT> function is called, returning the load information
+about all hosts can produce unnecessary overhead to hosts and network.
+</P>
+
+<P><A NAME="32168"></A>LSLIB provides a function call that will allow an
+application to specify a selective number of load indices and get only
+those load indices that are of interest to the application. </P>
+
+<H3><A NAME="44285"></A>Getting a List of All Load Index Names</H3>
+
+<P><A NAME="44214"></A>Since LSF allows a site to install an ELIM (External
+LIM) to collect additional load indices, the names and the total number
+of load indices are often dynamic and have to be found out at run time
+unless the application is only using the built-in load indices. </P>
+
+<P><A NAME="44296"></A>Below is an example routine that returns a list
+of all available load index names and the total number of load indices.</P>
+
+<PRE><A NAME="49720"></A>#include &lt;lsf/lsf.h&gt;
+
+char **getIndexList(listsize)
+    int *listsize;
+{
+    struct lsInfo *lsInfo;
+    static char *nameList[MAXLOADINDEX];
+    static int first = 1; 
+
+    if (first) {           /* only need to do so when called for the first time */
+        lsInfo = ls_info();
+        if (lsInfo == NULL)
+            return (NULL);
+        first = 0;
+    }
+
+    if (listSize != NULL)
+        *listSize = lsInfo-&gt;numIndx;
+
+    for (i=0; i&lt;lsInfo-&gt;numIndx; i++)
+        nameList[i] = lsInfo-&gt;resTable[i].name;
+
+    return (nameList);
+}</PRE>
+
+<P><A NAME="35230"></A>The above routine returns a list of load index names
+currently installed in the LSF cluster. The content of <TT>listSize</TT>
+will be modified to the total number of load indices. The program would
+return <TT>NULL</TT> if the <TT>ls_info()</TT> function fails. The data
+structure returned by <TT>ls_info()</TT> contains all the load index names
+before any other resource names. The load index names start with the 11
+built-in load indices followed by site external load indices (through ELIM).</P>
+
+<H3><A NAME="44950"></A>Displaying Selected Load Indices</H3>
+
+<P><A NAME="44966"></A>By providing a list of load index names to an LSLIB
+function, you can get the load information about the specified load indices.
+</P>
+
+<P><A NAME="45439"></A>The following example shows how you can display
+the values of the external load indices. This program uses the following
+LSLIB function:</P>
+
+<PRE><A NAME="49592"></A>struct hostLoad *ls_loadinfo(<I>resreq</I>, <I>numhosts</I>, <I>options</I>, <I>fromhost</I>, 
+                  <I>hostlist</I>, <I>listsize</I>, <I>namelist</I>)</PRE>
+
+<P><A NAME="45017"></A>The parameters for this routine are: </P>
+
+<PRE><A NAME="49617"></A>char *resreq;     /* Resource requirement */
+int  *numhosts;   /* Return parameter, number of hosts returned */
+int  options;     /* Host and load selection options */
+char *fromhost;   /* Used only if DFT_FROMTYPE is set in options */
+char **hostlist;  /* Alist of candidate hosts for selection */
+int  listsize;    /* Number of hosts in hostlist */
+char ***namelist; /* Input/output parameter -- load index name list */</PRE>
+
+<P><A NAME="45053"></A>This call is similar to <TT>ls_load()</TT> except
+that it allows an application to supply both a list of load indices and
+a list of candidate hosts. If both these parameters are <TT>NULL</TT>,
+then it is exactly the same as <TT>ls_load()</TT> function.</P>
+
+<P><A NAME="45278"></A>The parameter <TT>namelist</TT> allows an application
+to specify a list of load indices of interest. the function then returns
+only the specified load indices. On return this parameter is modified to
+point to another name list that contains the same set of load index names,
+but in a different order to reflect the mapping of index names and the
+actual load values returned in the <TT>hostLoad</TT> array.</P>
+
+<P><A NAME="45069"></A>The example program follows:</P>
+
+<PRE><A NAME="49632"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf.lsf.h&gt;
+
+main() 
+{
+    struct hostLoad *load;
+    char **loadNames;
+    int numIndx;
+    int numUsrIndx;
+    int nHosts;
+
+    loadNames = getIndexList(&amp;numIndx);
+    if (loadNames == NULL) {
+        ls_perror(&quot;Unable to get load index names\n&quot;);
+        exit(-1);
+    }
+
+    numUsrIndx = numIndx - 11;  /* this is the total num of site defined indices*/
+    if (numUsrIndx == 0) {
+        printf(&quot;No external load indices defined\n&quot;);
+        exit(-1);
+    }
+
+    loadNames += 11;            /* skip the 11 built-in load index names */
+
+    load = ls_loadinfo(NULL, &amp;nHosts, 0, NULL, NULL, 0, &amp;loadNames);
+    if (load == NULL) {
+        ls_perror(&quot;ls_loadinfo&quot;);
+        exit(-1);
+    }
+
+    printf(&quot;Report on external load indices\n&quot;);
+
+    for (i=0; i&lt;nHosts; i++) {
+        printf(&quot;Host %s:\n&quot;, load[i].hostName);
+        for (j=0; j&lt;numUsrindx; j++) 
+            printf(&quot;       index name: %s, value %5.0f\n&quot;, 
+                loadNames[j], load[i].li[j]);
+    }
+}</PRE>
+
+<P><A NAME="45440"></A>The above program uses the <TT>getIndexList()</TT>
+function described in the previous example program to get a list of all
+available load index names. Sample output from the above program follows:</P>
+
+<PRE><A NAME="50763"></A>Report on external load indices
+Host apple:
+       index name: usr_tmp, value 87 
+       index name: num_licenses, value 1
+Host orange:
+       index name: usr_tmp, value 18
+       index name: num_licenses, value 2</PRE>
+
+<H2><A NAME="18286"></A>Writing a Parallel Application</H2>
+
+<P><A NAME="32923"></A>LSF provides job placement and remote execution
+support for parallel applications. LIM's host selection or placement service
+can return an array of good hosts for an application. The application can
+then use remote execution service provided by RES to run tasks on these
+hosts concurrently.</P>
+
+<P><A NAME="45715"></A>In this section, are examples of writing a parallel
+application using LSLIB.</P>
+
+<H3><A NAME="45757"></A><TT>ls_rtask()</TT> Function</H3>
+
+<P><A NAME="45714"></A><A HREF="2-lslib.html#28523">'Running a Task Remotely'</A>
+discussed the use of <TT>ls_rexecv()</TT> function for remote execution.
+There is another LSLIB call for remote execution: <TT>ls_rtask()</TT>.
+These two functions differ in how the client side behaves. </P>
+
+<P><A NAME="49672"></A>The <TT>ls_rexecv()</TT> is useful when local side
+does not need to do anything but waiting for the remote task to finish.
+After initiating the remote task, <TT>ls_rexecv()</TT> replaces the current
+program with the Network I/O Server (NIOS) by calling the <TT>execv()</TT>
+system call. The NIOS then handles the rest of the work on the local side:
+delivering input/output between local terminal and remote task and exits
+with the same status as the remote task. <TT>ls_rexecv()</TT> may be considered
+as the remote execution version of the UNIX <TT>execv()</TT> system call.</P>
+
+<P><A NAME="46044"></A><TT>ls_rtask()</TT> provides more flexibility if
+the client side has to do other things after the remote task is initiated.
+For example, the application may want to start more than one task on several
+hosts. Unlike <TT>ls_rexecv()</TT>, <TT>ls_rtask()</TT> returns immediately
+after the remote task is started. The syntax of <TT>ls_rtask()</TT> is:</P>
+
+<PRE><A NAME="46217"></A>int ls_rtask(host, argv, options)</PRE>
+
+<P><A NAME="46219"></A>The parameters are:</P>
+
+<PRE><A NAME="46226"></A>char *host;     /* Name of the remote host to start task on */
+char **argv;    /* Program name and arguments */
+int options;    /* Remote execution options */</PRE>
+
+<P><A NAME="45798"></A>The <TT>options</TT> is similar to those of the
+<TT>ls_rexecv()</TT> function. This function returns the task ID of the
+remote task which can then be used by the application to differentiate
+possibly multiple outstanding remote tasks. When a remote task finishes,
+the status of the remote task is sent back to the NIOS running on the local
+host, which then notifies the application by issuing a <TT>SIGUSR1</TT>
+signal. The application can then call <TT>ls_rwait()</TT> to collect the
+status of the remote task. The <TT>ls_rwait()</TT> behaves in much the
+same way as the <TT>wait(2)</TT> system call. <TT>ls_rtask()</TT> may be
+considered as a combination of remote <TT>fork()</TT> and <TT>execv()</TT>.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="46642"></A><B>Note<BR>
+</B><I>Applications calling </I><TT>ls_rtask()</TT><I> must set up signal
+handler for the </I><TT>SIGUSR1</TT><I> signal, or the application could
+be killed by </I><TT>SIGUSR1</TT><I>.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="49304"></A>You need to be careful if your application handles
+<TT>SIGTSTP</TT>, <TT>SIGTTIN</TT>, or <TT>SIGTTOU</TT> signal. If handlers
+for these signals are <TT>SIG_DFL</TT>, the <TT>ls_rtask()</TT> function
+automatically installs a handler for them to properly coordinate with the
+NIOS when these signals are received. If you intend to handle these signals
+by yourself instead of using the default set by LSLIB, you need to use
+the low level LSLIB function <TT>ls_stoprex()</TT> before the end of your
+signal handler. </P>
+
+<H3><A NAME="46562"></A>Running Tasks on Many Machines</H3>
+
+<P><A NAME="49295"></A>Below is an example program that uses <TT>ls_rtask()</TT>
+to run '<TT>rm -f /tmp/core</TT>' on user specified hosts.</P>
+
+<PRE><A NAME="46786"></A>#include &lt;stdio.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;sys/wait.h&gt;
+#include &lt;lsf/lsf.h&gt;
+
+main (argc, argv)
+    int argc;
+    char *argv[];
+{
+    char *command[4];
+    int numHosts;
+    int i;
+    int tid;
+
+    if (argc &lt;= 1) {
+        printf(&quot;Usage: %s host1 [host2 ...]\n&quot;);
+        exit(-1);
+    }
+
+    numHosts = argc - 1;
+    command[0] = &quot;rm&quot;;
+    command[1] = &quot;-f&quot;;
+    command[2] = &quot;/tmp/core&quot;;
+    command[3] = NULL;
+
+    if (ls_initrex(numHosts, 0) &lt; 0) {
+        ls_perror(&quot;ls_initrex&quot;);
+        exit(-1);
+    }
+
+    signal(SIGUSR1, SIG_IGN);
+
+    /* Run command on the specified hosts */
+    for (i=1; i&lt;=numHosts; i++) {
+        if ((tid = ls_rtask(argv[i], command, 0)) &lt; 0) {
+            fprintf(stderr, &quot;lsrtask failed for host %s: %s\n&quot;, 
+                    argv[i], ls_sysmsg());
+            exit(-1);
+        }
+        printf(&quot;Task %d started on %s\n&quot;, tid, argv[i]);
+    }
+
+    while (numHosts) {
+        LS_WAIT_T status;
+
+        tid = ls_rwait(&amp;status, 0, NULL);
+        if (tid &lt; 0) {
+            ls_perror(&quot;ls_rwait&quot;);
+            exit(-1);
+        }
+    
+        printf(&quot;task %d finished\n&quot;, tid);
+        numHosts--;
+    }
+
+    exit(0);
+}</PRE>
+
+<P><A NAME="35398"></A>In the above program, the signal handler for <TT>SIGUSR1</TT>
+is set to <TT>SIG_IGN</TT>. This causes the signal to be ignored. It uses
+<TT>ls_rwait()</TT> to poll the status of remote tasks. You could have
+set a signal handler so that you call <TT>ls_rwait()</TT> inside the signal
+handler. </P>
+
+<P><A NAME="47606"></A>The task ID could be used to preform an operation
+on the task. For example, you can send a signal to a remote task explicitly
+by calling <TT>ls_rkill()</TT>. </P>
+
+<P><A NAME="47624"></A>If you want to run the task on remote hosts one
+after another, instead of concurrently, you can call <TT>ls_rwait()</TT>
+right after <TT>ls_rtask()</TT>.</P>
+
+<P><A NAME="47627"></A>Also note the use of <TT>ls_sysmsg()</TT> instead
+of <TT>ls_perror()</TT>, which does not allow flexible printing format.</P>
+
+<P><A NAME="50885"></A>The above example program produces output similar
+to the following:</P>
+
+<PRE><A NAME="50907"></A><B>% a.out orange apple pear
+</B>Task 1 started on orange
+Task 2 started on apple
+Task 3 started on pear
+Task 1 finished
+Task 3 finished
+Task 2 finished</PRE>
+
+<P><A NAME="51037"></A>Note that remote tasks are run concurrently, so
+the order in which tasks finish is not necessarily the same as the order
+in which tasks are started.</P>
+
+<H2><A NAME="6947"></A>Finding Out Why the Job Is Still Pending</H2>
+
+<P><A NAME="22017"></A>In <A HREF="3-lsblib.html#40200">'Getting Information
+about Batch Jobs'</A>, you saw how to get information about submitted jobs.
+It is frequently desirable to know the reasons why jobs are in certain
+status. The LSBLIB provides a function to print such information. This
+section describes a routine that prints out why a job is in pending status.</P>
+
+<P><A NAME="48241"></A>When <TT>lsb_readjobinfo()</TT> reads a record of
+a pending job, the variables <I>reasons</I> and <I>subreasons</I> contained
+in the returned <TT>jobInfoEnt</TT> data structure can be used to call
+the following LSBLIB function to get the reason text explaining why the
+job is still in pending state:</P>
+
+<PRE><A NAME="48429"></A>char *lsb_pendreason(<I>pendReasons</I>, <I>subReasons</I>, <I>ld</I>)</PRE>
+
+<P><A NAME="48355"></A>where <I>pendReasons</I> and <I>subReasons</I> are
+integer reason flags as returned by a <TT>lsb_readjobinfo()</TT> function
+while <I>ld</I> is a pointer to the following data structure:</P>
+
+<PRE><A NAME="48375"></A>struct loadIndexLog {
+    int nIdx;     /* Number of load indices configured for the LSF cluster */
+    char **name;  /* List of the load index names */
+}</PRE>
+
+<P><A NAME="48391"></A>The example program below should be called by your
+application after <TT>lsb_readjobinfo()</TT> is called. </P>
+
+<PRE><A NAME="23938"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsbatch.h&gt;
+
+char *
+reasonToText(reasons, subreasons)
+    int reasons;
+    int subreasons;
+{
+    struct loadIndexLog indices;
+
+    /* first get the list of all load index names */
+    indices.name = getIndexList(&amp;indices.nIdx);
+
+    return (lsb_pendreason(reasons, subreasons, &amp;indices));
+     
+}</PRE>
+
+<P><A NAME="37673"></A>A similar routine can be written to print out the
+reason why a job was suspended. The corresponding LSBLIB call is:</P>
+
+<PRE><A NAME="48846"></A>char *lsb_suspreason(<I>reasons</I>, <I>subreasons</I>, <I>ld</I>)</PRE>
+
+<P><A NAME="48860"></A>The parameters for this function are the same as
+those for <TT>lsb_pendreason()</TT> function.</P>
+
+<H2><A NAME="49250"></A>Reading <TT>lsf.conf</TT> Parameters </H2>
+
+<P><A NAME="49406"></A>It is frequently desirable for your applications
+to read the contents of the <TT>lsf.conf</TT> file or even define your
+own site specific variables in the <TT>lsf.conf</TT> file. </P>
+
+<P><A NAME="49408"></A>The <TT>lsf.conf</TT> file follows the syntax of
+Bourne shell, and therefore could be sourced by a shell script and set
+into your environment before starting your C program. Your program can
+then get these variables as environment variables.</P>
+
+<P><A NAME="49409"></A>LSLIB provides a function to read the <TT>lsf.conf</TT>
+variables in your C program:</P>
+
+<PRE><A NAME="49412"></A>int ls_readconfenv(paramList, confPath)</PRE>
+
+<P><A NAME="49414"></A>where <I>confPath</I> is the directory in which
+the <TT>lsf.conf</TT> file is stored and <I>paramList</I> is an array of
+the following data structure:</P>
+
+<PRE><A NAME="49418"></A>struct config_param {
+    char *paramName;   /* Name of the parameter, input */
+    char *paramValue;  /* Value of the parameter, output */
+}</PRE>
+
+<P><A NAME="49430"></A><TT>ls_readconfenv()</TT> reads the values of the
+parameters defined in <TT>lsf.conf</TT> matching the names described in
+the <I>paramList</I> array. Each resulting value is saved into the <TT>paramValue</TT>
+variable of the array element matching <TT>paramName</TT>. If a particular
+parameter mentioned in the <I>paramList</I> is not defined in <TT>lsf.conf</TT>,
+then on return its value is left <TT>NULL</TT>.</P>
+
+<P><A NAME="49446"></A>The following example program reads the variables
+<TT>LSF_CONFDIR</TT>, <TT>MY_PARAM1</TT>, and <TT>MY_PARAM2</TT> from the
+<TT>lsf.conf</TT> file and displays them on screen. Note that <TT>LSF_CONFDIR</TT>
+is a standard LSF parameter, while the other two parameters are user site-specific.
+It assumes <TT>lsf.conf</TT> is in <TT>/etc</TT> directory.</P>
+
+<PRE><A NAME="49473"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsf.h&gt;
+
+struct config_param myParams[] =
+{
+#define LSF_CONFDIR      0
+     {&quot;LSF_CONFDIR&quot;, NULL},
+#define MY_PARAM1        1
+     {&quot;MY_PARAM1&quot;, NULL),
+#define MY_PARAM2        2
+     {&quot;MY_PARAM2&quot;, NULL),
+     {NULL, NULL}
+}
+
+main()
+{
+    if (ls_readconf(myParams, &quot;/etc&quot;) &lt; 0) {
+        ls_perror(&quot;ls_readconfenv&quot;);
+        exit(-1);
+    }
+
+    if (myParams[LSF_CONFDIR].paramValue == NULL) 
+        printf(&quot;LSF_CONFDIR is not defined in /etc/lsf.conf\n&quot;);
+    else
+        printf(&quot;LSF_CONFDIR=%s\n&quot;, myParams[LSF_CONFDIR].paramValue);
+
+    if (myParams[MY_PARAM1].paramValue == NULL)
+        printf(&quot;MY_PARAM1 is not defined in /etc/lsf.conf\n&quot;);
+    else
+        printf(&quot;MY_PARAM1=%s\n&quot;, myParams[MY_PARAM1].paramValue);
+
+    if (myParams[MY_PARAM2].paramValue == NULL)
+        printf(&quot;MY_PARAM2 is not defined\n&quot;);
+    else
+        printf(&quot;MY_PARAM2=%s\n&quot;, myParams[MY_PARAM2].paramValue);
+
+    exit(0);
+}</PRE>
+
+<P><A NAME="49523"></A>The <TT>paramValue</TT> parameter in the <TT>config_param</TT>
+data structure must be initialized to <TT>NULL</TT> and is then modified
+to point to a result string if a matching <TT>paramName</TT> is found in
+the <TT>lsf.conf</TT> file. The array must end with a <TT>NULL paramName</TT>.
+</P>
+
+<P>
+<HR><A HREF="programmers-contents.html">[Contents]</A> <A HREF="3-lsblib.html">[Prev]</A>
+<A HREF="5-shell.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I></P>
+
+</BODY>
+</HTML>

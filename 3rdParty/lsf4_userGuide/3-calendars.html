@@ -1,0 +1,560 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - Calendars</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-contents.html">[Contents]</A> <A HREF="4-events.html">[Prev]</A>
+<A HREF="5-environment.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1006183"></A>Chapter 4. <A NAME="1006181"></A>Calendars</H1>
+
+<P>
+<HR></P>
+
+<H2><A NAME="1006192"></A>What is a Calendar?</H2>
+
+<P><A NAME="1002988"></A>A calendar consists of a sequence of time events
+defined using one or more time expressions. The happening of a time event
+associated with a calendar can trigger the execution of your production
+jobs. Calendars are defined and manipulated independently of jobs. This
+allows multiple jobs to share the same calendar. There are three types
+of calendars you can use to submit your job: </P>
+
+<UL>
+<LI><A NAME="1000614"></A>Preconfigured system calendars. </LI>
+
+<LI><A NAME="1000615"></A>User defined private calendars. </LI>
+
+<LI><A NAME="1000619"></A>Anonymous calendars. </LI>
+</UL>
+
+<H2><A NAME="999240"></A>Calendar Specification</H2>
+
+<P><A NAME="999762"></A>A calendar has a name, an owner (user), and a description.
+The name of the calendar<SUP><A HREF="3-calendars.html#1000663">1.</A></SUP> and its owner
+are assigned when it is created. The current status of a calendar is determined
+by the status of time events associated with the calendar. A calendar is
+active if one or more of the associated time events are active and inactive
+if none of the associated time events is active. </P>
+
+<H3><A NAME="1006477"></A>Time Event </H3>
+
+<P><A NAME="1006478"></A>A time event in JobScheduler consists of a starting
+time and duration in which the event remains active. The happening of a
+time event changes the status of calendar from inactive to active. Time
+events are defined using a <I>time expression</I>. </P>
+
+<H3><A NAME="999254"></A>Time Expression</H3>
+
+<P><A NAME="1006202"></A>A time expression is a convenient syntax for defining
+time events. It is a string consisting of five mandatory fields used to
+control the starting time of an event and an optional field specifying
+the duration of an event. To prevent the shell from interpreting special
+characters, the time expression should be placed within quotes. A time
+expression has the following format:</P>
+
+<PRE><A NAME="999971"></A>year:month:day:hour:min[%duration]</PRE>
+
+<P><A NAME="999972"></A>The fields are defined as follows:</P>
+
+<DL>
+<DT><A NAME="999973"></A><TT>year </TT></DT>
+
+<DD>A four-digit number of the form <TT>19nn</TT> or <TT>20nn</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="999974"></A><TT>month </TT></DT>
+
+<DD>One of the strings <TT>Jan</TT>, <TT>Feb</TT>, <TT>Mar</TT>, <TT>Apr</TT>,
+<TT>May</TT>, <TT>Jun</TT>, <TT>Jul</TT>, <TT>Aug</TT>, <TT>Sep</TT>, <TT>Oct</TT>,
+<TT>Nov</TT>, or <TT>Dec</TT>, or a number between <TT>1</TT> and <TT>12</TT>,
+where <TT>1</TT> corresponds to January and <TT>12</TT> to December. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="999975"></A><TT>day </TT></DT>
+
+<DD>A number between <TT>1</TT> and <TT>31</TT> to indicate the day of
+the month, a <I>dayName</I> which is one of the strings <TT>Mon</TT>, <TT>Tue</TT>,
+<TT>Wed</TT>, <TT>Thu</TT>, <TT>Fri</TT>, <TT>Sat</TT> or <TT>Sun</TT>
+to indicate a day of the week, or a string of the form <I>dayName</I>[<I>n</I>],
+where <I>n</I> indicates the week of the month, for example, <TT>Mon[2]</TT>
+to indicate the second Monday of the month.</DD>
+</DL>
+
+<DL>
+<DD>Placing a <TT>~</TT> (tilde) in front of the day number indicates the
+day starting from the end of the month, for example, <TT>~1</TT> indicates
+the last day of the month. <I>dayName</I>[<I>~n</I>] indicates the day
+from the end of the month, for example, <TT>Mon[~2]</TT> indicates the
+second to last Monday of the month. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="999976"></A><TT>hour </TT></DT>
+
+<DD>A number between <TT>0</TT> and <TT>23</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="999977"></A><TT>minute </TT></DT>
+
+<DD>A number between <TT>0</TT> and <TT>59</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="999978"></A><TT>duration </TT></DT>
+
+<DD>A number of the form <I>n</I><TT>D</TT>, <I>n</I><TT>H</TT>, or <I>n</I><TT>M</TT>
+to indicate the duration of the time event, where <I>n</I> is a positive
+number and <TT>D</TT>, <TT>H</TT>, and <TT>M</TT> are units<SUP><A HREF="3-calendars.html#1001098">2.</A></SUP>
+indicating days, hours, and minutes, respectively. If no unit is specified,
+then the duration is considered to be minutes. If a duration is not specified,
+the default is one minute. </DD>
+</DL>
+
+<P><A NAME="999979"></A>The values for the first five fields may be specified
+as follows: </P>
+
+<UL>
+<LI><A NAME="999980"></A>A single value in the specified range. </LI>
+
+<LI><A NAME="999981"></A>Two values separated by a dash, meaning an inclusive
+range. </LI>
+
+<LI><A NAME="999982"></A>A list of values separated by commas. </LI>
+
+<LI><A NAME="999983"></A>An asterisk, meaning all legal values. </LI>
+</UL>
+
+<P><A NAME="999984"></A>There can be no space within a time expression.</P>
+
+<H3><A NAME="999985"></A>Example Time Expressions</H3>
+
+<PRE><A NAME="1000064"></A>*:*:*:12:0%30 </PRE>
+
+<DL>
+<DD>Defines a time event, which occurs at noon every day and lasts for
+30 minutes. </DD>
+</DL>
+
+<PRE><A NAME="1000072"></A>1997:*:Mon-Fri:9-17:* </PRE>
+
+<DL>
+<DD>Defines a time event which occurs every hour of the working day---from
+9 a.m. to 5 p.m. on the weekdays in 1997. </DD>
+</DL>
+
+<PRE><A NAME="1000073"></A>*:Mar,Jun,Sep,Dec:Mon[1],Tue[2],Wed[3],Thu[4],Fri[5]:23:30%1H </PRE>
+
+<DL>
+<DD>Defines a time event which occurs at 11:30 p.m. on the first Monday,
+the second Tuesday, the third Wednesday, the fourth Thursday, and the fifth
+Friday of the months March, June, September, and December and lasts for
+one hour. </DD>
+</DL>
+
+<H3><A NAME="1000097"></A>Time Expression List</H3>
+
+<P><A NAME="1000526"></A>To specify complex or non-uniform events, several
+time expressions can be combined into a <I>time expression list</I>, with
+expressions separated by a space. The time expression list is used to generate
+the time events for a calendar.</P>
+
+<PRE><A NAME="1000570"></A>*:*:*:12:0%30 *:Mar:Mon,Tue:22:30 </PRE>
+
+<DL>
+<DD>Defines a time event which occurs at noon every day and lasts for 30
+minutes and an event which also occurs at 10:30 p.m. on Mondays and Tuesdays
+in March. </DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="1006221"></A><B>Note<BR>
+</B><I>If a time expression list contains time expressions specifying overlapping
+events, then they are handled in such a way that the happening of a new
+event terminates a previous event that would otherwise still be active
+until the end of the duration. </I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="1006223"></A>Creating Calendars</H2>
+
+<P><A NAME="1006226"></A>You use the <TT>bcaladd</TT> command to create
+a new calendar in the system. Each calendar has a name, an optional description,
+and a time expression list defining the time events. </P>
+
+<P><A NAME="1000539"></A>The time expression list is specified with the
+<TT>-t</TT> option. To prevent the shell from interpreting any blank or
+special characters, the time expression list should be placed within quotes.</P>
+
+<P><A NAME="1000594"></A>The optional description is a string of text declared
+with the <TT>-d</TT> option. If the string contains blanks or special characters,
+it should be placed within quotes as well.</P>
+
+<H3><A NAME="1000595"></A>Example of Creating a Calendar</H3>
+
+<PRE><A NAME="1001173"></A><B>% bcaladd -d &quot;Daily Calendar&quot; -t &quot;*:*:*:08:0%30&quot; daily
+</B>Calendar &lt;daily&gt; is created.</PRE>
+
+<P><A NAME="1000586"></A>This creates a calendar named <TT>daily</TT> with
+the description 'Daily Calendar'. It is active every day at 8 a.m. for
+a period of 30 minutes.</P>
+
+<H3><A NAME="1001015"></A>Using the GUI to Create Calendars</H3>
+
+<P><A NAME="1001028"></A>You may find it more convenient to create your
+calendars using the GUI application, <TT>xbcal</TT>, as shown in <A HREF="3-calendars.html#1001038">Figure
+6</A>.</P>
+
+<H4><A NAME="1001038"></A>Figure 6. <TT>xbcal</TT> Calendar Creation Window
+</H4>
+
+<P><A HREF="pjs-figure06.gif"><IMG SRC="pjs-figure06.gif" ALT="xbcal Calendar Creation Window" BORDER=0 HEIGHT=426 WIDTH=312></A><TT>
+</TT></P>
+
+<P><A NAME="1002754"></A>Each item in the 'Time Expression' area has an
+'extras' button <A HREF="pjs-extras.gif"><IMG SRC="file:///C|/Home/Werk/webpages/pjs-extras.gif" BORDER=0 HEIGHT=20 WIDTH=21 ALIGN=ABSBOTTOM></A>&nbsp;which
+leads to a further pop-up window. These pop-ups allow you to select the
+details for each field.</P>
+
+<P><A NAME="1002790"></A><A HREF="3-calendars.html#1002789">Figure 7</A>
+shows the resulting pop-up from clicking the button beside the Years item.</P>
+
+<H4><A NAME="1002789"></A>Figure 7. <TT>xbcal</TT> Calendar Year Window
+</H4>
+
+<P><A HREF="pjs-figure07.gif"><IMG SRC="pjs-figure07.gif" ALT="xbcal Calendar Year Window" BORDER=0 HEIGHT=207 WIDTH=241></A>
+</P>
+
+<P><A NAME="1002883"></A>Clicking the button beside the Months item results
+in the pop-up shown in <A HREF="3-calendars.html#1002808">Figure 8</A>.</P>
+
+<H4><A NAME="1002808"></A>Figure 8. <TT>xbcal</TT> Calendar Months Window
+</H4>
+
+<P><A HREF="pjs-figure08.gif"><IMG SRC="pjs-figure08.gif" ALT="xbcal Calendar Months Window" BORDER=0 HEIGHT=196 WIDTH=155></A>
+</P>
+
+<P><A NAME="1002921"></A><A HREF="3-calendars.html#1002826">Figure 9</A>
+shows the resulting pop-up from selecting the Days item. This pop-up has
+two separate windows. The first allows you to select days of the month.
+The second allows you to select days of the week. Selecting the 'Reverse'
+button <A HREF="pjs-reverse.gif"><IMG SRC="pjs-reverse.gif" BORDER=0 HEIGHT=18 WIDTH=45 ALIGN=ABSBOTTOM></A>&nbsp;reverses
+the meaning of the day selections. See <A HREF="3-calendars.html#999254">'Time
+Expression'</A> for further details.</P>
+
+<H4><A NAME="1002826"></A>Figure 9. <TT>xbcal</TT> Calendar Days Window
+</H4>
+
+<P><A HREF="pjs-figure09.gif"><IMG SRC="pjs-figure09.gif" ALT="xbcal Calendar Days Window" BORDER=0 HEIGHT=271 WIDTH=273></A>
+</P>
+
+<P><A NAME="1002895"></A>Clicking the button beside the Hours item results
+in the pop-up shown in <A HREF="3-calendars.html#1002840">Figure 10</A>.</P>
+
+<H4><A NAME="1002840"></A>Figure 10. <TT>xbcal</TT> Calendar Hours Window
+</H4>
+
+<P><A HREF="pjs-figure10.gif"><IMG SRC="pjs-figure10.gif" ALT="xbcal Calendar Hours Window" BORDER=0 HEIGHT=239 WIDTH=220></A>
+</P>
+
+<P><A NAME="1002876"></A><A HREF="3-calendars.html#1002875">Figure 11</A>
+shows the resulting pop-up from selecting the button beside the Minutes
+item.</P>
+
+<H4><A NAME="1002875"></A>Figure 11. <TT>xbcal</TT> Calendar Minutes Window
+</H4>
+
+<P><A HREF="pjs-figure11.gif"><IMG SRC="pjs-figure11.gif" ALT="xbcal Calendar Minutes Window" BORDER=0 HEIGHT=239 WIDTH=377></A>
+</P>
+
+<P><A NAME="1005996"></A>The last pop-up is the Duration window, shown
+in <A HREF="3-calendars.html#1005995">Figure 12</A>.</P>
+
+<H4><A NAME="1005995"></A>Figure 12. <TT>xbcal</TT> Calendar Duration Window
+</H4>
+
+<P><A HREF="pjs-figure12.gif"><IMG SRC="pjs-figure12.gif" ALT="xbcal Calendar Duration Window" BORDER=0 HEIGHT=164 WIDTH=165></A>
+</P>
+
+<H2><A NAME="1005998"></A>Displaying Calendars</H2>
+
+<P><A NAME="1006001"></A>You can display all the defined calendars by using
+the <TT>bcal</TT> command.</P>
+
+<PRE><A NAME="1006002"></A>% <B>bcal
+</B>CALENDAR_NAME      OWNER      STATUS    DURATION         NEXT_EVENT_TIME
+Daily              SYS       inactive       -        Wed Dec 25 06:00:00 1996
+Holiday            SYS       inactive       -        Wed Dec 25 00:00:00 1996
+Midnight           SYS       inactive       -        Wed Dec 25 00:00:00 1996
+daily              user1     inactive       -        Wed Dec 25 08:00:00 1996
+hourly             user1      active        7        Tue Dec 24 16:00:00 1996
+complex            user1     inactive       -        Wed Dec 25 17:00:00 1996</PRE>
+
+<P><A NAME="1002747"></A>The <TT>CALENDAR_NAME</TT> field lists the name
+of the calendar.</P>
+
+<P><A NAME="1002748"></A>The <TT>OWNER</TT> field shows the user name of
+the calendar owner. By default, you will see all your calendars as well
+as the system calendars.</P>
+
+<P><A NAME="1002749"></A>The <TT>STATUS</TT> field can be either <TT>active</TT>
+or <TT>inactive</TT>. If the current time is within a time event of the
+calendar, the status will be <TT>active</TT>; otherwise, it will be <TT>inactive</TT>.</P>
+
+<P><A NAME="999544"></A>The <TT>DURATION</TT> field of an inactive calendar
+is set to '<TT>-'</TT>. For an active calendar, this field indicates the
+time (in minutes) that the calendar will remain active.</P>
+
+<P><A NAME="1002624"></A>The <TT>NEXT_EVENT_TIME</TT> field indicates the
+starting time for the next time event associated with the calendar.</P>
+
+<H3><A NAME="1003149"></A>Displaying Details</H3>
+
+<P><A NAME="1001166"></A>You can use the <TT>-l</TT> option to display
+more detail about your calendars.</P>
+
+<PRE><A NAME="1001301"></A>% <B>bcal -l
+</B>CALENDAR:  daily
+  -- Daily Calendar
+
+OWNER     STATUS           CREATION_TIME                  LAST_MODIFY_TIME
+user1    inactive     Fri Dec 13 14:19:39 1996        Tue Dec 17 14:12:02 1996
+
+TIME_EXPR_LIST:  *:*:*:8:0%30
+LAST_EVENT_TIME: &lt;Tue Dec 24 08:00:00 1996&gt; to &lt;Tue Dec 24 08:30:00 1996&gt;
+NEXT_EVENT_TIME: &lt;Wed Dec 25 08:00:00 1996&gt; to &lt;Wed Dec 25 08:30:00 1996&gt;
+-------------------------------------------------------------------------------
+
+
+CALENDAR:  hourly
+  -- Hourly Thirty Minute Calendar
+
+OWNER     STATUS           CREATION_TIME                  LAST_MODIFY_TIME
+user1     active      Mon Dec 16 15:18:18 1996                   -
+
+TIME_EXPR_LIST:  *:*:*:*:0%30
+LAST_EVENT_TIME: &lt;Tue Dec 24 15:00:00 1996&gt; to &lt;Tue Dec 24 15:30:00 1996&gt;
+NEXT_EVENT_TIME: &lt;Tue Dec 24 16:00:00 1996&gt; to &lt;Tue Dec 24 16:30:00 1996&gt;
+-------------------------------------------------------------------------------
+
+
+CALENDAR:  complex
+  -- Complicated Hourly Calendar
+
+OWNER     STATUS           CREATION_TIME                  LAST_MODIFY_TIME
+user1    inactive     Tue Dec 17 14:26:55 1996                   -
+
+TIME_EXPR_LIST:  1996:*:Mon[1],Mon[3],Mon[4],Tue[1],Tue[2],Tue[4],Tue[5],Wed[2]
+,Wed[3],Wed[5],Thu[1],Thu[3],Thu[4],Fri[1],Fri[2],Fri[4],Fri[5]:17,21,23:*%1h
+LAST_EVENT_TIME: &lt;Tue Dec 24 23:00:00 1996&gt; to &lt;Wed Dec 25 00:00:00 1996&gt;
+NEXT_EVENT_TIME: &lt;Thu Dec 26 17:00:00 1996&gt; to &lt;Thu Dec 26 18:00:00 1996&gt;</PRE>
+
+<P><A NAME="1002141"></A>By default, <TT>bcal</TT> shows all of your calendars
+plus all of the system calendars. See <A HREF="3-calendars.html#1003097">'System
+Calendars'</A> for more details. You can specify a calendar by name.</P>
+
+<PRE><A NAME="1001783"></A>% <B>bcal hourly
+</B>CALENDAR_NAME      OWNER      STATUS    DURATION         NEXT_EVENT_TIME
+hourly             user1      active        7        Tue Dec 24 16:00:00 1996</PRE>
+
+<P><A NAME="1001784"></A>The <TT>-u</TT> <I>user_name</I> option displays
+calendars of the named user.</P>
+
+<PRE><A NAME="1001338"></A>% <B>bcal -u sysmgr
+</B>CALENDAR_NAME      OWNER      STATUS    DURATION         NEXT_EVENT_TIME
+security           sysmgr    inactive        -        Tue Jan 01 00:10:00 1997</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="1001916"></A><B>Note<BR>
+</B><I>The </I><TT>-u</TT><I> option is not applicable to system calendars.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1006778"></A>You can see the calendars of all users if you
+use the reserved name <TT>all</TT>.</P>
+
+<H3><A NAME="1003097"></A>System Calendars</H3>
+
+<P><A NAME="1003099"></A>System calendars are read-only calendars defined
+in the JobScheduler configuration by the cluster administrator. System
+calendars are owned by the virtual user SYS and can be viewed by everybody.
+You cannot modify or delete the system calendars.</P>
+
+<P><A NAME="1003103"></A>System calendars can be used as normal calendars.
+When a system calendar is defined, its name becomes a reserved calendar
+name in the cluster. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="1003104"></A><B>Note<BR>
+</B><I>The calendar name is case sensitive. If a system calendar is named
+<TT>Daily</TT>, you can still create a calendar named <TT>daily</TT>. If
+you try to create a calendar with the same name as an existing calendar,
+the JobScheduler system will return an error.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1003112"></A>When the JobScheduler daemons start, the system
+calendars are defined in the cluster.</P>
+
+<H3><A NAME="1006742"></A>Viewing Calendars with the GUI</H3>
+
+<P><A NAME="1006755"></A>You can use the <TT>xbcal</TT> GUI application
+to view the calendars as shown in <A HREF="3-calendars.html#1006754">Figure
+13</A>.</P>
+
+<H4><A NAME="1006754"></A>Figure 13. <TT>xbcal</TT> Calendar Listing Window
+</H4>
+
+<P><A HREF="pjs-figure13.gif"><IMG SRC="pjs-figure13.gif" ALT="xbcal Calendar Listing Window" BORDER=0 HEIGHT=222 WIDTH=384></A>
+</P>
+
+<P><A NAME="1006646"></A>To view the details of a selected calendar, click
+'Edit,' <A HREF="pjs-edit.gif"><IMG SRC="pjs-edit.gif" BORDER=0 HEIGHT=20 WIDTH=38 ALIGN=ABSBOTTOM></A>&nbsp;which
+then pops up a window showing the details of the calendar.</P>
+
+<H2><A NAME="1003088"></A>Modifying Calendars</H2>
+
+<P><A NAME="1003091"></A>You can modify your calendars with the <TT>bcalmod</TT>
+command. This command allows you to change the description or time expressions
+associated with your calendar. Only the owner or an LSF administrator is
+allowed to modify a calendar.</P>
+
+<PRE><A NAME="1001808"></A><B>% bcalmod -d &quot;Daily Calendar @ 8:30&quot; -t &quot;*:*:*:08:30%30&quot; daily
+</B>Calendar &lt;daily&gt; is modified.</PRE>
+
+<PRE><A NAME="999576"></A>% <B>bcal -l daily
+</B>CALENDAR:  daily
+  -- Daily Calendar @ 8:30
+
+OWNER     STATUS           CREATION_TIME                  LAST_MODIFY_TIME
+user1    inactive     Fri Dec 13 14:19:39 1996        Tue Dec 24 16:13:02 1996
+
+TIME_EXPR_LIST:  *:*:*:8:30%30
+LAST_EVENT_TIME: &lt;Tue Dec 24 08:00:00 1996&gt; to &lt;Tue Dec 24 08:30:00 1996&gt;
+NEXT_EVENT_TIME: &lt;Wed Dec 25 08:30:00 1996&gt; to &lt;Wed Dec 25 09:00:00 1996&gt;</PRE>
+
+<P><A NAME="1006559"></A>Once you have modified a calendar, all jobs that
+depend on the modified calendar will be scheduled according to the new
+time events. </P>
+
+<P><A NAME="1006644"></A>Note that you cannot modify the name of a calendar
+using <TT>bcalmod</TT>. To modify the name of a calendar, you need to delete
+the existing calendar and then create a new one with the desired calendar
+name.</P>
+
+<H3><A NAME="1006596"></A>Using the GUI to Modify Calendars</H3>
+
+<P><A NAME="1006609"></A>A calendar can be modified using <TT>xbcal</TT>
+by first selecting the calendar to modify from the calendar listing window
+as shown in <A HREF="3-calendars.html#1006754">Figure 13</A>, then click
+on the 'Edit' button <A HREF="pjs-edit.gif"><IMG SRC="file:///C|/Home/Werk/webpages/pjs-edit.gif" BORDER=0 HEIGHT=20 WIDTH=38 ALIGN=ABSBOTTOM></A>.
+This will pop up a calendar edit window as shown in <A HREF="3-calendars.html#1006608">Figure
+14</A>.</P>
+
+<H4><A NAME="1006608"></A>Figure 14. <TT>xbcal</TT> Calendar Modification
+Window </H4>
+
+<P><A HREF="pjs-figure14.gif"><IMG SRC="pjs-figure14.gif" ALT="xbcal Calendar Modification Window" BORDER=0 HEIGHT=424 WIDTH=311 ALIGN=ABSBOTTOM></A>
+</P>
+
+<P><A NAME="1006645"></A>After you have finished editing, choose 'Save'
+from the 'File' Menu, which commits the changes into the system.</P>
+
+<H2><A NAME="1006610"></A>Viewing the History of Calendars</H2>
+
+<P><A NAME="999589"></A>Use the <TT>bcalhist</TT> command to display a
+history of events associated with the named calendars. These events include
+creation, modification and deletion.</P>
+
+<PRE><A NAME="1006324"></A>% <B>bcalhist daily
+</B>Fri Dec 13 14:19:39: Calendar &lt;daily@user1&gt; created by user &lt;user1&gt;; Time expre
+                     ssion &lt;*:*:*:8:*&gt;, description &lt;No description provided.&gt;.
+Tue Dec 17 14:12:02: Calendar &lt;daily@user1&gt; modified by user or administrator &lt;
+                     user1&gt;; Time expression &lt;*:*:*:8:*&gt;, description &lt;daily jo
+                     blist&gt;.
+Wed Dec 18 15:13:00: Calendar &lt;daily@user1&gt; modified by user or administrator &lt;
+                     user1&gt;; Time expression &lt;*:Aug,Sep,Oct:Tue,Thu,Sun:8:45%35
+                     &gt;, description &lt;daily job list&gt;.
+Wed Dec 18 16:35:11: Calendar &lt;daily@user1&gt; modified by user or administrator &lt;
+                     user1&gt;; Time expression &lt;*:*:*:8:45%30m&gt;, description &lt;Dai
+                     ly Calendar @ 8:45&gt;.</PRE>
+
+<P><A NAME="999598"></A>Notice the format of the calendar name in the output.
+You can display the history of another user's calendar by specifying <I>calendar_name</I>@<I>user_name</I>.
+By default, <TT>bcalhist</TT> displays only the history of your calendars.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1006647"></A><B>Note<BR>
+</B><I>You can not display the history of system calendars. They are read-only
+calendars and have no modification history.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="1002155"></A>Deleting Calendars</H2>
+
+<P><A NAME="999602"></A>Calendars can also be deleted. The <TT>bcaldel</TT>
+command removes the named calendars from the system. Only the owner or
+an LSF administrator is allowed to remove a calendar. </P>
+
+<PRE><A NAME="1002452"></A><B>% bcaldel daily
+</B>Calendar &lt;daily&gt; is deleted.</PRE>
+
+<PRE><A NAME="999605"></A>% <B>bcal daily
+</B>daily: Bad calendar name</PRE>
+
+<PRE><A NAME="1002468"></A>% <B>bcalhist daily
+</B>Fri Dec 13 14:19:39: Calendar &lt;daily@user1&gt; created by user &lt;user1&gt;; Time expre
+                     ssion &lt;*:*:*:8:*&gt;, description &lt;No description provided.&gt;.
+Tue Dec 17 14:12:02: Calendar &lt;daily@user1&gt; modified by user or administrator &lt;
+                     user1&gt;; Time expression &lt;*:*:*:8:*&gt;, description &lt;daily jo
+                     b list&gt;.
+Wed Dec 18 15:13:00: Calendar &lt;daily@user1&gt; modified by user or administrator &lt;
+                     user1&gt;; Time expression &lt;*:Aug,Sep,Oct:Tue,Thu,Sun:8:45%35
+                     &gt;, description &lt;daily job list&gt;.
+Wed Dec 18 16:35:11: Calendar &lt;daily@user1&gt; modified by user or administrator &lt;
+                     user1&gt;; Time expression &lt;*:*:*:8:45%30m&gt;, description &lt;Dai
+                     ly Calendar @ 8:45&gt;.
+Fri Dec 20 08:53:44: Calendar &lt;daily@user1&gt; deleted by user or administrator &lt;u
+                     ser1&gt;.</PRE>
+
+<H3><A NAME="1002520"></A>Deleting Calendars with the GUI</H3>
+
+<P><A NAME="1002404"></A>You can delete a calendar using the <TT>xbcal</TT>
+GUI application as shown in <A HREF="3-calendars.html#1002403">Figure 15</A>.</P>
+
+<H4><A NAME="1002403"></A>Figure 15. Deleting a Calendar with <TT>xbcal
+</TT></H4>
+
+<P><A HREF="pjs-figure15.gif"><IMG SRC="pjs-figure15.gif" ALT="Deleting a Calendar with xbcal" BORDER=0 HEIGHT=222 WIDTH=384></A>
+</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1006658"></A><B>Note<BR>
+</B><I>Jobs that are associated with a deleted calendar will never be dispatched.
+You can either delete these jobs, or modify them so that they no longer
+depend on the deleted calendar.</I></P>
+</BLOCKQUOTE>
+
+<P>
+<HR><SUP>1.<A NAME="1000663"></A></SUP> The 'anonymous' calendar is the
+exception to this rule. It does not have a name. See <A HREF="6-job-define.html#1000516">'Using
+an Anonymous Calendar'</A> for details. </P>
+
+<P><SUP>2.<A NAME="1001098"></A></SUP> The unit indicators, D, H, and M,
+can be upper-case or lower-case characters.</P>
+
+<P>
+<HR><A HREF="pjs-contents.html">[Contents]</A> <A HREF="4-events.html">[Prev]</A>
+<A HREF="5-environment.html">[Next]</A> <A HREF="8-advanced.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+</BODY>
+</HTML>

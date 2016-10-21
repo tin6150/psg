@@ -1,0 +1,999 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - LSF on Windows NT</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="d-systems.html">[Prev]</A>
+<A HREF="f-new-features.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="105661"></A>Appendix E. <A NAME="105660"></A>LSF on Windows
+NT</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="104886"></A>This appendix describes how to run LSF on Windows
+NT. It is assumed that you are already familiar with LSF concepts.</P>
+
+<H2><A NAME="104890"></A>Requirements</H2>
+
+<P><A NAME="104893"></A>The following are requirements for running LSF
+on Windows NT: </P>
+
+<UL>
+<LI><A NAME="104895"></A>Windows NT 3.51/4.0 Workstation or Server running
+on systems with Intel Pentium 100MHz or higher speed processors </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104898"></A>All the machines in one cluster belong to a single
+NT domain </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104900"></A>User must use domain account (as opposed to local
+accounts) when interacting with LSF </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104902"></A>All directories that LSF uses as well as user's
+home directories must be on NTFS partitions </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104905"></A>Users must enter their passwords into an encrypted
+database maintained by LSF and any changes to NT passwords must be reflected
+in the password database used by LSF </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104909"></A>The machines running LSF are expected to have
+fixed IP addresses which precludes the use of DHCP for dynamically assigning
+IP addresses to hosts </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104912"></A>Approximately 30 Megabytes of disk space is available
+</LI>
+</UL>
+
+<H3><A NAME="104914"></A>Recommended</H3>
+
+<UL>
+<LI><A NAME="104916"></A>NT Resource Kit contains many useful utilities
+(for example, <TT>pview</TT>) for monitoring processes. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104919"></A>A <TT>telnet</TT> daemon to enable remote login
+sessions or some other form of remote access software to allow for easier
+management. </LI>
+</UL>
+
+<H2><A NAME="104922"></A>Features and Limitations</H2>
+
+<P><A NAME="104925"></A>LSF 3.0 for Windows NT has the following features
+and limitations: </P>
+
+<UL>
+<LI><A NAME="104927"></A>An NT machine can be both a client and a server
+in an LSF cluster </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104929"></A>Heterogeneous NT and UNIX clusters are supported
+</LI>
+</UL>
+
+<UL>
+<LI><A NAME="104931"></A>Support for LSF Base with the following restrictions:
+</LI>
+</UL>
+
+<UL>
+<UL>
+<LI><A NAME="104932"></A>No support for remote execution through RES </LI>
+
+<LI><A NAME="104933"></A>The <TT>ls</TT> and <TT>it</TT> indices in LIM
+are not supported </LI>
+
+<LI><A NAME="104934"></A>No support for <TT>lslogin</TT> </LI>
+</UL>
+</UL>
+
+<UL>
+<LI><A NAME="104936"></A>Support for LSF Batch with the following restrictions:
+</LI>
+</UL>
+
+<UL>
+<UL>
+<LI><A NAME="104937"></A>No NQS compatibility support or interoperability
+with NQS daemons </LI>
+
+<LI><A NAME="104938"></A>No support for checkpointing </LI>
+
+<LI><A NAME="104939"></A>No support for resource limits other than CPU
+time </LI>
+
+<LI><A NAME="104940"></A>No support for account mapping </LI>
+
+<LI><A NAME="104941"></A>No environment variable reinitialization using
+the <TT>-L</TT> option of <TT>bsub</TT> </LI>
+
+<LI><A NAME="104942"></A>Job control limited to stop/resume/kill a job
+</LI>
+
+<LI><A NAME="104943"></A>No support for job control actions </LI>
+
+<LI><A NAME="104944"></A>No support for NT user groups </LI>
+
+<LI><A NAME="104945"></A>No support for interactive batch jobs using the
+<TT>-I</TT> option of <TT>bsub</TT> </LI>
+</UL>
+</UL>
+
+<UL>
+<LI><A NAME="104947"></A>Support for LSF JobScheduler with the following
+restrictions: </LI>
+</UL>
+
+<UL>
+<UL>
+<LI><A NAME="104948"></A>No support for file or external events </LI>
+</UL>
+</UL>
+
+<UL>
+<LI><A NAME="104950"></A>No support for LSF MultiCluster. Multicluster
+functionality can be obtained by running a UNIX LSF master host. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="104953"></A>LSF GUIs are not available in the current release.
+All interaction with LSF is through command-line tools. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="105819"></A>UNIX man pages are provided in HTML format </LI>
+</UL>
+
+<H2><A NAME="104959"></A>Installation</H2>
+
+<P><A NAME="104962"></A>The following steps are required to install LSF
+on Windows NT:</P>
+
+<DL>
+<DT><A NAME="104964"></A><B>Step 1. </B></DT>
+
+<DD>Create a domain account <TT>lsfadmin</TT> with the User Manager on
+an NT server. This is the account which will run the LSF daemons. Give
+the <TT>lsfadmin</TT> account the following privileges: </DD>
+
+<DL>
+<DL>
+<LI><A NAME="104968"></A>Act as part of the operating system </LI>
+
+<LI><A NAME="104969"></A>Debug program </LI>
+
+<LI><A NAME="104970"></A>Increase quotas </LI>
+
+<LI><A NAME="104971"></A>Login as a service </LI>
+
+<LI><A NAME="104972"></A>Replace a process level token </LI>
+</DL>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="104974"></A>The privileges can be enabled by selecting the
+'Policies / User Rights' menu item. Use the 'Show Advance Rights' check
+box to display these privileges.</DD>
+</DL>
+
+<DL>
+<DD><A NAME="104977"></A>Once the account is created, the privileges need
+to be added locally on each host that will run LSF. You can use:</DD>
+
+<DL>
+<PRE><A NAME="109625"></A><TT>usrmgr \\<I>hostname</I></TT></PRE>
+</DL>
+
+<DD><A NAME="109627"></A>to start up the User Manager on the remote machine
+instead of physically logging on to the machine. This requires the local
+Administrators group on each machine to include the Domain Administrators
+and the logged on user to be members of the Domain Administrators group.</DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="104981"></A><B>Note<BR>
+</B><I>Any valid user name other than </I><TT>lsfadmin</TT><I> can be specified.
+The remainder of this appendix assumes that </I><TT>lsfadmin</TT><I> is
+the account name.</I></P>
+</BLOCKQUOTE>
+
+<DL>
+<DT><A NAME="104985"></A><B>Step 2. </B></DT>
+
+<DD>Select a Windows NT Server to install the LSF binaries and configuration.
+On the server create a share or select an existing share in which to install
+LSF. This share will be used by other NT machines to access the LSF binaries
+and configuration files. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="104990"></A>Ensure that the <TT>lsfadmin</TT> account has
+'Full Control' access to that share. For example if you created a share
+<TT>\\serverA\lsf</TT> then go into the File Manager and select the 'Share
+As' option of the &quot;Disk&quot; Menu. Use the 'Permissions' button to
+give <TT>lsfadmin</TT> 'Full Control' access.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="104995"></A><B>Step 3. </B></DT>
+
+<DD>Login as <TT>lsfadmin</TT> and unzip the distribution into a directory.
+</DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="104997"></A><B>Note<BR>
+</B><I>You must use a version of </I><TT>unzip</TT><I> that supports long
+file names.</I></P>
+</BLOCKQUOTE>
+
+<DL>
+<DT><A NAME="106196"></A><B>Step 4. </B></DT>
+
+<DD>From the distribution directory run <TT>lsfsetup.cmd</TT>. The <TT>lsfsetup.cmd</TT>
+batch script performs the basic installation of all LSF components. It
+does not perform any configuration. To invoke the command, type <TT>lsfsetup.cmd</TT>
+on the command line or double-click on the <TT>lsfsetup.cmd</TT> icon in
+File Manager. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="106203"></A>Use <TT>option (1)</TT> to install for the first
+time.</DD>
+</DL>
+
+<DL>
+<DD><A NAME="106205"></A>The <TT>lsfsetup.cmd</TT> script will prompt for
+<TT>LSF_INDEP</TT>, <TT>LSF_MACHDEP</TT> and the cluster name and installs
+the appropriate files in those directories. An <TT>lsf.conf</TT> file is
+created in <TT>LSF_MACHDEP/etc</TT>.</DD>
+</DL>
+
+<DL>
+<DD><A NAME="106209"></A>You must take the following additional steps after
+using <TT>lsfsetup.cmd</TT>:</DD>
+</DL>
+
+<DL>
+<DL>
+<OL>
+<LI><A NAME="106211"></A>Edit the <TT>Cluster</TT> section in the <TT>lsf.shared</TT>
+file and enter the cluster name specified in the set up. </LI>
+
+<LI><A NAME="106779"></A>Edit the <TT>lsf.cluster.<I>cluster</I></TT> file
+and add <TT>lsfadmin</TT> to the <TT>ClusterAdmins</TT> section. </LI>
+
+<LI><A NAME="106792"></A>Add specific hosts into the <TT>Host</TT> section
+of the <TT>lsf.cluster.<I>cluster</I></TT> file. </LI>
+
+<LI><A NAME="106836"></A>The file permissions for the LSF configuration
+files and working directories should be set manually after installation
+using the File Manager. The following are recommended settings for the
+permissions: </LI>
+</OL>
+</DL>
+</DL>
+
+<DL>
+<DL>
+<DL>
+<PRE><A NAME="106983"></A>LSB_SHAREDIR, LSF_ENVDIR, LSF_LOGDIR
+ lsfadmin  - Full Control (All) (All)
+ Everyone  - Special Access (R) (R)
+
+LSF_BINDIR, LSF_LIBDIR, LSF_SERVERDIR
+ lsfadmin  - Full Control (All) (All)
+ Everyone  - Special Access (RX) (RX)
+
+LSF_CONFDIR, LSB_CONFDIR
+ lsfadmin  - Full Control (All) (All)</PRE>
+</DL>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="106994"></A>The 'Everyone' group may be replaced by any other
+group that you want be able to interact with LSF. </DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="106997"></A><B>Note<BR>
+</B><I>Whenever you are specifying a path in any LSF configuration file,
+use forward slash (<TT>/</TT>) as the path separator, instead of a backslash
+(<TT>\</TT>). LSF treats the backslash as a continuation character. Backslashes
+can be used in specifying paths outside of the configuration files.</I></P>
+</BLOCKQUOTE>
+
+<DL>
+<DT><A NAME="107002"></A><B>Step 5. </B></DT>
+
+<DD>Add <TT>LSF_ENVDIR</TT> as a system environment variable using the
+System dialog under the Control Panel applet. This must be done on each
+host that will run LSF. The value for <TT>LSF_ENVDIR</TT> should be set
+using an UNC path. For example, if LSF was installed under the directory
+'<TT>lsf</TT>' on the share <TT>\\serverA\tools</TT>, then <TT>LSF_ENVDIR</TT>
+should be set as: </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="107007"></A>LSF_ENVDIR = \\serverA\tools\lsf\etc</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="109723"></A>Using the Control Panel requires physically logging
+on to each machine. You can avoid this by using the Registry Editor (<TT>regedt32.exe</TT>)
+to add a value to the following key on each host:</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="109727"></A>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="109730"></A>To add the value <TT>LSF_ENVDIR</TT> on a host,
+use the 'Select Computer...' option under the 'Registry' menu. Activate
+the above key and select 'Add Value...' under 'Edit' menu, type in the
+value name <TT>LSF_ENVDIR</TT>, push 'OK', then type in the path for <TT>LSF_ENVDIR</TT>,
+and push 'OK'. To modify the value <TT>LSF_ENVDIR</TT>, double click its
+existing value, then change the string.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="107010"></A><B>Step 6. </B></DT>
+
+<DD>On each machine that will act as a LSF server, the <TT>lssrvman.exe</TT>
+binary must be installed to run as an NT service. <TT>lssrvman.exe</TT>
+runs under the <TT>lsfadmin</TT> account created in <A HREF="e-windoze-nt.html#104964">step
+1</A> and is used to start up LSF daemons. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="107572"></A>To install <TT>lssrvman.exe</TT>, login under
+an account that is in the domain administrator group. Open a DOS window
+and type the full UNC path name of <TT>lssrvman.exe</TT> followed by <TT>install</TT>
+as in the following example: </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="107018"></A>\\serverA\lsf\etc\lssrvman install</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="107691"></A>You will be prompted for a list of host names
+on which to install the service. Use the host names entered into the <TT>lsf.
+cluster.<I>cluster</I> file</TT> <A HREF="e-windoze-nt.html#106792">as
+shown above</A>. You will also be prompted for the username and password
+of the <TT>lsfadmin</TT> account created in <A HREF="e-windoze-nt.html#104964">step
+1</A>. Note that the username must be specified as <TT><I>domain</I>\lsfadmin</TT>
+where <I>domain</I> is your domain name.</DD>
+</DL>
+
+<DL>
+<DD><A NAME="107026"></A>This creates an <B>LSF Service</B> service that
+can be viewed from the Services dialog of the Control Panel applet. To
+uninstall the <B>LSF Service</B> service, type:</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="107030"></A>\\serverA\lsf\etc\lssrvman remove</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="107032"></A>If you decide to move the location of the <TT>lssrvman.exe</TT>
+binary after installing, you must first remove the service before installing
+again. If you are only replacing the <TT>lssrvman.exe</TT> binary, you
+can just stop the service, replace the binary and restart it.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="107037"></A><B>Step 7. </B></DT>
+
+<DD>After <TT>lssrvman.exe</TT> has been installed on each machine, it
+is possible to manage the LSF daemons from a single NT machine. You can
+start up the <B>LSF Service</B> from either the command-line or through
+a GUI. See <A HREF="e-windoze-nt.html#108128">'Starting LSF Service'</A>.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="107075"></A><B>Step 8. </B></DT>
+
+<DD>Each user wishing to run jobs under LSF must supply the password for
+their domain account to LSF. This is done through the <TT>lspasswd.exe</TT>
+command. It prompts for a password which is stored in the LSF password
+database. For example: </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="107080"></A><TT>D:\&gt;<B>lspasswd
+</B>Enter your old password:
+Enter your new password:
+Repeat your new password:
+
+-- Your password has been changed</TT></PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="107087"></A>If specifying your password for the first time,
+press <B><FONT SIZE=-1>[ENTER]</FONT></B>&nbsp;when asked for your old
+password.</DD>
+</DL>
+
+<DL>
+<DD><A NAME="107090"></A>The <TT>lspasswd.exe</TT> communicates with <TT>lssrvman.exe</TT>
+on the local machine. Therefore this command must be executed on a LSF
+server host. The passwords are encrypted before being transferred over
+the network and are stored in a hidden file <TT>passwd.lsfuser</TT> in
+<TT>LSF_CONFDIR</TT> (as defined in <TT>lsf.conf</TT>). LSF daemons read
+the file and decrypt the password before using it to start a job on behalf
+of a user.</DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="108153"></A><B>Note<BR>
+</B><I>This means that </I><TT>LSF_CONFDIR</TT><I> must be shared by all
+NT hosts.</I></P>
+</BLOCKQUOTE>
+
+<DL>
+<DD><A NAME="107098"></A>Additionally, the privilege 'Logon as a batch
+job' must be enabled for each user wishing to run jobs under LSF. The privilege
+must be granted on each host where the user will run jobs. To simplify
+administration, you can create a global NT user group (for example, LSF
+Users) and give the group the 'Logon as a batch job' privilege on each
+machine. Then you can simply add users to this group who wish to run batch
+jobs through LSF.</DD>
+</DL>
+
+<H3><A NAME="108128"></A>Starting LSF Service</H3>
+
+<H4><A NAME="108130"></A>Starting LSF Service from Command Line</H4>
+
+<P><A NAME="108131"></A>To start the executable <TT>lssrvman.exe</TT>,
+type the following:</P>
+
+<PRE><A NAME="108132"></A>lssrvcntrl start [-m hostname] lssrvman</PRE>
+
+<P><A NAME="108133"></A>The <TT>-m</TT> parameter allows you to start up
+the <B>LSF Service</B> on a remote host. If you specify the hostname '<TT>all</TT>',
+the operation will occur on all hosts listed in the <TT>lsf.cluster.<I>cluster</I></TT>
+file.</P>
+
+<P><A NAME="108134"></A>To stop <TT>lssrvman.exe</TT>, you type:</P>
+
+<PRE><A NAME="108135"></A>lssrvcntrl stop [-m hostname] lssrvman</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="108136"></A><B>Note<BR>
+</B><I>This only stops the <B>LSF Service</B>. It will leave the LSF daemons
+(</I><TT>lim</TT><I>, </I><TT>res</TT><I>, </I><TT>sbatchd</TT><I>, and
+</I><TT>mbatchd</TT><I>) running. </I></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="108137"></A>Starting LSF Service through GUI</H4>
+
+<P><A NAME="108138"></A>The <B>LSF Service</B> can also be started from
+the Services dialog box available in the Control Panel applet.</P>
+
+<P><A NAME="108139"></A>By default, when the <B>LSF Service</B> is started
+it will start up the LSF daemons <TT>lim</TT>, <TT>res</TT>, and <TT>sbatchd</TT>.
+The <TT>sbatchd</TT> daemon will start <TT>mbatchd</TT> on the master host.</P>
+
+<P><A NAME="108140"></A>If a particular daemon is stopped, you can start
+it up again, without having to restart the <B>LSF Service</B>. To do this
+use the start up option of <TT>lsadmin</TT> or <TT>badmin</TT>. For example:</P>
+
+<PRE><A NAME="108141"></A>lsadmin limstartup [hostname]
+lsadmin resstartup [hostname]
+badmin hstartup [hostname]</PRE>
+
+<P><A NAME="108142"></A>will start up <TT>lim</TT>, <TT>res</TT>, and <TT>sbatchd</TT>
+respectively on the specified host.</P>
+
+<H2><A NAME="107107"></A>License Management</H2>
+
+<P><A NAME="107110"></A>LSF uses the FLEXlm license management software
+from Globetrotter Software. The following steps should be taken to install
+a demo or permanent license.</P>
+
+<H3><A NAME="107113"></A>Demo License</H3>
+
+<P><A NAME="107115"></A>To install a demo license copy the license information
+into the file <TT>license.dat</TT> and save it in the <TT>LSF_CONFDIR</TT>.
+Specify the variable <TT>LSF_LICENSE_FILE</TT> in <TT>lsf.conf</TT> to
+point to the <TT>license.dat</TT> file. For example:</P>
+
+<PRE><A NAME="107119"></A>LSF_LICENSE_FILE=//serverA/lsf/conf/license.dat</PRE>
+
+<H3><A NAME="107121"></A>Permanent License</H3>
+
+<P><A NAME="107123"></A>To obtain the host IDs necessary to generate a
+permanent license, run the following command on each of the license server
+hosts:</P>
+
+<PRE><A NAME="107126"></A>lmutil lmhostid</PRE>
+
+<P><A NAME="107128"></A>The <TT>lmutil</TT> command is installed in <TT>LSF_SERVERDIR</TT>
+defined in <TT>lsf.conf</TT>.</P>
+
+<P><A NAME="107129"></A>The host ID information will be used to generate
+the license key information. Send the output of the command to your LSF
+vendor.</P>
+
+<P><A NAME="107132"></A>To install a permanent license, you need to install
+and run the FLEXlm License daemon as an NT service on your license server.
+The following steps should be followed to accomplish this:</P>
+
+<DL>
+<DT><A NAME="107136"></A><B>Step 1. </B></DT>
+
+<DD>Create a directory <TT>C:\flexlm</TT> on the license server host. Under
+the <TT>flexlm</TT> directory create a <TT>bin</TT> directory. Copy the
+following files from <TT>LSF_SERVERDIR</TT> into <TT>C:\flexlm\bin</TT>:
+<TT>lmgrd.exe</TT>, <TT>lmgr325a.dll</TT>, <TT>lsf_ld.exe</TT>, <TT>install.exe</TT>,
+and <TT>lmutil.exe</TT> </DD>
+</DL>
+
+<DL>
+<DT><A NAME="108040"></A><B>Step 2. </B></DT>
+
+<DD>On the license server, copy the permanent license into the <TT>license.dat</TT>
+file under <TT>C:\flexlm</TT> . Change the <TT>DAEMON</TT> line in the
+<TT>license.dat</TT> file to specify the full drive and path of the <TT>lsf_ld.exe</TT>.
+For example: </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="108041"></A>DAEMON lsf_ld c:/flexlm/bin/lsf_ld.exe</PRE>
+</DL>
+</DL>
+
+<DL>
+<DT><A NAME="108042"></A><B>Step 3. </B></DT>
+
+<DD>Copy <TT>C:\flexlm\license.dat</TT> into <TT>LSF_CONFDIR</TT> and define
+the variable <TT>LSF_LICENSE_FILE</TT> in <TT>lsf.conf</TT> to point to
+it. For example: </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="107155"></A>LSF_LICENSE_FILE=//serverA/lsf/conf/license.dat</PRE>
+</DL>
+</DL>
+
+<DL>
+<DT><A NAME="107157"></A><B>Step 4. </B></DT>
+
+<DD>From a DOS window go into the <TT>C:\flexlm\bin directory</TT> and
+type the following: </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="107160"></A>c:\flexlm\bin&gt;install c:\flexlm\bin\lmgrd.exe</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="107162"></A>This will install the FLEXlm License daemon as
+an NT service.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="107164"></A><B>Step 5. </B></DT>
+
+<DD>Start the License daemon using the Service dialog box available in
+the Control Panel applet. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="107166"></A>The <TT>lmutil</TT> command can be used to interact
+with the License daemon. For example,</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="107169"></A>lmutil lmstat -a -c c:\flexlm\license.dat</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="107171"></A>will display the status of the license server.
+The log file for the License daemon can found under <TT>%SYSTEMROOT\system32</TT>.</DD>
+</DL>
+
+<H2><A NAME="107174"></A>Mail</H2>
+
+<P><A NAME="109944"></A>When LSF needs to send mail to users, it invokes
+the program defined by <TT>LSB_MAILPROG</TT> in the <TT>lsf.conf</TT> file.
+If <TT>LSB_MAILPROG</TT> is not defined, no mail is sent. The default installation
+sets <TT>LSB_MAILPROG</TT> to a sample mail client called <TT>lsmail.exe</TT>
+which supports sending mail to a UNIX host by using <TT>rsh</TT> to invoke
+<TT>sendmail</TT> on the UNIX machine. To support this, <TT>lsmail.exe</TT>
+should be copied to a file corresponding to the name of the UNIX host,
+for example:</P>
+
+<PRE><A NAME="109946"></A>copy lsmail.exe unixhost.exe</PRE>
+
+<P><A NAME="109947"></A>where <I>unixhost</I> is UNIX machine which supports
+<TT>sendmail</TT>. The <TT>LSB_MAILPROG</TT> should correspond to the <TT>unixhost.exe</TT>
+file. For example:</P>
+
+<PRE><A NAME="107191"></A>LSB_MAILPROG=//serverA/tools/lsf/bin/unixhost.exe</PRE>
+
+<P><A NAME="107193"></A>Sites may choose to write different mail clients.
+See <A HREF="10-lsf-reference.html#1564">'<TT>LSB_MAILPROG</TT>'</A> for
+details on how <TT>LSB_MAILPROG</TT> is invoked.</P>
+
+<H2><A NAME="107196"></A>Environment Variable Handling</H2>
+
+<P><A NAME="107199"></A>LSF transfers most environment variables between
+submission and execution hosts. The following environment variables are
+overridden based on the values on the execution host:</P>
+
+<PRE><A NAME="107203"></A>COMPSPEC
+COMPUTERNAME
+NTRESKIT
+OS2LIBPATH
+PROCESSOR_ARCHITECTURE
+PROCESSOR_LEVEL
+SYSTEMDRIVE
+SYSTEMROOT
+WINDIR</PRE>
+
+<P><A NAME="107213"></A>These must be defined as system environment variables
+on the execution host.</P>
+
+<P><A NAME="107215"></A>If the <TT>WINDIR</TT> on the submission and execution
+host are different then the system <TT>PATH</TT> variable on the execution
+host is used instead of that from the submission host. </P>
+
+<P><A NAME="107219"></A>Avoid using drive names in environment variables
+(especially the <TT>%PATH </TT>variable) for drives which are connected
+over the network. It is preferable to use the UNC form of the path. This
+is because drive maps are shared between all users logged on to a particular
+machine. For example, if an interactive user has drive <TT>F:</TT> mapped
+to <TT>\\serverX\share</TT>, then any batch job will also see drive <TT>F:</TT>
+mapped to <TT>\\serverX\share</TT>. However, drive <TT>F:</TT> may have
+been mapped to a different share on the submission host of the job.</P>
+
+<P><A NAME="107227"></A>The Job Starter feature can be used to perform
+more site-specific handling of environment variables. See <A HREF="03-concepts.html#26220">'Job
+Starter'</A> and <A HREF="07-manage-lsbatch.html#15643">'Using A Job Starter'</A>
+for more details.</P>
+
+<H2><A NAME="107230"></A>Windows NT 4.0</H2>
+
+<P><A NAME="107233"></A>The command shell (<TT>cmd.exe</TT>) under Windows
+NT 4.0 does not support being started from a directory which is specified
+as a UNC name. For example, if you type the command:</P>
+
+<PRE><A NAME="107236"></A>start /d\\serverA\share\username cmd.exe</PRE>
+
+<P><A NAME="107238"></A><TT>cmd.exe</TT> will end up starting in the directory
+specified by <TT>%WINDIR%</TT>. As a result jobs submitted from a shared
+directory may not start in the correct directory on the execution host.
+The command shell from Windows NT 3.51, however, does support this feature.</P>
+
+<P><A NAME="107243"></A>For LSF to work correctly on NT 4.0 machines, you
+should replace <TT>cmd.exe</TT> with the <TT>cmd.exe</TT> from NT 3.51.
+<TT>cmd.exe</TT> typically resides in the directory <TT>%WINDIR%\system32</TT>.
+Alternatively, you can copy the NT 3.51 <TT>cmd.exe</TT> into <TT>%WINDIR%\system32\cmd351.exe</TT>
+and set the <TT>LSF_CMD_SHELL</TT> variable in <TT>lsf.conf</TT> to tell
+LSF use this shell instead of <TT>cmd.exe</TT>. For example, put the following
+into <TT>lsf.conf</TT>:</P>
+
+<PRE><A NAME="107250"></A>LSF_CMD_SHELL=cmd351.exe</PRE>
+
+<H2><A NAME="107252"></A>Security Issues</H2>
+
+<P><A NAME="107255"></A>The default authentication of method of LSF is
+to use privileged ports. On UNIX, this requires binaries which need to
+be authenticated (for example <TT>bsub</TT>) to made <I>setuid root</I>.
+NT does not have the concept of <I>setuid</I> binaries and does not restrict
+which binaries can use privileged ports. A security risk can occur if a
+user discovers the format of LSF protocol messages and writes a program
+which tries to communicate with an LSF server. It is recommended that external
+authentication (via <TT>eauth</TT>) be used where such a security risk
+is a concern.</P>
+
+<P><A NAME="107264"></A>The system environment variable <TT>LSF_ENVDIR</TT>
+is used by LSF to obtain the location of <TT>lsf.conf</TT> which points
+to important configuration files. Any user who can modify system environment
+variables can modify <TT>LSF_ENVDIR</TT> to point to their own configuration
+and start up programs under the <TT>lsfadmin</TT> account.</P>
+
+<P><A NAME="107270"></A>Once the <B>LSF Service</B> is started, it will
+only accept requests from the <TT>lsfadmin</TT> account. To allow other
+users to interact with the <B>LSF Service</B>, you must set up the <TT>lsf.sudoers</TT>
+file under the directory specified by the <TT>SYSTEMROOT</TT> environment
+variable. See <A HREF="10-lsf-reference.html#12839">'The <TT>lsf.sudoers</TT>
+File'</A> for the format of the <TT>lsf.sudoers</TT> file. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="108897"></A><B>Note<BR>
+</B><I>Only the </I><TT>LSF_STARTUP_USERS</TT><I> and </I><TT>LSF_STARTUP_PATH</TT><I>
+are used on NT. You should ensure that only authorized users modify the
+files under the </I><TT>SYSTEMROOT</TT><I> directory.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="107279"></A>All external binaries invoked by the LSF daemons
+(such as <TT>esub</TT>, <TT>eexec</TT>, <TT>elim</TT>, <TT>eauth</TT>,
+and queue level pre- and post-execution commands) are run under the <TT>lsfadmin</TT>
+account.</P>
+
+<H2><A NAME="107283"></A>Heterogeneous NT/UNIX Environments</H2>
+
+<P><A NAME="108908"></A>If you are running in a mixed UNIX and NT environment,
+then you must have a UNIX-style passwd file in <TT>LSF_CONFDIR</TT> on
+the NT side. This <TT>passwd</TT> file is used to assign user and group
+IDs for user's on NT systems so that they are consistent with those defined
+on UNIX.</P>
+
+<P><A NAME="108909"></A>The <TT>passwd</TT> file can be created by copying
+<TT>/etc/passwd</TT> from the UNIX system, or by issuing the command:</P>
+
+<PRE><A NAME="107294"></A>ypcat passwd &gt; passwd</PRE>
+
+<P><A NAME="107296"></A>and copying the resulting file onto the NT system.
+This assumes that uses have accounts with the same names on both UNIX and
+NT systems.</P>
+
+<P><A NAME="107299"></A>The following points should also be considered
+in a heterogeneous UNIX/NT environment:</P>
+
+<UL>
+<LI><A NAME="107301"></A>In a mixed NT/UNIX cluster, you should ensure
+that the LSF master host runs on a UNIX platform. Transfer of the master
+after failure from UNIX to NT or NT to UNIX hosts is not supported. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107305"></A>By default, LSF transfers environment variables
+from the submission to the execution host. However, some environment variables
+do not make sense when transferred. When submitting a job from NT to a
+UNIX machine, the <TT>-L</TT> option of <TT>bsub</TT> can be used to reinitialize
+the environment variables. If submitting a job from a UNIX machine to an
+NT machine, you can set the environment variables explicitly in your job
+script. Alternatively the Job Starter feature can be used to reset the
+environment variables before starting the job. </LI>
+</UL>
+
+<P><A NAME="108914"></A>LSF automatically resets the <TT>PATH</TT> on the
+execution host if the submission host is of a different type. If the submission
+host is NT and the execution host is UNIX, the <TT>PATH</TT> variable is
+set to <TT>/bin:/usr/bin:/sbin:/usr/sbin</TT> and <TT>LSF_BINDIR</TT> (if
+defined in <TT>lsf.conf</TT>) is appended to it. If the submission host
+is UNIX and the execution host is NT, the <TT>PATH</TT> variable is set
+to the system <TT>PATH</TT> variable with <TT>LSF_BINDIR</TT> appended
+to it. LSF looks for the presence of the <TT>WINDIR</TT> variable in the
+job's environment to determine whether the job was submitted from an NT
+or UNIX host. If <TT>WINDIR</TT> is present, it is assumed that the submission
+host was NT, otherwise the submission host is assumed to be a UNIX machine.</P>
+
+<UL>
+<LI><A NAME="107324"></A>The <TT>lssrvcntrl.exe</TT> binary only works
+when invoked from an NT machine. You will not be able to start up LSF daemons
+on an NT machine from a UNIX machine. The converse is also true: you cannot
+start the LSF daemons on a UNIX machine from an NT machine. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107329"></A>The LSF configuration files have to accessible
+from both the NT and UNIX machines. You need to set up a shared file system
+between the UNIX and NT machines via NFS client on NT or a SMB server on
+UNIX. </LI>
+</UL>
+
+<P><A NAME="108915"></A>Alternatively you can replicate the configuration
+files. </P>
+
+<H2><A NAME="107333"></A>Differences between LSF for UNIX and NT</H2>
+
+<P><A NAME="108673"></A>The following are some of the differences between
+the UNIX and NT versions of LSF:</P>
+
+<UL>
+<LI><A NAME="108674"></A>The shell used to invoke commands is <TT>cmd.exe</TT>
+instead of <TT>/bin/sh</TT> as on UNIX. For example, the queue-level pre
+and post-exec commands are invoked as: </LI>
+</UL>
+
+<DL>
+<DL>
+<PRE><A NAME="108916"></A>cmd.exe /C pre-exec command</PRE>
+</DL>
+</DL>
+
+<UL>
+<LI><A NAME="107344"></A>The <TT>NULL</TT> device on NT is <TT>NUL</TT>
+rather than <TT>/dev/null</TT> as on UNIX. LSF translates <TT>/dev/null</TT>
+to <TT>NUL</TT> for NT. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107347"></A>The <TT>/etc</TT> directory on UNIX corresponds
+to the <TT>%SYSTEMROOT</TT> directory on NT. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107349"></A>LSF uses the directory <TT>C:\temp</TT> on NT
+and <TT>/tmp</TT> on UNIX. The temporary directory used by LSF can be configured
+by setting <TT>LSF_TMPDIR</TT> as a system environment variable. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107353"></A>There is no native support in NT for UNIX-style
+signals. Therefore sending an arbitrary signal to a job via the <TT>-s</TT>
+option of <TT>bkill</TT> has no meaning on NT. LSF, however, supports the
+job control functionality by providing the equivalent of <TT>SIGSTOP</TT>,
+<TT>SIGCONT</TT>, and <TT>SIGTERM </TT>to suspend, resume, and terminate
+a job. These can be accessed through the commands <TT>bstop</TT>, <TT>bresume</TT>,
+and <TT>bkill</TT>. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107360"></A>The UNIX <TT>umask</TT> parameter is ignored on
+NT </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107362"></A>When inputting commands to <TT>bsub</TT>, remember
+the syntax of the commands must be specified in the form understood by
+NT batch files. For example to specify multiple commands in a single line,
+use the '<TT>&amp;&amp;</TT>' as the command separator instead of '<TT>;</TT>'
+as in UNIX. For example, use: </LI>
+</UL>
+
+<DL>
+<DL>
+<PRE><A NAME="107367"></A>bsub 'cmd1 &amp;&amp; cmd2'</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="107369"></A>instead of:</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="107371"></A>bsub 'cmd1; cmd2'</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="107373"></A>Also when specifying commands from standard input,
+use <B><FONT SIZE=-1>CNTL-Z</FONT></B> to indicate EOF. On UNIX, <B><FONT SIZE=-1>CNTL-D</FONT></B>
+is used. For example:</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="108771"></A>c:\temp&gt; <B>bsub -q simulation
+</B>bsub&gt; <B>myjob arg1 arg2
+</B>bsub&gt; <B>^Z</B></PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="107380"></A>The <TT>tmp</TT> index returned by <TT>lim</TT>,
+measures the space on the drive specified by the <TT>TEMP</TT> system environment
+variable.</DD>
+</DL>
+
+<H2><A NAME="107401"></A>Miscellaneous</H2>
+
+<P><A NAME="107404"></A>The following are miscellaneous notes on running
+LSF on Windows NT:</P>
+
+<UL>
+<LI><A NAME="107406"></A>Ports used by LSF services should be configured
+in via the <TT>LSF_LIM_PORT</TT>, <TT>LSF_RES_PORT</TT>, <TT>LSB_SBD_PORT</TT>,
+and <TT>LSB_MBD_PORT</TT> variables in the <TT>lsf.conf</TT> file as NT
+does not maintain a <TT>/etc/services</TT> file or currently support NIS.
+</LI>
+</UL>
+
+<UL>
+<LI><A NAME="107410"></A>When writing an external command that is invoked
+by LSF (for example, <TT>elim</TT>, <TT>esub</TT>, or <TT>eexec</TT>),
+the command must be a binary executable, that is, <TT>elim.exe</TT> or
+<TT>esub.exe</TT>. It cannot be a batch file such as <TT>elim.bat</TT>.
+</LI>
+</UL>
+
+<UL>
+<LI><A NAME="107414"></A>Always specify <TT>LSF_LOGDIR</TT> in <TT>lsf.conf</TT>
+so that error messages are logged to a file. The current version does not
+support logging to NT's event log. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107417"></A><TT>LSF_USE_HOSTEQUIV</TT> parameter in <TT>lsf.conf</TT>
+is ignored on NT </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107419"></A>Nice values specified at the queue-level through
+the <TT>NICE</TT> parameter are mapped to NT process priority classes as
+follows: </LI>
+</UL>
+
+<DL>
+<DD><A NAME="108848"></A><TT>nice&gt;=0</TT> corresponds to an NT priority
+class of <TT>IDLE<BR>
+nice&lt;0</TT> corresponds to an NT priority class of <TT>NORMAL</TT></DD>
+</DL>
+
+<DL>
+<DD><A NAME="108849"></A>LSF does not support <TT>HIGH</TT> or <TT>REAL-TIME</TT>
+priority classes. </DD>
+</DL>
+
+<UL>
+<LI><A NAME="107427"></A>The <TT>io</TT> index shows 0, unless the disk
+performance counters are turned on. To turn on disk performance counters,
+use the <TT>DISKPERF</TT> command. </LI>
+</UL>
+
+<BLOCKQUOTE>
+<P><A NAME="108935"></A><B>Note<BR>
+</B><I>Turning on the performance counters incurs extra overhead in disk
+I/O.</I></P>
+</BLOCKQUOTE>
+
+<UL>
+<LI><A NAME="107431"></A>A job which runs under a CPU time limit may exceed
+that limit by up to <TT>SBD_SLEEP_TIME</TT>. This is because <TT>sbatchd</TT>
+periodically checks if the limit has been exceeded. On UNIX systems, the
+CPU limit can be enforced by the OS at the process level. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="107436"></A>The UNIX man pages converted to HTML format are
+stored in <TT>LSF_MANDIR</TT> as defined in <TT>lsf.conf</TT>. </LI>
+</UL>
+
+<P>
+<HR><A HREF="admin-title.html">[Contents]</A> <A HREF="d-systems.html">[Prev]</A>
+<A HREF="f-new-features.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+</BODY>
+</HTML>

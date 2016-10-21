@@ -1,0 +1,766 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Programmer's Guide - Introduction</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="programmers-title.html">[Title]</A> <A HREF="programmers-preface.html">[Prev]</A>
+<A HREF="2-lslib.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="48260"></A>Chapter 1. <A NAME="1339"></A>Introduction</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="47792"></A>This chapter gives an overview of the LSF system
+architecture and the load sharing services provided by the LSF API, introducing
+their components. It also demonstrates how to write, compile, and link
+a simple load sharing application using LSF.</P>
+
+<H2><A NAME="47809"></A>LSF Product Suite and Architecture</H2>
+
+<P><A NAME="47642"></A>The Load Sharing Facility (LSF) is a layer of software
+services on top of UNIX and Windows NT operating systems. LSF creates a
+single system image on a network of heterogeneous computers such that the
+whole network of computing resources can be utilized effectively and managed
+easily. Throughout this guide, LSF refers to the LSF suite of products,
+which contains the following components: </P>
+
+<H4><A NAME="47872"></A>LSF Base </H4>
+
+<UL>
+<P><A NAME="47876"></A>LSF Base provides the basic load-sharing services
+across a heterogeneous network of computers. It is the base software upon
+which all other LSF functional components are built. It provides services
+such as resource information, host selection, placement advice, transparent
+remote execution and remote file operation, etc.</P>
+
+<P><A NAME="47888"></A>LSF Base includes Load Information Manager (LIM),
+Remote Execution Server (RES), the LSF Base API, <TT>lstools</TT> that
+allow the use of the LSF Base to run simple load-sharing applications,
+<TT>lstcsh</TT>, and <TT>lsmake</TT>.</P>
+</UL>
+
+<H4><A NAME="47899"></A>LSF Batch </H4>
+
+<UL>
+<P><A NAME="47906"></A>LSF Batch is a distributed batch queuing system
+built on top of the LSF Base. The services provided by LSF Batch are extensions
+to the LSF Base services. LSF Batch makes a computer network a network
+batch computer. It has all the features of a mainframe batch job processing
+system while doing load balancing and policy-driven resource allocation
+control. </P>
+
+<P><A NAME="47922"></A>LSF Batch relies on services provided by the LSF
+Base. It makes use of the resource and load information from the LIM to
+do load balancing. LSF Batch also uses the cluster configuration information
+from LIM and follows the master election service provided by LIM. LSF Batch
+uses RES for interactive batch job execution and uses the remote file operation
+service provided by RES for file transfer. LSF Batch includes a Master
+Batch Daemon (<TT>mbatchd</TT>) running on the master host and a slave
+Batch Daemon (<TT>sbatchd</TT>) running on each batch server host.</P>
+</UL>
+
+<H4><A NAME="47936"></A>LSF JobScheduler </H4>
+
+<UL>
+<P><A NAME="47940"></A>LSF JobScheduler is a network production job scheduling
+system that automates the mission-critical activities of a MIS organization.
+It provides reliable job scheduling on a heterogeneous network of computers
+with centralized control. LSF JobScheduler reacts to calendars and events
+to schedule jobs at the correct time on the correct machines. </P>
+
+<P><A NAME="47956"></A>Like LSF Batch, LSF JobScheduler is built on top
+of the LSF Base. It relies on LSF Base in resource matching, job placement,
+cluster configuration, and distributed file operation. LSF JobScheduler
+support calendars, file events, and user defined events in scheduling production
+jobs. </P>
+</UL>
+
+<H4><A NAME="47964"></A>LSF MultiCluster </H4>
+
+<UL>
+<P><A NAME="47971"></A>LSF MultiCluster extends the capabilities of the
+LSF system by sharing the resources of an organization across multiple
+cooperating clusters of computers. Load sharing happens not only within
+the clusters but also among them. Resource ownership and autonomy is enforced,
+non-shared user accounts and file systems are supported, and communication
+limitations among the clusters are also considered in job scheduling.</P>
+</UL>
+
+<P><A NAME="38873"></A>LSF consists of a number of servers running as root
+on each participating host in an LSF cluster and a comprehensive set of
+utilities built on top of the LSF Application Programming Interface (API).
+The LSF API consists of two libraries:</P>
+
+<UL>
+<LI><A NAME="47828"></A>Basic LSF services are accessible to applications
+through LSLIB, the LSF Base library </LI>
+
+<LI><A NAME="47830"></A>Job scheduling and processing services are accessible
+through LSF Batch library, LSBLIB. This library allows applications to
+get services from LSF Batch and LSF JobScheduler. </LI>
+</UL>
+
+<H3><A NAME="48418"></A>LSF Base </H3>
+
+<P><A NAME="48437"></A><A HREF="1-introduction.html#48436">Figure 1</A>
+shows the components of the LSF Base and their relationship. </P>
+
+<H4><A NAME="48436"></A>Figure 1. LSF Base Architecture</H4>
+
+<P><A HREF="prog-figure1.gif"><IMG SRC="prog-figure1.gif" ALT="LSF Base Architecture" BORDER=0 HEIGHT=170 WIDTH=626 ALIGN=ABSBOTTOM></A></P>
+
+<P><A NAME="48444"></A>The LSF Base consists of two servers, the Load Information
+Manager (LIM<I>) </I>and the Remote Execution Server (RES), and the Load
+Sharing Library (LSLIB). The LSF Base provides the basic load sharing services
+across a heterogeneous network of computers.</P>
+
+<P><A NAME="41002"></A>An LSF server host is a host that runs load-shared
+jobs. The LIM and RES run on every LSF server host. They interface directly
+with the underlying operating systems and provide users with a uniform,
+host independent environment.</P>
+
+<P><A NAME="44494"></A>One of the LIMs acts as the master. The master LIM
+is chosen among all the LIMs running in the cluster. If the master LIM
+becomes unavailable, a LIM on another host will automatically take over.
+</P>
+
+<P><A NAME="44495"></A>The LIM on each host monitors its host's load and
+reports load information to the master LIM. The master LIM collects information
+from all hosts and provides that information to the applications. </P>
+
+<P><A NAME="42647"></A>The RES on each server host accepts remote execution
+requests and provides fast, transparent and secure remote execution of
+tasks. </P>
+
+<H3><A NAME="42648"></A>Application and LSF Base Interactions</H3>
+
+<P><A NAME="42653"></A><A HREF="1-introduction.html#48081">Figure 2</A>
+shows the typical interactions between an LSF application and the LSF Base.
+</P>
+
+<P><A NAME="21385"></A>In order to find out the information about the LSF
+clusters, an application calls the information service functions in the
+LSLIB which then contact the LIM to get the information. If the information
+requested is only available from the master LIM, then LSLIB will automatically
+send the request to the master host.</P>
+
+<P><A NAME="21425"></A>To run a task remotely, or to perform a file operation
+remotely, an application calls the remote execution or remote file operation
+service functions in the LSLIB, which then contact the RES to get the services.</P>
+
+<P><A NAME="21427"></A>The LIM on individual machines communicate periodically
+to update the information they provide to the applications.</P>
+
+<H4><A NAME="48081"></A>Figure 2. LIM, RES, LSLIB, and Applications</H4>
+
+<P><A HREF="prog-figure2.gif"><IMG SRC="prog-figure2.gif" ALT="LIM, RES, LSLIB, and Applications" BORDER=0 HEIGHT=333 WIDTH=419></A></P>
+
+<H3><A NAME="20923"></A>LSF Batch System</H3>
+
+<P><A NAME="1668"></A>LSF Batch is a layered distributed load sharing batch
+system built on top of the LSF Base. The services provided by LSF Batch
+are extensions to the LSF Base services. Application programmers can access
+the batch services through the LSF Batch Library, LSBLIB. The structure
+of the LSF Batch system is shown in <A HREF="1-introduction.html#47656">Figure
+3</A>. </P>
+
+<H4><A NAME="47656"></A>Figure 3. Structure of LSF Batch System</H4>
+
+<P><A HREF="prog-figure3.gif"><IMG SRC="prog-figure3.gif" ALT="Structure of LSF Batch System" BORDER=0 HEIGHT=170 WIDTH=416></A></P>
+
+<P><A NAME="1140"></A>LSF Batch accepts user jobs and holds them in queues
+until suitable hosts are available. LSF Batch runs user jobs on LSF Batch
+server hosts, those hosts that a site deems suitable for running batch
+jobs.</P>
+
+<P><A NAME="48099"></A>LSF Batch services are provided by one <TT>mbatchd</TT>
+(master batch daemon<I>)</I> running in each LSF cluster, and one <TT>sbatchd</TT>
+(slave batch daemon) running on each batch server host. </P>
+
+<P><A NAME="1211"></A>LSF Batch operation relies on the services provided
+by the LSF Base. LSF Batch contacts the master LIM to get load and resource
+information about every batch server host. The operation of LSF Batch is
+shown in <A HREF="1-introduction.html#48186">Figure 4</A>. </P>
+
+<H4><A NAME="48186"></A>Figure 4. The Operation of LSF Batch System</H4>
+
+<P><A HREF="prog-figure4.gif"><IMG SRC="prog-figure4.gif" ALT="The Operation of LSF Batch System" BORDER=0 HEIGHT=308 WIDTH=383></A></P>
+
+<P><A NAME="48456"></A><TT>mbatchd</TT> always runs on the host where master
+LIM runs. The <TT>sbatchd</TT> on the master host automatically starts
+the <TT>mbatchd</TT>. If the master LIM moves to a different host, the
+current <TT>mbatchd</TT> will automatically resign and a new <TT>mbatchd</TT>
+will be automatically started on the new master host.</P>
+
+<P><A NAME="1730"></A>User jobs are held in batch queues by <TT>mbatchd</TT>,
+which checks the load information on all candidate hosts periodically.
+When a host with the necessary resources becomes available, <TT>mbatchd</TT>
+sends a job to the <TT>sbatchd</TT> on that host for execution. When more
+than one host is available, the best host is chosen. </P>
+
+<P><A NAME="1593"></A>Once a job is sent to an <TT>sbatchd</TT>, that <TT>sbatchd</TT>
+controls the execution of the job and reports job status to <TT>mbatchd</TT>.</P>
+
+<P><A NAME="1682"></A>The log files store important system and job information
+so that a newly started <TT>mbatchd</TT> can restore the status of the
+previous <TT>mbatchd</TT> easily. The log files also provide historic information
+about jobs, queues, hosts, and LSF Batch servers.</P>
+
+<H3><A NAME="48208"></A>LSF JobScheduler System</H3>
+
+<P><A NAME="48209"></A>LSF JobScheduler shares the same architecture and
+job processing mechanism. In addition to services provided by LSF Batch,
+LSF JobScheduler also provides calendar and event processing services.
+Both LSF Batch and LSF JobScheduler provides API to applications via LSBLIB.
+</P>
+
+<BLOCKQUOTE>
+<P><A NAME="48212"></A><B>Note<BR>
+</B><I>In the reminder of this Guide, all descriptions about LSF Batch
+also apply to LSF JobScheduler unless explicitly stated otherwise. </I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="2408"></A>LSF API Services</H2>
+
+<P><A NAME="1729"></A>LSF services are natural extensions to operating
+system services. LSF services glue heterogeneous operating systems into
+a single, integrated computing system.</P>
+
+<P><A NAME="38923"></A>LSF APIs provide easy access to the services of
+LSF servers. The API routines hide the details of interactions between
+the application and LSF servers in a way that is platform independent.
+</P>
+
+<P><A NAME="39068"></A>LSF APIs have been used to build numerous load sharing
+applications and utilities. Some examples of applications built on top
+of the LSF APIs are <TT>lsmake</TT>, <TT>lstcsh</TT>, <TT>lsrun</TT>, LSF
+Batch user interface, and <TT>xlsmon</TT>.</P>
+
+<H3><A NAME="44692"></A>LSF Base API Services</H3>
+
+<P><A NAME="2511"></A>The LSF Base API (LSLIB) allows application programmers
+to get services provided by LIM and RES. The services include:</P>
+
+<H4><A NAME="2650"></A>Configuration Information Service</H4>
+
+<P><A NAME="44695"></A>This set of function calls provide information about
+the LSF cluster configuration, such as hosts belonging to the cluster,
+total amount of installed resources on each host (for example, number of
+CPUs, amount of physical memory, and swap space), special resources associated
+with individual hosts, and types and models of individual hosts. </P>
+
+<P><A NAME="2764"></A>Such information is static and is collected by LIMs
+on individual hosts. By calling these routines, an application gets a global
+view of the distributed system. This information can be used for various
+purposes. For example, the LSF command <TT>lshosts</TT> displays such information
+on the screen. LSF Batch also uses such information to know how many CPUs
+are on each host.</P>
+
+<P><A NAME="3064"></A>Flexible options are available for an application
+to select the information that is of interest to it.</P>
+
+<H4><A NAME="3043"></A>Dynamic Load Information Service</H4>
+
+<P><A NAME="3046"></A>This set of function calls provide comprehensive
+dynamic load information collected from individual hosts periodically.
+The load information is provided in the form of load indices detailing
+the load on various resources of each host, such as CPU, memory, I/O, disk
+space, and interactive activities. Since a site-installed External LIM
+(ELIM) can be optionally plugged into the LIM to collect additional information
+that is not already collected by the LIM, this set of services can be used
+to collect virtually any type of dynamic information about individual hosts.
+</P>
+
+<P><A NAME="3146"></A>Example applications that use such information include
+<TT>lsload</TT>, <TT>lsmon</TT>, and <TT>xlsmon</TT>. This information
+is also valuable to an application in making intelligent job scheduling
+decisions. For example, LSF Batch uses such information to decide whether
+or not a job should be sent to a host for execution.</P>
+
+<P><A NAME="3099"></A>These service routines provide powerful mechanism
+for selecting the information that is of interest to the application.</P>
+
+<H4><A NAME="3264"></A>Placement Advice Service</H4>
+
+<P><A NAME="3342"></A>LSF Base API provides functions to select the best
+host among all the hosts. The selected host can then be used to run a job
+or to login to. LSF provides flexible syntax for an application to specify
+the resource requirements or criteria for host selection and sorting. </P>
+
+<P><A NAME="3380"></A>Many LSF utilities use these functions for placement
+decisions, such as <TT>lsrun</TT>, <TT>lsmake</TT>, and <TT>lslogin</TT>.
+It is also possible for an application to get the detailed load information
+about the candidate hosts together with a preference order of the hosts.</P>
+
+<P><A NAME="3429"></A>A parallel application can ask for multiple hosts
+in one LSLIB call for the placement of a multi-component job.</P>
+
+<P><A NAME="3439"></A>The performance differences between different models
+of machines as well as the number of CPUs on each host are taken into consideration
+when placement advice is made, with the goal of selecting qualified host(s)
+that will provide the best performance. </P>
+
+<H4><A NAME="41165"></A>Task List Manipulation Service</H4>
+
+<P><A NAME="41336"></A>Task lists are used to store default resource requirements
+for users. LSF provides functions to manipulate the task lists and retrieve
+resource requirements for a task. This is important for applications that
+need to automatically pick up the resource requirements from user's task
+list. The LSF command <TT>lsrtasks</TT> uses these functions to manipulate
+user's task list. LSF utilities such as <TT>lstcsh</TT>, <TT>lsrun</TT>,
+and <TT>bsub</TT> automatically pick up the resource requirements of the
+submitted command line by calling these LSLIB functions.</P>
+
+<H4><A NAME="3237"></A>Master Election Service</H4>
+
+<P><A NAME="25286"></A>If your application needs some kind of fault tolerance,
+you can make use of the master election service provided by the LIM. For
+example, you can run one copy of your application on every host and only
+allow the copy on the master host to be the primary copy and others to
+be backup copies. LSLIB provides a function that tells you the name of
+the current master host.</P>
+
+<P><A NAME="25360"></A>LSF Batch uses this service to achieve improved
+availability. As long as one host in the LSF cluster is up, LSF Batch service
+will continue.</P>
+
+<H4><A NAME="25379"></A>Remote Execution Service</H4>
+
+<P><A NAME="25275"></A>The remote execution service provides a transparent
+and efficient mechanism for running sequential as well as parallel jobs
+on remote hosts. The services are provided by the RES on the remote host
+in cooperation with the Network I/O Server (NIOS) on the local host. The
+NIOS is a per application stub process that handles the details of the
+terminal I/O and signals on the local side. NIOS is always automatically
+started by the LSLIB as needed. </P>
+
+<P><A NAME="25466"></A>RES runs as root and runs tasks on behalf of all
+users in the LSF cluster. Proper authentication is handled by RES before
+running a user task.</P>
+
+<P><A NAME="25465"></A>LSF utilities such as <TT>lsrun</TT>, <TT>lsgrun</TT>,
+<TT>ch</TT>, <TT>lsmake</TT>, and <TT>lstcsh</TT> use the remote execution
+service. </P>
+
+<H4><A NAME="25440"></A>Remote File Operation Service</H4>
+
+<P><A NAME="25507"></A>The remote file operation service allows load sharing
+applications to operate on files stored on remote machines. Such services
+extend the UNIX file operation services so that files that are not shared
+among hosts can also be accessed by distributed applications transparently.
+</P>
+
+<P><A NAME="25575"></A>LSLIB provides routines that are extensions to the
+UNIX file operations such as <TT>open</TT>(<TT>2</TT>), <TT>close</TT>(<TT>2</TT>),
+<TT>read</TT>(<TT>2</TT>), <TT>write</TT>(<TT>2</TT>), <TT>fseek</TT>(<TT>3</TT>),
+and <TT>stat</TT>(<TT>2</TT>).</P>
+
+<P><A NAME="25606"></A>The LSF utility <TT>lsrcp</TT> is implemented with
+the remote file operation service functions.</P>
+
+<H4><A NAME="25682"></A>Administration Service</H4>
+
+<P><A NAME="25562"></A>These set of function calls allow application programmers
+to write tools for administrating the LSF servers. The operations include
+reconfiguring the LSF clusters, shutting down a particular LSF server on
+some host, restarting an LSF server on some host, turning logging on or
+off, locking/unlocking a LIM on a host, etc.</P>
+
+<P><A NAME="25668"></A>The <TT>lsadmin</TT> and <TT>xlsadmin</TT> utilities
+use the administration services.</P>
+
+<H3><A NAME="25975"></A>LSF Batch API Services</H3>
+
+<P><A NAME="8710"></A>The LSF Batch API, LSBLIB gives application programmers
+access to the job queueing processing services provided by the LSF Batch
+servers. All LSF Batch user interface utilities are built on top of LSBLIB.
+The services that are available through LSBLIB include:</P>
+
+<H4><A NAME="26034"></A>LSF Batch System Information Service</H4>
+
+<P><A NAME="26031"></A>This set of function calls allow applications to
+get information about LSF Batch system configuration and status. These
+include host, queue, and user configurations and status. </P>
+
+<P><A NAME="26081"></A>The batch configuration information determines the
+resource sharing policies that dictate the behavior of the LSF Batch scheduling.
+</P>
+
+<P><A NAME="26160"></A>The system status information reflects the current
+status of hosts, queues, and users of the LSF Batch system.</P>
+
+<P><A NAME="26169"></A>Example utilities that use the LSF Batch configuration
+information services are <TT>bhosts</TT>, <TT>bqueues</TT>, <TT>busers</TT>,
+<TT>bparams</TT>, and <TT>xlsbatch</TT>.</P>
+
+<H4><A NAME="26123"></A>Job Manipulation Service</H4>
+
+<P><A NAME="26337"></A>The job manipulation service allows LSF Batch application
+programmers to write utilities that operate on user jobs. The operations
+include job submission, signaling, status checking, checkpointing, migration,
+queue switching, and parameter modification. </P>
+
+<H4><A NAME="26475"></A>Log File Processing Service</H4>
+
+<P><A NAME="26493"></A>LSBLIB provides convenient routines for handling
+log files used by LSF Batch. These routines return the records logged in
+the <TT>lsb.events</TT> and <TT>lsb.acct</TT> files. The records are stored
+in well-defined data structures.</P>
+
+<P><A NAME="26528"></A>The LSF Batch commands <TT>bhist</TT> and <TT>bacct</TT>
+are implemented with these routines.</P>
+
+<H4><A NAME="26539"></A>LSF Batch Administration Service</H4>
+
+<P><A NAME="26548"></A>This set of function calls are useful for writing
+LSF Batch administration tools. The LSF Batch command <TT>badmin</TT> is
+implemented with these library calls.</P>
+
+<H4><A NAME="44779"></A>Calendar Manipulation Service</H4>
+
+<P><A NAME="44780"></A>These library calls are used only if you are using
+the LSF JobScheduler. These function calls allow programmers to write utilities
+that create, check, or change LSF&nbsp;Batch calendars. All the calendar-related
+user interface commands of the LSF JobScheduler make use of the calendar
+manipulation functions of the LSF Batch API.</P>
+
+<H2><A NAME="28765"></A>Getting Started with LSF Programming</H2>
+
+<P><A NAME="41591"></A>LSF programming is like any other system programming.
+You are assumed to have UNIX operating system and C programming knowledge
+to understand the concepts involved. </P>
+
+<H3><A NAME="29644"></A><TT>lsf.conf</TT> File</H3>
+
+<P><A NAME="44793"></A>This guide frequently refers to the file <TT>lsf.conf</TT>
+for definitions of some parameters. <TT>lsf.conf</TT> is a generic reference
+file containing definitions of directories and parameters. <TT>lsf.conf</TT>
+is by default installed in <TT>/etc</TT>. If it is not installed in <TT>/etc</TT>,
+it is expected that all users of LSF set the environment variable <TT>LSF_ENVDIR</TT>
+to point to the directory in which <TT>lsf.conf</TT> is installed. Refer
+to <A HREF="10-lsf-reference.html">'LSF Base Configuration Reference'</A>
+in the <I><A HREF="admin-title.html">LSF Administrator's Guide</A></I>
+for more details about the <TT>lsf.conf file.</TT></P>
+
+<H3><A NAME="28958"></A>LSF Header Files</H3>
+
+<P><A NAME="29450"></A>All LSF header files are installed in the directory
+<TT>LSF_INCLUDEDIR/lsf</TT>, where <TT>LSF_INCLUDEDIR</TT> is defined in
+the file <TT>lsf.conf</TT>. The programmer should include <TT>LSF_INCLUDEDIR</TT>
+in the include file search path, such as that specified by the '<TT>-Idir</TT>'
+option of some compilers or pre-processors. </P>
+
+<P><A NAME="41607"></A>There is one header file for LSLIB, the LSF Base
+API, and one header file for LSBLIB, the LSF Batch API. </P>
+
+<H4><A NAME="29009"></A><TT>lsf.h</TT></H4>
+
+<P><A NAME="29103"></A>An LSF application must include <TT>&lt;lsf/lsf.h&gt;</TT>
+before any of the LSF Base API services are called. <TT>lsf.h</TT> contains
+definitions about constants, data structures, error codes, LSLIB function
+prototypes, macros, etc, that are used by all LSF applications. </P>
+
+<H4><A NAME="28816"></A><TT>lsbatch.h</TT></H4>
+
+<P><A NAME="29345"></A>An LSF Batch application must include <TT>&lt;lsf/lsbatch.h&gt;</TT>
+before any of the LSF Batch API services are called. <TT>lsbatch.h</TT>
+contains definitions of constants, data structures, error codes, LSBLIB
+function prototypes, macros, etc., that are used by all LSF Batch applications.
+</P>
+
+<P><A NAME="41620"></A>There is no need to explicitly include <TT>&lt;lsf/lsf.h&gt;</TT>
+in an LSF Batch application because <TT>lsbatch.h</TT> already includes
+<TT>&lt;lsf/lsf.h&gt;</TT>.</P>
+
+<H3><A NAME="29584"></A>Linking Applications with LSF APIs</H3>
+
+<P><A NAME="29610"></A>LSF API functions are contained in two libraries,
+<TT>liblsf.a</TT> (LSLIB) and <TT>libbat.a</TT> (LSBLIB) for all UNIX platforms.
+For Windows NT, the file names of these libraries are <TT>liblsf.lib</TT>
+(LSLIB) and <TT>libbat.lib</TT> (LSBLIB), respectively. These files are
+installed in <TT>LSF_LIBDIR</TT>, where <TT>LSF_LIBDIR</TT> is defined
+in the file <TT>lsf.conf</TT>.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="30022"></A><B>Note<BR>
+</B><TT>LSBLIB</TT><I> is not independent by itself. It must always be
+linked together with </I><TT>LSLIB</TT><I>. This is because </I><TT>LSBLIB</TT><I>
+services are built on top of </I><TT>LSLIB</TT><I> services.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="30235"></A>LSF uses BSD sockets for communications across the
+network. On systems that have both System V and BSD programming interfaces,
+LSLIB and LSBLIB typically use the BSD programming interface. On System
+V-based versions of UNIX, for example Solaris, it is normally necessary
+to link applications using LSLIB or LSBLIB with the BSD compatibility library.
+On Windows NT, a number of libraries are needed to be linked together with
+LSF API. Details of these additional linkage specifications are shown in
+<A HREF="1-introduction.html#46488">Table 1</A>. </P>
+
+<H4><A NAME="46488"></A>Table 1. Additional Linkage Specifications by Platform</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TH><A NAME="46492"></A>Platform</TH>
+
+<TH><A NAME="46494"></A>Additional Linkage Specifications</TH>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46496"></A>ULTRIX 4 </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46498"></A>(none) </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46500"></A>Digital UNIX </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46502"></A><TT>-lmach -lmld</TT> </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46504"></A>HP-UX </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46506"></A><TT>-lBSD</TT> </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46508"></A>AIX </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46510"></A><TT>-lbsd</TT> </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46512"></A>IRIX 5 </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46514"></A><TT>-lsun -lc_s</TT> </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46516"></A>IRIX 6 </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46518"></A>(none) </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46520"></A>SunOS 4 </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46522"></A>(none) </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46524"></A>Solaris 2 </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46526"></A><TT>-lnsl -lelf -lsocket
+-lrpcsvc -lgen</TT> </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46528"></A>NEC </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46530"></A><TT>-lnsl -lelf -lsocket
+-lrpcsvc -lgen</TT> </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46532"></A>Sony NEWSs </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46534"></A><TT>-lc -lnsl -lelf -lsocket
+-lrpcsvc -lgen -lucb</TT> </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46536"></A>ConvexOS </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46538"></A>(none) </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46540"></A>Cray Unicos </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46542"></A>(none) </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46544"></A>Linux </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="46546"></A>(none) </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="48561"></A>Windows NT </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="48563"></A><TT>-MT -DWIN32 libcmt.lib
+oldnames.lib kernel32.lib advapi32.lib user32.lib wsock32.lib mpr.lib netapi32.lib</TT>
+</TD>
+</TR>
+</TABLE>
+
+<BLOCKQUOTE>
+<P><A NAME="46351"></A><B>Note<BR>
+</B><I>On Windows NT, you need to add paths specified by </I><TT>LSF_LIBDIR</TT><I>
+and </I><TT>LSF_INCLUDEDIR</TT><I> in </I><TT>lsf.conf</TT><I> to the environment
+variables </I><TT>LIB</TT><I> and </I><TT>INCLUDE</TT><I>, respectively.
+</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="48567"></A>The <TT>LSF_MISC/examples</TT> directory contains
+a makefile for making all the example programs in that directory. You can
+modify this file for use with your own programs.</P>
+
+<P><A NAME="41542"></A>All LSLIB function call names start with &quot;<TT>ls_</TT>&quot;,
+whereas all LSBLIB function call names start with &quot;<TT>lsb_</TT>&quot;.</P>
+
+<H3><A NAME="46483"></A>Error Handling</H3>
+
+<P><A NAME="30972"></A>LSF API uses error numbers to indicate an error.
+There are two global variables that are accessible from the application.
+These variables are used in exactly the same way UNIX system call error
+number variable <TT>errno</TT> is used. The error number should only be
+tested when an LSLIB or LSBLIB call fails.</P>
+
+<H4><A NAME="31651"></A><TT>lserrno</TT></H4>
+
+<P><A NAME="31708"></A>An LSF program should test whether an LSLIB call
+is successful or not by checking the return value of the call instead of
+<TT>lserrno</TT>. </P>
+
+<P><A NAME="31652"></A>When any LSLIB function call fails, it sets the
+global variable <TT>lserrno</TT> to indicate the cause of the error. The
+programmer can either call <TT>ls_perror()</TT> to print the error message
+explicitly to the <I>stderr</I>, or call <TT>ls_sysmsg()</TT> to get the
+error message string corresponding to the current value of <TT>lserrno.</TT></P>
+
+<P><A NAME="31450"></A>Possible values of <TT>lserrno</TT> are defined
+in <TT>lsf.h</TT>.</P>
+
+<H4><A NAME="31425"></A><TT>lsberrno</TT></H4>
+
+<P><A NAME="31445"></A>This variable is very similar to <TT>lserrno</TT>
+except that it is set by LSBLIB whenever an LSBLIB call fails. Programmers
+can either call <TT>lsb_perror()</TT> to find out why an LSBLIB call failed
+or use <TT>lsb_sysmsg()</TT> to get the error message corresponding to
+the current value of <TT>lsberrno</TT>.</P>
+
+<P><A NAME="31584"></A>Possible values of <TT>lsberrno</TT> are defined
+in <TT>lsbatch.h</TT>.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="31846"></A><B>Note<BR>
+</B><TT>lserrno</TT><I> and </I><TT>lsberrno</TT><I> should be checked
+only if an LSLIB or LSBLIB call fails respectively. </I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="31847"></A>Example Applications</H2>
+
+<H3><A NAME="35061"></A>Example Application using LSLIB</H3>
+
+<PRE><A NAME="33580"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsf.h&gt;
+
+void main()
+{
+        char *clustername;
+
+        clustername = ls_getclustername();
+        if (clustername == NULL) {
+                ls_perror(&quot;ls_getclustername&quot;);
+                exit(-1);
+        }
+
+        printf(&quot;My cluster name is: &lt;%s&gt;\n&quot;, clustername);
+        exit(0);
+}</PRE>
+
+<P><A NAME="35278"></A>This simple example gets the name of the LSF cluster
+and prints the cluster name on the screen. The LSLIB function call <TT>ls_getclustername()</TT>
+returns the name of the local cluster. In case this call fails, it returns
+NULL pointer. <TT>ls_perror()</TT> prints the error message corresponding
+to the most recently failed LSLIB function call.</P>
+
+<P><A NAME="44848"></A>The above program would produce output similar to
+the following:</P>
+
+<PRE><A NAME="44850"></A>% <B>a.out
+</B>Mycluster name is: &lt;fruit&gt;</PRE>
+
+<H3><A NAME="35280"></A>Example Application using LSBLIB</H3>
+
+<PRE><A NAME="46596"></A>#include &lt;stdio.h&gt;
+#include&lt;lsf/lsbatch.h&gt;
+
+main()
+{
+        struct parameterInfo *parameters;
+
+        if (lsb_init(NULL) &lt; 0) {
+                lsb_perror(&quot;lsb_init&quot;);
+                exit(-1);
+        }
+
+        parameters = lsb_parameterinfo(NULL, NULL, NULL);
+        if (parameters == NULL) {
+                lsb_perror(&quot;lsb_parameterinfo&quot;);
+                exit(-1);
+        }
+
+        /* Got parameters from mbatchd successfully. Now print out the fields */
+        printf(&quot;Job acceptance interval: every %d dispatch turns\n&quot;, 
+                                        parameters-&gt;jobAcceptInterval);
+        /* Code that prints other parameters goes here */
+                /* ... */
+        exit(0);
+}</PRE>
+
+<P><A NAME="36192"></A>This example gets LSF Batch parameters and prints
+them on the screen. The function <TT>lsb_init()</TT> must be called before
+any other LSBLIB function is called. </P>
+
+<P><A NAME="36210"></A>The data structure <I>parameterInfo</I> is defined
+in <TT>lsbatch.h.</TT></P>
+
+<H2><A NAME="8311"></A>Authentication</H2>
+
+<P><A NAME="1737"></A>LSF programming is distributed programming. Since
+LSF services are provided network-wide, it is important for LSF to deliver
+the service without compromising the system security. </P>
+
+<P><A NAME="36217"></A>LSF supports several user authentication protocols.
+Support for these protocols are described in the section <A HREF="03-concepts.html#3353">'Remote
+Execution Control'</A> of the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I>. Your LSF administrator can configure the LSF cluster to
+use any of the protocols supported. </P>
+
+<P><A NAME="36332"></A>Note that only those LSF API function calls that
+operate on user jobs, user data, or LSF servers require authentication.
+Function calls that return information about the system do not need to
+be authenticated. LSF API calls that must be authenticated are identified
+in <A HREF="a-functions.html#1074">'List of LSF API Functions'</A>. </P>
+
+<P><A NAME="36226"></A>The most commonly used authentication protocol,
+the privileged port protocol, requires that load sharing applications be
+installed as setuid programs. This means that your application has to be
+owned by root with the suid bit set. </P>
+
+<P><A NAME="36227"></A>If you need to frequently change and relink your
+applications with LSF API, you can consider using the <TT>ident</TT> protocol
+which does not require applications to be setuid programs. </P>
+
+<P>
+<HR><A HREF="programmers-title.html">[Title]</A> <A HREF="programmers-preface.html">[Prev]</A>
+<A HREF="2-lslib.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I></P>
+
+</BODY>
+</HTML>

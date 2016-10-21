@@ -1,0 +1,822 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Sample System Support</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="c-directories.html">[Prev]</A>
+<A HREF="e-windoze-nt.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1076"></A>Appendix D. <A NAME="1074"></A>Sample System Support</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="6917"></A>This section describes how LSF can be configured
+to support specific systems. Several systems are discussed: IRIX 6 processor
+sets, IBM SP-2, Cray Research NQS, and Atria Clearcase.</P>
+
+<H2><A NAME="7040"></A>IRIX 6 Processor Sets</H2>
+
+<P><A NAME="3987"></A>IRIX 6 allows the processors in a multiprocessor
+system to be divided into groups of processors call <I>processor sets</I>.
+IRIX 6 provides facilities to allow a user to define processor sets, and
+to run processes onto specific processor sets.</P>
+
+<P><A NAME="9109"></A>The <TT>pset(1M)</TT> command allows administrators
+to set up and manipulate processor sets and associate processes with sets.
+Once a process is associated with a processor set, the process and all
+its children will be scheduled only on the processors in that set. The
+definition of the processor set can be dynamically changed to increase
+or reduce the number of processors a process can be scheduled on.</P>
+
+<P><A NAME="9110"></A>LSF can be made to interface with processor sets
+by using <TT>pset(1M)</TT> in the queue-level pre- and post-execution commands
+(see <A HREF="11-lsbatch-reference.html#17433">'Queue-Level Pre-/Post-Execution
+Commands'</A>). This allows batch jobs to be assigned to certain processors.
+</P>
+
+<BLOCKQUOTE>
+<P><A NAME="10150"></A><B>Note<BR>
+</B><I>Since the </I><TT>pset</TT><I> command must be run as root but,
+by default, queue-level pre- and post- execution commands are run as the
+user that submitted the command, you must define </I><TT>LSB_PRE_POST_EXEC_USER=root</TT><I>
+in </I><TT>/etc/lsf.sudoers</TT><I>. See <A HREF="10-lsf-reference.html#12839">'The
+</A></I><A HREF="10-lsf-reference.html#12839"><TT>lsf.sudoers</TT><I> File'</I></A><I>
+for details.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="5376"></A>The following gives examples on how to handle different
+processor allocation situations for an 8-processor machine.</P>
+
+<H3><A NAME="5901"></A>Time-Based Processor Allocation</H3>
+
+<P><A NAME="5650"></A>During the day you want to ensure that batch jobs
+only use four processors with the remaining four dedicated for interactive
+users. During the night you want the batch jobs to be able to use all processors.</P>
+
+<P><A NAME="5736"></A>This can be accomplished by:</P>
+
+<DL>
+<DT><A NAME="5385"></A><B>Step 1. </B></DT>
+
+<DD>Create a 'batch' processor set and an 'interactive' processor set with
+half the processors in each set. This can be done by setting up an <TT>/etc/pssettab</TT>
+file as follows: </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="5966"></A># &lt;symbolic name&gt;    &lt;pset id&gt;    &lt;processor list&gt;
+#
+batch       100        0,1,2,3
+interactive 101        4,5,6,7</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="5394"></A>Run the <TT>pset</TT> command as <TT>root</TT> to
+tell the operating system to read the pssettab file:</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="5977"></A>% pset -i -v</PRE>
+</DL>
+</DL>
+
+<DL>
+<DT><A NAME="5399"></A><B>Step 2. </B></DT>
+
+<DD>All batch queues should specify the following <TT>PRE_EXEC</TT> parameter:
+</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="5997"></A>PRE_EXEC = pset -p $LS_JOBPID batch</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="5403"></A>The <TT>LS_JOBPID</TT> will be set to the process
+identifier of the batch job process. The <TT>pset</TT> command will tell
+IRIX to schedule that process and any of its children in the batch processor
+set. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="5407"></A><B>Step 3. </B></DT>
+
+<DD>Set up two cron jobs one of which runs every morning at 8 a.m. and
+the other every evening at 6 p.m. The cron job running at 8 a.m. should
+execute the command: </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="6085"></A># Move processors 4,5,6,7 out of the batch processor set
+pset -s batch \!4,5,6,7</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="5414"></A>The cron job running at 6 p.m. should execute the
+command:</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="6126"></A>#Move processors 4,5,6,7 into the batch processor set.
+pset -s batch +4,5,6,7</PRE>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="7814"></A>Alternatively, you can use LSF JobScheduler to run
+this periodic job.</DD>
+</DL>
+
+<H3><A NAME="10060"></A>User-Based Processor Allocation</H3>
+
+<P><A NAME="10061"></A>You want to give a particular user (Jane) exclusive
+access to one processor if she has jobs to run. Otherwise, users should
+be able to use all eight processors for batch jobs.</P>
+
+<P><A NAME="5425"></A>This can be accomplished by:</P>
+
+<DL>
+<DT><A NAME="5427"></A><B>Step 1. </B></DT>
+
+<DD>Create a processor set called 'excl' and another processor set 'batch'
+for normal batch jobs. The 'batch' processor set can initially contain
+all processors and the 'excl' set contains only processor 0. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="5431"></A><B>Step 2. </B></DT>
+
+<DD>Create a queue that will only accept jobs from Jane. The pre- and post-execution
+commands can be used to shuffle processors between processor sets such
+that Jane will get exclusive access to a processor: </DD>
+
+<DL>
+<PRE><A NAME="6350"></A>Begin Queue
+QUEUE_NAME    = exclusive
+PRIORITY      = 43
+USERS         = jane
+# Move processor 0 from batch processor set to excl processor set
+# Associate the job with the excl set.
+PRE_EXEC      = pset -s excl +0; pset -s batch -0; pset -p $LS_JOBPID excl
+#Move processor 0 back to the batch processor set
+POST_EXEC     = pset -s excl -0; pset -s batch +0
+DESCRIPTION   = Provides exclusive access to a processor for Jane's jobs
+End Queue</PRE>
+</DL>
+
+<DD><A NAME="8778"></A>Other queues should have their pre-execution command
+set to:</DD>
+
+<DL>
+<PRE><A NAME="6362"></A>PRE_EXEC      = pset -p $LS_JOBPID batch</PRE>
+</DL>
+</DL>
+
+<H3><A NAME="5453"></A>Other Situations</H3>
+
+<P><A NAME="6367"></A>More complicated situations can be handled by using
+scripts in the pre- and post-execution commands which check for other conditions.
+For example in the above <A HREF="d-systems.html#10060">'User-Based Processor
+Allocation'</A> case, if you wanted to give Jane up to four processors
+to use (but not more), the pre-execution script could use <TT>pset</TT>
+to determine how many processors were already in the 'excl' set and move
+an additional processor from the 'batch' set into the 'excl' set until
+the 'excl' set has four processors.</P>
+
+<H2><A NAME="6499"></A>IBM SP-2 Support </H2>
+
+<P><A NAME="6502"></A>An IBM SP-2 system consists of multiple nodes running
+AIX. The system can be configured with a high-performance switch to allow
+high bandwidth, low latency communication between the nodes. The allocation
+of the switch to jobs as well as the division of nodes into pools is controlled
+by the SP-2 Resource Manager. </P>
+
+<P><A NAME="6507"></A>IBM's Parallel Operating Environment (POE) interfaces
+with the Resource Manager to allow users to run parallel jobs requiring
+dedicated access to the high performance switch.</P>
+
+<P><A NAME="6511"></A>The following are provided in LSF to support POE
+jobs running under LSF: </P>
+
+<UL>
+<LI><A NAME="6513"></A>A <TT>poejob</TT> script which translates the nodes
+allocated by LSF Batch into an appropriate host list and environment variables
+for use by POE. The <TT>poejob</TT> script also causes the job to be requeued,
+if the request for dedicated access to the switch fails. </LI>
+
+<LI><A NAME="6518"></A>An external LIM (ELIM) which contacts the SP-2 Resource
+Manager to determine which pool each node is in and the status of the high-performance
+switch. Two new load indices, <TT>pool</TT> and <TT>lock</TT>, are introduced
+to represent the pool the node is in and whether the switch is locked or
+not, respectively. The SP-2 ELIM uses the <TT>jm_status</TT> command to
+collect information from the Resource Manager. </LI>
+</UL>
+
+<P><A NAME="6526"></A>The 'poejob' script is installed as part of the standard
+installation procedure. The SP-2-specific ELIM can be found in the examples
+directory of the distribution. </P>
+
+<P><A NAME="6530"></A>The following steps should be followed to allow POE
+jobs to run under LSF:</P>
+
+<DL>
+<DT><A NAME="6532"></A><B>Step 1. </B></DT>
+
+<DD>Ensure that the SP-2 node names are the same as their host names. That
+is, <TT>jm_status</TT> should return the same names for the nodes that
+<TT>lsload</TT> returns. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6536"></A><B>Step 2. </B></DT>
+
+<DD>Build and install the SP-2 ELIM. A <TT>README.sp2</TT> file is provided
+in the examples directory with specific instructions. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6539"></A><B>Step 3. </B></DT>
+
+<DD>Add the following to the <TT>lsf.shared</TT> file in the <TT>LSF_CONFDIR</TT>
+directory to pick up the indices reported by the ELIM: </DD>
+
+<DL>
+<PRE><A NAME="7921"></A>Begin NewIndex
+NAME      INTERVAL   INCREASING  DESCRIPTION
+lock       60           Y        (IBM SP2 Node lock status)
+pool       60           N        (IBM SP2 POWERparallel system pool)
+End NewIndex</PRE>
+</DL>
+</DL>
+
+<P><A NAME="6548"></A>For all queues which accept POE jobs define a requeue
+exit value and a threshold for the <TT>lock</TT> index. </P>
+
+<P><A NAME="6849"></A>For example: </P>
+
+<PRE><A NAME="7923"></A>Begin Queue
+NAME=poejobs
+lock=0
+REQUEUE_EXIT_VALUES = 133</PRE>
+
+<P><A NAME="6561"></A>The <TT>poejob</TT> script will exit with 133 if
+it is necessary to requeue the job. Note that other types of jobs should
+not be submitted to the same queue. Otherwise, they will get requeued if
+they happen to exit with 133. The scheduling threshold on the <TT>lock</TT>
+index prevents dispatching to nodes which are being used in exclusive mode
+by other jobs.</P>
+
+<P><A NAME="6567"></A>Note that it is only necessary to enable requeuing
+of POE jobs if some users submit jobs requiring exclusive access to the
+node.</P>
+
+<H2><A NAME="9986"></A>Support for HP Exemplar Technical Servers </H2>
+
+<P><A NAME="9987"></A>The HP Exemplar Technical Server is a high performance
+cache coherent Non Uniform Memory Access (ccNUMA) computer system. The
+Exemplar system supports the partitioning of the computing resources into
+subcomplexes which are collections of processors and memory from one or
+hypernodes in the system. The Subcomplex Manager (SCM) enables administrators
+to configure processor and memory resources into subcomplexes.</P>
+
+<P><A NAME="9991"></A>The following are provided in LSF to support the
+Exemplar:</P>
+
+<UL>
+<LI><A NAME="9992"></A>An external LIM (ELIM) which collects subcomplex
+load information. There are 6 load indices collected for each subcomplex
+including the subcomplex's private memory, global memory, number of CPUs,
+5-second run queue, 30-second run queue, and 60-second run queue. This
+information can be used to control the scheduling of jobs onto a subcomplex.
+</LI>
+
+<LI><A NAME="9996"></A>A Job Starter (see <A HREF="07-manage-lsbatch.html#3947">'Controlling
+LSF Batch Jobs'</A>) to start a job on a particular subcomplex. Each LSF
+Batch queue must be associated with one subcomplex. </LI>
+</UL>
+
+<P><A NAME="10000"></A>LSF does not currently support dynamic load balancing
+between subcomplexes.</P>
+
+<P><A NAME="10004"></A>The following steps should be taken to setup an
+Exemplar system to run LSF.</P>
+
+<OL>
+<LI><A NAME="10005"></A>Build and install the Exemplar ELIM. Follow the
+instructions in the <TT>README</TT> file in the <TT>examples</TT> directory
+of the distribution. </LI>
+
+<LI><A NAME="10006"></A>Add the definitions for the load indices for each
+subcomplex in the <TT>lsf.shared</TT> file. </LI>
+
+<LI><A NAME="10007"></A>Add queue definitions for each subcomplex to the
+<TT>lsb.queues</TT> file. </LI>
+</OL>
+
+<H3><A NAME="10008"></A>Adding Load Indices Definitions</H3>
+
+<P><A NAME="10009"></A>Edit the <TT>LSF_CONFDIR/lsf.shared</TT> configuration.
+Add the definitions for the load indices for each subcomplex. For example,
+if you have two subcomplexes, you need to configure 12 indices as follows:</P>
+
+<PRE><A NAME="10010"></A>Begin NewIndex
+NAME    INTERVAL        INCREASING      DESCRIPTION
+sc1Pme  60              N            (Subcomplex one private memory)
+sc1Gme  60              N            (Subcomplex one global memory)
+sc1cpu  60              N            (Subcomplex one number cpu)
+sc1r5s  60              Y            (Subcomplex one five sec runQ)
+sc1r30  60              Y            (Subcomplex one thirty sec runQ)
+sc1r1m  60              Y            (Subcomplex one one minute runQ)
+sc2Pme  60              N            (Subcomplex two private memory)
+sc2Gme  60              N            (Subcomplex two global memory)
+sc2cpu  60              N            (Subcomplex two number cpu)
+sc2r5s  60              Y            (Subcomplex two five sec runQ)
+sc2r30  60              Y            (Subcomplex two thirty sec runQ)
+sc2r1m  60              Y            (Subcomplex two one minute runQ)
+End NewIndex</PRE>
+
+<P><A NAME="10011"></A>The index names should be of the form <TT>sc</TT><I>Nxxx</I>
+where <I>N</I> is the subcomplex number. The name of the subcomplexes defined
+on the system can be obtained by running the following command</P>
+
+<PRE><A NAME="10012"></A>% <B>sysinfo -ls
+</B>System      load average:         4.30  4.28  4.09
+largeGlbMem load average:         3.20  2.18  2.07</PRE>
+
+<P><A NAME="10013"></A>The subcomplex number corresponds to its position
+in the list. In the above example, <TT>System</TT> is subcomplex 1 and
+<TT>largeGlbMem</TT> is subcomplex 2. The names of the indices can be modified
+if appropriate changes are made to the supplied ELIM.</P>
+
+<P><A NAME="10014"></A>It is possible to change the name of the indices
+to include the subcomplex name instead of using a number. This requires
+changes to the supplied Exemplar ELIM. </P>
+
+<P><A NAME="10015"></A>The built-in load indices reported by the LIM on
+the Exemplar are implemented as follows: </P>
+
+<UL>
+<LI><A NAME="10016"></A><TT>r15s</TT>, <TT>r1m</TT>, and <TT>r15m</TT>
+are the total run queue lengths of all nodes in all subcomplexes </LI>
+
+<LI><A NAME="10017"></A><TT>ut</TT> and <TT>pg</TT> are the CPU utilization
+and paging rate of averaged over all nodes in all subcomplexes </LI>
+
+<LI><A NAME="10018"></A><TT>mem</TT> is the amount of global memory available
+</LI>
+
+<LI><A NAME="10019"></A>The <TT>swp</TT> index is not currently available
+on the Exemplar. The <TT>swp</TT> index should not be used as a threshold
+to control scheduling </LI>
+</UL>
+
+<H3><A NAME="10020"></A>Adding Queue Definitions</H3>
+
+<P><A NAME="10021"></A>Edit the queue definitions in <TT>LSB_CONFDIR/</TT><I>cluster</I><TT>/configdir/lsb.queues</TT>
+to add queue definitions for each subcomplex. A Job Starter should be specified
+for each queue to control which subcomplex jobs from the queue will run
+on. For example:</P>
+
+<PRE><A NAME="10022"></A>Begin Queue
+QUEUE_NAME   = long
+JOB_STARTER  = mpa -sc largeGlbMem
+.
+.
+DESCRIPTION = Long jobs on the largGlbMem subcomplex
+End Queue
+
+Begin Queue
+QUEUE_NAME   = short
+JOB_STARTER  = mpa -sc System
+.
+.
+DESCRIPTION = Short jobs on the System subcomplex
+End Queue</PRE>
+
+<P><A NAME="10023"></A>The <TT>JOB_STARTER</TT> parameter uses the <TT>mpa</TT>(<TT>1</TT>)
+command to start the job script file onto the subcomplex specified with
+the <TT>-sc</TT> option. LSF sets the <TT>LSB_JOBFILENAME</TT> environment
+variable, which specifies a shell script containing the user's commands.</P>
+
+<P><A NAME="10027"></A>You can use the load indices for each subcomplex
+to control the scheduling or suspension of jobs on that subcomplex. For
+example:</P>
+
+<PRE><A NAME="10028"></A>Begin Queue
+QUEUE_NAME   = idle
+JOB_STARTER  = mpa -sc System
+sc1r1m       = 2.0/6.0
+.
+.
+End Queue</PRE>
+
+<P><A NAME="10029"></A>would only start jobs on the <TT>System</TT> subcomplex
+if the 1-minute run queue was below 2.0 and suspend jobs if it goes above
+6.0. Note that the load index specified in the scheduling constraints should
+correspond to the subcomplex specified in the <TT>JOB_STARTER</TT> parameter.</P>
+
+<P><A NAME="10030"></A>It is possible to make use of the queue level pre-/post-execution
+commands to move CPUs between subcomplexes on a per-job basis. For example,
+if an exclusive subcomplex has been set up, CPUs can be moved from the
+system subcomplex before job execution by the pre-exec command and moved
+back to the system subcomplex after job execution by the post-execution
+command.</P>
+
+<PRE><A NAME="10031"></A>Begin Queue
+QUEUE_NAME   = exclusive
+JOB_STARTER  = mpa -sc Exclusive
+.
+.
+PRE_EXEC     = /usr/spp/moveCpuToEx
+POST_EXEC    = /usr/spp/moveCpuToSys
+End Queue</PRE>
+
+<DL>
+<DT><A NAME="10032"></A><B>Step 1. </B></DT>
+
+<DD>The Exemplar supports kernel level checkpointing using the <TT>chkpnt</TT>(<TT>1</TT>)
+and <TT>restart</TT>(<TT>1</TT>) commands. To enable checkpointing on Exemplar
+systems, copy <TT>erestart</TT> and <TT>echkpnt</TT> to the <TT>LSF_SERVDIR</TT>
+directory. </DD>
+</DL>
+
+<P><A NAME="10034"></A>Users are not required to take any special actions
+for submitting jobs on a Exemplar system. If an Exemplar system is integrated
+into a larger cluster of machines, it is possible to set up queues that
+can dispatch to all machines. You need to specify a Job Starter script,
+which runs the job file through the <TT>mpa</TT>(<TT>1</TT>) for the Exemplar,
+and just executes the job file on non-Exemplar systems. Also scheduling
+constraints should be specified using the queue-level <TT>RES_REQ</TT>
+parameter to distinguish between Exemplar and non-Exemplar systems. For
+example:</P>
+
+<PRE><A NAME="10035"></A>RES_REQ= (type==Exemplar &amp;&amp; sc1r1m &lt; 2.0) || (type != Exemplar &amp;&amp; r1m &lt; 2.0)</PRE>
+
+<H2><A NAME="9017"></A>Configuring NQS Interoperation</H2>
+
+<P><A NAME="9019"></A>NQS (Network Queuing System) is a UNIX batch queuing
+facility that allows users to queue batch jobs to individual UNIX hosts
+from remote systems. This chapter describes how to configure and use LSF
+to submit and control batch jobs in NQS queues.</P>
+
+<P><A NAME="9020"></A>If you are not going to configure LSF to interoperate
+with NQS, you do not need to read this chapter.</P>
+
+<P><A NAME="9021"></A>While it is desirable to run LSF on all hosts for
+transparent resource sharing, this is not always possible. Some of the
+computing resources may be under separate administrative control, or LSF
+may not currently be available for some of the hosts.</P>
+
+<P><A NAME="9022"></A>An example of this is sites that use Cray supercomputers.
+The supercomputer is often not under the control of the workstation system
+administrators. Users on the workstation cluster still want to run jobs
+on the Cray supercomputer. LSF allows users to submit and control jobs
+on the Cray system using the same interface as they use for jobs on the
+local cluster.</P>
+
+<P><A NAME="9023"></A>LSF queues can be configured to forward jobs to remote
+NQS queues. Users can submit jobs, send signals to jobs, check the status
+of jobs, and delete jobs that are forwarded to the remote NQS. Although
+running on an NQS server outside the LSF cluster, jobs are still managed
+by LSF Batch in almost the same way as jobs running inside the LSF cluster.</P>
+
+<H3><A NAME="9025"></A>Registering LSF with NQS</H3>
+
+<P><A NAME="9026"></A>This section describes how to configure LSF and NQS
+so that jobs submitted to LSF can be run on NQS servers. You should already
+be familiar with the administration of the NQS system.</P>
+
+<H4><A NAME="9027"></A>Hosts</H4>
+
+<P><A NAME="9029"></A>NQS uses a machine identification number (MID) to
+identify each NQS host in the network. The MID must be unique and must
+be the same in the NQS database of each host in the network. LSF uses the
+NQS protocol to talk with NQS daemons for routing, monitoring, signalling
+and deleting LSF Batch jobs that run on NQS hosts. Therefore, you must
+assign a MID to each of the LSF hosts that might become the master host.</P>
+
+<P><A NAME="9030"></A>To do this, perform the following steps:</P>
+
+<DL>
+<DT><A NAME="9031"></A><B>Step 1. </B></DT>
+
+<DD>Login to the NQS host as the NQS System Administrator or System Operator.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="9032"></A><B>Step 2. </B></DT>
+
+<DD>Run the <TT>nmapmgr</TT> command to create MIDs for each LSF host that
+can possibly become the master host. List all MIDs available. See the NQS
+<TT>nmapmgr</TT>(<TT>1</TT>) manual page for a description of this command.
+</DD>
+</DL>
+
+<H4><A NAME="9033"></A>Users</H4>
+
+<P><A NAME="9034"></A>NQS uses a mechanism similar to <TT>ruserok</TT>(<TT>3</TT>)
+to determine whether access is permitted. When a remote request from LSF
+is received, NQS looks in the <TT>/etc/hosts.equiv</TT> file. If the submitting
+host is found, requests are allowed as long as the user name is the same
+on both hosts. If the submitting host is not listed in the <TT>/etc/hosts.equiv</TT>
+file, NQS looks for a <TT>.rhosts</TT> file in the destination user's home
+directory. This file must contain the names of both the submitting host
+and the submitting user. Finally, if access still is not granted, NQS checks
+for a file called <TT>/etc/hosts.nqs</TT>. This file is similar to the
+<TT>.rhosts</TT> file, but it can provide mapping of remote usernames to
+local usernames. Cray NQS also looks for a <TT>.nqshosts</TT> file in the
+destination user's home directory. The <TT>.nqshosts</TT> file has the
+same format as the <TT>.rhosts</TT> file.</P>
+
+<P><A NAME="9035"></A>NQS treats the LSF cluster just as if it were a remote
+NQS server, except that jobs never flow to the LSF cluster from NQS hosts.</P>
+
+<P><A NAME="9036"></A>For LSF users to get permission to run jobs on NQS
+servers, you must make sure the above setup is done properly. Refer to
+your local NQS documentation for details on setting up the NQS side.</P>
+
+<H3><A NAME="9037"></A><TT>lsb.nqsmaps</TT></H3>
+
+<P><A NAME="9039"></A>The <TT>lsb.nqsmaps</TT> file in the <TT>LSB_CONFDIR/<I>cluster</I>/configdir</TT>
+directory is for configuring inter-operation between LSF and NQS.</P>
+
+<H4><A NAME="9040"></A>Hosts</H4>
+
+<P><A NAME="9041"></A>LSF must use the MIDs of NQS hosts when talking with
+NQS servers. The <TT>Hosts</TT> section of the <TT>LSB_CONFDIR/<I>cluster</I>/configdir/lsb.nqsmaps</TT>
+file contains the MIDs and operating system types of your NQS hosts.</P>
+
+<PRE><A NAME="9043"></A>Begin Hosts
+HOST_NAME        MID    OS_TYPE
+cray001          1      UNICOS      #NQS host, must specify OS_TYPE
+sun0101          2      SOLARIS     #NQS host
+sgi006           3      IRIX        #NQS host
+hostA            4      -           #LSF host; OS_TYPE is ignored
+hostD            5      -           #LSF host
+hostB            6      -           #LSF host
+End Hosts</PRE>
+
+<P><A NAME="9044"></A>Note that the <TT>OS_TYPE</TT> column is required
+for NQS hosts only. For hosts in the LSF cluster, <TT>OS_TYPE</TT> is ignored;
+the type is specified by the <TT>TYPE</TT> field in the <TT>lsf.cluster.<I>cluster</I></TT>
+file. The '<TT>-</TT>' entry is a placeholder.</P>
+
+<H4><A NAME="9045"></A>User Name Mapping</H4>
+
+<P><A NAME="9047"></A>LSF assumes that users have the same account names
+and user IDs on all LSF hosts. If the user accounts on the NQS hosts are
+not the same as on the LSF hosts, the LSF administrator must specify the
+NQS user names that correspond to LSF users.</P>
+
+<P><A NAME="9048"></A>The <TT>Users</TT> section of the <TT>lsb.nqsmaps</TT>
+file contains entries for LSF users and the corresponding account names
+on NQS hosts. The following example shows two users who have different
+accounts on the NQS server hosts.</P>
+
+<PRE><A NAME="9050"></A>Begin Users
+FROM_NAME      TO_NAME
+user7          (user7l@cray001 luser7@sgi006)
+user4          (suser4@cray001)
+End Users</PRE>
+
+<P><A NAME="9051"></A><TT>FROM_NAME</TT> is the user's login name in the
+LSF cluster, and <TT>TO_NAME</TT> is a list of the user's login names on
+the remote NQS hosts. If a user is not specified in the <TT>lsb.nqsmaps</TT>
+file, jobs are sent to the NQS hosts with the same user name.</P>
+
+<H3><A NAME="9052"></A>Configuring Queues for NQS jobs</H3>
+
+<P><A NAME="9053"></A>You must configure one or more LSF Batch queues to
+forward jobs to remote NQS hosts. A forward queue is an LSF Batch queue
+with the parameter <TT>NQS_QUEUES</TT> defined. The <A HREF="07-manage-lsbatch.html#14890">'Adding
+a Batch Queue'</A> describes how to add a queue to an LSF cluster. The
+following queue forwards jobs to the NQS queue named pipe on host <I>cray001</I>:</P>
+
+<PRE><A NAME="9055"></A>Begin Queue
+QUEUE_NAME  = nqsUse
+PRIORITY    = 30
+NICE        = 15
+QJOB_LIMIT  = 5
+UJOB_LIMIT  = ()
+CPULIMIT    = 15
+NQS_QUEUES  = pipe@cray001
+DESCRIPTION = Jobs submitted to this queue are forwarded to NQS_QUEUES
+USERS       = all
+End Queue</PRE>
+
+<P><A NAME="9057"></A>You can specify more than one NQS queue for the <TT>NQS_QUEUES</TT>
+parameter. LSF Batch tries to send the job to each queue in the order they
+are listed, until one of the queues accepts the job.</P>
+
+<P><A NAME="9058"></A>Since many features of LSF are not supported by NQS,
+the following queue configuration parameters are ignored for NQS forward
+queues: <TT>PJOB_LIMIT</TT>, <TT>POLICIES</TT>, <TT>RUN_WINDOW</TT>, <TT>DISPATCH_WINDOW</TT>,
+<TT>RUNLIMIT</TT>, <TT>HOSTS</TT>, and <TT>MIG</TT>. In addition, scheduling
+load threshold parameters are ignored because NQS does not provide load
+information about hosts.</P>
+
+<H3><A NAME="9059"></A>Handling Cray NQS Incompatibilities</H3>
+
+<P><A NAME="9060"></A>Cray NQS is incompatible with some of the public
+domain versions of NQS. Different versions of NQS on Cray may be incompatible
+with each other. If your NQS server host is a Cray, some additional steps
+may be needed in order for LSF to understand the NQS protocol correctly.</P>
+
+<P><A NAME="9061"></A>If the NQS version on a Cray is NQS 80.42 or NQS
+71.3, then no extra setup is needed. For other versions of NQS on a Cray,
+you need to define <TT>NQS_REQUESTS_FLAGS</TT> and <TT>NQS_QUEUES_FLAGS</TT>
+in the <TT>lsb.params</TT> file.</P>
+
+<H4><A NAME="9063"></A><TT>NQS_REQUESTS_FLAGS = <I>integer</I></TT></H4>
+
+<P><A NAME="9064"></A>If the version is NQS 1.1 on a Cray, the value of
+this flag is 251918848.</P>
+
+<P><A NAME="9065"></A>For other versions of NQS on a Cray, do the following
+to get the value for this flag. Run the NQS command:</P>
+
+<PRE><A NAME="9067"></A>% <B>qstat -h <I>CrayHost</I> -a</B></PRE>
+
+<P><A NAME="9068"></A>on a workstation, where <I>CrayHost</I> is the host
+name of the Cray machine. Watch the messages logged by Cray NQS (you need
+access to the NQS log file on the Cray host):</P>
+
+<PRE><A NAME="9069"></A>03/02 12:31:59 I pre_server(): Packet type=&lt;NPK_QSTAT(203)&gt;.
+03/02 12:31:59 I pre_server(): Packet contents are as follows:
+03/02 12:31:59 I pre_server(): Npk_str[1] = &lt;&gt;.
+03/02 12:31:59 I pre_server(): Npk_str[2] = &lt;platform&gt;.
+03/02 12:31:59 I pre_server(): Npk_int[1] = &lt;1392767360&gt;.
+03/02 12:31:59 I pre_server(): Npk_int[2] = &lt;2147483647&gt;.
+03/02 12:31:59 I show_qstat_flags(): Flags=SHO_R_ALLUID SHO_R_SHORT
+SHO_RS_RUN SHO_RS_STAGE SHO_RS_QUEUED SHO_RS_WAIT SHO_RS_HOLD SHO_RS_ARRIVE
+SHO_Q_BATCH SHO_Q_PIPE SHO_R_FULL SHO_R_HDR</PRE>
+
+<P><A NAME="9070"></A>The value of <TT>Npk_int[1]</TT> in the above output
+is the value you need for the parameter <TT>NQS_REQUESTS_FLAGS</TT>.</P>
+
+<H4><A NAME="9072"></A><TT>NQS_QUEUES_FLAGS = <I>integer</I></TT></H4>
+
+<P><A NAME="9073"></A>To get the value for this flag, run the NQS command:</P>
+
+<PRE><A NAME="9074"></A>% <B>qstat -h <I>CrayHost</I> -p -b -l</B></PRE>
+
+<P><A NAME="9075"></A>on a workstation, where <I>CrayHost</I> is the host
+name of the Cray machine. Watch the messages logged by Cray NQS (you need
+to have access to the Cray NQS log file):</P>
+
+<PRE><A NAME="9076"></A>03/02 12:32:57 I pre_server(): Packet type=&lt;NPK_QSTAT(203)&gt;.
+03/02 12:32:57 I pre_server(): Packet contents are as follows:
+03/02 12:32:57 I pre_server(): Npk_str[1] = &lt;&gt;.
+03/02 12:32:57 I pre_server(): Npk_str[2] = &lt;platform&gt;.
+03/02 12:32:57 I pre_server(): Npk_int[1] = &lt;593494199&gt;.
+03/02 12:32:57 I pre_server(): Npk_int[2] = &lt;2147483647&gt;.
+03/02 12:32:57 I show_qstat_flags(): Flags=SHO_H_ACCESS SHO_H_DEST 
+SHO_H_LIM SHO H_RUNL SHO_H_SERV SHO_R_ALLUID SHO_Q_HDR SHO_Q_LIMITS
+SHO_Q_BATCH SHO_Q_PIPE SHO_Q_FULL</PRE>
+
+<P><A NAME="9077"></A>The value of <TT>Npk_int[1]</TT> in the above output
+is the value you need for the parameter <TT>NQS_QUEUES_FLAGS</TT>.</P>
+
+<P><A NAME="9078"></A>If you are unable to get the required information
+after running the above NQS commands, make sure that your Cray NQS is configured
+properly to log these parameters. To do this, run:</P>
+
+<PRE><A NAME="9079"></A>% <B>qmgr</B></PRE>
+
+<P><A NAME="9080"></A>and enter <TT>show all</TT> to get all information.
+The parameters related to the logging of the information you need are:</P>
+
+<PRE><A NAME="9081"></A>Debug level = 3
+MESSAGE_Header = Short
+MESSAGE_Types:
+   Accounting        OFF   CHeckpoint        OFF   COMmand_flow      OFF
+   CONfig            OFF   DB_Misc           OFF   DB_Reads          OFF
+   DB_Writes         OFF   Flow              OFF   NETWORK_Misc      ON
+   NETWORK_Reads     ON    NETWORK_Writes    ON    OPer              OFF
+   OUtput            OFF   PACKET_Contents   ON    PACKET_Flow       ON
+   PROTOCOL_Contents ON    PROTOCOL_Flow     ON    RECovery          OFF
+   REQuest           OFF   ROuting           OFF   Scheduling        OFF
+   USER1             OFF   USER2             OFF   USER3             OFF
+   USER4             OFF   USER5             OFF</PRE>
+
+<H2><A NAME="9536"></A>Support for Atria ClearCase</H2>
+
+<P><A NAME="9537"></A>Many sites use Atria's ClearCase environment for
+revision source control and development. A user uses the <TT>cleartool</TT>
+command to startup a ClearCase view. After the view is created, the user
+is presented with a file system containing the user's sources and binaries.
+The file system is not accessible outside the view. <TT>cleartool</TT>
+has an option to start up a view and run a command under the view. </P>
+
+<P><A NAME="9977"></A>LSF Job Starter can be used to set up a view then
+run the command (see <A HREF="07-manage-lsbatch.html#3947">'Controlling
+LSF Batch Jobs'</A> for further details). For example, if you set the Job
+Starter to a script '<TT>clearstarter</TT>' similar to the following: </P>
+
+<PRE><A NAME="9979"></A>#!/bin/sh
+if [ x_$CLEARCASE_ROOT = x_ ]; then
+    cd $LS_SUBCWD
+    $*
+else
+    /usr/atria/bin/cleartool setview \
+        -exec &quot;cd $LS_SUBCWD;$*&quot; \
+        `basename $CLEARCASE_ROOT`
+fi</PRE>
+
+<P><A NAME="9983"></A>The user's job will run by LSF using the command
+line:</P>
+
+<PRE><A NAME="9984"></A>clearstarter myjob</PRE>
+
+<P><A NAME="9548"></A>which sets up a view the same as the user's on submission
+host, changes directory to the same as on submission host, then runs the
+job. Thus the remote job runs in the same view as on local host. </P>
+
+<P><A NAME="9549"></A>For interactive jobs, the user sets the environment
+variable <TT>LSF_JOB_STARTER</TT> to the ClearCase Job Starter. The RES
+on the remote host then will run user's job with the Job Starter. After
+the Job Starter is set, <TT>lsmake</TT> can run transparently in ClearCase
+view. </P>
+
+<P><A NAME="9550"></A>There are three steps to run an interactive job through
+the RES in a ClearCase view:</P>
+
+<DL>
+<DT><A NAME="9551"></A><B>Step 1. </B></DT>
+
+<DD>Write a ClearCase Job Starter script (see example above). </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9552"></A><B>Step 2. </B></DT>
+
+<DD>Set the <TT>LSF_JOB_STARTER</TT> environment variable. This can be
+done by each user or as part of the login process. For example: </DD>
+
+<PRE><A NAME="9553"></A>% <B>setenv LSF_JOB_STARTER clearstarter</B></PRE>
+
+<DT><A NAME="9554"></A><B>Step 3. </B></DT>
+
+<DD>Run the job. For example: </DD>
+
+<PRE><A NAME="9555"></A>% <B>lsmake -j 4 -V -f foo.mak</B></PRE>
+</DL>
+
+<P><A NAME="9556"></A>To run a batch job in ClearCase view, the <TT>csub</TT>
+command should be used instead of <TT>bsub</TT>. With <TT>csub</TT>, no
+Job Starter needs to be used<SUP><A HREF="d-systems.html#9711">(1)</A></SUP>.</P>
+
+<P><A NAME="9714"></A><TT>csub</TT> checks whether the environment variable
+<TT>CLEARCASE_ROOT</TT> is set. If it is set, which means the job is submitted
+from a view, it wraps the user's job as following: </P>
+
+<PRE><A NAME="9557"></A>cleartool setview -exec &quot;cd $LS_SUBCWD;job&quot; `basename $CLEARCASE_ROOT`</PRE>
+
+<P><A NAME="9558"></A>and passes all options to <TT>bsub</TT>, except <TT>-i</TT>,
+<TT>-o</TT>, and <TT>-e</TT>. These three options will be translated to
+shell I/O redirection. For example, suppose <TT>CLEARCASE_ROOT=/view/myview</TT>
+and the user enters:</P>
+
+<PRE><A NAME="9559"></A>% <B>csub -q myqueue -o myout -i myin myjob</B></PRE>
+
+<P><A NAME="9560"></A><TT>csub</TT> will translate this into:</P>
+
+<PRE><A NAME="9561"></A>bsub -q myqueue cleartool setview -exec &quot;cd $LS_SUBCWD; myjob &lt; myin &gt; myout \
+2&gt;&amp;1&quot; myview</PRE>
+
+<P><A NAME="9562"></A>An alternative way is to configure a queue level
+Job Starter (define <TT>JOB_STARTER</TT> in the file <TT>lsb.queues</TT>;
+see <A HREF="07-manage-lsbatch.html#3947">'Controlling LSF Batch Jobs'</A>
+for details), then use <TT>bsub</TT> to submit the job.</P>
+
+<P>
+<HR><SUP>1.<A NAME="9711"></A></SUP> Look in the directory <TT>LSF_INDEP/misc/examples/clearcase</TT>
+for the files <TT>clearstarter</TT> and <TT>csub</TT>. <TT>LSF_INDEP</TT>
+is defined in the <TT>lsf.conf</TT> file. 
+<HR WIDTH="100%"><A HREF="admin-contents.html">[Contents]</A> <A HREF="c-directories.html">[Prev]</A>
+<A HREF="e-windoze-nt.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:18:15 --></P>
+
+</BODY>
+</HTML>

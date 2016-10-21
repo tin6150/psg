@@ -1,0 +1,1074 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Submitting Batch Jobs</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="05-lsbatch.html">[Prev]</A>
+<A HREF="07-tracking.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="8281"></A>Chapter 6. <A NAME="343"></A>Submitting Batch Jobs</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="8282"></A>This chapter describes how to use the <TT>bsub</TT>
+command. Command options are divided into groups with related functions.
+Topics covered in this chapter are: </P>
+
+<UL>
+<LI><A NAME="12622"></A>Input to and output from batch jobs </LI>
+
+<LI><A NAME="12646"></A>Specifying resource requirements </LI>
+
+<LI><A NAME="12649"></A>Restricting the hosts eligible to run a job </LI>
+
+<LI><A NAME="12671"></A>Controlling resource usage </LI>
+
+<LI><A NAME="12693"></A>Using pre-execution commands to determine when
+a job can start </LI>
+
+<LI><A NAME="12706"></A>Specifying dependencies between batch jobs </LI>
+
+<LI><A NAME="12717"></A>Moving files to and from the execution host </LI>
+
+<LI><A NAME="12720"></A>Specifying 'start after' and 'finish before' times
+</LI>
+
+<LI><A NAME="15425"></A>Submitting parallel jobs </LI>
+
+<LI><A NAME="16997"></A>Other LSF Batch options </LI>
+
+<LI><A NAME="18565"></A>Job scripts </LI>
+</UL>
+
+<P><A NAME="12723"></A>The options to the <TT>bsub</TT> command related
+to job checkpointing and migration are described in <A HREF="11-checkpoint.html#12618">'Checkpointing
+and Migration'</A>.</P>
+
+<H2><A NAME="8283"></A>Input and Output</H2>
+
+<P><A NAME="8285"></A>When a batch job completes or exits, LSF Batch by
+default sends you a job report by electronic mail. The report includes
+the standard output (<TT>stdout</TT>) and error output (<TT>stderr</TT>)
+of the job. The output from stdout and stderr are merged together in the
+order printed, as if the job was run interactively. The default standard
+input (<TT>stdin</TT>) file is the null device (for UNIX systems, <TT>/dev/null</TT>).</P>
+
+<P><A NAME="22505"></A>If you want mail sent to another user, use the <TT>-u
+<I>username</I></TT> option to the <TT>bsub</TT> command. Mail associated
+with the job will be sent to the named user instead of to you.</P>
+
+<P><A NAME="22507"></A>If you do not want output to be sent by mail, you
+can specify <TT>stdout</TT> and <TT>stderr</TT> files. You can also specify
+the standard input file if the job needs to read input from <TT>stdin</TT>.
+For example:</P>
+
+<PRE><A NAME="3032"></A><TT>% <B>bsub -q night -i job_in -o job_out -e job_err myjob</B></TT></PRE>
+
+<P><A NAME="3033"></A>submits <TT>myjob</TT> to the night queue. The job
+reads its input from file <TT>job_in</TT>. Standard output is stored in
+file <TT>job_out</TT>, and standard error is stored in file <TT>job_err</TT>.
+If you specify a <TT>-o <I>outfile</I></TT> argument and do not specify
+a <TT>-e <I>errfile</I></TT> argument, the standard output and error are
+merged and stored in <I>outfile</I>.</P>
+
+<P><A NAME="14469"></A>The output file created by the <TT>-o</TT> option
+to the <TT>bsub</TT> command normally contains job report information as
+well as the job output. This information includes the submitting user and
+host, the execution host, the CPU time (user plus system time) used by
+the job, and the exit status. If you want to separate the job report information
+from the job output, use the <TT>-N</TT> option to specify that the job
+report information should be sent by email.</P>
+
+<P><A NAME="5151"></A>The output files specified by the <TT>-o</TT> and
+<TT>-e</TT> options are created on the execution host. See <A HREF="06-submitting.html#3313">'Remote
+File Access'</A> for an example of copying the output file back to the
+submission host if the job executes on a file system that is not shared
+between the submission and execution hosts.</P>
+
+<H2><A NAME="3117"></A>Resource Requirements</H2>
+
+<P><A NAME="2981"></A>If you need to explicitly specify resource requirements
+for your job, use the <TT>-R</TT> option to the <TT>bsub</TT> command.
+For example:</P>
+
+<PRE><A NAME="2982"></A><TT>% <B>bsub -R &quot;swp &gt; 15 &amp;&amp; hpux order[cpu]&quot; myjob</B></TT></PRE>
+
+<P><A NAME="2983"></A>runs <TT>myjob</TT> on an HP-UX host that is lightly
+loaded (CPU utilization) and has at least 15 megabytes of swap memory available.
+See <A HREF="04-resources.html#5092">'Resource Requirement Strings'</A>
+for a complete discussion of resource requirements.</P>
+
+<P><A NAME="2987"></A>You do not have to specify resource requirements
+every time you submit a job. The LSF administrator may have already configured
+the resource requirements for your jobs, or you can put your executable
+name together with its resource requirements into your personal remote
+task list. The <TT>bsub</TT> command automatically uses the resource requirements
+of the job from the remote task lists. See <A HREF="04-resources.html#2438">'Configuring
+Resource Requirements'</A> for more information about displaying task lists
+and putting tasks into your remote task list.</P>
+
+<H2><A NAME="26921"></A>Dynamic Resource Requirements</H2>
+
+<P><A NAME="26890"></A>When a job is dispatched, the system assumes that
+the resources that the job consumes will be reflected in the load information.
+However, many jobs often do not consume the resources they require when
+they first start. Instead, they will typically use the resources over a
+period of time. For example, a job requiring 100 megabytes of swap is dispatched
+to a host having 150 megabytes of available swap. The job starts off initially
+allocating 5 megabytes, gradually increasing the amount consumed to 100
+megabytes over a 30-minute period. During this period, another job requiring
+more than 50 megabytes of swap should not be started on the same host to
+avoid overcommitting the resource.</P>
+
+<H3><A NAME="26891"></A>Specifying Resource Reservation</H3>
+
+<P><A NAME="26892"></A>When submitting a job, you can specify the amount
+of resources to be reserved through the resource usage section of resource
+requirement string argument to the <TT>bsub</TT> command. The syntax of
+the resource reservation in the <TT>rusage</TT> section of resource requirement
+string is:</P>
+
+<PRE><A NAME="26893"></A><TT>res=value[:res=value]...[:res=value][:duration=value][:decay=value]</TT></PRE>
+
+<P><A NAME="26894"></A>The <I>res</I> parameter can be any load index.
+The <I>value</I> parameter is the initial reserved amount. If <I>res</I>
+or <I>value</I> is not given, the default is to not reserve that resource.</P>
+
+<P><A NAME="26895"></A>The <I>duration</I> parameter is the time period
+within which the specified resources should be reserved. It is specified
+in minutes by default. If the value is followed by the letter 'h', it is
+specified in hours. For example, '<TT>duration=30</TT>' and '<TT>duration=2h</TT>'
+specify a duration of 30 minutes and two hours respectively. If <I>duration</I>
+is not specified, the default is to reserve the total amount for the lifetime
+of the job.</P>
+
+<P><A NAME="26896"></A>The <I>decay</I> parameter indicates how the reserved
+amount should decrease over the <I>duration</I>. A value of 1, '<TT>decay=1</TT>',
+indicates that system should linearly decrease the amount reserved over
+the duration. The default <I>decay</I> value is 0, which causes the total
+amount to be reserved for the entire <I>duration</I>. Values other than
+0 or 1 are unsupported. If <I>duration</I> is not specified <I>decay</I>
+is ignored.</P>
+
+<P><A NAME="26900"></A>When deciding whether to schedule a job on a host,
+the LSF Batch system considers the reserved resources of jobs that have
+previously started on that host. For each load index, the amount reserved
+by all jobs on that host is summed up and subtracted (or added if the index
+is <I>increasing</I>) from the current value of the resources as reported
+by the LIM to get amount available for scheduling new jobs:</P>
+
+<PRE><A NAME="26901"></A>available amount = current value - reserved amount for all jobs </PRE>
+
+<P><A NAME="26902"></A>Reservation of the resources <TT>mem</TT> and <TT>swap</TT>
+are handled as special cases. For these resources, the run time usage is
+used to determine the amount to reserve (see <A HREF="07-tracking.html#15141">'Monitoring
+Resource Consumption of Jobs'</A>). The reserved amount is the specified
+amount minus the run time usage. The <I>duration</I> and <I>decay</I> parameters
+are ignored for these resources.</P>
+
+<P><A NAME="26906"></A>For example:</P>
+
+<PRE><A NAME="26907"></A><TT>% <B>bsub -R &quot;rusage[swap=50]&quot; my_job</B></TT></PRE>
+
+<P><A NAME="26908"></A>will reserve 50 megabytes of swap for the job.</P>
+
+<PRE><A NAME="26909"></A><TT>% <B>bsub -R &quot;rusage[tmp=30:duration=30:decay=1]&quot; my_job</B></TT></PRE>
+
+<P><A NAME="26910"></A>will reserve 30 megabytes of <TT>/tmp</TT> space
+for the job. As the job runs, the amount reserved will decrease at approximately
+1 megabyte/minute such that the reserved amount is 0 after 30 minutes.</P>
+
+<P><A NAME="26911"></A>The queue level resource requirement parameter <TT>RES_REQ</TT>
+may also specify the resource reservation. If a queue reserves certain
+amount of a resource, you cannot use the <TT>-R</TT> option of the <TT>bsub</TT>
+command to reserve a greater amount of that resource. For example, if the
+output of <TT>bqueues -l</TT> command contains:</P>
+
+<PRE><A NAME="27409"></A><TT>RES_REQ: rusage[mem=40:swp=80:tmp=100]</TT></PRE>
+
+<P><A NAME="27555"></A>the following submission will be rejected since
+the requested amount of certain resource(s) exceeds queue's specification:</P>
+
+<PRE><A NAME="27556"></A><TT>% <B>bsub -R &quot;rusage[mem=50:swp=100]&quot; my_job</B></TT></PRE>
+
+<H3><A NAME="26915"></A>Viewing Reserved Resources</H3>
+
+<P><A NAME="26916"></A>The amount of resources reserved on each host can
+be viewed through the <TT>-l</TT> option of the <TT>bhosts</TT> command.</P>
+
+<H2><A NAME="3134"></A>Host Selection</H2>
+
+<P><A NAME="26545"></A>If you want to restrict the set of candidate hosts
+for running your batch job, use the <TT>-m</TT> option to <TT>bsub</TT>.</P>
+
+<PRE><A NAME="26546"></A><TT>% <B>bsub -q idle -m &quot;hostA hostD hostB&quot; myjob</B></TT></PRE>
+
+<P><A NAME="26547"></A>This command submits <TT>myjob</TT> to the idle
+queue and tells LSF Batch to choose one host from hostA, hostD and hostB
+to run the job. All other LSF Batch scheduling conditions still apply,
+so the selected host must be eligible to run the job.</P>
+
+<P><A NAME="5534"></A>If you have applications that need specific resources,
+it is more flexible to create a new boolean resource and configure that
+resource for the appropriate hosts in the LSF cluster. This must be done
+by the LSF administrator. If you specify a host list using the <TT>-m</TT>
+option to <TT>bsub</TT>, you must change the host list every time you add
+a new host that supports the desired resources. By using a boolean resource,
+the LSF administrator can add, move or remove resources without forcing
+users to learn about changes to resource configuration.</P>
+
+<H2><A NAME="26569"></A>Host Preference</H2>
+
+<P><A NAME="26570"></A>When several hosts can satisfy the resource requirements
+of a job, the hosts are ordered by load. However, in certain situations
+it may be desirable to override this behaviour to give preference to specific
+hosts, even if they are more heavily loaded.</P>
+
+<P><A NAME="26587"></A>For example, you may have licensed software which
+runs on different groups of hosts, but prefer to run on a particular host
+group because the jobs will finish faster, thereby freeing the software
+license to be used by other jobs.</P>
+
+<P><A NAME="26571"></A>Another situation arises in clusters consisting
+of dedicated batch servers and desktop machines which can also run jobs
+when no user is logged in. You may prefer to run on the batch servers and
+only use the desktop machines if no server is available.</P>
+
+<P><A NAME="26572"></A>The <TT>-m</TT> option of the <TT>bsub</TT> command
+allows you to specify preference by using '<TT>+</TT>' after the hostname.
+The special hostname, <TT>others</TT>, can be used to refer to all the
+hosts that are not explicitly listed. For example:</P>
+
+<PRE><A NAME="26573"></A><TT>% <B>bsub -R &quot;solaris &amp;&amp; mem&gt; 10&quot; -m &quot;hostD+ others&quot; myjob</B></TT></PRE>
+
+<P><A NAME="26574"></A>will select all <TT>solaris</TT> hosts having more
+than 10 megabytes of memory available. If host <I>hostD</I> satisfies this
+criteria, it will be picked over any other host which otherwise meets the
+same criteria. If <I>hostD</I> does not satisfy the criteria, the least
+loaded host among the others will be selected. All the other hosts are
+considered as a group and are ordered by load.</P>
+
+<P><A NAME="26575"></A>You can specify different levels of preference by
+specifying a number after the '<TT>+</TT>'. The larger the number, the
+higher the preference for that host or host group. For example:</P>
+
+<PRE><A NAME="26576"></A><TT>% <B>bsub -m &quot;groupA+2 groupB+1 groupC&quot; myjob</B></TT></PRE>
+
+<P><A NAME="26577"></A>gives first preference to hosts in <I>groupA</I>,
+second preference to hosts in <I>groupB</I> and last preference to those
+in <I>groupC</I>. The ordering within a group is still determined by the
+load. You can use the <TT>bmgroup</TT> command to display the host groups
+configured in the system.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="26578"></A><B>Note<BR>
+</B><I>A queue may also define the host preference for jobs via </I><TT>HOSTS</TT><I>
+parameter. The queue specification is ignored if a job specifies its own
+preference.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="27421"></A>You can also exclude a host by specifying a resource
+requirement using <TT>hname</TT> resource:</P>
+
+<PRE><A NAME="27422"></A><B><TT>% bsub -R &quot;hname!=hostb &amp;&amp; type==sgi6&quot; myjob</TT></B></PRE>
+
+<H2><A NAME="3186"></A>Resource Limits</H2>
+
+<P><A NAME="14051"></A>Resource limits are constraints you or your LSF
+administrator can specify to limit the use of resources. Jobs that consume
+more than the specified amount of a resource are signalled or have their
+priority lowered. </P>
+
+<P><A NAME="16235"></A>Resource limits can be specified either at the queue
+level by your LSF administrator or at the job level when you submit a job.
+Resource limits specified at the queue level are hard limits while those
+specified with job submission are soft limits. See <TT>setrlimit(2)</TT>
+man page for concepts of hard and soft limits. </P>
+
+<P><A NAME="16372"></A>The following resource limits can be specified to
+the <TT>bsub</TT> command:</P>
+
+<DL>
+<DT><A NAME="14052"></A><TT>-c <I>cpu_limit</I>[/<I>host_spec</I>] </TT></DT>
+
+<DD>Set the soft CPU time limit to <I>cpu_limit</I> for this batch job.
+The default is no limit. This option is useful for preventing erroneous
+jobs from running away, or to avoid using up too many resources. A <TT>SIGXCPU</TT>
+signal is sent to all processes belonging to the job when it has accumulated
+the specified amount of CPU time. If the job has no signal handler for
+<TT>SIGXCPU</TT>, this causes it to be killed. LSF Batch keeps track of
+the CPU time used by all processes of the job. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="11959"></A><I>cpu_limit</I> is in the form <TT>[</TT><I>hour</I><TT>:]</TT><I>minute</I>,
+where <I>minute</I> can be greater than 59. So, 3.5 hours can either be
+specified as 3:30 or 210. The CPU limit is scaled by the host CPU factors
+of the submitting and execution hosts. This is done so that the job does
+approximately the same amount of processing for a given CPU limit, even
+if it is sent to a host with a faster or slower CPU. For example, if a
+job is submitted from a host with a CPU factor of 2 and executed on a host
+with a CPU factor of 3, the CPU time limit is multiplied by 2/3 because
+the execution host can do the same amount of work as the submission host
+in 2/3 of the time. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="12121"></A>The optional <I>host_spec</I> specifies a host
+name or a CPU model name defined by LSF. The <TT>lsinfo</TT> command displays
+CPU model information. If <I>host_spec</I> is not given, the CPU limit
+is scaled based on the <TT>DEFAULT_HOST_SPEC</TT> shown by the <TT>bparams
+-l</TT> command. (If <TT>DEFAULT_HOST_SPEC</TT> is not defined, the fastest
+batch host in the cluster is used as the default.) If <I>host_spec</I>
+is given, the appropriate CPU scaling factor for the specified host or
+CPU model is used to adjust the actual CPU time limit at the execution
+host. The following example specifies that <TT>myjob</TT> can run for 10
+minutes on a DEC3000 host, or the corresponding time on any other host:
+</DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="16524"></A>bsub -c 10/DEC3000 myjob </PRE>
+</DL>
+</DL>
+
+<DL>
+<DT><A NAME="11960"></A><TT>-W <I>run_limit</I>[/<I>host_spec</I>] </TT></DT>
+
+<DD>Set the wall-clock run time limit of this batch job. The default is
+no limit. If the accumulated time the job has spent in RUN state exceeds
+this limit, the job is sent a USR2 signal. If the job does not terminate
+within 10 minutes after being sent this signal, it is killed. <I>run_limit</I>
+and <I>host_spec</I> have the same format as the argument to the <TT>bsub
+-c</TT> option. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11961"></A><TT>-F <I>file_limit </I></TT></DT>
+
+<DD>Set a per-process (soft) file size limit for each process that belongs
+to this batch job. If a process of this job attempts to write to a file
+such that the file size would increase beyond <I>file_limit</I> kilobytes,
+the kernel sends that process a <TT>SIGXFSZ</TT> signal. This condition
+normally terminates the process, but may be caught. The default is no soft
+limit. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11962"></A><TT>-D <I>data_limit </I></TT></DT>
+
+<DD>Set a per-process (soft) data segment size limit for each process that
+belongs to this batch job. An <TT>sbrk()</TT> or <TT>malloc()</TT> call
+to extend the data segment beyond <I>data_limit</I> kilobytes returns an
+error. The default is no soft limit. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11963"></A><TT>-S <I>stack_limit </I></TT></DT>
+
+<DD>Set a per-process (soft) stack segment size limit for each process
+that belongs to this batch job. An <TT>sbrk()</TT> call to extend the stack
+segment beyond <I>stack_limit</I> kilobytes causes the process to be terminated.
+The default is no soft limit. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11964"></A><TT>-C <I>core_limit </I></TT></DT>
+
+<DD>Set a per-process (soft) core file size limit for each process that
+belongs to this batch job. On some systems, no core file is produced if
+the image for the process is larger than <I>core_limit</I> kilobytes. On
+other systems only the first <I>core_limit</I> kilobytes of the image are
+dumped. The default is no soft limit. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11965"></A><TT>-M <I>mem_limit </I></TT></DT>
+
+<DD>Set the per-process (soft) process resident set size limit to <I>mem_limit</I>
+kilobytes for all processes that belong to this batch job. Exceeding this
+limit when free physical memory is in short supply results in a low scheduling
+priority being assigned to the process. That is, the process is reniced.
+The default is no soft limit. On HP-UX and Sun Solaris 2.x, a resident
+set size limit cannot be set, so this option has no effect. </DD>
+</DL>
+
+<H2><A NAME="26295"></A>Pre-execution Commands</H2>
+
+<P><A NAME="26297"></A>Some batch jobs require resources that LSF does
+not directly support. For example, a batch job may need to reserve a tape
+drive or check for the availability of a software license.</P>
+
+<P><A NAME="26298"></A>The <TT>-E </TT><I>pre_exec_command</I> option to
+the <TT>bsub</TT> command specifies an arbitrary command to run before
+starting the batch job. When LSF Batch finds a suitable host on which to
+run a job, the pre-execution command is executed on that host. If the pre-execution
+command runs successfully, the batch job is started. </P>
+
+<P><A NAME="26299"></A>An alternative to using the <TT>-E </TT><I>pre_exec_command</I>
+option is for the LSF administrator to set up a queue level pre-execution
+command. See <A HREF="11-lsbatch-reference.html#17433">'Queue-Level Pre-/Post-Execution
+Commands'</A> of the <I><A HREF="admin-title.html#998232">LSF Administrator's
+Guide</A></I> for more information. </P>
+
+<P><A NAME="26300"></A>The standard input, output and error files for the
+pre-execution command are opened to the same files as for the job. Standard
+input and output from the pre-execution command cannot be redirected. </P>
+
+<P><A NAME="26301"></A>The pre-execution command is run under the same
+user ID, environment, and home and working directories as the batch job.
+If the pre-execution command is not in your normal execution path, the
+full path name of the command must be specified.</P>
+
+<P><A NAME="26302"></A>For parallel batch jobs, the pre-execution command
+is run on the first selected host.</P>
+
+<P><A NAME="26303"></A>The pre-execution command returns information to
+LSF Batch using the exit status. If the pre-execution command exits with
+non-zero status, the batch job is not dispatched. The job goes back to
+the <TT>PEND</TT> state, and LSF Batch tries to dispatch another job to
+that host. The next time LSF Batch tries to dispatch jobs this process
+is repeated.</P>
+
+<P><A NAME="26304"></A>LSF Batch assumes that the pre-execution command
+runs without side effects. For example, if the pre-execution command reserves
+a software license or other resource, you must take care not to reserve
+the same resource more than once for the same batch job.</P>
+
+<P><A NAME="26305"></A>The following example shows a batch job that requires
+a tape drive. The <TT>tapeCheck</TT> program is a site specific program
+that exits with status zero if the specified tape drive is ready, and one
+otherwise:</P>
+
+<PRE><A NAME="26306"></A><TT>% <B>bsub -E &quot;/usr/local/bin/tapeCheck /dev/rmt0l&quot; myjob</B></TT></PRE>
+
+<H2><A NAME="26307"></A>Job Dependencies</H2>
+
+<P><A NAME="26309"></A>Some batch jobs depend on the results of other jobs.
+For example, a series of jobs could process input data, run a simulation,
+generate images based on the simulation output, and finally, record the
+images on a high-resolution film output device. Each step can only be performed
+when the previous step completes and all subsequent steps must be aborted
+if any step fails.</P>
+
+<P><A NAME="10232"></A>The <TT>-w <I>depend_cond</I></TT> option to the
+<TT>bsub</TT> command specifies a dependency condition, which is a logical
+expression based on the execution states of preceding batch jobs. When
+the <I>depend_cond</I> expression evaluates to TRUE, the batch job can
+be started. Complex conditions can be written using the logical operators
+'<TT>&amp;&amp;</TT>' (AND), '<TT>||</TT>' (OR), '<TT>!</TT>' (NOT) and
+parentheses '<TT>()</TT>'.</P>
+
+<P><A NAME="10145"></A>If there is a space character, a logic operator
+or parentheses in the expression string, the string must be enclosed in
+single or double quotes (<TT>'</TT> or <TT>&quot;</TT>) to prevent the
+shell from interpreting the special characters.</P>
+
+<P><A NAME="10354"></A>Batch jobs are identified by job ID number or job
+name. The job ID number is displayed by the <TT>bsub</TT> command when
+the job is submitted. The job name is a string specified by the <TT>-J
+</TT><I>job_name</I> option.</P>
+
+<P><A NAME="13075"></A>In job dependency expressions, numeric job names
+must be enclosed in quotes.</P>
+
+<P><A NAME="23620"></A>Job names refer to jobs submitted by the same user.
+If more than one of your jobs has the same name, the condition is tested
+on the last job submitted with that name.</P>
+
+<P><A NAME="23628"></A>A wildcard character '<TT>*</TT>' can be specified
+at the end of a job name to indicate all jobs matching the name. For example,
+<TT>jobA*</TT> will match <TT>jobA</TT>, <TT>jobA1</TT>, <TT>jobA_test</TT>,
+<TT>jobA.log</TT> etc. There must be at least one match.</P>
+
+<P><A NAME="10544"></A>The conditions that can be tested are:</P>
+
+<DL>
+<DT><A NAME="10355"></A><TT>started(<I>jobID</I> | <I>jobName</I>) </TT></DT>
+
+<DD>If the specified batch job has started running or has run to completion,
+the condition is TRUE; that is, the job is not in the <TT><A HREF="05-lsbatch.html#2978">PEND</A></TT>
+or <TT><A HREF="05-lsbatch.html#2999">PSUSP</A></TT> state, and also is
+not currently running the pre-execution command if the <TT>bsub -E</TT>
+option was specified. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10391"></A><TT>done(<I>jobID</I> | <I>jobName</I>) </TT></DT>
+
+<DD>If the specified batch job has completed successfully and is in the
+<TT><A HREF="05-lsbatch.html#2982">DONE</A></TT> state, the condition is
+TRUE, otherwise FALSE. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10427"></A><TT>exit(<I>jobID</I> | <I>jobName</I>) </TT></DT>
+
+<DD>If the specified batch job has terminated abnormally and is in the
+<TT><A HREF="05-lsbatch.html#2990">EXIT</A></TT> state, the condition is
+TRUE, otherwise FALSE. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="23228"></A><TT>ended(<I>jobID</I> | <I>jobName</I>) </TT></DT>
+
+<DD>If the specified batch job has finished (either in the <TT><A HREF="05-lsbatch.html#2990">EXIT</A></TT>
+or <TT><A HREF="05-lsbatch.html#2982">DONE</A></TT> state), the condition
+is TRUE, otherwise FALSE. </DD>
+</DL>
+
+<P><A NAME="10505"></A>Specifying only <I>jobID</I> or <I>jobName</I> is
+equivalent to <TT>done(<I>jobID</I> | <I>jobName</I>)</TT>. Note that a
+numeric job name should be doubly quoted, e.g. <TT>-w &quot;'210'&quot;</TT>,
+since the Unix shell treats <TT>-w &quot;210&quot;</TT> the same as<TT>
+-w 210</TT>.</P>
+
+<P><A NAME="10539"></A>If any one of the depended batch jobs is not found,
+<TT>bsub</TT> fails and the job is not submitted.</P>
+
+<P><A NAME="10736"></A>The following are examples of job dependency conditions:</P>
+
+<PRE><A NAME="10737"></A><TT>done(312) &amp;&amp; (started(Job2)||exit(Job3))</TT></PRE>
+
+<P><A NAME="10738"></A>The submitted job will not start until job 312 has
+completed successfully, and either the job named <TT>Job2</TT> has started
+or the job named <TT>Job3</TT> has terminated abnormally.</P>
+
+<PRE><A NAME="10670"></A><TT>1532 || jobName2 || ended(jobName3*)</TT></PRE>
+
+<P><A NAME="10749"></A>The submitted job will not start until either job
+1532 has completed, the job named <TT>jobName2</TT> has completed, or all
+jobs with names beginning with <TT>jobName3</TT> have finished. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="27100"></A><B>Note<BR>
+</B><I>If you require more extensive dependencies, for example, calendar
+or event dependencies, you may want to examine the LSF JobScheduler component
+of LSF Suite. See the <A HREF="pjs-title.html">LSF JobScheduler User's
+Guide</A> for further information.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="3313"></A>Remote File Access</H2>
+
+<P><A NAME="10809"></A>LSF is usually used in networks with shared file
+space. When shared file space is not available, LSF can copy needed files
+to the execution host before running the job, and copy result files back
+to the submission host after the job completes.</P>
+
+<P><A NAME="10830"></A>The <TT>-f &quot;[<I>lfile</I> <I>op</I> [<I>rfile</I>]]&quot;</TT>
+option to the <TT>bsub</TT> command copies a file between the submission
+host and the execution host. <I>lfile</I> is the file name on the submission
+host, and <I>rfile</I> is the name on the execution host. <I>op</I> is
+the operation to perform on the file. <I>lfile</I> and <I>rfile</I> can
+be absolute or relative file path names. If one of the files is not specified,
+it defaults to the other, which must be given.</P>
+
+<P><A NAME="10905"></A>The <TT>-f</TT> option may be repeated to specify
+multiple files.</P>
+
+<P><A NAME="10776"></A><I>op </I>must be surrounded by white space. The
+possible values for <I>op</I> are:</P>
+
+<DL>
+<DT><A NAME="10777"></A>&gt; </DT>
+
+<DD><I>lfile</I> on the submission host is copied to <I>rfile</I> on the
+execution host before job execution. <I>rfile</I> is overwritten if it
+exists </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10778"></A><TT>&lt; </TT></DT>
+
+<DD><I>rfile</I> on the execution host is copied to <I>lfile</I> on the
+submission host after the job completes. <I>lfile</I> is overwritten if
+it exists </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10779"></A><TT>&lt;&lt; </TT></DT>
+
+<DD><I>rfile</I> is appended to <I>lfile</I> after the job completes. <I>lfile
+</I>is created if it does not exist </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10780"></A><TT>&gt;&lt;, &lt;&gt; </TT></DT>
+
+<DD>equivalent to performing the <TT>&gt;</TT> and then the <TT>&lt;</TT>
+operation. <I>lfile</I> is copied to <I>rfile</I> before the job executes,
+and <I>rfile</I> is copied back (replacing the previous <I>lfile</I>) after
+the job completes. '<TT>&lt;&gt;</TT>' is the same as '<TT>&gt;&lt;</TT>'
+</DD>
+</DL>
+
+<P><A NAME="27191"></A>You must include <I>lfile</I> with <I>op</I>, otherwise
+it will result in a syntax error. When <I>rfile</I> is not given, it is
+assumed to be the same as <I>lfile</I>.</P>
+
+<P><A NAME="15954"></A>If the input file specified with the <TT>-i</TT>
+argument to <TT>bsub</TT> is not found on the execution host, the file
+is copied from the submission host using LSF's remote file access facility
+and is removed from the execution host after the job finishes.</P>
+
+<P><A NAME="15955"></A>The output files specified with the <TT>-o</TT>
+and <TT>-e</TT> arguments to <TT>bsub</TT> are created on the execution
+host, and are not copied back to the submission host by default. You can
+use the remote file access facility to copy these files back to the submission
+host if they are not on a shared file system. For example, the following
+command stores the job output in the <TT>job_out</TT> file and copies the
+file back to the submission host:</P>
+
+<PRE><A NAME="15956"></A><TT>% <B>bsub -o job_out -f 'job_out &lt;' myjob</B></TT></PRE>
+
+<P><A NAME="10782"></A>If the submission and execution hosts have different
+directory structures, you must ensure that the directory where <I>rfile</I>
+and <I>lfile</I> will be placed exists. LSF tries to change the directory
+to the same path name as the directory where the <TT>bsub</TT> command
+was run. If this directory does not exist, the job is run in your home
+directory on the execution host.</P>
+
+<P><A NAME="16760"></A>You should specify <I>rfile</I> as a file name with
+no path when running in non-shared file systems; this places the file in
+the job's current working directory on the execution host. This way the
+job will work correctly even if the directory where the <TT>bsub</TT> command
+is run does not exist on the execution host. Be careful not to overwrite
+an existing file in your home directory.</P>
+
+<P><A NAME="13305"></A>For example, to submit <TT>myjob</TT> to LSF Batch,
+with input taken from the file <TT>/data/data3</TT> and the output copied
+back to <TT>/data/out3</TT>, run the command:</P>
+
+<PRE><A NAME="13318"></A><TT>% <B>bsub -f &quot;/data/data3 &gt; data3&quot; -f &quot;/data/out3 &lt; out3&quot; myjob data3 out3</B></TT></PRE>
+
+<P><A NAME="13474"></A>To run the job <TT>batch_update</TT>, which updates
+the batch_data file in place, you need to copy the file to the execution
+host before the job runs and copy it back after the job completes:</P>
+
+<PRE><A NAME="13488"></A><TT>% <B>bsub -f &quot;batch_data &lt;&gt;&quot; batch_update batch_data</B></TT></PRE>
+
+<P><A NAME="24453"></A>LSF Batch uses the <TT>lsrcp</TT>(<TT>1</TT>) command
+to transfer files. <TT>lsrcp</TT> contacts the RES on the remote host to
+perform the file transfer. If the RES is not available, <TT>rcp</TT>(<TT>1</TT>)
+is used. Because LSF client hosts do not run the RES daemon, jobs that
+are submitted from client hosts should only specify the <TT>-f</TT> option
+to <TT>bsub</TT> if <TT>rcp</TT> is allowed. You must set up the permissions
+for <TT>rcp</TT> if account mapping is used.</P>
+
+<H2><A NAME="24455"></A>Start and Termination Time</H2>
+
+<P><A NAME="654"></A>If you do not want LSF Batch to start your job immediately,
+use the <TT>bsub -b</TT> option to specify the time after which the job
+should be dispatched.</P>
+
+<PRE><A NAME="655"></A>% <B>bsub -b 5:00 myjob</B></PRE>
+
+<P><A NAME="656"></A>The submitted job remains pending until after the
+local time on the LSF master host reaches 5 A.M. You can also specify a
+time after which the job should be terminated with the <TT>-t</TT> option
+to <TT>bsub</TT>. The command</P>
+
+<PRE><A NAME="657"></A>% <B>bsub -b 11:12:5:40 -t 11:12:20:30 myjob</B></PRE>
+
+<P><A NAME="14908"></A>submits <TT>myjob</TT> to the default queue to start
+after November 12 at 05:40 A.M. If the job is still running on Nov 12 at
+8:30 P.M., it is killed.</P>
+
+<H2><A NAME="14922"></A>Parallel Jobs</H2>
+
+<P><A NAME="14923"></A>LSF Batch can allocate more than one host or processor
+to run a job and automatically keeps track of the job status, while a parallel
+job is running. To submit a parallel job, use the <TT>-n</TT> option of
+<TT>bsub</TT>:</P>
+
+<PRE><A NAME="14924"></A>% <B>bsub -n 10 lsmake</B></PRE>
+
+<P><A NAME="14925"></A>This command submits <TT>lsmake</TT> as a parallel
+job. The job is started when 10 job slots are available. </P>
+
+<P><A NAME="14926"></A>For parallel jobs, LSF Batch only starts one controlling
+process for the batch job. This process is started on the first host in
+the list of selected hosts. The controlling process is responsible for
+starting the actual parallel components on all the hosts selected by LSF
+Batch.</P>
+
+<P><A NAME="14927"></A>LSF Batch sets a number of environment variables
+for each batch job. The variable <TT>LSB_JOBID</TT> is set to the LSF Batch
+job ID number as printed by bsub. The <TT>LSB_HOSTS</TT> variable is set
+to the names of the hosts running the batch job. For a sequential job,
+<TT>LSB_HOSTS</TT> is set to a single host name. For a parallel batch job,
+<TT>LSB_HOSTS</TT> contains the complete list of hosts that LSF Batch has
+allocated to that job. Parallel batch jobs must get the list of hosts from
+the <TT>LSB_HOSTS</TT> variable and start up all of the job components
+on the allocated hosts.</P>
+
+<P><A NAME="14930"></A>In the <TT>lsmake</TT> example above, LSF Batch
+starts <TT>lsmake</TT> on the first host. <TT>lsmake</TT> reads the <TT>LSB_HOSTS</TT>
+environment variable to get the list of hosts and uses the RES to execute
+subtasks on those hosts.</P>
+
+<P><A NAME="14931"></A>LSF includes scripts for running PVM, P4, and MPI
+parallel programs as batch jobs. See <A HREF="12-customizing.html#3050">'Parallel
+Jobs'</A> and the <TT>pvmjob</TT>(<TT>1</TT>), <TT>p4job</TT>(<TT>1</TT>),
+and <TT>mpijob</TT>(<TT>1</TT>) manual pages for more information.</P>
+
+<P><A NAME="26814"></A>The following features support parallel jobs running
+through the LSF Batch system.</P>
+
+<H3><A NAME="26818"></A>Minimum and Maximum Number of Processors</H3>
+
+<P><A NAME="26819"></A>When submitting a parallel job that requires multiple
+processors, you can specify the minimum number and maximum number of the
+processors using <TT>-n</TT> option to the <TT>bsub</TT> command. The syntax
+of the <TT>-n</TT> option is:</P>
+
+<PRE><A NAME="26820"></A>bsub -n min_proc[,max_proc] &lt;other bsub options&gt;</PRE>
+
+<P><A NAME="26821"></A>If <I>max_proc</I> is not specified then it is assumed
+to be equal to <I>min_proc</I>. For example:</P>
+
+<PRE><A NAME="26822"></A>% <B>bsub -n 4,16 myjob</B></PRE>
+
+<P><A NAME="26823"></A>At most, 16 processors can be allocated to this
+job. If there are less than 16 processors eligible to run the job, this
+job can still be started as long as the number of eligible processors is
+greater than 4. Once the job gets started, no more processors will be allocated
+to it even though more may be available later on.</P>
+
+<P><A NAME="26824"></A>If the specified maximum number is greater than
+the value of <TT>PROCLIMIT</TT> defined for the queue to which the job
+is submitted, the job will be rejected.</P>
+
+<H3><A NAME="26825"></A>Specifying Locality</H3>
+
+<P><A NAME="26826"></A>Sometimes you need to control how the selected processors
+for a parallel job are distributed across the hosts in the cluster. You
+are able to specify &quot;select all the processors for this parallel batch
+job on the same host&quot;, or &quot;do not chose more than one processor
+on one host&quot; by using the <TT>span</TT> section in the <TT>-R</TT>
+option string. For example:</P>
+
+<PRE><A NAME="26827"></A>% <B>bsub -n 4 -R &quot;span[hosts=1]&quot; my_job</B></PRE>
+
+<P><A NAME="26828"></A>This job should be dispatched to a multiprocessor
+that has at least 4 processors currently eligible to run the 4 components
+of this job.</P>
+
+<PRE><A NAME="26829"></A>% <B>bsub -n 4 -R &quot;span[ptile=1]&quot; my_job</B></PRE>
+
+<P><A NAME="26830"></A>This job should be dispatched to 4 hosts even though
+some of the 4 hosts may have more than one processor currently available.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="26831"></A><B>Note<BR>
+</B><I>The queue may also define the locality for parallel jobs using </I><TT>RES_REQ</TT><I>
+parameter. The queue specification is ignored if your job specifies its
+own locality.</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="26832"></A>Processor Reservation</H3>
+
+<P><A NAME="26833"></A>The scheduling of parallel jobs supports the notion
+of processor reservation. Parallel jobs requiring a large number of processors
+can often not be started if there are many lower priority sequential jobs
+in the system. There may not be enough resources at any one instant to
+satisfy a large parallel job, but there may be enough to allow a sequential
+job to be started. With the processor reservation feature the problem of
+starvation of parallel jobs can be reduced.</P>
+
+<P><A NAME="26834"></A>When a parallel job cannot be dispatched because
+there aren't enough execution slots to satisfy its minimum processor requirements,
+the currently available slots will be reserved for the job. These reserved
+job slots are accumulated until there are enough available to start the
+job. When a slot is reserved for a job it is unavailable to any other job.</P>
+
+<P><A NAME="26835"></A>To use this feature, a queue must have processor
+reservation policy enabled through the <TT>SLOT_RESERVE</TT> parameter
+(see <A HREF="11-lsbatch-reference.html#22681">'Processor Reservation for
+Parallel Jobs'</A> of the <I><A HREF="admin-title.html#998232">LSF Administrator's
+Guide</A></I>). To avoid deadlock situations, the period of reservation
+is specified through the <TT>MAX_RESERVE_TIME</TT> parameter. The system
+will accumulate reserved slots for a job until <TT>MAX_RESERVE_TIME</TT>
+minutes and if an insufficient number have been accumulated, all slots
+are freed and made available to other jobs. The <TT>MAX_RESERVE_TIME</TT>
+parameter takes effect from the start of the first reservation for a job
+and a job can go through multiple reservation cycles before it accumulates
+enough slots to be actually started.</P>
+
+<P><A NAME="26842"></A>Reserved slots can be displayed with the <TT>bjobs</TT>
+command. The number of reserved slots can be displayed with the <TT>bqueues</TT>,
+<TT>bhosts</TT>, <TT>bhpart</TT>, and <TT>busers</TT> commands. Look in
+the <TT>RSV</TT> column.</P>
+
+<H2><A NAME="19262"></A>Re-initializing Job Environment on the Execution
+Host</H2>
+
+<P><A NAME="19264"></A>By default LSF Batch copies the environment of the
+job from the submission host when the job is submitted. The environment
+is recreated on the execution host when the job is started. This is convenient,
+in many cases, because the job runs as if it were run interactively on
+the submission host. </P>
+
+<P><A NAME="19284"></A>There are cases where you want to use a platform
+specific or host specific environment to run the job, rather than using
+the same environment as on the submission host. For example, you may want
+to set up different search paths on the execution host.</P>
+
+<P><A NAME="19218"></A>The <TT>-L <I>shell</I></TT> option to the <TT>bsub</TT>
+command causes LSF Batch to emulate a login on the execution host before
+starting your job. This makes sure that the login start-up files (<TT>.profile</TT>
+for <TT>/bin/sh</TT>, or <TT>.cshrc</TT> and <TT>.login</TT> for <TT>/bin/csh</TT>)
+are sourced before the job is started. The <I>shell</I> argument specifies
+the login shell to use.</P>
+
+<PRE><A NAME="19221"></A>% <B>bsub -L /a/b/shell myjob
+</B>Job &lt;1234&gt; is submitted to default queue &lt;normal&gt;.</PRE>
+
+<P><A NAME="19224"></A>This tells LSF Batch to use <TT>/a/b/shell</TT>
+as the login shell to reinitialize the environment.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="19225"></A><B>Note:<BR>
+</B><I>This does not affect the shell under which the job is run. When
+a login shell is specified with the </I><TT>-L<I> shell</I></TT><I> option
+to the </I><TT>bsub</TT><I> command, that shell is only used as a login
+shell to set the environment. The job is run using </I><TT>/bin/sh</TT><I>,
+unless you specify otherwise as described in <A HREF="06-submitting.html#19390">'Running
+a Job Under a Particular Shell'</A>. For example, if your job script is
+written in </I><TT>/bin/sh</TT><I> and your regular login shell is </I><TT>/bin/csh</TT><I>,
+you can run your job under </I><TT>/bin/sh</TT><I> but use </I><TT>/bin/csh</TT><I>
+to reinitialize the job environment by sourcing your </I><TT>.cshrc</TT><I>
+and </I><TT>.login</TT><I> files.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="16868"></A>Other <TT>bsub</TT> Options</H2>
+
+<P><A NAME="16885"></A>This section lists some other <TT>bsub</TT> options.
+For details on these options see the <TT>bsub</TT>(<TT>1</TT>) manual page.</P>
+
+<DL>
+<DT><A NAME="16904"></A><TT>-x </TT></DT>
+
+<DD>The job must run exclusively on a host. The job is started on a host
+that has no other LSF Batch jobs running on it. The host is locked (status
+<TT>lockU</TT>) while this job is running so that no other LSF jobs are
+sent to the host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="16974"></A><TT>-r </TT></DT>
+
+<DD>Specify that the job is rerunnable. See <A HREF="11-checkpoint.html#12674">'Automatically
+Rerunning and Restarting Jobs'</A>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="16990"></A><TT>-B </TT></DT>
+
+<DD>Send email to the job submitter when the job begins executing. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="26936"></A><TT>-I </TT></DT>
+
+<DD>An interactive batch job is submitted to the LSF Batch system. See
+<A HREF="08-interactive.html#11905">'Interactive Batch Job Support'</A>
+for more details. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="17010"></A><TT>-k &quot;<I>checkdir</I>[ <I>interval</I> ]&quot;
+</TT></DT>
+
+<DD>Specify the checkpoint directory and interval. See <A HREF="11-checkpoint.html#13676">'Submitting
+Checkpointable Jobs'</A>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="22654"></A><TT>-P <I>project </I></TT></DT>
+
+<DD>Associate a project name with a job. Project names are logged in the
+<TT>lsb.acct</TT> file and you can use the <TT>bacct</TT> command to gather
+accounting information on a per-project basis. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="22770"></A>On systems running IRIX 6, before the submitted
+job begins execution, a new array session is created and the project Id
+corresponding to the project name is assigned to the session. </DD>
+</DL>
+
+<H2><A NAME="19313"></A>Job Scripts</H2>
+
+<P><A NAME="19317"></A>If <TT>bsub</TT> is run without giving a command
+to submit, it reads job command lines from the standard input. If the standard
+input is a controlling terminal, you are prompted with <TT>bsub&gt;</TT>
+for each line. For example:</P>
+
+<PRE><A NAME="19319"></A>% <B>bsub -q simulation
+</B>bsub&gt; <B>cd /work/data/myhomedir
+</B>bsub&gt; <B>myjob arg1 arg2 ......
+</B>bsub&gt; <B>rm myjob.log
+</B>bsub&gt; <B>^D
+</B>Job &lt;1234&gt; submitted to queue &lt;simulation&gt;.</PRE>
+
+<P><A NAME="19326"></A>In this case, the three command lines are submitted
+to LSF Batch and run as a <TT>/bin/sh</TT> script. Note that only valid
+<TT>/bin/sh</TT> command lines are acceptable in this case. Here is another
+example:</P>
+
+<PRE><A NAME="19328"></A>% <B>bsub -q simulation &lt; command_file
+</B>Job &lt;1234&gt; submitted to queue &lt;simulation&gt;.</PRE>
+
+<P><A NAME="19331"></A>command_file must contain <TT>/bin/sh</TT> command
+lines.</P>
+
+<P><A NAME="27218"></A>On NT systems, commands must be specified using
+batch file (<TT>BAT</TT>) syntax. For example:</P>
+
+<PRE><A NAME="27221"></A>C:\&gt; <B>bsub -q simulation
+</B>bsub&gt; <B>cd \\server\data\myhomedir
+</B>bsub&gt; <B>myjob arg1 arg2 ......
+</B>bsub&gt; <B>del myjob.log
+</B>bsub&gt; <B>^Z
+</B>Job &lt;1234&gt; submitted to queue &lt;simulation&gt;.</PRE>
+
+<H3><A NAME="19332"></A>Embedded Submission Options</H3>
+
+<P><A NAME="19333"></A>You can specify job submission options in the script
+read from the standard input by the <TT>bsub</TT> command using lines starting
+with '<TT>#BSUB</TT>':</P>
+
+<PRE><A NAME="19335"></A>% <B>bsub -q simulation
+</B>bsub&gt; <B>#BSUB -q test
+</B>bsub&gt; <B>#BSUB -o outfile -R &quot;mem&gt;10&quot;
+</B>bsub&gt; <B>myjob arg1 arg2
+</B>bsub&gt; <B>#BSUB -J simjob
+</B>bsub&gt; <B>^D
+</B>Job &lt;1234&gt; submitted to queue &lt;simulation&gt;.</PRE>
+
+<P><A NAME="19343"></A>There are a few things to note: </P>
+
+<UL>
+<LI><A NAME="19344"></A>Command line options override embedded options,
+therefore the job is submitted to the simulation queue rather than the
+test queue </LI>
+
+<LI><A NAME="19345"></A>Submission options can be specified anywhere in
+the standard input. In the above example, the <TT>-J</TT> option to <TT>bsub</TT>
+is specified after the command to be run </LI>
+
+<LI><A NAME="19346"></A>More than one option can be specified on one line,
+as shown in the above example </LI>
+</UL>
+
+<P><A NAME="25672"></A>As a second example, you can redirect a script to
+the standard input of the <TT>bsub</TT> command:</P>
+
+<PRE><A NAME="19349"></A>% <B>bsub &lt; myscript
+</B>Job &lt;1234&gt; submitted to queue &lt;test&gt;.</PRE>
+
+<P><A NAME="19352"></A>The <TT>myscript</TT> file contains job submission
+options as well as command lines to execute. When the <TT>bsub</TT> command
+reads a script from its standard input, the script file is actually spooled
+by the LSF Batch system; therefore, the script can be modified right after
+<TT>bsub</TT> returns for the next job submission. When the script is specified
+on the <TT>bsub</TT> command line, the script is not spooled:</P>
+
+<PRE><A NAME="19354"></A>% <B>bsub myscript
+</B>Job &lt;1234&gt; submitted to default queue &lt;normal&gt;.</PRE>
+
+<P><A NAME="19357"></A>In this case the command line <TT>myscript</TT>
+is spooled by LSF Batch, instead of the contents of the <TT>myscript</TT>
+file. Later modifications to the <TT>myscript</TT> file can affect the
+job's behaviour. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="19627"></A><B>Note<BR>
+</B><I>The </I><TT>bsub</TT><I> command interprets embedded options only
+if the script is supplied as the </I><TT>stdin</TT><I> of its command line.
+When the script is specified on the </I><TT>bsub</TT><I> command line,
+as is the case with the above example, the options embedded in the script
+file are ignored.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="19390"></A>Running a Job Under a Particular Shell</H2>
+
+<P><A NAME="19391"></A>By default, LSF runs job scripts using the <TT>/bin/sh</TT>
+shell. You can specify the shell under which the job is run. This is done
+by specifying an interpreter in the first line of the script.</P>
+
+<PRE><A NAME="19394"></A>% <B>bsub
+</B>bsub&gt; <B>#!/bin/csh -f
+</B>bsub&gt; <B>set coredump=`ls |grep core`
+</B>bsub&gt; <B>if ( &quot;$coredump&quot; != &quot;&quot;) then
+</B>bsub&gt; <B>mv core core.`date | cut -d&quot; &quot; -f1`
+</B>bsub&gt; <B>endif
+</B>bsub&gt; <B>myjob
+</B>bsub&gt; <B>^D
+</B>Job &lt;1234&gt; is submitted to default queue &lt;normal&gt;.</PRE>
+
+<P><A NAME="19404"></A>The <TT>bsub</TT> command must read the job script
+from the standard input to set the execution shell.</P>
+
+<P><A NAME="19406"></A>If you do not specify a shell in the script, the
+script is run using <TT>/bin/sh</TT>. If the first line of the script starts
+with a '<TT>#</TT>' not immediately followed by a '<TT>!</TT>', then <TT>/bin/csh</TT>
+is used to run the job. For example:</P>
+
+<PRE><A NAME="19408"></A>% <B>bsub
+</B>bsub&gt; <B># This is a comment line. This tells the system to use /bin/csh to
+</B>bsub&gt; <B># interpret the script.
+</B>bsub&gt;
+bsub&gt; <B>setenv DAY `date | cut -d&quot; &quot; -f1`
+</B>bsub&gt; <B>myjob
+</B>bsub&gt; <B>^D
+</B>Job &lt;1234&gt; is submitted to default queue &lt;normal&gt;.</PRE>
+
+<P><A NAME="27504"></A>If running jobs under a particular is a system wide
+or queue wide requirements, you can ask your system administrator to configure
+the shell as the job starter of your queue. You can find out if your queue
+has a job starter configured or not by running <TT>bqueues -l</TT> command.
+</P>
+
+<P><A NAME="27510"></A>See <A HREF="07-manage-lsbatch.html#15643">'Using
+A Job Starter'</A> of the <I><A HREF="admin-title.html#998232">LSF Administrator's
+Guide</A></I> for more details. </P>
+
+<H2><A NAME="27511"></A>Submitting Jobs Using <TT>xbsub</TT></H2>
+
+<P><A NAME="27512"></A>LSF Batch provides a GUI for submitting jobs. The
+main window of <TT>xbsub</TT> is shown in <A HREF="02-get-started.html#13001">'Figure
+3. <TT>xbsub</TT> Job Submission Window'</A>. All the job submission options
+can be selected using <TT>xbsub</TT>. </P>
+
+<P><A NAME="27521"></A>Detailed parameters can be set by clicking the 'Advanced'
+button. <A HREF="06-submitting.html#27570">Figure 10</A> shows the resulting
+window. </P>
+
+<H4><A NAME="27570"></A>Figure 10. Advanced Parameters of <TT>xbsub</TT></H4>
+
+<P><A HREF="usr-figure10.gif"><IMG SRC="usr-figure10.gif" ALT="Advanced Parameters of xbsub" BORDER=0 HEIGHT=330 WIDTH=290></A>
+</P>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="05-lsbatch.html">[Prev]</A>
+<A HREF="07-tracking.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:27:44 --></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,341 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Managing LSF JobScheduler</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="07-manage-lsbatch.html">[Prev]</A>
+<A HREF="09-multicluster.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="228"></A>Chapter 7. <A NAME="9953"></A>Managing LSF JobScheduler</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="11374"></A>Production job scheduling has been an integral part
+of mainframe data processing operation for decades. With the emergence
+of distributed computing along with UNIX and Windows NT workstations and
+file servers, the system architecture has changed drastically, calling
+for a new approach to production job scheduling.</P>
+
+<P><A NAME="11383"></A>LSF JobScheduler is a distributed production job
+scheduling product; a separately licensed component of the LSF Version
+3.0 suite. LSF JobScheduler integrates heterogeneous servers into a <I>virtual
+mainframe</I> to deliver high availability, robustness and ease-of-use.
+It provides the functions of traditional mainframe job scheduler with transparent
+operation across a network of heterogeneous UNIX and NT systems. LSF JobScheduler
+offers GUI input tools in addition to the standard command line interface.</P>
+
+<P><A NAME="11252"></A>Most features that can be configured for LSF Batch
+can also be configured for LSF JobScheduler. In addition, LSF JobScheduler
+supports many features such as calendars, file status events, site defined
+events, etc. See <I><A HREF="pjs-title.html">LSF JobScheduler User's Guide</A></I>
+for full details of these features. </P>
+
+<P><A NAME="11595"></A>The configuration and management tasks for LSF JobScheduler
+is the same as those of LSF Batch, so you should read all previous chapters
+to do the administration tasks. This chapter discusses some additional
+tasks specific for LSF JobScheduler which include: </P>
+
+<UL>
+<LI><A NAME="11482"></A>System calendars </LI>
+
+<LI><A NAME="11483"></A>External (site-specific) event management </LI>
+
+<LI><A NAME="11484"></A>File event management </LI>
+</UL>
+
+<H2><A NAME="11253"></A>System Calendars</H2>
+
+<P><A NAME="11254"></A>Calendars are normally created by users using the
+<TT>bcaladd</TT> command or the <TT>xbcal</TT> GUI interface. Calendars
+that are commonly used may be defined as system calendars, which can be
+referenced by all users. System calendars are defined in the <TT>lsb.calendars</TT>
+configuration file in the <TT>LSB_CONFDIR/<I>cluster</I>/configdir</TT>
+directory.</P>
+
+<P><A NAME="11255"></A>The <TT>lsb.calendars</TT> file consists of multiple
+<TT>Calendar</TT> sections where each section corresponds to one calendar.
+Each calendar section requires the <TT>NAME</TT> and <TT>TIME_EVENTS</TT>
+parameter and can optionally contain a <TT>DESCRIPTION</TT> parameter.
+The <TT>Calendar</TT> section is of the form:</P>
+
+<PRE><A NAME="11256"></A><TT>Begin Calendar
+NAME=&lt;<I>name</I>&gt;
+TIME_EVENTS=&lt;<I>time events</I>&gt;
+DESCRIPTION=&lt;<I>description</I>&gt;
+End Calendar </TT></PRE>
+
+<P><A NAME="11257"></A>The syntax of the <TT>TIME_EVENTS</TT> parameter
+is described in the man page <TT>bcaladd</TT>(<TT>1</TT>). Also see <A HREF="3-calendars.html#999254">'Time
+Expression'</A> in the <I><A HREF="pjs-title.html">LSF JobScheduler User's
+Guide</A></I>.</P>
+
+<P><A NAME="11512"></A>The following is a sample <TT>lsb.calendars</TT>
+file:</P>
+
+<PRE><A NAME="11261"></A><TT>Begin Calendar
+NAME=Daily
+TIME_EVENTS=*:*:*:8,6:00
+DESCRIPTION=Daily morning and evening runs
+End Calendar
+
+Begin Calendar
+NAME=Holiday
+TIME_EVENTS=*:Dec:25:00:00%1D *:Jan:1:00:00%1D *:Jul:4:00:00%1D
+DESCRIPTION=Holidays
+End Calendar</TT></PRE>
+
+<P><A NAME="11262"></A>System calendars are owned by the virtual user <TT>SYS</TT>
+and can be viewed by everybody. The <TT>bcal</TT> command displays the
+system calendars:</P>
+
+<PRE><A NAME="11456"></A>% <B>bcal
+</B>CALENDAR_NAME      OWNER      STATUS    DURATION         NEXT_EVENT_TIME
+Daily              SYS       inactive       -        Wed Dec 25 06:00:00 1996
+Holiday            SYS       inactive       -        Wed Dec 25 00:00:00 1996
+hourly             user1      active        7        Tue Dec 24 16:00:00 1996
+complex            user1     inactive       -        Wed Dec 25 17:00:00 1996</PRE>
+
+<P><A NAME="11494"></A>System calendars cannot be created with the <TT>bcaladd</TT>
+command and they cannot be deleted with the <TT>bcaldel</TT> command. When
+a system calendar is defined, its name becomes a reserved calendar name
+in the cluster. Consequently, users cannot create a calendar with the same
+name as a system calendar.</P>
+
+<H2><A NAME="11265"></A>External Event Management</H2>
+
+<P><A NAME="11269"></A>LSF JobScheduler supports the scheduling of jobs
+based on external site-specific events. A typical use of this feature in
+data processing environment is to trigger jobs based on the arrival of
+data or the availability of tapes. Sites that use storage management systems,
+for example, can coordinate the dispatch of jobs with the staging of data
+from hierarchical storage onto disk. </P>
+
+<P><A NAME="11270"></A>The scheduling daemon (<TT>mbatchd</TT>) can startup
+and communicate with an external event daemon (<TT>EEVENTD</TT>) to detect
+the occurrence of events. The <TT>EEVENTD</TT> is implemented as an executable
+called <TT>eeventd</TT> which resides in <TT>LSF_SERVERDIR</TT>. Users
+can submit jobs specifying dependencies on any logical combination of external
+events using the <TT>-w</TT> option of the <TT>bsub</TT> command. External
+event dependencies can be combined with job, file, and calendar events.</P>
+
+<P><A NAME="11271"></A>A protocol is defined which allows <TT>mbatchd</TT>
+to indicate to the <TT>EEVENTD</TT> that a job is waiting on a particular
+event. The <TT>EEVENTD</TT> will monitor the event and possibly take actions
+to trigger it. When the event occurs, the <TT>EEVENTD</TT> informs <TT>mbatchd</TT>,
+which will then consider the job as eligible for dispatch provided appropriate
+hosts are available.</P>
+
+<P><A NAME="11619"></A>LSF JobScheduler comes with an <TT>EEVENTD</TT>
+for file event detection. If you want to monitor additional site events,
+you can simply add event detection functions into the existing <TT>EEVENTD</TT>.
+The source code of the default <TT>EEVENTD</TT> is also included in the
+release. </P>
+
+<H3><A NAME="11272"></A>The <TT>EEVENTD</TT> Protocol</H3>
+
+<P><A NAME="11273"></A>The protocol between the external event daemon,
+<TT>EEVENTD</TT>, and <TT>mbatchd</TT> consists of a sequence of ASCII
+messages that are exchanged over a socket pair. The startup sequence and
+message format for the protocol is described in the man page <TT>eeventd</TT>(<TT>8</TT>).
+</P>
+
+<P><A NAME="11274"></A>Each event is identified by an <I>event name</I>.
+The event name is an arbitrary string, which is site-specific. A user specifies
+job dependencies on an external event by using the <TT>-w</TT> option of
+the <TT>bsub</TT> command using the <TT>event</TT> keyword. For example:</P>
+
+<PRE><A NAME="11275"></A><TT>% <B>bsub -w 'event(tapeXYZ)' myjob</B></TT></PRE>
+
+<P><A NAME="11279"></A>LSF JobScheduler considers the job to be waiting
+on an event with the name 'tapeXYZ'. There is no checking of the syntax
+of the event name by LSF JobScheduler. The <TT>EEVENTD</TT> can reject
+an event if the syntax is incorrect preventing the job from being dispatched
+until the user either modifies the event or removes the job. Alternatively,
+a site may write a wrapper submission script which checks the syntax of
+the event before it is submitted to LSF JobScheduler.</P>
+
+<P><A NAME="11286"></A>The following messages are sent from <TT>mbatchd</TT>
+to the <TT>EEVENTD</TT>:</P>
+
+<DL>
+<DT><A NAME="11287"></A><TT>SUB event_name </TT></DT>
+
+<DD>Subscribe to a the event given by <I>event_name</I>. Whenever a job
+is submitted with a new event name that mbatchd has not seen before, a
+subscribe request is sent to the <TT>EEVENTD</TT>. The <TT>EEVENTD</TT>
+is expected to monitor the event, and if necessary, to take any actions
+required for the event to occur. </DD>
+
+<DT><A NAME="11288"></A><TT>UNSUB event_name </TT></DT>
+
+<DD>Unsubscribe to a given event when there are no jobs dependent on this
+event. This should cause the <TT>EEVENTD</TT> to stop monitoring the event.
+</DD>
+</DL>
+
+<P><A NAME="11289"></A>The following messages are sent from the <TT>EEVENTD</TT>
+to <TT>mbatchd</TT>:</P>
+
+<DL>
+<DT><A NAME="11290"></A><TT>START event_name event_type [event_attrib]
+</TT></DT>
+
+<DD>Tells <TT>mbatchd</TT> to make the event active. The <I>event_type</I>
+field should be one of <TT>latched</TT>, <TT>pulse</TT>, <TT>pulseAll</TT>,
+or <TT>exclusive</TT>. The different event types control when <TT>mbatchd</TT>
+will inactivate an event as follows: </DD>
+
+<DD><A NAME="11291"></A><TT>latched </TT></DD>
+
+<DL>
+<DD>Not automatically inactivated until an explicit <TT>END</TT> message
+is received. </DD>
+</DL>
+
+<DD><A NAME="11292"></A><TT>pulse </TT></DD>
+
+<DL>
+<DD>Automatically inactivated when one job is dispatched. Subsequent <TT>START</TT>
+messages on the same event can cause one job to be dispatched, each time
+the event is pulsed. </DD>
+</DL>
+
+<DD><A NAME="11293"></A><TT>pulseAll </TT></DD>
+
+<DL>
+<DD>Automatically inactivated after it is received. For <TT>pulseAll</TT>
+events, each job will maintain its own copy of the event state. When a
+<TT>pulseAll</TT> event is triggered, all jobs currently waiting on the
+event will have their copy of the event state marked as active and will
+be eligible for dispatch. Subsequently submitted jobs will view the event
+as inactive. </DD>
+</DL>
+
+<DD><A NAME="11294"></A><TT>exclusive </TT></DD>
+
+<DL>
+<DD>Automatically inactivated when one job is dispatched and kept inactive
+until the job completes. Subsequent attempts by the <TT>EEVENTD</TT> to
+activate the event are ignored until job completion. </DD>
+</DL>
+
+<DD><A NAME="11295"></A>The <I>event_attrib</I> is an optional attribute
+string that can be associated with the event. The event attribute is not
+interpreted by the system and is passed to a job when it starts via the
+<TT>LSB_EVENT_ATTRIB</TT> environment variable. It can be used to communicate
+information between the event daemon and the job. It is also displayed
+by the <TT>bevents</TT> command. </DD>
+
+<DT><A NAME="11296"></A><TT>END event_name </TT></DT>
+
+<DL>
+<DT>Causes the event to be put in the inactive state. If the event is already
+inactive, this has no effect. </DT>
+</DL>
+
+<DT><A NAME="11297"></A><TT>REJECT event_name [event_attribute] </TT></DT>
+
+<DD>Causes the event to be put in the reject state. This can be used to
+indicate a syntax error in the event name. Rejected events are considered
+to be inactive so that jobs waiting on them are not dispatched. The optional
+<I>event_attrib</I> can be used to give more information about why the
+job is rejected. This information will be displayed by the <TT>bevents</TT>
+command. </DD>
+</DL>
+
+<P><A NAME="11306"></A>The sequence of interactions between <TT>mbatchd</TT>
+and the <TT>EEVENTD</TT> are shown in <A HREF="08-jobscheduler.html#11307">Figure
+12</A>.</P>
+
+<H4><A NAME="11307"></A>Figure 12. <TT>mbatchd</TT> and <TT>EEVENTD</TT>
+Interactions</H4>
+
+<P><A HREF="adm-figure12.gif"><IMG SRC="adm-figure12.gif" ALT="mbatchd and EEVENTD Interactions" BORDER=0 HEIGHT=252 WIDTH=438></A></P>
+
+<DL>
+<DT><A NAME="11308"></A><B>Step 1. </B></DT>
+
+<DD>User submits a job specifying dependency on the external event <I>eventX</I>
+</DD>
+
+<DT><A NAME="11309"></A><B>Step 2. </B></DT>
+
+<DD><TT>mbatchd</TT> scans event table to see if <I>eventX</I> already
+exists. If not, it creates the event and sends a subscribe message to the
+<TT>EEVENTD</TT>. The <TT>EEVENTD</TT> recognizes <I>eventX</I> and initiates
+monitoring it. If the <TT>EEVENTD</TT> could not recognize <I>eventX</I>,
+it returns a <TT>REJECT</TT> message to <TT>mbatchd</TT>. </DD>
+
+<DT><A NAME="11311"></A><B>Step 3. </B></DT>
+
+<DD>The <TT>EEVENTD</TT> detects an occurrence of <I>eventX</I> and sends
+a <TT>START</TT> message telling <TT>mbatchd</TT> to try to schedule any
+jobs waiting on the event. Since <I>eventX</I> is <TT>latched</TT>, <TT>mbatchd</TT>
+will consider the event as active indefinitely. If a job also has a dependency
+on a calendar, it can be run multiple times while <I>eventX</I> is still
+active. </DD>
+
+<DT><A NAME="11313"></A><B>Step 4. </B></DT>
+
+<DD>The <TT>EEVENTD</TT> detects that <I>eventX</I> is no longer occurring
+and sends an <TT>END</TT> message. <TT>mbatchd</TT> considers <I>eventX</I>
+as inactive and stops scheduling jobs waiting on the event. </DD>
+</DL>
+
+<DD><A NAME="11320"></A><A HREF="08-jobscheduler.html#11311">Step 3</A>
+and <A HREF="08-jobscheduler.html#11313">step 4</A> can be repeated multiple
+times.</DD>
+
+<DL>
+<DT><A NAME="11321"></A><B>Step 5. </B></DT>
+
+<DD>The user deletes the job waiting on <I>eventX</I>. </DD>
+
+<DT><A NAME="11322"></A><B>Step 6. </B></DT>
+
+<DD>If there are no jobs in the system waiting on <I>eventX</I>, an <TT>UNSUB</TT>
+message is sent to the <TT>EEVENTD</TT>. This should cause the <TT>EEVENTD</TT>
+to stop monitoring <I>eventX</I>. </DD>
+</DL>
+
+<P><A NAME="11323"></A>The external event daemon given in <TT>examples/eevent/eevent.c</TT>
+provides an example of a simple event daemon. It receives requests from
+<TT>mbatchd</TT> to subscribe and unsubscribe to events. Periodically,
+it scans the list of subscribed events and toggles the state of the event
+between active and inactive. The type of the event is chosen based on the
+event name, that is event names beginning with the string '<TT>exclusive</TT>'
+or '<TT>pulse</TT>' are treated as exclusive events or pulse events respectively.
+Otherwise the event is treated as a latched event.</P>
+
+<H2><A NAME="11324"></A>File Event Handling</H2>
+
+<P><A NAME="11325"></A>The handling of file events is implemented using
+the default external event daemon. The installation scripts automatically
+install the event daemon that handles file events.</P>
+
+<P><A NAME="11326"></A>Since only one external event daemon can run on
+a system, sites requiring file event handling in addition to site-specific
+events must modify the existing file event daemon. The source is provided
+in <TT>examples/eevent/fevent.c</TT> in the distribution directory.</P>
+
+<P><A NAME="11622"></A>You can monitor all external events using the <TT>bevents</TT>
+command. See the <I><A HREF="pjs-title.html">LSF JobScheduler User's Guide</A></I>
+for details. </P>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="07-manage-lsbatch.html">[Prev]</A>
+<A HREF="09-multicluster.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

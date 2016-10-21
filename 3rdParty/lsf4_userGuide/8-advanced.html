@@ -1,0 +1,586 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - Advanced Features</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-contents.html">[Contents]</A> <A HREF="7-job-manage.html">[Prev]</A>
+<A HREF="pjs-title.html">[Title]</A> 
+<HR></P>
+
+<H1><A NAME="1000424"></A>Chapter 8. <A NAME="997895"></A>Advanced Features</H1>
+
+<P>
+<HR></P>
+
+<H2><A NAME="1020025"></A>Resources</H2>
+
+<P><A NAME="1020073"></A>A computer network may be thought of as a collection
+of resources used to execute programs. Different applications often require
+different resources. For example, a market simulation program may take
+a lot of CPU power, whereas a large database application may need a lot
+of memory to run well. If the machines in the network are of different
+types, certain applications may run on some of them, but not on others.</P>
+
+<P><A NAME="1020076"></A>To run applications quickly and correctly, resource
+requirements can be used. Resource requirements are strings that contain
+resource names and operators. There are several types of resources. <I>Load
+indices</I> measure dynamic resource availability, such as a server's CPU
+load or available swap space. <I>Static resources</I> represent unchanging
+information, such as the number of CPUs a host has, the host type, and
+the maximum available swap space.</P>
+
+<P><A NAME="1020082"></A>Resources can have numeric, string, or boolean
+(logical) values. Memory, swap space and CPU load are examples of resources
+with numeric values. Host type and model are string resources. Boolean
+resources are static resources assigned by the JobScheduler administrator
+to represent features available on particular hosts such as the availability
+of host-locked software licences or special hardware.</P>
+
+<P><A NAME="1020083"></A>The <TT>lsinfo</TT> command lists the resources
+available in your cluster. See the example listing in <A HREF="5-environment.html#1022186">'Cluster
+Resource Information'</A>. Resource names are case sensitive.</P>
+
+<H3><A NAME="1020091"></A>Resource Requirements</H3>
+
+<P><A NAME="1020027"></A>A resource requirement string is divided into
+three sections, including a selection section, an ordering section, and
+a resource usage section.The selection string specifies the characteristics
+a host must have to be considered eligible. The ordering section indicates
+how the hosts that meet the selection criteria should be sorted. The resource
+usage section specifies the expected resource consumption of the task.
+The syntax of a resource requirement string is:</P>
+
+<PRE><A NAME="1021936"></A>select[selectstring] order[orderstring] rusage[usagestring]</PRE>
+
+<P><A NAME="1021938"></A>where '<TT>select</TT>', '<TT>order</TT>' and
+'<TT>rusage</TT>' are the section names. The selection string is a logical
+expression built from a set of resource names. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="1021991"></A><B>Note<BR>
+</B><I>The '</I><TT>select</TT><I>' keyword may be omitted if the '</I><TT>selectstring</TT><I>'
+appears as the first string in the resource requirement. </I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1021967"></A>The order string allows the selected hosts to
+be sorted according to the value(s) of resource(s). The syntax of the order
+string is:</P>
+
+<PRE><A NAME="1021969"></A>&quot;[-]res:[-]res:...[-]res&quot;</PRE>
+
+<P><A NAME="1021972"></A>where each '<TT>res</TT>' is a load index resource
+name, as is returned from the <TT>lsload</TT> command. The order string
+is used as input to a multi-level sorting algorithm, where each sorting
+phase orders the hosts according to one particular load index and discards
+some hosts. The remaining hosts are passed onto the next phase. The first
+phase begins with the last index and proceeds from right to left. </P>
+
+<P><A NAME="1021987"></A>The <TT>usagestring</TT> specifies the expected
+resource usage of the job. This is used for resource reservation so that
+JobScheduler would reserve the specified resources for the job to not overcommit
+resources to other jobs. See <A HREF="8-advanced.html#1022013">'Resource
+Reservation'</A> for details. </P>
+
+<P><A NAME="1021927"></A>If you need to explicitly specify resource requirements
+for your job, use the <TT>-R</TT> option to the <TT>bsub</TT> command.</P>
+
+<PRE><A NAME="1020028"></A>% <B>bsub -R &quot;mem &gt;= 5 &amp;&amp; solaris order[cpu]&quot; command</B></PRE>
+
+<P><A NAME="1020029"></A>The above example requests your job runs on a
+Solaris host that has a lightly loaded CPU and at least 5 megabytes of
+memory available.</P>
+
+<P><A NAME="1020033"></A>You do not have to specify resource requirements
+every time you submit a job. JobScheduler maintains a task resource list
+that is consulted automatically to get the resource requirements of a job.
+The task list is initially configured by your cluster administrator. To
+view the task list, use <TT>lsrtasks</TT> command:</P>
+
+<PRE><A NAME="1021904"></A>% <B>lsrtasks
+</B>lotus123/type==solaris 
+eval/type==any &amp;&amp; swp&gt;40
+weekly_report/hname==hostD
+backup/fserver</PRE>
+
+<P><A NAME="1021911"></A>Each line of the output associates a resource
+requirement expression with a task name. When you submit a job to JobScheduler,
+the first string from your command line (the command name) is used as the
+task name to consult the task list to find the resource requirements of
+the task. </P>
+
+<P><A NAME="1021914"></A>If a resource requirement string is not given
+for a task, the default resource requirement string <TT>&quot;type==$host_type
+order[r15s:pg]&quot;</TT> is assumed, where <I>host_type</I> refers to
+the host type of the job submission host. </P>
+
+<H3><A NAME="1020043"></A>Resource Limits</H3>
+
+<P><A NAME="1020045"></A>Most UNIX systems allow you to limit some of the
+resources consumed by a job. Jobs that consume more than the specified
+amount of a resource are signalled or have their priority lowered. Not
+all limits are supported on all systems, and the exact behaviour is system
+specific. See the <TT>setrlimit(2)</TT> manual page for details on how
+each system implements resource limits.</P>
+
+<P><A NAME="1020046"></A>Queues can also specify resource limits for jobs
+in the queue. If both the queue and the <TT>bsub</TT> command specify a
+limit, the job is given the most restrictive limit.</P>
+
+<P><A NAME="1020047"></A>The following resource limits can be specified
+to <TT>bsub</TT>:</P>
+
+<DL>
+<DT><A NAME="1020048"></A><TT>-c <I>cpu_limit</I>[/<I>host_spec</I>] </TT></DT>
+
+<DD>Limit this job to using only <I>cpu_limit</I> of time on the execution
+host. You specify the limit with the syntax <TT>[</TT>hour:<TT>]</TT>minute
+(minute can be greater than 59). If you supply a <I>host_spec</I>, the
+limit is scaled by the appropriate CPU scaling factor. This option is useful
+for preventing an erroneous job from running for an excessive amount of
+time. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1021182"></A><TT>-W <I>run_limit</I>[/<I>host_spec</I>] </TT></DT>
+
+<DD>Limit this job to using only <I>run_limit</I> of wall clock time. If
+it exceeds the limit, it is given a warning and then terminated 10 minutes
+later. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1021183"></A><TT><I>-F file_limit</I> </TT></DT>
+
+<DD>If this job attempts to write to a file such that the file size would
+increase beyond <I>file_limit</I> kilobytes, it is sent a warning (that
+normally causes the process to terminate). </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1021184"></A><TT>-D <I>data_limit</I> </TT></DT>
+
+<DD>Limit the size of the data segment of a job to <I>data_limit</I> kilobytes.
+If the job attempts to acquire more memory, it receives an error. This
+option would not normally be of interest to JobScheduler users. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1021185"></A><TT>-S <I>stack_limit</I> </TT></DT>
+
+<DD>Limit the stack segment size limit for this job. An attempt to extend
+the stack beyond <I>stack_limit</I> kilobytes causes the job to be terminated.
+This option would not normally be of interest to JobScheduler users. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1021251"></A><TT>-C <I>core_limit</I> </TT></DT>
+
+<DD>Limit this job to a core file size of <I>core_limit</I> kilobytes.
+This option would not normally be of interest to JobScheduler users. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1021252"></A><TT>-M <I>mem_limit</I> </TT></DT>
+
+<DD>Limit the process resident set size limit to <I>mem_limit</I> kilobytes
+for this batch job. This option would not normally be of interest to JobScheduler
+users. </DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="1022001"></A><B>Note<BR>
+</B><I>Not all operating systems support all the resource limits listed
+above. Consult your operating system manual to find out what resource limits
+are available on your system.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1021282"></A>The following examples specify that your job can
+run for 3.5 hours. The first example uses the syntax <I>hour:minute</I>,
+the second uses <I>minute</I> only.</P>
+
+<PRE><A NAME="1021165"></A>% <B>bsub -c 3:30 -J 3.5Hours command
+</B>% <B>bsub -c 210 -J 3.5Hours command</B></PRE>
+
+<P><A NAME="1020050"></A>The following example specifies that your job
+can use 10 minutes of run time on a DEC3100 host, or the corresponding
+time on any other host.</P>
+
+<PRE><A NAME="1021123"></A>% <B>bsub -c 10/DEC3100 -J TenMinJob command</B></PRE>
+
+<P><A NAME="1021284"></A>In the following example, your job can use 4 hours
+of wall clock time. If it is still running 4 hours later, it will be warned
+and then terminated after another 10 minutes.</P>
+
+<PRE><A NAME="1021285"></A>% <B>bsub -W 4:00 -J FourHours command</B></PRE>
+
+<H2><A NAME="1020013"></A>File Transfer</H2>
+
+<P><A NAME="1020158"></A>The JobScheduler is normally used in networks
+with shared file space. When shared file space is not available, JobScheduler
+can copy needed files to the execution host before running the job, then
+copy resultant files back to the submission host after the job completes.</P>
+
+<P><A NAME="1020159"></A>The <TT>bsub</TT> command has the <TT>-f &quot;[<I>lfile
+op</I> [<I>rfile</I>]]&quot;</TT> option, which copies a file between the
+submission host and the execution host.</P>
+
+<P><A NAME="1021328"></A><I>lfile</I> (local file) is the file name on
+the submission host, and <I>rfile</I> (remote file) is the name on the
+execution host. <I>lfile</I> and <I>rfile</I> can be specified with absolute
+or relative path names. If you do not specify one of the files, <TT>bsub</TT>
+uses the filename of the other. At least one must be given.</P>
+
+<P><A NAME="1021325"></A><I>op</I> is the operation to perform on the file.
+<I>op</I> must be surrounded by white space. <I>op</I> is invalid without
+at least one of <I>lfile</I> or <I>rfile</I>. The possible values for <I>op</I>
+are:</P>
+
+<DL>
+<DT><A NAME="1020162"></A><TT>&gt;</TT></DT>
+
+<DD><I>lfile</I> on the submission host is copied to <I>rfile</I> on the
+execution host before job execution. <I>rfile</I> is overwritten if it
+exists. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1020163"></A><TT>&lt;</TT></DT>
+
+<DD><I>rfile</I> on the execution host is copied to <I>lfile</I> on the
+submission host after the job completes. <I>lfile</I> is overwritten if
+it exists. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1020164"></A>&lt;&lt;</DT>
+
+<DD><I>rfile</I> is appended to <I>lfile</I> after the job completes. <I>lfile</I>
+is created if it does not exist. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1020165"></A><TT>&gt;&lt;, &lt;&gt;</TT></DT>
+
+<DD><I>lfile</I> is copied to <I>rfile</I> before the job executes, then
+<I>rfile</I> is copied back (replacing the previous <I>lfile</I>) after
+the job completes (<TT>&lt;&gt;</TT> is the same as <TT>&gt;&lt;</TT>).
+</DD>
+</DL>
+
+<P><A NAME="1021400"></A>To run the job <TT>update</TT>, which updates
+the data file in place, you need to copy the file to the execution host
+before the job runs and copy it back after the job completes.</P>
+
+<PRE><A NAME="1021401"></A>% <B>bsub -f &quot;data &lt;&gt;&quot; update data</B></PRE>
+
+<P><A NAME="1021310"></A>The <TT>-f</TT> option may be repeated to specify
+multiple files.</P>
+
+<PRE><A NAME="1021403"></A>% <B>bsub -f &quot;data1 &gt;&quot; -f &quot;out1 &lt;&quot; command data1</B></PRE>
+
+<P><A NAME="1021410"></A>In the above example, the file <I>data1</I> will
+be copied to the execution host before running the job. The resultant file,
+<I>out1</I>, will be copied back to the submission host after the job completes.
+</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1021420"></A><B>Note<BR>
+</B><I>The files being copied to and from the execution host may also need
+to appear on the command line of the job.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1020166"></A>If you specified an input file with the <TT>-i</TT>
+option (see <A HREF="6-job-define.html#1021104">'Input and Output'</A>)
+and it is not found on the execution host, the file is copied from the
+submission host using the JobScheduler remote file access facility. It
+is removed from the execution host after the job finishes.</P>
+
+<P><A NAME="1020167"></A>If you specified output files with the <TT>-o</TT>
+(standard output) and <TT>-e</TT> (standard error) options, these files
+are created on the execution host. They are not copied back to the submission
+host by default. You must explicitly copy these files back to the submission
+host. The following command stores the job output in the <I>job_out</I>
+file and copies the file back to the submission host.</P>
+
+<PRE><A NAME="1020168"></A>% <B>bsub -o job_out -f 'job_out &lt;' command</B></PRE>
+
+<P><A NAME="1021375"></A>JobScheduler tries to change directories to the
+same path name as the directory where you ran the <TT>bsub</TT> command.
+If this directory does not exist, the job is run in the temporary directory
+on the execution host.</P>
+
+<P><A NAME="1021391"></A>If the submission and execution hosts have different
+directory structures, you must ensure that the directory where <I>rfile</I>
+will be placed exists. You should always specify it with relative path
+names, preferably as a file name excluding any path. This places <I>rfile</I>
+in the current working directory of the job. The job will work correctly
+even if the directory where the <TT>bsub</TT> command is run does not exist
+on the execution host.</P>
+
+<P><A NAME="1021395"></A>In the following example, you submit a job with
+input taken from the file <TT>/data/data3</TT> and the output copied back
+to <TT>/data/out3</TT>.</P>
+
+<PRE><A NAME="1021364"></A>% <B>bsub -f &quot;/data/data3 &gt; data3&quot; -f &quot;/data/out3 &lt; out3&quot; command data3 out3</B></PRE>
+
+<H2><A NAME="1020494"></A>Start and Termination Time</H2>
+
+<P><A NAME="1020496"></A>You can control the times when your job is dispatched
+by associating it with a calendar. You can also specify a start and termination
+time using the <TT>-b</TT> and <TT>-t</TT> options to the <TT>bsub</TT>
+command.</P>
+
+<PRE><A NAME="1020497"></A>% <B>bsub -b 5:00 command</B></PRE>
+
+<P><A NAME="1020501"></A>The submitted job remains pending until after
+5 a.m. local time on the JobScheduler master host.</P>
+
+<PRE><A NAME="1020502"></A>% <B>bsub -b 11:12:5:40 -t 11:12:20:30 command</B></PRE>
+
+<P><A NAME="1020503"></A>The above command submits your job to start after
+November 12 05:40:00. If the job is still running on November 12 at 20:30:00,
+it is killed.</P>
+
+<H2><A NAME="1020575"></A>Reinitializing the Job Environment</H2>
+
+<P><A NAME="1020577"></A>By default JobScheduler copies the environment
+of the job from the submission host when the job is submitted. The environment
+is recreated on the execution host when the job is started. This is convenient
+in many cases because the job runs as if it had been run interactively
+on the submission host. </P>
+
+<P><A NAME="1021444"></A>There are cases where you want to use a platform
+or host specific environment to run the job, rather than the same environment
+as on the submission host. For example, you may want to set up different
+search paths on the execution host. The <TT>-L <I>login_shell</I></TT>
+option causes <TT>bsub</TT> to emulate a login on the execution host before
+starting the user job. This makes sure that the startup files (<TT>.profile</TT>
+for <TT>/bin/sh</TT>, or <TT>.cshrc</TT> and <TT>.login</TT> for <TT>/bin/csh</TT>)
+are sourced before the job is started. The <I>shell</I> argument specifies
+the login shell to use to reinitialize the environment.</P>
+
+<PRE><A NAME="1020581"></A>% <B>bsub -L /usr/local/shell command</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="1020583"></A><B>Note<BR>
+</B><I>This is not the shell under which the job will be executed. When
+a login shell is specified with the </I><TT>-L</TT><I> option, that shell
+is only used to set the environment. The job is run using </I><TT>/bin/sh</TT><I>,
+unless the user specifies otherwise (see <A HREF="8-advanced.html#1020631">'Running
+a Job Under a Particular Shell' </A>).</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="1021797"></A>Exclusive Jobs</H2>
+
+<P><A NAME="1021799"></A>You can submit a job requesting that it must run
+exclusively on a host. Use the <TT>-x</TT> option to the <TT>bsub</TT>
+command.</P>
+
+<P><A NAME="1021803"></A>The job is started on a host that has no other
+JobScheduler jobs running on it. The host is locked while this job is running,
+so that no other jobs are sent to it until the exclusive job finishes.</P>
+
+<PRE><A NAME="1021807"></A>% <B>bsub -x -J Exclusive command</B></PRE>
+
+<H2><A NAME="1020611"></A>Job Scripts</H2>
+
+<P><A NAME="1020612"></A>If <TT>bsub</TT> is run without giving a command
+to submit, it reads job command lines from the standard input. If the standard
+input is a controlling terminal, then you are prompted with <TT>bsub&gt;</TT>
+for each line.</P>
+
+<PRE><A NAME="1020613"></A>% <B>bsub
+</B>bsub&gt; <B>cd /home/username/data
+</B>bsub&gt; <B>command arg1 arg2 ...
+</B>bsub&gt; <B>rm job.log
+</B>bsub&gt; <B>^D
+</B>Job &lt;1234&gt; submitted to queue &lt;default&gt;.</PRE>
+
+<P><A NAME="1020614"></A>In this case, the three command lines are submitted
+to JobScheduler and run as a <TT>/bin/sh</TT> script. Type <B><FONT SIZE=-1>CTRL-D</FONT></B>
+to end the command and submit the job.</P>
+
+<P><A NAME="1021503"></A>You can also redirect commands into <TT>bsub</TT>.</P>
+
+<PRE><A NAME="1021502"></A>% <B>bsub &lt; command_file
+</B>Job &lt;1237&gt; submitted to queue &lt;default&gt;.</PRE>
+
+<P><A NAME="1020616"></A><I>command_file</I> must contain valid <TT>/bin/sh</TT>
+command lines. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="1022018"></A><B>Note<BR>
+</B><I>On Windows NT, the command shell </I><TT>cmd.exe</TT><I> is invoked
+to run the commands.</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="1020617"></A>Embedded Submission Options</H3>
+
+<P><A NAME="1020618"></A>You can specify job submission options in the
+script read from the standard input by the bsub command using lines starting
+with '<TT>#BSUB</TT>':</P>
+
+<PRE><A NAME="1020619"></A>% <B>bsub -q priority
+</B>bsub&gt; <B>#BSUB -q test
+</B>bsub&gt; <B>#BSUB -o outfile -R &quot;mem &gt; 10&quot;
+</B>bsub&gt; <B>command arg1 arg2
+</B>bsub&gt; <B>#BSUB -J EmbeddedSub
+</B>bsub&gt; <B>^D
+</B>Job &lt;1238&gt; submitted to queue &lt;priority&gt;.</PRE>
+
+<P><A NAME="1020620"></A>There are a few things to note:</P>
+
+<UL>
+<LI><A NAME="1020621"></A>Command line options override embedded options,
+therefore, the job is submitted to the <I>priority</I> queue rather than
+the <I>test</I> queue. </LI>
+
+<LI><A NAME="1020622"></A>Submission options can be specified anywhere
+in the standard input. In the above example, the <TT>-J</TT> option is
+specified after the command to be run. </LI>
+
+<LI><A NAME="1020623"></A>More than one option can be specified on one
+line. </LI>
+</UL>
+
+<P><A NAME="1020624"></A>You can type the above commands into a script
+and redirect it to the standard input of the <TT>bsub</TT> command:</P>
+
+<PRE><A NAME="1020625"></A>% <B>bsub &lt; shell_script
+</B>Job &lt;1239&gt; submitted to queue &lt;test&gt;.</PRE>
+
+<P><A NAME="1020626"></A>The <I>shell_script</I> file contains job submission
+options (lines starting with '<TT>#BSUB</TT>') as well as command lines
+to execute. When the <TT>bsub</TT> command reads a script from its standard
+input, the script file is actually spooled by JobScheduler, therefore,
+you can modify the script after <TT>bsub</TT> returns without affecting
+the current submission.</P>
+
+<P><A NAME="1021601"></A>When the script is specified on the <TT>bsub</TT>
+command line, the script is not spooled:</P>
+
+<PRE><A NAME="1020627"></A>% <B>bsub shell_script
+</B>Job &lt;1240&gt; submitted to default queue &lt;default&gt;.</PRE>
+
+<P><A NAME="1020628"></A>In this case the shell script is spooled by JobScheduler,
+instead of the contents of the <I>shell_script</I> file. If you subsequently
+change the script, the behaviour of your job may also change. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="1020629"></A><B>Note<BR>
+</B><I>The </I><TT>bsub</TT><I> command interprets embedded options only
+if the script is supplied to its </I><TT>stdin</TT><I>. If the script is
+specified on the </I><TT>bsub</TT><I> command line, as is the case with
+the latter example above, the embedded options in the script file are ignored.</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="1020631"></A>Running a Job Under a Particular Shell</H3>
+
+<P><A NAME="1020633"></A>By default, JobScheduler runs job scripts using
+the <TT>/bin/sh</TT> shell. However, you can specify the shell under which
+the job is run. This is done by specifying an interpreter in the first
+line of the script.</P>
+
+<PRE><A NAME="1020634"></A>% <B>bsub
+</B>bsub&gt; <B>#!/bin/csh -f
+</B>bsub&gt; <B>set coredump=`ls |grep core`
+</B>bsub&gt; <B>if ( &quot;$coredump&quot; != &quot;&quot;) then
+</B>bsub&gt; <B>mv core core.`date | cut -d&quot; &quot; -f1`
+</B>bsub&gt; <B>endif
+</B>bsub&gt; <B>CoreJob
+</B>bsub&gt; <B>^D
+</B>Job &lt;1241&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<P><A NAME="1020635"></A>The <TT>bsub</TT> command must read the job script
+from the standard input to set the execution shell.</P>
+
+<P><A NAME="1020637"></A>If you do not specify a shell in the script, the
+script is run using <TT>/bin/sh</TT>. If the first line of the script starts
+with a &quot;<TT>#</TT>&quot; but the second character is not a &quot;<TT>!</TT>&quot;,
+then <TT>/bin/csh</TT> is used to run the job.</P>
+
+<PRE><A NAME="1020638"></A>% <B>bsub
+</B>bsub&gt; <B># This is a comment line. This tells the system to use /bin/csh to
+</B>bsub&gt; <B># interpret the script.
+</B>bsub&gt;
+bsub&gt; <B>setenv DAY `date | cut -d&quot; &quot; -f1`
+</B>bsub&gt; <B>DateJob
+</B>bsub&gt; <B>^D
+</B>Job &lt;1242&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<H2><A NAME="1022013"></A>Resource Reservation</H2>
+
+<P><A NAME="1022052"></A>By default, job scheduling is based on current
+load conditions. In this case, it is assumed that the resources a job consumes
+will be reflected in the load information. However, many jobs do not consume
+all of the resources they require when they first start. For example, a
+job requiring 100MB of swap is dispatched to a host having 150MB of available
+swap. The job starts off initially allocating 5MB and gradually increases
+the amount consumed to 100MB over a period of 30 minutes. During this period,
+another job requiring more than 50MB of swap should not be started on the
+same host to avoid overcommitting swap. </P>
+
+<P><A NAME="1022059"></A>Resources can be reserved as specified by a job's
+resource requirements or configured with queues. If resources are reserved,
+no other job will use the resources, even if the job for which the resources
+have been reserved has not consumed them. The syntax for resource reservation
+in the <TT>rusage</TT> section of resource requirement string is:</P>
+
+<PRE><A NAME="1022064"></A>res=value[:res=value]...[:res=value][:duration=value][:decay=value]</PRE>
+
+<P><A NAME="1022066"></A>Here '<TT>res</TT>' can be any load index and
+'<TT>value</TT>' is the initial reserved amount. If '<TT>res</TT>' or '<TT>value</TT>'
+is not given, the default is to not reserve that resource. '<TT>duration</TT>'
+is the time period within which the specified resources should be reserved.
+If '<TT>duration</TT>' is not specified then the default is to reserve
+the total amount for the lifetime of the job. </P>
+
+<P><A NAME="1022072"></A>The '<TT>decay</TT>' parameter indicates how the
+reserved amount should decrease over the duration. A value of 1 for '<TT>decay</TT>'
+(for example, '<TT>decay=1</TT>') indicates that the system should linearly
+decrease the amount reserved over the duration. The default decay value
+is 0, which causes the total amount to be reserved for the lifetime of
+the job. The decay parameter is ignored if the duration is not specified.
+Values other than 0 or 1 for this parameter are unsupported. </P>
+
+<P><A NAME="1022218"></A>When deciding whether to schedule a job on a host
+, the JobScheduler system considers the reserved resources of all the jobs
+that have been started on that host. For each load index, the amount reserved
+by all jobs on that host is summed up and deducted from the current value
+of the resources as reported by <TT>lsload(1)</TT> to get the amount available
+for scheduling new jobs:</P>
+
+<PRE><A NAME="1022226"></A>available amount = current value - reserved amount for all jobs</PRE>
+
+<P><A NAME="1022246"></A>Reservation of the resources '<TT>mem</TT>' and
+'<TT>swap</TT>' are handled as special cases. For these resources, the
+run time usage is used to determine the amount to reserve. The reserved
+amount is the specified amount minus the run time usage. The '<TT>duration</TT>'
+and '<TT>decay</TT>' parameters are ignored for these resources.</P>
+
+<P><A NAME="1022231"></A>For example:</P>
+
+<PRE><A NAME="1022232"></A>% <B>bsub -R &quot;rusage[swap=50]&quot; my_job</B></PRE>
+
+<P><A NAME="1022233"></A>will reserve 50 megabytes of swap for the job.</P>
+
+<PRE><A NAME="1022234"></A>% <B>bsub -R &quot;rusage[tmp=30:duration=30:decay=1]&quot; my_job</B></PRE>
+
+<P><A NAME="1022235"></A>will reserve 30 megabytes of <TT>/tmp</TT> space
+for the job. As the job runs, the amount reserved will decrease at approximately
+1 megabyte/minute such that the reserved amount is 0 after 30 minutes.</P>
+
+<P>
+<HR><A HREF="pjs-contents.html">[Contents]</A> <A HREF="7-job-manage.html">[Prev]</A>
+<A HREF="pjs-title.html">[Title]</A></P>
+
+<ADDRESS><I><A HREF="mailto:doc@platform.com">doc@platform.com</A></I></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,1296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - LSF Base Configuration Reference</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="09-multicluster.html">[Prev]</A>
+<A HREF="11-lsbatch-reference.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="228"></A>Chapter 9. <A NAME="9953"></A>LSF Base Configuration
+Reference</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="779"></A>This chapter contains a detailed description of the
+contents of the LSF Base configuration files. These include the installation
+file <TT>lsf.conf</TT>; the LIM configuration files <TT>lsf.shared</TT>,
+<TT>lsf.cluster.<I>cluster</I></TT>, <TT>lsf.task</TT>, and <TT>lsf.task.<I>cluster</I></TT>;
+and the optional LSF hosts file for additional host name information.</P>
+
+<H2><A NAME="2702"></A>The <TT>lsf.conf</TT> File</H2>
+
+<P><A NAME="1486"></A>Installation of and operation of LSF is controlled
+by the <TT>lsf.conf</TT> file. The <TT>lsf.conf</TT> file is created during
+installation, and records all the settings chosen when LSF is installed.
+This information is used by LSF daemons and commands to locate other configuration
+files, executables, and network services. </P>
+
+<P><A NAME="12473"></A><TT>lsf.conf</TT> contains LSF installation settings
+as well as some system wide options. This file is initially created by
+the <TT>lsfsetup</TT> utility during LSF installation, and updated if necessary
+when you upgrade to a new version. Many of the parameters are set during
+the installation. This file can also be expended to include LSF application
+specific parameters. </P>
+
+<H4><A NAME="1517"></A><TT>LSB_CONFDIR</TT></H4>
+
+<P><A NAME="1518"></A>LSF Batch configuration directories are installed
+under <TT>LSB_CONFDIR</TT>. Configuration files for each LSF cluster are
+stored in a subdirectory of <TT>LSB_CONFDIR</TT>. This subdirectory contains
+several files that define the LSF Batch user and host lists, operation
+parameters, and batch queues. </P>
+
+<P><A NAME="1519"></A>All files and directories under <TT>LSB_CONFDIR</TT>
+must be readable from all hosts in the cluster. <TT>LSB_CONFDIR/<I>cluster</I>/configdir</TT>
+must be owned by the LSF administrator.</P>
+
+<P><A NAME="1520"></A>Default: <TT>LSF_CONFDIR/lsbatch </TT></P>
+
+<P><A NAME="12492"></A>You should not try to redefine this parameter once
+LSF has been installed. If you want to move these directories to another
+location, use <TT>lsfsetup</TT> utility and choose <TT>Component Install
+</TT>option to install configuration files. </P>
+
+<H4><A NAME="2905"></A><TT>LSB_DEBUG</TT></H4>
+
+<P><A NAME="2977"></A>If this is defined, LSF Batch will run in single
+user mode. In this mode, no security checking is performed, so the LSF
+Batch daemons should not run as root. When <TT>LSB_DEBUG</TT> is defined,
+LSF Batch will not look in the system services database for port numbers.
+Instead, it uses port number 40000 for <TT>mbatchd</TT> and port number
+40001 for <TT>sbatchd</TT> unless <TT>LSB_MBD_PORT</TT>/<TT>LSB_SBD_PORT</TT>
+are defined in the file <TT>lsf.conf</TT>. The valid values for <TT>LSB_DEBUG</TT>
+are 1 and 2. You should always choose 1 unless you are testing LSF Batch.</P>
+
+<P><A NAME="3127"></A>Default: undefined </P>
+
+<H4><A NAME="1564"></A><TT>LSB_MAILPROG</TT></H4>
+
+<P><A NAME="1565"></A>LSF Batch normally uses <TT>/usr/lib/sendmail</TT>
+as the mail transport agent to send mail to users. If your site does not
+use <TT>sendmail</TT>, configure <TT>LSB_MAILPROG</TT> with the name of
+a <TT>sendmail</TT>-compatible transport program. LSF Batch calls <TT>LSB_MAILPROG</TT>
+with the following arguments:</P>
+
+<PRE><A NAME="1566"></A><TT>LSB_MAILPROG -F &quot;LSF Batch system&quot; -f <I>Manager</I>@<I>host</I> <I>dest_addr</I></TT></PRE>
+
+<P><A NAME="1567"></A>The <TT>-F &quot;LSF Batch System&quot;</TT> argument
+sets the full name of the sender; the <TT>-f </TT><I>Manager</I><TT>@</TT><I>host</I>
+argument gives the return address for LSF Batch mail, which is the LSF
+administrator's mailbox. <I>dest_addr</I> is the destination address, generated
+by the rules given for <TT>LSB_MAILTO</TT> above.</P>
+
+<P><A NAME="1568"></A><TT>LSB_MAILPROG</TT> must read the body of the mail
+message from the standard input. The end of the message is marked by end-of-file.
+Any program or shell script that accepts the arguments and input and delivers
+the mail correctly can be used. <TT>LSB_MAILPROG</TT> must be executable
+by any user.</P>
+
+<P><A NAME="7755"></A>If this parameter is modified, the LSF administrator
+must restart the <TT>sbatchd</TT> daemons on all hosts to pick up the new
+value.</P>
+
+<P><A NAME="1569"></A>Default: <TT>/usr/lib/sendmail </TT></P>
+
+<H4><A NAME="1613"></A><TT>LSB_MAILTO</TT></H4>
+
+<P><A NAME="1614"></A>LSF Batch sends electronic mail to users when their
+jobs complete or have errors, and to the LSF administrator in the case
+of critical errors in the LSF Batch system. The default is to send mail
+to the user who submitted the job, on the host where the daemon is running;
+this assumes that your electronic mail system forwards messages to a central
+mailbox.</P>
+
+<P><A NAME="1615"></A>The <TT>LSB_MAILTO</TT> parameter changes the mailing
+address used by LSF Batch. <TT>LSB_MAILTO</TT> is a format string that
+is used to build the mailing address. The substring <TT>!U</TT>, if found,
+is replaced with the user's account name; the substring <TT>!H</TT> is
+replaced with the name of the submission host. All other characters (including
+any other '<TT>!</TT>') are copied exactly. Common formats are:</P>
+
+<DL>
+<DT><A NAME="1616"></A><TT>!U </TT></DT>
+
+<DD>Mail is sent to the submitting user's account name on the local host.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="1617"></A><TT>!U@!H </TT></DT>
+
+<DD>Mail is sent to <I>user</I><TT>@</TT><I>submission_hostname</I> </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1618"></A><TT>!U@company_name.com </TT></DT>
+
+<DD>Mail is sent to <I>user</I><TT>@</TT><I>company_name.com</I> </DD>
+</DL>
+
+<P><A NAME="7912"></A>If this parameter is modified, the LSF administrator
+must restart the <TT>sbatchd</TT> daemons on all hosts to pick up the new
+value.</P>
+
+<P><A NAME="7802"></A>Default: <TT>!U </TT></P>
+
+<H4><A NAME="1660"></A><TT>LSB_SHAREDIR</TT></H4>
+
+<P><A NAME="1661"></A>LSF Batch keeps job history and accounting log files
+for each cluster. These files are necessary for correct operation of the
+system. Like the organization under <TT>LSB_CONFDIR</TT>, there is one
+subdirectory for each cluster.</P>
+
+<P><A NAME="1662"></A>The <TT>LSB_SHAREDIR/<I>cluster</I>/logdir</TT> directory
+must be owned by the LSF administrator.</P>
+
+<P><A NAME="1663"></A>Default: <TT>LSF_INDEP/work </TT></P>
+
+<BLOCKQUOTE>
+<P><A NAME="12049"></A><B>Note<BR>
+</B><I>All files and directories under </I><TT>LSB_SHAREDIR</TT><I> must
+allow read and write access from the LSF master host. See <A HREF="03-concepts.html#3741">'Fault
+Tolerance'</A> and <A HREF="03-concepts.html#3278">'Using LSF without Shared
+File Systems'</A>.</I></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="1714"></A><TT>LSF_AFS_CELLNAME</TT></H4>
+
+<P><A NAME="1715"></A>This must be defined to AFS cell name if the AFS
+file system is in use.</P>
+
+<P><A NAME="1716"></A>Default: undefined </P>
+
+<H4><A NAME="1756"></A><TT>LSF_AUTH</TT></H4>
+
+<P><A NAME="1757"></A>This is an optional definition. By default, LSF uses
+privileged ports for user authentication.</P>
+
+<P><A NAME="12083"></A>If <TT>LSF_AUTH</TT> is defined as <TT>ident</TT>,
+RES uses the RFC 1413 identification protocol to verify the identity of
+the remote user. RES is also compatible with the older RFC 931 authentication
+protocol. The name, ident, must be registered in the system services database.
+See <A HREF="02-installation.html#15422">'Registering LSF Service Ports'</A>
+for instructions on registering service names.</P>
+
+<P><A NAME="12090"></A>If <TT>LSF_AUTH</TT> is defined to be <TT>eauth</TT>,
+external user authentication is used. See <A HREF="03-concepts.html#16037">'External
+Authentication'</A> for details.</P>
+
+<P><A NAME="12096"></A>If <TT>LSF_AUTH</TT> is not defined, LSF commands
+must be installed setuid to root to operate correctly. If the LSF commands
+are installed in an NFS mounted shared file system, the file system must
+be mounted with setuid execution allowed (that is, without the <TT>nosuid</TT>
+option). See the manual page for <TT>mount</TT> for more details.</P>
+
+<P><A NAME="1768"></A>If <TT>LSF_AUTH</TT> is defined, programs need not
+be setuid. In this case the installation mode should be 0755.</P>
+
+<P><A NAME="8204"></A>If this parameter is changed, all the LSF daemons
+must be shut down and restarted by running <TT>lsf_daemons start</TT> on
+each of the LSF server hosts so that the daemons will use the new authentication
+method.</P>
+
+<P><A NAME="1769"></A>Default: privileged port authentication </P>
+
+<H4><A NAME="1806"></A><TT>LSF_BINDIR</TT></H4>
+
+<P><A NAME="1807"></A>Directory where all user commands are installed.</P>
+
+<P><A NAME="1808"></A>Default: <TT>LSF_MACHDEP/bin </TT></P>
+
+<H4><A NAME="1500"></A><TT>LSF_CONFDIR</TT></H4>
+
+<P><A NAME="1501"></A>The directory where all LIM configuration files are
+installed. These files are shared throughout the system and should be readable
+from any host. This directory can contain configuration files for more
+than one cluster.</P>
+
+<P><A NAME="1502"></A>Default: <TT>LSF_INDEP/conf </TT></P>
+
+<H4><A NAME="1848"></A><TT>LSF_ENVDIR</TT></H4>
+
+<P><A NAME="1849"></A>LSF normally installs the <TT>lsf.conf</TT> file
+in the <TT>/etc</TT> directory. <TT>lsf.conf</TT> is installed by creating
+a shared copy in <TT>LSF_SERVERDIR</TT> and adding a symbolic link from
+<TT>/etc/lsf.conf</TT> to the shared copy. If <TT>LSF_ENVDIR</TT> is set,
+the symbolic link is installed in <TT>LSF_ENVDIR/lsf.conf</TT>.</P>
+
+<P><A NAME="1850"></A>Default: <TT>/etc </TT></P>
+
+<H4><A NAME="1887"></A><TT>LSF_INCLUDEDIR</TT></H4>
+
+<P><A NAME="1888"></A>Directory under which the LSF API header file <TT>&lt;lsf/lsf.h&gt;</TT>
+is installed.</P>
+
+<P><A NAME="2714"></A>Default: <TT>LSF_INDEP/include </TT></P>
+
+<H4><A NAME="9143"></A><TT>LSF_INDEP</TT></H4>
+
+<P><A NAME="2717"></A>Specifies the default top-level directory for all
+host type independent LSF files. This includes manual pages, configuration
+files, working directories, and examples. For example, defining <TT>LSF_INDEP</TT>
+as <TT>/usr/local/lsf</TT> places manual pages in <TT>/usr/local/lsf/man</TT>,
+configuration files in <TT>/usr/local/lsf/conf</TT>, and so on.</P>
+
+<P><A NAME="2679"></A>Default: <TT>/usr/local/lsf </TT></P>
+
+<H4><A NAME="9070"></A><TT>LSF_LIBDIR</TT></H4>
+
+<P><A NAME="2030"></A>Directory where the LSF application programming interface
+library <TT>liblsf.a</TT> is installed.</P>
+
+<P><A NAME="2032"></A>Default: <TT>LSF_MACHDEP/lib </TT></P>
+
+<H4><A NAME="2072"></A><TT>LSF_LICENSE_FILE</TT></H4>
+
+<P><A NAME="2074"></A>The full path name of the FLEXlm license file used
+by LSF. If this variable is not defined, the LIM looks for the license
+in <TT>/usr/local/flexlm/licenses/license.dat</TT>.</P>
+
+<P><A NAME="2076"></A>Default: <TT>LSF_CONFDIR/license.dat </TT></P>
+
+<H4><A NAME="2600"></A><TT>LSF_LIM_DEBUG</TT></H4>
+
+<P><A NAME="2601"></A>If <TT>LSF_LIM_DEBUG</TT> is defined, the Load Information
+Manager (LIM) will operate in single user mode. No security checking is
+performed, so LIM should not run as root. LIM will not look in the services
+database for the LIM service port number. Instead, it uses port number
+36000 unless <TT>LSF_LIM_PORT</TT> has been defined. The valid values for
+<TT>LSF_LIM_DEBUG</TT> are 1 and 2. You should always choose 1 unless you
+are testing LSF.</P>
+
+<P><A NAME="2602"></A>Default: undefined </P>
+
+<H4><A NAME="2116"></A><TT>LSF_LIM_PORT</TT>,<BR>
+<TT>LSF_RES_PORT</TT>,<BR>
+<TT>LSB_MBD_PORT</TT>,<BR>
+<TT>LSB_SBD_PORT</TT></H4>
+
+<P><A NAME="2120"></A>Internet port numbers to use for communication with
+the LSF daemons. The port numbers are normally obtained by looking up the
+LSF service names in the <TT>/etc/services</TT> file or the <TT>services</TT>
+YP map. If it is not possible to modify the service database, these variables
+can be defined to set the port numbers.</P>
+
+<P><A NAME="2122"></A>With careful use of these settings along with the
+<TT>LSF_ENVDIR</TT> and <TT>PATH</TT> environment variables, it is possible
+to run two versions of the LSF software on a host, selecting between the
+versions by setting the <TT>PATH </TT>environment variable to include the
+correct version of the commands and the <TT>LSF_ENVDIR</TT> environment
+variable to point to the directory containing the appropriate <TT>lsf.conf</TT>
+file.</P>
+
+<P><A NAME="2124"></A>Default: get port numbers from services database
+</P>
+
+<H4><A NAME="2164"></A><TT>LSF_LOGDIR</TT></H4>
+
+<P><A NAME="2165"></A>This is an optional definition.</P>
+
+<P><A NAME="2166"></A>If <TT>LSF_LOGDIR</TT> is defined, error messages
+from all servers are logged into files in this directory. If a server is
+unable to write in this directory, then the error logs are created in <TT>/tmp</TT>.</P>
+
+<P><A NAME="2169"></A>If <TT>LSF_LOGDIR</TT> is not defined, then <TT>syslog</TT>
+is used to log everything to the system log using the <TT>LOG_DAEMON</TT>
+facility. The syslog facility is available by default on most UNIX systems.
+The <TT>/etc/syslog.conf</TT> file controls the way messages are logged,
+and the files they are logged to. See the manual pages for the <TT>syslogd</TT>
+daemon and the <TT>syslog</TT> function for more information.</P>
+
+<P><A NAME="2172"></A>Default: log messages go to <TT>syslog </TT></P>
+
+<H4><A NAME="2212"></A><TT>LSF_LOG_MASK</TT></H4>
+
+<P><A NAME="2214"></A>The <TT>syslog</TT>(<TT>3</TT>) log level for LSF
+daemons. This definition applies both if the LSF daemons are logging messages
+to syslog and if the daemons are logging to files. All messages logged
+at the specified level or higher are recorded; lower level messages are
+discarded. The log levels in order from highest to lowest are:</P>
+
+<UL>
+<LI><A NAME="2215"></A><TT>LOG_ALERT </TT></LI>
+
+<LI><A NAME="2216"></A><TT>LOG_SALERT </TT></LI>
+
+<LI><A NAME="2217"></A><TT>LOG_EMERG </TT></LI>
+
+<LI><A NAME="2218"></A><TT>LOG_ERR </TT></LI>
+
+<LI><A NAME="2219"></A><TT>LOG_CRIT </TT></LI>
+
+<LI><A NAME="2220"></A><TT>LOG_WARNING </TT></LI>
+
+<LI><A NAME="2221"></A><TT>LOG_NOTICE </TT></LI>
+
+<LI><A NAME="2222"></A><TT>LOG_INFO </TT></LI>
+
+<LI><A NAME="2223"></A><TT>LOG_DEBUG </TT></LI>
+</UL>
+
+<P><A NAME="2224"></A>Most important LSF log messages are at the <TT>LOG_ERR</TT>
+or <TT>LOG_WARNING</TT> level. Messages at the <TT>LOG_INFO</TT> and <TT>LOG_DEBUG</TT>
+level are only useful for debugging.</P>
+
+<P><A NAME="2225"></A>Default: <TT>LOG_WARNING </TT></P>
+
+<H4><A NAME="2240"></A><TT>LSF_MACHDEP</TT></H4>
+
+<P><A NAME="2668"></A>Specifies the directory where host type dependent
+files are installed. In clusters with a single host type, <TT>LSF_MACHDEP</TT>
+is usually the same as <TT>LSF_INDEP</TT>. The machine dependent files
+are the user programs, daemons, and libraries.</P>
+
+<P><A NAME="2669"></A>Default: <TT>/usr/local/lsf </TT></P>
+
+<H4><A NAME="2274"></A><TT>LSF_MANDIR</TT></H4>
+
+<P><A NAME="2275"></A>Directory under which all manual pages are installed.
+The manual pages are placed in the <TT>man1</TT>, <TT>man3</TT>, <TT>man5</TT>,
+and <TT>man8</TT> subdirectories of the <TT>LSF_MANDIR</TT> directory.</P>
+
+<P><A NAME="2276"></A>Default: <TT>LSF_INDEP/man </TT></P>
+
+<BLOCKQUOTE>
+<P><A NAME="2284"></A><B>Note<BR>
+</B><I>Manual pages are installed in a format suitable for BSD style </I><TT>man</TT><I>
+commands.</I></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="2324"></A><TT>LSF_MISC</TT></H4>
+
+<P><A NAME="11900"></A>Directory where miscellaneous machine independent
+files such as LSF example source programs and scripts are installed.</P>
+
+<P><A NAME="11901"></A>Default: <TT>LSF_CONFDIR/misc </TT></P>
+
+<H4><A NAME="11903"></A><TT>LSF_RES_ACCT</TT></H4>
+
+<P><A NAME="2483"></A>If defined, RES will log task information by default
+(see <TT>lsf.acct</TT>(<TT>5</TT>)). If this parameter is not defined,
+the LSF administrator must use the <TT>lsadmin</TT> command (see <TT>lsadmin</TT>(<TT>8</TT>))
+to turn task logging on after the RES has started up. A CPU time (in msec)
+can be specified for the value for this parameter; only tasks that have
+consumed more than the specified CPU time will be logged. If it is defined
+as <TT>LSF_RES_ACCT=0</TT>, all tasks will be logged.</P>
+
+<P><A NAME="2484"></A>Default: undefined </P>
+
+<H4><A NAME="2438"></A><TT>LSF_RES_ACCTDIR</TT></H4>
+
+<P><A NAME="2439"></A>The directory where the RES task log file is stored.
+If <TT>LSF_RES_ACCTDIR</TT> is not defined, log file is stored in the <TT>/tmp</TT>
+directory.</P>
+
+<P><A NAME="2440"></A>Default: <TT>/tmp </TT></P>
+
+<H4><A NAME="2754"></A><TT>LSF_RES_DEBUG</TT></H4>
+
+<P><A NAME="2558"></A>If <TT>LSF_RES_DEBUG</TT> is defined, the Remote
+Execution Server (RES) will operate in single user mode. No security checking
+is performed, so RES should not run as root. RES will not look in the services
+database for the RES service port number. Instead, it uses port number
+36002 unless LSF_RES_PORT has been defined. The valid values for <TT>LSF_RES_DEBUG</TT>
+are 1 and 2. You should always choose 1 unless you are testing RES.</P>
+
+<P><A NAME="2559"></A>Default: undefined </P>
+
+<H4><A NAME="2642"></A><TT>LSF_ROOT_REX</TT></H4>
+
+<P><A NAME="2643"></A>This is an optional definition.</P>
+
+<P><A NAME="2644"></A>If <TT>LSF_ROOT_REX</TT> is defined, RES accepts
+requests from the superuser (root) on remote hosts, subject to identification
+checking. If <TT>LSF_ROOT_REX</TT> is undefined, remote execution requests
+from user root are refused. Sites that have separate root accounts on different
+hosts within the cluster should not define <TT>LSF_ROOT_REX</TT>. Otherwise,
+this setting should be based on local security policies. If the value of
+this parameter is defined to 'all', then root remote execution across cluster
+is enabled. This applies to LSF MultiCluster only. Setting <TT>LSF_ROOT_REX</TT>
+to any other values only enables root remote execution within the local
+cluster. </P>
+
+<P><A NAME="2645"></A>Default: undefined - Root execution is not allowed
+</P>
+
+<H4><A NAME="2442"></A><TT>LSF_SERVERDIR</TT></H4>
+
+<P><A NAME="2443"></A>Directory where all server binaries are installed.
+These include <TT>lim</TT>, <TT>res</TT>, <TT>nios</TT>, <TT>sbatchd</TT>,
+<TT>mbatchd</TT>, and <TT>eeventd</TT> (for LSF JobScheduler only). If
+you use <TT>elim</TT>, <TT>eauth</TT>, <TT>eexec</TT>, <TT>esub</TT>, etc,
+they should also be installed in this directory.</P>
+
+<P><A NAME="5847"></A>Default: <TT>LSF_MACHDEP/etc </TT></P>
+
+<H4><A NAME="1834"></A><TT>LSF_SERVER_HOSTS</TT></H4>
+
+<P><A NAME="1778"></A>This defines one or more LSF server hosts that the
+application should contact to get in touch with a Load Information Manager
+(LIM). This is used on client hosts where no LIM is running on the local
+host. The LSF server hosts are hosts that run LSF daemons and provide loading
+sharing services. Client hosts are hosts that only run LSF commands or
+applications but do not provide services to any hosts.</P>
+
+<P><A NAME="12103"></A>If <TT>LSF_SERVER_HOSTS</TT> is not defined, the
+application tries to contact the LIM on the local host. See <A HREF="04-configure-lsf.html#22881">'Setting
+Up LSF Client Hosts'</A> for more details about server and client hosts.</P>
+
+<P><A NAME="5479"></A>The host names in <TT>LSF_SERVER_HOSTS</TT> must
+be enclosed in quotes and separated by white space; for example:</P>
+
+<PRE><A NAME="5482"></A>LSF_SERVER_HOSTS=&quot;hostA hostD hostB&quot;</PRE>
+
+<P><A NAME="1786"></A>Default: undefined </P>
+
+<H4><A NAME="1623"></A><TT>LSF_STRIP_DOMAIN</TT></H4>
+
+<P><A NAME="1624"></A>This is an optional definition.</P>
+
+<P><A NAME="1625"></A>If all the hosts in your cluster can be reached using
+short host names, you can configure LSF to use the short host names by
+specifying the portion of the domain name to remove. If your hosts are
+in more than one domain, or have more than one domain name, you can specify
+more than one domain suffix to remove, separated by a colon '<TT>:</TT>'.</P>
+
+<P><A NAME="1626"></A>For example, given this definition of <TT>LSF_STRIP_DOMAIN</TT>:</P>
+
+<PRE><A NAME="1627"></A><TT>LSF_STRIP_DOMAIN=.foo.com:.bar.com</TT></PRE>
+
+<P><A NAME="1628"></A><TT>LSF acce</TT>pts <I>hostA</I>, <I>hostA.foo.com</I>,
+and <I>hostA.bar.com</I> as names for host <I>hostA</I>, and uses the name
+<I>hostA</I> in all output. The leading period '.' is required.</P>
+
+<P><A NAME="1629"></A>Default: undefined </P>
+
+<H4><A NAME="265"></A><TT>LSF_USE_HOSTEQUIV</TT></H4>
+
+<P><A NAME="321"></A>This is an optional definition.</P>
+
+<P><A NAME="424"></A>If <TT>LSF_USE_HOSTEQUIV</TT> is defined, RES and
+<TT>mbatchd</TT> call the <TT>ruserok</TT>(<TT>3</TT>) function to decide
+if a user is allowed to run remote jobs. If <TT>LSF_USE_HOSTEQUIV</TT>
+is not defined, all normal users in the cluster can execute remote jobs
+on any host. If <TT>LSF_ROOT_REX</TT> is set, root can also execute remote
+jobs with the same permission test as for normal users.</P>
+
+<P><A NAME="427"></A>Default: undefined </P>
+
+<H4><A NAME="1700"></A><TT>XLSF_APPDIR</TT></H4>
+
+<P><A NAME="1701"></A>The directory where X application defaults files
+for LSF products are installed. The LSF commands that use X look in this
+directory to find the application defaults. Users do not need to set environment
+variables to use the LSF X applications. The application defaults files
+are platform independent.</P>
+
+<P><A NAME="1704"></A>Default: <TT>LSF_INDEP/misc </TT></P>
+
+<H4><A NAME="1705"></A><TT>XLSF_UIDDIR</TT></H4>
+
+<P><A NAME="1717"></A>The directory where Motif User Interface Definition
+files are stored. These files are platform specific.</P>
+
+<P><A NAME="1718"></A>Default: <TT>LSF_LIBDIR/uid </TT></P>
+
+<H4><A NAME="8302"></A><TT>LSF_RES_RLIMIT_UNLIM</TT></H4>
+
+<P><A NAME="8407"></A>By default, the RES sets the hard limits for a remote
+task to be the same as the hard limits of the local process. This parameter
+specifies those hard limits which are to be set to unlimited, instead of
+inheriting those of the local process. Valid values are <TT>cpu</TT>, <TT>fsize</TT>,
+<TT>data</TT>, <TT>stack</TT>, <TT>core</TT>, and <TT>vmem</TT>, for cpu,
+file size, data size, stack, core size, and virtual memory limits, respectively.</P>
+
+<P><A NAME="11950"></A>For example:</P>
+
+<PRE><A NAME="8501"></A><TT>LSF_RES_RLIMIT_UNLIM=&quot;cpu core stack&quot;</TT></PRE>
+
+<P><A NAME="8503"></A>will set the cpu, core size, and stack hard limits
+to be unlimited for all remote tasks.</P>
+
+<P>Default: undefined </P>
+
+<H2><A NAME="2744"></A>The <TT>lsf.shared</TT> File</H2>
+
+<P><A NAME="1773"></A>The <TT>lsf.shared</TT> file contains definitions
+that are used by all load sharing clusters. This includes lists of cluster
+names, host types, host models, the special resources available, and external
+load indices.</P>
+
+<H3><A NAME="220"></A>Clusters</H3>
+
+<P><A NAME="229"></A>The mandatory <TT>Cluster</TT> section defines all
+cluster names recognized by the LSF system, with one line for each cluster.</P>
+
+<P><A NAME="230"></A>The <TT>ClusterName</TT> keyword is mandatory. All
+cluster names referenced anywhere in the LSF system must be defined here.
+The file names of cluster-specific configuration files must end with the
+associated cluster name.</P>
+
+<PRE><A NAME="418"></A>Begin Cluster
+ClusterName
+clus1
+clus2
+End Cluster</PRE>
+
+<H3><A NAME="232"></A>Host Types</H3>
+
+<P><A NAME="233"></A>The mandatory <TT>HostType</TT> section lists the
+valid host type names in the cluster. Each host is assigned a host type
+in the <TT>lsf.cluster.<I>cluster</I></TT> file. All hosts that can run
+the same binary programs should have the same host type, even if they have
+different models of processor. LSF uses the host type as a default requirement
+for task placement. Unless specified otherwise, jobs are always run on
+hosts of the same type.</P>
+
+<P><A NAME="5259"></A>The <TT>TYPENAME</TT> keyword is mandatory. Host
+types are usually based on a combination of the hardware name and operating
+system. For example, a DECStation system runs the ULTRIX operating system
+and has a MIPS CPU, so you assign the host type UMIPS. If your site already
+has a system for naming host types, you can use the same names for LSF.</P>
+
+<PRE><A NAME="419"></A>Begin HostType
+TYPENAME
+SUN41
+UMIPS
+ALPHA
+HPPA
+End HostType</PRE>
+
+<H3><A NAME="236"></A>Host Models</H3>
+
+<P><A NAME="237"></A>The mandatory <TT>HostModel</TT> section lists the
+various models of machines and gives the relative CPU speed for each model.
+LSF uses the relative CPU speed to normalize the CPU load indices so that
+jobs are more likely to be sent to faster hosts. The <TT>MODELNAME</TT>
+and <TT>CPUFACTOR</TT> keywords are mandatory.</P>
+
+<P><A NAME="238"></A>It is up to you to identify the different host models
+in your system, but generally you need to identify first the distinct host
+types, such as MIPS and SPARC, and then the machine models within each,
+such as SparcIPC, Sparc1, Sparc2, and Sparc10.</P>
+
+<P><A NAME="239"></A>Though it is not required, you would typically assign
+a CPU factor of 1.0 to the slowest machine model in your system, and higher
+numbers for the others. For example, for a machine model that executes
+at twice the speed of your slowest model, a factor of 2.0 should be assigned.</P>
+
+<PRE><A NAME="420"></A>Begin HostModel
+MODELNAME  CPUFACTOR
+SparcIPC   1.0
+Sparc10    2.0
+End HostModel</PRE>
+
+<P><A NAME="785"></A>The CPU factor affects the calculation of job execution
+time limits and accounting. Using large values for the CPU factor can cause
+confusing results when CPU time limits or accounting are used. See <A HREF="11-lsbatch-reference.html#249">'Resource
+Limits'</A> for more information.</P>
+
+<H3><A NAME="247"></A>Resources</H3>
+
+<P><A NAME="248"></A>The optional <TT>Resource</TT> section contains a
+list of boolean resource names. Boolean resource names are character strings
+chosen by the LSF administrator. You can use any name other than the reserved
+resource names. The keywords <TT>RESOURCENAME</TT> and <TT>DESCRIPTION</TT>
+are mandatory.</P>
+
+<P><A NAME="257"></A>For a more general discussion of boolean resources
+see the <A HREF="04-resources.html#356">'Resources'</A> chapter of the
+<I><A HREF="users-title.html">LSF User's Guide</A></I>.</P>
+
+<P><A NAME="425"></A>Boolean resource names must be strings of numbers
+and letters, beginning with a letter and no more than 29 characters long.
+You can define up to 32 boolean resource names in lsf.shared.</P>
+
+<P><A NAME="316"></A>This sample <TT>Resource</TT> section defines boolean
+resources to represent processor types, operating system versions, and
+software licenses:</P>
+
+<PRE><A NAME="421"></A>Begin Resource
+RESOURCENAME  DESCRIPTION
+sparc         (Sparc CPU)
+sunos4        (Running SunOS 4.x)
+solaris       (Running Solaris 2.x)
+frame         (FrameMaker license)
+End Resource</PRE>
+
+<H3><A NAME="234"></A>External Load Indices</H3>
+
+<P><A NAME="240"></A>LSF supports hundreds of site-specific load indices,
+defined in an optional <TT>NewIndex</TT> section. The load levels for these
+indices are obtained from an External Load Information Manager process,
+or ELIM. External load indices and the ELIM are described in <A HREF="05-manage-lsf.html#23513">'Changing
+LIM Configuration'</A>. The four mandatory keywords in the <TT>NewIndex</TT>
+section are:</P>
+
+<DL>
+<DT><A NAME="793"></A><TT>NAME </TT></DT>
+
+<DD>The name of the load index. The name is displayed by the lsinfo and
+lsload commands, and used in resource requirement strings and to define
+load thresholds. External load index names have the same restrictions as
+boolean resource names; the name is a string of letters and numbers, beginning
+with a letter. The maximum length of an external load index name is 29
+characters. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="5511"></A>This parameter is required. </DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="3991"></A><B>Note<BR>
+</B><I>The name of the load index must not be one of the resource name
+aliases </I><TT>cpu</TT><I>, </I><TT>idle</TT><I>, </I><TT>logins</TT><I>,
+or </I><TT>swap</TT><I>. To override one of these indices, use its formal
+name: </I><TT>r1m</TT><I>, </I><TT>it</TT><I>, </I><TT>ls</TT><I>, or </I><TT>swp</TT><I>.
+Otherwise, use another name. </I></P>
+</BLOCKQUOTE>
+
+<DL>
+<DT><A NAME="3994"></A><TT>INTERVAL </TT></DT>
+
+<DD>The time interval (in seconds) between updates of this load index.
+The interval is reported by the <TT>ls_info()</TT> function and the <TT>lsinfo
+-l</TT> command. Note that the actual update interval is controlled by
+the external load information program. This number is for user information
+only. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="4257"></A>This parameter is optional. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="245"></A><TT>INCREASING </TT></DT>
+
+<DD>If <TT>INCREASING=Y</TT>, the load level is higher when the number
+is higher. When the load index is above the threshold, the host is considered
+busy. For example, <TT>r1m</TT> (1 minute average CPU run queue length)
+is an increasing load index. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="246"></A>If <TT>INCREASING=N</TT>, the load level is higher
+when the number is lower. When the load index is below the threshold, the
+host is considered busy. For example, <TT>tmp</TT> (free space on the <TT>/tmp</TT>
+file system) is a decreasing load index. The less free space, the busier
+the host. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="4280"></A>This parameter is required. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="258"></A><TT>DESCRIPTION </TT></DT>
+
+<DD>The description of the load index to be displayed by the <TT>lsinfo</TT>
+command. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="4268"></A>This parameter is optional but is highly recommended.
+</DD>
+</DL>
+
+<P><A NAME="349"></A>The example <TT>NewIndex</TT> section below shows
+a user-defined index to report the space available on the <TT>/usr/tmp</TT>
+file system, in megabytes:</P>
+
+<PRE><A NAME="350"></A>Begin NewIndex
+NAME  INTERVAL  INCREASING  DESCRIPTION
+usrtmp      90           N  (Disk space in /usr/tmp in megabytes)
+End NewIndex</PRE>
+
+<H2><A NAME="2717"></A>The <TT>lsf.cluster.<I>cluster</I></TT> File</H2>
+
+<P><A NAME="266"></A>This is the load sharing cluster configuration file.
+There is one such file for each load sharing cluster in the system. The
+cluster suffix must agree with the name defined in the <TT>Cluster</TT>
+section of the <TT>lsf.shared</TT> file.</P>
+
+<H3><A NAME="267"></A><TT>Parameters</TT></H3>
+
+<P><A NAME="1968"></A>The <TT>Parameters</TT> section is optional. This
+section contains miscellaneous parameters for the LIM.</P>
+
+<H4><A NAME="12173"></A><TT>FEATURES</TT></H4>
+
+<P><A NAME="12267"></A>The <TT>FEATURES</TT> line specifies which LSF component(s)
+will be enabled in the cluster. The <TT>FEATURES</TT> line can specify
+any combination of the strings '<TT>lsf_base</TT>', '<TT>lsf_batch</TT>',
+'<TT>lsf_js</TT>', and '<TT>lsf_mc</TT>' to enable the operation of LSF
+Base, LSF Batch, LSF JobScheduler and LSF MultiCluster, respectively. If
+any of '<TT>lsf_batch</TT>', '<TT>lsf_js</TT>', or '<TT>lsf_mc</TT>' are
+specified then '<TT>lsf_base</TT>' is automatically enabled as well. Specifying
+the <TT>FEATURES</TT> line enables the feature for all hosts in the cluster.
+Individual hosts can be configured to run as LSF Batch servers or LSF JobScheduler
+servers within the same cluster. LSF MultiCluster is either enabled or
+disabled for multicluster operation for the entire cluster.</P>
+
+<P><A NAME="12296"></A>The <TT>FEATURES</TT> line is created automatically
+by the installation program <TT>lsfsetup</TT>. For example:</P>
+
+<PRE><A NAME="12292"></A>Begin Parameters
+FEATURES=lsf_base lsf_batch
+End Parameters</PRE>
+
+<P><A NAME="12302"></A>If the <TT>FEATURES</TT> line is not specified,
+the default is to enable the operation of '<TT>lsf_base</TT>' and '<TT>lsf_batch</TT>'.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="12401"></A><B>Note<BR>
+</B><I>The features defined by the </I><TT>FEATURES</TT><I> line must match
+the license file used to serve the cluster. A host will be unlicensed if
+the license is unavailable for the component it was configured to run.
+For example, if you configure a cluster to run LSF JobScheduler on all
+hosts, and the license file does not contain the LSF JobScheduler feature,
+than the hosts will be unlicensed, even if there are licenses for LSF Base
+or LSF Batch</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="12232"></A>Default: <TT>lsf_base lsf_batch </TT></P>
+
+<H4><A NAME="1972"></A><TT>ELIMARGS</TT></H4>
+
+<P><A NAME="1973"></A>The <TT>ELIMARGS</TT> parameter specifies any necessary
+command line arguments for the external LIM. This parameter is ignored
+if no external load indices are configured.</P>
+
+<P><A NAME="1981"></A>Default: none </P>
+
+<H4><A NAME="1974"></A><TT>EXINTERVAL</TT></H4>
+
+<P><A NAME="1975"></A>The time interval in seconds at which the LIM daemons
+exchange load information. On extremely busy hosts or networks, load may
+interfere with the periodic communication between LIM daemons. Setting
+<TT>EXINTERVAL</TT> to a longer interval can reduce network load and slightly
+improve reliability, at the cost of slower reaction to dynamic load changes.</P>
+
+<P><A NAME="1980"></A>Default: 15 seconds</P>
+
+<H4><A NAME="6903"></A><TT>ELIM_POLL_INTERVAL</TT></H4>
+
+<P><A NAME="6904"></A>The time interval in seconds in which the LIM daemon
+samples load information. This parameter only needs to be set if an ELIM
+is being used to report information more frequently than every 5 seconds.</P>
+
+<P><A NAME="6905"></A>Default: 5 seconds.</P>
+
+<H4><A NAME="7335"></A><TT>HOST_INACTIVITY_LIMIT</TT></H4>
+
+<P><A NAME="12801"></A>An integer reflecting a multiple of <TT>EXINTERVAL</TT>.
+This parameter controls the maximum time a slave LIM will take to send
+its load information to the master LIM as well as the frequency at which
+the master LIM will send a heartbeat message to its slaves. A slave LIM
+can send its load information any time from <TT>EXINTERVAL</TT> to <TT>(HOST_INACTIVITY_LIMIT-2)*EXINTERVAL</TT>
+seconds. A master LIM will send a master announce to each host at least
+every <TT>EXINTERVAL*HOST_INACTIVITY_LIMIT</TT> seconds.</P>
+
+<P><A NAME="7683"></A>Default: 5 </P>
+
+<H4><A NAME="7351"></A><TT>MASTER_INACTIVITY_LIMIT</TT></H4>
+
+<P><A NAME="7352"></A>An integer reflecting a multiple of <TT>EXINTERVAL</TT>.</P>
+
+<P><A NAME="12797"></A>A slave will attempt to become master if it does
+not hear from the previous master after <TT>(HOST_INACTIVITY_LIMIT+</TT><I>hostNo</I><TT>*MASTER_INACTIVITY_LIMIT)*EXINTERVAL</TT>
+seconds where <I>hostNo</I> is the position of the host in the <TT>lsf.cluster.<I>cluster</I></TT>
+file.</P>
+
+<P><A NAME="7721"></A>Default: 2 </P>
+
+<H4><A NAME="7359"></A><TT>PROBE_TIMEOUT</TT></H4>
+
+<P><A NAME="7360"></A>Before taking over as the master, a slave LIM will
+try to connect to the last known master via TCP. This parameter specifies
+the time-out in seconds to be used for the <TT>connect</TT>(<TT>2</TT>)
+system call. </P>
+
+<P><A NAME="7739"></A>Default: 2 seconds </P>
+
+<H3><A NAME="7364"></A><TT>RETRY_LIMIT</TT></H3>
+
+<P><A NAME="7365"></A>An integer reflects a multiple of <TT>EXINTERVAL</TT>.
+This parameter controls the number of retries a master (slave) LIM makes
+before assuming the slave (master) is unavailable. If the master does not
+hear from a slave for <TT>HOST_INACTIVITY_LIMIT</TT> exchange intervals,
+it will actively poll the slave for <TT>RETRY_LIMIT</TT> exchange intervals
+before it will declare the slave as unavailable. If a slave does not hear
+from the master for <TT>HOST_INACTIVITY_LIMIT</TT> exchange intervals,
+it will actively poll the master for <TT>RETRY_LIMIT</TT> intervals before
+assuming the master is down.</P>
+
+<P><A NAME="7750"></A>Default: 2</P>
+
+<H3><A NAME="1967"></A>LSF Administrators</H3>
+
+<P><A NAME="6190"></A>The <TT>ClusterAdmins</TT> section defines the LSF
+administrator(s) for this cluster. Both UNIX user and group names may be
+specified with the <TT>ADMINISTRATORS</TT> keyword. The LIM will expand
+the definition of a group name using the <TT>getgrnam</TT>(<TT>3</TT>)
+call. The first administrator of the expanded list is considered the primary
+LSF administrator. The primary administrator is the owner of the LSF configuration
+files, as well as the working files under <TT>LSB_SHAREDIR/<I>cluster</I></TT>.
+If the primary administrator is changed, make sure the owner of the configuration
+files and the files under <TT>LSB_SHAREDIR/<I>cluster</I></TT> are changed
+as well. All LSF administrators have the same authority to perform actions
+on LSF daemons, jobs, queues, or hosts in the system.</P>
+
+<P><A NAME="6322"></A>For backwards compatibility, <TT>ClusterManager</TT>
+and <TT>Manager</TT> are synonyms for <TT>ClusterAdmins</TT> and <TT>ADMINISTRATOR</TT>
+respectively. It is possible to have both sections present in the same
+<TT>lsf.cluster.<I>cluster</I></TT> file to allow daemons from different
+LSF versions to share the same file.</P>
+
+<P><A NAME="6323"></A>If this section is not present, the default LSF administrator
+is root. For flexibility, each cluster may have its own LSF administrator(s),
+identified by a user name, although the same administrator(s) can be responsible
+for several clusters.</P>
+
+<P><A NAME="309"></A>The <TT>ADMINISTRATOR</TT> parameter is normally set
+during the installation procedure.</P>
+
+<P><A NAME="6370"></A>Use the <TT>-l</TT> option of the <TT>lsclusters</TT>
+command to display all the administrators within a cluster.</P>
+
+<P><A NAME="10321"></A>The following gives an example of a cluster with
+three LSF administrators. The user listed first, <I>user2</I>, is the primary
+administrator.</P>
+
+<PRE><A NAME="422"></A>Begin ClusterAdmins
+ADMINISTRATORS = user2 lsfgrp user7
+End ClusterAdmins</PRE>
+
+<H3><A NAME="277"></A>Hosts</H3>
+
+<P><A NAME="278"></A>The <TT>Host</TT> section is the last section in <TT>lsf.cluster.<I>cluster</I></TT>
+and is the only required section. It lists all the hosts in the cluster
+and gives configuration information for each host.</P>
+
+<P><A NAME="279"></A>The order in which the hosts are listed in this section
+is important. The LIM on the first host listed becomes the master LIM if
+this host is up; otherwise, that on the second becomes the master if its
+host is up, and so on.</P>
+
+<P><A NAME="4699"></A>Since the master LIM makes all placement decisions
+for the cluster, you want it on a fast machine. Also, to avoid the delays
+involved in switching masters if the first machine goes down, you want
+the master to be on a reliable machine. It is desirable to arrange the
+list such that the first few hosts in the list are always in the same subnet.
+This avoids the situation where the second host takes over the master when
+there are communication problems between subnets.</P>
+
+<P><A NAME="792"></A>Configuration information is of two types. Some fields
+in a host entry simply describe the machine and its configuration. Other
+fields set thresholds for various resources. Both types are listed below.</P>
+
+<H4><A NAME="819"></A>Descriptive Fields</H4>
+
+<P><A NAME="794"></A>The <TT>HOSTNAME</TT>, <TT>model</TT>, <TT>type</TT>,
+and <TT>RESOURCES</TT> fields must be defined in the <TT>Host</TT> section.
+The <TT>server</TT>, <TT>nd</TT>, <TT>RUNWINDOW</TT>, and <TT>REXPRI</TT>
+fields are optional.</P>
+
+<DL>
+<DT><A NAME="281"></A><TT>HOSTNAME </TT></DT>
+
+<DD>The official name of the host as returned by <TT>hostname</TT>(<TT>1</TT>).
+Must be listed in <TT>lsf.shared</TT> as belonging to this cluster. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="282"></A><TT>model </TT></DT>
+
+<DD>Host model. Must be one of those defined in the <TT>lsf.shared</TT>
+file. This determines the CPU speed scaling factor applied in load and
+placement calculations. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="284"></A><TT>type </TT></DT>
+
+<DD>A host type as defined in the <TT>HostType</TT> section of <TT>lsf.shared</TT>.
+The strings used for host types are decided by the system administrator.
+For example, <TT>SPARC</TT>, <TT>DEC</TT>, <TT>HPPA, etc</TT>. The host
+type is used to identify binary-compatible hosts. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="286"></A><TT>T</TT>he host type is used as the default resource
+requirement. That is, if no resource requirement is specified in a placement
+request then the task is run on a host of the same type as the sending
+host. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="287"></A>Often one host type can be used for many machine
+models. For example, the host type name <TT>SUN41</TT> might be used for
+any computer with a SPARC processor running SunOS 4.1. This would include
+many Sun models and quite a few from other vendors as well. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="291"></A><TT>server </TT></DT>
+
+<DD>If <TT>server</TT> is set to 0, the host is an LSF client. Client hosts
+do not run the LSF daemons. Client hosts can submit interactive and batch
+jobs to an LSF cluster, but cannot execute jobs sent from other hosts.
+It is set to 1 if the host can receive jobs from other hosts. If this field
+is not defined, then the default is 1. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="849"></A><TT>nd </TT></DT>
+
+<DD>The number of local disks. This corresponds to the <TT>ndisks</TT>
+static resource. On most host types LSF automatically determines the number
+of disks, and the nd parameter is ignored. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="3417"></A><TT>nd</TT> should only count local disks with file
+systems on them. Do not count either disks used only for swapping or disks
+mounted with NFS. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="3455"></A>Default: the number of disks determined by the LIM,
+or 1 if the LIM cannot determine this. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="297"></A><TT>RESOURCES </TT></DT>
+
+<DD>Boolean resources available on this host. The resource names are strings
+defined in the <TT>Resource</TT> section of the file <TT>lsf.shared</TT>.
+You may list any number of resources, enclosed in parentheses and separated
+by blanks or tabs. For example: <TT>(fs frame hpux) </TT></DD>
+</DL>
+
+<DL>
+<DT><A NAME="298"></A><TT>RUNWINDOW </TT></DT>
+
+<DD>Dispatch window during which the LIM recommends this host for task
+execution. When the host is not available for remote execution, the host
+status is <TT>lockW</TT> (locked by run window). LIM does not schedule
+interactive tasks on hosts locked by dispatch windows. Note that LSF Batch
+uses its own (optional) host dispatch windows to control batch job processing
+on batch server hosts. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="12514"></A>A dispatch window consists of one or more time
+windows. See <A HREF="03-concepts.html#3453">'Time Windows'</A> for a description
+of the format of time window specifications. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="301"></A>Default: always accept remote jobs. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="851"></A><TT>REXPRI </TT></DT>
+
+<DD>The default execution priority for interactive remote jobs run under
+the RES. Range: -20 to 20. <TT>REXPRI</TT> corresponds to the BSD style
+nice value used for remote jobs. For hosts with System V style nice values
+with the range 0 - 39, a <TT>REXPRI</TT> of -20 corresponds to a nice value
+of 0 and +20 corresponds to 39. Higher values of <TT>REXPRI</TT> correspond
+to lower execution priority; -20 gives the highest priority, 0 is the default
+priority for login sessions, and +20 is the lowest priority. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="4779"></A>Default: 0. </DD>
+</DL>
+
+<H4><A NAME="302"></A>Threshold Fields</H4>
+
+<P><A NAME="304"></A>The LIM uses these thresholds in determining whether
+to place remote jobs on a host. If one or more LSF load indices exceeds
+the corresponding threshold (too many users, not enough swap space, etc.),
+then the host is regarded as busy and LIM will not recommend jobs to that
+host.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="4794"></A><B>Note<BR>
+</B><I>The CPU run queue length threshold values (</I><TT>r15s</TT><I>,
+</I><TT>r1m</TT><I>, and </I><TT>r15m</TT><I>) are taken as effective queue
+lengths as reported by </I><TT>lsload -E</TT><I>.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="283"></A>All of these fields are optional; you only need to
+configure thresholds for load indices you wish to use for determining whether
+hosts are busy. Fields that are not configured are not considered when
+determining host status.</P>
+
+<P><A NAME="880"></A>Thresholds can be set for any load index supported
+internally by the LIM, and for any external load index (see <A HREF="10-lsf-reference.html#234">'External
+Load Indices'</A>).</P>
+
+<P><A NAME="311"></A>This example <TT>Host</TT> section contains descriptive
+and threshold information for two hosts.</P>
+
+<PRE><A NAME="2755"></A>Begin Host
+HOSTNAME model    type   server r1m pg tmp RESOURCES     RUNWINDOW
+hostA    SparcIPC Sparc      1  3.5 15   0 (sunos)       ()
+hostD    Sparc10  Sparc      1  3.5 15   0 (sunos frame) (18:00-08:00)
+End Host</PRE>
+
+<H2><A NAME="2757"></A>The <TT>lsf.task</TT> and <TT>lsf.task.<I>cluster</I></TT>
+Files</H2>
+
+<P><A NAME="2759"></A>These two files are optional, but at least one of
+them should be present. The <TT>lsf.task</TT> file applies to all load
+sharing clusters. The <TT>lsf.task.<I>cluster</I></TT> file applies only
+to the named cluster. These files define the default resource requirements
+for commonly used commands.</P>
+
+<P><A NAME="324"></A>Users can also have their own lists defined in the
+file <TT>.lsftask</TT> in their home directory. That file is also optional
+and uses a similar format.</P>
+
+<P><A NAME="325"></A>LSF combines the lists from these files before using
+them; any task listed in any of these files is on the combined lists. In
+the event of conflict (for example, if a task is listed as remotely executable
+in one file but as local in another), the most specific file wins: cluster-specific
+data from <TT>lsf.task.<I>cluster</I></TT> overrides system-wide data from
+<TT>lsf.task</TT>, and user-specific data from <TT>$HOME/.lsftask</TT>
+overrides both.</P>
+
+<P><A NAME="327"></A>Each file contains two lists of task names, <TT>LocalTasks</TT>
+and <TT>RemoteTasks</TT>, to indicate which tasks should be executed locally
+and remotely, respectively. The following sections describe the two lists:</P>
+
+<H3><A NAME="328"></A>Local Tasks</H3>
+
+<P><A NAME="329"></A>The local task list is typically short, containing
+tasks that depend on local resources (for example, <TT>ps</TT> and <TT>hostname</TT>)
+or tasks that are too small to repay the overhead of setting up remote
+connections (for example, <TT>date</TT>).</P>
+
+<PRE><A NAME="416"></A>Begin LocalTask
+who
+uptime
+date
+ls
+End LocalTask</PRE>
+
+<H3><A NAME="330"></A>Remote Tasks</H3>
+
+<P><A NAME="331"></A>The remote task list is more complex than the local
+list. It not only names tasks but also describes their resource requirements
+so that they may be properly placed.</P>
+
+<P><A NAME="332"></A>Often this list is quite small when LSF is first installed.
+It may be, and usually is, expanded as you gain experience using load sharing.</P>
+
+<P><A NAME="333"></A>Proper configuration of the remote task list is important
+for correct operation of LSF. For example, you do not want to send a compile
+job to the wrong host and produce a binary that does not run on the machine
+you need it on.</P>
+
+<P><A NAME="334"></A>The remote task list also plays an important role
+in managing network resource accessibility. For example, suppose the program
+<TT>maple</TT> is available only on some of the SUN hosts. It can be transparently
+invoked from any host in the system if the following entry is added to
+the <TT>RemoteTasks</TT> section:</P>
+
+<PRE><A NAME="335"></A>maple/mserver</PRE>
+
+<P><A NAME="12627"></A>This says that <TT>maple</TT> should be executed
+remotely on a machine that has the <TT>mserver</TT> resource configured
+in the <TT>lsf.cluster.<I>cluster</I></TT> file. That file should indicate
+the resource only for SUN hosts with <TT>maple</TT> installed. The file
+<TT>lsf.shared</TT> must define the <TT>mserver</TT> resource name for
+this to work.</P>
+
+<P><A NAME="337"></A>Once the files <TT>lsf.task</TT>, <TT>lsf.cluster.<I>cluster</I></TT>,
+and <TT>lsf.shared</TT> all have the correct entries, all the user needs
+to do is enter <TT>maple</TT> and the program automatically runs on an
+appropriate host.</P>
+
+<P><A NAME="338"></A>For details about the task file format, see <TT>lsrtasks</TT>(<TT>1</TT>).
+This example shows remote task list entries for four common commands:</P>
+
+<PRE><A NAME="2778"></A>Begin RemoteTasks
+cc/order[cpu:mem]
+&quot;troff/type==any order[cpu]&quot;
+&quot;compress/type==any order[cpu:mem]&quot;
+&quot;latex/type==any order[cpu:mem]&quot;
+End RemoteTasks</PRE>
+
+<H2><A NAME="2784"></A>The <TT>hosts</TT> File</H2>
+
+<P><A NAME="2787"></A>If your LSF clusters include hosts that have more
+than one interface and are configured with more than one official host
+name, you must either modify the host name configuration or create a private
+hosts file for LSF to use. The LSF hosts file is stored in <TT>LSF_CONFDIR</TT>.
+The format of <TT>LSF_CONFDIR/hosts</TT> is the same as for the <TT>/etc/hosts</TT>
+file.</P>
+
+<P><A NAME="213"></A>For every host that has more than one official name,
+you must duplicate the <TT>hosts</TT> database information except that
+all entries for the host should use the same official name. Configure all
+the other names for the host as aliases so that people can still refer
+to the host by any name. For example, if your <TT>/etc/hosts</TT> file
+contains:</P>
+
+<PRE><A NAME="323"></A><TT>AA.AA.AA.AA  host-AA host # first interface
+BB.BB.BB.BB  host-BB      # second interface</TT></PRE>
+
+<P><A NAME="11168"></A>then the <TT>LSF_CONFDIR/hosts</TT> file should
+contain:</P>
+
+<PRE><A NAME="415"></A><TT>AA.AA.AA.AA  host host-AA # first interface
+BB.BB.BB.BB  host host-BB # second interface</TT></PRE>
+
+<P><A NAME="214"></A>The LSF hosts file should only contain entries for
+host with more than one official name. All other hosts names and addresses
+are resolved using the default method for your hosts. See <A HREF="03-concepts.html#3293">'Host
+Naming'</A> for a detailed discussion of official host names.</P>
+
+<H2><A NAME="12839"></A>The <TT>lsf.sudoers</TT> File</H2>
+
+<P><A NAME="12840"></A>This file allows a list of permitted users to perform
+certain privileged operations in the LSF cluster as either the superuser
+or any other designated user. This file is optional.</P>
+
+<P><A NAME="13061"></A>The <TT>lsf.sudoers</TT> file must be located in
+<TT>/etc</TT> and it must be owned by root.</P>
+
+<P><A NAME="12842"></A>The format of this file is very similar to that
+of the <TT>lsf.conf</TT> file (<A HREF="10-lsf-reference.html#2702">see
+'The <TT>lsf.conf</TT> File'</A>). Each line of the file is a <TT>NAME=VALUE</TT>
+statement, where <TT>NAME</TT> describes an authorized operation and <TT>VALUE</TT>
+is a single string or multiple strings enclosed in quotes. Lines starting
+with '<TT>#</TT>' are comments and are ignored.</P>
+
+<P><A NAME="12843"></A>The currently recognized variables in this file
+include:</P>
+
+<DL>
+<DT><A NAME="12844"></A><TT>LSF_STARTUP_USERS </TT></DT>
+
+<DD>By default, the superuser is the only user who can startup the LSF
+as root. This parameter is used to enable a list of specified users to
+start up LSF daemons as root using LSF administrative commands <TT>lsadmin</TT>
+and <TT>badmin</TT>. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="12845"></A>Note that <TT>lsadmin</TT> and <TT>badmin</TT>
+must be installed as setuid root programs for this to work. Possible values
+for this variable include: </DD>
+</DL>
+
+<DL>
+<DD><A NAME="12846"></A><TT>all_admins </TT></DD>
+
+<DL>
+<DD>This allows all LSF administrators configured in the <TT>lsf.cluster.<I>cluster</I></TT>
+file to start up LSF daemons as root by running the <TT>lsadmin</TT> and
+<TT>badmin</TT> commands. </DD>
+</DL>
+</DL>
+
+<DL>
+<DD><A NAME="12847"></A><TT>user1 user2 ... </TT></DD>
+
+<DL>
+<DD>This allows listed user(s) to perform the startup operations. If this
+list contains more than one user, it must be enclosed with quotes. For
+example:</DD>
+</DL>
+
+<DL>
+<DD><TT>LSF_STARTUP_USERS=&quot;user1 user2&quot;. </TT></DD>
+</DL>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="12849"></A><B>CAUTION!<BR>
+Defining <TT>LSF_STARTUP_USERS</TT> as <TT>all_admins</TT> incurs some
+security risk because administrators can be configured by a primary LSF
+administrator who is not root. You should explicitly list the login names
+of all authorized administrators here so that you have full control of
+who can start daemons as root.</B></P>
+</BLOCKQUOTE>
+
+<DL>
+<DT><A NAME="12850"></A><TT>LSF_STARTUP_PATH </TT></DT>
+
+<DD>The absolute pathname of the directory where the server binaries, namely,
+<TT>lim</TT>, <TT>res</TT>, <TT>sbatchd</TT>, and <TT>mbatchd</TT> are
+installed. This is normally <TT>LSF_SERVERDIR</TT> as defined in your <TT>lsf.conf</TT>
+file. LSF will allow the users defined in <TT>LSF_STARTUP_USERS</TT> to
+start the daemons installed in the <TT>LSF_STARTUP_PATH</TT> directory
+as root. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="12851"></A>Both <TT>LSF_STARTUP_USERS</TT> and <TT>LSF_STARTUP_PATH</TT>
+must be defined for this feature to work. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12852"></A><TT>LSB_PRE_POST_EXEC_USER </TT></DT>
+
+<DD>This parameter defines the authorized user for the LSF Batch queue
+level pre-execution and post-execution commands. These commands can be
+configured at the queue level by the LSF administrator. If <TT>LSB_PRE_POST_EXEC_USER</TT>
+is defined, the queue level pre-execution and post-execution commands will
+be run as the user defined. If this parameter is not defined, the commands
+will be run as the user who submitted the job. In particular, you can define
+this variable if you need to run commands as root. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="12943"></A>See <A HREF="03-concepts.html#3613">'Pre- and Post-execution
+Commands'</A> for details of pre-execution and post-execution. </DD>
+</DL>
+
+<DL>
+<DD><A NAME="12854"></A>You can only define a single user name in this
+parameter. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12855"></A><TT>LSF_EAUTH_USER </TT></DT>
+
+<DD>This defines the user name to run the external authentication executable,
+<TT>eauth</TT>. If this is parameter is not defined, then <TT>eauth</TT>
+will be run as the primary LSF administrator. See <A HREF="03-concepts.html#16037">'External
+Authentication'</A> for an explanation of external authentication. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12856"></A><TT>LSF_EEXEC_USER </TT></DT>
+
+<DD>This defines the user name to run the external execution command, <TT>eexec</TT>.
+If this parameter is not defined, then <TT>eexec</TT> will be run as the
+user who submitted the job. See <A HREF="03-concepts.html#14211">'External
+Submission and Execution Executables'</A> for an explanation of external
+execution. </DD>
+</DL>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="09-multicluster.html">[Prev]</A>
+<A HREF="11-lsbatch-reference.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,1509 @@
+		  VI FAST REFERENCE GUIDE
+
+
+		       Daniel Romike
+
+		    Unix Made Easy (UME)
+
+			Version 1.4
+
+
+
+			  ABSTRACT
+
+
+	  The VI/EX reference guide  is  a  summary  of
+	  most  of  the  vi/ex commands, with some that
+	  are not documented anywhere. Its  purpose  is
+	  to help one find a command and quickly under-
+	  stand how to use it. In  many  cases,  it  is
+	  very  difficult  to find what you are looking
+	  for in the standard reference  manuals.  Thus
+	  we  try to change that, and make what you are
+	  looking for listed inside  with  examples  on
+	  how to use it.
+
+	  This guide is continually being updated, with
+	  more  commands and examples. If you have com-
+	  ments,  questions,  or  additional  material,
+	  please  direct  them  to  Daniel Romike (mail
+	  tekig!danr).
+
+			  CONTENTS
+
+
+    A.  SYNTAX 
+    B.  CALL 
+    C.  EXIT 
+    D.  INSERT     ( end with an ESC key ) 
+    E.  LINE MOVEMENT 
+    F.  CHARACTER POSITIONING 
+    G.  WORDS 
+    H.  SENTENCES, PARAGRAPHS, SECTIONS 
+    I.  POSITIONING WITHIN THE FILE 
+    J.  SEARCHING FOR CHARACTERS, WORDS 
+    L.  DELETE, CHANGE 
+    M.  UNDO 
+    N.  YANK AND PUT 
+    O.  SEND TO A UNIX COMMAND 
+    P.  ADJUSTING THE SCREEN 
+    Q.  FILE USAGE 
+    R.  SHELL WORK 
+    S.  LISP 
+    T.  SHIFT
+    U.  SPECIAL COMMANDS 
+    V.  GLOBAL COMMANDS 
+    W.  PATTERN MATCHING 
+    X.  SPECIAL COMMANDS WHILE IN INSERT MODE 
+    Y.  WORKING WITH AUTOINDENT WHILE IN INSERT MODE 
+    Z.  MACROS AND ABBREVIATIONS 
+    AA.  OPTIONS 
+    AB.  START-UP FILE 
+
+A.  SYNTAX
+
+     Vi has a structure that allows one to  combine  several
+     commands to make a powerful, unlimited command set. The
+     basic structure is as follows:
+
+	     [number] command [location]
+
+
+     The "number" is a number that precedes  a  command  and
+     allows  one to repeat it that number of times. Take the
+     example of:
+
+	     23dd
+
+
+     Which means delete 23 lines.  Without  the  number,  it
+     would only delete 1 line.
+
+     The second part is the actual command that you will  be
+     using.
+
+     The last part is the location of where the  command  is
+     to  take  effect. Location can be thought of as a place
+     where a command takes you. Like when you enter "w",  it
+     jumps  to  the next word. When you do a search, it will
+     take you to a location in the file where  the  searched
+     for  pattern is located.  These all take you someplace,
+     and we are going to capitalize on this idea.
+
+     With these three fields, the number, command and  loca-
+     tion,  vi  becomes  a powerful editor. We have seen the
+     "number" preceding the command as in  23dd.  Now,  have
+     you  ever  wondered  why  the  command to delete a line
+     takes two d's? This brings us to the  third  part,  the
+     location.  There are several commands that double up to
+     effect lines. These are:
+
+	     d
+	     c
+	     >
+	     <
+	     y
+	     =
+	     !
+
+
+     In each of these cases, when you give the command char-
+     acter  twice,  it will do that command on the line that
+     you are currently located on. Again the "dd" command.
+
+     Now let's expand on the extra command  character.  That
+     is  telling  vi the location of the lines or characters
+     it is going to  effect.  Taking  the  definition  of  a
+     location,  a  command  that  takes  you  somewhere, put
+     together all the above and create a command. Let's  say
+     that a command is needed to delete the entire line upto
+     and including a period. This may  seem  simple  enough,
+     just  hit "x" enough times, and you will finally delete
+     the desired characters. But there is a better and  much
+     faster  ways  of  doing  the same thing. To delete from
+     where you are currently located  to  a  period  on  the
+     line, enter:
+
+	     df.
+
+
+     Which means delete until and including a period. If you
+     took  the  "f." command, it is what we call a location.
+     It will send your cursor  to  the  location  where  the
+     nearest  period  is  located.  Thus by placing a "d" in
+     front of it, we told vi to delete  to  where  the  "f."
+     command  went.  If  it could not find it, then don't do
+     anything.
+
+     Thus when you are looking a the commands in the follow-
+     ing  pages,  keep in mind the syntax. That is a number,
+     then a command, and a location. A note, this  does  not
+     apply for all commands. Just for those that were listed
+     above.
+
+B.  CALL
+
+
+  vi fn                   START up the editor
+
+  vi + fn                 START editing on the last line
+  vi +/patt fn            START editing with the word "patt"
+  vi +23 fn               START editing at line 23.
+
+  vi -w30 fn              START editing, and set the number of lines
+			  on the screen (window) to 30.
+
+  vi -r fn                RECOVER a file. If vi suddenly quits,
+			  then use this to recover the file.
+
+  vi -l fn                START editing, set the lisp option.
+
+  vi -t tagname           EDIT the file containing "tagname". Starting
+			  at the first occurrence of the name.
+
+  vi -x fn
+  key:
+			  edit an ENCRYPTED file, providing the
+			  key when asked (as shown). If file is not
+			  encrypted, then it will not crypt it. To
+			  do that, enter:
+
+				  $ crypt < fn > xx
+				  key:
+				  $ mv xx fn
+
+			  Crypt the file and place it into xx. Then
+			  move it back to original file. Provide the
+			  key when asked. Once a file is encrypted,
+			  it cannot be read unless you have the key.
+			  Thus pick one key for all your files, and
+			  don't forget it. This is for confidential
+			  material. To restore the file to normal, retype
+			  the same thing.
+
+
+  view  fn                READONLY, do not write back changes. Same
+			  as "vi -R fn".
+
+C.  EXIT
+
+
+  ZZ                      LEAVE the editor writing back changes
+
+  :x                      LEAVE the editor writing back changes
+
+  :wq                     WRITE and QUIT.
+
+
+D.  INSERT     ( end with an ESC key )
+
+
+  i       --      INSERT starting where you are
+  I       --      INSERT starting with first character in the line
+
+  50i*ESC --      INSERT 50 stars (*) into current line.
+
+  20I-ESC --      INSERT 20 dashes (-) at the beginning of line.
+
+  a       --      APPEND after the next character (insert)
+  A       --      APPEND at the end-of-line (insert)
+
+  10a#ESC --      APPEND 10 #'s after next character.
+  20A#ESC --      APPEND 20 #'s at the end of line.
+
+  o       --      OPEN a line below, insert
+  O       --      OPEN a line above, insert
+
+  r       --      REPLACE a single character, no ESC key.
+     4rx  --      REPLACE next four characters with "x"
+  R       --      start REPLACING all characters until an ESC.
+
+  s       --      substitute the current character and go into insert
+		  mode. Same as "rxiESC".
+
+     3s   --      SUBSTITUTE 3 characters, go into insert mode.
+
+  S       --      SUBSTITUTE the current line, erase it, and go into
+		  insert mode, starting at the indentation of the line.
+		  Same as "cc".
+
+     3S   --      SUBSTITUTE 3 lines.
+
+  ^@      --      when typed as the first character of an insertion,
+		  what was PREVIOUSLY ENTERED is inserted and it ends
+		  the insert mode.
+
+  :se wm=10       SET the right hand WRAP to 10 columns from the right,
+		  AUTOMATICALLY inserts returns, and REPLACES WORDS while
+		  inserting.
+
+  :se wm=0        turn the WRAP MARGIN off.
+
+
+E.  LINE MOVEMENT
+
+
+  h       --      BACK a character
+     9h   --      BACK 9 spaces
+
+  l       --      FORWARD a character
+     2l   --      FORWARD 2 spaces
+
+  j       --      DOWN a line, same column
+     5j   --      DOWN five lines
+
+  k       --      UP a line, same column
+    12k   --      UP twelve lines
+
+  +       --      DOWN a line, first character in line
+     2+   --      DOWN two lines, first character
+
+  -       --      UP a line, first character in line
+     3-   --      UP three lines, first character
+
+  <CR>    --      DOWN a line, first character in line (same as +)
+
+  H       --      TOP of screen   (Home)
+     3H   --      third line from top of screen
+
+  L       --      LAST line on screen
+     4L   --      fourth line from bottom of screen
+
+  M       --      MIDDLE of screen
+
+F.  CHARACTER POSITIONING
+
+
+  ^       --      FIRST character in line, not a space
+  0       --      FIRST column in line
+
+  $       --      LAST character in line
+
+  f       --      FIND a character in the line, forward
+     fa   --      FIND the character "a" in the line, forward
+    2fa   --      FIND the second occurrence of "a" in the line, forward
+
+  F       --      FIND a character in the line, backward
+     Fz   --      FIND the character "z" in the line, backward
+    4Fz   --      FIND the fourth occurrence of "z" in the line, backward
+
+
+  t       --      FIND UPTO a character in the line, FORWARD
+   2tg    --      FIND second occurrence of "g" in the line, FORWARD
+
+  T       --      FIND upto a character in the line, BACKWARD
+    Tg    --      FIND upto the character "g", one before it, BACKWARD
+   5Tg    --      find upto the fifth occurrence of "g", backward
+
+
+  ;       --      REPEAT last find of a character
+     2;   --      REPEAT last find, second occurrence of the character
+
+  ,       --      REPEAT last find in reverse
+     2,   --      REPEAT last find in reverse, second occurrence
+
+G.  WORDS
+
+
+  w       --      FORWARD a word
+     3w   --      FORWARD three words
+
+  W       --      FORWARD a word, ignore punctuation
+     4W   --      FORWARD four words, ignore punctuation
+
+  b       --      BACK a word
+     2b   --      BACK two words
+
+  B       --      BACK a word, ignore punctuation
+     3B   --      BACK three words, ignore punctuation
+
+  e       --      END of the word
+     7e   --      END of the seventh word
+
+  E       --      END of word, ignore punctuation
+     6E   --      END of the sixth word, ignore punctuation
+
+H.  SENTENCES, PARAGRAPHS, SECTIONS
+
+
+  )       --      JUMP TO the next sentence
+     5)   --      JUMP five sentences
+
+  (       --      JUMP BACK to the next sentence
+     3(   --      JUMP BACK three sentences
+
+  }       --      JUMP TO the next paragraph
+     9}   --      JUMP FORWARD nine paragraphs
+
+  {       --      JUMP BACK to the next paragraph
+     2{   --      JUMP BACK two paragraphs
+
+  ]]      --      JUMP FORWARD to the next section
+
+  [[      --      JUMP BACK to the previous section
+
+I.  POSITIONING WITHIN THE FILE
+
+
+  ^F      --      FORWARD a page
+     3^F  --      FORWARD three pages
+
+  ^B      --      BACK a page
+     4^B  --      BACK four pages
+
+  ^L      --      ERASE and redraw screen
+
+  ^R      --      REDRAW screen with "@" characters
+
+  ^U      --      SCROLL UP half a screen
+    20^D  --      SCROLL up twenty lines, set scrolling to 20 lines
+
+  ^D      --      SCROLL DOWN half a screen
+     6^D  --      SCROLL DOWN six lines, set scrolling to 6 lines
+
+
+  ^E      --      SCROLL DOWN one line.
+  ^Y      --      SCROLL UP one line.
+
+  :se scroll=23   SET the SCROLL amount to 23 lines, does not affect
+		  the current scrolls, used for when vi is called.
+
+
+  G       --      GO TO the end-of-file
+    223G  --      GO TO line 223
+    1G    --      GO TO line 1 of file
+
+J.  SEARCHING FOR CHARACTERS, WORDS
+
+
+  /word   --      SEARCH for "word", FORWARD
+
+     /word/+3     SEARCH for "word", third line after
+     /word/-3     SEARCH for "word", third line before
+     /word/z+     SEARCH for "word", put line at the top of screen
+     /word/z.     SEARCH for "word", put line at the middle of screen
+     /word/z-     SEARCH for "word", put line at the bottom of screen
+     /word/z3-    SEARCH for "word", set screen to 3 lines, put at bottom
+		  screen stays at 3 lines until reset.
+
+  ?word   --      SEARCH for a "word", BACKWARD
+
+     ?word?+3     SEARCH for "word", third line after
+     ?word?-3     SEARCH for "word", third line before
+     ?word?z+     SEARCH for "word", put line at the top of screen
+     ?word?z.     SEARCH for "word", put line at the middle of screen
+     ?word?z-     SEARCH for "word", put line at the bottom of screen
+     ?word?z3-    SEARCH for "word", set screen to 3 lines, put at bottom
+		  screen stays at 3 lines until reset.
+
+
+  /\<word\>     will only FIND "word" if it is a complete a word.
+
+  n       --      NEXT occurrence of the word
+  N       --      REVERSE the search for the NEXT occurrence of the word
+
+
+  :se wrapscan    allow searches to WRAP AROUND the end-of-file to the
+		  top. Set up this way (ab: ws)
+
+  :se nowrapscan  TURN OFF WRAPPING AROUND the end-of-file (ab: nows)
+
+
+K.  MARKING AND RETURNING
+
+
+   m       --      START up A MARK, the next character is the name, any
+		   character from a-z
+
+   ma      --      MARK this spot with the character "a"
+   mf      --      MARK this spot with the character "f"
+
+   'a      --      RETURN to the marked LINE named "a", the first character
+   `a      --      RETURN to the marked CHARACTER named by "a"
+
+   ``      --      RETURN to previous character. The setting of the location
+		   is when you move the line in a non-relative way (?).
+		   Usually it will jump back to the previous character you
+		   were working on. After a search, entering this will return
+		   to the previous location.
+
+   ''      --      RETURN to previous line. (auto-mark)
+
+L.  DELETE, CHANGE
+
+
+
+       d       --      START A DELETE, the next command tells it where to
+		       delete to. (mover)
+
+       dd      --      DELETE a line
+       D       --      DELETE from here to the end of the line
+
+       dw      --      DELETE a word
+       d'a     --      DELETE all lines upto the marked line "a"
+       dH      --      DELETE all lines from here to the top of screen
+       d/word  --      DELETE until you find word
+       dG      --      DELETE from here to the end-of-file
+       d23G    --      DELETE from here to line 23
+       d3w     --      DELETE three words
+       dfx     --      DELETE from here until the character "x"
+
+       "1p     --      PUT back the last delete. There are 9 delete buffers.
+
+       "9p     --      PUT back the ninth delete.
+
+       "1pu.u.u.       CHECK the delete buffers.
+
+       (also see the put (p) command)
+
+
+       c       --      START UP A CHANGE, the next command tells it where to
+		       change to. (mover)
+
+       cc      --      CHANGE a line
+       C       --      CHANGE from here to the end-of-line
+
+       cw      --      CHANGE a word
+       c'a     --      CHANGE from here to the marked line named "a"
+       cH      --      CHANGE from here to the top of screen
+       c/word  --      CHANGE until you find word
+       cG      --      CHANGE from here to the end of file
+       c43G    --      CHANGE form here to line 43
+       c3w     --      CHANGE 3 words
+       cfx     --      CHANGE from here to the character "x"
+
+
+       x       --      DELETE a character, where you are
+	  43x  --      DELETE the next 43 characters.
+       X       --      DELETE a character, before you
+	  10X  --      DELETE ten characters going backward
+
+
+       xp      --      PUT back a deleted character after next
+		       character.
+
+       xP      --      PUT back deleted character before current character.
+
+M.  UNDO
+
+
+  u       --      UNDO the last change
+  U       --      UNDO the line you've just changed
+
+N.  YANK AND PUT
+
+
+  y       --      START UP A YANK,  the next command tells it where to
+		  yank to. (mover). It only copies, does not delete.
+
+  yy      --      YANK a line
+  3yy     --      YANK 3 lines.
+  Y       --      YANK a line, same as "yy"
+  3Y      --      YANK 3 lines.
+
+
+  "ay'm   --      YANK from here to the mark. Place this into the
+		  named buffer "a". This will also allow one to switch
+		  files using the ":e fn" or ":n fn" command and
+		  then place the buffer back.
+
+  "a3Y    --      YANK three lines, place into buffer "a".
+
+  "A3Y    --      APPEND 3 lines, place into "a". This allows one to build
+		  up a buffer.
+
+  "zdd    --      DELETE current line, place into buffer "z".
+
+  "f30dd  --      DELETE 30 lines into buffer "f".
+
+  "ap     --      PUT the contents of "a" back, below current
+		  line.
+
+  "aP     --      PUT the contents of "a" above current line.
+
+  xp      --      DELETE current character, and move down one
+		  character. (transpose).
+
+  xP      --      DELETE a character and put it back, before the
+		  original character position.
+
+  x30p    --      DELETE a character, and put it back thirty times
+		  after next character.
+
+  D0P     --      DELETE to end-of-line, then go to beginning of
+		  line and put it there.
+
+  p       --      PUT back a yank or a delete below your current cursor
+		  position
+
+  P       --      PUT back a yank or a delete above your current cursor
+		  position
+
+
+	  More ways to yank:
+
+  y3w     --      YANK three words
+  yG      --      YANK from here to the end-of-file
+  yH      --      YANK from here to the top of screen
+  y/word  --      YANK until you find "word"
+  y34G    --      YANK from here to line 34
+  yL      --      YANK from here to the last line in the screen
+  y^      --      YANK from here to the first character in the line
+  y$      --      YANK from here to the end-of-line.
+  yfa     --      YANK from here until you find the character "a"
+  y'm     --      YANK from here to the mark "m"
+
+O.  SEND TO A UNIX COMMAND
+
+
+  !       --      START A SEND to a Unix command  (also filter through)
+
+  !!wc            SEND current line to the "wc" command, replacing the output
+		  with the results.
+
+  3!!sort         SEND three lines to sort, and return the output.
+
+  !Grev           SEND from here to the end of file to the "rev" command,
+		  the results will reverse the characters in each line.
+
+  !!ll            READ in a long listing of files from your current directory.
+
+
+	  More ways to SEND lines:
+
+  !'m     --      SEND from here to the marked line
+  !`m     --      SEND from here to the marked character
+  !$      --      SEND from here to the end-of-line
+  !L      --      SEND from here to the last line of screen
+  !23G    --      SEND from here to line 23
+  !/word  --      SEND from here until you find "word"
+  !)      --      SEND from here until the next sentence
+  !}      --      SEND from here until the next paragraph
+
+P.  ADJUSTING THE SCREEN
+
+
+   z<CR>  --      PUT current line at top-of-screen
+
+   z+     --      PUT current line at top-of-screen
+   z.     --      PUT current line in middle-of-screen
+   z-     --      PUT current line at the bottom-of-screen
+
+   z3<CR> --      RESET the screen to 3 lines, current line at top
+
+   z3+    --      RESET the screen to 3 lines, current line at top
+   z3.    --      RESET the screen to 3 lines, current line at middle
+   z3-    --      RESET the screen to 3 lines, current line at bottom
+
+   z100<CR>       RESET screen to maximum number of lines, current
+		  line at top
+
+  :se wi=10       SET the window, or number of lines on the screen to
+		  10 lines. Like "z10<CR>", screen is not redrawn
+
+
+Q.  FILE USAGE
+
+
+  :r fn   --      READ from file, "fn", placing its contents after
+		  current line.
+
+  :w      --      WRITE back changes
+
+  :w fn           WRITE contents of file to "fn"
+  :w! fn          WRITE file to "fn", if "fn" already exists
+  :wq             WRITE back changes and quit
+
+  :1,4w fn        WRITE lines 1 thru 4 into "fn"
+  :.,33w fn       WRITE from here to line 33 into "fn"
+  :'a,'bw fn      WRITE from the mark of "a" to the mark of "b" into "fn"
+  :.,$w fn        WRITE from here to the end-of-file into "fn"
+  :w>> fn         APPEND current file into "fn"
+  :.,'aw>> fn     APPEND from here to the mark "a", into "fn"
+  :.w fn          WRITE current line into "fn"
+  :.w>> fn        APPEND current line into "fn"
+
+  :w fn
+  :e fn
+  ^^ or :e #
+		  this sequence writes to "fn". Then edits the file "fn",
+		  and afterward, returns to the original file.
+
+  :x      --      EXIT from vi/ex, saving changes.
+
+
+  :e!     --      EDIT the current file, throwing away all changes.
+  :e fn   --      EDIT the file "fn"
+  :e! fn  --      EDIT "fn", throw away changes to current file
+
+  :e + fn         EDIT "fn", start at the end-of-file
+  :e +23 fn       EDIT "fn", start at line 23
+  :e +/word fn    EDIT "fn", start at the first occurrence of "word"
+
+  :e #    --      EDIT last :e file name. Call up one file, use a :e to
+		  call another, and use ":e #" to switch between the
+		  two. Should set the autowrite option.
+
+  ^^      --      EDIT last :e file name. (CONTROL-^)  same as ":e #"
+
+  :f      --      CURRENT FILE, and percentage of file. Same
+		  as ^G in vi.
+
+  ^G      --      CURRENT FILE, and line number, percentage of file
+
+  :f fn   --      CHANGE the current file name to "fn".
+
+  :args   --      ARGUMENTS or file names called with this
+		  session of vi/ex. The current file will be surrounded
+		  in brackets [fn].
+
+  :q      --      QUIT
+  :q!     --      QUIT, throw away all changes, no exceptions
+
+  :n      --      EDIT next file
+  :n!     --      EDIT next file, throw away changes
+
+  :n fn1 fn2 fn3  make a NEW LIST OF FILES to edit, start with fn1.
+
+  :rew    --      REWIND, or start over editing the list of files starting
+		  with the first in the list.
+
+  :rew!   --      REWIND, throw away changes made to current file,
+		  start editing with first file in list. Use :args
+		  to see the file names.
+
+  :se aw          SET the AUTOWRITE option for writing back changes
+		  anytime you try to leave. Useful for :n commands
+
+  :se nu          SET NUMBERED LINES
+  :se nonu        UNSET NUMBERED LINES
+
+R.  SHELL WORK
+
+     If you are running csh, to  avoid  seeing  the  prompt,
+     enter  this  into  your  .cshrc  file where it sets the
+     prompt:
+
+	     if ( $?prompt ) set prompt="___________"
+
+
+     Instead of:
+
+	     set prompt="___________"
+
+
+
+
+
+       :sh     --      CALL up the SHELL, run commands until a ^D (CONTROL-D)
+		       then return to editing.
+
+       :!cmd   --      RUN one command, "cmd" in the shell. The characters:
+			       %  expands to current file name
+			       #  expands to alternate, or :e # file name.
+				  (Other file when the ":e fn" was used).
+			       !  expands to text of previous command.
+
+       :!!     --      REPEATS last command.
+
+       :!upr %         SENDS current file to the upr printer.
+
+       :!! #           SENDS current and alternate files to the printer.
+
+       :!cat % #       PRINTS out the current file and the alternate file, on
+		       your terminal screen only.
+
+       :!ls            LIST all the files in the current directory
+
+       :!vi fn         VI another file, when done return
+
+       :!upr fn        SEND "fn" to the printer
+
+
+       :r !ll          READ the output of an "ll" command, and put it after
+		       the current line.
+
+       :r !sort -r fn  SORT the file, "fn", in reverse order,  and put
+		       the results after the current line
+
+       :w !sort        SEND the file to the Unix sort command, display
+		       the results, and return to editing. Does not
+		       place the results into the editor.
+
+       :.,$w !sort     from current line to the end-of-file, SEND it to the
+
+		       sort command and display the results.
+
+       :w !upr         SEND the file to the printer.
+
+       :w !ms          SEND file to ms, showing the results, and returning
+		       to editing.
+
+       :w !spell | more
+		       SEND file to the spell command, displaying the
+		       misspelled words, page at a time, and then returning
+		       to editing.
+
+       :ta tagname     SWITCH to file containing tagname. Return to current
+		       file by entering ":e #". See section on tags.
+
+       :ta malloc      EDIT the file containing the "malloc" routine source.
+
+       ^Z      --      PUT current editing in the background (only in csh)
+		       and return to the shell.  Return to editing by
+		       entering an "fg" (foreground). The auto-write option
+		       should be set. (:se aw)         (CONTROL-Z)
+
+       :stop   --      STOP the editor. Same as the ^Z.
+
+       :stop!  --      if auto-write is set, then STOP without writing
+		       back changes.
+
+       :se shell=/bin/sh       SET the SHELL to be "sh"
+
+S.  LISP
+
+     When lisp is set, it allows us access to operators such
+     as  (=).  Also  lisp  changes  the meaning of the auto-
+     indent and the (), [[ ]] and the {} commands in  a  way
+     that  is  useful  for hacking in lisp. Lisp mode always
+     remembers the last indent of the  previous  line.  Thus
+     using  the  0^D  command turns off auto-indent for just
+     that line.
+
+
+       :se lisp        SET the lisp option.
+
+       =       --      Start a REINDENT.
+
+       ==      --      REINDENT current line with the line above.
+
+       =L      --      REINDENT from here to the last line with the
+		       indent of the current line. All lines will
+		       then be lined up with the current line.
+
+       ='m     --      REINDENT all lines up to the marked line with
+		       the indent of the current line.
+
+       =/xx    --      REINDENT all lines upto the characters "xx".
+
+       =G      --      REINDENT from here to the end-of-file all lines
+		       with the indent of current line.
+
+       :se nolisp      UNSET the lisp option.
+
+T.  SHIFT
+
+
+  >       --      START A FORWARD SHIFT
+
+  >>      --      SHIFT current line forward
+  3>>     --      SHIFT 3 lines forward
+  >%      --      SHIFT all lines until a matching brace or paran
+  >/word  --      SHIFT until you find "word"
+  >'m     --      SHIFT to the marked line
+  >G      --      SHIFT to the end-of-file
+  >L      --      SHIFT to the last line in the screen
+
+
+  <       --      START a backward SHIFT, use the same examples as
+		  with the forward SHIFT
+
+  <<      --      SHIFT current line backward
+  3<<     --      SHIFT 3 lines backward
+
+  :se sw=3        SET the amount of SHIFTING to three spaces,
+		  usually set to 4 spaces.
+
+U.  SPECIAL COMMANDS
+
+     Special commands are those that do additional work. The
+     substitute  command  is actually very powerful once you
+     know how to use it. The syntax of the  substitute  com-
+     mand is:
+
+	     (2)s/lhs/rhs/suffix
+	      1 2  3   4    5
+
+
+
+     1.   The (2) means it can have two or  less  addresses.
+	  An  address  is  lines or marks. Like 10 or 1,3 or
+	  .,$ or %. Each of these tell the editor what range
+	  of lines you want to work with. In the first case,
+	  the 10 means line 10, the 1,3 is lines 1  thru  3,
+	  .,$ is from here to the end-of-file.  And the % is
+	  short for 1,$ , or the entire file.
+
+     2.   This is the command name, substitute.
+
+     3.   lhs means the left hand side. In all  cases,  this
+	  is known as the "pattern". A pattern is made up of
+	  special characters that aid the editor in  search-
+	  ing  for a word, etc. Also you might think of this
+	  as a search.
+
+     4.   rhs is the right hand side. In all cases, this  is
+	  known  as the "replacement" part of the substitute
+	  command. This part is what  the  pattern  will  be
+	  replaced with.
+
+     5.   Suffixes are additional options  to  the  command.
+	  They are:
+
+		  g -- globally. Means all occurances of the pattern.
+		       If this is not specified, then the system assumes
+		       that you only want the first occurance of the
+		       pattern in each line.
+
+
+		  c -- change? This suffix (option) will ask you before
+		       making the change.  It will also show you what part
+		       will be changed by using the (^) character. To make
+		       the change, enter "y" and then <CR>. Else it will
+		       not make the change. This is useful selectively
+		       changing text, not all of it at once.
+
+		  r -- use last pattern (regular expression).
+
+		  p -- print. Prints the line after the changes take place.
+		       If the autoprint option is set, it will do it
+		       automatically.
+
+  J       --      JOIN two lines, current line with the one below
+
+   .      --      REPEAT the last change
+
+  23dd.   --      DELETE 23 lines, and repeat it
+  2cw.    --      CHANGE two words, and repeat it
+
+  ~       --      CHANGE case of current character from upper case to
+		  lower or from lower to upper case, move to the next
+		  character
+
+
+  %       --      FIND matching brace "{ or }", paran "( or )",
+		  or bracket "[" or "]".  Good for C and lisp programming.
+		  If used after the ":" like ":%", it means from line
+		  1 to the end. If used past that, it means the name
+		  of the file you are editing.
+
+  :se sm  --      SHOW matching brace or paran while inserting
+
+
+  |       --      JUMP to first column.
+
+  23|     --      JUMP TO column 23
+  80|     --      JUMP TO column 80
+
+
+  :s/a/b/         SUBSTITUTE on the current line, the first occurrence
+		  of "a" with "b"
+
+  :s/a/b/g        SUBSTITUTE all "a"'s with "b" for the entire line.
+		  done with the "g" as the last character.
+
+  :2,$s/a/b/c     from line 2 to the end-of-file, SUBSTITUTE the first
+		  occurrence of "a"'s in each line with "b" and ask
+		  if ok to substitute. Enter "y" to do so.
+
+  :%s/a/b/g       SUBSTITUTE all occurrences of "a"'s in each line
+		  with "b".
+
+  :s//b/g         SUBSTITUTE, using the previous search (//), that
+		  with the letter "b", globally.
+
+  :1,3s/a/b/g     SUBSTITUTE from lines 1 to 3 all "a"'s with "b"
+
+  &               REPEAT previous substitution. Thus after a substitute
+		  command (s/x/y), and then a "&" will replace the
+		  next occurance of "x" with "y".
+
+  :&              REPEAT previous substitution
+
+  :&g             REPEAT previous substitution, for entire line.
+
+
+  :%&g            REPEAT previous substitution, for entire file.
+
+  :~              REPLACE the last search pattern with the last
+		  substitute replacement pattern. Thus after a
+		  substitute (s/x/y), then a search (/ABC/), and then
+		  enter :~, the word "ABC" will then be with "y".
+
+  :%~             REPLACE FIRST pattern of the last search in each line
+		  with the replacement of the previous substitute command.
+
+  :%~g            REPLACE ALL patterns of the last search in each line
+		  with the replacement of the previous substitute command.
+
+  :s              SAME as &, repeats previous substitution.
+
+  :4,10s          REPEAT previous substitute for lines 4-10.
+
+  :s/a/b/<CR>&    SUBSTITUTE "a" for "b", and repeat
+
+  :g/a/d          DELETE all lines that contain the letter "a".
+
+  :g/help/s//x/g  GLOBALLY find the word "help", then substitute "help"
+		  words with "x", globally.
+
+  :g/help/s//x/gc GLOBALLY find the word "help", then substitute all
+		  occurrences of "help" with "x", globally (g), and ask
+		  for each change (c).( A 'y' will make the change ).
+
+  :v/help/d       GLOBALLY delete all lines NOT containing the
+		  word "help".
+
+  :g!/help/d      the SAME as :v/help/d
+
+
+  :cd             CHANGE current DIRECTORY to your home directory.
+		  When writing back, the file will be written into
+		  your home directory, instead of where you were.
+
+  :cd /usr/sams   CHANGES current DIRECTORY to /usr/sams.
+
+
+  :12,24j         JOIN lines 12 thru 24, leaving a space between each line.
+
+  :12,24j!        JOIN lines 12 thru 24, leaving out the joining space.
+
+  :2,$ya          YANK lines 2 thru the end of file.
+
+  :pu             PUT the lines yanked at the current location.
+
+  :2,30ya a       YANK lines 2 thru 30, place into buffer named "a".
+
+  :31,60ya A      YANK lines 31 thru 60 and append to buffer named "a".
+
+  :4,10t 20       COPY lines 4 thru 10 to line 20. (t means "to")
+		  Much like yanking and then putting. Except this
+		  will do it in one command.
+
+  :.,+3t +4       COPY from here, plus 3 lines, to four lines after original
+		  cursor position.
+
+  :.,'ft 'g       COPY from here to the mark "f", to the mark "g".
+
+  :t 3            COPY current line to line 3.
+
+  :.,$m 1         MOVE the lines from here to the end, to line one.
+
+  :4m5            MOVE line 4 to line 5.
+
+  :m+3            MOVE current line down 3 lines. No lines are deleted.
+
+  :ka             MARK current line with the label "a".
+
+  :=              CURRENT line number.
+
+  :so fn          READ in the file "fn" as containing EX COMMANDS
+		  and execute them. (command source file)
+
+  :.,+10#         PRINT lines from here, plus 10, with line numbers.
+		  Also :.,+10nu does the same.
+
+  :3,10>          SHIFT LINES 3 thru 10 over by the value of the shift
+		  width option. Normally 8 spaces. Can be changed
+		  by the shift width option.
+
+  :.,+4<          SHIFT LINES, from here to plus 4, back by the value of
+		  the shift width.
+
+  :^D             SCROLL DOWN half a page in ex.
+
+
+  :#
+  :^D             PRINT current line with a NUMBER. Scroll down
+		  printing line numbers. Ex remembers last type
+		  of line display used.
+
+  :z              PRINT a WINDOW of lines around current line.
+
+  :z.             PUT current line in MIDDLE of the screen.
+
+  :z-             PLACE current line at BOTTOM of screen.
+
+  :z10.           change window to 10 lines, place current line in middle.
+
+  :|              PRINT the next line in the file.
+
+  :vi             VI MODE. Used if "Q" is pressed, or called
+		  up ex, and now wish to use the visual mode.
+
+
+  :open           OPEN MODE. Allows vi commands, but only one line
+		  at a time. Thus it can be used on DVST terminals
+		  and paper printers. Better than ex mode.
+
+  :ta tagname     GO TO the FILE that has "tagname". See the section
+		  on "tags".
+
+  ^]              SEARCHES the word after the cursor as a tag. Same as
+		  typing ":ta word". See the TAGS section.
+
+  :ve             PRINT the current version number, and date last built.
+
+
+V.  GLOBAL COMMANDS
+
+
+   Q
+   :g/^.ds/i\
+   .ks
+
+   :vi
+
+		  GLOBALLY look for the pattern ".ds" at the beginning of
+		  a line (^), and insert (i) a line before each one, the
+		  characters ".ks". The back slash (\) is used to hide the
+		  return.  Also global commands that require more than one
+		  line have to be done in ex mode, as shown.
+
+  Q
+  :g/xx/a\
+  these are the\
+  characters xx. Not\
+  to be mistaken with yy<cr>
+
+  :vi
+
+		  GLOBALLY look for the pattern "xx", and append after each
+		  the sentence shown. End the sentence with a return.
+
+  :4,$g//d        from line 4 to the end, DELETE all lines that contain
+		  the last search.
+
+
+  :g/ex/|t$       GLOBALLY find "ex" and copy the lines to the end-of-file.
+		  The "|" is the command separator.
+
+
+  :g/\.NH/+|s/^/\.TC /
+
+		  LOOK for all ".NH" commands, jump to next line,
+		  substitute the beginning of line with ".TC ".
+
+  :g/^\..*/|s//\U&/
+
+		  CONVERT all characters at beginning of line that
+		  start with a "." to upper case. If you wish to
+		  type ms (roff) commands in lower case, then use
+		  this command to convert them to upper case when
+		  you are through.
+
+  :g/^\..*/|s//\L&/
+
+		  CONVERT all characters at beginning of line that
+		  start with a "." to lower case. Or convert all
+		  ms (roff) commands to lower case.
+
+  :g/Unix/p       PRINT all lines that contain "Unix".
+
+W.  PATTERN MATCHING
+
+
+      Pattern matching is used when searching for words or substituting
+    words in vi, ex or ed. For searching, the "magic" option must be set.
+    For a detailed explanation, see "EDITOR TUTORIAL".
+
+
+  :%s/^[ ]x//     SUBSTITUTE at the beginning of line, followed by a
+		  space, and then an "x" with nothing.
+
+  :s/./&^H&^H&^H&^H&/g
+
+		  BOLD face the entire line. The "&" means what the
+		  left hand side (lhs) matched. (dot)
+
+  :%s/^H.//g      STRIP off all bold type from an ms-ed file.
+
+  :%s/.*/\U&/    CONVERT the entire file to upper case.
+
+  :%s/.*/\L&/    CONVERT the entire file to lower case.
+
+  :s/.*/\u&/     CONVERT the first character of line to upper case.
+
+  :s/.*/\l&/     CONVERT the first character of line to lower case.
+
+
+  :g/\.NH/+|s/^/\.TC /
+
+		  LOOK for all ".NH" commands, jump to next line,
+		  substitute the beginning of the line with ".TC ".
+
+  :g/^\..*/|s//\U&/
+
+		  CONVERT all characters at beginning of line that
+		  start with a "." to upper case. If you wish to
+		  type ms (roff) commands in lower case, then use
+		  this command to convert them to upper case when
+		  you are done.
+
+  :g/^\..*/|s//\L&/
+
+		 CONVERT all characters at beginning of line that
+		 start with a "." to lower case. Or convert all
+		 ms (roff) commands to lower case.
+
+  :%s/^.[abcd]/xx/
+		  SUBSTITUTE at beginning of line, where there is
+		  a character followed by either "a", "b", "c", or "d"
+		  with "xx".
+
+  :g/^$/d         DELETE all blank lines.
+
+  :%s/[a-z]$/\U&/
+		  CONVERT any "a" thru "z" characters at the end of
+		  lines to upper case.
+
+
+  :%s/^[^z]/abcd/ SUBSTITUTE at the beginning of the line, where the
+		  first character is not a "z", with "abcd".
+
+  :s/^\(.* \)\(.* \)/\U\2 \E\1/
+
+		  MATCH the first word "\(.* \)", then the next word
+		  "\(.* \)" and then switch them "\2  \1". You are
+		  allowed up to 9 fields. Also will convert the first
+		  word to upper case (\U), and the last remains
+		  unchanged (\E -- turn it off).
+
+
+  :%s/\<word\>/phrase/g
+
+		  LOOK for word as a complete word, then replace it
+		  with "phrase", globally.
+
+
+  :%s/~//         SUBSTITUTE the replacement part of the last substitute
+		  command with nothing, delete.
+
+
+X.  SPECIAL COMMANDS WHILE IN INSERT MODE
+
+
+  ^V      --      START TO INSERT a CONTROL CHARACTER, next character
+		  that follows is the control character (CONTROL-V)
+
+  ^V^[    --      INSERT an ESCape character, (CONTROL-V  and CONTROL-[
+		  or the ESC key)
+
+  ^V^M    --      INSERT a carriage return, (CONTROL-V and CONTROL-M or
+		  the return key)
+
+  ^V^D    --      INSERT a control-D
+
+
+  ^V^H    --      INSERT a backspace character
+
+
+  ^T      --      TAB FORWARD, while in insert mode, INDENT.
+  ^D      --      TAB BACK, while in insert mode, BACK INDENT.
+
+  :se sw=3        SET the number of spaces for a TAB to 3
+
+
+Y.  WORKING WITH AUTOINDENT WHILE IN INSERT MODE
+
+
+  ^^D     --      TURN OFF AUTO-INDENT for current line, resume same
+		  place for the next line (up carrot and CONTROL-D)
+
+  0^D     --      RESET the AUTO-INDENT, start at the left margin
+
+  :se ai          SET autoindent
+  :se noai        UNSET autoindent
+
+Z.  MACROS AND ABBREVIATIONS
+
+     Macros and abbreviations are very useful in making typ-
+     ing  and  changes  faster. To make a macro, use the map
+     command.  You can have  one  character  names,  or  two
+     character  names  if  the  first character is a control
+     character.
+
+
+       :map            show the current maps.
+
+
+       :map q Axx^V^[+
+
+		       MAPS q to mean the following: append to the end-of-line
+		       "xx" then escape, and go to the beginning of the
+		       next line. When "q" is pressed, this will be
+		       executed. Macros are not recursive, use global (:g).
+
+       :map x +D
+
+		       MAPS x to jump to beginning of next line and
+		       delete to end of line.
+
+       :map ^?l :!ls^V^[
+
+		       MAP the sequence of hitting the delete key (DEL) and
+		       then hitting the "l" key to do a listing of the current
+		       directory. Maps the start with a control character can
+		       have another character. Thus a two character macro.
+
+       :map ^?s :!spell %^V^[
+
+		       MAPS the key sequence of DEL and "s" to spell the current
+		       file. The "%" expands to mean the current file. If the
+		       "#" was there, it would mean the alternate file.
+
+       :map ^Ad d'm
+		       MAPS the key sequence of CONTROL-A and "d" to delete from
+		       where you are to the marked line label "m".
+
+       :unmap x        UNMAP, or turn off the mapping of x.
+
+
+       :map! x insert this
+
+		       INSERT mode MAP. When in insert mode, and an "x"
+		       is typed, then "insert this" is printed.
+
+       :unmap! x       UNMAP, or turn off the mapping of x.
+
+
+       :set timeout    TURN on timeout. Which only gives you one second to
+
+		       enter multi-character macros. Otherwise you are not
+		       limited to the amount of time to enter a macro name.
+
+
+       "add            this will delete the current line INTO BUFFER "a".
+		       (you can delete or yank into "a": "ay$ ).
+		       If the line has vi commands, then one can execute
+		       this as a macro by entering:
+
+				       @a
+
+       @a              what ever is in buffer "a" is executed as if typed
+		       from the keyboard. Like a map command.
+
+
+       :ab             list the current abbreviations.
+
+       :ab tek Tektronix Inc.
+
+		       ABBREVIATE tek to mean the full name when in insert
+		       mode. After typing "tek", hitting a space, the
+		       full name of the company will be printed.
+
+       :unab tek       turn off the abbreviation of "tek".
+
+
+AA.  OPTIONS
+
+
+  :se             SHOW options that you have set.
+
+  :se all         SHOW all options and their current values.
+
+  :se ai          SET autoindent. Automatically indents with the
+		  previous line. See working with AUTOINDENT.
+  :se noai        UNSET autoindent.
+
+  :se ap          Causes the CHANGED line, in ex, to be printed. This
+		  is used with the substitute, global, etc. commands.
+  :se noap        UNSET the auto-print option.
+
+  :se aw          Causes a WRITE whenever one tries to leave the
+		  editing session. When using ^Z, it will write
+		  changes before stopping.
+  :se noaw        UNSET the auto-write option.
+
+
+  :se bf          SET no CONTROL CHARACTERS allowed. Except, ^L, ^I
+		  and ^M (return).
+  :se nobf        UNSET the beautify option.
+
+
+  :se dir         show current BUFFER DIRECTORY.
+  :se dir=/tmp    location of the ex buffer files. Normally /tmp.
+
+
+  :se eb          SET error messages to be preceded by a bell (ex only).
+  :se noeb        UNSET the error bell.
+
+  :se ed          SET ed compatible.
+  :se noed        UNSET ed compatible.
+
+  :se ic          IGNORE CASES when searching.
+  :se noic        CASES are not ignored.
+
+  :se lisp        SET SPECIAL INDENTS and characters for lisp.
+  :se nolisp      UNSET lisp.
+
+  :se list        show LINES WITH TABS as "^I", and END OF LINES WITH "$".
+  :se nolist      UNSET listing of lines.
+
+  :se magic       turns on SPECIAL CHARACTERS used in searching. Like grep.
+		  (metacharacters)
+  :se nomagic     UNSET metacharacters, the backslash can be
+		  used to turn on a metacharacter. "\*"
+
+  :se mesg        ALLOW MESSAGES to be sent while editing.
+  :se nomesg      messages are not allowed during editing.
+
+
+
+		      October 10, 1983
+
+
+
+
+
+
+			   - 42 -
+
+
+  :se nu          display LINE NUMBERS in the file. Only good as reference
+		  points. Are not actually in file.
+  :se nonu        UNSET the numbers.
+
+  :se open        the COMMANDS :vi and :open are permitted.
+  :se noopen      the COMMANDS :vi and :open are not permitted.
+
+  :se opt         SET optimize, for slower baud rate terminals.
+  :se noopt       UNSET optimize.
+
+  :se para        display current PARAGRAPH SETTINGS.
+  :se para=IPPP   SET the PARAGRAPHS to be defined as .IP and .PP. This
+		  is what the { and } commands look for when looking
+		  for the next paragraph
+
+  :se prompt      turn on the EX PROMPT of ":".
+  :se noprompt    ex will NOT DISPLAY A PROMPT. This is for ed users who
+		  prefer editing without a prompt.
+
+  :se readonly    allow READING of this file ONLY. NO WRITES are accepted.
+		  View has this set.
+  :se noreadonly  ALLOW WRITING BACK to file. If in "view", then setting
+		  this allows one to write back changes.
+
+  :se redraw      for DUMB TERMINALS (PT100, VT100), updates deleted lines
+		  instead of placing in at (@) signs. Also does not write over
+		  characters when inserting in middle of lines. Behaves like
+		  a smart terminal.
+
+  :se noredraw    UNSET updating of dumb terminals.
+
+  :se report      SHOW the number of lines before a report.
+  :se report=5    REPORT on commands that involve more than 5 lines.
+  :se report=1    REPORT on commands that involve more than 1 line.
+
+  :se scroll      show what the current SCROLL LENGTH is.
+  :se scroll=12   SET number of lines to scroll.
+
+  :se sections    display the definitions for SECTIONS.
+  :se sections=SHNH
+		  SECTIONS are defined as .SH and .NH. This is used with the
+		  [[ and ]] commands to find the next section.
+
+  :se sh          show the CURRENT SHELL.
+  :se sh=/bin/csh
+		  SETS the SHELL to be that of /bin/csh instead of the default.
+
+  :se sw          SHOW current SHIFT WIDTH in spaces.
+  :se sw=3        SHIFT WIDTH to be 3 spaces. Used with ^T and ^D while in
+		  insert mode, and sets the amount of shifting with the
+		  < and > commands.
+
+  :se sm          SHOW the MATCHING (), and {} while in insert mode. Helpful
+		  for programming in C or LISP.
+
+
+  :se nosm        UNSET show match.
+
+  :se slow        for TERMINALS as PT100, VT100 or other dumb terminals,
+		  will not update the lines until an ESC. For entering
+		  text in middle of screen, and each return updates the
+		  display. This turns that off.
+  :se noslow      turns on UPDATING after each return in insert mode.
+
+  :se tags        show current file where the TAGS are kept.
+  :se tags=/usr/sams/.tags
+		  set the TAGS file to be /usr/sams/.tags instead of
+		  the default /usr/lib/tags. See the manual section on
+		  tags(1) for more information.
+
+  :se ts          show current TAB STOPS.
+  :se ts=8        SET the TABS to be 8 characters apart.
+  :se ts=3        TABS will be three characters in length.
+
+  :se term        display the TERMINAL TYPE.
+  :se term=4025   sets the terminal type to be a 4025. Have to be in ex
+		  to do this. Enter "Q" then "se term=4025" and then ":vi".
+		  Changes your terminal type to be a 4025.
+
+  :se ttytype     display CURRENT TERM TYPE. Same as ":se term".
+  :se ttytype=4025
+		  SETS the TERMINAL to be a 4025. Have to be in ex.
+
+  :se terse       gives shorter, more CRYPTIC MESSAGES. For those who are
+		  familiar with the editor.
+  :se noterse     resume the NORMAL MESSAGES.
+
+  :se timeout     SETS mapped commands to timeout, or end, if it is not
+		  entered before one second. Quick fingers only.
+  :se notimeout   Does not timeout after one second.
+
+  :se warn        WARN if there has been no write since last change.
+  :se nowarn      UNSET this vital feature.
+
+  :se window      display number of lines in the current WINDOW (screen).
+  :se window=33   SET the WINDOW, or lines on the screen to be a maximum of 23.
+		  Over setting, sets it to its maximum limit.
+
+  :se wm          print the current WRAP MARGIN.
+  :se wm=10       WRAP AROUND when 10 characters from the right margin,
+		  saving words and adding carriage returns. Thus there is
+		  no need to hit return.
+
+  :se wa          allowing WRITING TO ANY FILE that permits it without
+		  checking.
+  :se nowa        check the file before WRITING to it.
+
+
+AB.  START-UP FILE
+
+
+     In your .login (csh) or .cshrc (csh) files there is a line such as:
+
+	  setenv EXINIT "se ai sw=3 ws sm magic"
+
+     These options are set when vi is called. If you wish to add macro
+  definitions then:
+
+	  setenv EXINIT "se ai sw=3 ws sm magic|map q :wq"
+
+     Use the "|" as shown. This is the command separator. If more stuff,
+  as abbreviations:
+
+	  setenv EXINIT "se ai sw=3 ws sm magic|map q :wq|ab tek Tektronix"
+
+     If this becomes too large, then you can place it into a file in your
+  home directory called ".exrc". If you do this, then you must take
+  out the line that has "EXINIT". This way, vi will then look into
+  your home directory for a file called ".exrc" automatically. You
+  then can place the same info into it except in this manner:
+
+
+	---a file called .exrc in home directory--------
+	set ai sw=3 ws sm aw magic
+	ab tek Tektronix
+	map q :wq
+	----------
+
+
+	   A more readable and informative way to enter additional
+	material.
+
+
+     Be sure that the EXINIT line is out of the .login  file
+     or .profile.
+

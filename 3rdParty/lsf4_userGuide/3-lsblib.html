@@ -1,0 +1,1504 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Programmer's Guide - Programming with LSBLIB</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="programmers-contents.html">[Contents]</A> <A HREF="2-lslib.html">[Prev]</A>
+<A HREF="4-advanced.html">[Next]</A> <A HREF="a-functions.html">[Bottom]</A>
+
+<HR></P>
+
+<H1><A NAME="53334"></A>Chapter 3. <A NAME="1339"></A>Programming with
+LSBLIB</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="1341"></A>This chapter shows how to use LSBLIB to access the
+services provided by LSF Batch and LSF&nbsp;JobScheduler. Since LSF Batch
+and LSF&nbsp;JobScheduler are built on top of the LSF Base, LSBLIB relies
+on services provided by LSLIB. Thus if you use LSBLIB functions, you must
+link your program with both LSLIB and LSBLIB. </P>
+
+<P><A NAME="54214"></A>LSF Batch and LSF&nbsp;JobScheduler services are
+mostly provided by <TT>mbatchd</TT>, except services for processing event
+and job log files which do not involve any daemons. LSBLIB is shared by
+both LSF Batch and LSF JobScheduler. The functions described for LSF Batch
+in this chapter also apply to LSF JobScheduler, unless explicitly indicated
+otherwise.</P>
+
+<H2><A NAME="54217"></A>Initializing LSF Batch Applications</H2>
+
+<P><A NAME="54218"></A>Before accessing any of the services provided by
+the LSF Batch and LSF JobScheduler, an application must initialize LSBLIB.
+It does this by calling the following function:</P>
+
+<PRE><A NAME="43763"></A>int lsb_init()&gt;lsb_init(<I>appname</I>);</PRE>
+
+<P><A NAME="32168"></A>On success, it returns 0; otherwise, it returns
+-1 and sets <TT>lsberrno</TT> to indicate the error. </P>
+
+<P><A NAME="35230"></A>The parameter <TT>appname</TT> is used only if you
+want to log detailed messages about the transactions inside LSLIB for debugging
+purpose. The messages will be logged only if <TT>LSB_CMD_LOG_MASK</TT>
+is defined as <TT>LOG_DEBUG1</TT>.</P>
+
+<P><A NAME="35261"></A>The messages will be logged in file <TT>LSF_LOGDIR/<I>appname</I></TT>.
+If <I>appname</I> is <TT>NULL</TT>, the log file is <TT>LSF_LOGDIR/bcmd</TT>.
+</P>
+
+<BLOCKQUOTE>
+<P><A NAME="32543"></A><B>Note<BR>
+</B><I>This function must be called before any other function in LSBLIB
+can be called.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="18286"></A>Getting Information about LSF Batch Queues</H2>
+
+<P><A NAME="6921"></A>LSF Batch queues hold the jobs in the LSF Batch and
+set scheduling policies and limits on resource usage.</P>
+
+<P><A NAME="9923"></A>LSBLIB provides a function to get information about
+the queues in the LSF Batch. This includes queue name, parameters, statistics,
+status, resource limits, scheduling policies and parameters, and users
+and hosts associated with the queue.</P>
+
+<P><A NAME="10554"></A>The example program under discussion in this section
+uses the following LSBLIB function to get the queue information:</P>
+
+<PRE><A NAME="43796"></A>struct queueInfoEnt *lsb_queueinfo()&gt;lsb_queueinfo(<I>queues</I>,<I>numQueues</I>,<I>hostname</I>,<I>username</I>,<I>options</I>)</PRE>
+
+<P><A NAME="32923"></A>On success, this function returns an array containing
+a <TT>queueInfoEnt</TT> structure (see below) for each queue of interest
+and sets <TT>*numQueues</TT> to the size of the array. On failure, it returns
+<TT>NULL</TT> and sets <TT>lsberrno</TT> to indicate the error. It has
+the following parameters:</P>
+
+<PRE><A NAME="43860"></A>char  **queues;   /* An array containing names of queues of interest */
+int   *numQueues; /* The number of names in queues */
+char  *hostname;  /* Only queues using hostname are of interest */
+char  *username;  /* Only queues enabled for user are of interest */
+int   options;    /* Reserved for future use; supply 0 */</PRE>
+
+<P><A NAME="10616"></A>To get information on all queues, set <TT>*numQueues</TT>
+to <TT>0</TT>; <TT>*numQueues</TT> will be updated to the actual number
+of queues returned on a successful return.</P>
+
+<P><A NAME="11630"></A>If <TT>*numQueues</TT> is <TT>1</TT> and <TT>queue</TT><I>
+</I>is <TT>NULL</TT>, information on the system default queue is returned.</P>
+
+<P><A NAME="11632"></A>If <TT>hostname</TT> is not <TT>NULL</TT>, then
+all queues using host <TT>hostname</TT> as a batch server host will be
+returned. If <TT>username </TT>is not <TT>NULL</TT>, then all queues allowing
+user <TT>username</TT> to submit jobs to will be returned. </P>
+
+<P><A NAME="35437"></A>The <TT>queueInfoEnt</TT> structure is defined in
+<TT>lsbatch.h</TT> as:</P>
+
+<PRE><A NAME="53950"></A>struct queueInfoEnt {
+    char  *queue;                    /* Name of the queue */
+    char  *description;              /* Description of the queue */
+    int   priority;                  /* Priority of the queue */
+    short nice;                      /* Nice value at which jobs in the queue will be run */
+    char  *userList;                 /* Users allowed to submit jobs to the queue */
+    char  *hostList;                 /* Hosts to which jobs in the queue may be dispatched */
+    int   nIdx;                      /* Size of the loadSched and loadStop arrays */
+    float *loadSched;                /* Load thresholds that control scheduling of jobs from the queue */
+    float *loadStop;                 /* Load thresholds that control suspension of jobs from the queue */
+    int   userJobLimit;              /* Number of unfinished jobs a user can dispatch from the queue */
+    int   procJobLimit;              /* Number of unfinished jobs the queue can dispatch to a processor */
+    char  *windows;                  /* Queue run window */
+    int   rLimits[LSF_RLIM_NLIMITS]; /* The per-process resource limits for jobs */
+    char  *hostSpec;                 /* Obsolete. Use defaultHostSpec instead */
+    int   qAttrib;                   /* Attributes of the queue */
+    int   qStatus;                   /* Status of the queue */
+    int   maxJobs;                   /* Job slot limit of the queue. */
+    int   numJobs;                   /* Total number of job slots required by all jobs */
+    int   numPEND;                   /* Number of  job slots needed by pending jobs */
+    int   numRUN;                    /* Number of jobs slots used by  running jobs */
+    int   numSSUSP;                  /* Number of  job slots used by system suspended jobs */
+    int   numUSUSP;                  /* Number of  jobs slots used by user suspended jobs  */
+    int   mig;                       /* Queue migration threshold in minutes */
+    int   schedDelay;                /* Schedule delay for new jobs */
+    int   acceptIntvl;               /* Minimum interval between two jobs dispatched to the same host */
+    char  *windowsD;                 /* Queue dispatch window */
+    char  *nqsQueues;                /* A blank-separated list of NQS queue specifiers */
+    char  *userShares;               /* A blank-separated list of user shares */
+    char  *defaultHostSpec;          /* Value of DEFAULT_HOST_SPEC for the queue in lsb.queues */
+    int   procLimit;                 /* Maximum number of job slots a job can take */
+    char  *admins;                   /* Queue level administrators */
+    char  *preCmd;                   /* Queue level pre-exec command */
+    char  *postCmd;                  /* Queue's post-exec command */
+    char  *requeueEValues;           /* Queue's requeue exit status */ 
+    int   hostJobLimit;              /* Per host job slot limit */
+    char  *resReq;                   /* Queue level resource requirement */
+    int   numRESERVE;                /* Reserved job slots for pending jobs */
+    int   slotHoldTime;              /* Time period for reserving job slots */
+    char  *sndJobsTo;                /* Remote queues to forward jobs to */
+    char  *rcvJobsFrom;              /* Remote queues which can forward to me */
+    char  *resumeCond;               /* Conditions to resume jobs */
+    char  *stopCond;                 /* Conditions to suspend jobs */
+    char  *jobStarter;               /* Queue level job starter */
+    char  *suspendActCmd;            /* Action commands for SUSPEND */
+    char  *resumeActCmd;             /* Action commands for RESUME */
+    char  *terminateActCmd;          /* Action commands for TERMINATE */
+    int   sigMap[LSB_SIG_NUM];       /* Configurable signal mapping */
+    char  *preemption;               /* Preemption policy */
+    int   maxRschedTime;             /* Time period for remote cluster to schedule job */
+};</PRE>
+
+<P><A NAME="35442"></A>The variable <TT>nIdx</TT> is the number of load
+threshold values for job scheduling. This is in fact the total number of
+load indices as returned by LIM. The parameters <TT>sndJobsTo</TT>, <TT>rcvJobsFrom</TT>,
+and <TT>maxRschedTime</TT> are only used with LSF MultiCluster.</P>
+
+<P><A NAME="19609"></A>For a complete description of the fields in the
+<TT>queueInfoEnt</TT> structure, see the <TT>lsb_queueinfo(3)</TT> man
+page.</P>
+
+<P><A NAME="35984"></A>The program below takes the first argument as a
+queue name and displays information about the named queue.</P>
+
+<PRE><A NAME="43875"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsbatch.h&gt;
+
+int 
+main (argc, argv)
+    int  argc;
+    char *argv[];
+{
+    struct queueInfoEnt *qInfo;
+    int  numQueues = 1;
+    char *queue=argv[1];
+    int  i;
+
+    if (argc != 2) {
+        printf(&quot;Usage: %s queue_name\n&quot;, argv[0]);
+        exit(-1);
+    }
+
+    if (lsb_init(argv[0]) &lt; 0) {
+        lsb_perror(&quot;lsb_init()&quot;);
+        exit(-1);
+    }
+
+    qInfo = lsb_queueinfo(&amp;queue, &amp;numQueues, NULL, NULL, 0); 
+    if (qInfo == NULL) { 
+        lsb_perror(&quot;lsb_queueinfo()&quot;);
+        exit(-1);
+    }
+
+    printf(&quot;Information about %s queue:\n&quot;, queue);
+    printf(&quot;Description: %s\n&quot;, qInfo[0].description);
+    printf(&quot;Priority: %d                     Nice:     %d     \n&quot;,
+            qInfo[0].priority, qInfo[0].nice);
+    printf(&quot;Maximum number of job slots:&quot;);
+    if (qip-&gt;maxJobs &lt; INFINIT_INT)
+        printf(&quot;%5d\n&quot;, qInfo[0].maxJobs);
+    else
+        printf(&quot;%5s\n&quot;, &quot;unlimited&quot;);
+
+  printf(&quot;Job slot statistics: PEND(%d) RUN(%d) SUSP(%d) TOTAL(%d).\n&quot;,
+         qInfo[0].numPEND, qInfo[0].numRUN,
+         qInfo[0].numSSUSP + qInfo[0].numUSUSP, qInfo[0].numJobs);
+
+    exit(0);
+}</PRE>
+
+<P><A NAME="18080"></A>The header file <TT>lsbatch.h</TT> must be included
+with every application that uses LSBLIB functions. Note that <TT>lsf.h</TT>
+does not have to be explicitly included in your program because <TT>lsbatch.h</TT>
+already has <TT>lsf.h</TT> included. The function <TT>lsb_perror()</TT>
+is used in much the same way <TT>ls_perror()</TT> is used to print error
+messages regarding function call failure. You could check <TT>lsberrno</TT>
+if you want to take different actions for different errors. </P>
+
+<P><A NAME="37158"></A>In the above program, <TT>INFINIT_INT</TT> is defined
+in <TT>lsf.h</TT> and is used to indicate that there is no limit set for
+<TT>maxJobs</TT>. This applies to all LSF API function calls. LSF will
+supply <TT>INFINIT_INT</TT> automatically whenever the value for the variable
+is either invalid (not available) or infinity. This value should be checked
+for all variables that are optional. For example, if you were to display
+the <TT>loadSched/loadStop</TT> values, an <TT>INFINIT_INT</TT> indicates
+that the threshold is not configured and is ignored.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="37333"></A><B>Note<BR>
+</B><I>Like the returned data structures by LSLIB functions, the returned
+data structures from an LSBLIB function is dynamically allocated inside
+LSBLIB and is automatically freed next time the same function is called.
+You should not attempt to free the space allocated by LSBLIB. If you need
+to keep this information across calls, make your own copy of the data structure.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="36839"></A>The above program will produce output similar to
+the following: </P>
+
+<PRE><A NAME="44009"></A>Information about normal queue:
+Description: For normal low priority jobs
+Priority: 25            Nice: 20
+Maximum number of job slots : 40
+Job slot statistics: PEND( 5) RUN(12) SUSP(1) TOTAL(18)</PRE>
+
+<H2><A NAME="6947"></A>Getting Information about LSF Batch Hosts </H2>
+
+<P><A NAME="6988"></A>LSF Batch server hosts execute the jobs in the LSF
+Batch system.</P>
+
+<P><A NAME="21023"></A>LSBLIB provides a function to get information about
+the server hosts in the LSF Batch system. This includes both configured
+static information as well as dynamic information. Examples of host information
+include host name, status, job limits and statistics, dispatch windows
+and scheduling parameters. </P>
+
+<P><A NAME="21126"></A>The example program to be discussed in this section
+uses the following LSBLIB function:</P>
+
+<PRE><A NAME="44028"></A>struct hostInfoEnt *lsb_hostinfo()&gt;lsb_hostinfo(<I>hosts</I>, <I>numHosts</I>)</PRE>
+
+<P><A NAME="44029"></A>This function gets information about LSF Batch server
+hosts. On success, it returns an array of <TT>hostInfoEnt</TT> structures
+which hold the host information and sets <TT>*numHosts</TT> to the size
+of the array. On failure, it returns <TT>NULL</TT> and sets <TT>lsberrno</TT>
+to indicate the error. It has the following parameters:</P>
+
+<PRE><A NAME="44053"></A>char  **hosts;      /* An array of names of hosts of interest */
+int   *numHosts;    /* The number of names in hosts */</PRE>
+
+<P><A NAME="21296"></A>To get information on all hosts, set <TT>*numHosts</TT>
+to 0; <TT>*numHosts</TT> will be set to the actual number of <TT>hostInfoEnt</TT>
+structures when this call returns successfully.</P>
+
+<P><A NAME="21537"></A>If <TT>*numHosts</TT> is 1 and <TT>hosts</TT> is
+<TT>NULL</TT>, information on the local host is returned.</P>
+
+<P><A NAME="21740"></A>The <TT>hostInfoEnt</TT> structure is defined in
+<TT>lsbatch.h</TT> as</P>
+
+<PRE><A NAME="52554"></A>struct hostInfoEnt {
+    char  *host;        /* Name of the host */
+    int   hStatus;      /* Status of host. (see below) */
+    int   busySched;    /* Reason host will not schedule jobs */
+    int   busyStop;     /* Reason host has suspended jobs */
+    float cpuFactor;    /* Host CPU factor, as returned by LIM */
+    int   nIdx;         /* Size of the loadSched and loadStop arrays, as returned from LIM */
+    float *load;        /* Load LSF Batch used for scheduling batch jobs */
+    float *loadSched;   /* Load thresholds that control scheduling of jobs on host */
+    float *loadStop;    /* Load thresholds that control suspension of jobs on host */
+    char  *windows;     /* Host dispatch window */
+    int   userJobLimit; /* Maximum number of jobs a user can run on host */
+    int   maxJobs;      /* Maximum number of jobs that host can process concurrently */
+    int   numJobs;      /* Number of jobs running or suspended on host */
+    int   numRUN;       /* Number of jobs running on host */
+    int   numSSUSP;     /* Number of jobs suspended by sbatchd on host */
+    int   numUSUSP;     /* Number of jobs suspended by a user on host */
+    int   mig;          /* Migration threshold for jobs on host */
+    int   attr;         /* Host attributes */
+#define H_ATTR_CHKPNTABLE 0x1
+#define H_ATTR_CHKPNT_COPY 0x2
+    float *realLoad;    /* The load mbatchd obtained from LIM */
+    int   numRESERVE;   /* Num of slots reserved for pending jobs */
+    int   chkSig;       /* This variable is obsolete */
+};</PRE>
+
+<P><A NAME="37522"></A>Note the differences between host information returned
+by LSLIB function <TT>ls_gethostinfo()</TT> and host information returned
+by the LSBLIB function <TT>lsb_hostinfo()</TT>. The former returns general
+information about the hosts whereas the latter returns LSF Batch specific
+information about hosts.</P>
+
+<P><A NAME="37520"></A>For a complete description of the fields in the
+<TT>hostInfoEnt</TT> structure, see the <TT>lsb_hostinfo(3)</TT> man page.</P>
+
+<P><A NAME="22017"></A>The example program below takes a host name as an
+argument and displays various information about the named host. It is a
+simplified version of the LSF Batch <TT>bhosts</TT> command:</P>
+
+<PRE><A NAME="44222"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsbatch.h&gt;
+
+main (argc, argv)
+    int  argc;
+    char *argv[];
+{
+    struct hostInfoEnt *hInfo;
+    int  numHosts = 1;
+    char *hostname = argv[1];
+    int  i;
+
+    if (argc != 2) { 
+        printf(&quot;Usage: %s hostname\n&quot;, argv[0]);
+        exit(-1);
+    }
+    if (lsb_init(argv[0]) &lt; 0) {
+        lsb_perror(&quot;lsb_init&quot;);
+        exit(-1);
+    }
+
+    hInfo = lsb_hostinfo(&amp;hostname, &amp;numHosts);
+
+    if (hInfo == NULL) {
+        lsb_perror(&quot;lsb_hostinfo&quot;);
+        exit (-1);
+    }
+
+    printf(&quot;HOST_NAME    STATUS    JL/U  NJOBS  RUN  SSUSP USUSP\n&quot;);
+
+    printf (&quot;%-18.18s&quot;, hInfo-&gt;host);
+
+    if (hInfo-&gt;hStatus &amp; HOST_STAT_UNLICENSED) {
+        printf(&quot; %-9s\n&quot;, &quot;unlicensed&quot;);    
+        continue;                 /* don't print other info */
+    } else if (hInfo-&gt;hStatus &amp; HOST_STAT_UNAVAIL)
+        printf(&quot; %-9s&quot;,  &quot;unavail&quot;);
+    else if (hInfo-&gt;hStatus &amp; HOST_STAT_UNREACH)
+        printf(&quot; %-9s&quot;, &quot;unreach&quot;);
+    else if (hInfo-&gt;hStatus &amp; ( HOST_STAT_BUSY | HOST_STAT_WIND
+            | HOST_STAT_DISABLED | HOST_STAT_LOCKED
+            | HOST_STAT_FULL | HOST_STAT_NO_LIM))
+        printf(&quot; %-9s&quot;, &quot;closed&quot;);
+    else
+        printf(&quot; %-9s&quot;, &quot;ok&quot;);
+
+    if (hInfo-&gt;userJobLimit &lt; INFINIT_INT)
+        printf(&quot;%4d&quot;, hInfo-&gt;userJobLimit);
+    else
+        printf(&quot;%4s&quot;, &quot;-&quot;);
+
+    printf(&quot;%7d  %4d  %4d  %4d\n&quot;,
+        hInfo-&gt;numJobs, hInfo-&gt;numRUN, hInfo-&gt;numSSUSP, hInfo-&gt;numUSUSP);
+
+    exit(0);
+
+}</PRE>
+
+<P><A NAME="24178"></A><TT>hStatus</TT> is the status of the host. It is
+the bitwise inclusive OR of some of the following constants defined in
+<TT>lsbatch.h</TT>: </P>
+
+<DL>
+<DT><A NAME="24179"></A><TT>HOST_STAT_BUSY </TT></DT>
+
+<DD>The host load is greater than a scheduling threshold. In this status,
+no new batch job will be scheduled to run on this host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24180"></A><TT>HOST_STAT_WIND </TT></DT>
+
+<DD>The host dispatch window is closed. In this status, no new batch job
+will be accepted. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24181"></A><TT>HOST_STAT_DISABLED </TT></DT>
+
+<DD>The host has been disabled by the LSF administrator and will not accept
+jobs. In this status, no new batch job will be scheduled to run on this
+host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24182"></A><TT>HOST_STAT_LOCKED </TT></DT>
+
+<DD>The host is locked by an exclusive job. In this status, no new batch
+job will be scheduled to run on this host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24183"></A><TT>HOST_STAT_FULL </TT></DT>
+
+<DD>The host has reached its job limit. In this status, no new batch job
+will be scheduled to run on this host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24184"></A><TT>HOST_STAT_UNREACH </TT></DT>
+
+<DD>The <TT>sbatchd</TT> on this host is unreachable. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24185"></A><TT>HOST_STAT_UNAVAIL </TT></DT>
+
+<DD>The LIM and <TT>sbatchd</TT> on this host are unreachable. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24186"></A><TT>HOST_STAT_UNLICENSED </TT></DT>
+
+<DD>The host does not have an LSF license. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="39176"></A><TT>HOST_STAT_NO_LIM </TT></DT>
+
+<DD>The host is running an <TT>sbatchd</TT> but not a LIM. </DD>
+</DL>
+
+<P><A NAME="39178"></A>If none of the above holds, <TT>hStatus</TT> is
+set to <TT>HOST_STAT_OK</TT> to indicate that the host is ready to accept
+and run jobs. </P>
+
+<P><A NAME="24408"></A>The constant <TT>INFINIT_INT</TT> defined in <TT>lsf.h</TT>
+is used to indicate that there is no limit set for <TT>userJobLimit</TT>.</P>
+
+<P><A NAME="24120"></A>The example output from the above program follows:</P>
+
+<PRE><A NAME="45938"></A>% <B>a.out hostB
+</B>HOST_NAME    STATUS    JL/U  NJOBS  RUN  SSUSP USUSP
+hostB         ok        -     2      1    1     0</PRE>
+
+<H2><A NAME="8119"></A>Job Submission and Modification</H2>
+
+<P><A NAME="38600"></A>Job submission and modification are most common
+operations in the LSF Batch system. A user can submit jobs to the system
+and then modify them if the job has not been started.</P>
+
+<P><A NAME="25177"></A>LSBLIB provides one function for job submission
+and one function for job modification: </P>
+
+<PRE><A NAME="44380"></A>int lsb_submit(<I>jobSubReq</I>, <I>jobSubReply</I>)
+int lsb_modify(<I>jobSubReq</I>, <I>jobSubReply</I>, <I>jobId</I>)</PRE>
+
+<P><A NAME="33603"></A>On success, these calls return the job ID. Otherwise,
+-1 is returned with <TT>lsberrno</TT> set to indicate the error. These
+two functions are similar except that <TT>lsb_modify()</TT> modifies the
+parameters of an already submitted job. </P>
+
+<P><A NAME="38957"></A>Both of these functions use the same data structure:
+</P>
+
+<PRE><A NAME="44554"></A>struct submit      *jobSubReq;   /* Job specifications */
+struct submitReply *jobSubReply; /* Results of job submission */
+int    jobId;                    /* Id of the job to modify (lsb_modify() only) */</PRE>
+
+<P><A NAME="25474"></A>The submit structure is defined in <TT>lsbatch.h</TT>
+as: </P>
+
+<PRE><A NAME="52574"></A>struct submit {
+    int    options;          /* Indicates which optional fields are present */
+    char   *jobName;         /* Job name (optional) */
+    char   *queue;           /* Submit the job to this queue (optional) */
+    int    numAskedHosts;    /* Size of askedHosts (optional) */
+    char   **askedHosts;     /* An array of names of candidate hosts (optional) */
+    char   *resReq;          /* Resource requirements of the job (optional) */
+    int    rlimits[LSF_RLIM_NLIMITS];
+                             /* Limits on system resource use by all of the job's processes */
+    char   *hostSpec;        /* Host model used for scaling rlimits (optional) */
+    int    numProcessors;    /* Initial number of processors needed by the job */
+    char   *dependCond;      /* Job dependency condition (optional) */
+    time_t beginTime;        /* Dispatch the job on or after beginTime */
+    time_t termTime;         /* Job termination deadline */
+    int    sigValue;         /* This variable is obsolete) */
+    char   *inFile;          /* Path name of the job's standard input file (optional) */
+    char   *outFile;         /* Path name of the job's standard output file (optional) */
+    char   *errFile;         /* Path name of the job's standard error output file (optional) */
+    char   *command;         /* Command line of the job */
+    time_t chkpntPeriod;     /* Job is checkpointable with this period (optional) */
+    char   *chkpntDir;       /* Directory for this job's chk directory (optional) */
+    int    nxf;              /* Size of xf (optional) */
+    struct xFile *xf;        /* An array of file transfer specifications (optional) */
+    char   *preExecCmd;      /* Job's pre-execution command (optional) */
+    char   *mailUser;        /* User E-mail address to which the job's output are mailed (optional) */
+    int    delOptions;       /* Bits to be removed from options (lsb_modify() only) */
+    char   *projectName;     /* Name of the job's project (optional) */
+    int    maxNumProcessors; /* Requested maximum num of job slots for the job */
+    char   *loginShell;      /* Login shell to be used to re-initialize environment */
+};</PRE>
+
+<P><A NAME="28171"></A>For a complete description of the fields in the
+submit structure, see the <TT>lsb_submit(3)</TT> man page.</P>
+
+<P><A NAME="31442"></A>The <TT>submitReply</TT> structure is defined in
+<TT>lsbatch.h</TT> as: </P>
+
+<PRE><A NAME="44570"></A>struct submitReply {
+    char   *queue;      /* The queue name the job was submitted to */
+    int    badJobId;    /* dependCond contains badJobId but there is no such job */
+    char   *badJobName; /* dependCond contains badJobName but there is no such job */
+    int    badReqIndx;  /* Index of a host or resource limit that caused an error */
+};</PRE>
+
+<P><A NAME="31779"></A>The last three variables in the structure <TT>submitReply</TT>
+are only used when <TT>lsb_submit()</TT> or <TT>lsb_modify()</TT> function
+call fails.</P>
+
+<P><A NAME="44582"></A>For a complete description of the fields in the
+<TT>submitReply</TT> structure, see the <TT>lsb_submit(3)</TT> man page.</P>
+
+<P><A NAME="39163"></A>To submit a new job, all you have to do is to fill
+out this data structure and then call <TT>lsb_submit()</TT>. The <TT>delOptions</TT>
+variable is ignored by LSF Batch system for <TT>lsb_submit()</TT> function
+call. </P>
+
+<P><A NAME="39195"></A>The example job submission program below takes the
+job command line as an argument and submits the job to the LSF Batch system.
+For simplicity, it assumes that the command does not have arguments.</P>
+
+<PRE><A NAME="44681"></A><TT>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsbatch.h&gt;
+
+main(argc, argv)
+    int  argc;
+    char **argv;
+{
+    struct submit  req;
+    struct submitReply  reply;
+    int  jobId;
+    int  i;
+
+    if (argc != 2) {
+        fprintf(stderr, &quot;Usage: %s command\n&quot;, argv[0]);
+        exit(-1);
+    }
+
+    if (lsb_init(argv[0]) &lt; 0) {
+        lsb_perror(&quot;lsb_init&quot;);
+        exit(-1);
+    }
+
+    req.options = 0;
+    req.resReq = NULL;
+
+    for (i = 0; i &lt; LSF_RLIM_NLIMITS; i++)
+        req.rLimits[i] = DEFAULT_NUMBER;
+
+    req.hostSpec = NULL;
+    req.numProcessors = 1;
+    req.beginTime = 0;
+    req.termTime  = 0;
+    req.command = argv[1];
+    req.nxf = 0;
+    req.delOptions = 0;
+
+    jobId = lsb_submit(&amp;req, &amp;reply);
+
+    if (jobId &lt; 0) {
+        switch (lsberrno) {
+        case LSBE_QUEUE_USE:
+        case LSBE_QUEUE_CLOSED:
+            lsb_perror(reply.queue);
+            exit(-1);
+        default:
+            lsb_perror(NULL);
+            exit(-1);
+        }
+    }
+
+    printf(&quot;Job &lt;%d&gt; is submitted to default queue &lt;%s&gt;.\n&quot;, jobId,
+            reply.queue);
+
+    exit(0);
+}</TT></PRE>
+
+<P><A NAME="28509"></A>The <TT>options</TT> field of the <TT>submit</TT>
+structure is the bitwise inclusive OR of some of the <TT>SUB_*</TT> flags
+defined in <TT>lsbatch.h</TT>. These flags serve two purposes. Some flags
+indicate which of the optional fields of the <TT>submit</TT> structure
+are present. Those that are not present have default values. Other flags
+indicate submission options. For a description of these flags, see <TT>lsb_submit(3)</TT>.</P>
+
+<P><A NAME="44696"></A>Since <TT>options</TT> indicate which of the optional
+fields are meaningful, you do not need to initialize the fields that are
+will be chosen by options. All parameters that are not optional must be
+initialized properly.</P>
+
+<P><A NAME="28753"></A>If the <TT>resReq</TT> field of the <TT>submit</TT>
+structure is <TT>NULL</TT>, LSBLIB will try to obtain resource requirements
+for <I>command</I> from the remote task list (see <A HREF="2-lslib.html#43021">'Getting
+Task Resource Requirements'</A>). If the task does not appear in the remote
+task list, then <TT>NULL</TT> is passed to the LSF Batch system. <TT>mbatchd</TT>
+will then use the default resource requirements with option <TT>DFT_FROMTYPE</TT>
+bit set when making a LSLIB call for host selection from LIM. See <A HREF="2-lslib.html#46398">'Handling
+Default Resource Requirements'</A> for more information about default resource
+requirements.</P>
+
+<P><A NAME="39816"></A>The constant <TT>DEFAULT_NUMBER</TT> defined in
+<TT>lsbatch.h</TT> indicates that there is no limit on a resource. </P>
+
+<P><A NAME="40109"></A>The constants used to index the <TT>rlimits</TT>
+array of the <TT>submit</TT> structure are defined in <TT>lsf.h</TT>, and
+the resource limits currently supported by LSF Batch are listed in <A HREF="3-lsblib.html#42071">Table
+3</A>. </P>
+
+<H4><A NAME="42071"></A>Table 3. Resource Limits Supported by LSF Batch
+</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TH><A NAME="42075"></A>Resource limit</TH>
+
+<TH><A NAME="42077"></A>Index in <TT>rlimits</TT> array </TH>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="42079"></A>CPU time limit </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="42081"></A>LSF_RLIMIT_CPU </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="42083"></A>File size limit </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="42085"></A>LSF_RLIMIT_FSIZE </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="42087"></A>Data size limit </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="42089"></A>LSF_RLIMIT_DATA </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="42091"></A>Stack size limit </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="42093"></A>LSF_RLIMIT_STACK </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="42095"></A>Core file size limit </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="42097"></A>LSF_RLIMIT_CORE </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="42099"></A>Resident memory size limit
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="42101"></A>LSF_RLIMIT_RSS </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="54112"></A>Number of open files limit
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="54114"></A>LSF_RLIMIT_OPEN_MAX            </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="54116"></A>Virtual memory limit </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="54118"></A>LSF_RLIMIT_SWAP </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="42103"></A>Wall-clock time run limit
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="42105"></A>LSF_RLIMIT_RUN </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="54108"></A>Maximum num of processes
+a job can fork </TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="54110"></A>LSF_RLIMIT_PROCESS </PRE>
+</TD>
+</TR>
+</TABLE>
+
+<P><A NAME="39579"></A>The <TT>hostSpec</TT> field of the <TT>submit</TT>
+structure specifies the host model to use for scaling <TT>rlimits[LSF_RLIMIT_CPU]</TT>
+and <TT>rlimits[LSF_RLIMIT_RUN]</TT> (See <TT>lsb_queueinfo(3)</TT>). If
+<TT>hostSpec</TT> is <TT>NULL</TT>, the local host's model is assumed.</P>
+
+<P><A NAME="28963"></A>If the <TT>beginTime</TT> field of the <TT>submit</TT>
+structure is 0, start the job as soon as possible.</P>
+
+<P><A NAME="40134"></A>If the <TT>termTime</TT> field of the <TT>submit</TT>
+structure is 0, allow the job to run until it reaches a resource limit.</P>
+
+<P><A NAME="40135"></A>The above example checks the value of <TT>lsberrno</TT>
+when <TT>lsb_submit()</TT> fails. Different actions can be taken depending
+on the type of the error. All possible error numbers are defined in <TT>lsbatch.h</TT>.
+For example, error number <TT>LSBE_QUEUE_USE</TT> indicates that the user
+is not authorized to use the queue. The error number <TT>LSBE_QUEUE_CLOSED</TT>
+indicates that the queue is closed. </P>
+
+<P><A NAME="31225"></A>Since a queue name was not specified for the job,
+the job will be submitted to the default queue. The <TT>queue</TT> field
+of the <TT>submitReply</TT> structure contains the name of the queue to
+which the job was submitted.</P>
+
+<P><A NAME="31319"></A>The above program will produce output similar to
+the following:</P>
+
+<PRE><A NAME="44978"></A>Job &lt;5602&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<P><A NAME="31425"></A>The output from the job will be mailed to the user
+because it did not specify a file name for the <TT>outFile</TT> parameter
+in the <TT>submit</TT> structure.</P>
+
+<P><A NAME="45035"></A>To modify an already submitted job, you can fill
+out a new submit structure to override existing parameters, and use <TT>delOptions</TT>
+to remove option bits that were previously specified for the job. Essentially,
+modifying a submitted job is like re-submitting the job. So the same program
+as above can be used to modify an existing job with minor changes. One
+additional parameter that must be specified for job modification is the
+job Id. The parameter <TT>delOptions</TT> can also be set if you want to
+clear some option bits that were set previously. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="45036"></A><B>Note<BR>
+</B><I>All applications that call </I><TT>lsb_submit()</TT><I> and </I><TT>lsb_modify()</TT><I>
+are subject to authentication constraints described in </I><A HREF="1-introduction.html#8311">'Authentication'</A><I>.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="40200"></A>Getting Information about Batch Jobs</H2>
+
+<P><A NAME="8664"></A>LSBLIB provides functions to get status information
+about batch jobs. Since the number of jobs in the LSF Batch system could
+be on the order of many thousands, getting all this information in one
+message could potentially use a lot of memory space. LSBLIB allows the
+application to open a stream connection and then read the job records one
+by one. This way the memory space needed is always the size of one job
+record. </P>
+
+<P><A NAME="40282"></A>The function calls used to get job information are:</P>
+
+<PRE><A NAME="45135"></A>int lsb_openjobinfo(<I>jobId</I>, <I>jobName</I>, <I>user</I>, <I>queue</I>, <I>host</I>, <I>options</I>);
+struct jobInfoEnt *lsb_readjobinfo(<I>more</I>);
+void lsb_closejobinfo(<I>void</I>);</PRE>
+
+<P><A NAME="40337"></A>These functions are used to open a job information
+connection with <TT>mbatchd</TT>, read job records, and then close the
+job information connection.</P>
+
+<P><A NAME="40384"></A><TT>lsb_openjobinfo()</TT> function takes the following
+arguments:</P>
+
+<PRE><A NAME="45148"></A><TT>int   jobId;    /* Select job with the given job Id */
+char  *jobName; /* Select job(s) with the given job name */
+char  *user;    /* Select job(s) submitted by the named user or user group */
+char  *queue;   /* Select job(s) submitted to the named queue */
+char  *host;    /* Select job(s) that are dispatched to the named host */
+int   options;  /* Selection flags constructed from the bits defined in lsbatch.h */</TT></PRE>
+
+<P><A NAME="40436"></A>The <TT>options</TT> parameter contains additional
+job selection flags defined in <TT>lsbatch.h</TT>. These are: </P>
+
+<DL>
+<DT><A NAME="40443"></A><TT>ALL_JOB </TT></DT>
+
+<DD>Select jobs matching any status, including unfinished jobs and recently
+finished jobs. LSF Batch remembers finished jobs within the <TT>CLEAN_PERIOD</TT>,
+as defined in the <TT>lsb.params</TT> file. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="40445"></A><TT>CUR_JOB </TT></DT>
+
+<DD>Return jobs that have not finished yet. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="51836"></A><TT>DONE_JOB </TT></DT>
+
+<DD><TT>Return jobs that have finished recently. </TT></DD>
+</DL>
+
+<DL>
+<DT><A NAME="40449"></A><TT>PEND_JOB </TT></DT>
+
+<DD><TT>Return jobs that are in the pending status. </TT></DD>
+</DL>
+
+<DL>
+<DT><A NAME="40451"></A><TT>SUSP_JOB </TT></DT>
+
+<DD>Return jobs that are in the suspended status. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="40455"></A><TT>LAST_JOB </TT></DT>
+
+<DD>Return jobs that are submitted most recently. </DD>
+</DL>
+
+<P><A NAME="40457"></A>If <TT>options</TT> is 0, then the default is <TT>CUR_JOB</TT>.</P>
+
+<P><A NAME="40458"></A><TT>lsb_openjobinfo()</TT> returns the total number
+of matching job records in the connection. It returns -1 on failure and
+sets <TT>lsberrno</TT> to indicate the error.</P>
+
+<P><A NAME="40486"></A><TT>lsb_readjobinfo()</TT> takes one argument:</P>
+
+<PRE><A NAME="45166"></A>int   *more;  /*&nbsp;If not NULL, contains the remaining number of jobs unread */</PRE>
+
+<P><A NAME="40574"></A>Either this parameter or the return value from the
+<TT>lsb_openjobinfo()</TT> can be used to keep track of the number of job
+records that can be returned from the connection. This parameter is updated
+each time <TT>lsb_readjobinfo()</TT> is called.</P>
+
+<P><A NAME="40628"></A><TT>lsb_closejobinfo()</TT> should be called after
+receiving all job records in the connection. </P>
+
+<P><A NAME="40637"></A>Below is an example of a simplified <TT>bjobs</TT>
+command. This program displays all pending jobs belonging to all users.</P>
+
+<PRE><A NAME="47184"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsbatch.h&gt;
+
+main()
+{
+    int  options = PEND_JOB;
+    char *user = &quot;all&quot;;             /* match jobs for all users */
+    struct jobInfoEnt *job;
+    int more;
+
+    if (lsb_init(argv[0]) &lt; 0) {
+        lsb_perror(&quot;lsb_init&quot;);
+        exit(-1);
+    }
+
+    if (lsb_openjobinfo(0, NULL, user, NULL, NULL, options) &lt; 0) {
+        lsb_perror(&quot;lsb_openjobinfo&quot;);
+        exit(-1);
+    }
+
+    printf(&quot;All pending jobs submitted by all users:\n&quot;);
+    for (;;) {
+        job = lsb_readjobinfo(&amp;more);
+        if (job == NULL) {
+            lsb_perror(&quot;lsb_readjobinfo&quot;);
+            exit(-1);
+        }
+        /* display the job */
+        printf(&quot;%s:\nJob &lt;%d&gt; of user &lt;%s&gt;, submitted from host &lt;%s&gt;\n&quot;,
+                ctime(&amp;job-&gt;submitTime), job-&gt;jobId, job-&gt;user, job-&gt;fromHost);
+
+        if (! more) 
+            break;
+    }
+
+    lsb_closejobinfo();
+    exit(0);
+}</PRE>
+
+<P><A NAME="40619"></A>If you want to print out the reasons why the job
+is still pending, you can use the function <TT>lsb_pendreason()</TT>. See
+<TT>lsb_pendreason(3)</TT> for details.</P>
+
+<P><A NAME="49955"></A>The above program will produce output similar to
+the following:</P>
+
+<PRE><A NAME="51264"></A>All pending jobs submitted by all users:
+Mon Mar 1 10:34:04 EST 1996:
+Job &lt;123&gt; of user &lt;john&gt;, submitted from host &lt;orange&gt;
+Mon Mar 1 11:12:11 EST 1996:
+Job &lt;126&gt; of user &lt;john&gt;, submitted from host &lt;orange&gt;
+Mon Mar 1 14:11:34 EST 1996:
+Job &lt;163&gt; of user &lt;ken&gt;, submitted from host &lt;apple&gt;
+Mon Mar 1 15:00:56 EST 1996:
+Job &lt;199&gt; of user &lt;tim&gt;, submitted from host &lt;pear&gt;</PRE>
+
+<H2><A NAME="8121"></A>Job Manipulation</H2>
+
+<P><A NAME="40884"></A>After a job has been submitted, it can be manipulated
+by users in different ways. It can be suspended, resumed, killed, or sent
+an arbitrary signal. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="40987"></A><B>Note<BR>
+</B><I>All applications that manipulate jobs are subject to authentication
+provisions described in </I><A HREF="1-introduction.html#8311">'Authentication'</A>.</P>
+</BLOCKQUOTE>
+
+<H3><A NAME="40889"></A>Sending a Signal to a Job</H3>
+
+<P><A NAME="40891"></A>Users can send signals to submitted jobs. If the
+job has not been started, you can send <TT>KILL</TT>, <TT>TERM</TT>, <TT>INT</TT>,
+and <TT>STOP</TT> signals. These will cause the job to be cancelled (<TT>KILL</TT>,
+<TT>TERM</TT>, or <TT>INT</TT>) or suspended (<TT>STOP</TT>). If the job
+is already started, then any signals can be sent to the job.</P>
+
+<P><A NAME="40929"></A>The LSBLIB call to send a signal to a job is:</P>
+
+<PRE><A NAME="45193"></A>int lsb_signaljob(<I>jobId</I>, <I>sigValue</I>);</PRE>
+
+<P><A NAME="40946"></A>The <TT>jobId</TT> and <TT>sigValue</TT> parameters
+are self-explanatory.</P>
+
+<P><A NAME="40952"></A>The following example takes a job ID as the argument
+and send a <TT>SIGSTOP</TT> signal to the job.</P>
+
+<PRE><A NAME="45226"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsbatch.h&gt;
+
+main(argc, argv)
+    int  argc;
+    char *argv[];
+{
+    if (argc != 2) {
+        printf(&quot;Usage: %s jobId\n&quot;, argv[0]);
+        exit(-1);
+    }
+
+    if (lsb_init(argv[0]) &lt; 0) {
+        lsb_perror(&quot;lsb_init&quot;);
+        exit(-1);
+    }
+
+    if (lsb_signaljob(argv[1], SIGSTOP) &lt;0) {
+        lsb_perror(&quot;lsb_signaljob&quot;);
+        exit(-1);
+    }
+
+    printf(&quot;Job %d is signaled\n&quot;, argv[1]);
+    exit(0);
+}</PRE>
+
+<H3><A NAME="40978"></A>Switching a Job to a Different Queue</H3>
+
+<P><A NAME="40979"></A>A job can be switched to a different queue after
+submission. This can be done even after the job has already started.</P>
+
+<P><A NAME="40981"></A>The LSBLIB function to switch a job from one queue
+to another is:</P>
+
+<PRE><A NAME="45249"></A>int lsb_switchjob(<I>jobId</I>, <I>queue</I>);</PRE>
+
+<P><A NAME="40984"></A>Below is an example program that switches a specified
+job to the specified new queue.</P>
+
+<PRE><A NAME="45263"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsbatch.h&gt;
+
+main(argc, argv)
+    int argc;
+    char *argv[];
+{
+    if (argc != 3) {
+        printf(&quot;Usage: %s jobId new_queue\n&quot;, argv[0]);
+        exit(-1);
+    }
+
+    if (lsb_init(argv[0]) &lt;0) {
+        lsb_perror(&quot;lsb_init&quot;);
+        exit(-1);
+    }
+
+    if (lsb_switchjob(argv[1], argv[2]) &lt; 0) {
+        lsb_perror(&quot;lsb_switchjob&quot;);
+        exit(-1);
+    }
+
+    printf(&quot;Job %d is switched to new queue &lt;%s&gt;\n&quot;, argv[1], argv[2]);
+    
+    exit(0);
+}</PRE>
+
+<H2><A NAME="40886"></A>Processing LSF Batch Log Files</H2>
+
+<P><A NAME="8247"></A>LSF Batch saves a lot of valuable information about
+the system and jobs. Such information is logged by <TT>mbatchd</TT> in
+files <TT>lsb.events</TT> and <TT>lsb.acct</TT> under the directory <TT>LSB_SHAREDIR/<I>cluster</I>/logdir</TT>,
+where <TT>LSB_SHAREDIR</TT> is defined in the <TT>lsf.conf</TT> file and
+<I>cluster</I> is the name of your LSF cluster. </P>
+
+<P><A NAME="46208"></A><TT>mbatchd</TT> logs such information for several
+purposes. Firstly, some of the events serve as the backup of <TT>mbatchd</TT>'s
+memory so that in case <TT>mbatchd</TT> crashes, all the critical information
+can be picked up by a newly started <TT>mbatchd</TT> from the event file
+to restore the current state of LSF Batch. Secondly, the events can be
+used to produce historical information about the LSF Batch system and user
+jobs. Lastly, such information can be used to produce accounting or statistic
+reports. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="43228"></A><B>CAUTION!<BR>
+The <TT>lsb.events</TT> file contains critical user job information. It
+should never be modified by your program. Writing into this file may cause
+the loss of user jobs.</B></P>
+</BLOCKQUOTE>
+
+<P><A NAME="41140"></A>LSBLIB provides a function to read this information
+from these files into a well-defined data structure:</P>
+
+<PRE><A NAME="45285"></A>struct eventRec *lsb_geteventrec(<I>log_fp</I>, <I>lineNum</I>)</PRE>
+
+<P><A NAME="41112"></A>The parameters are:</P>
+
+<PRE><A NAME="45288"></A>FILE  *log_fp;  /*&nbsp;File handle for either an event log file or job log file */
+int   *lineNum; /* Line number of the next event record */</PRE>
+
+<P><A NAME="7495"></A>The parameter <TT>log_fp</TT> is as returned by a
+successful <TT>fopen()</TT> call. The content in <TT>lineNum</TT> is modified
+to indicate the line number of the next event record in the log file on
+a successful return. This value can then be used to report the line number
+when an error occurs while reading the log file. This value should be initiated
+to 0 before <TT>lsb_geteventrec()</TT> is called for the first time.</P>
+
+<P><A NAME="41174"></A>This call returns the following data structure:</P>
+
+<PRE><A NAME="46137"></A>struct eventRec {
+    char  version[MAX_VERSION_LEN]; /* Version number of the mbatchd */
+    int   type;                     /* Type of the event */
+    int   eventTime;                /* Event time stamp */
+    union eventLog eventLog;        /* Event data */
+};</PRE>
+
+<P><A NAME="50112"></A>The event type is used to determine the structure
+of the data in <TT>eventLog</TT>. LSBLIB remembers the storage allocated
+for the previously returned data structure and automatically frees it before
+returning the next event record. </P>
+
+<P><A NAME="50153"></A><TT>lsb_geteventrec()</TT> returns <TT>NULL</TT>
+and sets <TT>lsberrno</TT> to <TT>LSBE_EOF</TT> when there are no more
+records in the event file.</P>
+
+<P><A NAME="50131"></A>Events are logged by <TT>mbatchd</TT> for many different
+purposes. There are job-related events and system-related events. Applications
+can choose to process certain events and ignore other events. For example,
+the <TT>bhist</TT> command processes job-related events only. The currently
+available event types are listed in <A HREF="3-lsblib.html#45534">Table
+4</A>. </P>
+
+<H4><A NAME="45534"></A>Table 4. Event Types </H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TH><A NAME="45538"></A>Event type</TH>
+
+<TH><A NAME="45540"></A>Description</TH>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45542"></A>EVENT_JOB_NEW </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45544"></A>New job event </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45546"></A>EVENT_JOB_START </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45548"></A><TT>mbatchd</TT> is trying
+to start a job </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45550"></A>EVENT_JOB_STATUS </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45552"></A>Job status change event </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45554"></A>EVENT_JOB_SWITCH </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45556"></A>Job switched to a new queue
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45558"></A>EVENT_JOB_MOVE </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45560"></A>Job moved within a queue
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45562"></A>EVENT_QUEUE_CTRL </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45564"></A>Queue status changed by LSF
+admin </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45566"></A>EVENT_HOST_CTRL </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45568"></A>Host status changed by LSF
+admin </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45570"></A>EVENT_MBD_START </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45572"></A>New <TT>mbatchd</TT> start
+event </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45574"></A>EVENT_MBD_DIE </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45576"></A><TT>mbatchd</TT> resign event
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45578"></A>EVENT_MBD_UNFULFILL </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45580"></A><TT>mbatchd</TT> has an action
+to be fulfilled </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45582"></A>EVENT_JOB_FINISH </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45584"></A>Job has finished (logged
+in <TT>lsb.acct</TT> only) </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45586"></A>EVENT_LOAD_INDEX </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45588"></A>Complete list of load index
+names </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45590"></A>EVENT_MIG </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45592"></A>Job has migrated </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45598"></A>EVENT_PRE_EXEC_START </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45600"></A>The pre-execution command
+started </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45602"></A>EVENT_JOB_ROUTE </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45604"></A>The job has been routed to
+NQS </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45606"></A>EVENT_JOB_MODIFY </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45608"></A>The job has been modified
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45610"></A>EVENT_JOB_SIGNAL </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45612"></A>Job signal to be delivered
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45614"></A>EVENT_CAL_NEW </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45620"></A>New calendar event <SUP><A HREF="3-lsblib.html#45619">1.</A></SUP>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45622"></A>EVENT_CAL_MODIFY </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45627"></A>Calendar modified <SUP><A HREF="3-lsblib.html#45619">1.</A></SUP>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45629"></A>EVENT_CAL_DELETE </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45634"></A>Calendar deleted <SUP><A HREF="3-lsblib.html#45619">1.</A></SUP>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45636"></A>EVENT_JOB_FORWARD </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45638"></A>Job forwarded to another
+cluster </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45640"></A>EVENT_JOB_ACCEPT </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45642"></A>Job from a remote cluster
+dispatched </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45644"></A>EVENT_STATUS_ACK </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45646"></A>Job status successfully sent
+to submission cluster </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="45648"></A>EVENT_JOB_EXECUTE </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="45650"></A>Job started successfully
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="54140"></A>EVENT_JOB_REQUEUE </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="54142"></A>Job is requeued </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="54145"></A>EVENT_JOB_SIGACT </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="54147"></A>An signal action on a job
+has been initiated or finished </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="54155"></A>EVENT_JOB_START_ACCEPT </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP><A NAME="54157"></A>Job accepted by <TT>sbatchd</TT>
+</TD>
+</TR>
+</TABLE>
+
+<TABLE CELLSPACING=0 >
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><SUP>1. <A NAME="45619"></A></SUP>Available only
+if the LSF JobScheduler component is enabled. </TD>
+</TR>
+</TABLE>
+
+<P><A NAME="47197"></A>Note that the event type <TT>EVENT_JOB_FINISH</TT>
+is used by the <TT>lsb.acct</TT> file only and all other event types are
+used by the <TT>lsb.events</TT> file only. For detailed formats of these
+log files, see <TT>lsb.events(5)</TT> and <TT>lsb.acct(5)</TT>.</P>
+
+<P><A NAME="42296"></A>Each event type corresponds to a different data
+structure in the union:</P>
+
+<PRE><A NAME="53049"></A>union  eventLog { 
+    struct jobNewLog     jobNewLog;             /* EVENT_JOB_NEW */
+    struct jobStartLog   jobStartLog;           /* EVENT_JOB_START */
+    struct jobStatusLog  jobStatusLog;          /* EVENT_JOB_STATUS */
+    struct jobSwitchLog  jobSwitchLog;          /* EVENT_JOB_SWITCH */
+    struct jobMoveLog    jobMoveLog;            /* EVENT_JOB_MOVE */
+    struct queueCtrlLog  queueCtrlLog;          /* EVENT_QUEUE_CTRL */
+    struct hostCtrlLog   hostCtrlLog;           /* EVENT_HOST_CTRL */
+    struct mbdStartLog   mbdStartLog;           /* EVENT_MBD_START */
+    struct mbdDieLog     mbdDieLog;             /* EVENT_MBD_DIE */
+    struct unfulfillLog  unfulfillLog;          /* EVENT_MBD_UNFULFILL */
+    struct jobFinishLog  jobFinishLog;          /* EVENT_JOB_FINISH */
+    struct loadIndexLog  loadIndexLog;          /* EVENT_LOAD_INDEX */
+    struct migLog        migLog;                /* EVENT_MIG */
+    struct calendarLog   calendarLog;           /* Shared by all calendar events */
+    struct jobForwardLog jobForwardLog;         /* EVENT_JOB_FORWARD */
+    struct jobAcceptLog  jobAcceptLog;          /* EVENT_JOB_ACCEPT */
+    struct statusAckLog  statusAckLog;          /* EVENT_STATUS_ACK */
+    struct signalLog     signalLog;             /* EVENT_JOB_SIGNAL */
+    struct jobExecuteLog jobExecuteLog;         /* EVENT_JOB_EXECUTE */
+    struct jobRequeueLog jobRequeueLog;         /* EVENT_JOB_REQUEUE */
+    struct sigactLog sigactLog;                 /* EVENT_JOB_SIGACT */
+    struct jobStartAcceptLog jobStartAcceptLog; /* EVENT_JOB_START_ACCEPT */
+};</PRE>
+
+<P><A NAME="42728"></A>The detailed data structures in the above union
+are defined in <TT>lsbatch.h</TT> and described in <TT>lsb_geteventrec(3)</TT>.
+</P>
+
+<P><A NAME="42825"></A>Below is an example program that takes an argument
+as job name and displays a chronological history about all jobs matching
+the job name. This program assumes that the <TT>lsb.events</TT> file is
+in <TT>/local/lsf/work/cluster1/logdir</TT>:</P>
+
+<PRE><A NAME="45745"></A>#include &lt;stdio.h&gt;
+#include &lt;time.h&gt;
+#include &lt;lsf/lsbatch.h&gt;
+
+main(argc, argv)
+    int  argc;
+    char *argv[];
+{
+    char *eventFile = &quot;/local/lsf/work/cluster1/logdir/lsb.events&quot;;
+    FILE *fp;
+    struct eventRec *recrod;
+    int  lineNum = 0;
+    char *jobName = argv[1];
+    int  i;
+
+    if (argc != 2) {
+        printf(&quot;Usage: %s jobname\n&quot;, argv[0]);
+        exit(-1);
+    }
+
+    if (lsb_init(argv[0]) &lt; 0) {
+        lsb_perror(&quot;lsb_init&quot;);
+        exit(-1);
+    }
+
+    fp = fopen(eventFile, &quot;r&quot;);
+    if (fp == NULL) {
+        perror(eventFile);
+        exit(-1);
+    }
+
+    for (;;) {
+
+        record = lsb_geteventrec(fp, &amp;lineNum);
+        if (record == NULL) {
+            if (lsberrno == LSBE_EOF)
+                exit(0);
+            lsb_perror(&quot;lsb_geteventrec&quot;);
+            exit(-1);
+        }
+
+        if (strcmp(record-&gt;eventLog.jobNewLog.jobName, jobName) != 0)
+            continue;
+
+        switch (record-&gt;type) {
+            struct jobNewLog *newJob;
+            struct jobStartLog *startJob;
+            struct jobStatusLog *statusLog;
+
+        case EVENT_JOB_NEW:
+            newJob = &amp;(record-&gt;eventLog.jobNewLog);
+            printf(&quot;%s: job &lt;%d&gt; submitted by &lt;%s&gt; from &lt;%s&gt; to &lt;%s&gt; queue\n&quot;,
+                    ctime(&amp;record-&gt;eventTime), newJob-&gt;jobId, newJob-&gt;userName, 
+                    newJob-&gt;fromHost, newJob-&gt;queue);
+            continue;
+
+        case EVENT_JOB_START:
+            startJob = &amp;(record-&gt;eventLog.jobStartLog);
+            printf(&quot;%s: job &lt;%d&gt; started on &quot;,
+                    ctime(&amp;record-&gt;eventTime), newJob-&gt;jobId);
+            for (i=0; i&lt;startJob-&gt;numExHosts; i++) 
+                printf(&quot;&lt;%s&gt; &quot;, startJob-&gt;execHosts[i]);
+            printf(&quot;\n&quot;);
+            continue;
+
+        case EVENT_JOB_STATUS:
+            statusJob = &amp;(record-&gt;eventLog.jobStatusLog);
+            printf(&quot;%s: Job &lt;%d&gt; status changed to: &quot;, 
+                    ctime(&amp;record-&gt;eventTime), statusJob-&gt;jobId);
+            switch(statusJob-&gt;jStatus) {
+
+            case JOB_STAT_PEND:
+                printf(&quot;pending\n&quot;);
+                continue;
+
+            case JOB_STAT_RUN:
+                printf(&quot;running\n&quot;);
+                continue;
+
+            case JOB_STAT_SSUSP:
+            case JOB_STAT_USUSP:
+            case JOB_STAT_PSUSP:
+                printf(&quot;suspended\n&quot;);
+                continue;
+
+            case JOB_STAT_UNKWN:
+                printf(&quot;unknown (sbatchd unreachable)\n&quot;);
+                continue;
+
+            case JOB_STAT_EXIT:
+                printf(&quot;exited\n&quot;);
+                continue;
+
+            case JOB_STAT_DONE:
+                printf(&quot;done\n&quot;);
+                continue;
+
+            default:
+                printf(&quot;\nError: unknown job status %d\n&quot;, statusJob-&gt;jStatus);
+                continue;
+            }
+        default:            /* only display a few selected event types*/
+            continue;
+        }
+    }
+
+    exit(0);
+}</PRE>
+
+<P><A NAME="43168"></A>Note that in the above program, events that are
+of no interest are skipped. The job status codes are defined in <TT>lsbatch.h</TT>.
+The <TT>lsb.acct</TT> file stores job accounting information and can be
+processed similarly. Since currently there is only one event type (<TT>EVENT_JOB_FINISH</TT>)
+in <TT>lsb.acct</TT> file, the processing is simpler than the above example.</P>
+
+<P>
+<HR><A HREF="programmers-contents.html">[Contents]</A> <A HREF="2-lslib.html">[Prev]</A>
+<A HREF="4-advanced.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I></P>
+
+</BODY>
+</HTML>

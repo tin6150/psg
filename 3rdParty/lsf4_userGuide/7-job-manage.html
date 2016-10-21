@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - Managing Jobs</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-contents.html">[Contents]</A> <A HREF="6-job-define.html">[Prev]</A>
+<A HREF="8-advanced.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1019584"></A>Chapter 7. <A NAME="1019582"></A>Managing Jobs</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="1019654"></A>LSF JobScheduler provides a single system image
+for your cluster so that you can use the whole cluster as if it were a
+single computer. After you have submitted jobs into the system, you can
+view the status of your jobs or do various manipulations on your jobs from
+anywhere in the cluster. This chapter demonstrates the job tracking and
+manipulation tools in JobScheduler. </P>
+
+<H2><A NAME="1020033"></A>Tracking Jobs</H2>
+
+<H3><A NAME="1019655"></A>Checking Status of your Jobs</H3>
+
+<P><A NAME="1019657"></A>The status of a submitted job is one of the following:</P>
+
+<DL>
+<DT><A NAME="1019658"></A><TT>PEND </TT></DT>
+
+<DD>The job is pending, that is, it has not yet been started. </DD>
+
+<DT><A NAME="1019659"></A><TT>RUN </TT></DT>
+
+<DD>The job is currently running. </DD>
+
+<DT><A NAME="1019660"></A><TT>PSUSP </TT></DT>
+
+<DD>The job has been suspended while it was pending. </DD>
+
+<DT><A NAME="1019661"></A><TT>USUSP </TT></DT>
+
+<DD>The job has been suspended while it was running. </DD>
+
+<DT><A NAME="1019665"></A><TT>SSUSP </TT></DT>
+
+<DD>The job has been suspended by the JobScheduler system while running.
+</DD>
+
+<DT><A NAME="1019666"></A><TT>DONE </TT></DT>
+
+<DD>The job has terminated with status of zero (0). </DD>
+
+<DT><A NAME="1019667"></A><TT>EXIT </TT></DT>
+
+<DD>The job has terminated with a non-zero status. </DD>
+
+<DT><A NAME="1019669"></A><TT>UNKWN </TT></DT>
+
+<DD>The controlling daemons (<TT>mbatchd</TT> and <TT>sbatchd</TT>) have
+lost communication. </DD>
+
+<DT><A NAME="1020057"></A><TT>ZOMBI </TT></DT>
+
+<DD>A job will become <TT>ZOMBI</TT> if the job is killed by the <TT>bkill</TT>
+command while the current status is shown as <TT>UNKWN</TT>. </DD>
+</DL>
+
+<P><A NAME="1020058"></A>Job status is changed by: </P>
+
+<UL>
+<LI><A NAME="1019673"></A>Manual intervention by user. </LI>
+
+<LI><A NAME="1019674"></A>The result of executing a job. </LI>
+
+<LI><A NAME="1019675"></A>Intervention by system. </LI>
+</UL>
+
+<P><A NAME="1019677"></A>See <A HREF="6-job-define.html#1021799">'Job Status'</A>
+for further information about job states.</P>
+
+<P><A NAME="1019909"></A>Use the <TT>bjobs</TT> command to view the submitted
+jobs.</P>
+
+<PRE><A NAME="1019678"></A>% <B>bjobs
+</B>JOBID USER     STAT  QUEUE     FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+6848  user1    PEND  sysadm     hostA                   diskcheck  Dec 17 11:52
+7142  user1    PEND  sysadm     hostA                   backup     Dec 21 15:45</PRE>
+
+<P><A NAME="1020066"></A>By default <TT>bjobs</TT> will only display the
+jobs you submitted. Use the <TT>-u user_name</TT> option to view the jobs
+of other users. Use the reserved user name <TT>all</TT> to see the jobs
+of all the users. </P>
+
+<PRE><A NAME="1020083"></A><TT>% <B>bjobs -u all
+</B>JOBID USER     STAT  QUEUE      FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+6745  user2    RUN   business   hostD      hostB        report     Dec 19 09:04
+6916  user3    RUN   business   hostA      hostD        analyse    Dec 19 09:05
+6848  user1    PEND  sysadm     hostA                   diskcheck  Dec 17 11:52
+7142  user1    PEND  sysadm     hostA                   backup     Dec 21 15:45
+7157  user4    PEND  night      hostA                   forecast   Dec 18 10:56</TT></PRE>
+
+<P><A NAME="1020121"></A>Sometimes you may have forgotten detailed attributes
+about your jobs. Use <TT>-l</TT> option to view everything about your jobs.
+You can also specify the <I>jobID</I> to view a particular job.</P>
+
+<PRE><A NAME="1020126"></A>% <B>bjobs -l 7142
+</B>Job Id &lt;7142&gt;, Job Name &lt;backup&gt;, User &lt;user1&gt;, Project &lt;default&gt;, Status &lt;PEND
+&gt;, Queue &lt;sysadm&gt;, Command &lt;/var/adm/backup/bin/dumpit&gt;
+Sat Dec 21 15:04:34: Submitted from host &lt;hostA&gt;, CWD &lt;/var/adm&gt;, Specified Hos
+ts &lt;hostD&gt;, Dependency Condition(calendar(weekly)); 
+
+PENDING REASONS:
+Job dependency condition not satisfied;
+
+SCHEDULING PARAMETERS:
+          r15s   r1m    r15m     ut    pg   io     ls    it   tmp   swp    mem
+loadSched   -     -      -        -    -     -     -      -    -     -      -
+loadStop    -     -      -        -    -     -     -      -    -     -      -</PRE>
+
+<P><A NAME="1020241"></A>The <TT>SCHEDULING PARAMETERS</TT> for a job come
+from queue's <TT>SCHEDULING PARAMETERS</TT>, as described in <A HREF="5-environment.html#1022608">'Detailed
+Queue Information'</A>.</P>
+
+<P><A NAME="1020084"></A>Use the <TT>-s</TT> option to view the suspended
+jobs only, showing the reason why the jobs are suspended.</P>
+
+<PRE><A NAME="1019831"></A>% <B>bjobs -s
+</B>JOBID USER     STAT  QUEUE      FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+1999  user1    PSUSP default    hostA                   jobA       Dec 10 15:33
+The job was suspended by user or system admin while pending;</PRE>
+
+<P><A NAME="1019681"></A>Use the <TT>-p</TT> option to view the pending
+jobs only. Along with the job information it also shows the reason why
+each job was not dispatched during the last dispatch turn.</P>
+
+<PRE><A NAME="1019682"></A>% <B>bjobs -p
+</B>JOBID USER     STAT  QUEUE      FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+1999  user1    PSUSP default    hostA                   jobA       Dec 10 15:33
+The job was suspended by user or system admin while pending;
+5518  user1    PEND  default    hostA                   jobB       Dec 14 10:27
+Job dependency condition not satisfied;
+8056  user1    PEND  default    hostA                   jobB       Dec 20 11:41
+Job dependency condition not satisfied;</PRE>
+
+<P><A NAME="1020154"></A>If you want to know more details about why your
+jobs are pending, use both <TT>-p</TT> and <TT>-l</TT> options. You can
+use several options in combination to get more details from the system.</P>
+
+<H3><A NAME="1019685"></A>Tracking a Job</H3>
+
+<P><A NAME="1019688"></A>You may need to know what has happened to your
+job since it was submitted. The <TT>bhist</TT> command displays a summary
+of the pending, suspended and running time of jobs. Use the <TT>-l</TT>
+option to print the time information and a complete history of the scheduling
+events for each run of your job.</P>
+
+<PRE><A NAME="1019689"></A>% <B>bhist -l
+
+</B>Job Id &lt;7848&gt;, Job Name &lt;diskcheck&gt;, User &lt;user1&gt;, Project &lt;default&gt;, Command &lt;
+                     find / -name core -atime +7 -exec rm {} \;&gt;
+Tue Dec 17 11:52:13: Submitted from host &lt;hostA&gt; to Queue &lt;default&gt;, CWD &lt;$HOME
+                     &gt;, Dependency Condition &lt;calendar(daily)&gt;;
+Sat Dec 21 07:00:12: Started on &lt;hostA&gt;, Pid &lt;29027&gt;;
+Sat Dec 21 07:00:12: Running with execution home &lt;/home/user1&gt;, Execution CWD &lt;
+                     /home/user1&gt;;
+Sat Dec 21 07:00:55: Done successfully. The CPU time used is 12.2 seconds;
+Sun Dec 22 07:00:05: Started on &lt;hostA&gt;, Pid &lt;986&gt;;
+Sun Dec 22 07:00:05: Running with execution home &lt;/home/user1&gt;, Execution CWD &lt;
+                     /home/user1&gt;;
+Sun Dec 22 07:01:18: Done successfully. The CPU time used is 11.9 seconds;
+Mon Dec 23 07:00:02: Started on &lt;hostA&gt;, Pid &lt;2892&gt;;
+Mon Dec 23 07:00:02: Running with execution home &lt;/home/user1&gt;, Execution CWD &lt;
+                     /home/user1&gt;;
+Mon Dec 23 07:01:13: Done successfully. The CPU time used is 10.5 seconds;
+Tue Dec 24 07:00:10: Started on &lt;hostA&gt;, Pid &lt;4905&gt;;
+Tue Dec 24 07:00:10: Running with execution home home/user1&gt;, Execution CWD &lt;/h
+                     ome/user1&gt;;
+Tue Dec 24 07:03:31: Done successfully. The CPU time used is 19.7 seconds;
+Tue Dec 24 15:17:14: Delete requested by user or administrator &lt;user1&gt;;
+Tue Dec 24 15:17:14: Exited. The CPU time used is 0.0 seconds.
+
+Summary of time in seconds spent in various states by Tue Dec 24 15:17:14 1996
+  PEND     PSUSP    RUN      USUSP    SSUSP    UNKWN    TOTAL
+  617057   0        44       0        0        0        617101</PRE>
+
+<P><A NAME="1019693"></A>JobScheduler keeps job history information after
+the job completes a run, so you can look at the history of jobs that ran
+in the past. The length of the history depends on how often JobScheduler
+prunes event log files. The system automatically backs up and prunes the
+job history log when necessary. </P>
+
+<P><A NAME="1019697"></A>By default, <TT>bhist</TT> only displays job history
+from the current event log file. The <TT>-n</TT> <I>num_logfiles</I> option
+tells the <TT>bhist</TT> command to search through the specified number
+of log files instead of only searching the current log file. Log files
+are searched from the most recent files starting with the current event
+file and then the backup files.</P>
+
+<PRE><A NAME="1019832"></A>% <B>bhist -n 3</B></PRE>
+
+<P><A NAME="1019833"></A>The above command will read the current event
+file and then the two most recent backup files.</P>
+
+<H2><A NAME="1016050"></A>Modifying a Job</H2>
+
+<P><A NAME="1016053"></A>The <TT>bmodify</TT> command allows you to modify
+the options of a submitted job. The value for the option you want to modify
+is overridden with a new value using the same option syntax as the <TT>bsub</TT>
+command.</P>
+
+<PRE><A NAME="1016192"></A>% <B>bmodify -w &quot;calendar(complex)&quot; 7848</B></PRE>
+
+<P><A NAME="1016167"></A>To reset an option to its default value, use the
+option string followed by '<TT>n</TT>'. No value should be specified when
+resetting an option.</P>
+
+<PRE><A NAME="1016202"></A>% <B>bmodify -wn 7848</B></PRE>
+
+<P><A NAME="1016067"></A>Modifying option values will only affect future
+scheduling of the job. If the job is not dependent on a calendar and has
+already been started, then <TT>bmodify</TT> will not change any option
+values.</P>
+
+<P><A NAME="1016054"></A>The <TT>-O</TT> option allows you to change the
+options of a calendar dependent job to affect only the next run of the
+job.</P>
+
+<PRE><A NAME="1016206"></A>% <B>bmodify -O -w &quot;calendar(complex)&quot; 7848</B></PRE>
+
+<P><A NAME="1016212"></A>After a job has run once with the new values,
+the old values for the options are restored for subsequent runs. If a job
+already has been dispatched, then any option changes will take effect the
+next time the job is scheduled.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1019623"></A><B>Note<BR>
+</B><I>All options specified at submission time may be changed except for
+the job command line and the environment variables. </I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="1017150"></A>Changing Queues</H3>
+
+<P><A NAME="1017151"></A>You can use the <TT>bmodify</TT> command to change
+queues.</P>
+
+<PRE><A NAME="1017160"></A>% <B>bmodify -q resubmit 7848</B></PRE>
+
+<P><A NAME="1017158"></A>There is also the <TT>bswitch</TT> command which
+is used to switch one or more unfinished jobs from one queue to another.</P>
+
+<PRE><A NAME="1017168"></A>% <B>bswitch -J diskcheck resubmit
+</B>Job &lt;7848&gt; is switched to queue &lt;resubmit&gt;</PRE>
+
+<H2><A NAME="999409"></A>Removing a Job</H2>
+
+<P><A NAME="1013452"></A>Use the <TT>bdel</TT> command to remove a calendar-driven
+job. This command removes a specific job associated with a calendar from
+the system. If the job is currently running, <TT>bdel</TT> kills the process
+before removing the job from the system.</P>
+
+<PRE><A NAME="1013453"></A>% <B>bdel 3456
+</B>Job &lt;3456&gt; is being deleted</PRE>
+
+<P><A NAME="1013454"></A>You can specify a job by name using the <TT>-J</TT>
+option.</P>
+
+<PRE><A NAME="1014331"></A>% <B>bdel -J jobA
+</B>Job &lt;3457&gt; is being deleted</PRE>
+
+<P><A NAME="1013436"></A>Use the <TT>bkill</TT> command on a job that depends
+on another job or on a file or external event.</P>
+
+<PRE><A NAME="1013519"></A>% <B>bkill 3467
+</B>Job &lt;3467&gt; is being terminated</PRE>
+
+<P><A NAME="1013524"></A>You can use <TT>bkill</TT> to send an arbitrary
+signal to your job using the <TT>-s</TT> option. You can specify either
+the signal name or the signal number. On most versions of UNIX, signal
+names and numbers are listed in the <TT>kill(1)</TT> or <TT>signal(2)</TT>
+manual page.</P>
+
+<PRE><A NAME="1013545"></A>% <B>bkill -s SIGTSTP 3488
+</B>Job &lt;3488&gt; is being signalled</PRE>
+
+<P><A NAME="1013546"></A>This example sends the <TT>SIGTSTP</TT> signal
+(terminal stop) to the job. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="1013566"></A><B>Note<BR>
+</B><I>Different operating systems use different numbering sequences for
+signals. Therefore, signal numbers are translated across platforms. The
+intended meaning of a signal is interpreted by the machine from which the
+</I><TT>bkill</TT><I> command is issued. For example, if you send signal
+24 from a SUN Solaris host, it means </I><TT>SIGTSTP</TT><I>. If the job
+is running on an HP-UX server, </I><TT>SIGTSTP</TT><I> is defined as signal
+number 25, so signal 25 is sent to the job. </I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1013505"></A>Using <TT>bkill</TT> on a job associated with
+calendars kills the current run, if the job has been started, and requeues
+the job. If the job is not currently running, <TT>bkill</TT> has no effect.
+To permanently remove the job, use <TT>bdel</TT>.</P>
+
+<P><A NAME="1013472"></A>You can only delete or kill your own jobs. Only
+the JobScheduler administrators can operate on jobs submitted by other
+users.</P>
+
+<H3><A NAME="1019892"></A>Specifying Number of Executions</H3>
+
+<P><A NAME="1019893"></A>You can specify the number of times your job will
+execute. Submit the job, then use the <TT>-n</TT> <I>num_runs</I> option
+to the <TT>bdel</TT> command. After the job runs the specified times, it
+is deleted from the system.</P>
+
+<PRE><A NAME="1019895"></A>% <B>bsub -w &quot;calendar(daily)&quot; -J jobA command
+</B>Job &lt;8087&gt; is submitted to default queue &lt;default&gt;.
+% <B>bdel -n 5 -J jobA
+</B>Job &lt;8087&gt; will be deleted after running next 5 times</PRE>
+
+<H3><A NAME="1018090"></A>Suspending and Resuming Jobs</H3>
+
+<P><A NAME="1018092"></A>The <TT>bstop</TT> and <TT>bresume</TT> commands
+are convenient aliases for <TT>bkill -s</TT>, sending the <TT>SIGSTOP</TT>/<TT>SIGTSTP</TT>
+and <TT>SIGCONT</TT> signals respectively.</P>
+
+<P><A NAME="1018042"></A>You cannot send arbitrary signals to a pending
+job; most signals are only valid for running jobs. However, you can send
+kill, suspend and resume signals to pending jobs.</P>
+
+<PRE><A NAME="1018026"></A>% <B>bstop -J diskcheck
+</B>Job &lt;7848&gt; is being stopped</PRE>
+
+<P><A NAME="1018014"></A><TT>bstop</TT> sends the <TT>SIGSTOP</TT> signal
+to sequential jobs and <TT>SIGTSTP</TT> to parallel jobs. <TT>SIGTSTP</TT>
+is sent to a parallel job so the master process can trap the signal and
+pass it to all the slave processes running on other hosts. Suspending causes
+your job to go into <TT><A HREF="7-job-manage.html#1019661">USUSP</A></TT> state if it has
+already started, or to go into <TT><A HREF="7-job-manage.html#1019660">PSUSP</A></TT> state
+if it is pending.</P>
+
+<PRE><A NAME="1018045"></A>% <B>bresume -J diskcheck
+</B>Job &lt;7848&gt; is being resumed</PRE>
+
+<P><A NAME="1018018"></A>Resuming a user suspended job does not immediately
+put your job into <TT><A HREF="7-job-manage.html#1019659">RUN</A></TT> state. The job must
+first satisfy its dependency conditions. <TT>bresume</TT> first puts your
+job into <TT><A HREF="7-job-manage.html#1019665">SSUSP</A></TT> state. The job can then
+be scheduled accordingly.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1020306"></A><B>Note<BR>
+</B><I>Sending arbitrary signals to a job running on a Windows NT machine
+is not supported. You can only use the </I><TT>bstop</TT><I> and </I><TT>bresume</TT><I>
+commands on a job running on Windows NT.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="1020662"></A>Managing Related Jobs</H2>
+
+<P><A NAME="1020665"></A>After you have submitted a number of jobs all
+assigned the same <I>job_name</I> (see <A HREF="6-job-define.html#1020670">'Grouping
+Related Jobs'</A>), you can use that <I>job_name</I> to refer to the jobs
+as a group.</P>
+
+<PRE><A NAME="1018375"></A>% <B>bjobs -J job_group
+</B>JOBID USER     STAT  QUEUE      FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+8315  user1    PEND  default    hostA                   job_group  Dec 24 15:17
+8316  user1    PEND  default    hostA                   job_group  Dec 24 15:18
+8318  user1    RUN   default    hostA                   job_group  Dec 24 15:22</PRE>
+
+<P><A NAME="1020309"></A>To switch all jobs in a group to another queue:</P>
+
+<PRE><A NAME="1018376"></A>% <B>bswitch -J job_group normal 0
+</B>Job &lt;8315&gt; is switched to queue &lt;normal&gt;
+Job &lt;8316&gt; is switched to queue &lt;normal&gt;
+Job &lt;8318&gt; is switched to queue &lt;normal&gt;</PRE>
+
+<P><A NAME="1020310"></A>To suspend all jobs in a group:</P>
+
+<PRE><A NAME="1018377"></A>% <B>bstop -J job_group 0
+</B>Job &lt;8315&gt; is being stopped
+Job &lt;8316&gt; is being stopped
+Job &lt;8318&gt; is being stopped</PRE>
+
+<P><A NAME="1020313"></A>To remove all jobs in a group:</P>
+
+<PRE><A NAME="1018378"></A>% <B>bdel -J job_group 0
+</B>Job &lt;8315&gt; is being deleted
+Job &lt;8316&gt; is being deleted
+Job &lt;8318&gt; is being deleted</PRE>
+
+<P><A NAME="1020314"></A>To show the history of all jobs in a group:</P>
+
+<PRE><A NAME="1018379"></A>% <B>bhist -J job_group 0
+</B>Summary of time in seconds spent in various states:
+JOBID USER    JOB_NAME   PEND    PSUSP   RUN     USUSP   SSUSP   UNKWN   TOTAL
+8315  user1   *b_group   17      49      39      81      0       0       186
+8316  user1   *b_group   84      50      0       0       0       0       134
+8318  user1   *b_group   18      50      43      19      0       0       130</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="1018380"></A><B>Note<BR>
+</B><I>For the </I><TT>bjobs</TT><I> command all jobs of the same name
+are considered. For the other commands, only the last submitted job of
+this name is considered by default, unless the special jobID <TT>0</TT>
+is specified. The </I><TT>bmodify</TT><I> command only operates on a single
+jobID.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="1020315"></A>Using JobScheduler GUI to Manage Jobs</H2>
+
+<P><A NAME="1020323"></A>You may prefer to use the JobScheduler GUI to
+manage your jobs. <TT>xlsbatch</TT> displays all JobScheduler entities
+such as jobs, queues, and hosts. It also allows you to manipulate jobs
+directly from the GUI. <A HREF="7-job-manage.html#1020465">Figure 24</A>
+is the <TT>xlsbatch</TT> job information window.</P>
+
+<H4><A NAME="1020465"></A>Figure 24. <TT>xlsbatch</TT> Job Window </H4>
+
+<P><A HREF="pjs-figure24.gif"><IMG SRC="pjs-figure24.gif" ALT="xlsbatch Job Window" BORDER=0 HEIGHT=357 WIDTH=410></A></P>
+
+<P><A NAME="1020347"></A>By selecting jobs in the job window, <A HREF="pjs-detail.gif"><IMG SRC="file:///C|/Home/Werk/webpages/pjs-detail.gif" BORDER=0 HEIGHT=33 WIDTH=33 ALIGN=LEFT></A>you
+can directly perform job manipulations that have been discussed in this
+chapter. For example, by selecting a job and then clicking on the 'Detail'
+button, a pop-up window will be started showing all details of your selected
+job, as shown in <A HREF="7-job-manage.html#1020498">Figure 25</A>. </P>
+
+<P><A HREF="7-job-manage.html#1020513">Figure 26</A> shows the detailed
+job history window if you click on the 'History' button <A HREF="pjs-history.gif"><IMG SRC="file:///C|/Home/Werk/webpages/pjs-history.gif" BORDER=0 HEIGHT=32 WIDTH=32 ALIGN=ABSBOTTOM></A>.
+</P>
+
+<H4><A NAME="1020498"></A>Figure 25. Detailed Job Information Window </H4>
+
+<P><A HREF="pjs-figure25.gif"><IMG SRC="pjs-figure25.gif" ALT="Detailed Job Information Window" BORDER=0 HEIGHT=298 WIDTH=466></A>
+</P>
+
+<H4><A NAME="1020513"></A>Figure 26. Detailed Job History Window </H4>
+
+<P><A HREF="pjs-figure26.gif"><IMG SRC="pjs-figure26.gif" ALT="Detailed Job History Window" BORDER=0 HEIGHT=320 WIDTH=466></A>
+</P>
+
+<P><A NAME="1020372"></A>Detailed usage of the <TT>xlsbatch</TT> is described
+in the on-line help.</P>
+
+<P><A NAME="1020373"></A><A HREF="pjs-modify.gif"><IMG SRC="file:///C|/Home/Werk/webpages/pjs-modify.gif" BORDER=0 HEIGHT=32 WIDTH=32 ALIGN=LEFT></A>If
+you want to modify a job, you can either click on the 'Modify' button,
+or run the <TT>xbmodify</TT> GUI directly from the command line. A job
+modification window will pop-up as shown in <A HREF="7-job-manage.html#1020528">Figure
+27</A>. </P>
+
+<H4><A NAME="1020528"></A>Figure 27. Job Modification Window </H4>
+
+<P><A HREF="pjs-figure27.gif"><IMG SRC="pjs-figure27.gif" ALT="Job Modification Window" BORDER=0 HEIGHT=344 WIDTH=405></A>
+</P>
+
+<P>By clicking on the 'Job ID' button <A HREF="pjs-jobid.gif"><IMG SRC="pjs-jobid.gif" BORDER=0 HEIGHT=17 WIDTH=83></A>,
+you get another pop-up window with all jobIDs for you to select, as shown
+in <A HREF="7-job-manage.html#1020544">Figure 28</A>.</P>
+
+<H4><A NAME="1020544"></A>Figure 28. JobID Selection Window </H4>
+
+<P><A HREF="pjs-figure28.gif"><IMG SRC="pjs-figure28.gif" ALT="JobID Selection Window" BORDER=0 HEIGHT=242 WIDTH=240></A>
+</P>
+
+<P>
+<HR><A HREF="pjs-contents.html">[Contents]</A> <A HREF="6-job-define.html">[Prev]</A>
+<A HREF="8-advanced.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

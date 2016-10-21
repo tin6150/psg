@@ -1,0 +1,307 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Using LSF MultiCluster</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="12-customizing.html">[Prev]</A>
+<A HREF="14-nqs.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+<HR></P>
+
+<H1><A NAME="355"></A>Chapter 13. <A NAME="343"></A>Using LSF MultiCluster</H1>
+
+<P>
+<HR></P>
+
+<H2><A NAME="11872"></A>What is LSF MultiCluster?</H2>
+
+<P><A NAME="11912"></A>Within a company or organization, each division,
+department, or site may have a separately managed LSF cluster. Many organizations
+have realized that it is desirable to allow their multitude of clusters
+to cooperate to reap the benefits of global load sharing: </P>
+
+<UL>
+<LI><A NAME="11887"></A>You can access a diverse collection of computing
+resources and get better performance as well as computing capabilities.
+Many machines that would otherwise be idle can be used to process jobs.
+Multiple machines can be used to process a single parallel job. All these
+lead to increased user productivity. </LI>
+
+<LI><A NAME="11937"></A>The demands for computing resources fluctuate widely
+across departments and over time. Partitioning the resources of an organization
+along user and departmental boundaries forces each department to plan for
+computing resources according to its maximum demand. Load sharing makes
+it possible for an organization to plan computing resources globally based
+on total demand. Resources can be added anywhere and made available to
+the entire organization. Global policies for load sharing can be implemented.
+With efficient resource sharing, the organization can realize increased
+computer usage in an economical manner. </LI>
+</UL>
+
+<P><A NAME="12019"></A>LSF MultiCluster enables a large organization to
+form multiple cooperating clusters of computers so that load sharing happens
+not only within the clusters but also among them. It enables load sharing
+across large numbers of hosts, allows resource ownership and autonomy to
+be enforced, non-shared user accounts and file systems to be supported,
+and communication limitations among the clusters to be taken into consideration
+in job scheduling. </P>
+
+<H2><A NAME="12023"></A>Getting Remote Cluster Information</H2>
+
+<P><A NAME="12024"></A>The commands <TT>lshosts</TT>, <TT>lsload</TT>,
+and <TT>lsmon</TT> can accept a cluster name to allow you to view the remote
+cluster. A list of clusters and associated information can be viewed with
+the <TT>lsclusters</TT> command.</P>
+
+<PRE><A NAME="12031"></A>% <B>lsclusters 
+</B>CLUSTER_NAME   STATUS   MASTER_HOST               ADMIN    HOSTS  SERVERS 
+clus1           ok       hostC                    user1       3        3 
+clus2           ok       hostA                    user1       3        3 </PRE>
+
+<PRE><A NAME="12909"></A>% <B>lshosts
+</B>HOST_NAME      type    model cpuf ncpus maxmem maxswp server RESOURCES
+hostA         NTX86  PENT200 10.0     -      -      -    Yes (NT)
+hostF         HPPA     HP735 14.0     1    58M    94M    Yes (hpux cserver)
+hostB         SUN41 SPARCSLC  3.0     1    15M    29M    Yes (sparc bsd)
+hostD         HPPA     HP735 14.0     1   463M   812M    Yes (hpux cserver)
+hostE          SGI     R10K  16.0    16   896M   1692M   Yes (irix cserver  )
+hostC        SUNSOL SunSparc 12.0     1    56M    75M    Yes (solaris cserver)</PRE>
+
+<PRE><A NAME="12910"></A>% <B>lshosts clus1
+</B>HOST_NAME      type    model cpuf ncpus maxmem maxswp server RESOURCES
+hostD         HPPA     HP735 14.0     1   463M   812M    Yes (hpux cserver)
+hostE           SGI    R10K  16.0    16   896M   1692M   Yes (irix cserver  )
+hostC        SUNSOL SunSparc 12.0     1    56M    75M    Yes (solaris cserver)</PRE>
+
+<PRE><A NAME="12421"></A>% <B>lshosts clus2
+</B>HOST_NAME      type    model cpuf ncpus maxmem maxswp server RESOURCES
+hostA         NTX86  PENT200 10.0     -      -      -    Yes (NT)
+hostF         HPPA     HP735 14.0     1    58M    94M    Yes (hpux cserver)
+hostB         SUN41 SPARCSLC  3.0     1    15M    29M    Yes (sparc bsd)</PRE>
+
+<PRE><A NAME="12450"></A>% <B>lsload clus1 clus2
+</B>HOST_NAME       status  r15s   r1m  r15m   ut    pg  ls    it   tmp   swp   mem
+hostD               ok   0.2   0.3   0.4  19%   6.0   6     3  146M  319M  252M
+hostC               ok   0.1   0.0   0.1   1%   0.0   3    43   63M   44M   27M
+hostA               ok   0.3   0.3   0.4  35%   0.0   3     1   40M   42M   13M
+hostB             busy  *1.3   1.1   0.7  68% *57.5   2     4   18M   20M    8M
+hostE            lockU   1.2   2.2   2.6  30%   5.2  35     0   10M  693M  399M
+hostF           unavail</PRE>
+
+<H2><A NAME="11602"></A>Running Batch Jobs across Clusters</H2>
+
+<P><A NAME="11603"></A>A queue may be configured to send LSF Batch jobs
+to a queue in a remote cluster (see <A HREF="09-multicluster.html#11270">'LSF
+Batch Configuration'</A> in the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I>). When you submit a job to that local queue it will automatically
+get sent to the remote cluster:</P>
+
+<P><A NAME="11606"></A>The <TT>bclusters</TT> command displays a list of
+local queues together with their relationship with queues in remote clusters.</P>
+
+<PRE><A NAME="11611"></A>% <B>bclusters
+</B>LOCAL_QUEUE     JOB_FLOW   REMOTE     CLUSTER    STATUS
+testmc          send       testmc      clus2      ok
+testmc          recv         -         clus2      ok</PRE>
+
+<P><A NAME="12618"></A>The meanings of displayed fields are:</P>
+
+<DL>
+<DT><A NAME="12820"></A><TT>LOCAL_QUEUE </TT></DT>
+
+<DD>The name of the local queue that either receive jobs from queues in
+remote clusters, or forward jobs to queues in remote clusters. </DD>
+
+<DT><A NAME="12822"></A><TT>JOB_FLOW </TT></DT>
+
+<DD>The value can be either <TT>send</TT> or <TT>recv</TT>. If the value
+is <TT>send</TT>, then this line describes a job flow from the local queue
+to a queue in a remote cluster. If the value is <TT>recv</TT>, then this
+line describes a job flow from a remote cluster to the local queue. </DD>
+
+<DT><A NAME="12831"></A><TT>REMOTE </TT></DT>
+
+<DD>Queue name of a remote cluster that the local queue can send jobs to.
+This field is always '<TT>-</TT>' if <TT><A HREF="13-multicluster.html#12822">JOB_FLOW</A></TT>
+field is <TT>recv</TT>. </DD>
+
+<DT><A NAME="12835"></A><TT>CLUSTER </TT></DT>
+
+<DD>Remote cluster name. </DD>
+
+<DT><A NAME="12852"></A><TT>STATUS </TT></DT>
+
+<DD>Connection status between the local queue and remote queue. If <TT><A HREF="13-multicluster.html#12822">JOB_FLOW</A></TT>
+field is send, then the possible values for <TT>STATUS</TT> field are '<TT>ok</TT>',
+'<TT>reject</TT>', and '<TT>disc</TT>', otherwise the possible status are
+'<TT>ok</TT>' and '<TT>disc</TT>'. When status is '<TT>ok</TT>', it indicates
+that both queues agree on the job flow. When status is '<TT>disc</TT>',
+it means communications between the local and remote cluster has not been
+established yet. This may either be because no jobs need to be forwarded
+to the remote cluster yet, or the <TT>mbatchd</TT>'s of the two clusters
+have not been able to get in touch with each other. The <TT>STATUS</TT>
+is <TT>reject</TT> if send is the job flow and the queue in the remote
+cluster is not configured to receive jobs from the local queue. </DD>
+</DL>
+
+<P><A NAME="12832"></A>In the above example, local queue <I>testmc</I>
+can forward jobs in the local cluster to <I>testmc</I> queue of remote
+cluster <I>clus2</I> and vice versa.</P>
+
+<P><A NAME="12821"></A>If there is no queue in your cluster that is configured
+for remote clusters, you will see the following:</P>
+
+<PRE><A NAME="12613"></A>% <B>bclusters
+</B>No local queue sending/receiving jobs from remote clusters</PRE>
+
+<P><A NAME="11614"></A>Use the <TT>-m</TT> option with a cluster name to
+the <TT>bqueues</TT> command to display the queues in the remote cluster.</P>
+
+<PRE><A NAME="12621"></A>% <B>bqueues -m clus2
+</B>QUEUE_NAME     PRIO      STATUS      MAX  JL/U JL/P JL/H NJOBS  PEND  RUN  SUSP
+fair          3300    Open:Active      5    -    -    -     1     1     0     0
+interactive   1055    Open:Active      -    -    -    -     1     0     1     0
+testmc          55    Open:Active      -    -    -    -     5     2     2     1
+priority        43    Open:Active      -    -    -    -     0     0     0     0</PRE>
+
+<P><A NAME="12506"></A>Submit your job with the <TT>bsub</TT> command to
+the queue that is sending jobs to the remote cluster.</P>
+
+<PRE><A NAME="12511"></A>% <B>bsub -q testmc -J mcjob myjob
+</B>Job &lt;101&gt; is submitted to queue &lt;testmc&gt;.</PRE>
+
+<P><A NAME="12509"></A>The <TT>bjobs</TT> command will display the cluster
+name in the <TT>FROM_HOST</TT> and <TT>EXEC_HOST</TT> fields. The format
+of these fields is '<TT>host@cluster</TT>' indicating which cluster the
+job originated from or was forwarded to. To query the jobs running in another
+cluster, use the <TT>-m</TT> option and specify a cluster name.</P>
+
+<PRE><A NAME="11619"></A>% <B>bjobs
+</B>JOBID USER     STAT  QUEUE      FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+101   user7    RUN   testmc     hostC       hostA@clus2   mcjob    Oct 19 19:41</PRE>
+
+<PRE><A NAME="11621"></A>% <B>bjobs -m clus2
+</B>JOBID USER     STAT  QUEUE      FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+522   user7    RUN  testmc      hostC@clus2  hostA        mcjob    Oct 19 23:09</PRE>
+
+<P><A NAME="12235"></A>Note that the submission time shown from the remote
+cluster is the time when the job was forwarded to that cluster. </P>
+
+<P><A NAME="13049"></A>To view the hosts of another cluster you can use
+a cluster name in place of a host name as the argument to the <TT>bhosts</TT>
+command.</P>
+
+<PRE><A NAME="12530"></A>% <B>bhosts clus2
+</B>HOST_NAME          STATUS    JL/U  MAX  NJOBS  RUN  SSUSP USUSP  RSV
+hostA              ok          -    10     1     1     0     0     0
+hostB              ok          -    10     2     1     0     0     1
+hostF              unavail     -     3     1     1     0     0     0</PRE>
+
+<P><A NAME="11628"></A>Run <TT>bhist</TT> command to see the history of
+your job, including information about job forwarding to another cluster.</P>
+
+<PRE><A NAME="12582"></A>% <B>bhist -l 101
+
+</B>Job Id &lt;101&gt;, Job Name &lt;mcjob&gt;, User &lt;user7&gt;, Project &lt;default&gt;, Command 
+                     &lt;myjob&gt;
+Sat Oct 19 19:41:14: Submitted from host &lt;hostC&gt; to Queue &lt;testmc&gt;,CWD &lt;$HOME&gt;
+Sat Oct 19 21:18:40: Parameters are modified to:Project &lt;test&gt;,Queue &lt;testmc&gt;,
+                     Job Name &lt;mcjob&gt;;
+Mon Oct 19 23:09:26: Forwarded job to cluster clus2;
+Mon Oct 19 23:09:26: Dispatched to &lt;hostA&gt;;
+Mon Oct 19 23:09:40: Running with execution home &lt;/home/user7&gt;, Execution CWD &lt;
+                     /home/user7&gt;, Execution Pid &lt;4873&gt;;
+Mon Oct 20 07:02:53: Done successfully. The CPU time used is 12981.4 seconds;
+
+Summary of time in seconds spent in various states by Tue Oct 20 07:02:53 1996
+  PEND     PSUSP    RUN      USUSP    SSUSP    UNKWN    TOTAL
+  5846      0      28399       0         0       0      34245</PRE>
+
+<H2><A NAME="12778"></A>Running Interactive Jobs on Remote Clusters</H2>
+
+<P><A NAME="12780"></A>The <TT>lsrun</TT> command allows you to specify
+a cluster name instead of a host name. When a cluster name is specified,
+a host is selected from the cluster. For example:</P>
+
+<PRE><A NAME="12781"></A>% <B>lsrun -m clus2 -R type==any hostname
+</B>hostA</PRE>
+
+<P><A NAME="12783"></A>The <TT>-m</TT> option to the <TT>lslogin</TT> command
+can be used to specify a cluster name. This allows you to login to the
+best host in a remote cluster.</P>
+
+<PRE><A NAME="12784"></A>% <B>lslogin -v -m clus2
+</B>&lt;&lt;Remote login to hostF &gt;&gt;</PRE>
+
+<P><A NAME="12785"></A>The multicluster environment can be configured so
+that one cluster accepts interactive jobs from the other cluster, but not
+vice versa. See <A HREF="09-multicluster.html#11292">'Running Interactive
+Jobs on Remote Clusters'</A> in the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I>. If the remote cluster will not accept jobs from your cluster,
+you will get an error:</P>
+
+<PRE><A NAME="12792"></A>% <B>lsrun -m clus2 -R type==any hostname
+</B>ls_placeofhosts: Not enough host(s) currently eligible</PRE>
+
+<H2><A NAME="12076"></A>User-Level Account Mapping between Clusters</H2>
+
+<P><A NAME="12633"></A>By default, LSF assumes a uniform user name space
+within a cluster and between clusters. It is not uncommon for an organization
+to fail to satisfy this assumption. Support for non-uniform user name spaces
+between clusters is provided for the execution of batch jobs. The <TT>.lsfhosts</TT>
+file used to support account mapping can be used to specifying cluster
+names in place of host names.</P>
+
+<P><A NAME="13017"></A>For example, you have accounts on two clusters,
+<I>clus1</I> and <I>clus2</I>. In <I>clus1</I>, your user name is '<I>user1</I>'
+and in <I>clus2</I> your user name is '<I>ruser_1</I>'. To run your jobs
+in either cluster under the appropriate user name, you should setup your
+<TT>.lsfhosts</TT> file as follows:</P>
+
+<P><A NAME="13018"></A>On machines in cluster <I>clus1</I>:</P>
+
+<PRE><A NAME="13024"></A>% <B>cat ~user1/.lsfhosts
+</B>clus2 ruser_1</PRE>
+
+<P><A NAME="13025"></A>On machines in cluster <I>clus2</I>:</P>
+
+<PRE><A NAME="11729"></A>% <B>cat ~ruser_1/.lsfhosts
+</B>clus1 user1</PRE>
+
+<P><A NAME="11730"></A>For another example, you have the account '<I>user1</I>'
+on cluster <I>clus1</I> and you want to use the '<I>lsfguest</I>' account
+when sending jobs to be run on cluster <I>clus2</I>. The <TT>.lsfhosts</TT>
+files should be setup as follows:</P>
+
+<P><A NAME="11731"></A>On machines in cluster <I>clus1</I>:</P>
+
+<PRE><A NAME="13042"></A>% <B>cat ~user1/.lsfhosts
+</B>clus2 lsfguest send</PRE>
+
+<P><A NAME="13043"></A>On machines in cluster <I>clus2</I>:</P>
+
+<PRE><A NAME="13044"></A>% <B>cat ~lsfguest/.lsfhosts
+</B>clus1 user1 recv</PRE>
+
+<P><A NAME="12695"></A>The other features of the .lsfhosts file also work
+in the multicluster environment. See <A HREF="05-lsbatch.html#12346">'User
+Controlled Account Mapping'</A> for further details. Also see <A HREF="09-multicluster.html#11331">'Account
+Mapping Between Clusters'</A> in the <I><A HREF="admin-title.html">LSF
+Administrator's Guide</A></I>.</P>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="12-customizing.html">[Prev]</A>
+<A HREF="14-nqs.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:30:12 --></P>
+
+</BODY>
+</HTML>

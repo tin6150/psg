@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<STYLE>
+	.screen { width: 300px; height: 200px; padding: 10px; border: 1px solid #ccc; background-color: #f0f0f0 }
+	.taskbar{ background-color: #e8f0ff; padding: 5px; border: 1px solid #ddd; overflow: hidden; }
+	button { border: 1px background-color#38c; solid #27b; color: #fff; font-weight: bold;  }
+	.taskbar{ float: right; }
+	form {margin: 10 px}
+	input { border: 1px solid #cde }
+	.disabled-class { background-color: #aaa; border: 1px solid #888; color: #888}
+
+</STYLE>
+</HEAD>
+
+<BODY>
+
+
+<PRE>
+
+task:   
+once page is rendered, OK button is disabled.   
+Once input is "entered" (ie, really clicked on it), OK button is enabled again.  
+<BR>
+Need listener, when someone click inside the input box.
+inputbox.click or .focus (cuz if tab to it, it is NOT clicked!)
+focus event of what??  
+ideally, HTML has an ID field (in INPUT ... tag).  
+If not, then need more clever parsing. 
+</PRE>
+
+click is a shortcut... that only handles click event...
+have a different event handler called click really.
+<BR><BR>
+
+
+focus is diff than click.  
+<BR>
+mouse over is single click
+<BR>
+
+ipad... touch start, touch move, touch end.  all that combination return current target...
+and converted into click.
+<BR><BR>
+
+
+
+repeated use of obj, can assign it to a var so that it does not req query time again.
+<BR><BR>
+
+
+don't want to write css inside jquery
+best to manipulate class
+which jq has easy way to handle. using the removeClass() fn.
+chain 
+
+<BR><BR>
+
+code doesn't quite work yet... see posting from class site.
+
+
+
+<BR>
+<HR>
+<BR>
+
+
+	<DIV colass="screen">
+	<FORM>
+		<!--INPUT type="text" name="allowed"/-->
+		<INPUT id="allowedInput" type="text" name="allowed"/>
+		<INPUT id="disallowedInput" type="text" disabled="disabled" name="allowedagain"/>
+	</FORM>
+		<DIV class="taskbar">
+			<button id="ok_button" class="disabled-class" disabled="disabled">OK</button>
+		</DIV>
+	</DIV>
+</BODY>
+
+<SCRIPT src="jquery-1.6.2.js">
+<!--SCRIPT src="http://code.jquery.com/jquery-1.6.2.js"-->
+</SCRIPT>
+<SCRIPT>
+	${"#allowedInput"}.click(function(){
+		$("#ok_button")
+		.removeClass("disabled-class")
+		.removeAttr("disabled");
+
+		// mouse click on the input box called (id) allowedInput
+		//alert("hello"); 	
+	});
+
+
+	// "this" is js keyword
+	// $() around "this" makes it into a jq obj.  
+
+
+	$("#allowedInput").blur(  function() {
+		if( $(this).val() != "" ) {
+			// below work but next box won't get focus automatically.
+			//$("#disallowedInput").removeAttr("disabled");
+
+			//$("#disallowedInput").removeAttr("disabled").focus();
+			// .focus();     // this is native (js) method and won't work on array element.
+					// only jq works on arraylist, not js.  
+			$("#disallowedInput").removeAttr("disabled")[0].focus();
+		}
+	});
+
+
+</SCRIPT>
+
+</HTML>

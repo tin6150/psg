@@ -1,0 +1,1311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Sample Installations</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="a-troubleshooting.html">[Prev]</A>
+<A HREF="c-directories.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1076"></A>Appendix B. <A NAME="1074"></A>Sample Installations</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="8964"></A>This appendix contains output from installation sessions
+using the <TT>lsfsetup</TT> command. These listings correspond to procedures
+given in <A HREF="02-installation.html#6969">'Installation'</A>, and <A HREF="04-configure-lsf.html#22856">'Configuring
+LSF Cluster'</A>.</P>
+
+<H2><A NAME="5787"></A>Install for the First Time</H2>
+
+<PRE><TT># .<B>/lsfsetup</B> 
+    L O A D   S H A R I N G   F A C I L I T Y   V E R S I O N   3 . 0
+
+    Copyright 1992 -- 1996 by Platform Computing Corporation.
+    All rights reserved.
+
+
+Initializing ...
+
+HELP:
+    If you want help with any of the questions asked, enter ? at the prompt.
+
+
+Please choose one of the following options:
+
+    1.  Install for the First Time 
+    2.  Install Another Host Type (for a mixed cluster)
+    3.  Upgrade From a Previous Version
+    4.  License Management
+    5.  Configure LSF Cluster
+    6.  Host Setup
+    7.  De-install LSF
+
+    ?.  Help
+    q.  Quit
+
+Please enter your choice: <B>1
+
+</B>Please specify one or more of the following components to install:
+
+    1.  Batch (default)
+    2.  JobScheduler
+    3.  MulitCluster
+    4.  Base-only
+
+    ?.  Help
+    q.  Quit
+
+Please enter your choice(s) separated by comma (e.g., 1,3)? [1] <B>1
+
+</B>    This software is furnished under a license and may be used and
+    copied only in accordance with the terms of such license and with
+    the inclusion of the above copyright notice. This software or any
+    other copies thereof may not be provided or otherwise made available
+    to any other person. No title to and ownership of the software is
+    hereby transferred.
+
+    You must have a software license key to run LSF.  If you do not have
+    a license key, contact your LSF vendor and obtain one before
+    attempting to run LSF.
+
+Have you purchased LSF? (y/n) [n] <B>y
+
+
+</B>    This installation should take between 5 and 15 minutes to complete,
+    depending on the system configuration.
+
+    Warning: if you are installing LSF for AFS or DCE environments, please 
+    read the README file before proceeding with the installation below.
+
+Directory in which to install host type independent files. All the host type
+independent files can be shared by all LSF hosts:
+        LSF_INDEP? [? for help] [/usr/local/lsf] <B>/lsf/local/lsf
+
+
+</B>Directory in which to install host type dependent files. All the host type
+dependent files can be shared by hosts with the same host type:
+        LSF_MACHDEP? [? for help] [/lsf/local/lsf]  </TT><B><FONT SIZE=-1>[RETURN]
+</FONT></B><TT>Name of the LSF cluster:
+        LSF_CLUSTER_NAME? [? for help]  <B>test_cluster
+</B>LSF administrator login name:
+        LSF_MANAGER? [? for help] [lsf]  <B>lsf
+
+
+</B>    PLEASE MAKE SURE ALL PARAMETERS ARE SET CORRECTLY BEFORE STARTING
+    INSTALLING FILES.
+
+
+Please choose one of the following options:
+
+     1. List Current Settings
+     2. Change Current Settings
+     3. Install the Software Now
+     4. Use Default Settings
+
+     ?. Help
+     q. Quit
+
+Please enter your choice: <B>1
+
+</B>          Summary of Installation Settings
+
+Generic parameters:
+
+Directory where host setup will install the lsf.conf file:
+        LSF_ENVDIR=/etc
+Name of the LSF cluster:
+        LSF_CLUSTER_NAME=test_cluster
+LSF administrator login name:
+        LSF_MANAGER=lsf
+
+Path settings for machine dependent files
+
+Directory in which to install host type dependent files. All the host type
+dependent files can be shared by hosts with the same host type:
+        LSF_MACHDEP=/usr/local/lsf
+Directory where user commands will be installed:
+        LSF_BINDIR=/usr/local/lsf/bin
+Directory where LSF servers will be installed:
+        LSF_SERVERDIR=/usr/local/lsf/etc
+Directory where LSF library will be installed:
+        LSF_LIBDIR=/usr/local/lsf/lib
+Directory where the GUI UID files will be installed:
+        XLSF_UIDDIR=/usr/local/lsf/lib/uid
+
+
+Path settings for machine-independent files
+
+Directory in which to install host type independent files. All the host type
+independent files can be shared by all LSF hosts:
+        LSF_INDEP=/usr/local/lsf
+Directory where LSF cluster configuration files will be installed (must be
+shared):
+        LSF_CONFDIR=/usr/local/lsf/conf
+Directory where Lsbatch configuration files will be installed (must be shared):
+        LSB_CONFDIR=/usr/local/lsf/conf/lsbatch
+Full path name of FLEXlm license file for LSF:
+        LSF_LICENSE_FILE=UNDEF
+Directory that Lsbatch uses for storing job data (must be shared):
+        LSB_SHAREDIR=/usr/local/lsf/work
+Directory where LSF man pages will be installed:
+        LSF_MANDIR=/usr/local/lsf/man
+Directory where LSF header file lsf/lsf.h will be installed:
+        LSF_INCLUDEDIR=/usr/local/lsf/include
+Installation directory for examples and other misc. files:
+        LSF_MISC=/usr/local/lsf/misc
+Directory where the window application resource files will be installed:
+        XLSF_APPDIR=/usr/local/lsf/misc
+
+LSF daemon message logs
+
+Directory where LSF server error messages will be logged:
+        LSF_LOGDIR=UNDEF
+Syslog level to use by LSF servers:
+        LSF_LOG_MASK=LOG_WARNING
+
+Miscellaneous
+
+Mail address format for mail from lsbatch:
+        LSB_MAILTO=!U
+Domain name to be stripped off the host name:
+        LSF_STRIP_DOMAIN=UNDEF
+Do you want to allow root to run jobs:
+        LSF_ROOT_REX=n
+Authentication mechanism to use:
+        LSF_AUTH=UNDEF
+
+Press Return to continue </TT><B><FONT SIZE=-1>[RETURN]
+
+</FONT></B><TT>Please choose one of the following options:
+
+     1. List Current Settings
+     2. Change Current Settings
+     3. Install the Software Now
+     4. Use Default Settings
+
+     ?. Help
+     q. Quit
+
+Please enter your choice: <B>3
+
+</B>Checking for file system permissions ...
+
+Checking done.
+
+
+Installing LSF software. This may take a few minutes.
+
+Install started Mon Oct 28 18:33:24 EST 1996
+
+
+    Creating /usr/local/lsf/etc ...
+
+
+    Creating /usr/local/lsf/conf ...
+
+Adding entry for cluster test_cluster to /usr/local/lsf/conf/lsf.shared
+Installing lsbatch directories and configurations ...
+
+    Creating /usr/local/lsf/conf/lsbatch/test_cluster/configdir ...
+
+
+    Creating /usr/local/lsf/work/test_cluster/logdir ...
+
+
+    Creating /usr/local/lsf/misc ...
+
+
+    Creating /usr/local/lsf/misc/examples ...
+
+
+    Creating /usr/local/lsf/misc/lsmake ...
+
+
+    Creating /usr/local/lsf/misc/lstcsh ...
+
+
+In directory  /usr/local/lsf/misc
+
+examples:
+total 180
+-rw-r--r--   1 root     tty         2648 Oct 28 18:33 Makefile
+-rw-r--r--   1 root     tty         2237 Oct 28 18:33 README
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 clearcase
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 dce
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 eevent
+-rw-r--r--   1 root     tty         4831 Oct 28 18:33 elim.c
+-rw-r--r--   1 root     tty         1869 Oct 28 18:33 elim.h
+-rw-r--r--   1 root     tty        10638 Oct 28 18:33 elimsp2.c
+-rw-r--r--   1 root     tty         2149 Oct 28 18:33 elimsp2.h
+-rw-r--r--   1 root     tty          390 Oct 28 18:33 ex.h
+-rw-r--r--   1 root     tty          975 Oct 28 18:33 hostfor.c
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 krb
+-rw-r--r--   1 root     tty         1243 Oct 28 18:33 localhost.c
+-rw-r--r--   1 root     tty         9681 Oct 28 18:33 master.c
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 reselim
+-rw-r--r--   1 root     tty          640 Oct 28 18:33 resourcesfor.c
+-rw-r--r--   1 root     tty         1488 Oct 28 18:33 runbest.c
+-rw-r--r--   1 root     tty         1925 Oct 28 18:33 simbhosts.c
+-rw-r--r--   1 root     tty         1606 Oct 28 18:33 simbqueues.c
+-rw-r--r--   1 root     tty         1320 Oct 28 18:33 simhosts.c
+-rw-r--r--   1 root     tty          801 Oct 28 18:33 simid.c
+-rw-r--r--   1 root     tty         1105 Oct 28 18:33 siminfo.c
+-rw-r--r--   1 root     tty         1526 Oct 28 18:33 simload.c
+-rw-r--r--   1 root     tty         3976 Oct 28 18:33 simsh.c
+-rw-r--r--   1 root     tty         1574 Oct 28 18:33 slave.c
+-rw-r--r--   1 root     tty        18646 Oct 28 18:33 sppelim.c
+-rw-r--r--   1 root     tty         1906 Oct 28 18:33 sppelim.h
+-rwxr-xr-x   1 root     tty          664 Oct 28 18:33 ssh
+drwxr-xr-x   5 root     tty         1024 Oct 28 18:33 web-lsf
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 xelim
+
+examples/clearcase:
+total 888
+-rwxr-xr-x   1 root     tty         2674 Oct 28 18:33 README
+-rwxr-xr-x   1 root     tty          189 Oct 28 18:33 clearstarter
+-rwxr-xr-x   1 root     tty       435560 Oct 28 18:33 csub
+
+examples/dce:
+total 30
+-rw-r--r--   1 root     tty          931 Oct 28 18:33 Makefile
+-rw-r--r--   1 root     tty         2999 Oct 28 18:33 README
+-rw-r--r--   1 root     tty        10730 Oct 28 18:33 eauth.c
+
+examples/eevent:
+total 112
+-rw-r--r--   1 root     tty         1341 Oct 28 18:33 Makefile
+-rw-r--r--   1 root     tty          173 Oct 28 18:33 README
+-rw-r--r--   1 root     tty         2479 Oct 28 18:33 chkfile.c
+-rw-r--r--   1 root     tty        11675 Oct 28 18:33 eevent.c
+-rw-r--r--   1 root     tty         7437 Oct 28 18:33 event.l
+-rw-r--r--   1 root     tty        11543 Oct 28 18:33 event.y
+-rw-r--r--   1 root     tty        17553 Oct 28 18:33 fevent.c
+
+examples/krb:
+total 18
+-rw-r--r--   1 root     tty         1082 Oct 28 18:33 Makefile
+-rw-r--r--   1 root     tty         1201 Oct 28 18:33 README
+-rw-r--r--   1 root     tty         4314 Oct 28 18:33 eauth.c
+
+examples/reselim:
+total 16
+-rwxr-xr-x   1 root     tty         2672 Oct 28 18:33 README
+-rwxr-xr-x   1 root     tty         1630 Oct 28 18:33 eexec
+-rwxr-xr-x   1 root     tty          845 Oct 28 18:33 elim
+-rwxr-xr-x   1 root     tty         1737 Oct 28 18:33 preexec
+
+examples/web-lsf:
+total 8
+-rwxr-xr-x   1 root     tty          579 Oct 28 18:33 README
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 cgi-bin
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 doc
+drwxr-xr-x   2 root     tty         1024 Oct 28 18:33 lsf_html
+
+examples/web-lsf/cgi-bin:
+total 94
+-rwxr-xr-x   1 root     tty         8641 Oct 28 18:33 bacct.cgi
+-rwxr-xr-x   1 root     tty         9540 Oct 28 18:33 bhist.cgi
+-rwxr-xr-x   1 root     tty         6969 Oct 28 18:33 bhosts.cgi
+-rwxr-xr-x   1 root     tty         9630 Oct 28 18:33 bjobs.cgi
+-rwxr-xr-x   1 root     tty         1053 Oct 28 18:33 bparams.cgi
+-rwxr-xr-x   1 root     tty         8574 Oct 28 18:33 bsub.cgi
+
+examples/web-lsf/doc:
+total 28
+-rwxr-xr-x   1 root     tty        14138 Oct 28 18:33 WEB_LSF.doc
+
+examples/web-lsf/lsf_html:
+total 6
+-rwxr-xr-x   1 root     tty          246 Oct 28 18:33 bjobs_help.html
+-rwxr-xr-x   1 root     tty          244 Oct 28 18:33 bsub_help.html
+-rwxr-xr-x   1 root     tty          604 Oct 28 18:33 xbhome.html
+
+examples/xelim:
+total 38
+-rw-r--r--   1 root     tty          430 Oct 28 18:33 Makefile
+-rw-r--r--   1 root     tty         2066 Oct 28 18:33 README
+-rw-r--r--   1 root     tty         7851 Oct 28 18:33 elim.c
+-rw-r--r--   1 root     tty         1411 Oct 28 18:33 xit
+-rw-r--r--   1 root     tty         4629 Oct 28 18:33 xitd.c
+
+lsmake:
+total 44
+-rw-r--r--   1 root     tty        18540 Oct 28 18:33 COPYING
+-rw-r--r--   1 root     tty         1437 Oct 28 18:33 README
+-rw-r--r--   1 root     tty          102 Oct 28 18:33 README.lsmake
+
+lstcsh:
+total 24
+-rw-r--r--   1 root     tty          398 Oct 28 18:33 COPYING
+-rw-r--r--   1 root     tty          138 Oct 28 18:33 README
+-rw-r--r--   1 root     tty         1511 Oct 28 18:33 README.lstcsh
+-rw-r--r--   1 root     tty         8169 Oct 28 18:33 README.tcsh
+
+In directory  /usr/local/lsf/misc
+-rw-r--r--   1 root     tty         1669 Oct 28 18:33 XBmodify
+-rw-r--r--   1 root     tty         1764 Oct 28 18:33 XBsub
+-rw-r--r--   1 root     tty         3245 Oct 28 18:33 XKeysymDB
+-rw-r--r--   1 root     tty         3132 Oct 28 18:33 XLsadmin
+-rw-r--r--   1 root     tty         2792 Oct 28 18:33 XLsadmin.ja
+-rw-r--r--   1 root     tty         3329 Oct 28 18:33 XLsbatch
+-rw-r--r--   1 root     tty         2112 Oct 28 18:33 XLsbatch.ja
+-rw-r--r--   1 root     tty         4024 Oct 28 18:33 XLsmon
+-rw-r--r--   1 root     tty         4228 Oct 28 18:33 XLsmon.ja
+-rw-r--r--   1 root     tty        25220 Oct 28 18:33 xbmodify.hlp
+-rw-r--r--   1 root     tty        29557 Oct 28 18:33 xbsub.hlp
+-rw-r--r--   1 root     tty        97115 Oct 28 18:33 xlsadmin.hlp
+-rw-r--r--   1 root     tty        57932 Oct 28 18:33 xlsadmin.hlp.ja
+-rw-r--r--   1 root     tty        43592 Oct 28 18:33 xlsbatch.hlp
+-rw-r--r--   1 root     tty        77372 Oct 28 18:33 xlsbatch.hlp.ja
+-rw-r--r--   1 root     tty        17300 Oct 28 18:33 xlsmon.hlp
+-rw-r--r--   1 root     tty        16452 Oct 28 18:33 xlsmon.hlp.ja
+-rw-r--r--   1 root     tty          181 Oct 28 18:33 xsupport
+
+    Creating /usr/local/lsf/man/man1 ...
+
+
+In directory  /usr/local/lsf/man/man1
+-rw-r--r--   1 root     tty         5255 Oct 28 18:33 ch.1
+-rw-r--r--   1 root     tty         7671 Oct 28 18:33 gmake.1
+-rw-r--r--   1 root     tty         1614 Oct 28 18:33 lmdown.1
+-rw-r--r--   1 root     tty         2615 Oct 28 18:33 lmgrd.1
+-rw-r--r--   1 root     tty         2625 Oct 28 18:33 lmhostid.1
+-rw-r--r--   1 root     tty         2122 Oct 28 18:33 lmreread.1
+-rw-r--r--   1 root     tty         2256 Oct 28 18:33 lmstat.1
+-rw-r--r--   1 root     tty          846 Oct 28 18:33 lmver.1
+-rw-r--r--   1 root     tty         6272 Oct 28 18:33 lsacct.1
+-rw-r--r--   1 root     tty          922 Oct 28 18:33 lsacctmrg.1
+-rw-r--r--   1 root     tty         1186 Oct 28 18:33 lsclusters.1
+-rw-r--r--   1 root     tty         1775 Oct 28 18:33 lseligible.1
+-rw-r--r--   1 root     tty        15930 Oct 28 18:33 lsfintro.1
+-rw-r--r--   1 root     tty         4696 Oct 28 18:33 lsgrun.1
+-rw-r--r--   1 root     tty         2244 Oct 28 18:33 lshosts.1
+-rw-r--r--   1 root     tty          710 Oct 28 18:33 lsid.1
+-rw-r--r--   1 root     tty         1863 Oct 28 18:33 lsinfo.1
+-rw-r--r--   1 root     tty         7205 Oct 28 18:33 lsload.1
+-rw-r--r--   1 root     tty         2338 Oct 28 18:33 lsloadadj.1
+-rw-r--r--   1 root     tty         1744 Oct 28 18:33 lslogin.1
+-rw-r--r--   1 root     tty           76 Oct 28 18:33 lsltasks.1
+-rw-r--r--   1 root     tty         4540 Oct 28 18:33 lsmake.1
+-rw-r--r--   1 root     tty         5263 Oct 28 18:33 lsmon.1
+-rw-r--r--   1 root     tty         3657 Oct 28 18:33 lsplace.1
+-rw-r--r--   1 root     tty         3321 Oct 28 18:33 lspvmrm.1
+-rw-r--r--   1 root     tty         3194 Oct 28 18:33 lsrcp.1
+-rw-r--r--   1 root     tty         3720 Oct 28 18:33 lsrtasks.1
+-rw-r--r--   1 root     tty         4675 Oct 28 18:33 lsrun.1
+-rw-r--r--   1 root     tty        10478 Oct 28 18:33 lstcsh.1
+-rw-r--r--   1 root     tty           21 Oct 28 18:33 lstools.1
+-rw-r--r--   1 root     tty         2022 Oct 28 18:33 mpijob.1
+-rw-r--r--   1 root     tty           77 Oct 28 18:33 p4job.1
+-rw-r--r--   1 root     tty         3275 Oct 28 18:33 parScripts.1
+-rw-r--r--   1 root     tty           23 Oct 28 18:33 poejob.1
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 pvmjob.1
+-rw-r--r--   1 root     tty        98753 Oct 28 18:33 tcsh.1
+-rw-r--r--   1 root     tty        19386 Oct 28 18:33 xlsadmin.1
+-rw-r--r--   1 root     tty        14661 Oct 28 18:33 xlsmon.1
+
+    Creating /usr/local/lsf/man/man3 ...
+
+
+In directory  /usr/local/lsf/man/man3
+-rw-r--r--   1 root     tty         2743 Oct 28 18:33 ls_admin.3
+-rw-r--r--   1 root     tty         1579 Oct 28 18:33 ls_chdir.3
+-rw-r--r--   1 root     tty         2489 Oct 28 18:33 ls_clusterinfo.3
+-rw-r--r--   1 root     tty         3471 Oct 28 18:33 ls_connect.3
+-rw-r--r--   1 root     tty         1082 Oct 28 18:33 ls_conntaskport.3
+-rw-r--r--   1 root     tty           81 Oct 28 18:33 ls_deleteltask.3
+-rw-r--r--   1 root     tty           81 Oct 28 18:33 ls_deletertask.3
+-rw-r--r--   1 root     tty         1319 Oct 28 18:33 ls_donerex.3
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 ls_eligible.3
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 ls_errlog.3
+-rw-r--r--   1 root     tty         1064 Oct 28 18:33 ls_fdbusy.3
+-rw-r--r--   1 root     tty           94 Oct 28 18:33 ls_findmyconnections.3
+-rw-r--r--   1 root     tty           84 Oct 28 18:33 ls_getclustername.3
+-rw-r--r--   1 root     tty           87 Oct 28 18:33 ls_gethostfactor.3
+-rw-r--r--   1 root     tty           85 Oct 28 18:33 ls_gethostinfo.3
+-rw-r--r--   1 root     tty           86 Oct 28 18:33 ls_gethostmodel.3
+-rw-r--r--   1 root     tty           85 Oct 28 18:33 ls_gethosttype.3
+-rw-r--r--   1 root     tty           83 Oct 28 18:33 ls_getmastername.3
+-rw-r--r--   1 root     tty          679 Oct 28 18:33 ls_getmnthost.3
+-rw-r--r--   1 root     tty           84 Oct 28 18:33 ls_getmodelfactor.3
+-rw-r--r--   1 root     tty          446 Oct 28 18:33 ls_getmyhostname.3
+-rw-r--r--   1 root     tty           83 Oct 28 18:33 ls_getstdin.3
+-rw-r--r--   1 root     tty         4273 Oct 28 18:33 ls_hostinfo.3
+-rw-r--r--   1 root     tty         5671 Oct 28 18:33 ls_info.3
+-rw-r--r--   1 root     tty         3003 Oct 28 18:33 ls_initrex.3
+-rw-r--r--   1 root     tty           81 Oct 28 18:33 ls_insertltask.3
+-rw-r--r--   1 root     tty           81 Oct 28 18:33 ls_insertrtask.3
+-rw-r--r--   1 root     tty           84 Oct 28 18:33 ls_isconnected.3
+-rw-r--r--   1 root     tty           83 Oct 28 18:33 ls_limcontrol.3
+-rw-r--r--   1 root     tty           83 Oct 28 18:33 ls_listltask.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_listrtask.3
+-rw-r--r--   1 root     tty         9864 Oct 28 18:33 ls_load.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_loadadj.3
+-rw-r--r--   1 root     tty           80 Oct 28 18:33 ls_loadinfo.3
+-rw-r--r--   1 root     tty           81 Oct 28 18:33 ls_loadofhosts.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_lockhost.3
+-rw-r--r--   1 root     tty           80 Oct 28 18:33 ls_lserrmsg.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_lserrno.3
+-rw-r--r--   1 root     tty         2268 Oct 28 18:33 ls_perror.3
+-rw-r--r--   1 root     tty           84 Oct 28 18:33 ls_placeofhosts.3
+-rw-r--r--   1 root     tty           80 Oct 28 18:33 ls_placereq.3
+-rw-r--r--   1 root     tty         5906 Oct 28 18:33 ls_policy.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_rclose.3
+-rw-r--r--   1 root     tty         2257 Oct 28 18:33 ls_readconfenv.3
+-rw-r--r--   1 root     tty         2008 Oct 28 18:33 ls_readrexlog.3
+-rw-r--r--   1 root     tty         1788 Oct 28 18:33 ls_rescontrol.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_resreq.3
+-rw-r--r--   1 root     tty         2020 Oct 28 18:33 ls_rex.3
+-rw-r--r--   1 root     tty         4239 Oct 28 18:33 ls_rexecv.3
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 ls_rexecve.3
+-rw-r--r--   1 root     tty           82 Oct 28 18:33 ls_rfcontrol.3
+-rw-r--r--   1 root     tty           76 Oct 28 18:33 ls_rfs.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_rfstat.3
+-rw-r--r--   1 root     tty           84 Oct 28 18:33 ls_rgetmnthost.3
+-rw-r--r--   1 root     tty         1279 Oct 28 18:33 ls_rkill.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_rlseek.3
+-rw-r--r--   1 root     tty         4368 Oct 28 18:33 ls_ropen.3
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 ls_rread.3
+-rw-r--r--   1 root     tty         1323 Oct 28 18:33 ls_rsetenv.3
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 ls_rstat.3
+-rw-r--r--   1 root     tty           77 Oct 28 18:33 ls_rtask.3
+-rw-r--r--   1 root     tty           77 Oct 28 18:33 ls_rtaske.3
+-rw-r--r--   1 root     tty         5416 Oct 28 18:33 ls_rwait.3
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 ls_rwaittid.3
+-rw-r--r--   1 root     tty           79 Oct 28 18:33 ls_rwrite.3
+-rw-r--r--   1 root     tty           83 Oct 28 18:33 ls_setstdin.3
+-rw-r--r--   1 root     tty         3587 Oct 28 18:33 ls_stdinmode.3
+-rw-r--r--   1 root     tty         1385 Oct 28 18:33 ls_stoprex.3
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 ls_sysmsg.3
+-rw-r--r--   1 root     tty         4896 Oct 28 18:33 ls_task.3
+-rw-r--r--   1 root     tty           81 Oct 28 18:33 ls_unlockhost.3
+-rw-r--r--   1 root     tty         8948 Oct 28 18:33 lslib.3
+
+    Creating /usr/local/lsf/man/man5 ...
+
+
+In directory  /usr/local/lsf/man/man5
+-rw-r--r--   1 root     tty        23431 Oct 28 18:33 license.dat.5
+-rw-r--r--   1 root     tty         4683 Oct 28 18:33 license.options.5
+-rw-r--r--   1 root     tty         1507 Oct 28 18:33 lim.acct.5
+-rw-r--r--   1 root     tty         2535 Oct 28 18:33 lsf.acct.5
+-rw-r--r--   1 root     tty        18513 Oct 28 18:33 lsf.cluster.5
+-rw-r--r--   1 root     tty        10373 Oct 28 18:33 lsf.conf.5
+-rw-r--r--   1 root     tty           85 Oct 28 18:33 lsf.shared.5
+-rw-r--r--   1 root     tty         2638 Oct 28 18:33 lsf.task.5
+-rw-r--r--   1 root     tty           78 Oct 28 18:33 res.acct.5
+
+    Creating /usr/local/lsf/man/man8 ...
+
+
+In directory  /usr/local/lsf/man/man8
+-rw-r--r--   1 root     tty           71 Oct 28 18:33 eexec.8
+-rw-r--r--   1 root     tty         2151 Oct 28 18:33 esub.8
+-rw-r--r--   1 root     tty         9514 Oct 28 18:33 lim.8
+-rw-r--r--   1 root     tty         7999 Oct 28 18:33 lsadmin.8
+-rw-r--r--   1 root     tty          927 Oct 28 18:33 lsfrestart.8
+-rw-r--r--   1 root     tty         1253 Oct 28 18:33 lsfsetup.8
+-rw-r--r--   1 root     tty         1045 Oct 28 18:33 lsfshutdown.8
+-rw-r--r--   1 root     tty         1220 Oct 28 18:33 lsfstartup.8
+-rw-r--r--   1 root     tty         1299 Oct 28 18:33 lslockhost.8
+-rw-r--r--   1 root     tty           80 Oct 28 18:33 lsreconfig.8
+-rw-r--r--   1 root     tty           82 Oct 28 18:33 lsunlockhost.8
+-rw-r--r--   1 root     tty         4048 Oct 28 18:33 nios.8
+-rw-r--r--   1 root     tty         2542 Oct 28 18:33 pim.8
+-rw-r--r--   1 root     tty         3952 Oct 28 18:33 res.8
+
+In directory  /usr/local/lsf/man/man1
+-rw-r--r--   1 root     tty        11397 Oct 28 18:33 bacct.1
+-rw-r--r--   1 root     tty           71 Oct 28 18:33 bbot.1
+-rw-r--r--   1 root     tty        10803 Oct 28 18:33 bhist.1
+-rw-r--r--   1 root     tty         6476 Oct 28 18:33 bhosts.1
+-rw-r--r--   1 root     tty         3540 Oct 28 18:33 bhpart.1
+-rw-r--r--   1 root     tty        10602 Oct 28 18:33 bjobs.1
+-rw-r--r--   1 root     tty         6910 Oct 28 18:33 bkill.1
+-rw-r--r--   1 root     tty           77 Oct 28 18:33 bmgroup.1
+-rw-r--r--   1 root     tty         2749 Oct 28 18:33 bmodify.1
+-rw-r--r--   1 root     tty          945 Oct 28 18:33 bparams.1
+-rw-r--r--   1 root     tty         1709 Oct 28 18:33 bpeek.1
+-rw-r--r--   1 root     tty        16982 Oct 28 18:33 bqueues.1
+-rw-r--r--   1 root     tty           75 Oct 28 18:33 bresume.1
+-rw-r--r--   1 root     tty           73 Oct 28 18:33 bstop.1
+-rw-r--r--   1 root     tty        42788 Oct 28 18:33 bsub.1
+-rw-r--r--   1 root     tty         3923 Oct 28 18:33 bswitch.1
+-rw-r--r--   1 root     tty         2076 Oct 28 18:33 btop.1
+-rw-r--r--   1 root     tty         1521 Oct 28 18:33 bugroup.1
+-rw-r--r--   1 root     tty         2939 Oct 28 18:33 busers.1
+-rw-r--r--   1 root     tty         3492 Oct 28 18:33 lsbatch.1
+-rw-r--r--   1 root     tty        14889 Oct 28 18:33 xlsbatch.1
+
+In directory  /usr/local/lsf/man/man1
+-rw-r--r--   1 root     tty         5435 Oct 28 18:33 bchkpnt.1
+-rw-r--r--   1 root     tty         4019 Oct 28 18:33 bmig.1
+-rw-r--r--   1 root     tty         2332 Oct 28 18:33 brestart.1
+-rw-r--r--   1 root     tty         2091 Oct 28 18:33 ckpt_ld.1
+-rw-r--r--   1 root     tty           77 Oct 28 18:33 ckpt_ld_f.1
+-rw-r--r--   1 root     tty         8882 Oct 28 18:33 xbmodify.1
+-rw-r--r--   1 root     tty         9281 Oct 28 18:33 xbsub.1
+
+In directory  /usr/local/lsf/man/man3
+-rw-r--r--   1 root     tty         2282 Oct 28 18:33 lsb_calendarinfo.3
+-rw-r--r--   1 root     tty         1952 Oct 28 18:33 lsb_calendarop.3
+-rw-r--r--   1 root     tty         1026 Oct 28 18:33 lsb_chkpntjob.3
+-rw-r--r--   1 root     tty          436 Oct 28 18:33 lsb_closejobinfo.3
+-rw-r--r--   1 root     tty        14625 Oct 28 18:33 lsb_geteventrec.3
+-rw-r--r--   1 root     tty         2197 Oct 28 18:33 lsb_groupinfo.3
+-rw-r--r--   1 root     tty         1531 Oct 28 18:33 lsb_hostcontrol.3
+-rw-r--r--   1 root     tty           91 Oct 28 18:33 lsb_hostgrpinfo.3
+-rw-r--r--   1 root     tty         8558 Oct 28 18:33 lsb_hostinfo.3
+-rw-r--r--   1 root     tty         3690 Oct 28 18:33 lsb_hostpartinfo.3
+-rw-r--r--   1 root     tty          753 Oct 28 18:33 lsb_init.3
+-rw-r--r--   1 root     tty         1245 Oct 28 18:33 lsb_mig.3
+-rw-r--r--   1 root     tty           84 Oct 28 18:33 lsb_modify.3
+-rw-r--r--   1 root     tty         1614 Oct 28 18:33 lsb_movejob.3
+-rw-r--r--   1 root     tty         2395 Oct 28 18:33 lsb_openjobinfo.3
+-rw-r--r--   1 root     tty         2782 Oct 28 18:33 lsb_parameterinfo.3
+-rw-r--r--   1 root     tty         1008 Oct 28 18:33 lsb_peekjob.3
+-rw-r--r--   1 root     tty         4623 Oct 28 18:33 lsb_pendreason.3
+-rw-r--r--   1 root     tty          606 Oct 28 18:33 lsb_perror.3
+-rw-r--r--   1 root     tty         3940 Oct 28 18:33 lsb_puteventrec.3
+-rw-r--r--   1 root     tty         1278 Oct 28 18:33 lsb_queuecontrol.3
+-rw-r--r--   1 root     tty        13204 Oct 28 18:33 lsb_queueinfo.3
+-rw-r--r--   1 root     tty         5705 Oct 28 18:33 lsb_readjobinfo.3
+-rw-r--r--   1 root     tty          992 Oct 28 18:33 lsb_reconfig.3
+-rw-r--r--   1 root     tty          833 Oct 28 18:33 lsb_signaljob.3
+-rw-r--r--   1 root     tty        11653 Oct 28 18:33 lsb_submit.3
+-rw-r--r--   1 root     tty         1594 Oct 28 18:33 lsb_suspreason.3
+-rw-r--r--   1 root     tty         1162 Oct 28 18:33 lsb_switchjob.3
+-rw-r--r--   1 root     tty          841 Oct 28 18:33 lsb_sysmsg.3
+-rw-r--r--   1 root     tty           91 Oct 28 18:33 lsb_usergrpinfo.3
+-rw-r--r--   1 root     tty         3428 Oct 28 18:33 lsb_userinfo.3
+-rw-r--r--   1 root     tty         4632 Oct 28 18:33 lsblib.3
+
+In directory  /usr/local/lsf/man/man3
+-rw-r--r--   1 root     tty         1529 Oct 28 18:33 ckpt_crt0.o.3
+-rw-r--r--   1 root     tty         3100 Oct 28 18:33 libckpt.a.3
+
+In directory  /usr/local/lsf/man/man5
+-rw-r--r--   1 root     tty         4462 Oct 28 18:33 lsb.acct.5
+-rw-r--r--   1 root     tty         8829 Oct 28 18:33 lsb.events.5
+-rw-r--r--   1 root     tty           19 Oct 28 18:33 lsb.hosts.5
+-rw-r--r--   1 root     tty           19 Oct 28 18:33 lsb.params.5
+-rw-r--r--   1 root     tty           19 Oct 28 18:33 lsb.queues.5
+-rw-r--r--   1 root     tty           19 Oct 28 18:33 lsb.users.5
+-rw-r--r--   1 root     tty        57047 Oct 28 18:33 lsbatch.5
+
+In directory  /usr/local/lsf/man/man5
+-rw-r--r--   1 root     tty         5326 Oct 28 18:33 lsb.maps.5
+-rw-r--r--   1 root     tty         5376 Oct 28 18:33 lsb.nqsmaps.5
+
+In directory  /usr/local/lsf/man/man8
+-rw-r--r--   1 root     tty         9052 Oct 28 18:33 badmin.8
+-rw-r--r--   1 root     tty        10349 Oct 28 18:33 mbatchd.8
+-rw-r--r--   1 root     tty           74 Oct 28 18:33 sbatchd.8
+
+In directory  /usr/local/lsf/man/man8
+-rw-r--r--   1 root     tty         2344 Oct 28 18:33 echkpnt.8
+-rw-r--r--   1 root     tty         2345 Oct 28 18:33 erestart.8
+
+    Creating /usr/local/lsf/include/lsf ...
+
+
+In directory  /usr/local/lsf/include/lsf
+-rw-r--r--   1 root     tty        36357 Oct 28 18:33 lsf.h
+
+In directory  /usr/local/lsf/include/lsf
+-rw-r--r--   1 root     tty        58847 Oct 28 18:33 lsbatch.h
+
+In directory  /usr/local/lsf/man/man1
+-rw-r--r--   1 root     tty          737 Oct 28 18:33 lsnqs.1
+-rw-r--r--   1 root     tty         2675 Oct 28 18:33 qdel.1
+-rw-r--r--   1 root     tty         3045 Oct 28 18:33 qstat.1
+-rw-r--r--   1 root     tty        24063 Oct 28 18:33 qsub.1
+
+    Creating /usr/local/lsf/bin ...
+
+
+In directory  /usr/local/lsf/bin
+-rwxr-xr-x   1 root     tty       384520 Oct 28 18:34 bacct
+-rwsr-xr-x   4 root     tty       516232 Oct 28 18:34 badmin
+-rwsr-xr-x   1 root     tty       235720 Oct 28 18:34 bbot
+-rwxr-xr-x   1 root     tty       239944 Oct 28 18:34 bclusters
+-rwxr-xr-x   1 root     tty       414216 Oct 28 18:34 bhist
+-rwxr-xr-x   1 root     tty       278248 Oct 28 18:34 bhosts
+-rwxr-xr-x   1 root     tty       265496 Oct 28 18:34 bhpart
+-rwxr-xr-x   1 root     tty       303368 Oct 28 18:34 bjobs
+-rwsr-xr-x   4 root     tty       273848 Oct 28 18:34 bkill
+-rwsr-xr-x   1 root     tty       261352 Oct 28 18:35 bmig
+-rwsr-xr-x   1 root     tty       435624 Oct 28 18:34 bmodify
+-rwxr-xr-x   1 root     tty       269560 Oct 28 18:34 bparams
+-rwsr-xr-x   1 root     tty       346664 Oct 28 18:34 bpeek
+-rwxr-xr-x   1 root     tty       278200 Oct 28 18:34 bqueues
+-rwxr-xr-x   1 root     tty       197368 Oct 28 18:34 bresources
+-rwsr-xr-x   1 root     tty       431400 Oct 28 18:35 brestart
+-rwsr-xr-x   1 root     tty       431416 Oct 28 18:34 bsub
+-rwsr-xr-x   1 root     tty       265432 Oct 28 18:34 bswitch
+-rwsr-xr-x   1 root     tty       235720 Oct 28 18:34 btop
+-rwxr-xr-x   2 root     tty       265560 Oct 28 18:34 bugroup
+-rwxr-xr-x   1 root     tty       265512 Oct 28 18:34 busers
+-rwsr-xr-x   1 root     tty       269992 Oct 28 18:34 ch
+-rwxr-xr-x   1 root     tty         1078 Oct 28 18:35 ckpt_ld
+-rwxr-xr-x   1 root     tty         1104 Oct 28 18:35 ckpt_ld_f
+-rwxr-xr-x   1 root     tty       197592 Oct 28 18:34 lsacct
+-rwxr-xr-x   1 root     tty       180472 Oct 28 18:34 lsacctmrg
+-rwsr-xr-x   4 root     tty       337752 Oct 28 18:34 lsadmin
+-rwxr-xr-x   1 root     tty       240264 Oct 28 18:34 lsclusters
+-rwxr-xr-x   1 root     tty       244616 Oct 28 18:34 lseligible
+-rwxr-xr-x   1 root     tty         2821 Oct 28 18:34 lsfrestart
+lrwxr-xr-x   1 root     tty           21 Oct 28 18:35 lsfsetup -&gt; /usr/local/ls
+f/etc/lsfsetup
+-rwxr-xr-x   1 root     tty         2417 Oct 28 18:34 lsfshutdown
+-rwxr-xr-x   1 root     tty         2690 Oct 28 18:34 lsfstartup
+-rwsr-xr-x   1 root     tty       278552 Oct 28 18:34 lsgrun
+-rwxr-xr-x   1 root     tty       248632 Oct 28 18:34 lshosts
+-rwxr-xr-x   1 root     tty       240200 Oct 28 18:34 lsid
+-rwxr-xr-x   1 root     tty       240328 Oct 28 18:34 lsinfo
+-rwxr-xr-x   1 root     tty       248888 Oct 28 18:34 lsload
+-rwxr-xr-x   1 root     tty       244536 Oct 28 18:34 lsloadadj
+-rwxr-xr-x   1 root     tty       244696 Oct 28 18:34 lslogin
+-rwxr-xr-x   1 root     tty       244456 Oct 28 18:34 lsmake
+-rwsr-xr-x   1 root     tty       300040 Oct 28 18:34 lsmakerm
+-rwxr-xr-x   1 root     tty       193240 Oct 28 18:34 lsmon
+-rwxr-xr-x   1 root     tty       244504 Oct 28 18:34 lsplace
+-rwxr-xr-x   1 root     tty       327784 Oct 28 18:34 lspvmrm
+-rwsr-xr-x   1 root     tty       282856 Oct 28 18:34 lsrcp
+-rwxr-xr-x   1 root     tty       240296 Oct 28 18:34 lsresources
+-rwxr-xr-x   2 root     tty       248824 Oct 28 18:34 lsrtasks
+-rwsr-xr-x   1 root     tty       261688 Oct 28 18:34 lsrun
+-rwsr-xr-x   1 root     tty       786952 Oct 28 18:34 lstcsh
+-rwxr-xr-x   1 root     tty         4211 Oct 28 18:34 mpijob
+-rwxr-xr-x   1 root     tty         2200 Oct 28 18:34 p4job
+-rwxr-xr-x   1 root     tty         2224 Oct 28 18:34 poejob
+-rwxr-xr-x   1 root     tty         1183 Oct 28 18:34 pvmjob
+-rwxr-xr-x   1 root     tty           64 Oct 28 18:34 sppjob
+-rwxr-xr-x   2 root     tty      3249680 Oct 28 18:34 xbsub
+-rwxr-xr-x   1 root     tty      4585216 Oct 28 18:34 xlsadmin
+-rwxr-xr-x   1 root     tty      3557568 Oct 28 18:35 xlsbatch
+-rwxr-xr-x   1 root     tty      2350424 Oct 28 18:34 xlsmon
+-rwxr-xr-x   1 root     tty         1342 Oct 28 18:34 zapit
+
+In directory  /usr/local/lsf/etc
+-rwxr-xr-x   1 root     tty         9952 Oct 28 18:35 echkpnt
+-rwxr-xr-x   1 root     tty         9968 Oct 28 18:35 erestart
+-rwxr-xr-x   1 root     tty       794296 Oct 28 18:35 lim
+-rwxr-xr-x   8 root     tty       197144 Oct 28 18:35 lmcksum
+-rwxr-xr-x   8 root     tty       197144 Oct 28 18:35 lmdown
+-rwxr-xr-x   1 root     tty       240264 Oct 28 18:35 lmgrd
+-rwxr-xr-x   8 root     tty       197144 Oct 28 18:35 lmhostid
+-rwxr-xr-x   8 root     tty       197144 Oct 28 18:35 lmremove
+-rwxr-xr-x   8 root     tty       197144 Oct 28 18:35 lmreread
+-rwxr-xr-x   8 root     tty       197144 Oct 28 18:35 lmstat
+-rwxr-xr-x   8 root     tty       197144 Oct 28 18:35 lmswitchr
+-rwxr-xr-x   8 root     tty       197144 Oct 28 18:35 lmver
+-rwxr-xr-x   1 root     tty       344384 Oct 28 18:35 lsf_ld
+-rwxr-xr-x   1 root     tty      1501592 Oct 28 18:35 mbatchd
+-rwxr-xr-x   1 root     tty       274600 Oct 28 18:35 nios
+-rwxr-xr-x   1 root     tty       316552 Oct 28 18:35 nqsi
+-rwxr-xr-x   1 root     tty       261416 Oct 28 18:35 pim
+-rwxr-xr-x   1 root     tty       406008 Oct 28 18:35 res
+-rwxr-xr-x   1 root     tty       863224 Oct 28 18:35 sbatchd
+
+    Creating /usr/local/lsf/etc/scripts ...
+
+-rwxr-xr-x   1 root     tty         6256 Oct 28 18:35 lsfsetup
+
+scripts:
+total 406
+-rwxr-xr-x   1 root     tty         1832 Oct 28 18:35 another
+-rwxr-xr-x   1 root     tty         2945 Oct 28 18:35 cluster
+-rwxr-xr-x   1 root     tty         3430 Oct 28 18:35 component
+-rwxr-xr-x   1 root     tty         6140 Oct 28 18:35 config
+-rwxr-xr-x   1 root     tty         1742 Oct 28 18:35 customize
+-rwxr-xr-x   1 root     tty         5655 Oct 28 18:35 default.config
+-rwxr-xr-x   1 root     tty         3713 Oct 28 18:35 first
+-rwxr-xr-x   1 root     tty        30459 Oct 28 18:35 funcs.sh
+-rwxr-xr-x   1 root     tty        18134 Oct 28 18:35 help
+-rwxr-xr-x   1 root     tty        16102 Oct 28 18:35 hostsetup
+-rwxr-xr-x   1 root     tty         3332 Oct 28 18:35 install
+-rwxr-xr-x   1 root     tty         1492 Oct 28 18:35 license
+-rwxr-xr-x   1 root     tty         5244 Oct 28 18:35 lsfgetlicinfo
+-rwxr-xr-x   1 root     tty        20494 Oct 28 18:35 lsflicsetup
+-rwxr-xr-x   1 root     tty         1266 Oct 28 18:35 lsfmerglics
+-rwxr-xr-x   1 root     tty         3470 Oct 28 18:35 make_cluster
+-rwxr-xr-x   1 root     tty         1426 Oct 28 18:35 makedot
+-rwxr-xr-x   1 root     tty         1514 Oct 28 18:35 mandatory
+-rwxr-xr-x   1 root     tty         5918 Oct 28 18:35 modify_host
+-rwxr-xr-x   1 root     tty         5053 Oct 28 18:35 modify_model
+-rwxr-xr-x   1 root     tty         5318 Oct 28 18:35 modify_resource
+-rwxr-xr-x   1 root     tty         4489 Oct 28 18:35 modify_type
+-rwxr-xr-x   1 root     tty        25197 Oct 28 18:35 newInstall
+-rwxr-xr-x   1 root     tty         1325 Oct 28 18:35 nonroot
+-rwxr-xr-x   1 root     tty         1333 Oct 28 18:35 pickup
+-rwxr-xr-x   1 root     tty         2096 Oct 28 18:35 product
+-rwxr-xr-x   1 root     tty          896 Oct 28 18:35 uninstall
+-rwxr-xr-x   1 root     tty        13811 Oct 28 18:35 upgrade
+
+    Creating /usr/local/lsf/lib ...
+
+
+In directory  /usr/local/lsf/lib
+-rw-r--r--   1 root     tty      3842984 Oct 28 18:36 liblsf.a
+
+In directory  /usr/local/lsf/lib
+-rw-r--r--   1 root     tty      3125736 Oct 28 18:36 libbat.a
+
+In directory  /usr/local/lsf/lib
+-rw-r--r--   1 root     tty       370984 Oct 28 18:36 libckpt.a
+
+In directory  /usr/local/lsf/lib
+-rw-r--r--   1 root     tty         3344 Oct 28 18:36 ckpt_crt0.o
+
+    Creating /usr/local/lsf/lib/uid ...
+
+
+In directory  /usr/local/lsf/lib/uid
+-rw-r--r--   1 root     tty        65536 Oct 28 18:36 xlsmon.uid
+
+In directory  /usr/local/lsf/misc
+-rw-r--r--   1 root     tty         3667 Oct 28 18:36 Make.def
+-rw-r--r--   1 root     tty          856 Oct 28 18:36 Make.misc
+
+lsNQS commands in  /usr/local/lsf/bin
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 batch-acct
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 clnqs
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 pipeclient
+-rwsr-xr-x   1 root     tty       244248 Oct 28 18:36 qdel
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qjlist
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qlimit
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qmapmgr
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qmgr
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qps
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qrestart
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qrun
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qsa
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qsnapshot
+-rwxr-xr-x   1 root     tty       265336 Oct 28 18:36 qstat
+-rwsr-xr-x   1 root     tty       427208 Oct 28 18:36 qsub
+-rwxr-xr-x  13 root     tty        10024 Oct 28 18:36 qwatch
+Installation completed. Install log in Install.log.
+Installation done Mon Oct 28 18:36:13 EST 1996
+
+Checking installed binaries. Be patient ...
+
+Press Enter to continue ... </TT><B><FONT SIZE=-1>[RETURN]
+</FONT></B><TT>    Please choose one of the following options:
+
+    1. Get Information For a Permanent License
+    2. Install a New License From the LSF Vendor
+
+    ?. Help
+    q. Quit
+
+Please enter your choice:  <B>2
+
+</B>Please choose one of the following options:
+
+    1.  Set up a DEMO license 
+    2.  Set up a permanent license 
+
+    ?.  Help
+    q.  Quit
+
+Please enter your choice: <B>1
+
+</B>Enter the path name for the license file sent by
+the LSF vendor? [? for help] <B>./license.dat
+
+</B>Please enter one of the following option numbers to specify the
+location for installing the license file: 
+
+        1.  Use /usr/local/flexlm/licenses/license.dat
+        2.  Use $LSF_CONFDIR/license.dat
+                (/usr/local/lsf/conf/license.dat)
+        3.  Specify a non-standard license file location
+        ?.  Help
+Option number [Enter 2 for default]:  <B>2
+</B>Do you want to COMMIT changes to license files now (y/n) [y] <B>y
+
+</B>Committing..  Updating LSF_LICENSE_FILE in /usr/local/lsf/etc/lsf.conf
+
+Note:if your license server is a different host type
+from this one, add LSF_LICENSE_FILE=/usr/local/lsf/conf/license.dat to 
+lsf.conf on the license server host.
+
+License file installed.
+
+Checking if licensed features are enabled for the cluster ...
+
+        Your license key contains features for the following LSF component(s):
+
+                 Base Batch JobScheduler PASS MultiCluster
+
+        To enable these features for all the hosts in your cluster,
+        your /usr/local/lsf/conf/lsf.cluster.test_cluster file needs to
+        be modified to include the following line:
+
+                FEATURES=lsf_base lsf_batch
+
+
+Modify /usr/local/lsf/conf/lsf.cluster.test_c (y/n) [y] <B>y
+
+</B>Appending FEATURES line to /usr/local/lsf/conf/lsf.cluster.test_cluster ...
+
+
+Finished license installation.
+
+
+Starting LSF configuration
+
+Please choose one of the following options:
+
+    1. View/Add/Delete/Modify Currently Configured Hosts
+    2. View/Add/Delete/Modify Currently Defined Host Models
+    3. View/Add/Delete/Modify Currently Defined Resource Names
+    4. View/Add/Delete Currently Defined Host Types
+    5. Configuration File Error Checking
+    6. Reconfigure LSF servers
+
+    ?. Help
+    q. Quit
+
+Please enter your choice: <B>4
+
+</B>Please choose one of the following options:
+
+    1. List Currently Defined Host Types
+    2. Add Host Types
+    3. Delete Host Types
+
+    ?. Help
+    q. Done Modifying Host Types
+
+Please enter your choice: <B>1
+
+</B>TYPENAME                        # Keyword
+DEFAULT                         # used by lsfsetup
+HPPA9
+HP68K
+ALPHA
+UMIPS
+SUN41
+SUNSOL
+RS6K
+4D
+CONVEX
+CRAY
+SONY
+NEC
+LINUX
+SGI
+NTX86
+
+Press Return to Continue </TT><B><FONT SIZE=-1>[RETURN]
+
+</FONT></B><TT>Please choose one of the following options:
+
+    1. List Currently Defined Host Types
+    2. Add Host Types
+    3. Delete Host Types
+
+    ?. Help
+    q. Done Modifying Host Types
+
+Please enter your choice: <B>q
+
+</B>    1. View/Add/Delete/Modify Currently Configured Hosts
+    2. View/Add/Delete/Modify Currently Defined Host Models
+    3. View/Add/Delete/Modify Currently Defined Resource Names
+    4. View/Add/Delete Currently Defined Host Types
+    5. Configuration File Error Checking
+    6. Reconfigure LSF servers
+
+    ?. Help
+    q. Quit
+
+Please enter your choice: <B>2
+
+</B>Please choose one of the following options:
+
+    1. List Currently Defined Host Models
+    2. Add Host Models
+    3. Delete Host Models
+    4. Modify Host Models
+
+    ?. Help
+    q. Done Modifying Host Models
+
+Please enter your choice: <B>1
+
+</B>MODELNAME       CPUFACTOR       # Keywords
+DEFAULT           1.0           # used by lsfsetup
+HP300             1.0           # Example
+SGI4D35           2.0           # Example
+SGI4D340VGX       2.0           # Example
+DEC3100           2.0           # Example
+SPARCSLC          3.0           # Example
+SPARCIPC          3.0           # Example
+DEC5000           5.0           # Example
+EWS4800           5.0           # Example
+PENT_100          7.0           # Example
+NEWS5000          7.0           # Example
+INDIGOXS24        7.0           # Example
+SunSparc          12.0          # Example
+HP715             13.0          # Example
+HP735             14.0          # Example
+SGIINDIGO2        15.0          # Example
+CONVEX2           18.0          # Example
+CRAYJ90           18.0          # Example
+IBM350            18.0          # Example
+HP750             20.0          # Example
+DEC3000           20.0          # Example
+
+Press Return to Continue </TT><B><FONT SIZE=-1>[RETURN]
+
+</FONT></B><TT>Please choose one of the following options:
+
+    1. List Currently Defined Host Models
+    2. Add Host Models
+    3. Delete Host Models
+    4. Modify Host Models
+
+    ?. Help
+    q. Done Modifying Host Models
+
+Please enter your choice: <B>q
+
+
+</B>Please choose one of the following options:
+
+    1. View/Add/Delete/Modify Currently Configured Hosts
+    2. View/Add/Delete/Modify Currently Defined Host Models
+    3. View/Add/Delete/Modify Currently Defined Resource Names
+    4. View/Add/Delete Currently Defined Host Types
+    5. Configuration File Error Checking
+    6. Reconfigure LSF servers
+
+    ?. Help
+    q. Quit
+
+Please enter your choice: <B>1
+
+</B>Please choose one of the following options:
+
+    1. List Currently Configured Hosts
+    2. Add Hosts To LSF Configuration
+    3. Delete Hosts From LSF Configuration
+    4. Modify Hosts In LSF Configuration
+
+    ?. Help
+    q. Done Modifying Host Configuration
+
+Please enter your choice: <B>2
+
+</B>Enter the names of hosts to add? <B>hostA
+
+</B>edit the lsf.cluster.test_cluster file ...
+Save changes to /usr/local/lsf/conf/lsf.cluster.test (y/n or ? for help) [y] <B>y
+</B>Host(s) added.
+
+Please choose one of the following options:
+
+    1. List Currently Configured Hosts
+    2. Add Hosts To LSF Configuration
+    3. Delete Hosts From LSF Configuration
+    4. Modify Hosts In LSF Configuration
+
+    ?. Help
+    q. Done Modifying Host Configuration
+
+Please enter your choice: <B>1
+
+</B>HOSTNAME  model    type  server r1m  mem  swp  RESOURCES    #Keywords
+hostA   DEFAULT DEFAULT    1    3.5   ()   ()     ()
+ 
+Press Return to Continue </TT><B><FONT SIZE=-1>[RETURN]
+
+</FONT></B><TT>Please choose one of the following options:
+
+    1. List Currently Configured Hosts
+    2. Add Hosts To LSF Configuration
+    3. Delete Hosts From LSF Configuration
+    4. Modify Hosts In LSF Configuration
+
+    ?. Help
+    q. Done Modifying Host Configuration
+
+Please enter your choice: <B>q
+
+
+</B>Please choose one of the following options:
+
+    1. View/Add/Delete/Modify Currently Configured Hosts
+    2. View/Add/Delete/Modify Currently Defined Host Models
+    3. View/Add/Delete/Modify Currently Defined Resource Names
+    4. View/Add/Delete Currently Defined Host Types
+    5. Configuration File Error Checking
+    6. Reconfigure LSF servers
+
+    ?. Help
+    q. Quit
+
+Please enter your choice: <B>q
+
+</B>Done LSF configuration
+
+    Finished installing LSF on this host type.
+    Installation parameters should be in /tmp/lsf/etc/lsf.conf.
+
+    If you want to install LSF on another host type, do the following:
+    -  Unpack the LSF release tar file for that host type.
+    -  Log in to host of that type and change directory to the distribution 
+       directory.
+    -  Run lsfsetup and choose &quot;Install Another Host Type&quot; option.
+
+    If you have installed LSF on all host types you want. You can now run
+    lsfsetup on every host and choose Host Setup (option 6). Host Setup
+    will setup the host environment for every host. See the Help option
+    in lsfsetup for more details of Host Setup.</TT></PRE>
+
+<H2><A NAME="5333"></A>Getting License Key Information</H2>
+
+<PRE><TT># <B>./lsfsetup
+</B>    L O A D   S H A R I N G   F A C I L I T Y   V E R S I O N   3 . 0
+
+    Copyright 1992 -- 1996 by Platform Computing Corporation.
+    All rights reserved.
+
+Initializing ...
+
+HELP:
+    If you want help with any of the questions asked, enter ? at the prompt.
+
+
+Please choose one of the following options:
+
+    1.  Install for the First Time 
+    2.  Install Another Host Type (for a mixed cluster)
+    3.  Upgrade From a Previous Version
+    4.  License Management
+    5.  Configure LSF Cluster
+    6.  Host Setup
+    7.  Install Component 
+    8.  De-install LSF
+
+    ?.  Help
+    q.  Quit
+
+Please enter your choice: <B>4
+</B>    Please choose one of the following options:
+
+    1. Get Information For a Permanent License
+    2. Install a New License From the LSF Vendor
+
+    ?. Help
+    q. Quit
+
+Please enter your choice: <B>1
+
+</B>Do you have a FLEXlm license manager (lmgrd) running already (y/n or ? for
+help) [y] <B>n
+</B>Enter number of servers you want to specify
+(The total number of servers can be 1, 3, or 5)? [? for help] [1] <B>1
+</B>Enter host name of the license server host? [hostA] 
+Trying getting the host ID of local host hostA
+The hostId of the local host is 36256234
+
+Please send the license.info file to your LSF vendor in order to get a
+license key.  Thanks.</TT></PRE>
+
+<H2><A NAME="5400"></A>Installing a Permanent License</H2>
+
+<PRE><TT># <B>./lsfsetup
+</B>    L O A D   S H A R I N G   F A C I L I T Y   V E R S I O N   3 . 0
+
+    Copyright 1992 -- 1996 by Platform Computing Corporation.
+    All rights reserved.
+
+Initializing ...
+
+HELP:
+    If you want help with any of the questions asked, enter ? at the prompt.
+
+
+Please choose one of the following options:
+
+    1.  Install for the First Time 
+    2.  Install Another Host Type (for a mixed cluster)
+    3.  Upgrade From a Previous Version
+    4.  License Management
+    5.  Configure LSF Cluster
+    6.  Host Setup
+    7.  De-install LSF
+
+    ?.  Help
+    q.  Quit
+
+Please enter your choice: <B>4
+</B>    Please choose one of the following options:
+
+    1. Get Information For a Permanent License
+    2. Install a New License From the LSF Vendor
+
+    ?. Help
+    q. Quit
+
+Please enter your choice:  <B>2
+</B>Use etc/lsf.conf for setup (y/n or ? for help) [y]  <B>y
+
+
+</B>Please choose one of the following options:
+
+    1.  Set up a DEMO license 
+    2.  Set up a permanent license 
+
+    ?.  Help
+    q.  Quit
+
+Please enter your choice:  <B>2
+
+</B>Please specify type of installation:
+
+    1.  First installation of a permanent license
+    2.  Upgrade an existing permanent license
+    3.  Add LSF license to an existing FLEXlm license file
+
+    ?.  Help
+    q.  Quit
+
+Please enter your choice: <B>1
+
+</B>Enter the path name for the license file sent by
+the LSF vendor? [? for help]  <B>./license.dat
+
+</B>Please enter one of the following option numbers to specify the
+location for installing the license file: 
+
+        1.  Use /usr/local/flexlm/licenses/license.dat
+        2.  Use $LSF_CONFDIR/license.dat
+                (/user/local/lsf/conf/license.dat)
+        3.  Specify a non-standard license file location
+        ?.  Help
+Option number [Enter 2 for default]: <B>2
+</B>Do you want to COMMIT changes to license files now (y/n) [y] <B>y
+
+</B>Committing..  Updating LSF_LICENSE_FILE in /usr/local/lsf/etc/lsf.conf
+
+Note:if your license server is a different host type
+from this one, add LSF_LICENSE_FILE=/usr/local/lsf/conf/license.dat to 
+lsf.conf on the license server host.
+
+License file installed.
+
+Checking if licensed features are enabled for the cluster ...
+   Creating lsf_license file in this directory ... 
+
+Please update your system startup script with this file if you
+have changed your license file pathname.
+
+cp lsf_license /usr/local/lsf/etc
+lsf_license file copied into /usr/local/lsf/etc
+To start license server, login to license server host and
+run /usr/local/lsf/etc/lsf_license start
+
+Finished license installation.</TT></PRE>
+
+<H2><A NAME="5425"></A>Setting Up a Host</H2>
+
+<PRE><TT># <B>./lsfsetup
+</B>    L O A D   S H A R I N G   F A C I L I T Y   V E R S I O N   3 . 0
+
+    Copyright 1992 -- 1996 by Platform Computing Corporation.
+    All rights reserved.
+
+Initializing ...
+
+HELP:
+    If you want help with any of the questions asked, enter ? at the prompt.
+
+
+Please choose one of the following options:
+
+    1.  Install for the First Time 
+    2.  Install Another Host Type (for a mixed cluster)
+    3.  Upgrade From a Previous Version
+    4.  License Management
+    5.  Configure LSF Cluster
+    6.  Host Setup
+    7.  Install Component 
+    8.  De-install LSF
+
+    ?.  Help
+    q.  Quit
+
+Please enter your choice: <B>6
+</B>Use /etc/lsf.conf for setup (y/n or ? for help) [y] <B>y
+
+
+</B>    Checking up your LSF installations ...
+
+
+Checking installed binaries. Be patient ...
+
+        setuid is ok.
+        Checking done.
+
+        Setting up lsf.conf file ...
+        Done.
+
+Services seem to be already defined in NIS (YP)
+Modify system startup scripts to start LSF daemons at boot time (y/n) [n] <B>y
+</B>Adding startup code to /sbin/init.d
+    ln -f -s /usr/local/lsf/etc/lsf_daemons /sbin/init.d/lsf
+    ln -f -s /sbin/init.d/lsf /sbin/rc4.d/S95lsf
+    ln -f -s /sbin/init.d/lsf /sbin/rc3.d/K05lsf
+    Adding LSF configuration to /etc/rc.config.d/lsf
+Thu Feb 22 12:09:11 EST 1996
+     
+    Host environment set up done for this host.
+
+    Host Setup must be done for every host configured into LSF cluster.
+    If you have not done so for other machines, do it now by running
+    lsfsetup on the next host and choose Host Setup (option 6). Host Setup
+    will setup the host environment for every host. See the Help option
+    in lsfsetup for more details of Host Setup.
+
+    If you have done Host Setup for all the hosts, you can now start LSF
+    servers on all hosts. Follow the steps below:
+
+    o  Verify that your configuration files are correct. You can do this
+       by running lsfsetup and choose Configure LSF Cluster (option 5)
+       and then choose Configuration File Error Checking (sub-option 5).
+       If there are errors, correct these errors first, otherwise do next
+       step.
+
+   o  Start LSF servers by running '/usr/local/lsf/etc/lsf_daemons start'
+      on every host.
+
+   o  Run lsid to see if LSF daemons are up.
+
+   o  Follow the steps in LSF Administrator's Guide to test various
+      functions of LSF.</TT>
+</PRE>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="a-troubleshooting.html">[Prev]</A>
+<A HREF="c-directories.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I></P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:17:31 --></P>
+
+</BODY>
+</HTML>

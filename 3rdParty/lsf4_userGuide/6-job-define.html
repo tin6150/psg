@@ -1,0 +1,799 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - Defining Jobs</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-contents.html">[Contents]</A> <A HREF="5-environment.html">[Prev]</A>
+<A HREF="7-job-manage.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1000424"></A>Chapter 6. <A NAME="997895"></A>Defining Jobs</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="1001803"></A>A job is an operation that a user asks JobScheduler
+to automatically perform within the cluster when certain conditions are
+met. The operation can be the execution of a shell script, or a command
+line.</P>
+
+<P><A NAME="1021677"></A>A job can be a one-time job, which is run only
+once and then leaves the system forever, or a repetitive job, which is
+run whenever the conditions are met. Jobs can have many attributes that
+determine their behaviour and requirements.</P>
+
+<P><A NAME="1021712"></A>After a job is submitted, it is placed into a
+job queue waiting for scheduling by JobScheduler. The job will be automatically
+started by JobScheduler on a suitable machine in the cluster once the specified
+conditions are met. After the job has finished, the output from the job
+is delivered to the user either into a specified file, or via e-mail.</P>
+
+<P><A NAME="1021853"></A>Many jobs are repetitive jobs. A repetitive job
+is featured by its dependency on a calendar. If the job is a repetitive
+job, then the job is again put into the queue waiting for the next schedule
+after it finishes one run.</P>
+
+<P><A NAME="1021707"></A>This chapter defines some concepts about jobs
+and their attributes, and describes the steps involved in submitting jobs
+with different attributes.</P>
+
+<H2><A NAME="1019876"></A>Job Attributes</H2>
+
+<H3><A NAME="1020051"></A>JobID and JobName</H3>
+
+<P><A NAME="1021729"></A>Every job in the JobScheduler is automatically
+assigned a <I>jobID</I> that uniquely identifies the job. A <I>jobID</I>
+is a positive integer that is returned by the JobScheduler when submitting
+a job. </P>
+
+<P><A NAME="1019877"></A>You can also assign a <I>jobName</I> to your job
+for easy reference. It is used to identify a job for manipulation purposes,
+such as job dependencies and job grouping. This name does not have to be
+unique. Completely different jobs can be assigned the same name. If you
+do not supply a name, the system uses the name of the submitted command
+as the <I>jobName</I>. </P>
+
+<H3><A NAME="1019991"></A>Dependency Condition</H3>
+
+<P><A NAME="1020017"></A>Dependency condition is a job attribute you can
+specify so that your job gets started when certain events happen. Your
+job starts to run only if its dependency condition is <TT>TRUE</TT>. </P>
+
+<P><A NAME="1021756"></A>The dependency condition is specified by a logical
+expression of event status as described in <A HREF="4-events.html#1019490">'Events'</A>.
+The minimum expression is <I>jobID</I> or <I>jobName</I>, which is equivalent
+to <TT>done(jobID|jobName)</TT> (see <A HREF="6-job-define.html#1006504">'Inter-job Dependencies'</A>).
+An expression can consist of one or more of the reserved keywords, identifiers,
+and logic operators.</P>
+
+<H4><A NAME="1019993"></A>Keywords</H4>
+
+<P><A NAME="1019994"></A>You can select from seven reserved keywords: <TT>calendar</TT>,
+<TT>started</TT>, <TT>done</TT>, <TT>exit</TT>, <TT>ended</TT>, <TT>file</TT>,
+and <TT>event</TT>. </P>
+
+<UL>
+<LI><A NAME="1019995"></A>To depend on a calendar, use the <TT>calendar</TT>
+condition. A job that is dependent on a calendar is a repetitive job </LI>
+
+<LI><A NAME="1019996"></A>To depend on a previous job that has started
+running or has already finished, use the <TT>started</TT> condition </LI>
+
+<LI><A NAME="1019997"></A>To depend on a previous job that has finished
+successfully in the <TT><A HREF="7-job-manage.html#1019666">DONE</A></TT>
+state, use the <TT>done</TT> condition </LI>
+
+<LI><A NAME="1019998"></A>To depend on a previous job that has finished
+in the <TT><A HREF="7-job-manage.html#1019667">EXIT</A></TT> state, use
+the <TT>exit</TT> condition </LI>
+
+<LI><A NAME="1019999"></A>To depend on a previous job that has finished,
+use the <TT>ended</TT> condition </LI>
+
+<LI><A NAME="1020000"></A>To depend on a change in the file system, use
+the <TT>file</TT> condition. There are four file event functions defined:
+<TT>age</TT>, <TT>arrival</TT>, <TT>exist</TT>, and <TT>size</TT>, as described
+in <A HREF="4-events.html#1020203">'File Events'</A> </LI>
+
+<LI><A NAME="1020001"></A>To depend on user event, use the <TT>event</TT>
+condition </LI>
+</UL>
+
+<H4><A NAME="1020002"></A>Logic Operators</H4>
+
+<P><A NAME="1020003"></A>To create a more flexible dependency condition,
+you can use the logical operators '<TT>&amp;&amp;</TT>' (AND), '<TT>||</TT>'
+(OR), '<TT>!</TT>' (NOT) and parentheses '<TT>()</TT>'.</P>
+
+<H3><A NAME="1019886"></A>Resource Requirements</H3>
+
+<P><A NAME="1021774"></A>You can also specify resource requirements for
+your job. Resource requirements specify the required resources before the
+job can be scheduled to run on a host. This is useful especially when your
+cluster consists of machines with different architectures, operating systems,
+or hardware/software resources. </P>
+
+<P><A NAME="1022233"></A>By specifying resource requirements, your job
+is guaranteed to run on a host with the desirable resources. For example,
+if your job must run on a host with the Solaris operating system, you can
+specify such a requirement so that JobScheduler will make sure that only
+Solaris machines are considered as candidate hosts for the job.</P>
+
+<P><A NAME="1021798"></A>For more details about resource requirements,
+see <A HREF="8-advanced.html#1020091">'Resource Requirements'</A>.</P>
+
+<H3><A NAME="1021799"></A>Job Status</H3>
+
+<P><A NAME="1019890"></A>After a job is submitted to JobScheduler, it goes
+through a series of state transitions until it completes. The possible
+states of a job during its life cycle are shown in <A HREF="6-job-define.html#1019901">Figure
+22</A>.</P>
+
+<H4><A NAME="1019901"></A>Figure 22. Job States </H4>
+
+<P><A HREF="pjs-figure22.gif"><IMG SRC="pjs-figure22.gif" BORDER=0 HEIGHT=160 WIDTH=368></A>
+</P>
+
+<P><A NAME="1006682"></A>Most JobScheduler jobs progress through only two
+states:</P>
+
+<UL>
+<LI><A NAME="1005444"></A><TT><A HREF="7-job-manage.html#1019658">PEND</A></TT>:
+waiting in the queue. </LI>
+
+<LI><A NAME="1005446"></A><TT><A HREF="7-job-manage.html#1019659">RUN</A></TT>:
+dispatched to a host and running. </LI>
+</UL>
+
+<P><A NAME="1021805"></A>A job remains pending until all conditions for
+its execution are met. The conditions include dependency conditions, resource
+requirements, and JobScheduler policies. The dependency conditions and
+resource requirements are defined when you submit the job. The scheduling
+policies are configured by your cluster administrator. </P>
+
+<P><A NAME="1021824"></A>The run of a job may terminate abnormally for
+various reasons. Termination may happen from any state. An abnormally terminated
+job returns to <TT><A HREF="7-job-manage.html#1019658">PEND</A></TT> status
+and is rescheduled. A job may terminate abnormally for a number of reasons.
+</P>
+
+<P><A NAME="1022838"></A>Repetitive jobs go back to <TT><A HREF="7-job-manage.html#1019658">PEND</A></TT>
+status after they finish, waiting to be scheduled for future runs. A repetitive
+job continues to go through the states of <TT><A HREF="7-job-manage.html#1019659">RUN</A></TT>
+and <TT><A HREF="7-job-manage.html#1019658">PEND</A></TT> until it is removed
+from the system with the <TT>bdel</TT> command.</P>
+
+<P><A NAME="1021844"></A>Jobs may also be suspended at any time. A job
+can be suspended by its owner, by the cluster administrator, or by the
+JobScheduler. There are three different states for suspended jobs: <TT><A HREF="7-job-manage.html#1019660">PSUSP</A></TT>,
+<TT><A HREF="7-job-manage.html#1019661">USUSP</A></TT>, and <TT><A HREF="7-job-manage.html#1019665">SSUSP</A></TT>.
+The queue policy is the most important factor determining whether the system
+will suspend your job.</P>
+
+<H2><A NAME="1020998"></A>Submitting a Simple Job</H2>
+
+<P><A NAME="1020999"></A>You use the <TT>bsub</TT> command to submit a
+job to the system. The <TT>bsub</TT> command is a very complex program
+with many optional arguments. Some of the more important ones allow you
+to specify the input and output files used by your job, the hosts the job
+will run on, and the queue the job will run from.</P>
+
+<P><A NAME="1021302"></A>Each job has a name, a job ID, and a command to
+execute.</P>
+
+<PRE><A NAME="1021141"></A>bsub [options] [-J <I>job_name</I>] [command [argument ...]]</PRE>
+
+<P><A NAME="1021042"></A>The <I>job_name</I> is a string of text declared
+with the <TT>-J</TT> option. If the string contains blanks or special characters,
+it should be placed within quotes as well. When you submit the job to the
+system, a jobID is assigned and displayed. If you do not supply a name,
+the system uses a portion of the command name as the default job name.</P>
+
+<PRE><A NAME="1021566"></A>% <B>bsub -J JobSubmit find ~ -name core -atime +7 -exec rm {} \;
+</B>Job &lt;7491&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<P><A NAME="1021852"></A>Since this job is not associated with a calendar
+condition, it is a simple one-time job. To define a repetitive job, associate
+it with a calendar, or make it depend on another repetitive job.</P>
+
+<H3><A NAME="1021521"></A>Using <TT>xbsub</TT> to Submit a Job</H3>
+
+<P><A NAME="1021522"></A>You can also submit your job using the GUI application
+<TT>xbsub</TT> as shown in <A HREF="6-job-define.html#1021542">Figure 23</A>.</P>
+
+<H4><A NAME="1021542"></A>Figure 23. <TT>xbsub</TT> Job Submission Window
+</H4>
+
+<P><A HREF="pjs-figure23.gif"><IMG SRC="pjs-figure23.gif" ALT="xbsub Job Submission Window" BORDER=0 HEIGHT=344 WIDTH=351></A>
+</P>
+
+<H3><A NAME="1021523"></A>Queue Selection</H3>
+
+<P><A NAME="1021525"></A>When more than one queue is available, you need
+to decide which queue to use. If you submit a job without specifying a
+queue name, JobScheduler chooses a suitable queue as the default queue.
+</P>
+
+<H4><A NAME="1021056"></A>Specifying default queues</H4>
+
+<P><A NAME="1021057"></A>Use the <TT>bparams</TT> command to display the
+default queue: </P>
+
+<PRE><A NAME="1021869"></A>% <B>bparams
+</B>Default Queues: normal
+Job Dispatch Interval:  20 seconds
+Job Checking Interval: 80 seconds
+Job Accepting Interval:  20 seconds</PRE>
+
+<P><A NAME="1021873"></A>This command displays JobScheduler parameters
+configured by your cluster administrator</P>
+
+<P><A NAME="1021060"></A>You can override the default by defining the environment
+variable <TT>LSB_DEFAULTQUEUE</TT>.</P>
+
+<PRE><A NAME="1021353"></A>% <B>setenv LSB_DEFAULTQUEUE priority</B></PRE>
+
+<H4><A NAME="1021084"></A>Choosing a Queue</H4>
+
+<P><A NAME="1021085"></A>The default queue is normally suitable to run
+most jobs for the user. If you want to submit jobs to queues other than
+the default queue, you should choose the most suitable queue for each job.</P>
+
+<P><A NAME="1021086"></A>It is important that you choose the correct queue
+for your job. The factors affecting your decision are user access restrictions,
+size of the job, resource limits of the queue, scheduling priority of the
+queue, active time windows of the queue, hosts used by the queue, the scheduling
+load conditions, and the queue description. Use the <TT>bqueues</TT> command
+with the <TT>-l</TT> option to get this information. </P>
+
+<P><A NAME="1021088"></A>The <TT>-u <I>user_name</I></TT> option specifies
+a user or user group so that the <TT>bqueues</TT> command displays only
+the queues that accept jobs from these users.</P>
+
+<P><A NAME="1021089"></A>The <TT>-m <I>host_name</I></TT> option allows
+you to specify a host name or host group name so that the <TT>bqueues</TT>
+command displays only the queues that use these hosts to run jobs.</P>
+
+<P><A NAME="1021090"></A>You must also be sure that the queue is enabled.
+See <A HREF="5-environment.html#1022596">'Viewing the JobScheduler Queues'</A>
+for more information about <TT>bqueues</TT> command.</P>
+
+<P><A NAME="1021094"></A>The following examples are based on the queues
+defined in the default configuration. Your JobScheduler administrators
+may have configured different queues.</P>
+
+<UL>
+<LI><A NAME="1021098"></A>To run a job during off hours, you can submit
+it to the night queue. </LI>
+
+<PRE><A NAME="1021099"></A>% <B>bsub -q night -J NightWork command</B></PRE>
+
+<LI><A NAME="1021100"></A>If you have an urgent job to run, you can submit
+it to the priority queue. </LI>
+
+<PRE><A NAME="1021101"></A>% <B>bsub -q priority -J ImportantJob command</B></PRE>
+
+<LI><A NAME="1021103"></A>If you are running small jobs and do not want
+to wait too long to get the results, you can submit jobs to the short queue.
+These jobs are dispatched with higher priority. Make sure your jobs are
+short enough that they are not killed for exceeding the CPU time limit
+of the queue (check the resource limits of the queue, if any). </LI>
+
+<PRE><A NAME="1021380"></A>% <B>bsub -q short -J QuickJob command</B></PRE>
+</UL>
+
+<H3><A NAME="1021319"></A>Host Selection</H3>
+
+<P><A NAME="1021321"></A>If you want to restrict the set of candidate hosts
+for running your production job, use the <TT>-m</TT> option to the <TT>bsub</TT>
+command.</P>
+
+<PRE><A NAME="1021322"></A>% <B>bsub -q idle -m &quot;hostA hostD hostC&quot; -J hostSelect command</B></PRE>
+
+<P><A NAME="1021326"></A>This command submits your job to the idle queue
+and tells JobScheduler to choose one host from <I>hostA</I>, <I>hostD</I>,
+and <I>hostC</I> to run the job. All other scheduling conditions still
+apply---the selected host must be eligible to run the job. </P>
+
+<P><A NAME="1022671"></A>You can also specify your preference of hosts:</P>
+
+<PRE><A NAME="1022672"></A>% <B>bsub -q night -m &quot;hostA hostB+1 hostC+2&quot; -J prefHostJob command</B></PRE>
+
+<P><A NAME="1022673"></A>This tells JobScheduler that the job should be
+run <I>hostC</I> if it satisfies the requirements, otherwise run it on
+<I>hostB</I>. <I>hostA</I> should be used only if neither <I>hostC</I>
+or <I>hostB</I> can run the job. </P>
+
+<H3><A NAME="1021104"></A>Input and Output</H3>
+
+<P><A NAME="1021106"></A>When one of your jobs completes or exits, the
+system by default sends you a job report together with the job's standard
+output (<TT>stdout</TT>) and error output (<TT>stderr</TT>) by electronic
+mail. The output from <TT>stdout</TT> and <TT>stderr</TT> are merged together
+in the order they were printed, as if the job was run interactively. </P>
+
+<P><A NAME="1021108"></A>If you want mail sent to another e-mail address,
+specify the <TT>-u <I>username</I></TT> option to the <TT>bsub</TT> command.
+Mail associated with the job will be sent to the named user instead of
+to you.</P>
+
+<PRE><A NAME="1021391"></A>% <B>bsub -u user4 -J OtherUser command</B></PRE>
+
+<P><A NAME="1021109"></A>If you do not want output to be sent by mail,
+you can specify <TT>stdout</TT> and <TT>stderr</TT> files. You can also
+specify the standard input file if the job needs to read input from <TT>stdin</TT>.</P>
+
+<PRE><A NAME="1021110"></A>% <B>bsub -q night -i job_in -o job_out -e job_err -J FileJob command</B></PRE>
+
+<P><A NAME="1021111"></A>In the example, you submit your job to the night
+queue. The job reads its input from file <I>job_in</I>. Standard output
+is stored in file <I>job_out</I>, and standard error is stored in file
+<I>job_err</I>. If you specify the <TT>-o <I>outfile</I></TT> argument
+and do not specify the <TT>-e <I>errfile</I></TT> argument, the standard
+output and error are merged and stored in <I>outfile</I>.</P>
+
+<P><A NAME="1021112"></A>The output file created by the <TT>-o</TT> option
+normally contains job report information as well as the job output. This
+information includes the submitting user and host, the execution host,
+the CPU time used by the job, and the exit status. If you want to separate
+the job report information from the job output, use the <TT>-N</TT> option
+to specify that the job report information should be sent by email.</P>
+
+<PRE><A NAME="1021397"></A>% <B>bsub -N -o job_out -e job_err -J EmailReport command</B></PRE>
+
+<P><A NAME="1021113"></A>The output files specified by the <TT>-o</TT>
+and <TT>-e</TT> options are created on the execution host.</P>
+
+<H2><A NAME="1000466"></A>Submitting a Job with Dependencies</H2>
+
+<P><A NAME="1004624"></A>Many jobs in a production environment are operations
+in response to various events. Thus the scheduling of such jobs are dependent
+on specific events happening.</P>
+
+<P><A NAME="1021940"></A>Use the <TT>bsub</TT> command with the <TT>-w</TT>
+option to submit a job with dependencies to the system.</P>
+
+<PRE><A NAME="1006492"></A>bsub [-w depend_cond] [command [argument ...]]</PRE>
+
+<P><A NAME="1019832"></A>The dependency condition is specified with the
+<TT>-w</TT> option followed by one of the reserved keywords, an identifier,
+and logic operators. To prevent the shell from interpreting parentheses
+or any blank or special characters, the keyword, identifier, and any logical
+operators should be placed within quotes.</P>
+
+<H3><A NAME="1020088"></A>Calendar Dependencies</H3>
+
+<H4><A NAME="1020089"></A>Associating a Job with a User Calendar</H4>
+
+<P><A NAME="1004475"></A>You submit a calendar-driven job using the <TT>bsub</TT>
+command. The <TT>-w</TT> option is used with the calendar keyword to specify
+a calendar dependent job.</P>
+
+<PRE><A NAME="1000651"></A>% <B>bsub -w &quot;calendar(calName)&quot; -J jobName &lt;command&gt;</B></PRE>
+
+<P><A NAME="1004492"></A>To view the calendars on the system, use the <TT>bcal</TT>
+command.</P>
+
+<PRE><A NAME="1004495"></A>% <B>bcal
+</B>CALENDAR_NAME      OWNER      STATUS    DURATION         NEXT_EVENT_TIME
+Daily              SYS       inactive       -        Wed Dec 25 06:00:00 1996
+Holiday            SYS        active       56        Wed Jan 01 00:00:00 1997
+Midnight           SYS       inactive       -        Wed Dec 25 00:00:00 1996
+daily              user1     inactive       -        Wed Dec 25 08:00:00 1996
+hourly             user1      active        9        Tue Dec 24 16:00:00 1996
+complex            user1     inactive       -        Wed Dec 28 17:00:00 1996</PRE>
+
+<P><A NAME="1004498"></A>Select a calendar and submit your job.</P>
+
+<PRE><A NAME="1002037"></A>% <B>bsub -w &quot;calendar(hourly)&quot; -J diskcheck find ~ -name core -atime +7 \;
+-exec rm {} \;
+</B>Job &lt;7848&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<P><A NAME="1005008"></A>If none of the calendars available meet your needs,
+you can always create another calendar. See <A HREF="3-calendars.html#1006223">'Creating
+Calendars'</A>. Alternatively, you can use an anonymous calendar. See <A HREF="6-job-define.html#1000516">'Using
+an Anonymous Calendar'</A>.</P>
+
+<H4><A NAME="1020968"></A>Associating a Job with a System Calendar</H4>
+
+<P><A NAME="1020972"></A>System calendars are read-only calendars created
+by the JobScheduler administrators. They can be viewed by everybody. The
+system calendars can be used as normal calendars. You can use one of the
+system calendars to control your job by giving its name.</P>
+
+<PRE><A NAME="1020974"></A>% <B>bsub -w &quot;calendar(Daily)&quot; -J punch-clock set-clock</B></PRE>
+
+<P><A NAME="1020978"></A>See <A HREF="3-calendars.html#1003097">'System
+Calendars'</A> for details about system calendars.</P>
+
+<H4><A NAME="1004565"></A>Associating a Job with Another User's Calendar</H4>
+
+<P><A NAME="1004499"></A>If you want to use another user's calendar, use
+the <TT>-u all</TT> option of the <TT>bcal</TT> command to view all of
+the calendars on the system.</P>
+
+<PRE><A NAME="1004523"></A>% <B>bcal -u all
+</B>CALENDAR_NAME      OWNER      STATUS    DURATION         NEXT_EVENT_TIME
+Daily              SYS       inactive       -        Wed Dec 25 06:00:00 1996
+Holiday            SYS        active       44        Wed Jan 01 00:00:00 1997
+Midnight           SYS       inactive       -        Wed Dec 25 00:00:00 1996
+Holiday            SYS       inactive       -        Wed Dec 25 00:00:00 1996
+monthly            userA     inactive       -        Wed Jan 01 00:00:00 1997
+nextWeek           userA     inactive       -        Tue Dec 31 00:00:00 1996
+backup_time        userB      active       20        Tue Dec 24 17:45:00 1996
+daily              user1     inactive       -        Wed Dec 25 08:00:00 1996
+hourly             user1      active        7        Tue Dec 24 16:00:00 1996
+complex            user1     inactive       -        Wed Dec 25 17:00:00 1996</PRE>
+
+<P><A NAME="1004506"></A>To use the other user's calendar, you must use
+the syntax <TT><I>calName</I>@<I>userName</I></TT>.</P>
+
+<PRE><A NAME="1004543"></A>% <B>bsub -w &quot;calendar(monthly@userA)&quot; -J month-start reset-payroll
+</B>Job &lt;9214&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="1020983"></A><B>CAUTION!<BR>
+You should be aware that users may remove their calendars at any time.
+If your job depends on another user's calendar, it will not be scheduled
+if that user subsequently removes the calendar.</B></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="1000516"></A>Using an Anonymous Calendar</H4>
+
+<P><A NAME="1000485"></A>A special feature of the calendar dependency of
+the bsub command is the ability to create an anonymous calendar. Instead
+of placing a calendar name in the command, you type in a time expression
+(see <A HREF="3-calendars.html#999254">'Time Expression' </A>). To prevent
+the shell from interpreting special characters, the time expression should
+be placed within quotes.</P>
+
+<PRE><A NAME="1000654"></A>% <B>bsub -w &quot;calendar(*:*:*:23:30)&quot; cheque_run</B></PRE>
+
+<P><A NAME="1020991"></A>An anonymous calendar is local to the job. It
+is created when the job is submitted and is removed when the job is removed
+from the system. It cannot be used by other jobs.</P>
+
+<H3><A NAME="1006504"></A>Inter-job Dependencies</H3>
+
+<P><A NAME="1019646"></A>Some of your jobs depend on the results of other
+jobs. For example, a series of jobs could process time sheet data, calculate
+earnings and taxes, update the payroll and tax ledgers, and finally print
+the cheque run. Most steps can only be performed after the previous step
+completes.</P>
+
+<P><A NAME="1019944"></A>The prior jobs are identified by the <I>jobID</I>
+number or a job name. The <I>jobID</I> is assigned and displayed by the
+<TT>bsub</TT> command when the job is submitted. The job name is a string
+specified by the <TT>-J <I>jobName</I></TT> option. If you did not supply
+a name, the system uses the last 60 characters of the submitted command
+as the job name.</P>
+
+<P><A NAME="1020218"></A>While <I>jobID</I> may be used to specify the
+jobs of any user, the job name can only be used to specify your own jobs.
+If you submitted more than one job with the same job name, the last submitted
+job is assumed.</P>
+
+<P><A NAME="1019947"></A>A wildcard character '<TT>*</TT>' can be specified
+at the end of a job name to indicate all jobs matching the name. For example,
+<I>jobA*</I> will match <I>jobA</I>, <I>jobA1</I>, <I>jobA_test</I>, <I>jobA.log</I>,
+etc. There must be at least one match. If more than one job matches, it
+means your job depends on every one of the jobs.</P>
+
+<P><A NAME="1020283"></A>There are four prior job dependency conditions:
+<TT>started</TT>, <TT>done</TT>, <TT>exit</TT>, and <TT>ended</TT>. See
+<A HREF="4-events.html#1020641">'Prior Job Events'</A> for the definition
+of these events.</P>
+
+<P><A NAME="1019953"></A>Specifying only <I>jobID</I> or <I>jobName</I>
+is equivalent to <TT>done(jobID|jobName)</TT>.</P>
+
+<P><A NAME="1020308"></A>A numeric job name should be doubly quoted, for
+example <TT>-w &quot;'210'&quot;,</TT> since most UNIX shells treat <TT>-w
+&quot;210&quot;</TT> the same as <TT>-w 210</TT>.</P>
+
+<P><A NAME="1019954"></A>If any one of the conditional jobs is not found,
+the <TT>bsub</TT> command fails and the job is not submitted.</P>
+
+<P><A NAME="1005039"></A>If your job only requires that the prior job has
+started processing (and it does not matter if it has completed), use the
+<TT>started</TT> keyword.</P>
+
+<PRE><A NAME="1005105"></A>% <B>bsub -w &quot;started(first_job)&quot; -J second_job time_card</B></PRE>
+
+<P><A NAME="1005079"></A>If your job requires that the prior job finished
+successfully, use the keyword <TT>done</TT>.</P>
+
+<PRE><A NAME="1005094"></A>% <B>bsub -w &quot;done(pre_process)&quot; -J main_process cheque_run</B></PRE>
+
+<P><A NAME="1005081"></A>If your job depends on the prior job failing (for
+example, it is responsible for error recovery should the prior job terminate
+abnormally), use the keyword <TT>exit</TT>.</P>
+
+<PRE><A NAME="1005115"></A>% <B>bsub -w &quot;exit(main_process)&quot; -J error_recovery re_run</B></PRE>
+
+<P><A NAME="1005083"></A>When your job only requires that the prior job
+has finished, regardless of the success or failure (for example, the prior
+task may end successfully, but with a non-zero exit code), use the keyword
+<TT>ended</TT>.</P>
+
+<PRE><A NAME="1005125"></A>% <B>bsub -w &quot;ended(cheque_run)&quot; -J clean_up clean</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="1021970"></A><B>Note<BR>
+</B><I>If you submit a job that depends on a repetitive prior job, then
+the newly submitted job also becomes a repetitive job, that is, it will
+go to the </I><TT><A HREF="7-job-manage.html#1019658">PEND</A></TT><I>
+status after it completes a run instead of being removed from the system.</I></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="1020360"></A>Other Examples</H4>
+
+<P><A NAME="1020355"></A>The most simple inter-job dependency condition
+is a <I>jobID</I> or a job name.</P>
+
+<PRE><A NAME="1020365"></A>% <B>bsub -w 8195 jobB</B></PRE>
+
+<P><A NAME="1020397"></A>Your job may depend on a number of previous jobs.
+In the example following, the submitted job, dependent, will not start
+until job <I>312</I> has completed successfully, and either the job named
+<I>Job2</I> has started or the job named <I>Job3</I> has terminated abnormally.</P>
+
+<PRE><A NAME="1020356"></A>&amp; <B>bsub -w &quot;done(312) &amp;&amp; (started(Job2) || exit(Job3))&quot; -J dependent command</B></PRE>
+
+<P><A NAME="1020407"></A>The following submitted job will not start until
+either job <I>1532</I> has completed, the job named <I>jobName2</I> has
+completed, or all jobs with names beginning with <I>jobName3</I> have finished.</P>
+
+<PRE><A NAME="1020358"></A>% <B>bsub -w &quot;1532 || jobName2 || ended(jobName3*)&quot; -J NumberDepend command</B></PRE>
+
+<P><A NAME="1021974"></A>You can also use a combination of calendar dependency
+conditions and prior job dependency conditions:</P>
+
+<PRE><A NAME="1021975"></A>% <B>bsub -w &quot;done(1234) || calendar(weekly)&quot; backup_job</B></PRE>
+
+<H3><A NAME="1006112"></A>Pre-execution Commands</H3>
+
+<P><A NAME="1020410"></A>Some jobs require resources that JobScheduler
+does not directly support. For example, a job may need to reserve a tape
+drive or check for the availability of a software license.</P>
+
+<P><A NAME="1020490"></A>Along with the dependency conditions associated
+with prior jobs, bsub can also run pre-execution commands. You use the
+<TT>-E</TT> option to specify an arbitrary command to run before starting
+the main job. The pre-execution command is executed on the same host as
+the main job. If the pre-execution command runs successfully, the main
+job is started.</P>
+
+<P><A NAME="1020492"></A>The standard input, output and error files for
+the pre-execution command are opened to the same files as the job. Standard
+input and output from the pre-execution command cannot be redirected. </P>
+
+<P><A NAME="1020414"></A>The pre-execution command is run under the same
+user ID, environment, and home and working directories as the main job.
+If the pre-execution command is not in your normal execution path, the
+full path name of the command must be specified.</P>
+
+<P><A NAME="1020416"></A>The pre-execution command returns information
+to JobScheduler using its exit status. If the pre-execution command exits
+with non-zero status, the main job is not dispatched. The job goes back
+to the <TT><A HREF="7-job-manage.html#1019658">PEND</A></TT> state and
+is rescheduled later.</P>
+
+<P><A NAME="1020418"></A>The following example shows a job that requires
+a tape drive. The program <TT>tapecheck</TT> is a site specific program
+that exits with status zero if the specified tape drive is ready, and status
+one otherwise:</P>
+
+<PRE><A NAME="1020419"></A>% <B>bsub -E  &quot;/usr/local/bin/tapecheck /dev/rmt0l&quot; -w &quot;calendar(night)&quot; runTape</B></PRE>
+
+<P><A NAME="1022507"></A>The JobScheduler system assumes the pre-execution
+command can be run many times without having side effects. Therefore, you
+should be careful not to reserve the same resource (for example, if the
+pre-execution command reserves a software license) more than once for the
+same job.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1022511"></A><B>Note<BR>
+</B><I>An alternative to using the </I><TT>-E</TT><I> option is for the
+JobScheduler administrator to set up a queue level pre-execution command.
+See <A HREF="11-lsbatch-reference.html#17433">'Queue-Level Pre-/Post-Execution
+Commands'</A> in the <A HREF="admin-title.html">LSF Administrator's Guide</A>
+for more information. Another alternative is defining site specific events
+and using the External Event Daemon to validate your job (see <A HREF="6-job-define.html#1020582">'User
+Event Dependencies'</A>).</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="1021937"></A>File Event Dependencies</H3>
+
+<H4><A NAME="1021938"></A>Defining a Job Dependent on File Events</H4>
+
+<P><A NAME="1019635"></A>You may want a job to run after some file event
+has occurred. File events are submitted to the system using the <TT>file</TT>
+keyword.</P>
+
+<P><A NAME="1006221"></A>There are four file status functions defined:
+<TT>age</TT>, <TT>arrival</TT>, <TT>exist</TT>, and <TT>size</TT>. The
+definitions of these functions are described in <A HREF="4-events.html#1020203">'File
+Events'</A>.</P>
+
+<P><A NAME="1022004"></A>The <TT>age()</TT> function is typically used
+together with relational operators to form a logical expression which evaluates
+to either TRUE or FALSE:</P>
+
+<PRE><A NAME="1006450"></A>% <B>bsub -w &quot;file(age(/u/db/datafile) &gt; 4H)&quot; command</B></PRE>
+
+<P><A NAME="1022011"></A>This creates a job that runs when file <TT>/u/db/datafile</TT>
+is more than four hours old. Note that <TT>H</TT> here means hour. Other
+characters that you can use to represent a time duration include <TT>D</TT>
+(day) and <TT>W</TT> (week). The default is minute.</P>
+
+<P><A NAME="1021994"></A>If you intend to trigger the job execution by
+the creation of a file, use the <TT>arrival()</TT> function. This function
+detects the transition of the specified file from non-existence to existence.</P>
+
+<PRE><A NAME="1021995"></A>% <B>bsub -w &quot;file(arrival(/usr/data/newfile))&quot; -R &quot;type==hppa&quot; command</B></PRE>
+
+<P><A NAME="1022034"></A>This creates a job that runs when file <TT>newfile</TT>
+is detected in <TT>/usr/data</TT> directory. Also note that a resource
+requirement is specified so that this command should only be run on an
+<I>hppa</I> host.</P>
+
+<P><A NAME="1022035"></A>Unlike the <TT>age()</TT> function, the <TT>arrival()</TT>
+function does not need a relational operator because the function evaluates
+to either TRUE or FALSE.</P>
+
+<P><A NAME="1006443"></A>If you are only interested in the existence of
+the file instead of the transition of the creation, you can use the <TT>exist()</TT>
+function.</P>
+
+<PRE><A NAME="1022160"></A>% <B>bsub -w &quot;file(!exist(/usr/data/lock_file))&quot; command</B></PRE>
+
+<P><A NAME="1006434"></A>Use the function <TT>size()</TT> if you want to
+run a job when the size of the file becomes a certain value.</P>
+
+<PRE><A NAME="1007038"></A>% <B>bsub -w &quot;file(size(/var/adm/logs/log_file) &gt;= 3.5 M)&quot; command</B></PRE>
+
+<P><A NAME="1022068"></A>The character <TT>M</TT> refers to megabytes.
+You could also use <TT>K</TT> to refer to kilobytes. The default is bytes.
+Like the <TT>age()</TT> function, the <TT>size()</TT> function also requires
+a relational operator to form a logical expression that evaluates to either
+TRUE or FALSE.</P>
+
+<P><A NAME="1021413"></A>The file event you are depending on may be on
+another host. </P>
+
+<PRE><A NAME="1021414"></A>% <B>bsub -w &quot;file(exist(hostD:/usr/local/fileA))&quot; command</B></PRE>
+
+<P><A NAME="1007039"></A>You can submit a combination of functions. The
+evaluation of the statement depends on the operators you use. In the following
+statement, the command will be run if either <I>fileA</I> exists or <I>fileB</I>
+arrives (is created).</P>
+
+<PRE><A NAME="1006150"></A>% <B>bsub -w &quot;file(exist(/usr/data/fileA) || arrival(/usr/data/fileB))&quot; command</B></PRE>
+
+<P><A NAME="1006154"></A>The following statement will evaluate to TRUE
+only if <I>fileA</I> exists and <I>fileB</I> has arrived.</P>
+
+<PRE><A NAME="1021422"></A>% <B>bsub -w &quot;file(exist(/usr/data/fileA) &amp;&amp; arrival(/usr/data/fileB))&quot; command</B></PRE>
+
+<P><A NAME="1021431"></A>The following command will be run if <I>fileA</I>
+exists and its size is greater than or equal to 1MB.</P>
+
+<PRE><A NAME="1021424"></A>% <B>bsub -w &quot;file(exist(/usr/data/fileA) &amp;&amp; size(/usr/data/fileA) &gt;= 1M)&quot; command</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="1021921"></A><B>Note<BR>
+</B><I>You must specify absolute path name of the file in a file status
+function.</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="1020582"></A>User Event Dependencies</H3>
+
+<H4><A NAME="1006036"></A>Creating a Job Dependent on User Events</H4>
+
+<P><A NAME="1006838"></A>User events are created to the system when submitting
+a job using the <TT>event</TT> keyword. For example, you want to define
+a user event to detect the status of a tape device before a backup job
+starts. If the status of the tape device is READY, the event becomes TRUE,
+otherwise it is always FALSE. You can submit the following command:</P>
+
+<PRE><A NAME="1006466"></A>% <B>bsub -w &quot;event(tape_ready)&quot; BackUp</B></PRE>
+
+<P><A NAME="1006467"></A>A user event, <TT>tape_ready</TT>, is created
+by the system. The string <TT>&quot;tape_ready&quot;</TT> is then passed
+to the External Event Daemon (<TT>eeventd</TT>). The <TT>eeventd</TT> must
+be able to associate the event string passed to it with the actual device
+or event you are dependent on.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1022415"></A><B>Note<BR>
+</B><I>The External Event Daemon (</I><TT>eeventd</TT><I>) is a site-specific
+daemon that is customized and installed by the JobScheduler administrators.
+See <A HREF="08-jobscheduler.html#11265">'External Event Management'</A>
+in the <A HREF="admin-title.html">LSF Administrator's Guide</A>.</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="1021614"></A>Checking External Event Status</H3>
+
+<P><A NAME="1022139"></A>File events and user events are handled by the
+External Event Daemon (<TT>eeventd</TT>). You can use the <TT>bevents</TT>
+command to check the status of external events:</P>
+
+<PRE><A NAME="1022200"></A>% <B>bevents
+</B>EVENT               OWNER   STATUS   SOURCE   ATTRIBUTE       LAST_UPDATE
+age(/tmp/core)&gt;1H   user1   inactive  file        -      Dec 21 12:36:04 1996
+exist(/var/adm/log) user1    active   file        -      Dec 21 12:38:34 1996
+tape_ready          user1   inactive  user    Tape122    Dec 21 12:39:26 1996
+arrival(myfile)     user1   invalid   file    syntax e   Dec 21 12:39:26 1996</PRE>
+
+<P><A NAME="1022728"></A>The status of events are updated by <TT>eeventd</TT>.
+If the event specified by the user contains anything that the <TT>eeventd</TT>
+cannot understand, the event will be marked as invalid. An invalid event
+always evaluates to FALSE. In the above example, the last event is invalid
+because an absolute pathname is not specified for a file event. </P>
+
+<H3><A NAME="1000499"></A>Defining a Job Dependent on a Combination of
+Conditions</H3>
+
+<P><A NAME="1007059"></A>You can submit a combination of conditions. The
+evaluation of the statement depends on the operators you use.</P>
+
+<PRE><A NAME="1007060"></A>% <B>bsub -w &quot;done(jobA) &amp;&amp; file(exist(fileA)) || calendar(calA)&quot; -J jobB command</B></PRE>
+
+<P><A NAME="1007061"></A>The above statement will evaluate to TRUE if <I>jobA</I>
+has completed successfully and <I>fileA</I> exists or if <I>calA</I> is
+active.</P>
+
+<H3><A NAME="1021472"></A>Synchronizing Dependent Jobs</H3>
+
+<P><A NAME="1021473"></A>You can synchronize jobs by running the first
+job from a calendar and submitting the second job to be dependent on the
+successful completion of the first.</P>
+
+<PRE><A NAME="1021474"></A>% <B>bsub -w &quot;calendar(daily)&quot; -J jobA command
+</B>Job &lt;8085&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<PRE><A NAME="1021475"></A>% <B>bsub -w &quot;done(jobA)&quot; -J jobB command
+</B>Job &lt;8086&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<P><A NAME="1022232"></A>In the above example, <I>jobB</I> will be run
+every time <I>jobA</I> completes successfully. Since <I>jobA</I> is a repetitive
+job, <I>jobB</I> also becomes repetitive because of the dependency. If
+<I>jobA</I> is modified to follow a different calendar, <I>jobB</I> will
+still run after <I>jobA</I>.</P>
+
+<H2><A NAME="1020670"></A>Grouping Related Jobs</H2>
+
+<P><A NAME="1020671"></A>You can associate a set of jobs as a group, and
+treat them as a single job. Assign a <I>job_name</I> to one or more jobs
+at submission time, and later use the <I>job_name</I> to refer to the jobs
+as a group.</P>
+
+<PRE><A NAME="1020672"></A>% <B>bsub -w &quot;calendar(daily)&quot; -J job_group jobA
+</B>Job &lt;8315&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<PRE><A NAME="1020673"></A>% <B>bsub -w &quot;file(size(fileA) &gt;= 2M)&quot; -J job_group jobB
+</B>Job &lt;8316&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<PRE><A NAME="1020674"></A>% <B>bsub -w &quot;done(pre_process)&quot; -J job_group jobC
+</B>Job &lt;8318&gt; is submitted to default queue &lt;default&gt;.</PRE>
+
+<P><A NAME="1020713"></A>See <A HREF="7-job-manage.html#1020662">'Managing
+Related Jobs'</A> to learn how to refer to your jobs as a group.</P>
+
+<P>
+<HR><A HREF="pjs-contents.html">[Contents]</A> <A HREF="5-environment.html">[Prev]</A>
+<A HREF="7-job-manage.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

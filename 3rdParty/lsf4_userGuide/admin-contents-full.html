@@ -1,0 +1,992 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Detailed Contents</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-title.html">[Title]</A> <A HREF="admin-legal.html">[Prev]</A>
+<A HREF="admin-contents.html">[Contents]</A> <A HREF="admin-figures.html">[Next]</A>
+<A HREF="f-new-features.html">[End]</A> 
+<HR></P>
+
+<H1><A NAME="140"></A>Contents</H1>
+
+<P>
+<HR></P>
+
+<H4><A HREF="admin-figures.html#61">Figures </A></H4>
+
+<H4><A HREF="admin-tables.html#61">Tables </A></H4>
+
+<H4><A HREF="admin-preface.html#54">Preface </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="admin-preface.html#788">Audience </A></DD>
+
+<DD><A HREF="admin-preface.html#803">Organization </A></DD>
+
+<DD><A HREF="admin-preface.html#4393">Related Documents </A></DD>
+
+<DD><A HREF="admin-preface.html#4355">Technical Assistance </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="01-pre-installation.html#13160">1. Before Installation </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="01-pre-installation.html#12449">LSF Packaging and Licensing
+</A></DD>
+
+<DD><A HREF="01-pre-installation.html#2805">System Requirements </A></DD>
+
+<DL>
+<DD><A HREF="01-pre-installation.html#470">Hardware and Software Requirements
+</A></DD>
+
+<DD><A HREF="01-pre-installation.html#501">Disk Space Requirements </A></DD>
+</DL>
+
+<DD><A HREF="01-pre-installation.html#2841">Obtaining a Software License
+</A></DD>
+
+<DD><A HREF="01-pre-installation.html#2870">Choosing Hosts for the Cluster
+</A></DD>
+
+<DD><A HREF="01-pre-installation.html#4539">LSF Client and Server Hosts
+</A></DD>
+
+<DD><A HREF="01-pre-installation.html#3926">Planning the Installation </A></DD>
+
+<DL>
+<DD><A HREF="01-pre-installation.html#12654">Choose Components </A></DD>
+
+<DD><A HREF="01-pre-installation.html#5239">Mixed Clusters </A></DD>
+
+<DD><A HREF="01-pre-installation.html#6975">Naming the LSF Cluster </A></DD>
+
+<DD><A HREF="01-pre-installation.html#3936">Choosing the Primary LSF Administrator
+</A></DD>
+
+<DD><A HREF="01-pre-installation.html#3942">Choosing the Installation Directories
+</A></DD>
+</DL>
+
+<DD><A HREF="01-pre-installation.html#9872">Directory Structure for Mixed
+Clusters </A></DD>
+
+<DL>
+<DD><A HREF="01-pre-installation.html#4273">Directory Structure </A></DD>
+</DL>
+
+<DD><A HREF="01-pre-installation.html#4490">Backing Up the System Disk
+</A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="02-installation.html#6969">2. Installation </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="02-installation.html#8327">Overview </A></DD>
+
+<DL>
+<DD><A HREF="02-installation.html#17559">Privileges Needed for Installation
+</A></DD>
+</DL>
+
+<DD><A HREF="02-installation.html#8262">Reading the Distribution Medium
+</A></DD>
+
+<DL>
+<DD><A HREF="02-installation.html#17292">Loading LSF From a Tape </A></DD>
+
+<DD><A HREF="02-installation.html#29091">Uncompressing a Compressed Tar
+File </A></DD>
+</DL>
+
+<DD><A HREF="02-installation.html#17879">Getting a License Key </A></DD>
+
+<DD><A HREF="02-installation.html#47261">Exporting the <TT>/usr/local/lsf/mnt</TT>
+Directory </A></DD>
+
+<DD><A HREF="02-installation.html#8064">Installing LSF with <TT>lsfsetup</TT>
+</A></DD>
+
+<DL>
+<DD><A HREF="02-installation.html#28453">Installing the First Host Type
+</A></DD>
+
+<DD><A HREF="02-installation.html#18725">Installing Each Additional Host
+Type </A></DD>
+
+<DD><A HREF="02-installation.html#28738">Additional Steps on Each LSF Server
+Host </A></DD>
+</DL>
+
+<DD><A HREF="02-installation.html#10750">Installing on AFS </A></DD>
+
+<DL>
+<DD><A HREF="02-installation.html#32081">Installing the LSF AFS Distribution
+</A></DD>
+
+<DD><A HREF="02-installation.html#32470">AFS Token Encryption </A></DD>
+
+<DD><A HREF="02-installation.html#34494">AFS Token Renewal Kit </A></DD>
+</DL>
+
+<DD><A HREF="02-installation.html#37631">Installing on DCE/DFS </A></DD>
+
+<DL>
+<DD><A HREF="02-installation.html#38244">Installing the LSF DCE Distribution
+</A></DD>
+
+<DD><A HREF="02-installation.html#38283">Credential Encryption </A></DD>
+</DL>
+
+<DD><A HREF="02-installation.html#7905">Upgrading From a Previous Version
+</A></DD>
+
+<DD><A HREF="02-installation.html#15422">Registering LSF Service Ports
+</A></DD>
+
+<DL>
+<DD><A HREF="02-installation.html#15453">NIS Services Database </A></DD>
+
+<DD><A HREF="02-installation.html#15462">Configuring Services in <TT>lsf.conf</TT>
+</A></DD>
+</DL>
+
+<DD><A HREF="02-installation.html#23173">Registering NQS Service </A></DD>
+
+<DD><A HREF="02-installation.html#20997">Starting LSF Servers at Boot Time
+</A></DD>
+
+<DD><A HREF="02-installation.html#48324">Licensing the Different LSF Components
+</A></DD>
+
+<DD><A HREF="02-installation.html#29979">Getting License Key Information
+</A></DD>
+
+<DD><A HREF="02-installation.html#30006">Setting Up the License Key </A></DD>
+
+<DL>
+<DD><A HREF="02-installation.html#30027">Installing a DEMO License </A></DD>
+
+<DD><A HREF="02-installation.html#30051">Installing a New Permanent License
+</A></DD>
+
+<DD><A HREF="02-installation.html#30078">Starting the License Server Daemons
+at Boot Time </A></DD>
+
+<DD><A HREF="02-installation.html#30100">Adding a Permanent License </A></DD>
+</DL>
+</DL>
+</DL>
+
+<H4><A HREF="04-configure-lsf.html#22856">3. Configuring LSF Cluster </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="04-configure-lsf.html#19007">Initial Configuration </A></DD>
+
+<DD><A HREF="04-configure-lsf.html#22881">Setting Up LSF Client Hosts </A></DD>
+
+<DD><A HREF="04-configure-lsf.html#22940">Checking the LSF Configuration
+</A></DD>
+
+<DD><A HREF="04-configure-lsf.html#8111">Testing the LSF Cluster </A></DD>
+
+<DL>
+<DD><A HREF="04-configure-lsf.html#562">Testing LIM </A></DD>
+
+<DD><A HREF="04-configure-lsf.html#623">Testing RES </A></DD>
+
+<DD><A HREF="04-configure-lsf.html#22803">Testing LSF Batch </A></DD>
+</DL>
+
+<DD><A HREF="04-configure-lsf.html#23117">Configuring LSF MultiCluster
+</A></DD>
+
+<DD><A HREF="04-configure-lsf.html#23166">Configuring LSF JobScheduler
+</A></DD>
+
+<DD><A HREF="04-configure-lsf.html#23083">Providing LSF to Users </A></DD>
+
+<DD><A HREF="04-configure-lsf.html#23180">Using <TT>xlsadmin</TT> </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="03-concepts.html#222">4. LSF Concepts </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="03-concepts.html#3191">Definitions </A></DD>
+
+<DL>
+<DD><A HREF="03-concepts.html#24804">LSF Product Suite </A></DD>
+
+<DD><A HREF="03-concepts.html#3193">Jobs, Tasks, and Commands </A></DD>
+
+<DD><A HREF="03-concepts.html#3199">Hosts, Machines, and Computers </A></DD>
+
+<DD><A HREF="03-concepts.html#24801">Clusters </A></DD>
+
+<DD><A HREF="03-concepts.html#3211">Local and Remote Hosts </A></DD>
+
+<DD><A HREF="03-concepts.html#3217">Submission, Master, and Execution Hosts
+</A></DD>
+</DL>
+
+<DD><A HREF="03-concepts.html#3741">Fault Tolerance </A></DD>
+
+<DD><A HREF="03-concepts.html#3246">Shared Directories and Files </A></DD>
+
+<DL>
+<DD><A HREF="03-concepts.html#3252">Shared User Directories </A></DD>
+
+<DD><A HREF="03-concepts.html#3256">Executables and the <TT>PATH</TT> Environment
+Variable </A></DD>
+</DL>
+
+<DD><A HREF="03-concepts.html#3278">Using LSF without Shared File Systems
+</A></DD>
+
+<DD><A HREF="03-concepts.html#4814">Resource Requirements </A></DD>
+
+<DD><A HREF="03-concepts.html#3293">Host Naming </A></DD>
+
+<DL>
+<DD><A HREF="03-concepts.html#3313">Hosts with Multiple Addresses </A></DD>
+</DL>
+
+<DD><A HREF="03-concepts.html#3353">Remote Execution Control </A></DD>
+
+<DL>
+<DD><A HREF="03-concepts.html#3356">User Authentication Methods </A></DD>
+
+<DD><A HREF="03-concepts.html#3362">Authentication using Privileged Ports
+</A></DD>
+
+<DD><A HREF="03-concepts.html#3368">Authentication using Identification
+Daemons </A></DD>
+
+<DD><A HREF="03-concepts.html#16037">External Authentication </A></DD>
+
+<DD><A HREF="03-concepts.html#5245">Security of LSF Authentication </A></DD>
+
+<DD><A HREF="03-concepts.html#3379">How LSF Chooses Authentication Methods
+</A></DD>
+
+<DD><A HREF="03-concepts.html#3384">Remote Execution Permission </A></DD>
+
+<DD><A HREF="03-concepts.html#24789">User Account Mapping </A></DD>
+
+<DD><A HREF="03-concepts.html#26220">Job Starter </A></DD>
+</DL>
+
+<DD><A HREF="03-concepts.html#24799">Load Sharing with LSF Base </A></DD>
+
+<DD><A HREF="03-concepts.html#3453">Time Windows </A></DD>
+
+<DD><A HREF="03-concepts.html#26170">How LSF Batch Schedules Jobs </A></DD>
+
+<DL>
+<DD><A HREF="03-concepts.html#3468">Job States </A></DD>
+
+<DD><A HREF="03-concepts.html#3511">Eligible Hosts </A></DD>
+
+<DD><A HREF="03-concepts.html#26166">Dispatch Windows </A></DD>
+
+<DD><A HREF="03-concepts.html#11540">Run Windows </A></DD>
+
+<DD><A HREF="03-concepts.html#26246">Resource Requirements </A></DD>
+
+<DD><A HREF="03-concepts.html#3518">Host Lists </A></DD>
+
+<DD><A HREF="03-concepts.html#3523">Host Load Levels </A></DD>
+
+<DD><A HREF="03-concepts.html#3532">Order of Job Dispatching </A></DD>
+
+<DD><A HREF="03-concepts.html#3544">Job Slot Limits </A></DD>
+
+<DD><A HREF="03-concepts.html#3547">User Job Slot Limits </A></DD>
+
+<DD><A HREF="03-concepts.html#23349">Host Job Slot Limits </A></DD>
+
+<DD><A HREF="03-concepts.html#24114">Queue Job Slot Limits </A></DD>
+
+<DD><A HREF="03-concepts.html#26260">Resource Limits and Resource Usage
+</A></DD>
+
+<DD><A HREF="03-concepts.html#24125">Scheduling Policy </A></DD>
+
+<DD><A HREF="03-concepts.html#3595">Suspending Jobs </A></DD>
+
+<DD><A HREF="03-concepts.html#3603">Resuming Suspended Jobs </A></DD>
+
+<DD><A HREF="03-concepts.html#26255">User Suspended Jobs </A></DD>
+
+<DD><A HREF="03-concepts.html#24764">Interactive Batch Job Support </A></DD>
+</DL>
+
+<DD><A HREF="03-concepts.html#3613">Pre- and Post-execution Commands </A></DD>
+
+<DD><A HREF="03-concepts.html#3625">Checkpointing and Migration </A></DD>
+
+<DL>
+<DD><A HREF="03-concepts.html#3645">Job Migration </A></DD>
+</DL>
+
+<DD><A HREF="03-concepts.html#25872">Job Control Actions </A></DD>
+
+<DD><A HREF="03-concepts.html#25959">Resource Reservation </A></DD>
+
+<DD><A HREF="03-concepts.html#25988">Processor Reservation </A></DD>
+
+<DD><A HREF="03-concepts.html#26018">Remote File Access </A></DD>
+
+<DD><A HREF="03-concepts.html#26031">Job Requeue </A></DD>
+
+<DD><A HREF="03-concepts.html#14211">External Submission and Execution
+Executables </A></DD>
+
+<DD><A HREF="03-concepts.html#26099">External Events and <TT>eeventd</TT>
+</A></DD>
+
+<DD><A HREF="03-concepts.html#26109">External Load Indices and ELIM </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="05-manage-lsf.html#10606">5. Managing LSF Base </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="05-manage-lsf.html#11523">Managing Error Logs </A></DD>
+
+<DL>
+<DD><A HREF="05-manage-lsf.html#11531">LSF Daemon Error Log </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#11555">FLEXlm Log </A></DD>
+</DL>
+
+<DD><A HREF="05-manage-lsf.html#6789">Controlling LIM and RES Daemons </A></DD>
+
+<DL>
+<DD><A HREF="05-manage-lsf.html#724">Checking Host Status </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#931">Restarting LIM and RES </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#33210">Remote Startup of LIM and RES </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#932">Shutting down LIM and RES </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#33851">Locking and Unlocking Hosts </A></DD>
+</DL>
+
+<DD><A HREF="05-manage-lsf.html#33922">Managing LSF Configuration </A></DD>
+
+<DL>
+<DD><A HREF="05-manage-lsf.html#33923">Overview of LSF Configuration Files
+</A></DD>
+
+<DD><A HREF="05-manage-lsf.html#33921">Configuration File Formats </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#34131">Example Configuration Files </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#23513">Changing LIM Configuration </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#36278">Reconfiguring an LSF Cluster </A></DD>
+</DL>
+
+<DD><A HREF="05-manage-lsf.html#35412">External Load Indices </A></DD>
+
+<DL>
+<DD><A HREF="05-manage-lsf.html#35419">Writing an External LIM </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#35439">Configuring External Load Indices
+</A></DD>
+
+<DD><A HREF="05-manage-lsf.html#35455">Overriding Built-In Load Indices
+</A></DD>
+</DL>
+
+<DD><A HREF="05-manage-lsf.html#6809">LIM Policies </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#378">Tuning CPU Factors </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#383">Tuning LIM Load Thresholds </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#35639">Cluster Monitoring with LSF </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#6884">LSF License Management </A></DD>
+
+<DL>
+<DD><A HREF="05-manage-lsf.html#486">How FLEXlm Works </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#458">Updating an LSF License </A></DD>
+
+<DD><A HREF="05-manage-lsf.html#32760">Changing the FLEXlm Server TCP Port
+</A></DD>
+
+<DD><A HREF="05-manage-lsf.html#33380">Modifying LSF Components and Licensing
+</A></DD>
+</DL>
+</DL>
+</DL>
+
+<H4><A HREF="07-manage-lsbatch.html#1283">6. Managing LSF Batch </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#4606">Managing LSF Batch Logs </A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#14026">LSF Batch Accounting Log </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14040">LSF Batch Event Log </A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#13996">Controlling LSF Batch Servers
+</A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#14163">LSF Batch System Status </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14643">Remote Start-up of <TT>sbatchd</TT>
+</A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#7840">Restarting <TT>sbatchd</TT> </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14710">Shutting Down LSF Batch Daemons
+</A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14647">Opening and Closing of Batch
+Server Hosts </A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#14817">Controlling LSF Batch Queues
+</A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#14823"><TT>bqueues</TT> - Queue Status
+</A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14826">Opening and Closing Queues </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14833">Activating and Inactivating
+Queues </A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#7864">Managing LSF Batch Configuration
+</A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#14744">Adding a Batch Server Host </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14736">Removing a Batch Server Host
+</A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14890">Adding a Batch Queue </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#14912">Removing a Batch Queue </A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#3947">Controlling LSF Batch Jobs </A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#2991">Moving Jobs - <TT>bswitch</TT>,
+<TT>btop</TT>, and <TT>bbot</TT> </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#9502">Signalling Jobs - <TT>bstop</TT>,
+<TT>bresume</TT>, and <TT>bkill</TT> </A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#14987">Tuning LSF Batch </A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#15008">Controlling Interference via
+Load Conditions </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#424">Understanding Suspended Jobs </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#5356">Controlling Fairshare </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15583">Dispatch and Run Windows </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15593">Controlling Job Slot Limits
+</A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15997">Resource Reservation </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#16036">Processor Reservation </A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#15623">Controlling Job Execution Environment
+</A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#15854">Understanding Job Execution
+Environment </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15625"><TT>NICE</TT> Value </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15877">Resource Limits </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15634">Pre-execution and Post-execution
+commands </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15643">Using A Job Starter </A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#15704">Using Licensed Software with
+LSF Batch </A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#15711">Host Locked Licenses </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15724">Host Locked Counted Licenses
+</A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#15747">Floating Licenses </A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#15540">Example LSF Batch Configuration
+Files </A></DD>
+
+<DL>
+<DD><A HREF="07-manage-lsbatch.html#15991">Example Queues </A></DD>
+
+<DD><A HREF="07-manage-lsbatch.html#16125">Example <TT>lsb.hosts</TT> file
+</A></DD>
+</DL>
+
+<DD><A HREF="07-manage-lsbatch.html#16208">Managing LSF Cluster Using <TT>xlsadmin</TT>
+</A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="08-jobscheduler.html#9953">7. Managing LSF JobScheduler </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="08-jobscheduler.html#11253">System Calendars </A></DD>
+
+<DD><A HREF="08-jobscheduler.html#11265">External Event Management </A></DD>
+
+<DL>
+<DD><A HREF="08-jobscheduler.html#11272">The <TT>EEVENTD</TT> Protocol
+</A></DD>
+</DL>
+
+<DD><A HREF="08-jobscheduler.html#11324">File Event Handling </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="09-multicluster.html#9953">8. Managing LSF MultiCluster </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="09-multicluster.html#11650">What is LSF MultiCluster? </A></DD>
+
+<DL>
+<DD><A HREF="09-multicluster.html#12280">Creating a New Cluster </A></DD>
+
+<DD><A HREF="09-multicluster.html#11236">The <TT>lsf.shared</TT> File </A></DD>
+
+<DD><A HREF="09-multicluster.html#11850">The <TT>lsf.cluster.<I>cluster</I></TT>
+File </A></DD>
+
+<DD><A HREF="09-multicluster.html#11264">Root Access </A></DD>
+</DL>
+
+<DD><A HREF="09-multicluster.html#11270">LSF Batch Configuration </A></DD>
+
+<DD><A HREF="09-multicluster.html#11285">Inter-cluster Load and Host Information
+Sharing </A></DD>
+
+<DD><A HREF="09-multicluster.html#11292">Running Interactive Jobs on Remote
+Clusters </A></DD>
+
+<DD><A HREF="09-multicluster.html#11308">Distributing Batch Jobs across
+Clusters </A></DD>
+
+<DD><A HREF="09-multicluster.html#11331">Account Mapping Between Clusters
+</A></DD>
+
+<DL>
+<DD><A HREF="09-multicluster.html#11361">User Level Account Mapping </A></DD>
+</DL>
+</DL>
+</DL>
+
+<H4><A HREF="10-lsf-reference.html#9953">9. LSF Base Configuration Reference
+</A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="10-lsf-reference.html#2702">The <TT>lsf.conf</TT> File </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#2744">The <TT>lsf.shared</TT> File </A></DD>
+
+<DL>
+<DD><A HREF="10-lsf-reference.html#220">Clusters </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#232">Host Types </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#236">Host Models </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#247">Resources </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#234">External Load Indices </A></DD>
+</DL>
+
+<DD><A HREF="10-lsf-reference.html#2717">The <TT>lsf.cluster.<I>cluster</I></TT>
+File </A></DD>
+
+<DL>
+<DD><A HREF="10-lsf-reference.html#267"><TT>Parameters</TT> </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#1967">LSF Administrators </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#277">Hosts </A></DD>
+</DL>
+
+<DD><A HREF="10-lsf-reference.html#2757">The <TT>lsf.task</TT> and <TT>lsf.task.<I>cluster</I></TT>
+Files </A></DD>
+
+<DL>
+<DD><A HREF="10-lsf-reference.html#328">Local Tasks </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#330">Remote Tasks </A></DD>
+</DL>
+
+<DD><A HREF="10-lsf-reference.html#2784">The <TT>hosts</TT> File </A></DD>
+
+<DD><A HREF="10-lsf-reference.html#12839">The <TT>lsf.sudoers</TT> File
+</A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="11-lsbatch-reference.html#154">10. LSF Batch Configuration
+Reference </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="11-lsbatch-reference.html#23026">The <TT>lsb.params</TT> File
+</A></DD>
+
+<DL>
+<DD><A HREF="11-lsbatch-reference.html#9925">Parameters </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#7030">Handling Cray NQS Incompatibilities
+</A></DD>
+</DL>
+
+<DD><A HREF="11-lsbatch-reference.html#1492">The <TT>lsb.users</TT> File
+</A></DD>
+
+<DL>
+<DD><A HREF="11-lsbatch-reference.html#9180">UNIX User Groups </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#173">LSF Batch User Groups </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#146">User and Group Job Slot Limits
+</A></DD>
+</DL>
+
+<DD><A HREF="11-lsbatch-reference.html#1509">The <TT>lsb.hosts</TT> File
+</A></DD>
+
+<DL>
+<DD><A HREF="11-lsbatch-reference.html#186">Host Section </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#203">Host Groups </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#212">Host Partitions </A></DD>
+</DL>
+
+<DD><A HREF="11-lsbatch-reference.html#1523">The <TT>lsb.queues</TT> File
+</A></DD>
+
+<DL>
+<DD><A HREF="11-lsbatch-reference.html#182">General Parameters </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#22681">Processor Reservation for
+Parallel Jobs </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#22288">Flexible Expressions for
+Queue Scheduling </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#239">Load Thresholds </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#249">Resource Limits </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#24393">Eligible Hosts and Users
+</A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#7474">Scheduling Policy </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#265">Migration </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#17433">Queue-Level Pre-/Post-Execution
+Commands </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#22340">Job Starter </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#23743">Configurable Job Control
+Actions </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#17822">Automatic Job Requeue </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#22705">Exclusive Job Requeue </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#17418">Default Host Specification
+for CPU Speed Scaling </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#6942">NQS Forward Queues </A></DD>
+</DL>
+
+<DD><A HREF="11-lsbatch-reference.html#6855">The <TT>lsb.nqsmaps</TT> File
+</A></DD>
+
+<DL>
+<DD><A HREF="11-lsbatch-reference.html#14558">Hosts </A></DD>
+
+<DD><A HREF="11-lsbatch-reference.html#15773">Users </A></DD>
+</DL>
+</DL>
+</DL>
+
+<H4><A HREF="a-troubleshooting.html#6199">A. Troubleshooting and Error
+Messages </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="a-troubleshooting.html#1659">Error Log Messages </A></DD>
+
+<DL>
+<DD><A HREF="a-troubleshooting.html#7010">Finding the Error Logs </A></DD>
+</DL>
+
+<DD><A HREF="a-troubleshooting.html#1671">Shared File Access </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#1685">Common LSF Problems </A></DD>
+
+<DL>
+<DD><A HREF="a-troubleshooting.html#134">LIM Dies Quietly </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#164">LIM Unavailable </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#168">RES Does Not Start </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#170">User Permission Denied </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#6409">Non-uniform File Name Space </A></DD>
+</DL>
+
+<DD><A HREF="a-troubleshooting.html#1699">Common LSF Batch Problems </A></DD>
+
+<DL>
+<DD><A HREF="a-troubleshooting.html#184">Batch Daemons Die Quietly </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#188"><TT>sbatchd</TT> Starts But <TT>mbatchd</TT>
+Does Not </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#190"><TT>sbatchd: unknown service</TT>
+</A></DD>
+
+<DD><A HREF="a-troubleshooting.html#196">Host Not Used By LSF Batch </A></DD>
+</DL>
+
+<DD><A HREF="a-troubleshooting.html#6208">Error Messages </A></DD>
+
+<DL>
+<DD><A HREF="a-troubleshooting.html#6211">General Errors </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#6240">Configuration Errors </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#6271">LIM Messages </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#6956">RES Messages </A></DD>
+
+<DD><A HREF="a-troubleshooting.html#6314">LSF Batch Messages </A></DD>
+</DL>
+</DL>
+</DL>
+
+<H4><A HREF="b-sample-install.html#1074">B. Sample Installations </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="b-sample-install.html#5787">Install for the First Time </A></DD>
+
+<DD><A HREF="b-sample-install.html#5333">Getting License Key Information
+</A></DD>
+
+<DD><A HREF="b-sample-install.html#5400">Installing a Permanent License
+</A></DD>
+
+<DD><A HREF="b-sample-install.html#5425">Setting Up a Host </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="c-directories.html#1022">C. LSF Directories </A></H4>
+
+<H4><A HREF="d-systems.html#1074">D. Sample System Support </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="d-systems.html#7040">IRIX 6 Processor Sets </A></DD>
+
+<DL>
+<DD><A HREF="d-systems.html#5901">Time-Based Processor Allocation </A></DD>
+
+<DD><A HREF="d-systems.html#10060">User-Based Processor Allocation </A></DD>
+
+<DD><A HREF="d-systems.html#5453">Other Situations </A></DD>
+</DL>
+
+<DD><A HREF="d-systems.html#6499">IBM SP-2 Support </A></DD>
+
+<DD><A HREF="d-systems.html#9986">Support for HP Exemplar Technical Servers
+</A></DD>
+
+<DL>
+<DD><A HREF="d-systems.html#10008">Adding Load Indices Definitions </A></DD>
+
+<DD><A HREF="d-systems.html#10020">Adding Queue Definitions </A></DD>
+</DL>
+
+<DD><A HREF="d-systems.html#9017">Configuring NQS Interoperation </A></DD>
+
+<DL>
+<DD><A HREF="d-systems.html#9025">Registering LSF with NQS </A></DD>
+
+<DD><A HREF="d-systems.html#9037"><TT>lsb.nqsmaps</TT> </A></DD>
+
+<DD><A HREF="d-systems.html#9052">Configuring Queues for NQS jobs </A></DD>
+
+<DD><A HREF="d-systems.html#9059">Handling Cray NQS Incompatibilities </A></DD>
+</DL>
+
+<DD><A HREF="d-systems.html#9536">Support for Atria ClearCase </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="e-windoze-nt.html#105660">E. LSF on Windows NT </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="e-windoze-nt.html#104890">Requirements </A></DD>
+
+<DL>
+<DD><A HREF="e-windoze-nt.html#104914">Recommended </A></DD>
+</DL>
+
+<DD><A HREF="e-windoze-nt.html#104922">Features and Limitations </A></DD>
+
+<DD><A HREF="e-windoze-nt.html#104959">Installation </A></DD>
+
+<DL>
+<DD><A HREF="e-windoze-nt.html#108128">Starting LSF Service </A></DD>
+</DL>
+
+<DD><A HREF="e-windoze-nt.html#107107">License Management </A></DD>
+
+<DL>
+<DD><A HREF="e-windoze-nt.html#107113">Demo License </A></DD>
+
+<DD><A HREF="e-windoze-nt.html#107121">Permanent License </A></DD>
+</DL>
+
+<DD><A HREF="e-windoze-nt.html#107174">Mail </A></DD>
+
+<DD><A HREF="e-windoze-nt.html#107196">Environment Variable Handling </A></DD>
+
+<DD><A HREF="e-windoze-nt.html#107230">Windows NT 4.0 </A></DD>
+
+<DD><A HREF="e-windoze-nt.html#107252">Security Issues </A></DD>
+
+<DD><A HREF="e-windoze-nt.html#107283">Heterogeneous NT/UNIX Environments
+</A></DD>
+
+<DD><A HREF="e-windoze-nt.html#107333">Differences between LSF for UNIX
+and NT </A></DD>
+
+<DD><A HREF="e-windoze-nt.html#107401">Miscellaneous </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="f-new-features.html#1074">F. New Features in LSF 3.0 </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="f-new-features.html#9485">Windows NT and Additional Unix Platform
+Support </A></DD>
+
+<DD><A HREF="f-new-features.html#9510">Interactive Jobs with Batch Scheduling
+Control </A></DD>
+
+<DD><A HREF="f-new-features.html#9525">Job Level Resource Usage </A></DD>
+
+<DD><A HREF="f-new-features.html#9551">Enhanced Resource Limit Control
+</A></DD>
+
+<DD><A HREF="f-new-features.html#9572">Resource Reservation </A></DD>
+
+<DD><A HREF="f-new-features.html#9587">Processor Reservation For Parallel
+Jobs </A></DD>
+
+<DD><A HREF="f-new-features.html#9575">Flexible Expressions for Queue Scheduling
+</A></DD>
+
+<DD><A HREF="f-new-features.html#9638">Host Preferences </A></DD>
+
+<DD><A HREF="f-new-features.html#9647">Generalized Checkpointing Support
+</A></DD>
+
+<DD><A HREF="f-new-features.html#9667">Job Starter </A></DD>
+
+<DD><A HREF="f-new-features.html#9756">Configurable Job Control Actions
+</A></DD>
+
+<DD><A HREF="f-new-features.html#9773">Unlimited Number of Load Indices
+and Resources </A></DD>
+
+<DD><A HREF="f-new-features.html#9790">Enhanced Preemptive Scheduling </A></DD>
+
+<DD><A HREF="f-new-features.html#9800">Per-Host Job Slot Limit of a Queue
+</A></DD>
+
+<DD><A HREF="f-new-features.html#9662">Remote Startup </A></DD>
+
+<DD><A HREF="f-new-features.html#9697">Exclusive Job Requeue </A></DD>
+
+<DD><A HREF="f-new-features.html#9816">LSF MultiCluster </A></DD>
+
+<DD><A HREF="f-new-features.html#9743">File Status Events </A></DD>
+
+<DD><A HREF="f-new-features.html#9681">External Events </A></DD>
+
+<DD><A HREF="f-new-features.html#9683">System Calendars </A></DD>
+</DL>
+</DL>
+
+<P>
+<HR><A HREF="admin-title.html">[Title]</A> <A HREF="admin-legal.html">[Prev]</A>
+<A HREF="admin-contents.html">[Contents]</A> <A HREF="admin-figures.html">[Next]</A>
+<A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/17/97 12:50:08 --></P>
+
+</BODY>
+</HTML>

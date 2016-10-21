@@ -1,0 +1,1182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Resources</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="03-cluster-info.html">[Prev]</A>
+<A HREF="05-lsbatch.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<P>
+<HR></P>
+
+<H1><A NAME="3367"></A>Chapter 4. <A NAME="356"></A>Resources</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="7647"></A>This chapter describes the system resources LSF keeps
+track of and how you use LSF resource specifications. Topics covered in
+this chapter are: </P>
+
+<UL>
+<LI><A NAME="4386"></A>Resources and load indices </LI>
+
+<LI><A NAME="4391"></A>Specifying resource requirements </LI>
+
+<LI><A NAME="4398"></A>Using task lists to set resource requirements for
+applications </LI>
+</UL>
+
+<H2><A NAME="2394"></A>Introduction to Resources</H2>
+
+<P><A NAME="16283"></A>A computer may be thought of as a collection of
+resources used to execute programs. Different applications often require
+different resources. For example, a number crunching program may take a
+lot of CPU power, whereas a large spreadsheet may need a lot of memory
+to run well. If the machines are of different types, certain applications
+may run on some of them, but not on others.</P>
+
+<P><A NAME="16288"></A>To run applications quickly and correctly, the LSF
+system needs to know their <I>resource requirements</I>. Resource requirements
+are strings that contain resource names and operators. There are several
+types of resource. <I>Load indices</I> measure dynamic resource availability
+such as a host's CPU load or available swap space. <I>Static resources</I>
+represent unchanging information such as the number of CPUs a host has,
+the host type, and the maximum available swap space.</P>
+
+<P><A NAME="2262"></A>Resources can have <I>numeric</I>, <I>string</I>,
+or <I>boolean</I> values. Memory, swap space, and CPU load are examples
+of resources with numeric values. Host type and model are string valued
+resources. Boolean valued resources are static resources assigned by the
+LSF administrator to represent features available on particular hosts such
+as the availability of host-locked software licences or special hardware.</P>
+
+<P><A NAME="2263"></A>Resource names may be any string of up to 29 characters,
+excluding the characters reserved as operators. Resource names are case
+sensitive. The <TT>lsinfo</TT> command lists the resources available in
+your cluster.</P>
+
+<H3><A NAME="1797"></A>Load Indices</H3>
+
+<P><A NAME="1796"></A>Load indices measure the availability of resources
+on hosts in the LSF cluster. Load indices built into the LIM are updated
+at fixed time intervals. <I>External load indices</I> are updated when
+new values are received from the external load collection program, ELIM,
+configured by the LSF administrator. <A HREF="04-resources.html#1798">Table
+1</A> summarizes the load indices collected by the LIM.</P>
+
+<H4><A NAME="1798"></A>Table 1. Load Indices</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="1">
+<H4>Index</H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="2">
+<H4>Measures</H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="3">
+<H4>Units</H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="4">
+<H4>Direction </H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="5">
+<H4>Averaged over</H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="6">
+<H4>Update Interval </H4>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>status </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">host status </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3" COLSPAN="3">string </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>r15s </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">run queue length </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">processes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">increasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">15 seconds </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>r1m </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">run queue length </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">processes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">increasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">1 minute </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>r15m </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">run queue length </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">processes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">increasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">15 minutes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>ut </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">CPU utilisation </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">(per cent) </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">increasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">1 minute </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD COLSTART="1"><TT>pg </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">paging activity </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">pages in + pages out per second
+</TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">increasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">1 minute </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>ls </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">logins </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">users </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">increasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">N/A </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">30 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>it </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">idle time </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">minutes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">decreasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">N/A </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">30 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>swp </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">available swap space </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">megabytes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">decreasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">N/A </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>mem </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">available memory </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">megabytes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">decreasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">N/A </TD>
+
+<TD COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>tmp </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">available space in <TT>/tmp</TT>
+filesystem </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">megabytes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">decreasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">N/A </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">120 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>io </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">disk I/O (shown by <TT>lsload
+-l</TT>) </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">kilobytes per second </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">increasing </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="5">1 minute </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">15 seconds </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><I>name </I></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2" COLSPAN="4">external load index
+configured by LSF administrator </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="6">site defined</TD>
+</TR>
+</TABLE>
+
+<P><A NAME="8324"></A>The <TT>status</TT> index is a string indicating
+the current status of the host. This status applies to the LIM and RES.
+The possible values for <TT>status</TT> are:</P>
+
+<DL>
+<DT><A NAME="10245"></A><TT>ok</TT></DT>
+
+<DD>The LIM can select the host for remote execution </DD>
+
+<DT><A NAME="10250"></A><TT>busy</TT></DT>
+
+<DD>A load index exceeds the threshold defined by the LSF administrator;
+the LIM will not select the host for interactive jobs </DD>
+
+<DT><A NAME="10262"></A><TT>lockU</TT></DT>
+
+<DD>The host is locked by a user or the LSF administrator </DD>
+
+<DT><A NAME="10271"></A><TT>lockW</TT></DT>
+
+<DD>The host's availability time window is closed </DD>
+
+<DT><A NAME="10281"></A><TT>unavail</TT></DT>
+
+<DD>The LIM on the host is not responding </DD>
+
+<DT><A NAME="12699"></A><TT>unlicensed</TT></DT>
+
+<DD>The host does not have a valid LSF license. </DD>
+</DL>
+
+<P><A NAME="10286"></A>If the LIM is available but the RES server is not
+responding, <TT>status</TT> begins with a '-'.</P>
+
+<P><A NAME="15037"></A>Here is an example of the output from <TT>lsload</TT>:</P>
+
+<PRE><A NAME="15074"></A>% <B>lsload
+</B>HOST_NAME       status  r15s   r1m  r15m   ut    pg  ls    it   tmp   swp   mem
+hostN               ok   0.0   0.0   0.1   1%   0.0   1   224   43M   67M    3M
+hostK              -ok   0.0   0.0   0.0   3%   0.0   3     0   38M   40M    7M
+hostG             busy  *6.2   6.9   9.5  85%   1.1  30     0    5M  400M  385M
+hostF             busy   0.1   0.1   0.3   7%   *17   6     0    9M   23M   28M
+hostV           unavail</PRE>
+
+<P><A NAME="15063"></A>The <TT>r15s</TT>, <TT>r1m</TT>, and <TT>r15m</TT>
+load indices are the 15-second, 1-minute and 15-minute average CPU run
+queue lengths. This is the average number of processes ready to use the
+CPU during the given interval.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="11988"></A><B>Note<BR>
+</B><I>Run queue length indices are not necessarily the same as the load
+averages printed by the </I><TT>uptime</TT><I> command; </I><TT>uptime</TT><I>
+load averages on some platforms also include processes that are in short
+term wait states (such as paging or disk I/O).</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1987"></A>On multiprocessor systems more than one process can
+execute at a time. LSF scales the run queue value on multiprocessor systems
+to make the CPU load of uniprocessors and multiprocessors comparable. The
+scaled value is called the <I>effective run queue length</I>. The <TT>-E</TT>
+option shows the effective run queue length.</P>
+
+<P><A NAME="8051"></A>LSF also adjusts the CPU run queue based on the relative
+speeds of the processors (the CPU factor). The <I>normalized run queue
+length</I> is adjusted for both number of processors and CPU speed. The
+host with the lowest normalized run queue length will run a CPU intensive
+job the fastest. The <TT>-N</TT> option shows the normalized CPU run queue
+lengths.</P>
+
+<P><A NAME="1988"></A>The <TT>ut</TT> index measures CPU utilization, which
+is the percentage of time spent running system and user code. A host with
+no process running has a <TT>ut</TT> value of 0 percent; a host on which
+the CPU is completely busy has a <TT>ut</TT> of 100 percent.</P>
+
+<P><A NAME="4804"></A>The <TT>pg</TT> index gives the virtual memory paging
+rate in pages per second. This index is closely tied to the amount of available
+RAM memory and the total size of the processes running on a host; if there
+is not enough RAM to satisfy all processes, the paging rate will be high.
+Paging rate is a good measure of how a machine will respond to interactive
+use; a machine that is paging heavily feels very slow.</P>
+
+<P><A NAME="11132"></A>The paging rate is reported in units of pages rather
+than kilobytes, because the relationship between interactive response and
+paging rate is largely independent of the page size.</P>
+
+<P><A NAME="2001"></A>The <TT>ls</TT> index gives the number of users logged
+in. Each user is counted once, no matter how many times they have logged
+into the host. The <TT>ls</TT> index is not supported on NT.</P>
+
+<P><A NAME="2003"></A>The <TT>it</TT> index is the interactive idle time
+of the host, in minutes. Idle time is measured from the last input or output
+on a directly attached terminal or a network pseudo-terminal supporting
+a login session. The <TT>it</TT> index is not supported on NT.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="16320"></A><B>Note<BR>
+</B><I>This does not include activity directly through the X server such
+as CAD applications or </I><TT>emacs</TT><I> windows, except on SunOS 4,
+Solaris, and HP-UX systems.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="16322"></A>The <TT>tmp</TT> index is the space available on
+the file system that contains the <TT>/tmp</TT> directory in megabytes.</P>
+
+<P><A NAME="8217"></A>The <TT>swp</TT> index gives the currently available
+swap space in megabytes. This represents the largest process that can be
+started on the host.</P>
+
+<P><A NAME="8255"></A>The <TT>mem</TT> index is an estimate of the real
+memory currently available to user processes. This represents the approximate
+size of the largest process that could be started on a host without causing
+the host to start paging. This is an approximation because the virtual
+memory behaviour of UNIX systems varies from system to system and is hard
+to predict.</P>
+
+<P><A NAME="8099"></A>The <TT>io</TT> index is only displayed with the
+<TT>-l</TT> option to <TT>lsload</TT>. This index measures I/O throughput
+to disks attached directly to this host, in kilobytes per second. It does
+not include I/O to disks that are NFS mounted from other hosts.</P>
+
+<P><A NAME="15129"></A>External load indices are defined by the LSF administrator.
+The <TT>lsinfo</TT> command lists the external load indices and the <TT>lsload
+-l</TT> command displays the values of all load indices. If you need more
+information about the external load indices defined at your site, contact
+your LSF administrator.</P>
+
+<H3><A NAME="2009"></A>Static Resources</H3>
+
+<P><A NAME="2008"></A>Static resources represent host information that
+does not change over time such as the maximum RAM available to user processes
+and the number of processors in a machine. Most static resources are determined
+by the LIM at start-up time. <A HREF="04-resources.html#2010">Table 2</A>
+lists the static resources reported by the LIM.</P>
+
+<H4><A NAME="2010"></A>Table 2. Static Resources</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="1">
+<H4>Index </H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="2">
+<H4>Measures </H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="3">
+<H4>Units </H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" COLSTART="4">
+<H4>Determined by </H4>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>type </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">host type </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">string </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">configuration </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>model </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">host model </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">string </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">configuration </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>hname </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">host name </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">string </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">configuration </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>cpuf </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">CPU factor </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">relative </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">configuration </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>server </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">host can run remote jobs </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">boolean </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">configuration </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>rexpri </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">execution priority </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3"><TT>nice</TT>(<TT>2</TT>) argument
+</TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">configuration </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>ncpus </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">number of processors </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">processors </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">LIM </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>ndisks </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">number of local disks </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">disks </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">LIM </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>maxmem </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">maximum RAM memory available
+to users </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">megabytes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">LIM </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>maxswp </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">maximum available swap space
+</TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">megabytes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">LIM </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="1"><TT>maxtmp </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="2">maximum available space in temporary
+file system </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="3">megabytes </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP" COLSTART="4">LIM </TD>
+</TR>
+</TABLE>
+
+<P><A NAME="9713"></A>The <TT>type</TT> and <TT>model</TT> static resources
+are strings specifying the host type and model.</P>
+
+<P><A NAME="2109"></A>The CPU factor is the speed of the host's CPU relative
+to other hosts in the cluster. If one processor is twice the speed of another,
+its CPU factor should be twice as large. The CPU factors are defined by
+the LSF administrator. For multiprocessor hosts the CPU factor is the speed
+of a single processor; LSF automatically scales the host CPU load to account
+for additional processors.</P>
+
+<P><A NAME="9708"></A>The <TT>server</TT> static resource is boolean; its
+value is 1 if the host is configured to execute tasks from other hosts,
+and 0 if the host is a client.</P>
+
+<P><A NAME="2112"></A>Static resources can be used to select appropriate
+hosts for particular jobs based on binary architecture, relative CPU speed,
+and system configuration.</P>
+
+<H3><A NAME="2115"></A>Boolean Resources</H3>
+
+<P><A NAME="2116"></A>Boolean resource names are used to describe features
+that may be available only on some machines in a cluster. For example:</P>
+
+<UL>
+<LI><A NAME="2117"></A>Machines may have different types and versions of
+operating systems </LI>
+
+<LI><A NAME="2118"></A>Machines may play different roles in the system
+such as file server or compute server </LI>
+
+<LI><A NAME="2119"></A>Some machines may have special-purpose devices needed
+by some applications </LI>
+
+<LI><A NAME="2120"></A>Certain software packages or licenses may be available
+only on some of the machines </LI>
+</UL>
+
+<P><A NAME="2121"></A>Any characteristics or attributes of certain hosts
+that can be useful in selecting hosts for remote jobs may be configured
+as boolean resources. Specifying a boolean resource in the resource requirements
+of a job limits the set of computers that can execute the job. <A HREF="04-resources.html#2122">Table
+3</A> lists some examples of boolean resources.</P>
+
+<H4><A NAME="2122"></A>Table 3. Examples of Boolean Resources</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD ALIGN="CENTER" VALIGN="TOP">
+<H4>Resource Name </H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP">
+<H4>Describes </H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP">
+<H4>Meaning of Example Name </H4>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>cs </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">role in cluster </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">compute server </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>fs </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">role in cluster </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">file server </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>solaris </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">operating system </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">Solaris operating system </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>frame </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">available software </TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">FrameMaker license </TD>
+</TR>
+</TABLE>
+
+<H3><A NAME="11197"></A>Dedicated Resources</H3>
+
+<P><A NAME="11238"></A>Dedicated resources are a special form of boolean
+resource used to identify hosts that are dedicated to running a particular
+application or class of applications. For example, a software group might
+have a compute server with very fast local disk and a special compiler
+license. This compute server is intended to run compilation jobs only.</P>
+
+<P><A NAME="11297"></A>If a host is dedicated to a resource, the LIM only
+selects that host if the application requires the dedicated resource. For
+example, the LSF administrator can add an <TT>f77</TT> resource to the
+snacks cluster, and dedicate host apple to that resource. The LIM will
+only send jobs to apple if they require the <TT>f77</TT> resource.</P>
+
+<H2><A NAME="2411"></A>Listing Resources</H2>
+
+<P><A NAME="16017"></A>The <TT>lsinfo</TT> command lists all the resources
+configured in the LSF cluster. See <A HREF="02-get-started.html#1535">'Displaying
+Available Resources'</A> for an example of the <TT>lsinfo</TT> command.
+The <TT>lsinfo -l</TT> option gives more detail about each index:</P>
+
+<PRE><A NAME="16021"></A>% <B>lsinfo -l r1m
+</B>RESOURCE_NAME:  r1m
+DESCRIPTION: 1-minute CPU run queue length (alias: cpu)
+TYPE    ORDER   INTERVAL  BUILTIN  DYNAMIC
+Numeric   Inc         15      Yes      Yes</PRE>
+
+<UL>
+<LI><A NAME="5202"></A><TT>TYPE</TT> indicates whether the resource is
+numeric, string, or boolean </LI>
+
+<LI><A NAME="15301"></A><TT>ORDER</TT> is <TT>Inc</TT> if the numeric value
+of the load index increases as the load it measures increases, such as
+<TT>ut</TT> (CPU utilization), or <TT>Dec</TT> if the numeric value decreases
+as the load increases. If the resource is not numeric, the <TT>ORDER</TT>
+is <TT>N/A </TT></LI>
+
+<LI><A NAME="15302"></A><TT>INTERVAL</TT> shows the number of seconds between
+updates of that index </LI>
+
+<LI><A NAME="15308"></A><TT>BUILTIN</TT> is <TT>Yes</TT> if the index is
+built into the LIM and <TT>No</TT> if the index is external </LI>
+
+<LI><A NAME="15310"></A><TT>DYNAMIC</TT> is <TT>Yes</TT> if the resource
+is a load index that changes over time and <TT>No</TT> if the resource
+is a static or boolean resource. </LI>
+</UL>
+
+<H2><A NAME="5092"></A>Resource Requirement Strings</H2>
+
+<P><A NAME="2166"></A>A resource requirement string describes the resources
+a job needs. LSF uses resource requirements to select hosts for remote
+execution and job execution.</P>
+
+<P><A NAME="2167"></A>A resource requirement string is divided into four
+sections:</P>
+
+<UL>
+<LI><A NAME="2169"></A>A <I>selection</I> section </LI>
+
+<LI><A NAME="2171"></A>An <I>ordering</I> section </LI>
+
+<LI><A NAME="16168"></A>A <I>resource usage</I> section </LI>
+
+<LI><A NAME="16170"></A>A <I>job spanning</I> section </LI>
+</UL>
+
+<P><A NAME="16171"></A>The selection section specifies the criteria for
+selecting hosts from the system. The ordering section indicates how the
+hosts that meet the selection criteria should be sorted. The resource usage
+section specifies the expected resource consumption of the task. The job
+spanning section indicates if a (parallel) batch job should span across
+multiple hosts.</P>
+
+<P><A NAME="15372"></A>The syntax of a resource requirement expression
+is:</P>
+
+<PRE><A NAME="2175"></A><TT>select[<I>selectstring</I>] order[<I>orderstring</I>] rusage[<I>usagestring</I>] span [<I>spanstring</I>]</TT></PRE>
+
+<P><A NAME="15388"></A>The section names are <TT>select</TT>, <TT>order</TT>,
+<TT>rusage</TT>, and <TT>span</TT>. The syntax for each of <I>selectstring</I>,
+<I>orderstring,</I> <I>usagestring</I>, and <I>spanstring</I> is defined
+below.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="16040"></A><B>Note<BR>
+</B><I>The square brackets are an essential part of the resource requirement
+expression.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="16035"></A>Depending on the command, one or more of these sections
+may apply. The <TT>lshosts</TT> command only selects hosts, but does not
+order them. The <TT>lsload</TT> command selects and orders hosts, while
+<TT>lsplace</TT> uses the information in <TT>select</TT>, <TT>order</TT>,
+and <TT>rusage</TT> sections to select an appropriate host for a task.
+The <TT>lsloadadj</TT> command uses the <TT>rusage</TT> section to determine
+how the load information should be adjusted on a host, while <TT>bsub</TT>
+uses all four sections. Sections that do not apply for a command are ignored.</P>
+
+<P><A NAME="15555"></A>If no section name is given, then the entire string
+is treated as a selection string. The <TT>select</TT> keyword may be omitted
+if the selection string is the first string in the resource requirement.</P>
+
+<H3><A NAME="2177"></A>Selection String</H3>
+
+<P><A NAME="2178"></A>The selection string specifies the characteristics
+a host must have to match the resource requirement. It is a logical expression
+built from a set of resource names. The <TT>lsinfo</TT> command lists all
+the resource names and their descriptions. The resource names <TT>swap</TT>,
+<TT>idle</TT>, <TT>logins</TT>, and <TT>cpu</TT> are accepted as aliases
+for <TT>swp</TT>, <TT>it</TT>, <TT>ls</TT>, and <TT>r1m</TT> respectively.</P>
+
+<P><A NAME="2180"></A>The selection string can combine resource names with
+logical and arithmetic operators. Non-zero arithmetic values are treated
+as logical TRUE, and zero as logical FALSE. Boolean resources (for example,
+<TT>server</TT> to denote LSF server hosts) have a value of one if they
+are defined for a host, and zero otherwise.</P>
+
+<P><A NAME="2182"></A><A HREF="04-resources.html#6687">Table 4</A> shows
+the operators that can be used in selection strings. The operators are
+listed in order of decreasing precedence.</P>
+
+<H4><A NAME="6687"></A>Table 4. Operators in Resource Requirements </H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD ALIGN="CENTER" VALIGN="TOP">
+<H4>Syntax </H4>
+</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP">
+<H4>Meaning </H4>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>-a <BR>
+!a </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">Negative of <TT>a <BR>
+</TT>Logical not: <TT>1 </TT>if <TT>a==0</TT>, <TT>0 </TT>otherwise </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>a * b <BR>
+a / b </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">Multiply <TT>a </TT>and <TT>b <BR>
+</TT>Divide <TT>a </TT>by <TT>b </TT></TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>a + b <BR>
+a - b </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">Add <TT>a </TT>and <TT>b <BR>
+</TT>Subtract <TT>b </TT>from <TT>a </TT></TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>a &gt; b <BR>
+a &lt; b <BR>
+a &gt;= b <BR>
+a &lt;= b </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>1 </TT>if <TT>a </TT>is greater than
+<TT>b</TT>, <TT>0 </TT>otherwise <BR>
+<TT>1 </TT>if <TT>a </TT>is less than <TT>b</TT>, <TT>0 </TT>otherwise
+<BR>
+<TT>1 </TT>if <TT>a </TT>is greater than or equal to <TT>b</TT>, <TT>0
+</TT>otherwise <BR>
+<TT>1 </TT>if <TT>a </TT>is less than or equal to <TT>b</TT>, <TT>0 </TT>otherwise
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>a == b <BR>
+a != b </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>1 </TT>if <TT>a </TT>is equal to <TT>b</TT>,
+<TT>0 </TT>otherwise <BR>
+<TT>1 </TT>if <TT>a </TT>is not equal to <TT>b</TT>, <TT>0 </TT>otherwise
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>a &amp;&amp; b </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">Logical AND: 1 if both a and b are non-zero,
+0 otherwise </TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP"><TT>a || b </TT></TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">Logical OR: 1 if either a or b is non-zero,
+0 otherwise </TD>
+</TR>
+</TABLE>
+
+<P><A NAME="2190"></A>The selection string is evaluated for each host;
+if the result is non-zero, then that host is selected. For example:</P>
+
+<PRE><A NAME="2191"></A><TT>select[(swp &gt; 50 &amp;&amp; mem &gt;= 10 &amp;&amp; type == MIPS) || (swp &gt; 35 &amp;&amp; type == ALPHA)]</TT></PRE>
+
+<PRE><A NAME="2192"></A><TT>select[((2*r15s + 3*r1m + r15m) / 6 &lt; 1.0) &amp;&amp; !fs &amp;&amp; (cpuf &gt; 4.0)]</TT></PRE>
+
+<P><A NAME="2194"></A>For the string resources <TT>type</TT> and <TT>model</TT>,
+the special value <TT>any</TT> selects any value and <TT>local</TT> selects
+the same value as that of the local host. For example, <TT>type==local</TT>
+selects hosts of the same type as the host submitting the job. If a job
+can run on any type of host, include <TT>type==any</TT> in the resource
+requirements. If no <TT>type</TT> is specified, the default depends on
+the command. For <TT>lshosts</TT>, <TT>lsload</TT>, <TT>lsmon</TT> and
+<TT>lslogin</TT> the default is <TT>type==any</TT>. For <TT>lsplace</TT>,
+<TT>lsrun</TT>, <TT>lsgrun</TT>, <TT>lsmake</TT> and <TT>bsub</TT> the
+default is <TT>type==local</TT> unless a model or boolean resource is specified,
+in which case it is <TT>type==any</TT>.</P>
+
+<H4><A NAME="15769"></A>Backward Compatibility</H4>
+
+<P><A NAME="15776"></A>Versions prior to LSF 2.0 used a different syntax
+for resource requirement strings. LSF accepts resource requirements that
+use the old syntax. The old syntax combines resource names using '<TT>:</TT>'
+(logical AND) and '<TT>-</TT>' (logical NOT). The single equal sign '<TT>=</TT>'
+means that the load level must be at least as good as requested; for example,
+the requirement <TT>mem=20</TT> means that the host must have 20 megabytes
+or more of memory available. The following resource requirement string
+uses the old syntax:</P>
+
+<PRE><A NAME="15777"></A><TT>r15m=1.5:mem=20:swp=12:-aix</TT></PRE>
+
+<P><A NAME="15778"></A>This selection string is equivalent to this selection
+string in the new syntax:</P>
+
+<PRE><A NAME="15779"></A><TT>r15m&lt;=1.5 &amp;&amp; mem&gt;=20 &amp;&amp; swp&gt;=12 &amp;&amp; !aix</TT></PRE>
+
+<P><A NAME="15780"></A>A selection string in the old syntax is of the form</P>
+
+<PRE><A NAME="15781"></A><TT>[-]<I>res</I>[=<I>value</I>][:[-]<I>res</I>[=<I>value</I>]]...</TT></PRE>
+
+<P><A NAME="15782"></A>Each <I>res</I> is a resource name. A value may
+only be specified for numeric or string resources. The semantics of '<TT>=</TT>'
+depend on the type of resource. For string resources, '<TT>=</TT>' is equivalent
+to '<TT>==</TT>'. For numeric resources, '<TT>=</TT>' is equivalent to
+'<TT>&lt;=</TT>' for increasing load indices (the value of the index is
+higher when the load is higher) or '<TT>&gt;=</TT>' for decreasing load
+indices (the value is lower when the load is higher).</P>
+
+<P><A NAME="15783"></A>A '<TT>-</TT>' may only be used in front of a boolean
+resource name or in isolation. In isolation '<TT>-</TT>' is equivalent
+to <TT>type==any</TT>.</P>
+
+<P><A NAME="15784"></A>Other examples of a selection string in the old
+syntax are:</P>
+
+<PRE><A NAME="15785"></A><TT>-:swp=12</TT></PRE>
+
+<PRE><A NAME="15786"></A><TT>type=MIPS:maxmem=20</TT></PRE>
+
+<H3><A NAME="16197"></A>Order String</H3>
+
+<P><A NAME="16198"></A>The order string allows the selected hosts to be
+sorted according to the values of resources. The syntax of the order string
+is</P>
+
+<PRE><A NAME="2207"></A><TT>[-]<I>res</I>[:[-]<I>res</I>]...</TT></PRE>
+
+<P><A NAME="6716"></A>Each <I>res</I> must be a dynamic load index; that
+is, one of the indices <TT>r15s</TT>, <TT>r1m</TT>, <TT>r15m</TT>, <TT>ut</TT>,
+<TT>pg</TT>, <TT>io</TT>, <TT>ls</TT>, <TT>it</TT>, <TT>tmp</TT>, <TT>swp</TT>,
+<TT>mem</TT>, or an external load index defined by the LSF administrator.
+For example, <TT>swp:r1m:tmp:r15s</TT> is a valid order string.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="12023"></A><B>Note<BR>
+</B><I>The values of </I><TT>r15s</TT><I>, </I><TT>r1m</TT><I>, and r15m
+used for sorting are the normalized load indices returned by </I><TT>lsload
+-N</TT><I> (see <A HREF="04-resources.html#1797">'Load Indices'</A>).</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="6717"></A>The order string is used for host sorting and selection.
+The ordering begins with the rightmost index in the order string and proceeds
+from right to left. The hosts are sorted into order based on each load
+index, and if more hosts are available than were requested, the LIM drops
+the least desirable hosts according to that index. The remaining hosts
+are then sorted by the next index.</P>
+
+<P><A NAME="10970"></A>After the hosts are sorted by the leftmost index
+in the order string, the final phase of sorting orders the hosts according
+to their status, with hosts that are currently not available for load sharing
+(that is, not in the <TT>ok</TT> state) listed at the end.</P>
+
+<P><A NAME="11646"></A>Because the hosts are resorted for each load index,
+only the host status and the leftmost index in the order string actually
+affect the order in which hosts are listed. The other indices are only
+used to drop undesirable hosts from the list.</P>
+
+<P><A NAME="2210"></A>When sorting is done on each index, the direction
+in which the hosts are sorted (increasing vs decreasing values) is determined
+by the default order returned by <TT>lsinfo</TT> for that index. This direction
+is chosen such that after sorting, the hosts are ordered from best to worst
+on that index.</P>
+
+<P><A NAME="11465"></A>When an index name is preceded by a minus sign '-',
+the sorting order is reversed so that hosts are ordered from worst to best
+on that index.</P>
+
+<P><A NAME="12539"></A>The default sorting order is <TT>r1m:pg</TT> (except
+for <TT>lslogin</TT>(<TT>1</TT>): <TT>ls:r1m</TT>).</P>
+
+<H3><A NAME="16276"></A>Resource Usage String</H3>
+
+<P><A NAME="16277"></A>This string defines the expected resource usage
+of the task. It is used to specify resource reservations for LSF Batch
+jobs, or for mapping tasks onto hosts and adjusting the load when running
+interactive jobs.</P>
+
+<H4><A NAME="15711"></A>Batch Jobs</H4>
+
+<P><A NAME="15613"></A>For LSF Batch jobs, the resource usage section is
+used along with the queue configuration parameter <TT>RES_REQ</TT> (see
+<A HREF="05-lsbatch.html#22926">'Resource Requirement Parameters'</A>).
+External indices are also considered in the resource usage string.</P>
+
+<P><A NAME="15623"></A>The syntax of the resource usage string is</P>
+
+<PRE><A NAME="16218"></A><TT>res=value[:res=value]...[:res=value][:duration=value][:decay=value]</TT></PRE>
+
+<P><A NAME="16219"></A>The <I>res</I> parameter can be any load index.
+The <I>value</I> parameter is the initial reserved amount. If <I>res</I>
+or <I>value</I> is not given, the default is not to reserve that resource.</P>
+
+<P><A NAME="16220"></A>The <I>duration</I> parameter is the time period
+within which the specified resources should be reserved. It is specified
+in minutes by default. If the value is followed by the letter 'h', it is
+specified in hours. For example, '<TT>duration=30</TT>' and '<TT>duration=2h</TT>'
+specify a duration of 30 minutes and two hours respectively. If <I>duration</I>
+is not specified, the default is to reserve the total amount for the lifetime
+of the job.</P>
+
+<P><A NAME="16221"></A>The <I>decay</I> parameter indicates how the reserved
+amount should decrease over the <I>duration</I>. A value of 1, '<TT>decay=1</TT>',
+indicates that system should linearly decrease the amount reserved over
+the duration. The default <I>decay</I> value is 0, which causes the total
+amount to be reserved for the entire <I>duration</I>. Values other than
+0 or 1 are unsupported. If <I>duration</I> is not specified <I>decay</I>
+is ignored.</P>
+
+<PRE><A NAME="15614"></A><TT>rusage[mem=50:duration=100:decay=1</TT></PRE>
+
+<P><A NAME="15637"></A>The above example indicates that 50MB memory should
+be reserved for the job. As the job runs, the amount reserved will decrease
+at approximately 0.5 megabytes per minute until the 100 minutes is up.</P>
+
+<H4><A NAME="15712"></A>Interactive Jobs</H4>
+
+<P><A NAME="15564"></A>When the job is interactive (see <TT>lsplace</TT>(<TT>1</TT>)
+and <TT>lsloadadj</TT>(<TT>1</TT>)), the external indices are not considered
+in the resource usage string. The LIM uses resource usage to determine
+the placement of interactive jobs. Interactive placement is limited in
+comparison to LSF Batch in that the LIM does not track when an application
+finishes. Resource usage requests are used to temporarily increase the
+load so that a host is not overloaded.</P>
+
+<P><A NAME="15679"></A>The syntax of the resource usage string is</P>
+
+<PRE><A NAME="15682"></A><TT>res[=value]:res[=value]: ... :res[=value]</TT></PRE>
+
+<P><A NAME="15684"></A>The <I>res</I> is one of the resources whose value
+is returned by the <TT>lsload</TT> command.</P>
+
+<PRE><A NAME="15699"></A><TT>rusage[r1m=0.5:mem=20:swp=40]</TT></PRE>
+
+<P><A NAME="15703"></A>The above example indicates that the task is expected
+to increase the 1-minute run queue length by 0.5, consume 20 Mbytes of
+memory and 40 Mbytes of swap space.</P>
+
+<P><A NAME="15709"></A>If no value is specified, the task is assumed to
+be intensive in using that resource. In this case no more than one task
+will be assigned to a host regardless of how many CPUs it has.</P>
+
+<P><A NAME="15566"></A>The default resource usage for a task is <TT>r15s=1.0:r1m=1.0:r15m=1.0</TT>.
+This indicates a CPU intensive task which consumes few other resources.</P>
+
+<H3><A NAME="15423"></A>Job Spanning String</H3>
+
+<P><A NAME="15424"></A>This string specifies the locality of a parallel
+job (see <A HREF="06-submitting.html#26825">'Specifying Locality'</A>).
+Currently only the following two cases are supported: </P>
+
+<PRE><A NAME="15468"></A><TT>span[hosts=1]</TT></PRE>
+
+<P><A NAME="15469"></A>This indicates that all the processors allocated
+to this job must be on the same host.</P>
+
+<PRE><A NAME="15471"></A><TT>span[ptile=1]</TT></PRE>
+
+<P><A NAME="15472"></A>This indicates that only one processor on each host
+should be allocated to the job regardless of how many processors the host
+possesses.</P>
+
+<P><A NAME="16411"></A>If span is omitted, LSF Batch will allocate the
+required processors for the job from the available set of processors.</P>
+
+<H2><A NAME="2438"></A>Configuring Resource Requirements</H2>
+
+<P><A NAME="2357"></A>Some applications require resources other than the
+default. LSF can store resource requirements for specific applications
+so that the application automatically runs with the correct resources.
+For frequently used commands and software packages, the LSF administrator
+can set up cluster--wide resource requirements available to all users in
+the cluster. See the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I> for more information.</P>
+
+<P><A NAME="499"></A>You may have applications that you need to control
+yourself. Perhaps your administrator did not set them up for load sharing
+for all users, or you need a non-standard setup. You can use LSF commands
+to find out resource names available in your system, and tell LSF about
+the needs of your applications. LSF stores the resource requirements for
+you from then on.</P>
+
+<H3><A NAME="16262"></A>Task List</H3>
+
+<P><A NAME="16264"></A>The resource requirements of applications are stored
+in <I>task list files</I>. A <I>task </I>is a UNIX or NT command or a user-created
+executable program; the terms <I>application</I> or <I>job</I> are also
+used to refer to tasks.</P>
+
+<P><A NAME="501"></A>A task list file contains two lists of task names.
+The <I>remote task list</I> contains tasks that are eligible for remote
+execution and the resource requirements of each task. The <I>local task
+list</I> contains tasks that should be executed on the local machine, usually
+because the tasks depend on local information (such as <TT>ps</TT> and
+<TT>hostname</TT>).</P>
+
+<BLOCKQUOTE>
+<P><A NAME="16380"></A><B>Note<BR>
+</B><I>The local task list is currently used only by </I><TT>lstcsh</TT><I>.
+</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="503"></A>There are three sets of task list files: the system-wide
+default file <TT>lsf.task</TT>, the cluster default file <TT>lsf.task.<I>cluster</I></TT>,
+and the user file <TT>$HOME/.lsftask</TT>. The system and cluster default
+files apply to all users. The user file specifies the tasks to be added
+to or removed from the system lists for your jobs. Resource requirements
+specified in your user file override those in the system lists.</P>
+
+<P><A NAME="9545"></A>For an interactive job, its resource requirements
+are sent to the LIM. The LIM selects the best machine based on the resource
+requirements. For a batch job, its resource requirements are sent to <TT>mbatchd</TT>.</P>
+
+<H3><A NAME="504"></A>Examining and Changing Task Lists</H3>
+
+<P><A NAME="6891"></A>The <TT>lsrtasks</TT> and <TT>lsltasks</TT> commands
+inspect and modify the remote and local task lists, respectively. Invoking
+these commands with no arguments displays the current lists:</P>
+
+<P><A NAME="510"></A>The <TT>lsrtasks</TT> command displays the resource
+requirements of tasks in the remote list, separated from the task name
+by '/'.</P>
+
+<PRE><A NAME="15865"></A>% <B>lsrtasks
+</B>CC                   fgrep                sort
+ar                   g++/cpu              spell
+as                   gcc/cpu              split
+c89/cpu              gprof                tbl
+cc/cpu               grap/-               tpc
+compress/-:cpu:mem   grep/-               troff/cpu
+compressdir/cpu:mem  ispell               ttc
+deroff               latex/cpu            uncompress/cpu:mem
+diff                 lint                 uuencode/cpu
+ditroff              make/cpu             wc
+dvi2ps               nroff/cpu            what
+egrep                od                   zcat/cpu:mem
+eqn                  pic                  zmore/cpu
+f77/cpu              psroff</PRE>
+
+<P><A NAME="7057"></A>You can specify resource requirements when tasks
+are added to the user's remote task list. If the task to be added is already
+in the list, its resource requirements are replaced.</P>
+
+<PRE><A NAME="7202"></A>% <B>lsrtasks + &quot;f77/order[cpu]&quot; &quot;myprog/mem&gt;=8 &amp;&amp; cpu&quot;
+</B>% <B>lsrtasks - troff</B></PRE>
+
+<P><A NAME="15177"></A>These commands add <TT>myprog</TT> to the remote
+tasks list with its resource requirements, change the resource requirements
+for <TT>f77</TT>, and remove <TT>troff</TT> from the list:</P>
+
+<PRE><A NAME="15980"></A>% <B>lsrtasks
+</B>CC                    fgrep                 psroff
+ar                    g++/cpu               sort
+as                    gcc/cpu               spell
+c89/cpu               gprof                 split
+cc/cpu                grap/-                tbl
+compress/-:cpu:mem    grep/-                tpc
+compressdir/cpu:mem   ispell                ttc
+deroff                latex/cpu             uncompress/cpu:mem
+diff                  lint                  uuencode/cpu
+ditroff               make/cpu              wc
+dvi2ps                myprog/mem&gt;=8 &amp;&amp; cpu  what
+egrep                 nroff/cpu             zcat/cpu:mem
+eqn                   od                    zmore/cpu
+f77/order[cpu]        pic</PRE>
+
+<P><A NAME="16390"></A><TT>lsltasks</TT> command can be used in a similar
+way.</P>
+
+<H2><A NAME="6788"></A>Using Resource Requirements</H2>
+
+<P><A NAME="6789"></A>Most LSF commands accept a <TT>-R <I>resreq</I></TT>
+argument to specify resource requirements. The exact behaviour depends
+on the command; for example, specifying a resource requirement for the
+<TT>lsload</TT> command displays the load levels for all hosts that have
+the requested resources.</P>
+
+<P><A NAME="14909"></A>Specifying resource requirements for the <TT>lsrun</TT>
+command causes LSF to select the best host out of the set of hosts that
+have the requested resources. The <TT>-R <I>resreq</I></TT> option overrides
+any resource requirements specified in the task lists. For an example of
+the <TT>lsrun</TT> command with the <TT>-R <I>resreq</I></TT> option see
+<A HREF="08-interactive.html#2935">'Running Remote Jobs with <TT>lsrun</TT>'</A>.</P>
+
+<P>
+<HR></P>
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="03-cluster-info.html">[Prev]</A>
+<A HREF="05-lsbatch.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><I><A HREF="mailto:doc@platform.com">doc@platform.com</A></I></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!--
+Last updated: 02/14/97 13:26:32 --></P>
+
+</BODY>
+</HTML>

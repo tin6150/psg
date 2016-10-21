@@ -1,0 +1,512 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Tracking Batch Jobs</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="06-submitting.html">[Prev]</A>
+<A HREF="08-interactive.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="355"></A>Chapter 7. <A NAME="343"></A>Tracking Batch Jobs</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="2621"></A>This chapter describes the commands that report and
+change the status of your jobs:</P>
+
+<UL>
+<LI><A NAME="4599"></A>Displaying the current status of batch jobs </LI>
+
+<LI><A NAME="4610"></A>Finding out why jobs are pending or suspended </LI>
+
+<LI><A NAME="4616"></A>Displaying the execution history of jobs </LI>
+
+<LI><A NAME="4622"></A>Checking the output from jobs that have not completed
+yet </LI>
+
+<LI><A NAME="5196"></A>Killing, suspending and resuming jobs </LI>
+
+<LI><A NAME="5204"></A>Changing the order of your pending jobs within a
+queue </LI>
+
+<LI><A NAME="5212"></A>Moving jobs to other queues </LI>
+</UL>
+
+<H2><A NAME="2970"></A>Displaying Job Status</H2>
+
+<P><A NAME="2886"></A>The <TT>bjobs</TT> command reports the status of
+LSF Batch jobs.</P>
+
+<PRE><A NAME="15579"></A>% <B>bjobs 
+</B>JOBID USER     STAT  QUEUE      FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+3926  user1    RUN   priority   hostF        hostC      verilog    Oct 22 13:51
+605   user1    SSUSP idle       hostQ        hostC      Test4      Oct 17 18:07
+1480  user1    PEND  priority   hostD                   generator  Oct 19 18:13
+7678  user1    PEND  priority   hostD                   verilog    Oct 28 13:08
+7679  user1    PEND  priority   hostA                   coreHunter Oct 28 13:12
+7680  user1    PEND  priority   hostB                   myjob      Oct 28 13:17</PRE>
+
+<P><A NAME="2896"></A>The <TT>-a</TT> option displays jobs that completed
+or exited in the recent past, along with pending and running jobs.</P>
+
+<P><A NAME="15751"></A>The <TT>-r</TT> option displays only running jobs.</P>
+
+<P><A NAME="2898"></A>The <TT>-u <I>username</I></TT> option displays jobs
+submitted by other users. The special user name <TT>all</TT> displays jobs
+submitted by all users.</P>
+
+<P><A NAME="16319"></A>For example, to find out who is running jobs on
+which hosts enter:</P>
+
+<PRE><A NAME="2899"></A><TT>% <B>bjobs -u all</B></TT></PRE>
+
+<P><A NAME="2902"></A>You can also find jobs on specific queues or hosts,
+find jobs submitted by specific projects, and check the status of specific
+jobs using their job IDs or names. See the <TT>bjobs(1)</TT> manual page
+for more information.</P>
+
+<H2><A NAME="15229"></A>Finding Pending or Suspension Reasons</H2>
+
+<P><A NAME="15233"></A>When you submit a job to LSF Batch, it may be held
+in the queue before it starts running and it may be suspended while running.
+The <TT>-p</TT> option to the <TT>bjobs</TT> command displays the reasons
+a job is pending. Because there can be more than one reason the job is
+pending or suspended, all reasons that contributed to the pending or suspension
+are reported. For example:</P>
+
+<PRE><A NAME="15445"></A>% <B>bjobs -p
+</B>7678  user1    PEND  priority    hostD         verilog           Oct 28 13:08
+Queue's resource requirements not satisfied:3 hosts;
+Unable to reach slave lsbatch server: 1 host;
+Not enough job slots: 1 host;</PRE>
+
+<P><A NAME="15434"></A>The pending reasons will also mention the number
+of hosts for each condition. To get the specific host names, along with
+pending reasons, use the <TT>-p</TT> and <TT>-l</TT> options to the <TT>bjobs</TT>
+command. For example:</P>
+
+<PRE><A NAME="15467"></A>% <B>bjobs -lp
+</B>Job Id &lt;7678&gt;, User &lt;user1&gt;, Project &lt;default&gt;, Status &lt;PEND&gt;, Queue &lt;priority&gt;
+                     , Command &lt;verilog&gt;
+Mon Oct 28 13:08:11:Submitted from host &lt;hostD&gt;,CWD &lt;$HOME&gt;,Requested 
+Resources &lt;type==any &amp;&amp; swp&gt;35&gt;;
+PENDING REASONS:
+Queue's resource requirements not satisfied: hostb, hostk, hostv;
+Unable to reach slave lsbatch server: hostH;
+ Not enough job slots: hostF;
+ SCHEDULING PARAMETERS:
+           r15s   r1m  r15m   ut      pg    io   ls    it    tmp    swp    mem 
+ loadSched   -    0.7   1.0    -      4.0    -    -     -     -      -      -
+ loadStop    -    1.5   2.5    -      8.0    -    -     -     -      -      -</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="15481"></A><B>Note:<BR>
+</B><I>In a cluster with many hosts (100-200 hosts), it may be too verbose
+or considered unnecessary to always show the host names with the pending
+reasons. Therefore, use the </I><TT>bjobs</TT><I> command with the </I><TT>-p</TT><I>
+option only.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="15649"></A>The <TT>-l</TT> option to the <TT>bjobs</TT> command
+displays detailed information about job status and parameters, such as
+the job's current working directory, parameters specified when the job
+was submitted, and the time when the job started running.</P>
+
+<PRE><A NAME="15650"></A>% <B>bjobs -l 7678
+</B>Job Id &lt;7678&gt;, User &lt;user1&gt;, Project &lt;default&gt;, Status &lt;PEND&gt;, Queue &lt;priority&gt;
+                     , Command &lt;verilog&gt;
+Mon Oct 28 13:08:11:Submitted from host &lt;hostD&gt;,CWD &lt;$HOME&gt;, Requested 
+Resources &lt;type==any &amp;&amp; swp&gt;35&gt;;
+
+PENDING REASONS:
+Queue's resource requirements not satisfied:3 hosts;
+Unable to reach slave lsbatch server: 1 host;
+Not enough job slots: 1 host;
+
+ SCHEDULING PARAMETERS:
+           r15s   r1m  r15m   ut      pg    io   ls    it    tmp    swp    mem 
+ loadSched   -    0.7   1.0    -      4.0    -    -     -     -      -      -
+ loadStop    -    1.5   2.5    -      8.0    -    -     -     -      -      -</PRE>
+
+<P><A NAME="15651"></A>The <TT>loadSched</TT> and <TT>loadStop</TT> thresholds
+displayed are those that apply to this job. If the job is pending, the
+thresholds are taken from the queue. If the job has been dispatched, each
+threshold is the more restrictive of the queue and execution host thresholds
+for that load index.</P>
+
+<P><A NAME="15795"></A>Scheduling is also affected by other queue constraints
+such as <TT>RES_REQ</TT>, <TT>STOP_COND</TT>, <TT>RESUME_COND</TT>, fairshare
+policy, and others.</P>
+
+<P><A NAME="15482"></A>The <TT>-s</TT> option displays the reasons a batch
+job was suspended. Because the load conditions are constantly changing,
+the reasons for suspension may be out of date. Once the job is suspended
+it does not resume execution until its scheduling conditions are met.</P>
+
+<PRE><A NAME="4911"></A>% <B>bjobs -s
+</B>JOBID USER     STAT  QUEUE      FROM_HOST   EXEC_HOST   JOB_NAME   SUBMIT_TIME
+605   user1    SSUSP idle       hostQ         hostC     Test4      Oct 17 18:07
+The host load exceeded the following threshold(s):
+Paging rate: pg;
+Idle time: it;</PRE>
+
+<P><A NAME="2909"></A>In the example above, the job was suspended because
+the paging rate and interactive idle time on the execution host went above
+the suspending threshold. Even though the paging rate may have dropped
+back below the scheduling threshold, the job may remain suspended because
+of another threshold. The job does not resume until all load indices are
+within their scheduling thresholds.</P>
+
+<H2><A NAME="15141"></A>Monitoring Resource Consumption of Jobs</H2>
+
+<P><A NAME="15145"></A>Jobs submitted through the LSF Batch system have
+the resources they consume monitored while they are running. The <TT>-l</TT>
+option of the <TT>bjobs</TT> command displays the current resource usage
+of the job. This job-level information includes: </P>
+
+<UL>
+<LI><A NAME="15146"></A>Total CPU time consumed by all processes in the
+job </LI>
+
+<LI><A NAME="15147"></A>Total resident memory usage in kbytes of all currently
+running processes in a job </LI>
+
+<LI><A NAME="15148"></A>Total virtual memory usage in kbytes of all currently
+running processes in a job </LI>
+
+<LI><A NAME="15149"></A>Currently active process group ID in a job </LI>
+
+<LI><A NAME="15150"></A>Currently active processes in a job </LI>
+</UL>
+
+<P><A NAME="15151"></A>The job-level resource usage information is updated
+at a maximum frequency of every <TT>SBD_SLEEP_TIME</TT> seconds (see <A HREF="11-lsbatch-reference.html#23026">'The
+<TT>lsb.params</TT> File'</A> of the <I><A HREF="admin-title.html#998232">LSF
+Administrator's Guide</A></I> for the value of <TT><A HREF="11-lsbatch-reference.html#4290">SBD_SLEEP_TIME</A></TT>).
+The update is done only if the value for the CPU time, resident memory
+usage, or virtual memory usage has changed by more than 10 percent from
+the previous update or if a new process or process group has been created.</P>
+
+<PRE><A NAME="15855"></A>% <B>bjobs -l 1531
+</B>Job Id &lt;1531&gt;, User &lt;user1&gt;, Project &lt;default&gt;, Status &lt;RUN&gt;, Queue &lt;priority&gt; 
+                     Command &lt;example 200&gt;
+Fri Dec 27 13:04:14: Submitted from host &lt;hostA&gt;, CWD &lt;$HOME&gt;, Specified Hosts 
+                     &lt;hostD&gt;;
+Fri Dec 27 13:04:19: Started on &lt;hostD&gt;, Execution Home &lt;/home/user1&gt;, Executio
+                     n CWD &lt;/home/user1&gt;;
+Fri Dec 27 13:05:00: Resource usage collected.
+                     The CPU time used is 2 seconds.
+                     MEM: 147 Kbytes;  SWAP: 201 Kbytes
+                     PGID: 8920;  PIDs: 8920 8921 8922 
+ SCHEDULING PARAMETERS:
+              r15s   r1m   r15m   ut    pg    io    ls    it    tmp   swp   mem
+ loadSched    -      -     -      -     -     -     -     -     -     -     -
+ loadStop     -      -     -      -     -     -     -     -     -     -     -</PRE>
+
+<H2><A NAME="2983"></A>Displaying Job History</H2>
+
+<P><A NAME="699"></A>Sometimes you want to know what has happened to your
+job since it was submitted. The <TT>bhist</TT> command displays a summary
+of the pending, suspended and running time of batch jobs. The <TT>-l</TT>
+option of the <TT>bhist</TT> command prints the time information and a
+complete history of the scheduling events for each job.</P>
+
+<PRE><A NAME="15904"></A>% <B>bhist -l 1531
+</B>Job Id &lt;1531&gt;, User &lt;user1&gt;, Project &lt;default&gt;, Command &lt;example 200&gt;
+Fri Dec 27 13:04:14: Submitted from host &lt;hostA&gt; to Queue &lt;priority&gt;, CWD &lt;$HOM
+                     E&gt;, Specified Hosts &lt;hostD&gt;;
+Fri Dec 27 13:04:19: Dispatched to &lt;hostD&gt;;
+Fri Dec 27 13:04:19: Starting (Pid 8920);
+Fri Dec 27 13:04:20: Running with execution home &lt;/home/user1&gt;, Execution CWD &lt;
+                     /home/user1&gt;, Execution Pid &lt;8920&gt;;
+Fri Dec 27 13:05:49: Suspended by the user or administrator;
+Fri Dec 27 13:05:56: Suspended:  Waiting for re-scheduling after being resumed 
+                     by user;
+Fri Dec 27 13:05:57: Running;
+Fri Dec 27 13:07:52: Done successfully. The CPU time used is 28.3 seconds.
+
+Summary of time in seconds spent in various states by Fri Dec 27 13:07:52 1996
+  PEND     PSUSP    RUN      USUSP    SSUSP    UNKWN    TOTAL
+  5        0        205      7        1        0        218</PRE>
+
+<P><A NAME="11508"></A>The <TT>-J <I>job_name</I></TT> option of the <TT>bhist</TT>
+command displays the history of all LSF Batch jobs with the specified job
+name. Job names are assigned with the <TT>-J <I>job_name</I></TT> option
+of the <TT>bsub</TT> command.</P>
+
+<P><A NAME="13394"></A>LSF keeps job history information after the job
+exits, so you can look at the history of jobs that completed in the past.
+The length of the history depends on how often the LSF administrator cleans
+up the log files.</P>
+
+<P><A NAME="11554"></A>By default, <TT>bhist</TT> only displays job history
+from the current event log file. The <TT>-n</TT> option to the <TT>bhist</TT>
+command allows users to display the history of jobs that completed a long
+time ago, and are no longer listed in the active event log.</P>
+
+<P><A NAME="11509"></A>The LSF Batch system periodically backs up and prunes
+the job history log. The <TT>-n </TT><I>num_logfiles</I> option tells the
+<TT>bhist</TT> command to search through the specified number of log files
+instead of only searching the current log file. Log files are searched
+in reverse time order; for example, the command <TT>bhist -n 3</TT> searches
+the current event log file and then the two most recent backup files.</P>
+
+<H2><A NAME="3007"></A>Checking Partial Job Output</H2>
+
+<P><A NAME="15063"></A>The output from an LSF Batch job is normally not
+available until the job is finished. However, LSF Batch provides the <TT>bpeek</TT>
+command for you to look at the output the job has produced so far. By default,
+<TT>bpeek</TT> shows the output from the most recently submitted job; you
+can also select the job by queue or execution host, or specify the job
+ID or job name on the command line.</P>
+
+<PRE><A NAME="15064"></A>% <B>bpeek 1234
+</B>&lt;&lt; output from stdout &gt;&gt;
+Starting phase 1
+Phase 1 done
+Calculating new parameters
+...</PRE>
+
+<P><A NAME="15065"></A>Only the job owner can use <TT>bpeek</TT> to see
+job output. The <TT>bpeek</TT> command will not work on a job running under
+a different user account.</P>
+
+<P><A NAME="13500"></A>You can use this command to check if your job is
+behaving as you expected and kill the job if it is running away or producing
+unusable results. This could save you time.</P>
+
+<H2><A NAME="3026"></A>Displaying Queue and Host Status</H2>
+
+<P><A NAME="5151"></A>The <TT>bqueues</TT> and <TT>bhosts</TT> commands
+display the number of jobs in a queue or dispatched to a host. For more
+information on these commands see <A HREF="05-lsbatch.html#10796">'Batch
+Queues'</A> and <A HREF="05-lsbatch.html#3189">'Batch Hosts'</A>.</P>
+
+<H2><A NAME="5005"></A>Killing Jobs</H2>
+
+<P><A NAME="5006"></A>The <TT>bkill</TT> command cancels pending batch
+jobs and sends signals to running jobs. By default, <TT>bkill</TT> sends
+the <TT>SIGKILL</TT> signal to running jobs. For example, to kill job 3421
+enter:</P>
+
+<PRE><A NAME="5007"></A>% <B>bkill 3421
+</B>Job &lt;3421&gt; is being terminated</PRE>
+
+<P><A NAME="5008"></A>20 seconds before <TT>SIGKILL</TT> is sent, <TT>SIGINT</TT>
+and <TT>SIGTERM</TT> are sent to give the job a chance to catch the signals
+and clean up. The signals are forwarded from the <TT>mbatchd</TT> to the
+<TT>sbatchd</TT>. The <TT>sbatchd</TT> waits for the job to exit before
+reporting the status. Because of this, <TT>bjobs</TT> may still report
+that the job is running for a few seconds.</P>
+
+<P><A NAME="5009"></A>To send an arbitrary signal to your job, use the
+<TT>-s</TT> option of the <TT>bkill</TT> command. You can specify either
+the signal name or the signal number. On most versions of UNIX, signal
+names and numbers are listed in the <TT>kill(1)</TT> or <TT>signal(2)</TT>
+manual page.</P>
+
+<PRE><A NAME="5010"></A>% <B>bkill -s TSTP 3421
+</B>Job &lt;3421&gt; is being signaled</PRE>
+
+<P><A NAME="5011"></A>This example sends the TSTP signal to job 3421. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="11708"></A><B>Note<BR>
+</B><I>Signal numbers are translated across different platforms because
+different operating systems may have different signal numbering. The real
+meaning of a specific signal is interpreted by the machine from which the
+</I><TT>bkill</TT><I> command is issued. For example, if you send signal
+18 from an SunOS 4.x host, it means </I><TT>SIGTSTP</TT><I>. If the job
+is running on an HP-UX, </I><TT>SIGTSTP</TT><I> is defined as signal number
+25, so signal 25 is sent to the job.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="5012"></A>Only the owner of a batch job or an LSF administrator
+can send signals to a job.</P>
+
+<H2><A NAME="5013"></A>Suspending and Resuming Jobs</H2>
+
+<P><A NAME="5014"></A>The <TT>bstop</TT> and <TT>bresume</TT> commands
+are convenient aliases for <TT>bkill -s</TT>, sending the <TT>SIGSTOP</TT>/<TT>SIGTSTP</TT>
+and <TT>SIGCONT</TT> signals respectively. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="11763"></A><B>Note<BR>
+</B><I>You cannot send arbitrary signals to a pending job; most signals
+are only valid for running jobs. However, LSF Batch does allow you to kill,
+suspend and resume pending jobs.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="5015"></A>To suspend job 3421, enter:</P>
+
+<PRE><A NAME="5016"></A>% <B>bstop 3421
+</B>Job &lt;3421&gt; is being stopped</PRE>
+
+<P><A NAME="5017"></A><TT>bstop</TT> sends the <TT>SIGSTOP</TT> signal
+to sequential jobs and <TT>SIGTSTP</TT> to parallel jobs. SIGTSTP is sent
+to a parallel job so the master process can trap the signal and pass it
+to all the slave processes running on other hosts.</P>
+
+<P><A NAME="12375"></A>To resume the same job, enter:</P>
+
+<PRE><A NAME="5018"></A>% <B>bresume 3421
+</B>Job &lt;3421&gt; is being resumed</PRE>
+
+<P><A NAME="5019"></A>Suspending a job causes your job to go into <TT><A HREF="05-lsbatch.html#3001">USUSP</A></TT>
+state if the job is already started, or to go into <TT><A HREF="05-lsbatch.html#2999">PSUSP</A></TT>
+state if your job is pending. Resuming a user suspended job does not put
+your job into <TT><A HREF="05-lsbatch.html#2980">RUN</A></TT> state immediately.
+If your job was running before the suspension, <TT>bresume</TT> first puts
+your job into <TT><A HREF="05-lsbatch.html#3003">SSUSP</A></TT> state and
+then waits for <TT>sbatchd</TT> to schedule it according to the load conditions.</P>
+
+<H2><A NAME="5024"></A>Moving Jobs Within and Between Queues</H2>
+
+<P><A NAME="5026"></A>The <TT>btop</TT> and <TT>bbot</TT> commands move
+pending jobs within a queue. <TT>btop</TT> moves jobs toward the top of
+the queue, so that they are dispatched before other pending jobs. <TT>bbot</TT>
+moves jobs toward the bottom of the queue so that they are dispatched later.
+The default behaviour is to move the job as close to the top or bottom
+of the queue as possible. By specifying a position on the command line,
+you can move a job to an arbitrary position relative to the top or bottom
+of the queue.</P>
+
+<P><A NAME="5027"></A>The <TT>btop</TT> and <TT>bbot</TT> commands do not
+allow users to move their own jobs ahead of those submitted by other users;
+only the dispatch order of the user's own jobs is changed. Only an LSF
+administrator can move one user's job ahead of another. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="13707"></A><B>Note<BR>
+</B><I>The </I><TT>btop</TT><I> and </I><TT>bbot</TT><I> commands have
+no effect on the job dispatch order when fairshare policies are used. </I></P>
+</BLOCKQUOTE>
+
+<PRE><A NAME="5029"></A>% <B>bjobs -u all
+</B>JOBID USER  STAT  QUEUE    FROM_HOST  EXEC_HOST  JOB_NAME   SUBMIT_TIME
+5308  user2 RUN   normal   hostA      hostD      sleep 500  Oct 23 10:16
+5309  user2 PEND  night    hostA                 sleep 200  Oct 23 11:04
+5310  user1 PEND  night    hostB                 myjob      Oct 23 13:45
+5311  user2 PEND  night    hostA                 sleep 700  Oct 23 18:17
+
+% <B>btop 5311
+</B>Job &lt;5311&gt; has been moved to position 1 from top.
+
+% <B>bjobs -u all
+</B>JOBID USER  STAT  QUEUE    FROM_HOST  EXEC_HOST  JOB_NAME   SUBMIT_TIME
+5308  user2 RUN   normal   hostA      hostD      sleep 500  Oct 23 10:16
+5311  user2 PEND  night    hostA                 sleep 700  Oct 23 18:17
+5310  user1 PEND  night    hostB                 myjob      Oct 23 13:45
+5309  user2 PEND  night    hostA                 sleep 200  Oct 23 11:04</PRE>
+
+<P><A NAME="14950"></A>Note that <I>user1</I>'s job is still in the same
+position on the queue. <I>User2</I> cannot use <TT>btop</TT> to get extra
+jobs at the top of the queue; when one of his jobs moves up on the queue,
+the rest of his jobs move down.</P>
+
+<P><A NAME="9436"></A>The <TT>bswitch</TT> command switches pending and
+running jobs from queue to queue. This is useful if you submit a job to
+the wrong queue, or if the job is suspended because of the queue thresholds
+or run windows and you would like to resume the job.</P>
+
+<PRE><A NAME="5046"></A>% <B>bswitch priority 5309
+</B>Job &lt;5309&gt; is switched to queue &lt;priority&gt;
+
+% <B>bjobs -u all
+</B>JOBID USER  STAT  QUEUE    FROM_HOST  EXEC_HOST  JOB_NAME   SUBMIT_TIME
+5308  user2 RUN   normal   hostA      hostD      sleep 500  Oct 23 10:16
+5309  user2 RUN   priority hostA      hostB      sleep 200  Oct 23 11:04
+5311  user2 PEND  night    hostA                 sleep 700  Oct 23 18:17
+5310  user1 PEND  night    hostB                 myjob      Oct 23 13:45</PRE>
+
+<H2><A NAME="14955"></A>Job Parameter Modification</H2>
+
+<P><A NAME="12897"></A>The parameters associated with a job can be modified
+after the job has been submitted. The <TT>bmodify command allows for changes
+to the parameters of already submitted jobs. The parameters of a job can
+be modified only if the job is in pending status. </TT></P>
+
+<P><A NAME="12898"></A>The <TT>bmodify</TT> command takes the same options
+as the <TT>bsub</TT> command together with a job ID. (See <A HREF="06-submitting.html#343">'Submitting
+Batch Jobs'</A>.) The given options replace the existing options of the
+specified job.</P>
+
+<P><A NAME="13151"></A>To reset an option to its default value, append
+the <TT>n</TT> character to the option name. No option value should be
+specified when resetting an option. For example:</P>
+
+<PRE><A NAME="13174"></A>% <B>bmodify -bn 123</B></PRE>
+
+<P><A NAME="13191"></A>Job 123 will be dispatched as soon as possible,
+ignoring any previously specified start time. The following example shows
+how <TT>bmodify</TT> is used to change the start time to 2 A.M.:</P>
+
+<PRE><A NAME="13812"></A><TT>% <B>bmodify -b 2:00</B></TT></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="12776"></A><B>Note<BR>
+</B><I>The job command line itself and the environment variables present
+at submission time cannot be modified. In versions of LSF prior to V3.0,
+the shell option set with the </I><TT>-L</TT><I> argument also could not
+be modified.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="16058"></A>Job Tracking and Manipulation Using <TT>xlsbatch</TT></H2>
+
+<P><A NAME="16260"></A>Most of the operations discussed in this chapter
+can also be performed using the <TT>xlsbatch</TT> GUI. The main window
+of <TT>xlsbatch</TT> is shown in <A HREF="02-get-started.html#13749">'Figure
+4. <TT>xlsbatch</TT> Main Window'</A>. </P>
+
+<P><A NAME="16264"></A>You can view job details by first select a job and
+then click on the '<TT>Detail</TT>' button. The resulting popup window
+is shown in <A HREF="07-tracking.html#16289">Figure 11</A>. This gives
+you the same information as you can get by running the <TT>bjobs -l</TT>
+command. </P>
+
+<H4><A NAME="16289"></A>Figure 11. Detailed Job Information Popup Window
+</H4>
+
+<P><A HREF="usr-figure11.gif"><IMG SRC="usr-figure11.gif" ALT="Detailed Job Information Popup Window" BORDER=0 HEIGHT=271 WIDTH=446></A>
+</P>
+
+<P><A NAME="16208"></A>The '<TT>History</TT>' button gives you a popup
+window for job history as you can otherwise get through the <TT>bhist</TT>
+command. </P>
+
+<P><A NAME="16213"></A>To perform control actions on jobs, such as killing
+a job or suspending/resuming a job, simply select the job and then click
+on an action button.</P>
+
+<P><A NAME="16229"></A>You can also invoke the <TT>xbsub</TT> window from
+inside xlsbatch to submit new jobs. If you want to modify a job parameter,
+simply select on the job and click on '<TT>Modify</TT>' button to get the
+job modification popup window. Note that this window can also be invoked
+by running <TT>xbmodify</TT> from the command line. <A HREF="07-tracking.html#16307">Figure
+12</A> shows the <TT>xbmodify</TT> window. This window is the similar to
+the <TT>xbsub</TT> window except that the command line is read-only.</P>
+
+<H4><A NAME="16307"></A>Figure 12. <TT>xbmodify</TT> Window </H4>
+
+<P><A HREF="usr-figure12.gif"><IMG SRC="usr-figure12.gif" ALT="xbmodify Window" BORDER=0 HEIGHT=344 WIDTH=404></A>
+</P>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="06-submitting.html">[Prev]</A>
+<A HREF="08-interactive.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:28:08 --></P>
+
+</BODY>
+</HTML>

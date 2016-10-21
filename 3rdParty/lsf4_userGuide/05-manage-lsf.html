@@ -1,0 +1,1367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Managing LSF Base </TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="03-concepts.html">[Prev]</A>
+<A HREF="07-manage-lsbatch.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="10608"></A>Chapter 5. <A NAME="10606"></A>Managing LSF Base
+</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="32795"></A>This chapter describes the operation, maintenance
+and tuning of LSF Base cluster. Since LSF Base is essential to all LSF
+components, the correct operation of LSF Base is essential to other LSF
+components. This chapter should be read by all LSF cluster administrators.
+</P>
+
+<H2><A NAME="11523"></A>Managing Error Logs</H2>
+
+<P><A NAME="35841"></A>Error Logs contain important information about daemon
+operations. When you see any abnormal behavior related to any of the LSF
+daemons, you should check the relevant error logs to find out the cause
+of the problem. </P>
+
+<P><A NAME="11524"></A>LSF log files grow over time. These files should
+occasionally be cleared, either by hand or using automatic scripts run
+by <TT>cron</TT>(<TT>1</TT>). If you are using LSF JobScheduler, you can
+define a calendar-driven job to do the cleanup regularly. </P>
+
+<H3><A NAME="11531"></A>LSF Daemon Error Log</H3>
+
+<P><A NAME="35824"></A>All LSF log files are reopened each time a message
+is logged, so if you rename or remove a log file of an LSF daemon, the
+daemons will automatically create a new log file.</P>
+
+<P><A NAME="35749"></A>The LSF daemons log messages when they detect problems
+or unusual situations. The daemons can be configured to put these messages
+into files, or to send them to the system error logs using the <TT>syslog</TT>
+facility.</P>
+
+<P><A NAME="35752"></A>If <TT>LSF_LOGDIR</TT> is defined in the <TT>/etc/lsf.conf</TT>
+file, LSF daemons try to store their messages in files in that directory.
+Note that <TT>LSF_LOGDIR</TT> must be writable by root. The error log file
+names for the LSF Base system daemons, LIM and RES, are <TT>lim.log.<I>hostname</I></TT>
+and <TT>res.log.<I>hostname</I></TT>. </P>
+
+<P><A NAME="35809"></A>The error log file names for LSF Batch daemons are
+<TT>sbatchd.log.<I>hostname</I></TT>, <TT>mbatchd.log.<I>hostname</I></TT>,
+and <TT>pim.log.<I>hostname</I>.</TT> The LSF JobScheduler also has a <TT>eeventd.log.<I>hostname</I></TT>
+file, in addition to all the log files of LSF Batch. </P>
+
+<P><A NAME="35796"></A>If <TT>LSF_LOGDIR</TT> is defined but the daemons
+cannot write to files there, the error log files are created in <TT>/tmp</TT>.</P>
+
+<P><A NAME="35773"></A>If <TT>LSF_LOGDIR</TT> is not defined, then errors
+are logged to <TT>syslog</TT> using the <TT>LOG_DAEMON</TT> facility. <TT>syslog</TT>
+messages are highly configurable, and the default configuration varies
+widely from system to system. Start by looking for the file <TT>/etc/syslog.conf</TT>,
+and read the manual pages for <TT>syslog</TT> and/or <TT>syslogd</TT>.</P>
+
+<P><A NAME="35801"></A>LSF daemons log error messages in different levels
+so that you can choose to log all messages or only log messages that are
+critical enough. This is controlled by parameter <TT>LSF_LOG_MASK</TT>
+in the <TT>lsf.conf</TT> file. Possible values for this parameter can be
+any log priority symbol that is defined in <TT>syslog.h</TT>. The default
+value for <TT>LSF_LOG_MASK</TT> is <TT>LOG_WARNING</TT>.</P>
+
+<P><A NAME="35802"></A>If the error log is managed by <TT>syslog</TT>,
+it is probably already being automatically cleared.</P>
+
+<P><A NAME="35780"></A>If LSF daemons cannot find the <TT>lsf.conf</TT>
+file when they start, they will not find the definition of <TT>LSF_LOGDIR</TT>.
+In this case, error messages go to <TT>syslog</TT>. If you can not find
+any error messages in the log files, they are likely in the <TT>syslog</TT>.</P>
+
+<P><A NAME="35787"></A>See <A HREF="a-troubleshooting.html#6199">'Troubleshooting
+and Error Messages'</A> for discussion of the more common problems and
+error log messages.</P>
+
+<H3><A NAME="11555"></A>FLEXlm Log</H3>
+
+<P><A NAME="11556"></A>The FLEXlm license server daemons log messages about
+the state of the license servers, and when licenses are checked in or out.
+This log helps to resolve problems with the license servers and to track
+license use.</P>
+
+<P><A NAME="11557"></A>The FLEXlm log is configured by the <TT>lsflicsetup</TT>
+command as described in <A HREF="02-installation.html#30051">'Installing
+a New Permanent License'</A>. This log file grows over time. You can remove
+or rename the existing FLEXlm log file at any time. The script <TT>lsf_license</TT>
+used to run the FLEXlm daemons creates a new log file when necessary. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="33746"></A><B>Note<BR>
+</B><I>If you already have FLEXlm server running for other products and
+LSF licenses are added to the existing license file, then the log messages
+for FLEXlm should go to the same place as you previously set up for other
+products.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="6789"></A>Controlling LIM and RES Daemons</H2>
+
+<P><A NAME="240"></A>The LSF cluster administrator can monitor the status
+of the hosts in a cluster, start and stop the LSF daemons, and reconfigure
+the cluster. Many operations are done using the <TT>lsadmin</TT> command,
+which performs administrative operations on LSF Base daemons, LIM and RES.
+</P>
+
+<H3><A NAME="724"></A>Checking Host Status</H3>
+
+<P><A NAME="825"></A>The <TT>lshosts</TT> and <TT>lsload</TT> commands
+report the current status and load levels of hosts in an LSF cluster. The
+<TT>lsmon</TT> and <TT>xlsmon</TT> commands provide a running display of
+the same information. The LSF administrator can find unavailable or overloaded
+hosts with these tools.</P>
+
+<PRE><A NAME="11886"></A>% <B>lsload
+</B>HOST_NAME  status  r15s   r1m  r15m   ut    pg   ls   it   tmp   swp   mem
+hostD          ok   1.3   1.2   0.9  92%   0.0    2   20    5M  148M   88M
+hostB         -ok   0.1   0.3   0.7  0%    0.0    1   67   45M   25M   34M
+hostA        busy   8.0  *7.0   4.9  84%   4.6    6   17    1M   81M   27M</PRE>
+
+<P><A NAME="35987"></A>When the status of a host is proceeded by a '<TT>-</TT>',
+it means RES is not running on that host. In the above example, RES on
+<I>hostB</I> is down. </P>
+
+<H3><A NAME="931"></A>Restarting LIM and RES</H3>
+
+<P><A NAME="972"></A>LIM and RES can be restarted to upgrade software or
+clear persistent errors. Jobs running on the host are not affected by restarting
+the daemons. The LIM and RES daemons are restarted using the <TT>lsadmin</TT>
+command:</P>
+
+<PRE><A NAME="35938"></A>% <B>lsadmin
+</B>lsadmin&gt;<B>limrestart hostD
+
+</B>Checking configuration files ...
+No errors found.
+
+Restart LIM on &lt;hostD&gt; ...... done
+lsadmin&gt;<B>resrestart hostD
+</B>Restart RES on &lt;hostD&gt; ...... done
+lsadmin&gt;<B>quit</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="35947"></A><B>Note<BR>
+</B><I>You must login as the LSF cluster administrator to run the </I><TT>lsadmin</TT><I>
+command.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1013"></A>The <TT>lsadmin</TT> command can be applied to all
+available hosts by using the host name '<TT>all</TT>'; for example, <TT>lsadmin
+limrestart all</TT>. If a daemon is not responding to network connections
+<TT>lsadmin</TT> displays an error message with the host name. In this
+case you must kill and restart the daemon by hand.</P>
+
+<H3><A NAME="33210"></A>Remote Startup of LIM and RES</H3>
+
+<P><A NAME="33220"></A>LSF administrators can start up any, or all, LSF
+daemons, on any, or all, LSF hosts, from any host in the LSF cluster. For
+this to work, file <TT>/etc/lsf.sudoers</TT> has to be setup properly to
+allow you to start up daemons as root and you should be able to run <TT>rsh</TT>
+across LSF hosts without having to enter a password. See <A HREF="10-lsf-reference.html#12839">'The
+<TT>lsf.sudoers</TT> File'</A> for configuration details of <TT>lsf.sudoers</TT>.</P>
+
+<P><A NAME="33230"></A>The '<TT>limstartup</TT>' and '<TT>resstartup</TT>'
+options in <TT>lsadmin</TT> allow for the startup of the LIM and RES daemons
+respectively. Specifying a host name allows for starting up a daemon on
+particular host. For example,</P>
+
+<PRE><A NAME="33231"></A>% <B>lsadmin limstartup hostA
+</B>Starting up LIM on &lt;hostA&gt; ...... done</PRE>
+
+<PRE><A NAME="33232"></A>% <B>lsadmin resstartup hostA
+</B>Starting up RES on &lt;hostA&gt; ...... done</PRE>
+
+<P><A NAME="33235"></A>The <TT>lsadmin</TT> command can be used to start
+up all available hosts by using the host name '<TT>all</TT>'; for example,
+'<TT>lsadmin limstartup all</TT>'. All LSF daemons, including LIM, RES,
+and <TT>sbatchd</TT>, can be started on all LSF hosts using the command
+<TT>lsfstartup</TT>.</P>
+
+<H3><A NAME="932"></A>Shutting down LIM and RES</H3>
+
+<P><A NAME="1009"></A>All LSF daemons can be shut down at any time. If
+the LIM daemon on the current master host is shut down, another host automatically
+takes over as master. If the RES daemon is shut down while remote interactive
+tasks are running on the host, the running tasks continue but no new tasks
+are accepted. To shutdown LIM and RES, use the <TT>lsadmin</TT> command:</P>
+
+<PRE><A NAME="1018"></A>% <B>lsadmin
+</B>lsadmin&gt;<B>limshutdown hostD
+</B>Shut down LIM on &lt;hostD&gt; ...... done
+lsadmin&gt;<B>resshutdown hostD
+</B>Shut down RES on &lt;hostD&gt; ...... done
+lsadmin&gt;<B>quit</B></PRE>
+
+<P><A NAME="33849"></A>You can run <TT>lsadmin reconfig</TT> while the
+LSF system is in use; users may be unable to submit new jobs for a short
+time, but all current remote executions are unaffected. </P>
+
+<H3><A NAME="33851"></A>Locking and Unlocking Hosts</H3>
+
+<P><A NAME="1062"></A>A LIM can be locked to temporarily prevent any further
+jobs from being sent to the host. The lock can be set to last either for
+a specified period of time, or until the host is explicitly unlocked. Only
+the local host can be locked and unlocked.</P>
+
+<PRE><A NAME="1064"></A>% <B>lsadmin limlock
+</B>Host is locked
+% <B>lsload
+</B>HOST_NAME  status  r15s   r1m  r15m   ut    pg   ls   it   tmp   swp   mem
+hostD          ok   1.3   1.2   0.9  92%   0.0    2   20    5M  148M   28M
+hostA        busy   8.0  *7.0   4.9  84%   0.6    0   17   *1M   31M    7M
+hostC       lockU   0.8   1.0   1.1  73%   1.2    3    0    4M   44M   12M
+% <B>lsadmin limunlock
+</B>Host is unlocked</PRE>
+
+<P><A NAME="33917"></A>Only root and the LSF administrator can lock and
+unlock hosts.</P>
+
+<H2><A NAME="33922"></A>Managing LSF Configuration</H2>
+
+<H3><A NAME="33923"></A>Overview of LSF Configuration Files</H3>
+
+<P><A NAME="34026"></A>LSF configuration consists of several levels:</P>
+
+<H4><A NAME="33934"></A><TT>lsf.conf</TT> File</H4>
+
+<P><A NAME="33952"></A>This is the generic LSF environment configuration
+file. This file defines general installation parameters so that all LSF
+executables can find the necessary information. This file is typically
+installed in the directory all LSF server binaries are installed and a
+symbolic link is made from a convenient directory as defined by the environment
+variable <TT>LSF_ENVDIR</TT>, or the default directory <TT>/etc</TT>. This
+file is created by the <TT>lsfsetup</TT> during installation. Note that
+many of the parameters in this file are machine specific. Detailed contents
+of this file are described in <A HREF="10-lsf-reference.html#2702">'The
+<TT>lsf.conf</TT> File'</A>. </P>
+
+<H4><A NAME="33938"></A>LIM Configuration Files </H4>
+
+<P><A NAME="34022"></A>LIM is the kernel of your cluster that provides
+the single system image to all applications. LIM reads the LIM configuration
+files and determines your cluster and the cluster master host.</P>
+
+<P><A NAME="34958"></A>LIM files include <TT>lsf.shared</TT>, and <TT>lsf.cluster.<I>cluster</I></TT>,
+where <I>cluster</I> is the name of your LSF cluster. These files define
+the host members, general host attributes, and resource definitions for
+your cluster. The individual functions of each of the files are described
+below.</P>
+
+<P><A NAME="34023"></A><TT>lsf.shared</TT> defines the available resource
+names, host types, host models, cluster names and external load indices
+that can be used by all clusters. This file is shared by all clusters.
+</P>
+
+<P><A NAME="34024"></A><TT>lsf.cluster.<I>cluster</I></TT> file is a per
+cluster configuration file. It contains two types of configuration information:
+cluster definition information and LIM policy information. Cluster definition
+information impacts all LSF applications, while LIM policy information
+impacts applications that rely on LIM's policy for job placement. </P>
+
+<P><A NAME="34915"></A>The cluster definition information defines cluster
+administrators, all the hosts that make up the cluster, attributes of each
+individual host such as host type, host model, resources using the names
+defined in <TT>lsf.shared</TT>.</P>
+
+<P><A NAME="34933"></A>LIM policy information defines the load sharing
+and job placement policies provided by LIM. More details about LIM policies
+are described in <A HREF="05-manage-lsf.html#383">'Tuning LIM Load Thresholds'</A>.</P>
+
+<P><A NAME="35017"></A>LIM configuration files are stored in directory
+<TT>LSF_CONFDIR</TT> as defined in the <TT>lsf.conf</TT> file. Details
+of LIM configuration files are described in <A HREF="10-lsf-reference.html#2744">'The
+<TT>lsf.shared</TT> File'</A>. </P>
+
+<H4><A NAME="34992"></A><TT>lsf.task</TT> File </H4>
+
+<P><A NAME="34025"></A><TT>lsf.task</TT> is a system-wide task to default
+resource requirement string mapping file. This file defines mappings between
+task names and their default resource requirements. LSF maintains a task
+list for each user in the system. The <TT>lsf.task</TT> file is useful
+for the cluster administrator to set task-to-resource requirement mapping
+at the system level. Individual users can customize their own list by using
+the <TT>lsrtasks</TT> command (See <TT>lsrtasks</TT>(<TT>1</TT>) man page
+for details of this command). </P>
+
+<P><A NAME="34993"></A>When you run a job with a LSF command such as <TT>bsub</TT>
+or <TT>lsrun</TT>, the command consults your task list to find out the
+default resource requirement string of the job if they are not already
+specified explicitly. If a match is not found in your task list, the system
+will assume a default, which typically means run the job on a host that
+has the same host type as the local host. </P>
+
+<P><A NAME="35010"></A>There is also a per cluster file <TT>lsf.task.<I>cluster</I></TT>
+that applies to the cluster only and overrides the system-wide definition.
+Individual users can have their own files to override the system-wide and
+cluster-wide files by using the <TT>lsrtasks</TT> command. </P>
+
+<P><A NAME="35027"></A><TT>lsf.task</TT> and <TT>lsf.task.<I>cluster</I></TT>
+files are installed in directory <TT>LSF_CONFDIR</TT> as defined in the
+<TT>lsf.conf</TT> file. </P>
+
+<H4><A NAME="36059"></A>LSF Batch Configuration Files </H4>
+
+<P><A NAME="36060"></A>These files define LSF Batch specific configuration
+such as queues, batch server hosts and batch user controls. These files
+are only read by <TT>mbatchd</TT>. The LSF Batch configuration relies on
+LIM configuration. LSF Batch daemons get the cluster configuration information
+from the LIM via the LSF API. </P>
+
+<P><A NAME="34053"></A>LSF Batch configuration files are stored in directory
+<TT>LSB_CONFDIR/<I>cluster</I></TT>, where <TT>LSB_CONFDIR</TT> is defined
+in <TT>lsf.conf</TT>, and <I>cluster </I>is the name of your cluster. Details
+of LSF Batch configuration files are described in <A HREF="07-manage-lsbatch.html#1283">'Managing
+LSF Batch'</A>.</P>
+
+<H3><A NAME="33921"></A>Configuration File Formats</H3>
+
+<P><A NAME="33884"></A>All configuration files except <TT>lsf.conf</TT>
+use a section-based format. Each file contains a number of sections. Each
+section starts with a line beginning with the reserved word <TT>Begin</TT>
+followed by a section name, and ends with a line beginning with the reserved
+word <TT>End</TT> followed by the same section name. <TT>Begin</TT>, <TT>End</TT>,
+section names and keywords are all case insensitive.</P>
+
+<P><A NAME="33886"></A>Sections can either be vertical or horizontal. A
+horizontal section contains a number of lines, each having the format:
+<TT>keyword = value</TT>, where <I>value</I> is one or more strings. For
+example:</P>
+
+<PRE><A NAME="33887"></A>Begin exampleSection
+key1 = string1
+key2 = string2 string3
+key3 = string4
+End exampleSection</PRE>
+
+<PRE><A NAME="33888"></A>Begin exampleSection
+key1 = STRING1
+key2 = STRING2 STRING3
+End exampleSection</PRE>
+
+<P><A NAME="33889"></A>In many cases you can define more than one object
+of the same type by giving more than one horizontal section with the same
+section name.</P>
+
+<P><A NAME="33891"></A>A vertical section has a line of keywords as the
+first line. The lines following the first line are values assigned to the
+corresponding keywords. Values that contain more than one string must be
+bracketed with '<TT>(</TT>' and '<TT>)</TT>'. The above examples can also
+be expressed in one vertical section:</P>
+
+<PRE><A NAME="33892"></A>Begin exampleSection
+key1     key2               key3
+string1  (string2 string3)  string4
+STRING1  (STRING2 STRING3)  -
+End exampleSection</PRE>
+
+<P><A NAME="33893"></A>Each line in a vertical section is equivalent to
+a horizontal section with the same section name.</P>
+
+<P><A NAME="33895"></A>Some keys in certain sections are optional. For
+a horizontal section, an optional key does not appear in the section if
+its value is not defined. For a vertical section, an optional keyword must
+appear in the keyword line if any line in the section defines a value for
+that keyword. To specify the default value use '<TT>-</TT>' or '<TT>()</TT>'
+in the corresponding column, as shown for <I>key3</I> in the example above.</P>
+
+<P><A NAME="33896"></A>Each line may have multiple columns, separated by
+either spaces or TAB characters. Lines can be extended by a '<TT>\</TT>'
+(back slash) at the end of a line. A '<TT>#</TT>' (pound sign) indicates
+the beginning of a comment; characters up to the end of the line are not
+interpreted. Blank lines are ignored.</P>
+
+<H3><A NAME="34131"></A>Example Configuration Files</H3>
+
+<P><A NAME="34132"></A>Below are some examples of LIM configuration and
+LSF Batch configuration files. Detailed explanations of the variables are
+described in <A HREF="10-lsf-reference.html#9953">'LSF Base Configuration
+Reference'</A>. </P>
+
+<P><A NAME="34282"></A>Example <TT>lsf.shared</TT> file</P>
+
+<PRE><A NAME="34193"></A>Begin Cluster
+ClusterName                                # This line is keyword(s)
+test_cluster
+End Cluster
+
+Begin HostType
+TYPENAME                                   # This line is keyword(s)
+hppa
+SUNSOL
+rs6000
+alpha
+NTX86
+End HostType
+
+Begin HostModel
+MODELNAME               CPUFACTOR          # This line is keyword(s)
+HP735                   4.0
+DEC3000                 5.0
+ORIGIN2K                8.0
+PENTI120                3.0
+End HostModel
+
+Begin Resource
+RESOURCENAME            DESCRIPTION        #This line is keyword(s)
+hpux                    (HP-UX operating system)
+decunix                 (Digital Unix)
+solaris                 (Sun Solaris operating system)
+NT                      (Windows NT operating system)
+fserver                 (File Server)
+cserver                 (Compute Server)
+End Resource</PRE>
+
+<P><A NAME="34140"></A>Example <TT>lsf.cluster.test_cluster</TT> file:</P>
+
+<PRE><A NAME="34141"></A>Begin ClusterManager
+Manager = lsf user7
+End ClusterManager
+
+Begin Host
+HostNAme     Model      Type       server     swp    Resources 
+hostA        HP735      hppa          1       2     (fserver hpux)
+hostD        ORIGIN2K   sgi           1       2     (cserver)
+hostB        PENT200    NTX86         1       2     (NT)
+End Host</PRE>
+
+<P><A NAME="34273"></A>In the above file, section <TT>ClusterManager</TT>
+takes horizontal format, while <TT>Host</TT> section takes vertical format.</P>
+
+<P><A NAME="36074"></A>Other LSF Batch configuration files are described
+in <A HREF="07-manage-lsbatch.html#15540">'Example LSF Batch Configuration
+Files'</A>.</P>
+
+<H3><A NAME="23513"></A>Changing LIM Configuration</H3>
+
+<P><A NAME="1753"></A>This section gives procedures for some common changes
+to the LIM configuration. There are three different ways for you to change
+LIM configuration: </P>
+
+<UL>
+<LI><A NAME="34067"></A>Using <TT>lsfsetup</TT> as described in <A HREF="04-configure-lsf.html#19007">'Initial
+Configuration'</A>. </LI>
+
+<LI><A NAME="34079"></A>Edit individual files using an editor. </LI>
+
+<LI><A NAME="34080"></A>Using the <TT>xlsadmin</TT> GUI. </LI>
+</UL>
+
+<P><A NAME="34372"></A>The following discussions focus on changing configuration
+files using an editor so that you can understand the concepts behind the
+configuration changes. See <A HREF="07-manage-lsbatch.html#16208">'Managing
+LSF Cluster Using <TT>xlsadmin</TT>'</A> for the use of <TT>xlsadmin</TT>
+in changing configuration files. </P>
+
+<P><A NAME="36222"></A></P>
+
+<BLOCKQUOTE>
+<P><B>Note:<BR>
+</B><I>If you run LSF Batch, you must restart </I><TT>mbatchd</TT><I> using
+'</I><TT>badmin reconfig</TT><I>' command each time you change the LIM
+configuration, even if the LSF Batch configuration files do not change.
+This is needed because the LSF Batch configuration depends on the LIM configuration.</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="306"></A>Adding a Host to a Cluster</H3>
+
+<DL>
+<DT><A NAME="23831"></A><B>Step 1. </B></DT>
+
+<DD>If you are adding a host of a new host type, make sure you do the steps
+described in <A HREF="02-installation.html#18725">'Installing Each Additional
+Host Type'</A> first. </DD>
+
+<DT><A NAME="34107"></A><B>Step 2. </B></DT>
+
+<DD>If you are adding a host of a type for which you already installed
+LSF binaries, make sure that the LSF binaries, configuration files, and
+working directories are NFS mounted on the new host. For each new host
+you add, do host setup steps as described in <A HREF="02-installation.html#28738">'Additional
+Steps on Each LSF Server Host'</A>. </DD>
+
+<DT><A NAME="24093"></A><B>Step 3. </B></DT>
+
+<DD>If you are adding a new host type to the cluster, modify the <TT>HostType</TT>
+section of the <TT>lsf.shared</TT> file to add the new host type. A host
+type can be any alphanumeric string up to 29 characters long. </DD>
+
+<DT><A NAME="16663"></A><B>Step 4. </B></DT>
+
+<DD>If you are adding a new host model, modify the <TT>HostModel</TT> section
+of the <TT>lsf.shared</TT> file to add in the new model together with its
+CPU speed factor relative to other models. </DD>
+
+<DT><A NAME="16669"></A><B>Step 5. </B></DT>
+
+<DD>For each host you add into the cluster, you should add a line to the
+<TT>Host</TT> section of the <TT>lsf.cluster.<I>cluster</I></TT><I> </I>file
+with host name, host type, and all other attributes defined, as shown in
+<A HREF="05-manage-lsf.html#34131">'Example Configuration Files'</A>. </DD>
+
+<DD>The master LIM and <TT>mbatchd</TT> daemons run on the first available
+host in the <TT>Host</TT> section of your <TT>lsf.cluster.<I>cluster</I></TT>
+file, so you should list reliable batch server hosts first. For more information
+see <A HREF="03-concepts.html#3741">'Fault Tolerance'</A>. </DD>
+
+<DD>If you are adding a client host, set the <TT>SERVER</TT> field for
+the host to 0 (zero). </DD>
+
+<DT><A NAME="34364"></A><B>Step 6. </B></DT>
+
+<DD>Reconfigure your LSF cluster so that LIM knows that you have added
+a new host to the cluster. Follow instructions in <A HREF="05-manage-lsf.html#36278">'Reconfiguring
+an LSF Cluster'</A>. If you are adding more than one host, do this step
+after you have done step 1 to 6 for all added hosts. </DD>
+
+<DT><A NAME="36205"></A><B>Step 7. </B></DT>
+
+<DD>If you are adding hosts as LSF Batch server hosts, add these hosts
+to LSF Batch configuration by following steps described in <A HREF="07-manage-lsbatch.html#7840">'Restarting
+<TT>sbatchd</TT>'</A>. </DD>
+
+<DT><A NAME="36091"></A><B>Step 8. </B></DT>
+
+<DD>Start the LSF daemons on the newly added host(s) by running <TT>LSF_SERVERDIR/lsf_daemons
+start</TT> and use <TT>ps</TT> to make sure that <TT>res</TT>, <TT>lim</TT>,
+and <TT>sbatchd</TT> have started. </DD>
+
+<BLOCKQUOTE>
+<P><A NAME="37295"></A><B>CAUTION!<BR>
+LSF daemons start must be run as root. If you are creating a private cluster,
+do not attempt to use <TT>lsf_daemons</TT> to start your daemons. Start
+them manually.</B></P>
+</BLOCKQUOTE>
+</DL>
+
+<H3><A NAME="36094"></A>Removing Hosts From a Cluster</H3>
+
+<DL>
+<DT><A NAME="17074"></A><B>Step 1. </B></DT>
+
+<DD>If you are running LSF Batch, make sure you remove unwanted hosts from
+the LSF Batch first following steps described in <A HREF="07-manage-lsbatch.html#7840">'Restarting
+<TT>sbatchd</TT>'</A>. </DD>
+
+<DT><A NAME="36187"></A><B>Step 2. </B></DT>
+
+<DD>Edit your <TT>lsf.cluster.<I>cluster</I></TT><I> </I>file and remove
+the unwanted hosts from the <TT>Host</TT> section. </DD>
+
+<DT><A NAME="34478"></A><B>Step 3. </B></DT>
+
+<DD>Log in to any host in the cluster as the LSF administrator. Run:</DD>
+
+<DL>
+<PRE><TT>%&nbsp;lsadmin resshutdown host1<I> </I>host2<I> ...</I></TT></PRE>
+
+<P>where <I>host1</I>, <I>host2</I>, ... are hosts you want to remove from
+your cluster. </P>
+</DL>
+
+<DT><A NAME="34482"></A><B>Step 4. </B></DT>
+
+<DD>Follow instructions in <A HREF="05-manage-lsf.html#36278">'Reconfiguring
+an LSF Cluster'</A> to reconfigure your LSF cluster. The LIMs on the removed
+hosts will quit upon reconfiguration. </DD>
+
+<DT><A NAME="34504"></A><B>Step 5. </B></DT>
+
+<DD>Remove the LSF section from the host's system startup files. This undoes
+what you have done previously to start LSF daemons at boot time. See <A HREF="02-installation.html#20997">'Starting
+LSF Servers at Boot Time'</A> for details. </DD>
+
+<DT><A NAME="320"></A><B>Step 6. </B></DT>
+
+<DD>If any users use <TT>lstcsh</TT> as their login shell, change their
+login shell to <TT>tcsh</TT> or <TT>csh</TT>. Remove <TT>lstcsh</TT> from
+the <TT>/etc/shells</TT> file. </DD>
+</DL>
+
+<H3><A NAME="34530"></A>Customizing Host Resources</H3>
+
+<P><A NAME="34534"></A>Your cluster is most likely heterogeneous. Even
+if your computers are all the same, it may still be heterogeneous. For
+example, some machines are configured as file servers, while others are
+compute servers; some have more memory, others have less, some have four
+CPUs, others have only one; some have host-locked software licenses installed,
+others do not. </P>
+
+<P><A NAME="34544"></A>LSF provides powerful resource selection mechanisms
+so that correct hosts with required resources are chosen to run your jobs.
+For maximum flexibility, you should characterize your resources clear enough
+so that users have enough choices. For example, if some of your machines
+are connected to both Ethernet and FDDI, while others are only connected
+to Ethernet, then you probably want to define a resource called <TT>fddi</TT>
+and associate the <TT>fddi</TT> resource to machines connected to FDDI.
+This way, users can specify resource <TT>fddi</TT> if they want their jobs
+to run on machines connected to FDDI. </P>
+
+<P><A NAME="34545"></A>To customize host resources for your cluster, follow
+the following procedures.</P>
+
+<DL>
+<DT><A NAME="17193"></A><B>Step 1. </B></DT>
+
+<DD>Log in to any host in the cluster as the LSF administrator. </DD>
+
+<DT><A NAME="17204"></A><B>Step 2. </B></DT>
+
+<DD>Define new resource names by modifying the <TT>resource</TT> section
+of the <TT>lsf.shared</TT> file. Add a brief description to each of the
+added resource names. Resource descriptions will be displayed to a user
+by <TT>lsinfo</TT> command. </DD>
+
+<DT><A NAME="324"></A><B>Step 3. </B></DT>
+
+<DD>If you want to associate added resource names to an application, edit
+the <TT>lsf.task</TT> file properly to reflect the resource into the resource
+requirements of the application. Alternatively, you can leave this to individual
+users who can use <TT>lsrtasks</TT> command to customize his/her own file.
+</DD>
+
+<DT><A NAME="34619"></A><B>Step 4. </B></DT>
+
+<DD>Edit the <TT>lsf.cluster.<I>cluster</I></TT><I> </I>file to modify
+the <TT>RESOURCES</TT> column of the <TT>Host</TT> section so that all
+hosts that have the added resources will now have the added resource names
+in that column. </DD>
+
+<DT><A NAME="17600"></A><B>Step 5. </B></DT>
+
+<DD>Follow instructions in <A HREF="05-manage-lsf.html#36278">'Reconfiguring
+an LSF Cluster'</A> to reconfigure your LSF cluster. </DD>
+</DL>
+
+<H3><A NAME="330"></A>Adding Dedicated Resources</H3>
+
+<P><A NAME="331"></A>Some hosts are dedicated to running a particular application
+or class of applications. For example, a software group might have a compute
+server with very fast local disk and a special compiler license. This compute
+server is intended to run compilation jobs only.</P>
+
+<P><A NAME="332"></A>You can make a host dedicated to a resource to disallow
+unwanted jobs to go to a particular host. Dedicated resources are defined
+just like Boolean resources. To make a host dedicated to a resource, precede
+the resource name by an exclamation mark '<TT>!</TT>' in the <TT>RESOURCES</TT>
+column of the <TT>lsf.cluster.<I>cluster</I></TT>. If a host is dedicated
+to a resource, LIM only selects that host if the application requires the
+dedicated resource. For example, add an <TT>f77</TT> resource to the systems
+cluster, and dedicate a host to that resource.</P>
+
+<PRE><A NAME="334"></A>% <B>lshosts
+</B>HOST_NAME type model  cpuf ncpus maxmem maxswp server RESOURCES
+hostC     SUN4 SunIPC  2.7     1   24M    48M    Yes  (sparc !f77)
+hostE     SUN4 SunIPC  2.7     2   96M   170M    Yes  (sparc f77)</PRE>
+
+<P><A NAME="346"></A>Now when you run an ordinary load shared command,
+only <I>hostE</I> is eligible. If you ask for the <TT>f77</TT> resource
+in the resource requirement, both hosts are eligible. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="350"></A><B>Note<BR>
+</B><I>Dedicated resources are not a secure way of controlling access to
+a host. Users can specify the dedicated resource on the command line, and
+they can also force remote execution on a particular host by explicitly
+specifying the host name. Use LSF Batch policy to enforce access control.
+</I></P>
+</BLOCKQUOTE>
+
+<H3><A NAME="36278"></A>Reconfiguring an LSF Cluster</H3>
+
+<P><A NAME="36279"></A>After changing LIM configuration files you must
+tell LIM to read the new configuration. Use the <TT>lsadmin</TT> commands
+to tell LIM to pick up the new configuration. </P>
+
+<P><A NAME="36282"></A>Operations can be specified on the command line
+or entered at a prompt. Run the <TT>lsadmin</TT> command with no arguments,
+and type <TT>help</TT> to see the available operations. </P>
+
+<P><A NAME="36283"></A>The <TT>lsadmin reconfig</TT> command checks the
+LIM configuration files for errors. If no errors are found, the command
+confirms that you want to restart the LIMs on all hosts, and reconfigures
+all the LIM daemons:</P>
+
+<PRE><A NAME="36284"></A>% <B>lsadmin reconfig
+</B>Checking configuration files ...
+No errors found.
+
+Do you really want to restart LIMs on all hosts? [y/n] <B>y
+</B>Restart LIM on &lt;hostD&gt; ...... done
+Restart LIM on &lt;hostA&gt; ...... done
+Restart LIM on &lt;hostC&gt; ...... done</PRE>
+
+<P><A NAME="36285"></A>In the above example no errors are found. If any
+non-fatal errors are found, the command asks you to confirm the reconfiguration.
+If fatal errors are found, the reconfiguration is aborted.</P>
+
+<P><A NAME="36286"></A>If you want to see details on any errors, run the
+command <TT>lsadmin ckconfig -v</TT>. This reports all errors to your terminal.</P>
+
+<P><A NAME="36287"></A>If you change the configuration file of LIM, you
+should also reconfigure LSF Batch by running <TT>badmin reconfig</TT> because
+LSF Batch depends on LIM configuration. If you change the configuration
+of LSF Batch, then you only need to run <TT>badmin reconfig</TT>.</P>
+
+<H2><A NAME="35412"></A>External Load Indices</H2>
+
+<P><A NAME="35414"></A>The LIM can be extended to support additional load
+information through <I>external load indices</I>. Examples of external
+load indices are network traffic, free disk space on scratch file systems,
+and available software licenses. </P>
+
+<P><A NAME="35418"></A>LSF supports over 100 external load indices, which
+can be defined for each cluster. The external load indices are calculated
+by a separate program, called the External LIM or ELIM. By providing your
+own ELIM you can configure your cluster to keep track of any dynamic information
+you choose.</P>
+
+<H3><A NAME="35419"></A>Writing an External LIM</H3>
+
+<P><A NAME="35420"></A>The ELIM can be any executable program, either an
+interpreted script or compiled code. Example code for an ELIM is included
+in the <TT>misc</TT> directory in the LSF distribution. The <TT>elim.c</TT>
+file is an ELIM written in C. You can customize this example to collect
+the load indices you want.</P>
+
+<P><A NAME="35424"></A>The ELIM communicates with the LIM by periodically
+writing a load update string to its standard output. The load update string
+contains the number of indices followed by a list of <I>name-value</I>
+pairs in the following format:</P>
+
+<PRE><A NAME="35425"></A><I>N name1 value1 name2 value2 ... nameN valueN</I></PRE>
+
+<P><A NAME="35426"></A>For example:</P>
+
+<PRE><A NAME="35427"></A>3 tmp2 47.5 nio 344.0 licenses 5</PRE>
+
+<P><A NAME="35428"></A>This string reports 3 indices: <TT>tmp2</TT>, <TT>nio</TT>,
+and <TT>licenses</TT>, with values 47.5, 344.0, and 5 respectively. Index
+names must be defined in the <TT>NewIndex</TT> section of the <TT>lsf.shared
+file</TT> (see <A HREF="05-manage-lsf.html#35439">'Configuring External
+Load Indices'</A>). Index values must be numbers between <TT>-INFINIT_LOAD</TT>
+and <TT>INFINIT_LOAD</TT> as defined in the <TT>lsf.h</TT> header file.</P>
+
+<P><A NAME="35433"></A>If the ELIM is implemented as a C program, as part
+of initialization it should use <TT>setbuf</TT>(<TT>3</TT>) to establish
+unbuffered output to <TT>stdout</TT>.</P>
+
+<P><A NAME="35434"></A>The ELIM should ensure that the entire load update
+string is written successfully to <TT>stdout</TT>. This can be done by
+checking the return value of <TT>printf</TT>(<TT>3s</TT>) if the ELIM is
+implemented as a C program or the return code of <TT>/bin/echo</TT>(<TT>1</TT>)
+from a shell script. The ELIM should exit if it fails to write the load
+information.</P>
+
+<P><A NAME="35435"></A>Each LIM sends updated load information to the master
+every 15 seconds. Depending on how quickly your external load indices change,
+the ELIM should write the load update string at most once every 15 seconds.
+If the external load indices rarely change, the ELIM can write the new
+values only when a change is detected. The LIM continues to use the old
+values until new values are received.</P>
+
+<P><A NAME="35436"></A>The executable for the ELIM must be in <TT>LSF_SERVERDIR</TT>
+and must have the name '<TT>elim</TT>'. If any external load indices are
+defined in the <TT>NewIndex</TT> section of the <TT>lsf.shared</TT> file,
+the LIM invokes the ELIM automatically on startup. The ELIM runs with the
+same user id and file access permission as the LIM.</P>
+
+<P><A NAME="35437"></A>The LIM restarts the ELIM if it exits; to prevent
+problems in case of a fatal error in the ELIM, it is restarted at most
+once every 90 seconds. When the LIM terminates, it sends a <TT>SIGTERM</TT>
+signal to the ELIM. The ELIM must exit upon receiving this signal.</P>
+
+<H3><A NAME="35439"></A>Configuring External Load Indices</H3>
+
+<P><A NAME="35440"></A>Configure external load indices in the <TT>NewIndex</TT>
+section of the <TT>lsf.shared</TT> file. For each index, provide a name,
+an update interval, the direction of change with increasing load, and a
+description. For the ELIM above, the <TT>NewIndex</TT> section might be
+as follows.</P>
+
+<PRE><A NAME="35441"></A>Begin NewIndex
+NAME  INTERVAL  INCREASING  DESCRIPTION
+tmp2        30           N  (Disk space in /usr/tmp in MB)
+nio         15           Y  (Network I/O in KB/second)
+licenses    60           N  (Number of licenses available)
+End NewIndex </PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="35445"></A><B>Note<BR>
+</B><I>The name of the load index must not be one of the resource name
+aliases </I><TT>cpu</TT><I>, </I><TT>idle</TT><I>, </I><TT>logins</TT><I>,
+or </I><TT>swap</TT><I>. <BR>
+<BR>
+The update interval is for user information only. The actual update interval
+is controlled by your ELIM.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="35449"></A>For a complete explanation of the meaning of the
+keywords, see <A HREF="10-lsf-reference.html#234">'External Load Indices'</A>.</P>
+
+<P><A NAME="35451"></A>By default, the LIM polls the ELIM every five seconds
+for information. If the interval for the most frequently updated external
+index is less than five seconds, then the <TT>ELIM_POLL_INTERVAL</TT> parameter
+in the Parameters section of the <TT>lsf.cluster.<I>cluster</I></TT> file
+can be used to specify a shorter sampling interval. Additionally it is
+necessary to set the <TT>EXINTERVAL</TT> (minimum exchange interval) parameter
+in the <TT>lsf.cluster.<I>cluster</I></TT> file to the same value as <TT>ELIM_POLL_INTERVAL</TT>
+to ensure that the load index values collected from the ELIM are sent to
+the master LIM promptly.</P>
+
+<P><A NAME="35454"></A>After configuring the external load indices in <TT>lsf.shared</TT>,
+run <TT>lsadmin reconfig</TT> to check the configuration and restart the
+LIM on all hosts.</P>
+
+<H3><A NAME="35455"></A>Overriding Built-In Load Indices</H3>
+
+<P><A NAME="35457"></A>The ELIM can also return values for the built-in
+load indices. In this case the value produced by the ELIM overrides the
+value produced by the LIM. The ELIM must ensure that the semantics of any
+index it supplies is the same as that of the corresponding index returned
+by the <TT>lsinfo</TT>(<TT>1</TT>) command.</P>
+
+<P><A NAME="35458"></A>For example, some sites prefer to use <TT>/usr/tmp</TT>
+for temporary files. To override the <TT>tmp</TT> load index, write a program
+that periodically measures the space in the <TT>/usr/tmp</TT> file system,
+and writes the value to standard output. Name this program <TT>elim</TT>
+and put it in the <TT>LSF_SERVERDIR</TT> directory. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="35459"></A><B>Note<BR>
+</B><I>The name of an external load index must not be one of the resource
+name aliases </I><TT>cpu</TT><I>, </I><TT>idle</TT><I>, </I><TT>logins</TT><I>,
+or </I><TT>swap</TT><I>. To override one of these indices, use its formal
+name: </I><TT>r1m</TT><I>, </I><TT>it</TT><I>, </I><TT>ls</TT><I>, or </I><TT>swp</TT><I>.<BR>
+<BR>
+You must configure the external load index even if you are overriding a
+built-in load index. </I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="6809"></A>LIM Policies</H2>
+
+<P><A NAME="374"></A>LIM provides very critical services to the all LSF
+components. In addition to the timely collection of resource information,
+LIM also provides host selection and job placement policies. If you are
+using the LSF MultiCluster product, LIM policies also determine how different
+clusters should exchange load and resource information. </P>
+
+<P><A NAME="35069"></A>LIM policies are advisory information for applications.
+Applications can either use the placement decision from the LIM, or make
+further decisions based on information from the LIM. </P>
+
+<P><A NAME="35119"></A>Most of the LSF interactive tools, such as <TT>lsrun</TT>,
+<TT>lsmake</TT>, and <TT>lstcsh</TT>, use LIM policies to place jobs on
+the network. LSF Batch and LSF JobScheduler use load and resource information
+from LIM and make their own placement decisions based on other factors
+in addition to load information. </P>
+
+<P><A NAME="35106"></A>As was described in <A HREF="05-manage-lsf.html#33923">'Overview of
+LSF Configuration Files'</A>, LIM configuration file defines load-sharing
+policies. The LIM configuration parameters that affect LIM policies include:
+</P>
+
+<UL>
+<LI><A NAME="34868"></A><I>Load threshold parameters</I>: These define
+the conditions beyond which a host is considered busy by LIM. No jobs will
+be dispatched to a busy host by LIM's policy. Each of these parameters
+is a load index value so that if the host load goes beyond that value,
+the host becomes busy. </LI>
+
+<P><A NAME="35134"></A>If a particular load index is not specified, then
+LIM assumes that there is no threshold for that load index. Define looser
+values for load thresholds if you want to aggressively run jobs on a host.
+See <A HREF="10-lsf-reference.html#302">'Threshold Fields'</A> for details
+about load thresholds. </P>
+
+<LI><A NAME="34876"></A><I>Dispatch window parameter</I>: This defines
+one or more time windows during which a host is considered available for
+sharing load from other hosts. If the current time is outside all the defined
+time windows, the host is considered locked and LIM will not advise any
+applications to run jobs on the host. </LI>
+
+<P><A NAME="36361"></A>If you do not want LIM to place jobs to some hosts
+during certain hours, you can define run windows for these hosts in the
+<TT>lsf.cluster.<I>cluster</I></TT>. Dispatch windows in <TT>lsf.cluster.<I>cluster</I></TT>
+cause hosts to become locked outside the time windows so that LIM will
+not advise jobs to go to those hosts. Details of this parameter is described
+in <A HREF="10-lsf-reference.html#277">'Hosts'</A>. </P>
+
+<P><A NAME="35170"></A><B>Note<BR>
+</B><I>LIM thresholds and run windows affect the job placement advice of
+the LIM. Job placement advice is not enforced by LIM. LSF Batch, for example,
+does not follow the policies of the LIM. </I></P>
+</UL>
+
+<UL>
+<LI><A NAME="35203"></A><I>Intercluster policies</I>: These are parameters
+specified in the <TT>RemoteClusters</TT> section of the <TT>lsf.cluster.<I>cluster</I></TT>
+file. These parameters apply to the LSF MultiCluster product only. The
+parameters define the relationship between the local cluster and remote
+clusters and the direction of job placement flows across clusters, See
+<A HREF="09-multicluster.html#9953">'Managing LSF MultiCluster'</A> for
+details. </LI>
+</UL>
+
+<P><A NAME="35190"></A>There are two main goals in adjusting the LIM configuration
+parameters: improving response time, and reducing interference with interactive
+use. To improve response time, LSF should be tuned to correctly select
+the best available host for each job. To reduce interference, LSF should
+be tuned to avoid overloading any host.</P>
+
+<H2><A NAME="378"></A>Tuning CPU Factors</H2>
+
+<P><A NAME="35214"></A>CPU factors are used to differentiate the relative
+speed of different machines. LSF runs jobs on the best possible machines
+so that the response time is minimized. To achieve this, it is important
+that you define correct CPU factors for each machine model in your cluster
+by changing the <TT>HostModel</TT> section of your <TT>lsf.shared file</TT>.
+</P>
+
+<P><A NAME="35230"></A>CPU factors should be set based on a benchmark that
+reflects your work load. (If there is no such benchmark, CPU factors can
+be set based on raw CPU power.) The CPU factor of the slowest hosts should
+be set to one, and faster hosts should be proportional to the slowest.
+For example, consider a cluster with two hosts, hostA and hostB, where
+hostA takes 30 seconds to run your favourite benchmark and hostB takes
+15 seconds to run the same test. hostA should have a CPU factor of 1, and
+hostB (since it is twice as fast) should have a CPU factor of 2.</P>
+
+<P><A NAME="35219"></A>LSF uses a normalized CPU performance rating to
+decide which host has the most available CPU power. The normalized ratings
+can be seen by running the <TT>lsload -N</TT> command. The hosts in your
+cluster are displayed in order from best to worst. Normalized CPU run queue
+length values are based on an estimate of the time it would take each host
+to run one additional unit of work, given that an unloaded host with CPU
+factor 1 runs one unit of work in one unit of time.</P>
+
+<P><A NAME="35211"></A>Incorrect CPU factors can reduce performance in
+two ways. If the CPU factor for a host is too low, that host may not be
+selected for job placement when a slower host is available. This means
+that jobs would not always run on the fastest available host. If the CPU
+factor is too high, jobs are run on the fast host even when they would
+finish sooner on a slower but lightly loaded host. This causes the faster
+host to be overused while the slower hosts are underused</P>
+
+<P><A NAME="382"></A>Both of these conditions are somewhat self-correcting.
+If the CPU factor for a host is too high, jobs are sent to that host until
+the CPU load threshold is reached. The LIM then marks that host as busy,
+and no further jobs will be sent there. If the CPU factor is too low, jobs
+may be sent to slower hosts. This increases the load on the slower hosts,
+making LSF more likely to schedule future jobs on the faster host.</P>
+
+<H2><A NAME="383"></A>Tuning LIM Load Thresholds</H2>
+
+<P><A NAME="384"></A>The <TT>Host</TT> section of the <TT>lsf.cluster.<I>cluster</I></TT>
+file can contain busy thresholds for load indices. You do not need to specify
+a threshold for every index; indices that are not listed do not affect
+the scheduling decision. These thresholds are a major factor influencing
+LSF performance. This section does not describe all LSF load indices; see
+<A HREF="03-concepts.html#26246">'Resource Requirements'</A> and <A HREF="10-lsf-reference.html#302">'Threshold
+Fields'</A> for more complete discussions.</P>
+
+<P><A NAME="385"></A>The parameters that most often affect performance
+are:</P>
+
+<DL>
+<DD><A NAME="386"></A><TT>r15s&nbsp; </TT>15-second average </DD>
+
+<DD><A NAME="387"></A><TT>r1m&nbsp;&nbsp; </TT>1-minute average </DD>
+
+<DD><A NAME="388"></A><TT>r15m&nbsp; </TT>15-minute average </DD>
+
+<DD><A NAME="389"></A><TT>pg&nbsp;&nbsp;&nbsp; </TT>paging rate in pages
+per second </DD>
+
+<DD><A NAME="35292"></A><TT>swp&nbsp;&nbsp; a</TT>vailable swap space </DD>
+</DL>
+
+<P><A NAME="390"></A>For tuning these parameters you should compare the
+output of <TT>lsload</TT> to the thresholds reported by <TT>lshosts -l</TT>.</P>
+
+<P><A NAME="391"></A>The <TT>lsload</TT> and <TT>lsmon</TT> commands display
+an asterisk '<TT>*</TT>' next to each load index that exceeds its threshold.
+For example, consider the following output from <TT>lshosts -l</TT> and
+<TT>lsload</TT>:</P>
+
+<PRE><A NAME="197"></A><B>% lshosts -l
+</B>HOST_NAME:  hostD
+...
+LOAD_THRESHOLDS:
+  r15s   r1m  r15m   ut    pg    io   ls   it   tmp   swp   mem
+     -   3.5     -    -    15     -    -    -     -    2M    1M
+
+HOST_NAME:  hostA
+...
+LOAD_THRESHOLDS:
+  r15s   r1m  r15m   ut    pg    io   ls   it   tmp   swp   mem
+     -   3.5     -    -    15     -    -    -     -    2M    1M</PRE>
+
+<PRE><A NAME="33477"></A>% <B>lsload
+</B>HOST_NAME  status r15s  r1m  r15m   ut    pg  ls   it   tmp   swp   mem
+hostD          ok  0.0  0.0   0.0   0%   0.0   6    0   30M   32M   10M
+hostA        busy  1.9  2.1   1.9  47% *69.6  21    0   38M   96M   60M</PRE>
+
+<P><A NAME="399"></A>In this example, <I>hostD</I> is ok. However, <I>hostA</I>
+is busy; the <TT>pg</TT> (paging rate) index is 69.6, above the threshold
+of 15.</P>
+
+<P><A NAME="400"></A>Other monitoring tools such as <TT>xlsmon</TT> also
+help to show the effects of changes.</P>
+
+<P><A NAME="401"></A>If the LIM often reports a host to be busy when the
+CPU run queue length is low, the most likely cause is the paging rate threshold.
+Different versions of UNIX assign subtly different meanings to the paging
+rate statistic, so the threshold needs to be set at different levels for
+different host types. In particular, HP-UX systems need to be configured
+with significantly higher <TT>pg</TT> values; try starting at a value of
+50 rather than the default 15.</P>
+
+<P><A NAME="402"></A>If the LIM often shows systems <TT>busy</TT> when
+the CPU utilization and run queue lengths are relatively low and the system
+is responding quickly, try raising the <TT>pg</TT> threshold. There is
+a point of diminishing returns; as the paging rate rises, eventually the
+system spends too much time waiting for pages and the CPU utilization decreases.
+Paging rate is the factor that most directly affects perceived interactive
+response. If a system is paging heavily, it feels very slow.</P>
+
+<P><A NAME="403"></A>The CPU run queue threshold can be reduced if you
+find that interactive jobs slow down your response too much while the LIM
+still reports your host as <TT>ok</TT>. Likewise, it can be increased if
+hosts become busy at too low a load.</P>
+
+<P><A NAME="404"></A>On multiprocessor systems the CPU run queue threshold
+is compared to the effective run queue length as displayed by the <TT>lsload
+-E</TT> command. The run queue threshold should be configured as the load
+limit for a single processor. Sites with a variety of uniprocessor and
+multiprocessor machines can use a standard value for <TT>r15s</TT>, <TT>r1m</TT>,
+and <TT>r15m</TT> in the configuration files, and the multi-processor machines
+will automatically run more jobs. Note that the normalized run queue length
+printed by <TT>lsload -N</TT> is scaled by the number of processors. See
+the <A HREF="04-resources.html#356">'Resources'</A> chapter of the <I><A HREF="users-title.html">LSF
+User's Guide</A></I> and <TT>lsfintro</TT>(<TT>1</TT>) for the concept
+of effective and normalized run queue lengths. </P>
+
+<H2><A NAME="35639"></A>Cluster Monitoring with LSF</H2>
+
+<P><A NAME="18948"></A>Because LSF takes a wide variety of measurements
+on the hosts in your network, it can be a powerful tool for monitoring
+and capacity planning. The <TT>lsmon</TT> command gives updated information
+that can quickly identify problems such as inaccessible hosts or unusual
+load levels. The <TT>lsmon -L</TT> option logs the load information to
+a file for later processing. See the <TT>lsmon</TT>(<TT>1</TT>) and <TT>lim.acct</TT>(<TT>5</TT>)
+manual pages for more information.</P>
+
+<P><A NAME="18949"></A>For example, if the paging rate (<TT>pg</TT>) on
+a host is always high, adding memory to the system will give a significant
+increase in both interactive performance and total throughput. If the <TT>pg</TT>
+index is low but the CPU utilization (<TT>ut</TT>) is usually more than
+90 percent, the CPU is the limiting resource. Getting a faster host, or
+adding another host to the network, would provide the best performance
+improvement. The external load indices can be used to track other limited
+resources such as user disk space, network traffic, or software licenses.</P>
+
+<P><A NAME="18950"></A>The <TT>xlsmon</TT> program is a Motif graphic interface
+to the LSF load information. The <TT>xlsmon</TT> display uses colour to
+highlight busy and unavailable hosts, and can show both the current levels
+and scrolling histories of selected load indices.</P>
+
+<P><A NAME="35704"></A>See the <A HREF="03-cluster-info.html#343">'Cluster
+Information'</A> chapter of the <I><A HREF="users-title.html">LSF User's
+Guide</A></I> for more information about <TT>xlsmon</TT>.</P>
+
+<H2><A NAME="6884"></A>LSF License Management</H2>
+
+<P><A NAME="5537"></A>LSF software is licensed using the FLEXlm license
+manager from Globetrotter Software, Inc. The LSF license key controls the
+hosts allowed to run LSF. The procedures for obtaining, installing and
+upgrading license keys are described in <A HREF="02-installation.html#29979">'Getting
+License Key Information'</A> and <A HREF="02-installation.html#30006">'Setting
+Up the License Key'</A>. This section provides background information on
+FLEXlm.</P>
+
+<P><A NAME="477"></A>FLEXlm controls the total number of hosts configured
+in all your LSF clusters. You can organize your hosts into clusters however
+you choose. Each server host requires at least one license; multiprocessor
+hosts require more than one, as a function of the number of processors.
+Each client host requires 1/5 of a license.</P>
+
+<P><A NAME="14631"></A>LSF uses two kinds of FLEXlm license: time-limited
+<I>DEMO</I> licenses and <I>permanent</I> licenses.</P>
+
+<P><A NAME="482"></A>The DEMO license allows you to try LSF out on an unlimited
+number of hosts on any supported host type. The trial period has a fixed
+expiry date, and the LSF software will not function after that date. DEMO
+licenses do not require any additional daemons.</P>
+
+<P><A NAME="29207"></A>Permanent licenses are the most common. A permanent
+license limits only the total number of hosts that can run the LSF software,
+and normally has no time limit. You can choose which hosts in your network
+will run LSF, and how they are arranged into clusters. Permanent licenses
+are counted by a license daemon running on one host on your network.</P>
+
+<P><A NAME="484"></A>For permanent licenses, you need to choose a license
+server host and send hardware host identification numbers for the license
+server host to your software vendor. The vendor uses this information to
+create a permanent license that is keyed to the license server host. Some
+host types have a built-in hardware host ID; on others, the hardware address
+of the primary LAN interface is used.</P>
+
+<H3><A NAME="486"></A>How FLEXlm Works</H3>
+
+<P><A NAME="487"></A>FLEXlm is used by many UNIX software packages because
+it provides a simple and flexible method for controlling access to licensed
+software. A single FLEXlm license server can handle licenses for many software
+packages, even if those packages come from different vendors. This reduces
+the systems administration load, since you do not need to install a new
+license manager every time you get a new package.</P>
+
+<H4><A NAME="37221"></A>The License Server Daemon</H4>
+
+<P><A NAME="37223"></A>FLEXlm uses a daemon called <TT>lmgrd</TT> to manage
+permanent licenses. This daemon runs on one host on your network, and handles
+license requests from all applications. Each license key is associated
+with a particular software vendor. <TT>lmgrd</TT> automatically starts
+a <I>vendor daemon</I>; the LSF&nbsp;version is called <TT>lsf_ld</TT>
+and is provided by Platform Computing Corporation. The vendor daemon keeps
+track of all licenses supported by that vendor. DEMO licenses do not require
+you to run license daemons.</P>
+
+<P><A NAME="32765"></A>The license server daemons should be run on a reliable
+host, since licensed software will not run if it cannot contact the server.
+The FLEXlm daemons create very little load, so they are usually run on
+the file server. If you are concerned about availability, you can run <TT>lmgrd</TT>
+on a set of three or five hosts. As long as a majority of the license server
+hosts are available, applications can obtain licenses.</P>
+
+<H4><A NAME="32766"></A>The License File</H4>
+
+<P><A NAME="32768"></A>Software licenses are stored in a text file. The
+default location for this file is <TT>/usr/local/flexlm/licenses/license.dat</TT>,
+but this can be overridden. The license file must be readable on every
+host that runs licensed software. It is most convenient to place the license
+file in a shared NFS directory.</P>
+
+<P><A NAME="494"></A>The <TT>license.dat</TT> file normally contains: </P>
+
+<UL>
+<LI><A NAME="495"></A>A <TT>SERVER</TT> line for each FLEXlm server host.
+The <TT>SERVER</TT> line contains the host name, hardware host ID and network
+port number for the server. </LI>
+
+<LI><A NAME="496"></A>A <TT>DAEMON</TT> line for each software vendor,
+which gives the file path name of the vendor daemon. </LI>
+
+<LI><A NAME="497"></A>A <TT>FEATURE</TT> line for each software license.
+This line contains the number of copies that may be run, along with other
+necessary information. </LI>
+</UL>
+
+<P><A NAME="498"></A>The <TT>FEATURE</TT> line contains an encrypted code
+to prevent tampering. For permanent licenses, the licenses granted by the
+<TT>FEATURE</TT> line can be accessed only through license servers listed
+on the <TT>SERVER</TT> lines. </P>
+
+<P><A NAME="499"></A>For DEMO licenses no FLEXlm daemons are needed, so
+the license file contains only the <TT>FEATURE</TT> line.</P>
+
+<P><A NAME="500"></A>Here is an example of a DEMO license file. This file
+contains one line for each separate component (see <A HREF="05-manage-lsf.html#33380">'Modifying
+LSF Components and Licensing'</A>). However, no <TT>SERVER</TT> or <TT>DAEMON</TT>
+information is needed. The license is for LSF version 3.0 and is valid
+until Jan. 10, 1997.</P>
+
+<PRE><A NAME="33481"></A>FEATURE lsf_base lsf_ld 3.000 10-Jan-1997 0 5C51F231E238555BAD7F &quot;Platform&quot; DEMO
+FEATURE lsf_batch lsf_ld 3.000 10-Jan-1997 0 6CC1D2C137651068E23C &quot;Platform&quot; DEMO
+FEATURE lsf_mc lsf_ld 3.000 10-Jan-1997 0 2CC1F2E132C85B8D1806 &quot;Platform&quot; DEMO</PRE>
+
+<P><A NAME="503"></A>The following is an example of a permanent license
+file. The license server is configured to run on <I>hostD</I>, using TCP
+port 1700. This allows 10 hosts to run LSF, with no expiry date.</P>
+
+<PRE><A NAME="505"></A>SERVER hostD 08000962cc47 1700
+DAEMON lsf_ld /usr/local/lsf/etc/lsf_ld
+FEATURE lsf_base lsf_ld 3.000 01-Jan-0000 0 51F2315CE238555BAD7F &quot;Platform&quot;
+FEATURE lsf_batch lsf_ld 3.000 01-Jan-0000 0 C1D2C1376C651068E23C &quot;Platform&quot;
+FEATURE lsf_mc lsf_ld 3.000 01-Jan-0000 0 C1F2E1322CC85B8D1806 &quot;Platform&quot;</PRE>
+
+<H4><A NAME="000lmu"></A>License management utilities </H4>
+
+<P><A NAME="26057"></A>FLEXlm provides several utility programs for managing
+software licenses. These utilities and their manual pages are included
+in the LSF software distribution.</P>
+
+<P><A NAME="461"></A>Because these utilities can be used to shut down the
+FLEXlm license server, and thus prevent licensed software from running,
+they are installed in the <TT>LSF_SERVERDIR</TT> directory. The file permissions
+are set so that only root and members of group 0 can use them.</P>
+
+<P><A NAME="435"></A>The utilities included are:</P>
+
+<DL>
+<DT><A NAME="273"></A><TT>lmcksum</TT></DT>
+
+<DD>Calculate check sums of the license key information </DD>
+</DL>
+
+<DL>
+<DT><A NAME="274"></A><TT>lmdown</TT></DT>
+
+<DD>Shut down the FLEXlm server </DD>
+</DL>
+
+<DL>
+<DT><A NAME="459"></A><TT>lmhostid</TT></DT>
+
+<DD>Display the hardware host ID </DD>
+</DL>
+
+<DL>
+<DT><A NAME="464"></A><TT>lmremove</TT></DT>
+
+<DD>Remove a feature from the list of checked out features </DD>
+</DL>
+
+<DL>
+<DT><A NAME="465"></A><TT>lmreread</TT></DT>
+
+<DD>Tell the license daemons to re-read the license file </DD>
+</DL>
+
+<DL>
+<DT><A NAME="466"></A><TT>lmstat</TT></DT>
+
+<DD>Display the status of the license servers and checked out licenses
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="470"></A><TT>lmver</TT></DT>
+
+<DD>Display the FLEXlm version information for a program or library </DD>
+</DL>
+
+<P><A NAME="460"></A>For complete details on these commands, see the on-line
+manual pages.</P>
+
+<H4><A NAME="458"></A>Updating an LSF License</H4>
+
+<P><A NAME="32755"></A>FLEXlm only accepts one license key for each feature
+listed in a license key file. If there is more than one <TT>FEATURE</TT>
+line for the same feature, only the first <TT>FEATURE</TT> line is used.
+To add hosts to your LSF cluster, you must replace the old <TT>FEATURE</TT>
+line with a new one listing the new total number of licenses.</P>
+
+<P><A NAME="32759"></A>The procedure for updating a license key file to
+include new license keys is described in <A HREF="02-installation.html#30100">'Adding
+a Permanent License'</A>.</P>
+
+<H3><A NAME="32760"></A>Changing the FLEXlm Server TCP Port</H3>
+
+<P><A NAME="513"></A>The fourth field on the <TT>SERVER</TT> line specifies
+the TCP port number that the FLEXlm server uses. Choose an unused port
+number. LSF usually uses port numbers in the range 3879 to 3882, so the
+numbers from 3883 on are good choices. If the <TT>lmgrd</TT> daemon complains
+that the license server port is in use, you can choose another port number
+and restart <TT>lmgrd</TT>.</P>
+
+<P><A NAME="514"></A>For example, if your license file contains the line:</P>
+
+<PRE><A NAME="515"></A>SERVER <I>hostname host-id</I> 1700</PRE>
+
+<P><A NAME="516"></A>and you want your FLEXlm server to use TCP port 3883,
+change the SERVER line to:</P>
+
+<PRE><A NAME="4856"></A>SERVER <I>hostname host-id</I> 3883</PRE>
+
+<H3><A NAME="33380"></A>Modifying LSF Components and Licensing</H3>
+
+<P><A NAME="33393"></A>LSF Suite V3.0 includes the following components:
+LSF Base, LSF Batch, LSF JobScheduler (formerly LSF-PJS), and LSF MultiCluster.</P>
+
+<P><A NAME="33400"></A>The configuration changes to enable a particular
+component in a cluster is handled during installation by <TT>lsfsetup</TT>.
+If at some later time you want to modify the components of your cluster,
+edit the <TT>FEATURES</TT> line in the <TT>Parameters</TT> section of the
+<TT>lsf.cluster.<I>cluster</I></TT> file. You can specify any combination
+of the strings 'lsf_base', 'lsf_batch', 'lsf_js', and 'lsf_mc' to enable
+the operation of LSF Base, LSF Batch, LSF JobScheduler and LSF MultiCluster,
+respectively. If any of 'lsf_batch', 'lsf_js', or 'lsf_mc' are specified
+then 'lsf_base' is automatically enabled as well.</P>
+
+<P><A NAME="33413"></A>If the <TT>lsf.cluster.<I>cluster</I></TT> file
+is shared, adding a component name to the <TT>FEATURES</TT> line enables
+that component for all hosts in the cluster. For example, enable the operation
+of LSF Base, LSF Batch and LSF MultiCluster:</P>
+
+<PRE><A NAME="33423"></A>Begin Parameters
+FEATURES=lsf_batch lsf_mc
+End Parameters</PRE>
+
+<PRE><A NAME="33427"></A>Enable the operation of LSF Base only:</PRE>
+
+<PRE><A NAME="33428"></A>Begin Parameters
+FEATURES=lsf_base
+End Parameters</PRE>
+
+<P><A NAME="33432"></A>Enable the operation of LSF JobScheduler:</P>
+
+<PRE><A NAME="33433"></A>Begin Parameters
+FEATURES=lsf_js
+End Parameters</PRE>
+
+<H4><A NAME="33434"></A>Selected Hosts</H4>
+
+<P><A NAME="33441"></A>It is possible to indicate that only certain hosts
+run LSF Batch or LSF JobScheduler within a cluster. This is done by specifying
+'lsf_batch' or 'lsf_js' in the <TT>RESOURCES</TT> field on the <TT>HOSTS</TT>
+section of the <TT>lsf.cluster.<I>cluster</I></TT> file. For example, the
+following enables hosts <I>hostA</I>, <I>hostB</I>, and <I>hostC</I> to
+run LSF JobScheduler and hosts <I>hostD</I>, <I>hostE</I>, and <I>hostF</I>
+to run LSF Batch.</P>
+
+<PRE><A NAME="33448"></A>Begin Parameters
+FEATURES=lsf_batch
+End Parameters
+
+Begin Host
+HOSTNAME    model     type  server RESOURCES
+hostA       SUN41 SPARCSLC    1    (sparc bsd lsf_js)
+hostB       HPPA9    HP735    1    (linux lsf_js)
+hostC         SGI SGIINDIG    1    (irix cs lsf_js)
+hostD      SUNSOL SunSparc    1    (solaris)
+hostE       HP_UX     A900    1    (hpux cs bigmem)
+hostF       ALPHA  DEC5000    1    (alpha)
+End Hosts</PRE>
+
+<P><A NAME="33449"></A>The license file used to serve the cluster must
+have the corresponding features. A host will show as unlicensed if the
+license for the component it was configured to run is unavailable. For
+example, if a cluster is configured to run LSF JobScheduler on all hosts,
+and the license file does not contain the LSF JobScheduler feature, than
+the hosts will be unlicensed, even if there are licenses for LSF Base or
+LSF Batch.</P>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="03-concepts.html">[Prev]</A>
+<A HREF="07-manage-lsbatch.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:15:04 --></P>
+
+</BODY>
+</HTML>

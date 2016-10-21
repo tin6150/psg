@@ -1,0 +1,257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - New Features in LSF 3.0</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="e-windoze-nt.html">[Prev]</A>
+<A HREF="admin-title.html">[Title]</A> 
+<HR></P>
+
+<H1><A NAME="9249"></A>Appendix F. <A NAME="1074"></A>New Features in LSF
+3.0</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="8877"></A>This appendix summarizes the new features of direct
+interest to LSF administrators. For descriptions of those new features
+in LSF version 3.0 that are of direct interest to end users, see <A HREF="b-new-features.html#26636">Appendix
+B</A> of the <I><A HREF="users-title.html">LSF User's Guide</A></I> or
+the <I><A HREF="pjs-title.html">LSF JobScheduler User's Guide</A></I>.</P>
+
+<P><A NAME="9462"></A>One major difference in LSF 3.0 is that LSF is now
+a suite instead of a single product. LSF Suite contains several components:
+LSF Base, LSF Batch, LSF JobScheduler, LSF MultiCluster. </P>
+
+<P><A NAME="9463"></A>LSF version 3.0 is backwards compatible with LSF
+2.x versions in the sense that you do not need to change your configuration
+files to upgrade to LSF 3.0. However, you cannot run LSF 3.0 on some of
+the hosts while LSF 2.x on others. LSF 3.0 also requires a different license
+key. </P>
+
+<P><A NAME="9493"></A>LSF version 3.0 includes many new features requested
+by LSF users, in addition to bug fixes to LSF version 2.2. </P>
+
+<H2><A NAME="9485"></A>Windows NT and Additional Unix Platform Support</H2>
+
+<P><A NAME="9497"></A>LSF now runs on Microsoft Windows NT. Machines running
+Windows NT can now be part of the LSF cluster. </P>
+
+<P><A NAME="9506"></A>LSF is also ported to HP Exemplar system running
+SPP-UX 4.2. </P>
+
+<H2><A NAME="9510"></A>Interactive Jobs with Batch Scheduling Control</H2>
+
+<P><A NAME="9514"></A>This enables the user to run interactive jobs under
+the resource sharing control supported by LSF Batch. An option is provided
+to allow users to submit a job to LSF Batch with terminal I/O and signals
+attached to the job. With this support, all jobs can be under the effective
+resource sharing control, scheduling policies, and job accounting of LSF
+Batch. Parameters are available at queue level to control the types of
+jobs that a queue can accept such as interactive only, batch only, or mixed.
+</P>
+
+<H2><A NAME="9525"></A>Job Level Resource Usage </H2>
+
+<P><A NAME="9527"></A>Job-level resource usage is collected through a special
+process called PIM (Process Information Manager). The PIM is managed internally
+by LSF. The information collected by the PIM includes: </P>
+
+<UL>
+<P><A NAME="9539"></A></P>
+
+<LI>Total CPU time consumed by all processes in the job <A NAME="9541"></A></LI>
+
+<LI>Total resident memory usage in kilobytes of all currently running processes
+in a job <A NAME="9543"></A></LI>
+
+<LI>Total virtual memory usage in kilobytes of all currently running processes
+in a job <A NAME="9547"></A></LI>
+
+<LI>Currently active process group ID in a job <A NAME="9549"></A></LI>
+
+<LI>Currently active processes in a job </LI>
+</UL>
+
+<P><A NAME="9573"></A>The above information is collected while the job
+is running and can be viewed by <TT>bjobs</TT> command. </P>
+
+<H2><A NAME="9551"></A>Enhanced Resource Limit Control</H2>
+
+<P><A NAME="9552"></A>If a job consists of multiple processes, the <TT>CPULIMIT</TT>
+parameter applies to all processes in a job. If a job dynamically spawns
+processes the cpu time used by these processes is accumulated over the
+life of the job. </P>
+
+<P><A NAME="9565"></A>Two additional resource limits that apply to the
+entire job are added: <TT>SWAPLIMIT</TT> and <TT>PROCESSLIMIT</TT>. The
+<TT>SWAPLIMIT</TT> limits the maximum virtual memory and <TT>PROCESSLIMIT</TT>
+limits the number of concurrent processes that can be part of a job at
+any time. </P>
+
+<H2><A NAME="9572"></A>Resource Reservation</H2>
+
+<P><A NAME="9576"></A>The resource reservation feature allows user's to
+specify that the system should reserve resources after a job starts. The
+reservation can be specified either by the user at job submission time,
+or configured at the queue level. Resource reservation ensures that a job
+will have sufficient resource during its execution and no other jobs will
+be started to use the reserved resources. </P>
+
+<H2><A NAME="9587"></A>Processor Reservation For Parallel Jobs</H2>
+
+<P><A NAME="9588"></A>The scheduling of parallel jobs has been enhanced
+to support the notion of processor reservation. Parallel jobs requiring
+a large number of processors can often not be started if there are many
+lower priority sequential jobs in the system. There may not be enough resources
+at any one instant to satisfy a large parallel job, but there may be enough
+to allow a sequential job to be started. With the processor reservation
+feature the problem of starvation of parallel jobs can be reduced. A queue
+level parameter is available to enable processor reservation and to specify
+slot hold time. </P>
+
+<H2><A NAME="9575"></A>Flexible Expressions for Queue Scheduling</H2>
+
+<P><A NAME="9600"></A>The queue level parameters for the dispatch and control
+of jobs have been enhanced to permit a more flexible specification. Three
+new parameters: <TT>RES_REQ</TT>, <TT>STOP_COND</TT> and <TT>RESUME_COND</TT>
+have been added, which take resource requirement strings as values. </P>
+
+<P><A NAME="9612"></A><TT>RES_REQ</TT> defines a queue level resource requirement
+that applies to all jobs in the queue. This can also be used to specify
+scheduling conditions in a more flexible way than the scheduling load threshold
+parameters for the previous releases. </P>
+
+<P><A NAME="9613"></A><TT>STOP_COND</TT> specifies a load condition for
+suspending jobs. This is a generalization of the load threshold parameters
+in previous versions for suspending jobs. The condition can be specified
+using a resource requirement expression syntax. </P>
+
+<P><A NAME="9619"></A><TT>RESUME_COND </TT>specifies a condition at which
+a suspended job should be resumed. In previous versions, a resume condition
+is the same as the scheduling condition. With the introduction of <TT>RESUME_COND</TT>
+parameter, load conditions for resuming jobs can be different from those
+for scheduling jobs. </P>
+
+<H2><A NAME="9638"></A>Host Preferences</H2>
+
+<P><A NAME="9639"></A>You can now configure your queues so that some servers
+are preferable to others for running jobs. Preference levels can be associated
+for different hosts to give you flexibility. This feature allows better
+matching between jobs and desirable hosts, leading to improved performance
+and resource usage. A user can also specify host preferences at job submission
+time. </P>
+
+<H2><A NAME="9647"></A>Generalized Checkpointing Support</H2>
+
+<P><A NAME="9655"></A>LSF3.0 supports uniform checkpointing interface for
+different checkpointing mechanisms for all platforms. This interface uses
+external executables to initiate checkpointing and restart. New ways of
+checkpointing or checkpointing on new platforms can be supported by writing
+new external executables following the standard checkpointing protocol.
+</P>
+
+<P><A NAME="9663"></A>The external executables are installed in <TT>LSF_SERVERDIR</TT>
+by default. Users can use their own external executables by defining an
+environment variable. </P>
+
+<P><A NAME="9754"></A>Multiple jobs can now share a checkpoint directory.
+</P>
+
+<H2><A NAME="9667"></A>Job Starter</H2>
+
+<P><A NAME="9669"></A>A job starter can now be defined at the queue level
+with which to start all jobs in the queue. For example, in previous versions,
+users submit an MPI job by running the <TT>mpijob</TT> script. Now you
+can define <TT>mpijob</TT> in your MPI queue as a job starter so that users
+can submit MPI jobs without having to specify <TT>mpijob</TT> before the
+job command line. A job starter is also very useful for applications that
+must be started under a special environment such as Atria ClearCase. </P>
+
+<H2><A NAME="9756"></A>Configurable Job Control Actions</H2>
+
+<P><A NAME="9766"></A>LSF Batch needs to control jobs dispatched to a host
+to enforce scheduling policies or in response to user requests such as
+suspend, resume, and terminate. In previous releases such actions are hard
+coded as sending signals to jobs. In LSF 3.0, it is possible to override
+an action used for job control with a specified signal name or an arbitrary
+command line. </P>
+
+<H2><A NAME="9773"></A>Unlimited Number of Load Indices and Resources</H2>
+
+<P><A NAME="9780"></A>LSF 3.0 eliminates the previous limit of 21 for external
+load indices. The limit of 32 for configurable resources is also removed.
+</P>
+
+<H2><A NAME="9790"></A>Enhanced Preemptive Scheduling</H2>
+
+<P><A NAME="9791"></A>In previous releases, specifying a queue to be <TT>PREEMPTIVE</TT>
+would preempt jobs in any lower priority queue. LSF 3.0 allows the LSF
+administrator to specify a selective number of lower priority queues to
+preempt. </P>
+
+<H2><A NAME="9800"></A>Per-Host Job Slot Limit of a Queue</H2>
+
+<P><A NAME="9802"></A>A new parameter <TT>HJOB_LIMIT</TT> allows you to
+limit the number of jobs dispatched from a queue to a host regardless of
+the number of processors it may have. This may be useful, for example,
+if the queue dispatches jobs, which require a node-locked license. </P>
+
+<H2><A NAME="9662"></A>Remote Startup</H2>
+
+<P><A NAME="9692"></A>LSF administrators can start up any, or all, LSF
+daemons, on any, or all, LSF hosts, from any host in the LSF cluster. For
+this to work, the LSF administrator should be able to run <TT>rsh</TT>
+across the LSF hosts without having to enter the password. This feature
+is supported as additional commands inside <TT>lsadmin</TT> and <TT>badmin</TT>
+tools. </P>
+
+<H2><A NAME="9697"></A>Exclusive Job Requeue</H2>
+
+<P><A NAME="9741"></A>The queue parameter <TT>REQUEUE_EXIT_VALUE</TT> controls
+job requeue behavior. It defines a series of exit code values. If a job
+exits with one of those values, the job gets requeued. In LSF 3.0, a special
+requeue method called exclusive requeue is introduced such that if a job
+fails on a host, it is requeued and will not be dispatched to that host
+again. </P>
+
+<H2><A NAME="9816"></A>LSF MultiCluster</H2>
+
+<P><A NAME="9817"></A>LSF MultiCluster is a new product component of LSF
+3.0.</P>
+
+<H2><A NAME="9743"></A>File Status Events</H2>
+
+<P><A NAME="9744"></A>The LSF JobScheduler (formerly PJS) product now supports
+file status events. These events allow you to define production jobs that
+depends on file arrival or status.</P>
+
+<H2><A NAME="9681"></A>External Events</H2>
+
+<P><A NAME="9682"></A>LSF JobScheduler now provides a generic mechanism
+for handling site specific events, in addition to time events and file
+events. Examples of such events are exceptional conditions and tape silo
+status. External events are collected by an external event daemon that
+is customizable.</P>
+
+<H2><A NAME="9683"></A>System Calendars</H2>
+
+<P><A NAME="9684"></A>LSF JobScheduler now supports the concept of system
+calendars, in addition to user calendars supported in the previous version.
+System calendars are defined in a configuration file by LSF cluster administrator
+and are read-only by all users. </P>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="e-windoze-nt.html">[Prev]</A>
+<A HREF="admin-title.html">[Title]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,382 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Using lstcsh</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="08-interactive.html">[Prev]</A>
+<A HREF="10-lsmake.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="16352"></A>Chapter 9. <A NAME="16350"></A>Using <TT>lstcsh</TT></H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="2621"></A>This chapter describes <TT>lstcsh</TT>, an extended
+version of the <TT>tcsh</TT> command interpreter. The <TT>lstcsh</TT> interpreter
+provides transparent load sharing of user jobs.</P>
+
+<P><A NAME="2859"></A>This chapter is not a general description of the
+<TT>tcsh</TT> shell; only the load sharing features are described in detail.</P>
+
+<P><A NAME="2941"></A><TT>lstcsh</TT> is a convenient way for you to take
+advantage of LSF. Your commands are sent transparently for execution on
+faster hosts to improve response time or you can run commands on remote
+hosts explicitly.</P>
+
+<P><A NAME="2942"></A>Resource requirements for specific commands can be
+configured using task lists; see <A HREF="04-resources.html#2438">'Configuring
+Resource Requirements'</A>. Remote execution is transparent to the user;
+keyboard signals such as <B><FONT SIZE=-1>CTRL-Z</FONT></B> and <B><FONT SIZE=-1>CTRL-C</FONT></B>&nbsp;are
+automatically sent to the remote task. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="16515"></A><B>Note<BR>
+</B><I>Interactive tasks, including </I><TT>lstcsh</TT><I>, are not supported
+on Windows NT.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="2984"></A>Starting <TT>lstcsh</TT></H2>
+
+<P><A NAME="2867"></A>If you normally use some other shell, you can start
+<TT>lstcsh</TT> from the command line. Make sure that the LSF commands
+are in your <TT>PATH</TT> environment variable and then enter <TT>lstcsh</TT>.
+If you have a <TT>.cshrc</TT> file in your home directory, <TT>lstcsh</TT>
+reads it to set variables and aliases. Use the <TT>exit</TT> command to
+get out of <TT>lstcsh</TT>.</P>
+
+<H2><A NAME="2997"></A>Using <TT>lstcsh</TT> as Your Login Shell</H2>
+
+<P><A NAME="2551"></A>If your system administrator allows, you can use
+LSF as your login shell. The <TT>/etc/shells</TT> file contains a list
+of all the shells you are allowed to use as your login shell. The <TT>chsh</TT>
+command can set your login shell to any of those shells. If the <TT>/etc/shells</TT>
+file does not exist, you cannot set your login shell to <TT>lstcsh</TT>.</P>
+
+<P><A NAME="5458"></A>For example, <I>user3</I> can run the command:</P>
+
+<PRE><A NAME="5475"></A>% <B>chsh user3 /usr/local/lsf/bin/lstcsh</B></PRE>
+
+<P><A NAME="5535"></A>The next time <I>user3</I> logs in, the login shell
+will be <TT>lstcsh</TT>.</P>
+
+<P><A NAME="5584"></A>If you cannot set your login shell using <TT>chsh</TT>,
+you can use one of the standard system shells to start <TT>lstcsh</TT>
+when you log in. The easiest way is to use <TT>chsh</TT> to set <TT>/bin/sh</TT>
+to be your login shell and then edit the <TT>.profile</TT> file in your
+home directory to start <TT>lstcsh</TT>, as shown in <A HREF="09-lstcsh.html#5584">Figure
+14</A>.</P>
+
+<H4><A NAME="5584"></A>Figure 14. <TT>.profile</TT> Commands to Start <TT>lstcsh</TT></H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD>
+<PRE>SHELL=/usr/local/lsf/bin/lstcsh 
+export SHELL
+exec $SHELL -l</PRE>
+</TD>
+</TR>
+</TABLE>
+
+<H2><A NAME="3032"></A>Automatic Remote Execution</H2>
+
+<P><A NAME="2752"></A>Every time you enter a command, <TT>lstcsh</TT> looks
+in your task lists to determine whether the command can be executed on
+a remote host and to find the configured resource requirements for the
+command. See <A HREF="04-resources.html#2438">'Configuring Resource Requirements'</A>
+for more information about task lists.</P>
+
+<P><A NAME="6064"></A>If the command can be executed on a remote host,
+<TT>lstcsh</TT> calls the LIM to find the best available host. The first
+time a command is run on a remote host, a server shell is started on that
+host. The command is sent to the server shell, and the server shell starts
+the command on the remote host. All commands sent to the same host use
+the same server shell, so the start-up overhead is only incurred once.</P>
+
+<P><A NAME="6186"></A>If no host is found that meets the resource requirements
+of your command, it is run on the local host.</P>
+
+<H2><A NAME="6226"></A>Host Redirection</H2>
+
+<P><A NAME="6613"></A>You can explicitly specify the eligibility of a command
+line for remote execution using the '<TT>@</TT>' character. It may be anywhere
+in the command line except in the first position ('<TT>@</TT>' as the first
+character on the line is used to set the value of shell variables).</P>
+
+<P><A NAME="11843"></A>Host redirection overrides the task lists, so you
+can force commands from your local task list to execute on a remote host
+or override the resource requirements for a command.</P>
+
+<P><A NAME="6855"></A>'<TT>@</TT>' followed by nothing means that the command
+line is eligible for remote execution. '<TT>@</TT>' followed by a host
+name forces the command line to be executed on that host. '<TT>@</TT>'
+followed by the reserved word <TT>local</TT> forces the command line to
+be executed on the local host only. '<TT>@</TT>' followed by '<TT>/</TT>'
+and a resource requirement string means that the command is eligible for
+remote execution and that the given resource requirements must be used
+instead of those in the remote task list.</P>
+
+<PRE><A NAME="14113"></A>% <B>hostname @hostD
+</B>&lt;&lt; remote execution on hostD &gt;&gt;
+hostD
+% <B>hostname @/type==alpha
+</B>&lt;&lt; remote execution on hostB &gt;&gt;
+hostB</PRE>
+
+<P><A NAME="14015"></A>For ease of use, the host names and the reserved
+word <TT>local</TT> following '<TT>@</TT>' can all be abbreviated as long
+as they do not cause ambiguity. Similarly, when specifying resource requirements
+following the '<TT>@</TT>', it is necessary to use '<TT>/</TT>' only if
+the first requirement characters specified are also the first characters
+of a host name.</P>
+
+<P><A NAME="16556"></A>You do not have to type in resource requirements
+for each command line you type if you put these task names into remote
+task list together with their resource requirements by running <TT>lsrtasks</TT>.
+</P>
+
+<H2><A NAME="6358"></A>Job Control</H2>
+
+<P><A NAME="7021"></A>Job control in <TT>lstcsh</TT> is the same as in
+<TT>tcsh</TT> except for remote background jobs. <TT>lstcsh</TT> numbers
+shell jobs separately for each execution host.</P>
+
+<P><A NAME="8666"></A>The output of the built-in command <TT>jobs</TT>
+lists the background jobs together with their execution hosts. This break
+of transparency is intentional to provide you with more control over your
+background jobs.</P>
+
+<PRE><A NAME="8743"></A>% <B>sleep 30 @hostD &amp;
+</B>&lt;&lt; remote execution on hostD &gt;&gt;
+[1] 27568
+% <B>sleep 40 @hostD &amp;
+</B>&lt;&lt; remote execution on hostD &gt;&gt;
+[2] 10280
+% <B>sleep 60 @hostB &amp;
+</B>&lt;&lt; remote execution on hostB &gt;&gt;
+[1] 3748
+% <B>jobs
+</B>&lt;hostD&gt;
+[1]  + Running                sleep 30
+[2]    Running                sleep 40
+&lt;hostB&gt;
+[1]  + Running                sleep 60</PRE>
+
+<P><A NAME="8711"></A>To bring a remote background job to the foreground,
+the host name must be specified together with '<TT>@</TT>', as in the following
+example:</P>
+
+<PRE><A NAME="13416"></A>% <B>fg %2 @hostD
+</B>&lt;&lt; remote execution on hostD &gt;&gt;
+sleep 40</PRE>
+
+<H2><A NAME="13417"></A>Built-in Commands</H2>
+
+<P><A NAME="13418"></A><TT>lstcsh</TT> supports two built-in commands to
+control load sharing, <TT>lsmode</TT> and <TT>connect</TT>.</P>
+
+<H3><A NAME="10044"></A>The <TT>lsmode</TT> Command</H3>
+
+<P><A NAME="10077"></A>The <TT>lsmode</TT> command takes a number of arguments
+that control how <TT>lstcsh</TT> behaves. With no arguments, <TT>lsmode</TT>
+displays the current settings:</P>
+
+<PRE><A NAME="10797"></A>% <B>lsmode
+</B>LSF 3.0
+Copyright 1992-1996 Platform Computing Corporation
+LSF enabled, local mode, LSF on, verbose, no_eligibility_verbose, notiming.</PRE>
+
+<P><A NAME="10114"></A>The <TT>lsmode</TT> command reports that LSF is
+<TT>enabled</TT> if <TT>lstcsh</TT> was able to contact the LIM when it
+started up. If LSF is <TT>disabled</TT>, no load-sharing features are available.</P>
+
+<DL>
+<DT><A NAME="12002"></A><TT>lsmode [on | off] </TT></DT>
+
+<DD>Turns load sharing on or off. The default is on. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="16297"></A><TT>lsmode [local | remote] </TT></DT>
+
+<DD>Sets <TT>lstcsh</TT> to use local or remote mode. The default is local.
+Refer to <A HREF="09-lstcsh.html#9509">'Modes of Operation'</A> for a description
+of local and remote modes. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="16298"></A><TT>lsmode [e | -e] </TT></DT>
+
+<DD>Turns on (<TT>e</TT>) or off (<TT>-e</TT>) eligibility verbose mode.
+If eligibility verbose mode is on, <TT>lstcsh</TT> shows whether the command
+is eligible for remote execution, and displays the resource requirement
+used if the command is eligible. The default is off. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10248"></A><TT>lsmode [v | -v] </TT></DT>
+
+<DD>Turns on (<TT>v</TT>) or off (<TT>-v</TT>) task placement verbose mode.
+If verbose mode is on, <TT>lstcsh</TT> displays the name of the host where
+the command is run, if the command is not run on the local host. The default
+is on. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10265"></A><TT>lsmode [t | -t] </TT></DT>
+
+<DD>Turns on (<TT>t</TT>) or off (<TT>-t</TT>) wall clock timing. If timing
+is on, the actual response time of the command is printed. This time includes
+all remote execution overhead. The default is off. </DD>
+</DL>
+
+<H3><A NAME="10282"></A>The <TT>connect</TT> Command</H3>
+
+<P><A NAME="10557"></A><TT>lstcsh</TT> opens a connection to a remote host
+when the first command is executed remotely on that host. The same connection
+is used for all future remote executions on that host. The <TT>lstcsh</TT>
+<TT>connect</TT> command with no argument displays the connections that
+are currently open.</P>
+
+<P><A NAME="10648"></A>The <TT>connect</TT> <I>host</I> command creates
+a connection to the named host. By connecting to a host before any command
+is run, the response time is reduced for the first remote command sent
+to that host.</P>
+
+<P><A NAME="11674"></A><TT>lstcsh</TT> has a limited number of ports available
+to connect to other hosts. By default each shell can only connect to 15
+other hosts.</P>
+
+<PRE><A NAME="10721"></A>% <B>connect
+</B>CONNECTED WITH              SERVER SHELL
+hostA                             +
+% <B>connect hostB
+</B>Connected to hostB
+% <B>connect
+</B>CONNECTED WITH              SERVER SHELL
+hostA                             +
+hostB                             -</PRE>
+
+<P><A NAME="16293"></A>The server shell is a process created on the remote
+host to handle <TT>lstcsh</TT> jobs. The server shell is started when the
+first command is executed on the remote host. In the previous example,
+the <TT>connect</TT> command created a connection to host hostB, but the
+server shell has not started.</P>
+
+<H2><A NAME="9509"></A>Modes of Operation</H2>
+
+<P><A NAME="9084"></A>LSF maintains two task lists for each user, a local
+list and a remote list. Commands in the local list must be executed locally.
+Commands in the remote list can be executed remotely. If a command is in
+neither list, you can choose how <TT>lstcsh</TT> handles the command.</P>
+
+<P><A NAME="9159"></A><TT>lstcsh</TT> has two modes of operation: <I>local</I>
+and <I>remote</I>. The local mode is the default mode. In local mode, a
+command line is eligible for remote execution only if all of the commands
+on the line are present in the remote task list, or if the '<TT>@</TT>'
+character is specified on the command line to force it to be eligible.
+In remote mode, a command line is considered eligible for remote execution,
+if none of the commands on the line is in the local task list.</P>
+
+<P><A NAME="9442"></A>Local mode is conservative and can fail to take advantage
+of the performance benefits and load-balancing advantages of LSF. Remote
+mode is aggressive and makes more extensive use of LSF. However, remote
+mode can cause inconvenience when <TT>lstcsh</TT> tries to send host-specific
+commands to other hosts.</P>
+
+<P><A NAME="9486"></A>Using the LSF commands <TT>lsltasks(1)</TT> and <TT>lsrtasks(1)</TT>,
+you can inspect and change the memberships of the local and remote task
+lists. You can optionally associate resource requirements with each command
+in the remote list to help LSF find a suitable execution host for the command.
+If there are multiple eligible commands on a command line, their resource
+requirements are combined for host selection. See <A HREF="04-resources.html#2010">'Task
+List'</A> for more information on using task lists and resource requirements.</P>
+
+<H2><A NAME="6512"></A>Differences from Other Shells</H2>
+
+<P><A NAME="7255"></A>When a command is running in the foreground on a
+remote host, all keyboard input (type-ahead) is sent to the remote host.
+If the remote command does not read the input, it is lost. <TT>lstcsh</TT>
+has no way of knowing whether the remote command reads its standard input.
+The only way to provide any input to the command is to send everything
+available on the standard input to the remote command in case the remote
+command needs it. As a result, any type-ahead entered while a remote command
+is running in the foreground, and not read by the remote command, is lost.</P>
+
+<P><A NAME="7183"></A>The '<TT>@</TT>' character has a special meaning
+when it is preceded by white space. This means that the '<TT>@</TT>' must
+be escaped with a backslash '\' to run commands with arguments that start
+with '<TT>@</TT>', like <TT>finger</TT>. This is an example of using finger
+to get a list of users on another host:</P>
+
+<PRE><A NAME="11297"></A>% <B>finger @other.domain</B></PRE>
+
+<P><A NAME="14742"></A>Normally the <TT>finger</TT> command tries to contact
+the named host. Under <TT>lstcsh</TT>, the '<TT>@</TT>' character is interpreted
+as a request for remote execution, so the shell tries to contact the RES
+on the host other.domain to remote execute the <TT>finger</TT> command.
+If this host is not in your LSF cluster, the command fails. When the '<TT>@</TT>'
+character is escaped, it is passed to <TT>finger</TT> unchanged and <TT>finger</TT>
+behaves as expected.</P>
+
+<PRE><A NAME="7244"></A>% <B>finger \@hostB</B></PRE>
+
+<H2><A NAME="3168"></A>Writing Shell Scripts in <TT>lstcsh</TT></H2>
+
+<P><A NAME="2679"></A>You should write shell scripts in <TT>/bin/sh</TT>
+and use the <TT>lstools</TT> commands for load sharing. However, <TT>lstcsh</TT>
+can be used to write load-sharing shell scripts.</P>
+
+<P><A NAME="7441"></A>By default, an <TT>lstcsh</TT> script is executed
+as a normal <TT>tcsh</TT> script with load-sharing disabled. The <TT>lstcsh
+-L</TT> option tells the <TT>lstcsh</TT> that the script should be executed
+with load sharing enabled, so individual commands in the script may be
+executed on other hosts.</P>
+
+<P><A NAME="11189"></A>There are three different ways to run an <TT>lstcsh</TT>
+script with load sharing enabled: run <TT>lstcsh -L </TT>script, start
+an interactive <TT>lstcsh</TT> and use the <TT>source</TT> command to read
+the script in, or make the script executable and put '<TT>#! /usr/local/lsf/bin/lstcsh
+-L</TT>' as the first line of the script (assuming you install <TT>lstcsh</TT>
+in the <TT>/usr/local/lsf/bin</TT> directory).</P>
+
+<H2><A NAME="16557"></A>Limitations</H2>
+
+<P><A NAME="16558"></A>A shell is a very complicated application by itself.
+<TT>lstcsh</TT> has certain limitations: </P>
+
+<UL>
+<LI><A NAME="16559"></A>Native Language System is not supported. To use
+this feature of the <TT>tcsh</TT>, you must compile <TT>tcsh</TT> with
+<TT>SHORT_STRINGS</TT> defined. This causes complications for characters
+flowing across machines. </LI>
+
+<LI><A NAME="16567"></A>Shell variables not propagated across machines.
+When you set a shell variable locally, then run a command remotely, the
+remote shell will not see that shell variable. Only environment variables
+are automatically propagated. </LI>
+
+<LI><A NAME="16629"></A>The <TT>fg</TT> command for remote jobs must use
+'<TT>@'</TT>, as shown by examples in <A HREF="09-lstcsh.html#6358">'Job
+Control'</A>. </LI>
+</UL>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="08-interactive.html">[Prev]</A>
+<A HREF="10-lsmake.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><I><A HREF="mailto:doc@platform.com">doc@platform.com</A></I></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:28:57 --></P>
+
+</BODY>
+</HTML>

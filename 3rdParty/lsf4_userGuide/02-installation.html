@@ -1,0 +1,1521 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Installation</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="01-pre-installation.html">[Prev]</A>
+<A HREF="04-configure-lsf.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="6971"></A>Chapter 2. <A NAME="6969"></A>Installation</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="361"></A>This chapter describes the procedure for loading LSF
+distribution files and installing the LSF system.</P>
+
+<P><A NAME="15528"></A>The first sections describe steps common to all
+installations. The remaining sections give details about specific and optional
+portions of the installation procedure. You need to read these sections
+only if you need information not covered in the earlier sections.</P>
+
+<P><A NAME="19207"></A><A HREF="b-sample-install.html#1076">Appendix B</A>
+shows example installation sessions.</P>
+
+<H2><A NAME="8327"></A>Overview</H2>
+
+<P><A NAME="380"></A>The LSF installation procedure is divided into two
+parts. The first part is done once, on the file server that will contain
+the LSF files. The second part is done once on each host in the LSF cluster.
+After the software is read from the distribution medium, all further installation
+steps are performed using the <TT>lsfsetup</TT> command.</P>
+
+<P><A NAME="17794"></A>Installation takes from 10 to 20 minutes for the
+first host in an LSF cluster, and approximately 3 minutes for each additional
+host in the cluster.</P>
+
+<P><A NAME="381"></A>The steps covered in this chapter are:</P>
+
+<UL>
+<LI><A NAME="382"></A>Uncompressing the LSF distribution files </LI>
+
+<LI><A NAME="1408"></A>Getting a software license key </LI>
+
+<LI><A NAME="1409"></A>Installing the software with <TT>lsfsetup</TT> </LI>
+</UL>
+
+<P><A NAME="47940"></A>After the software is installed, some setup must
+be done for each host in the LSF cluster. These steps are given in <A HREF="04-configure-lsf.html#22856">'Configuring
+LSF Cluster'</A>.</P>
+
+<P><A NAME="47949"></A>If you are upgrading from a previous version of
+LSF, see <A HREF="02-installation.html#7905">'Upgrading From a Previous
+Version'</A>.</P>
+
+<P><A NAME="17735"></A>Instructions for installing LSF in mixed clusters
+are given in <A HREF="02-installation.html#8064">'Installing LSF with lsfsetup'</A>.
+Additional information about installing LSF on systems running AFS is given
+in <A HREF="02-installation.html#10750">'Installing on AFS'</A>. Information
+about installing LSF on DCE/DFS can be found in <A HREF="02-installation.html#37631">'Installing
+on DCE/DFS'</A>.</P>
+
+<P><A NAME="21599"></A>LSF is installed using the <TT>lsfsetup</TT> command
+in the distribution directory. The <TT>lsfsetup</TT> command prompts you
+for all information needed to install LSF. Most prompts include a default
+value, displayed in square brackets. If you press <B><FONT SIZE=-1>[RETURN]</FONT></B>,
+the default value is used.</P>
+
+<P><A NAME="17743"></A>If you type a question mark (<B><FONT SIZE=-1>[?]</FONT></B><TT>)</TT>
+at any prompt, a short help message about that prompt is displayed.</P>
+
+<H2><A NAME="17559"></A>Privileges Needed for Installation</H2>
+
+<P><A NAME="17561"></A>You must have superuser privileges to install LSF.</P>
+
+<P><A NAME="17562"></A>If you are installing LSF on a Network File System
+(NFS) mounted directory then the NFS server must allow the root account
+on the client to write to the mounted file system (it must be exported
+and mounted setuid).</P>
+
+<H2><A NAME="8262"></A>Reading the Distribution Medium</H2>
+
+<P><A NAME="1427"></A>LSF is available on a variety of distribution media.
+Each LSF distribution medium is shipped with instructions for reading the
+software on your system. This procedure creates a directory on your disk,
+which is the <I>distribution directory</I>. The directory name starts with
+lsf and includes the LSF version number and host type. For example, the
+distribution directory for the SunOS 4.1.x version of LSF 3.0 is called
+lsf3.0_sunos4.</P>
+
+<P><A NAME="17338"></A>If you obtained LSF by FTP, you can skip directly
+to <A HREF="02-installation.html#29091">'Uncompressing a Compressed Tar
+File'</A>.</P>
+
+<H3><A NAME="17292"></A>Loading LSF From a Tape</H3>
+
+<P><A NAME="17294"></A>When LSF is distributed on tape, the tape is in
+tar format, and the contents are compressed tar archives for each host
+type supported by LSF. To see the contents of the tape, run the command:</P>
+
+<PRE><A NAME="17295"></A><TT>% <B>tar tv</B></TT></PRE>
+
+<P><A NAME="17296"></A>You may need to use the <TT>tar f</TT> option and
+specify the name of your tape device.</P>
+
+<P><A NAME="17297"></A>After you identify the binary versions you want,
+extract them from the tape with the command</P>
+
+<PRE><A NAME="29759"></A><TT>% tar xvf /dev/<I>tape_drive_device</I> <I>filename</I> ...</TT></PRE>
+
+<P><A NAME="29825"></A>For example:</P>
+
+<PRE><A NAME="17298"></A><TT>% <B>tar xvf /dev/rst1 lsf3.0_aix.tar.Z lsf3.0_alpha.tar.Z</B></TT></PRE>
+
+<P><A NAME="29089"></A>Then uncompress the compressed tar file for each
+host type as described below.</P>
+
+<H3><A NAME="29091"></A>Uncompressing a Compressed Tar File</H3>
+
+<P><A NAME="29093"></A>LSF is distributed as a compressed tar archive for
+each host type. The LSF distribution is named depending on the LSF version
+and host type, for example <TT>lsf3.0_sunos4.tar.Z</TT>.</P>
+
+<P><A NAME="7019"></A>To uncompress the distribution, move the compressed
+tar file to a temporary directory with at least 30 megabytes of available
+space and run the command:</P>
+
+<PRE><A NAME="7020"></A><TT>% <B>zcat lsf3.0_sunos4.tar.Z | tar xf -</B></TT></PRE>
+
+<P><A NAME="7030"></A>This creates a distribution directory called <TT>lsf3.0_sunos4</TT>.</P>
+
+<H2><A NAME="17879"></A>Getting a License Key</H2>
+
+<P><A NAME="47601"></A>If you received a DEMO license key, you can proceed
+directly with the installation. To get a permanent license from your LSF
+vendor, see the Release Notes or <A HREF="02-installation.html#29979">'Getting
+License Key Information'</A>. You can install LSF with a DEMO license key
+and change to a permanent license later with no interruption in service.</P>
+
+<P><A NAME="18211"></A>Store the license key in a file. <TT>lsfsetup</TT>
+automatically finds your license key if you store the license key in a
+file named <TT>license.dat</TT> in the distribution directory. Otherwise,
+you must enter the path name of the file during the installation.</P>
+
+<H2><A NAME="47261"></A>Exporting the <TT>/usr/local/lsf/mnt</TT> Directory</H2>
+
+<P><A NAME="47262"></A>If the <TT>/usr/local/lsf/mnt</TT> directory (see
+<A HREF="01-pre-installation.html#12184">Figure 2</A>) is not already exported
+with read/write permission to the other hosts in the cluster, you must
+configure the file server host to export the directory. It must be exported
+with setuid enabled.</P>
+
+<P><A NAME="28620"></A>See the manual pages for <TT>nfs</TT> and <TT>exports</TT>
+for more details.</P>
+
+<H2><A NAME="8064"></A>Installing LSF with <TT>lsfsetup</TT></H2>
+
+<P><A NAME="7036"></A>This section gives the steps required to install
+a mixed LSF cluster on an NFS file system. For a more detailed description
+of each step, see the sections that follow. If you are installing on an
+AFS file system, follow the instructions given in <A HREF="02-installation.html#10750">'Installing
+on AFS'</A>. If you are installing on DCE/DFS, follow the instructions
+found in <A HREF="02-installation.html#37631">'Installing on DCE/DFS'</A>.</P>
+
+<H3><A NAME="28453"></A>Installing the First Host Type</H3>
+
+<P><A NAME="28454"></A>These steps should be performed once, on the file
+server host. These installation procedures will work correctly even if
+the file server host is not the same host type as the LSF software you
+are installing.</P>
+
+<P><A NAME="28455"></A>These steps install all the host type independent
+files, along with the binaries for the first host type. In this example,
+the HP-UX version of LSF is installed first.</P>
+
+<DL>
+<DT><A NAME="28456"></A><B>Step 1. </B></DT>
+
+<DD>Log in to the file server host as root. Load the HP-UX version of the
+LSF software from the distribution medium or download it by FTP. Uncompress
+the compressed distribution file. Change directory to the distribution
+directory. </DD>
+
+<DT><A NAME="48435"></A><B>Step 2. </B></DT>
+
+<DD>Run the <TT>./lsfsetup</TT> command. Choose option 1, 'Install for
+the First Time'. Then specify one or more of the following components to
+install: 'Batch', 'JobScheduler', 'MultiCluster', or 'Base-only'. If you
+select more than one component, make sure you separate them with commas.
+</DD>
+
+<DT><A NAME="18129"></A><B>Step 3. </B></DT>
+
+<DD>Select the installation directory. For the host independent installation
+directory, enter <TT>/usr/local/lsf</TT>. For the host type dependent installation
+directory, enter <TT>/usr/local/lsf/HPUX</TT>. Enter the name of the LSF
+cluster, and the login name of the LSF administrator. </DD>
+
+<DT><A NAME="18091"></A><B>Step 4.</B></DT>
+
+<DD>Review and modify the settings as needed. Choose option 1, 'List Current
+Settings' to review the configuration settings. If you wish to change any
+setting or see the help text for any setting, choose option 2, 'Change
+Current Settings'. </DD>
+
+<DT><A NAME="28184"></A><B>Step 5.</B></DT>
+
+<DD>Choose option 3, 'Install the Software Now'. This copies all the LSF
+files into their final locations and creates a default set of cluster configuration
+files. The <TT>lsfsetup</TT> command is installed into the <TT>LSF_SERVERDIR</TT>
+directory. You can use <TT>lsfsetup</TT> later to maintain LSF. </DD>
+
+<DT><A NAME="28185"></A><B>Step 6.</B></DT>
+
+<DD>Next <TT>lsfsetup</TT> installs the FLEXlm license key for LSF. Choose
+option 2, 'Install a New License ...'. Choose the appropriate option for
+the type of software license you are installing. For more details see <A HREF="02-installation.html#30006">'Setting
+Up the License Key'</A>. </DD>
+</DL>
+
+<P><A NAME="18640"></A>If you are not installing LSF on additional host
+types, continue with the procedure in <A HREF="02-installation.html#28738">'Additional
+Steps on Each LSF Server Host'</A> (below).</P>
+
+<H3><A NAME="18725"></A>Installing Each Additional Host Type</H3>
+
+<P><A NAME="18726"></A>These steps must be performed on the file server
+host, once for each additional host type. For this example, the SunOS 4.1
+version of LSF is installed next.</P>
+
+<DL>
+<DT><A NAME="18728"></A><B>Step 1. </B></DT>
+
+<DD>Log in to the file server host as root. Load the SunOS 4.1 version
+of LSF from the distribution medium or download it by FTP. Change directory
+into the SunOS 4.1 distribution directory. </DD>
+
+<DT><A NAME="18729"></A><B>Step 2. </B></DT>
+
+<DD>Run the following command: </DD>
+
+<PRE><A NAME="31103"></A><TT># <B>cp /usr/local/lsf/mnt/HPUX/etc/lsf.conf .</B></TT></PRE>
+
+<DT><A NAME="18730"></A><B>Step 3. </B></DT>
+
+<DD>Run <TT>./lsfsetup</TT> and choose option 3, 'Install Another Platform'.
+</DD>
+
+<DT><A NAME="18731"></A><B>Step 4. </B></DT>
+
+<DD>The <TT>lsfsetup</TT> command asks whether you want to base your configuration
+on an existing <TT>lsf.conf</TT> file. Answer yes, and enter the name of
+the <TT>lsf.conf</TT> file you copied from the HP-UX host. </DD>
+
+<DT><A NAME="18732"></A><B>Step 5. </B></DT>
+
+<DD>Enter <TT>/usr/local/lsf/mnt/SUN41</TT> as the directory for machine-dependent
+files. The other installation settings are automatically updated. </DD>
+
+<DT><A NAME="21671"></A><B>Step 6. </B></DT>
+
+<DD>Choose option 3, 'Install the Software Now'. The <TT>lsfsetup</TT>
+command installs all the components necessary for the additional host type.
+</DD>
+</DL>
+
+<H3><A NAME="28738"></A>Additional Steps on Each LSF Server Host</H3>
+
+<P><A NAME="30834"></A>Each server host in the LSF cluster must be configured
+as follows:</P>
+
+<DL>
+<DT><A NAME="28740"></A><B>Step 1.</B> </DT>
+
+<DD>If this host is not the file server, create the <TT>/usr/local/lsf/mnt</TT>
+directory and mount the <TT>/usr/local/lsf/mnt</TT> directory from the
+file server. You must not mount this directory with the <TT>nosuid</TT>
+flag; some LSF programs require setuid permission. See the manual page
+for the <TT>mount</TT> command for more details. </DD>
+
+<DT><A NAME="28743"></A><B>Step 2. </B></DT>
+
+<DD>Create the symbolic links appropriate for the host type. For example,
+on an HP-UX host: </DD>
+
+<PRE><A NAME="28745"></A><TT># <B>ln -s /usr/local/lsf/mnt/HPUX/{bin,etc,lib} /usr/local/lsf</B></TT></PRE>
+
+<DT><A NAME="30918"></A><B>Step 3. </B></DT>
+
+<DD>Log in as root and run <TT>lsfsetup</TT>. Choose option 6, 'Host Setup'.
+</DD>
+</DL>
+
+<P><A NAME="31438"></A>During installation, the <TT>lsfsetup </TT>command
+created the <TT>lsf.conf</TT> file in the <TT>LSF_SERVERDIR</TT> based
+on your decisions. The LSF daemons and applications use this file to find
+the LSF configuration files and working directories. Now <TT>lsfsetup</TT>
+creates a symbolic link to the <TT>lsf.conf</TT> file in <TT>LSF_ENVDIR</TT>
+(<TT>/etc</TT> by default).</P>
+
+<P><A NAME="30675"></A><TT>lsfsetup</TT> also adds the LSF services to
+the <TT>/etc/services</TT> file if they are not defined in NIS or NIS+
+and configures the system so that the LSF daemons are started when the
+system boots.</P>
+
+<P><A NAME="30678"></A>The LSF daemons must be run by root on every host
+in the cluster. When LSF is first configured, the daemons are started by
+hand. Under normal operation, the daemons are restarted automatically each
+time the host boots. The steps required to set up daemons are different
+under different versions of UNIX. In any case, the LSF daemons should be
+started after all other networking and NFS daemons.</P>
+
+<P><A NAME="30684"></A><A HREF="b-sample-install.html#5425">'Setting Up
+a Host'</A> shows an example host setup using <TT>lsfsetup</TT>.</P>
+
+<P><A NAME="30687"></A>Continue with <A HREF="04-configure-lsf.html#19007">'Initial
+Configuration'</A>.</P>
+
+<P><A NAME="30771"></A>The remainder of this chapter covers specific topics
+related to LSF installa<TT>tion.</TT></P>
+
+<H2><A NAME="10750"></A>Installing on AFS</H2>
+
+<P><A NAME="41465"></A>LSF manages user permission for NFS, AFS, and DFS
+accesses, so users can use LSF no matter what type of file system their
+files are stored on. The choice of installation directory for LSF does
+not affect user access to load sharing.</P>
+
+<P><A NAME="39514"></A>Installing LSF in AFS involves running <TT>lsfsetup</TT>
+from the standard LSF distribution, and then installing the additional
+LSF AFS distribution. Before installing, you need to choose the primary
+LSF administrator, and decide where to store the LSF configuration and
+executable files:</P>
+
+<UL>
+<LI><A NAME="39515"></A>If the LSF configuration files are to be stored
+in AFS, the primary LSF administrator must be defined in AFS; in this case,
+root cannot be used as the primary LSF administrator. </LI>
+
+<LI><A NAME="39657"></A>LSF Batch needs read/write access to the working
+directories under <TT>LSB_SHAREDIR</TT>, which contain the LSF Batch log
+files. Before running lsfsetup, you have to decide where to store your
+<TT>LSB_SHAREDIR</TT>: </LI>
+
+<P><A NAME="39658"></A><TT>LSB_SHAREDIR</TT> on a local file system<BR>
+If you install the LSF Batch working directory in a local file system on
+one host, only that host can act as the LSF master. You must list this
+host first in the <TT>lsf.cluster.<I>cluster</I></TT> file. If this host
+goes down, LSF Batch becomes unavailable. Batch processing resumes when
+the master host becomes available again. Interactive load sharing is still
+available while the host is down.</P>
+
+<P><A NAME="39660"></A><TT>LSB_SHAREDIR</TT> on an NFS file system<BR>
+With this setup, the master daemon can be run on the hosts that have this
+directory mounted.</P>
+
+<P><A NAME="39662"></A><TT>LSB_SHAREDIR</TT> on an AFS file system<BR>
+<TT>LSB_SHAREDIR</TT> should be defined in AFS only if the potential master
+hosts are trusted. The LSF system elects the master host in the order that
+the hosts appear in the <TT>lsf.cluster.<I>cluster</I></TT> file. The first
+host is the default master. If the first host is down, the second host
+takes over as master, and so on. <A HREF="02-installation.html#32081">'Installing
+the LSF AFS Distribution'</A> (below) gives additional information on configuring
+LSF to use <TT>LSB_SHAREDIR</TT> on AFS.</P>
+
+<LI><A NAME="39517"></A>You must not define <TT>LSF_RES_ACCTDIR</TT> and
+<TT>LSF_LOGDIR</TT> to be in AFS as the files in this directory are always
+written as the root user. </LI>
+
+<LI><A NAME="40799"></A>The other configuration directories are accessed
+read-only by the LSF daemons and thus can be defined in AFS if the ACL
+for these directories contain <TT>system:any_user rl</TT>. </LI>
+</UL>
+
+<P><A NAME="39520"></A>Follow the instructions in <A HREF="02-installation.html#8064">'Installing
+LSF with <TT>lsfsetup</TT>'</A> to install the standard LSF distribution.
+If some of your directories are defined in AFS, you must <TT>klog</TT>
+as the primary LSF administrator before running <TT>lsfsetup</TT>.</P>
+
+<P><A NAME="41113"></A>After running <TT>lsfsetup</TT>, add the following
+line to the <TT>lsf.conf</TT> file (stored in <TT>/etc</TT> by default):</P>
+
+<PRE><A NAME="41176"></A><TT>LSF_AFS_CELLNAME=<I>cell_name</I></TT></PRE>
+
+<P><A NAME="41111"></A>At this point, you can create <TT>@sys</TT> symbolic
+links so that <TT>LSF_BINDIR</TT>, <TT>LSF_LIBDIR</TT>, and <TT>LSF_SERVERDIR</TT>
+access the corresponding architecture directory.</P>
+
+<P><A NAME="47506"></A>The next step involves installing the additional
+LSF AFS distribution. This LSF AFS distribution is named depending on the
+LSF version and host type, for example <TT>lsf3.0_sunos4_afs.tar.Z</TT>.</P>
+
+<H3><A NAME="32081"></A>Installing the LSF AFS Distribution</H3>
+
+<DL>
+<DT><A NAME="26580"></A><B>Step 1. </B></DT>
+
+<DD>Get the additional LSF AFS tar distribution file from tape or from
+FTP. Uncompress the compressed tar distribution file. </DD>
+
+<DT><A NAME="32392"></A><B>Step 2. </B></DT>
+
+<DD>Copy the following executables from the LSF AFS distribution directory
+to the <TT>LSF_SERVERDIR</TT> directory: </DD>
+
+<P><A NAME="34157"></A><TT>res sbatchd<BR>
+</TT>These executables are the same as the ones in the main distribution
+except that they are linked with AFS libraries.</P>
+
+<P><A NAME="34161"></A><TT>gettok puttok<BR>
+gettok</TT> gets the AFS token(s) from the kernel and prints out the tokens
+in ASCII format to standard output. <TT>puttok</TT> reads the AFS token(s)
+in the format generated by <TT>gettok</TT>, from standard input and sets
+the token(s) into the kernel.</P>
+
+<P><A NAME="34181"></A><TT>esub eexec<BR>
+</TT>These are shell scripts invoked by LSF (see <A HREF="03-concepts.html#14211">'External
+Submission and Execution Executables'</A>) to support token forwarding
+from the submission host to the execution host, and for supporting token
+renewal. Sites can modify these scripts to further customize token processing
+(for example, using site-specific encryption software).</P>
+
+<DT><A NAME="32402"></A><B>Step 3. </B></DT>
+
+<DD>If <TT>LSB_SHAREDIR</TT> is defined in AFS, the master batch daemon,
+<TT>mbatchd</TT>, must be configured so that it has the AFS token to write
+to <TT>LSB_SHAREDIR</TT>. The <TT>mbatchd.sc</TT> wrapper script in the
+LSF AFS distribution directory provides two methods for renewing the AFS
+token for the master batch daemon. </DD>
+
+<DL>
+<P><A NAME="32426"></A><B>1. Plaintext Password </B></P>
+
+<P><A NAME="45626"></A>This method involves storing the primary LSF administrator's
+plaintext AFS password in a local file on the hosts that potentially can
+become the master.</P>
+
+<UL>
+<LI><A NAME="32432"></A>Rename <TT>mbatchd</TT> in <TT>LSF_SERVERDIR</TT>
+to <TT>mbatchd.real</TT>. </LI>
+
+<LI><A NAME="47526"></A>Edit <TT>mbatchd.sc</TT> shell script in the AFS
+distribution directory: </LI>
+
+<UL>
+<LI><A NAME="47527"></A>Set <TT>LSF_ADMIN</TT> to the name of LSF primary
+administrator. </LI>
+
+<LI><A NAME="47528"></A>Set <TT>RTYPE=1</TT> </LI>
+
+<LI><A NAME="47529"></A>Set <TT>PWFILE</TT> to the absolute path of the
+file containing the plaintext password. This file should be accessible
+only by root. </LI>
+</UL>
+
+<LI><A NAME="33520"></A>Copy <TT>mbatchd.sc</TT> to <TT>LSF_SERVERDIR</TT>
+as <TT>mbatchd</TT>. </LI>
+</UL>
+</DL>
+
+<DL>
+<P><A NAME="32446"></A><B>2. <TT>rtok</TT> Daemon </B></P>
+
+<P><A NAME="32448"></A>This method involves setting up the token renewal
+daemon on the AFS server.</P>
+
+<UL>
+<LI><A NAME="32451"></A>Set up token renewal kit as described in <A HREF="02-installation.html#34494">'AFS
+Token Renewal Kit'</A>. </LI>
+
+<LI><A NAME="33878"></A>Edit the <TT>mbatchd.sc</TT> shell script in the
+AFS distribution directory: </LI>
+
+<UL>
+<LI><A NAME="47530"></A>Set <TT>LSF_ADMIN</TT> to the name of LSF primary
+administrator. </LI>
+
+<LI><A NAME="47531"></A>Set <TT>RTYPE=2</TT> </LI>
+
+<LI><A NAME="47532"></A>Set <TT>RTOKD_HOST</TT> to the AFS server host
+name running <TT>rtokd</TT>. </LI>
+
+<LI><A NAME="47533"></A>Set <TT>RTOK_PORT</TT> to <TT>rtokd</TT>'s port
+number. </LI>
+
+<LI><A NAME="47534"></A>If PGP is used, follow the procedure described
+in <A HREF="02-installation.html#32470">'AFS Token Encryption'</A> to set
+up PGP for root on the potential master hosts, and on the AFS server host.
+</LI>
+</UL>
+
+<LI><A NAME="32469"></A>Copy <TT>mbatchd.sc</TT> to <TT>LSF_SERVERDIR</TT>
+as <TT>mbatchd</TT>. </LI>
+</UL>
+</DL>
+
+<DT><A NAME="47972"></A><B>Step 4. </B></DT>
+
+<DD>If privileged port authentication is used (for example, <TT>LSF_AUTH</TT>
+is not defined in your <TT>lsf.conf</TT> file when you run <TT>lsfsetup</TT>;
+see <A HREF="03-concepts.html#3362">'Authentication using Privileged Ports'</A>)
+and <TT>LSF_BINDIR</TT> is defined in AFS, you will need to change the
+ownership of the setuid executables in <TT>LSF_BINDIR</TT> to root. First,
+find all the binaries in <TT>LSF_BINDIR</TT> that are installed with the
+setuid bit on: </DD>
+
+<PRE><A NAME="47535"></A><TT>% <B>ls -l | grep rws</B></TT></PRE>
+
+<DL>
+<P><A NAME="47539"></A>Then <TT>klog</TT> to a user ID with AFS administrator
+privileges, and run:</P>
+
+<PRE><A NAME="47540"></A><TT>% <B>chown root <I>setuid_binaries</I></B></TT></PRE>
+
+<P><A NAME="41967"></A>Alternatively, you can simply chown all the LSF
+binaries under <TT>LSF_BINDIR</TT> to root if the directory contains only
+LSF binaries:</P>
+
+<PRE><A NAME="41968"></A><TT>% <B>chown root *</B></TT></PRE>
+</DL>
+</DL>
+
+<H3><A NAME="32470"></A>AFS Token Encryption </H3>
+
+<DL>
+<P><A NAME="34026"></A>By default, the AFS esub and eexec scripts do not
+use encryption when transferring the AFS tokens between the submission
+and execution hosts. A site can modify these scripts to add site-specific
+encryption. The esub and eexec scripts in the LSF AFS distribution give
+an example of how to use PGP for encryption. To configure LSF to use PGP:</P>
+
+<DT><A NAME="34436"></A><B>Step 1. </B></DT>
+
+<DD>Install the PGP package on all LSF hosts. </DD>
+
+<DT><A NAME="48824"></A><B>Step 2. </B></DT>
+
+<DD>Define <TT>LSF_EEXEC_USER=root</TT> in <TT>/etc/lsf.sudoers</TT> on
+all LSF server hosts. See <A HREF="10-lsf-reference.html#12839">'The <TT>lsf.sudoers</TT>
+File'</A> for details of the <TT>lsf.sudoers</TT> file. </DD>
+
+<DT><A NAME="48831"></A><B>Step 3. </B></DT>
+
+<DD>Create the root account's PGP directory on all the LSF server hosts.
+This <I>root_pgp_dir</I> (for example, <TT>/local/etc/.pgp</TT>) should
+be a local directory and only be accessible by root. </DD>
+
+<DT><A NAME="34445"></A><B>Step 4. </B></DT>
+
+<DD>On an LSF server host, create root's public key and private keys by
+running (using Bourne shell syntax): </DD>
+</DL>
+
+<DL>
+<DL>
+<PRE><A NAME="34723"></A># <B>PGPPATH=<I>root_pgp_dir
+</I></B># <B><TT>export PGPPATH
+</TT></B># <B><TT>pgp -kg <I>lsf_pgp_name</I></TT></B></PRE>
+
+<P><A NAME="34451"></A>where <I>lsf_pgp_name</I> can be any name you choose;
+for example,</P>
+
+<PRE><A NAME="34453"></A># <B>PGPPATH=/local/etc/.pgp
+</B>% <B>export PGPPATH
+</B>% <B>pgp -kg lsf</B></PRE>
+</DL>
+
+<DT><A NAME="34457"></A><B>Step 5. </B></DT>
+
+<DD>Store the plain text pass phrase into <TT>$PGPPATH/.p</TT>. Make sure
+this file is owned by root and accessibly only by root. </DD>
+
+<DT><A NAME="34460"></A><B>Step 6. </B></DT>
+
+<DD>Extract the public key to a share file so users from any LSF host can
+access the file on encryption: </DD>
+
+<DL>
+<PRE><A NAME="34463"></A># <B>pgp -kx lsf_pgp_name lsf_public_key_file</B></PRE>
+
+<P><A NAME="34465"></A>For example:</P>
+
+<PRE><A NAME="34466"></A># <B>pgp -kx lsf /usr/local/lsf/conf/lsfpublic.pgp</B></PRE>
+</DL>
+
+<DT><A NAME="34468"></A><B>Step 7. </B></DT>
+
+<DD>Securely replicate the <TT>PGPPATH</TT> contents onto all the other
+LSF server hosts. </DD>
+
+<DT><A NAME="34471"></A><B>Step 8.</B></DT>
+
+<DD>Edit the <TT>eexec</TT> script, and </DD>
+
+<DL>
+<UL>
+<LI><A NAME="34472"></A>Re-define <TT>ROOT_PGPPATH</TT> to your <I>root_pgp_dir</I>
+directory if necessary. </LI>
+
+<LI><A NAME="34473"></A>Define <TT>PGP_EXEC_PATH</TT> to point to the directory
+containing the pgp executable. </LI>
+
+<LI><A NAME="34475"></A>Remove the line: <TT>PGPPATH=&quot;&quot;</TT>
+</LI>
+</UL>
+</DL>
+
+<DT><A NAME="34478"></A><B>Step 9. </B></DT>
+
+<DD>Edit the <TT>esub</TT> script, and re-define <TT>LSF_PGP_NAME</TT>
+to your <I>lsf_pgp_name</I> definition. </DD>
+
+<DT><A NAME="34481"></A><B>Step 10. </B></DT>
+
+<DD>Each LSF user who wants to use PGP encryption must do the following
+setup: </DD>
+
+<DL>
+<UL>
+<LI><A NAME="34484"></A>Set up PGP by running <TT>pgp -kg</TT>. Make sure
+the <TT>PGPPATH</TT> environment variable is set. </LI>
+
+<LI><A NAME="34487"></A>Add <I>lsf_pgp_name</I>'s public key to his/her
+public key ring by running: </LI>
+
+<PRE><A NAME="34489"></A>% <B>pgp -ka <I>user_name</I> <I>lsf_public_key_file</I></B></PRE>
+
+<P><A NAME="34491"></A>For example, the user John would run,</P>
+
+<PRE><A NAME="34492"></A>% <B>pgp -ka john /usr/local/lsf/conf/lsfpublic.pgp</B></PRE>
+</UL>
+</DL>
+</DL>
+
+<H3><A NAME="34494"></A>AFS Token Renewal Kit</H3>
+
+<DL>
+<P><A NAME="32149"></A>The AFS token renewal kit in the LSF AFS distribution
+assumes that root is trusted on all the LSF server hosts. Since the token
+renewal kit uses the <TT>esub</TT>/<TT>eexec</TT> mechanism (see <A HREF="03-concepts.html#14211">'External
+Submission and Execution Executables'</A>), a site can write its own token
+renewal system if a higher level of security is required.</P>
+
+<P><A NAME="35919"></A>The token renewal kit consists of a client program,
+<TT>rtok</TT>, and a server program, <TT>rtokd</TT>. <TT>rtok</TT> is used
+to request the <TT>rtokd</TT> daemon running on the AFS server host to
+renew the token for a user. <TT>rtok</TT>/<TT>rtokd</TT> also use the <TT>eexec</TT>,
+<TT>esub</TT>, <TT>gettok</TT>, and <TT>puttok</TT> executables from the
+AFS distribution. </P>
+
+<H4><A NAME="36263"></A>Setup on the AFS server host </H4>
+
+<P><A NAME="35780"></A>If the AFS server host is of a host type that is
+not in your LSF cluster then you will need to get the LSF AFS distribution
+for that platform.</P>
+
+<P><A NAME="36316"></A>The assumption here is that the AFS server host
+is not part of the LSF cluster, and that none of the LSF binaries (in particular
+<TT>LSF_SERVERDIR</TT>) are accessible.</P>
+
+<P><A NAME="35787"></A>Define a directory to store the <TT>rtokd</TT>,
+<TT>gettok</TT>, <TT>puttok</TT>, <TT>eexec</TT>, and <TT>esub</TT> executables
+from the AFS distribution. If PGP is used, be sure to make the necessary
+modification to the <TT>esub</TT> script as described in <A HREF="02-installation.html#32470">'AFS
+Token Encryption'</A>.</P>
+
+<P><A NAME="36452"></A>Set up a <I>client_hostsfile</I> file containing
+the list of machines that are authorized to renew tokens. This file is
+in the same format as <TT>/etc/hosts</TT>.</P>
+
+<P><A NAME="36490"></A>As root, start the <TT>rtokd</TT> server:</P>
+
+<PRE><A NAME="35800"></A># <B><I>absolute_path</I>/rtokd -l /tmp -p <I>portno</I> <I>client_hostsfile</I> &amp;</B></PRE>
+
+<P><A NAME="35802"></A>where</P>
+
+<DL>
+<P><A NAME="35803"></A><TT>-l /tmp</TT> indicates that the messages are
+logged to <TT>/tmp/rtokd.log.<I>hostname</I></TT>. If <TT>-l</TT> is not
+given, the messages are printed to standard error. If <TT>-l syslog</TT>
+is given, the messages are logged to syslog.</P>
+
+<P><A NAME="35807"></A><TT>-p <I>portno</I></TT> indicates the port number
+to which the daemon will listen for client requests.</P>
+
+<P><A NAME="35810"></A><I><TT>client_hostfile</TT></I> is the path name
+of the file containing the addresses/names of the hosts, which are authorized
+to renew tokens.</P>
+</DL>
+
+<P><A NAME="36664"></A>By default, <TT>rtokd</TT> reads <TT>/usr/afs/db/kaserver.DB0</TT>
+for the user's DES keys. If <TT>kaserver.DB0</TT> is in another location,
+the full path can be specified using the <TT>-f</TT> option.</P>
+
+<P><A NAME="35818"></A>Add <TT>rtokd</TT> to the system start-up file (for
+example, <TT>rc.local</TT>).</P>
+
+<H4><A NAME="35820"></A>Setup on LSF Server Hosts </H4>
+
+<P><A NAME="35822"></A>Copy the <TT>rtokd</TT>, <TT>gettok</TT>, <TT>esub</TT>,
+<TT>puttok</TT>, <TT>eexec</TT>, and <TT>rtok</TT> executables into the
+<TT>LSF_SERVERDIR</TT> directory as defined in your <TT>lsf.conf</TT> file.</P>
+
+<P><A NAME="36823"></A>Set the owner of <TT>rtok</TT> to root, and its
+permissions to 0700.</P>
+
+<P><A NAME="48839"></A>Define <TT>LSF_EEXEC_USER=root</TT> in the <TT>/etc/lsf.sudoers</TT>
+file. See <A HREF="10-lsf-reference.html#12839">'The <TT>lsf.sudoers</TT>
+File'</A> for details of the <TT>lsf.sudoers</TT> file.</P>
+
+<P><A NAME="36840"></A>If PGP is used, follow the instructions in <A HREF="02-installation.html#32470">'AFS
+Token Encryption'</A> on how to modify the <TT>esub</TT> and <TT>eexec</TT>
+scripts to support encryption.</P>
+
+<P><A NAME="35830"></A>Edit the <TT>eexec</TT> script to set <TT>RTOK_PORT</TT>
+to the <TT>rtokd</TT>'s port number, and set <TT>RTOKD_HOST</TT> to the
+name of the AFS server host running <TT>rtokd</TT>.</P>
+
+<H2><A NAME="37631"></A>Installing on DCE/DFS</H2>
+
+<P><A NAME="37662"></A>Installing LSF in DCE/DFS involves running <TT>lsfsetup</TT>
+from the main LSF distribution, and then installing the additional LSF
+DCE distribution. Before installing, you need to choose the primary LSF
+administrator, and decide where to store the LSF configuration and executable
+files:</P>
+
+<UL>
+<LI><A NAME="37984"></A>If the LSF configuration files are to be stored
+in DFS, the primary LSF administrator must be defined in DCE; in this case,
+root cannot be used as the primary LSF administrator. </LI>
+
+<LI><A NAME="37664"></A>The master batch daemon needs read/write access
+to the working directories under <TT>LSB_SHAREDIR</TT>, which contain the
+LSF Batch log files. Since the daemon is not authenticated to DCE, you
+must not define <TT>LSB_SHAREDIR</TT> to be in DFS when running <TT>lsfsetup</TT>.
+The other configuration files are accessed read-only by the LSF daemons
+and thus can be defined in DFS if the ACL for these directories contain
+<TT>any_other:r-----</TT>. Similarly, the LSF executables can be stored
+in DFS if the ACL contains <TT>any_other:r-x---</TT>. </LI>
+
+<LI><A NAME="38088"></A>You must not define <TT>LSF_RES_ACCTDIR</TT> and
+<TT>LSF_LOGDIR</TT> to be in DFS as the files in this directory are always
+written by the root user ID. </LI>
+</UL>
+
+<P><A NAME="38151"></A>Follow the instructions in <A HREF="02-installation.html#8064">'Installing
+LSF with <TT>lsfsetup</TT>'</A> to install the main LSF distribution. If
+some of your directories are defined in DFS, you must <TT>dce_login</TT>
+as the primary LSF administrator before running <TT>lsfsetup</TT>.</P>
+
+<P><A NAME="38242"></A>At this point, you can create <TT>@sys</TT> symbolic
+links so that <TT>LSF_BINDIR</TT>, <TT>LSF_LIBDIR</TT>, and <TT>LSF_SERVERDIR</TT>
+access the corresponding architecture directories.</P>
+
+<P><A NAME="38243"></A>The next step involves installing the additional
+LSF DCE distribution. This distribution is named depending on the LSF version
+and host type, for example <TT>lsf3.0_sunos4_dce.tar.Z</TT>.</P>
+
+<H3><A NAME="38244"></A>Installing the LSF DCE Distribution</H3>
+
+<DT><A NAME="38245"></A><B>Step 1. </B></DT>
+
+<DD>Get the LSF DCE tar distribution file from tape or from FTP. Uncompress
+the compressed distribution file. </DD>
+
+<DT><A NAME="38246"></A><B>Step 2. </B></DT>
+
+<DD>Copy the following executables from the LSF DCE distribution directory
+to the <TT>LSF_SERVERDIR</TT> directory: </DD>
+
+<DL>
+<P><A NAME="38247"></A><TT>daemons.wrap</TT> (<TT>res sbatchd</TT>)<BR>
+These executables are compiled with DCE/DFS support. After copying them
+to the <TT>LSF_SERVERDIR</TT> directory, rename the original files and
+make the following links:</P>
+
+<PRE># <B>mv res res.real
+</B># <B>mv sbatchd sbatchd.real
+</B># <B>ln -s daemons.wrap res
+</B># <B>ln -s daemons.wrap sbatchd</B></PRE>
+
+<P><A NAME="38249"></A><TT>getcrd putcrd<BR>
+getcrd</TT> gets the DCE credentials from the credential cache and outputs
+the tokens to standard output. <TT>putcrd</TT> reads from the standard
+input the AFS token(s) in the format generated by <TT>getcrd</TT>, and
+sets the credentials for the invoker.</P>
+
+<P><A NAME="38251"></A><TT>esub eexec<BR>
+</TT>These are shell scripts invoked by LSF (see <A HREF="03-concepts.html#14211">'External
+Submission and Execution Executables'</A>) to support credential forwarding
+from the submission host to the execution host. Sites can modify these
+scripts to further customize credential processing (for example, using
+site-specific encryption software).</P>
+</DL>
+
+<DT><A NAME="42100"></A><B>Step 3. </B></DT>
+
+<DD>If privileged port authentication is used (for example, <TT>LSF_AUTH</TT>
+is not defined in your <TT>lsf.conf</TT> file when you run <TT>lsfsetup</TT>;
+see <A HREF="03-concepts.html#3362">'Authentication using Privileged Ports'</A>),
+and <TT>LSF_BINDIR</TT> is defined in DFS, you will need to change the
+ownership of the setuid executables in <TT>LSF_BINDIR</TT> to root. First,
+find all the binaries in <TT>LSF_BINDIR</TT> that are installed with the
+setuid bit on: </DD>
+
+<DL>
+<PRE><A NAME="42104"></A>% <B>ls -l | grep rws</B></PRE>
+
+<P><A NAME="42105"></A>Then <TT>dce_login</TT> to the primary LSF administrator,
+and use the command <TT>cm setsetuid</TT>:</P>
+
+<PRE><A NAME="48562"></A>% <B>cm setsetuid -path <I>setuid_binaries</I> -state on</B></PRE>
+</DL>
+</DL>
+
+<H3><A NAME="38283"></A>Credential Encryption</H3>
+
+<P><A NAME="38284"></A>By default, the DCE <TT>esub</TT> and <TT>eexec</TT>
+scripts do not use encryption when transferring the DCE credentials between
+the submission and execution hosts. A site can modify these scripts to
+add site-specific encryption. The <TT>esub</TT> and <TT>eexec</TT> scripts
+in the LSF DCE distribution give an example of how to use PGP for encryption.
+To configure LSF to use PGP, follow the instructions in <A HREF="02-installation.html#32470">'AFS
+Token Encryption'</A>.</P>
+
+<H2><A NAME="7905"></A>Upgrading From a Previous Version</H2>
+
+<P><A NAME="7100"></A>This section describes the procedure for installing
+LSF when you already have a previous version of LSF installed on your system.</P>
+
+<P><A NAME="7115"></A>The upgrade procedure replaces the installed binaries
+and the running daemons, and automatically updates your configuration files
+to support the new LSF version, if necessary.</P>
+
+<UL>
+<P><A NAME="13379"></A><B>CAUTION!<BR>
+All interactive jobs running under LSF will be killed. If you are upgrading
+from LSF version 1, all pending and running batch jobs will be lost. Make
+sure that the system is completely idle before upgrading LSF.</B></P>
+</UL>
+
+<DL>
+<P><A NAME="7116"></A>You should do a complete backup of your LSF binaries
+and configuration files before upgrading LSF.</P>
+
+<DT><A NAME="7112"></A><B>Step 1. </B></DT>
+
+<DD>Copy the LSF configuration file from the previous version to the distribution
+directory. If you are upgrading from LSF version 1, copy the local.config
+file from the LSF version 1 installation directory. If you are upgrading
+from LSF version 2, copy the <TT>/etc/lsf.conf</TT> file created by the
+previous installation. </DD>
+
+<DT><A NAME="7121"></A><B>Step 2. </B></DT>
+
+<DD>Log in to an LSF server host as root, and change directory to the distribution
+directory. Run the <TT>./lsfsetup</TT> command. </DD>
+
+<DT><A NAME="7113"></A><B>Step 3. </B></DT>
+
+<DD>Choose option 3, 'Upgrade from a previous version of LSF'. Specify
+one or more of the following components to install: 'Batch', 'JobScheduler',
+'MultiCluster', or 'Base-only'. </DD>
+
+<DT><A NAME="7114"></A><B>Step 4. </B></DT>
+
+<DD>Choose option 1, 'Upgrade From LSF 1.2a or Earlier', or option 2, 'Upgrade
+From a Version of LSF 2.0 or later', depending on the version of LSF from
+which you are upgrading. </DD>
+
+<DT><A NAME="7120"></A><B>Step 5. </B></DT>
+
+<DD>Select the configuration file describing the old installation. </DD>
+
+<DT><A NAME="7125"></A><B>Step 6. </B></DT>
+
+<DD>The upgrade procedure now follows the standard <TT>lsfsetup</TT> installation
+procedure as described in <A HREF="02-installation.html#8064">'Installing
+LSF with lsfsetup'</A>. You should review the installation settings and
+modify them, if necessary, before installing the software. </DD>
+</DL>
+
+<P><A NAME="23134"></A>Perform the upgrade procedure once for each host
+type. The <TT>lsfsetup</TT> command automatically upgrades the necessary
+portions of LSF for each host type.</P>
+
+<P><A NAME="7128"></A>The following two steps are needed only if you are
+going to configure LSF to inter-operate with an NQS system. If you are
+not sure whether you need this feature, read <A HREF="d-systems.html#9017">'Configuring
+NQS Interoperation'</A> first. If you do not need to inter-operate with
+an NQS system, skip to <A HREF="02-installation.html#23062">step 9</A>.</P>
+
+<DL>
+<DT><A NAME="23106"></A><B>Step 7. </B></DT>
+
+<DD>Copy <TT>./etc/nqsi</TT> to <TT>LSF_SERVERDIR</TT> as defined in the
+<TT>lsf.conf</TT> file. Make sure the <TT>LSF_SERVERDIR/nqsi</TT> file
+has read and execute permission for all users. Since this executable is
+platform dependent, you must do this step for each platform. </DD>
+
+<DT><A NAME="23108"></A><B>Step 8. </B></DT>
+
+<DD>Copy the NQS map file <TT>./conf/configdir/lsb.nqsmaps</TT> to <TT>LSB_CONFDIR/<I>cluster</I>/configdir</TT>,
+where <TT>LSB_CONFDIR</TT> is the LSF Batch configuration root directory
+as defined in the <TT>lsf.conf</TT> file and cluster is the name of your
+LSF cluster. You need to change the file mode to make sure that this file
+is readable by all users and writable only by the LSF administrator. </DD>
+
+<DT><A NAME="23062"></A><B>Step 9. </B></DT>
+
+<DD>Restart the LSF daemons on all hosts. </DD>
+</DL>
+
+<H2><A NAME="15422"></A>Registering LSF Service Ports</H2>
+
+<DL>
+<P><A NAME="15423"></A>LSF uses UDP and TCP ports for communication. All
+hosts in the cluster must use the same port numbers so that each host can
+connect to the servers on other hosts. There are three alternative places
+to configure the port numbers for the LSF services:</P>
+
+<UL>
+<LI><A NAME="15425"></A>The <TT>/etc/services</TT> file. </LI>
+
+<LI><A NAME="15427"></A>The services NIS (Network Information Service or
+Yellow Pages) or NIS+ database. </LI>
+
+<LI><A NAME="15428"></A>Configuration parameters in the <TT>/etc/lsf.conf</TT>
+file. </LI>
+</UL>
+
+<P><A NAME="15429"></A>To determine which is used in your system, run the
+command <TT>ypwhich -m services</TT>. If this command displays a host name,
+your network is using NIS. On Solaris 2.3 systems, run the command:</P>
+
+<PRE><A NAME="15430"></A>% <B>nismatch name=login services.org_dir</B></PRE>
+
+<P><A NAME="15431"></A>If this command returns a service entry for the
+login service, your network is using NIS+.</P>
+
+<P><A NAME="15432"></A>The Host Setup option in the <TT>lsfsetup</TT> command
+tries to find out where the services should be registered. If the services
+database is in the <TT>/etc/services</TT> file, <TT>lsfsetup</TT> adds
+the LSF services to that file.</P>
+
+<P><A NAME="27462"></A>If your services database is in an NIS or NIS+ database,
+you must add the entries to your database by hand. <A HREF="02-installation.html#20414">Figure
+3</A> shows the contents of the <TT>example.services</TT> file provided
+in the distribution directory. This file contains examples of the entries
+you must add to the services database.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="22392"></A><B>CAUTION!<BR>
+Some NIS implementations fail if the NIS source file contains blank lines,
+causing many system services to become unavailable. Make sure that all
+the lines you add either contain valid service entries or begin with a
+comment character '<TT>#</TT>'.</B></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="20414"></A>Figure 3. The <TT>example.services</TT> File</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD>
+<PRE>#/etc/services entries for LSF daemons. 
+# 
+res       3878/tcp            # remote execution server 
+lim       3879/udp            # load information manager 
+mbatchd   3881/tcp            # master lsbatch daemon 
+sbatchd   3882/tcp            # slave lsbatch daemon 
+# 
+# Add this if ident is not already defined in your /etc/services file 
+ident     113/tcp auth tap    #identd </PRE>
+</TD>
+</TR>
+</TABLE>
+
+<P><A NAME="15452"></A>If any other service listed in your services database
+has the same port number as one of the LSF services, you can change the
+port number for the LSF service. You must use the same port numbers on
+every LSF host.</P>
+
+<H3><A NAME="15453"></A>NIS Services Database</H3>
+
+<P><A NAME="15454"></A>If you are running NIS, you only need to modify
+the services database once per NIS master. On some hosts the NIS database
+and commands are in the /var/yp directory; on others NIS is found in /etc/yp.
+Follow these steps:</P>
+
+<DT><A NAME="15455"></A><B>Step 1. </B></DT>
+
+<DD>Run the <TT>ypwhich -m</TT> services command to find the name of the
+NIS master host. </DD>
+
+<DT><A NAME="15456"></A><B>Step 2. </B></DT>
+
+<DD>Log in to the NIS master host as root. </DD>
+
+<DT><A NAME="15457"></A><B>Step 3. </B></DT>
+
+<DD>Edit the <TT>/var/yp/src/services</TT> or <TT>/etc/yp/src/services</TT>
+file on the NIS master host and add the contents of the <TT>example.services</TT>
+file. </DD>
+
+<DT><A NAME="15458"></A><B>Step 4. </B></DT>
+
+<DD>Change directory to <TT>/var/yp</TT> or <TT>/etc/yp.</TT> </DD>
+
+<DT><A NAME="15459"></A><B>Step 5. </B></DT>
+
+<DD>Run the command: </DD>
+
+<DL>
+<PRE><A NAME="44891"></A># <B>ypmake services</B></PRE>
+
+<P><A NAME="15460"></A>On some hosts the master copy of the services database
+is stored in a different location; refer to your system documentation for
+more information.</P>
+
+<P><A NAME="15461"></A>On systems running NIS+ the procedure is similar;
+again, please refer to your system documentation.</P>
+</DL>
+</DL>
+
+<H3><A NAME="15462"></A>Configuring Services in <TT>lsf.conf</TT></H3>
+
+<DL>
+<P><A NAME="15463"></A>If you do not want to change the <TT>/etc/services</TT>
+file or the NIS database, you can configure the service port numbers in
+the <TT>lsf.conf</TT> file (typically installed in <TT>/etc</TT>). Edit
+the <TT>lsf.conf</TT> file and add the following lines:</P>
+</DL>
+
+<PRE><A NAME="15465"></A>LSF_RES_PORT=3878
+LSF_LIM_PORT=3879
+LSB_MBD_PORT=3881
+LSB_SBD_PORT=3882
+LSF_ID_PORT=113</PRE>
+
+<P><A NAME="16634"></A>You must make sure that the same entries are added
+to the <TT>/etc/lsf.conf</TT> file on every host.</P>
+
+<H2><A NAME="23173"></A>Registering NQS Service</H2>
+
+<P><A NAME="23174"></A>You need to register NQS service only if you want
+LSF to inter-operate with an NQS system. To enable LSF Batch to inter-operate
+with remote NQS servers, you need to register the NQS services in the service
+database such as <TT>/etc/services</TT> or NIS. The NQS uses TCP port number
+607. If you do not know how to add a service entry to the <TT>services</TT>
+database, read <A HREF="02-installation.html#15422">'Registering LSF Service
+Ports'</A>.</P>
+
+<H2><A NAME="20997"></A>Starting LSF Servers at Boot Time</H2>
+
+<DL>
+<P><A NAME="21002"></A>The <TT>lsfsetup</TT> Host Setup procedure normally
+configures each LSF server host to start the LSF daemons when the host
+boots. This section describes the changes <TT>lsfsetup</TT> makes to your
+system, and describes how to perform this setup by hand.</P>
+
+<P><A NAME="21030"></A>The LSF daemons must be run by root on every server
+host in the cluster. The steps required to set up daemons are different
+under different versions of UNIX. In any case, the LSF daemons should be
+started after all other networking and NFS daemons, and after the file
+systems containing the LSF executables and configuration files are available.
+</P>
+
+<P><A NAME="21033"></A>On BSD-based UNIX systems such as ULTRIX, SunOS
+4.x, and ConvexOS, the start-up commands should be placed at the end of
+the <TT>/etc/rc.local</TT> script. <TT>lsfsetup</TT> adds the following
+text to the <TT>/etc/rc.local</TT> script to start the daemons:</P>
+
+<PRE><A NAME="21089"></A># %LSF_START% Start LSF daemons
+/usr/local/lsf/etc/lsf_daemons start
+# %LSF_END%</PRE>
+
+<P><A NAME="21034"></A>On HP-UX 9.x, you should add the above command to
+the localrc function in the <TT>/etc/rc</TT> file. If your site has created
+a local start-up file such as <TT>/etc/rc.local</TT>, you should put the
+start-up command into that file instead.</P>
+
+<P><A NAME="21036"></A>On System V- and POSIX-based systems such as Digital
+UNIX, Solaris, SGI IRIX, and HP-UX 10.x, daemons are started and stopped
+by scripts in the <TT>/etc/init.d</TT> and <TT>/etc/rc*.d</TT>, or <TT>/sbin/init.d</TT>
+and <TT>/sbin/rc*.d</TT>, directories. <TT>lsfsetup</TT> links the <TT>LSF_SERVERDIR/lsf_daemons</TT>
+script file from the distribution into the appropriate place depending
+on the run state defined in <TT>/etc/inittab</TT>. If the <TT>/etc/init.d</TT>
+directory exists, <TT>lsfsetup</TT> creates symbolic links in the <TT>/etc</TT>
+directories; if <TT>/sbin/init.d</TT> exists, the links are created in
+<TT>/sbin</TT>. As an example, <TT>lsfsetup</TT> will create the following
+links if the run state in <TT>/etc/inittab</TT> is defined as 3:</P>
+
+<PRE><A NAME="21222"></A># <B>ln -s /usr/local/lsf/etc/lsf_daemons /etc/init.d/lsf
+</B># <B>ln -s /etc/init.d/lsf /etc/rc3.d/S95lsf</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="21045"></A><B>Note<BR>
+</B><I>The LSF daemons must be started on every server host in the LSF
+cluster. One method is shown in the section <A HREF="05-manage-lsf.html#33210">'Remote
+Startup of LIM and RES'</A>.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="48324"></A>Licensing the Different LSF Components</H2>
+
+<P><A NAME="48334"></A>LSF Suite V3.0 includes the following components:
+LSF Base, LSF Batch, LSF JobScheduler (formerly LSF-PJS), and LSF MultiCluster.</P>
+
+<P><A NAME="48225"></A>LSF Base is a prerequisite for all other LSF components.
+All components are packaged in the same distribution file. The installation
+program <TT>lsfsetup</TT> requires you to specify which components are
+to be installed. By default LSF Batch together with LSF Base are installed.</P>
+
+<P><A NAME="48242"></A>The changes to enable a particular component in
+a cluster is handled automatically by <TT>lsfsetup</TT> based on your input
+during the installation process. You can always subsequently modify the
+environment to reflect a new component license. See <A HREF="10-lsf-reference.html#267">'Parameters'</A>
+for details about the <TT>lsf.cluster.<I>cluster</I></TT><I> </I>file.
+</P>
+
+<BLOCKQUOTE>
+<P><A NAME="48279"></A><B>Note<BR>
+</B><I>An LSF client host is independent of the components that run on
+the LSF server hosts. That is, there is no difference, for example, between
+a client for LSF Batch and LSF JobScheduler.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="48365"></A>Each of these components are licensed independently.
+Individual hosts can be configured to run as LSF Batch servers or LSF JobScheduler
+servers within the same cluster. LSF MultiCluster is licensed on a cluster-wide
+basis, that is, the entire cluster is either enabled or disabled for multicluster
+operation.</P>
+
+<P><A NAME="48286"></A>The license file used to serve the cluster must
+have the corresponding features. A host will show as unlicensed if the
+license for the component it was configured to run is unavailable. For
+example, if a cluster is configured to run LSF JobScheduler on all hosts,
+and the license file does not contain the LSF JobScheduler feature, than
+the hosts will be unlicensed, even if there are licenses for LSF Base or
+LSF Batch.</P>
+
+<H2><A NAME="29979"></A>Getting License Key Information</H2>
+
+<P><A NAME="29980"></A>This section gives a detailed description of the
+procedure for getting a license key. You do not need to read this section
+unless you have difficulty getting the information needed for a license
+key using the lsfsetup command. If you are installing a DEMO license you
+do not need to read this section.</P>
+
+<P><A NAME="43519"></A>LSF uses the FLEXlm license management software
+from Globetrotter Software. FLEXlm supports limited time <I>DEMO licenses</I>
+and network-wide <I>permanent licenses</I>.</P>
+
+<P><A NAME="29988"></A>You must have a license key to run LSF. If you are
+installing LSF for a limited time evaluation, you should have received
+a DEMO key from your software vendor. If you are installing LSF for permanent
+use, you must get a permanent license key from your vendor. You can use
+a DEMO key to install LSF and get it running, and switch to the permanent
+license later.</P>
+
+<P><A NAME="43974"></A>Permanent licenses use a <I>license server</I> daemon
+running on one or more hosts in your network. The license server counts
+the number of licenses in use. For more information on how FLEXlm works
+and for examples of license keys, see <A HREF="05-manage-lsf.html#6884">'LSF
+License Management'</A>.</P>
+
+<P><A NAME="29989"></A>The FLEXlm license key and license server are independent
+of LSF clusters and LSF server hosts. You can organize your hosts into
+clusters any way you choose. The license server counts only the total number
+of hosts running LSF; these hosts can belong to any cluster in your network.
+As long as all your hosts can contact each other on the network, you should
+request a single license key that covers all the hosts on which you plan
+to run LSF.</P>
+
+<P><A NAME="29990"></A>If you are already running FLEXlm to support other
+software licenses, you can add your LSF license key to the existing FLEXlm
+license file. If you are not already using FLEXlm, you must choose a host
+or hosts to run the license server daemon.</P>
+
+<P><A NAME="29991"></A>FLEXlm normally runs the license server daemon on
+one host. If you are concerned about reliability, you can run the license
+server daemon on three or five hosts. Software licenses are available as
+long as a majority of the license servers are available.</P>
+
+<P><A NAME="29992"></A>You should run the license server on the host that
+is the NFS server for the LSF software. That way the licenses are available
+whenever the software is.</P>
+
+<P><A NAME="43768"></A>To create a permanent license key, your software
+vendor needs a hardware host identifier for each license server host. LSF
+comes with a script to help collect this information.</P>
+
+<DT><A NAME="29994"></A><B>Step 1. </B></DT>
+
+<DD>Change directory to the distribution directory. Run the <TT>./lsfsetup</TT>
+command. </DD>
+
+<DT><A NAME="29996"></A><B>Step 2. </B></DT>
+
+<DD>Choose option 4, 'License Management'. From the next menu, choose option
+1, 'Get Information For a Permanent License'. If you already have FLEXlm
+installed, <TT>lsfsetup</TT> asks whether you want to use the same license
+server hosts. If you answer yes, <TT>lsfsetup</TT> uses the server host
+IDs from your existing FLEXlm license file. Otherwise, <TT>lsfsetup</TT>
+asks for a host name and tries to get the host ID for that host. </DD>
+</DL>
+
+<P><A NAME="29997"></A>If lsfsetup is unable to get the host ID, it prompts
+you to run the <TT>lmhostid</TT> command on each license server host and
+enter the host IDs for those hosts.</P>
+
+<P><A NAME="29999"></A><TT>lsfsetup</TT> creates a file named <TT>license.info</TT>.
+Follow the instructions provided in your software release notes to send
+the contents of the <TT>license.info</TT> file to your LSF vendor. </P>
+
+<P><A NAME="48002"></A>If you receive your license key by electronic mail
+or FTP, copy the file you receive into the distribution directory and name
+the file <TT>license.dat</TT>. If you receive your license key by paper
+mail or FAX, use a text editor to create a <TT>license.dat</TT> file containing
+your key.</P>
+
+<P><A NAME="48006"></A><A HREF="b-sample-install.html#5333">'Getting License
+Key Information'</A> shows an example of using <TT>lsfsetup</TT> to get
+license key information.</P>
+
+<H2><A NAME="30006"></A>Setting Up the License Key</H2>
+
+<P><A NAME="48020"></A>This section contains detailed descriptions of the
+procedures for setting up LSF software license keys. If you have already
+set up your license key, you do not need to read this section.</P>
+
+<P><A NAME="48021"></A>Before performing this step you must get a license
+key. If you do not have a license key, see <A HREF="02-installation.html#29979">'Getting
+License Key Information'</A>. If you plan to install a permanent license
+and are waiting for your permanent license key, you can install a DEMO
+license and switch to the permanent license later.</P>
+
+<P><A NAME="30012"></A>Both the license server daemons and the LIM on every
+host need to read the license key, so it must be stored in a file available
+on all LSF hosts. This file can be shared using NFS, or you can install
+a copy on each host.</P>
+
+<P><A NAME="30013"></A>If you are installing a DEMO license, follow the
+procedure in <A HREF="02-installation.html#30027">'Installing a DEMO License'</A>.</P>
+
+<P><A NAME="30017"></A>If you are installing a permanent license or switching
+from a DEMO license to a permanent license, and you are not running FLEXlm
+license server daemons for any other software licenses, follow the procedure
+in <A HREF="02-installation.html#30051">'Installing a New Permanent License'</A>.</P>
+
+<P><A NAME="30021"></A>If you are installing a new LSF permanent license
+and you already have license servers running for other software licenses,
+or if you are upgrading your LSF license, follow the procedure in <A HREF="02-installation.html#30100">'Adding
+a Permanent License'</A>.</P>
+
+<H3><A NAME="30027"></A>Installing a DEMO License</H3>
+
+<P><A NAME="30029"></A>If you are installing LSF with a DEMO license, you
+do not need to run the license server daemons. Each LSF host reads the
+license file directly, and LSF runs, without trying to contact the server,
+until the license expires.</P>
+
+<P><A NAME="30030"></A>For the DEMO license, you should install the license
+key in a file named <TT>license.dat</TT> in the LSF configuration directory
+<TT>LSF_CONFDIR</TT>, as defined in the <TT>lsf.conf</TT> file. If the
+configuration directory is normally shared by all hosts in the LSF cluster,
+you do not need to copy the <TT>license.dat</TT> file to every host.</P>
+
+<P><A NAME="30033"></A>The installation log in <A HREF="b-sample-install.html#5787">'Install
+for the First Time'</A> includes an example of using <TT>lsfsetup</TT>
+to install a DEMO license.</P>
+
+<DL>
+<DT><A NAME="30035"></A><B>Step 1. </B></DT>
+
+<DD>In the distribution directory, run the <TT>./lsfsetup</TT> command.
+</DD>
+
+<DT><A NAME="30036"></A><B>Step 2. </B></DT>
+
+<DD>Choose option 4, 'License management'. Next choose option 2, 'Install
+a New License From the LSF Vendor'. </DD>
+
+<DT><A NAME="30037"></A><B>Step 3. </B></DT>
+
+<DD>From the next menu choose option 1, 'Set up DEMO license'. </DD>
+
+<P><A NAME="30038"></A>The command looks for your vendor-supplied license
+key in the <TT>license.dat</TT> file in the current directory and the parent
+directory. If the <TT>license.dat</TT> file is not found, <TT>lsfsetup</TT>
+asks you to enter the full path name of the <TT>license.dat</TT> file containing
+your DEMO license key.</P>
+
+<DT><A NAME="30039"></A><B>Step 4. </B></DT>
+
+<DD>For the location of the installed license file, choose option 2, 'Use
+$LSF_CONFDIR/license.dat'. </DD>
+
+<DL>
+<P><A NAME="48533"></A>The license manager checks your <TT>license.dat</TT>
+file to confirm the licensed components. It then prompts you for permission
+to enter appropriate features in the '<TT>FEATURES=...</TT>' line in the
+<TT>lsf.cluster.<I>cluster</I></TT> file.</P>
+</DL>
+
+<DT><A NAME="30040"></A><B>Step 5. </B></DT>
+
+<DD>You have a chance to change your mind before permanently installing
+the license file. Enter 'y' to commit the changes. At the next prompt,
+choose option q, 'Quit'. You are now done setting up the LSF DEMO software
+license. </DD>
+</DL>
+
+<P><A NAME="30041"></A>The <TT>lsfsetup</TT> script installs your key in
+the FLEXlm license file, or creates the file if necessary. If the license
+file is not installed in <TT>/usr/local/flexlm/licenses/license.dat</TT>,
+<TT>lsfsetup</TT> updates the <TT>lsf.conf</TT> file to include the full
+path name of the license file.</P>
+
+<UL>
+<P><A NAME="30049"></A><B>Note<BR>
+</B><I>If you change the location of the installed license key file, you
+must make sure that the </I><TT>lsf.conf</TT><I> file is updated for all
+hosts in the cluster.</I></P>
+</UL>
+
+<H3><A NAME="30051"></A>Installing a New Permanent License</H3>
+
+<P><A NAME="30053"></A>Follow this procedure if you are installing an LSF
+permanent license in a network with no FLEXlm servers, switching from a
+DEMO license to a permanent license, or setting up a separate FLEXlm server
+for the LSF license. If you are adding an LSF license to a FLEXlm license
+key file that contains other licenses or upgrading an existing LSF permanent
+license, follow the procedure in <A HREF="02-installation.html#30100">'Adding
+a Permanent License'</A>.</P>
+
+<P><A NAME="30059"></A>The installation log in <A HREF="b-sample-install.html#5400">'Installing
+a Permanent License'</A> gives an example of using <TT>lsfsetup</TT> to
+install a permanent license for LSF.</P>
+
+<P><A NAME="30061"></A>The permanent license must be installed on the license
+server host. If you are using multiple FLEXlm servers, follow this procedure
+on any one of the license server hosts to set up the license key file,
+and then start the license server daemons by hand on the other license
+server hosts.</P>
+
+<DL>
+<DT><A NAME="30063"></A><B>Step 1. </B></DT>
+
+<DD>Log in to the license server host as root and change directory to the
+LSF distribution directory. Copy the license file from your vendor into
+the distribution directory and name the file <TT>license.dat</TT>. </DD>
+
+<DT><A NAME="30064"></A><B>Step 2. </B></DT>
+
+<DD>Run the <TT>./lsfsetup</TT> command. Choose option 4, 'License Management'.
+Next choose option 2, 'Install a New License'. From the next menu choose
+option 2, 'Set up permanent (floating) license'. The command looks for
+the LSF <TT>license.dat</TT> file provided by your vendor. If the <TT>license.dat</TT>
+file is not found in the current directory or the parent directory, the
+command prompts you to enter the file name. </DD>
+
+<DT><A NAME="48610"></A><B>Step 3. </B></DT>
+
+<DD>Next <TT>lsfsetup</TT> asks whether you are installing a permanent
+license key for the first time. This procedure is for setting up a new
+license, so select option 1, 'First installation of a permanent license'.
+</DD>
+
+<DT><A NAME="48612"></A><B>Step 4. </B></DT>
+
+<DD>To use the default location for the FLEXlm license key file select
+option 1, 'use /usr/local/flexlm/licenses/license.dat'. If you want to
+store your license.dat file in the LSF configuration directory, choose
+option 2. Otherwise, choose option 3, and enter the full path name where
+you want the license file to be installed. </DD>
+
+<DT><A NAME="30068"></A><B>Step 5. </B></DT>
+
+<DD>If the license file already exists, you can merge the license files
+or replace the existing file. If your installed license file contains only
+LSF licenses, choose option 2, 'replace license file'. Otherwise, choose
+option 1, 'merge license files'. </DD>
+
+<DL>
+<P><A NAME="30069"></A>A copy of the old license file is left in <TT>license.dat.old</TT>
+in the same directory as your installed <TT>license.dat</TT> file.</P>
+</DL>
+
+<DT><A NAME="30071"></A><B>Step 6. </B></DT>
+
+<DD>The FLEXlm license server daemons log status and error messages into
+a file. If you set the <TT>LSF_LOGDIR</TT> parameter in the installation
+procedure, the license setup puts the FLEXlm log in the file <TT>LSF_LOGDIR/license.log</TT>.
+Otherwise, you must enter the full path name of a log file to store the
+FLEXlm log messages. Put the FLEXlm log in the same directory as your other
+system logs, or in the <TT>/tmp</TT> directory. </DD>
+
+<DT><A NAME="30072"></A><B>Step 7. </B></DT>
+
+<DD>The <TT>lsfsetup</TT> script asks if you want to start the license
+server daemons now. Enter 'y'. The daemons are automatically started on
+the host where <TT>lsfsetup</TT> is running. If you are using more than
+one license server host, start the license server daemons by hand on the
+other hosts. </DD>
+
+<DL>
+<P><A NAME="30074"></A>To start the daemons by hand, log in as root, change
+directory to the distribution directory, and run the start-up script <TT>lsf_license</TT>:</P>
+
+<PRE><A NAME="30075"></A># <B>./lsf_license start</B></PRE>
+</DL>
+</DL>
+
+<H3><A NAME="30078"></A>Starting the License Server Daemons at Boot Time</H3>
+
+<P><A NAME="30079"></A>You must add the <TT>lsf_license</TT> startup script
+to the appropriate place on the license server hosts.</P>
+
+<P><A NAME="30081"></A>For BSD-based systems, add the path of <TT>lsf_license</TT>
+to the end of the <TT>/etc/rc.local</TT> file.</P>
+
+<P><A NAME="30082"></A>For HP-UX 9.x systems, you may have a BSD-style
+<TT>/etc/rc.local</TT> file, or you may need to add <TT>lsf_license</TT>
+to the <TT>/etc/rc</TT> file.</P>
+
+<P><A NAME="30083"></A>For IBM AIX systems, you may have a BSD-style <TT>/etc/rc.local</TT>,
+or you may need to copy the <TT>lsf_license</TT> script to the <TT>LSF_SERVERDIR</TT>
+directory and use <TT>smit</TT> to add <TT>$LSF_SERVERDIR/lsf_license</TT>
+to the list of commands run at startup time.</P>
+
+<P><A NAME="30085"></A>For System V-based systems including Sun Solaris
+2 and SGI IRIX, move the <TT>lsf_license</TT> file to <TT>/etc/init.d/lsf_license</TT>
+and add links from the <TT>/etc/rc2.d</TT> and <TT>/etc/rc1.d</TT> directories:</P>
+
+<PRE><A NAME="30087"></A># <B>cp lsf_license /etc/init.d/lsf_license
+</B># <B>ln /etc/init.d/lsf_license /etc/rc2.d/S90lsf_license</B></PRE>
+
+<P><A NAME="30091"></A>On Digital UNIX and HP-UX 10.x, the instructions
+are similar to those for System V, but the directory names are different:</P>
+
+<PRE><A NAME="30093"></A># <B>cp lsf_license /sbin/init.d/lsf_license
+</B># <B>ln /sbin/init.d/lsf_license /sbin/rc3.d/S90lsf_license</B></PRE>
+
+<DL>
+<DL>
+<P><A NAME="48620"></A><B>CAUTION!<BR>
+You should ensure that the <TT>lsf_license</TT> script runs after any NFS
+server scripts but before the <TT>lsf_daemons</TT> script in the system
+boot procedure.</B></P>
+</DL>
+</DL>
+
+<P><A NAME="30097"></A>If you are running multiple license server hosts,
+configure the system startup routines to start the license server daemons
+on each host, and then start the daemons by hand on the backup server hosts.</P>
+
+<H3><A NAME="30100"></A>Adding a Permanent License</H3>
+
+<P><A NAME="30101"></A>Follow this procedure if you are adding LSF licenses
+to an existing FLEXlm license key file. This procedure applies if you have
+already configured FLEXlm to manage licenses for a different product, or
+if you have already installed FLEXlm to manage an LSF permanent license
+and you have received a new license key, for example to support a larger
+number of hosts.</P>
+
+<P><A NAME="30102"></A>If you are switching from a DEMO license to a permanent
+license, follow the instructions in <A HREF="02-installation.html#30051">'Installing
+a New Permanent License'</A>. </P>
+
+<DL>
+<DT><A NAME="30106"></A><B>Step 1. </B></DT>
+
+<DD>Log in to the license server host as root and change directory to the
+distribution directory. Copy the new license information into the file
+<TT>license.dat</TT>. </DD>
+
+<DT><A NAME="30107"></A><B>Step 2. </B></DT>
+
+<DD>Run the command <TT>LSF_SERVERDIR/lsfsetup</TT>. Select option 4, 'License
+Setup', and then option 2, 'Install a New License'. If your new license
+information is not in the file <TT>./license.dat</TT> or <TT>../license.dat</TT>,
+enter the full path name when prompted. </DD>
+
+<DT><A NAME="30108"></A><B>Step 3. </B></DT>
+
+<DD>Choose option 2, 'Set up permanent license'. At the next prompt, choose
+option 2, 'Upgrade an existing permanent license'. </DD>
+
+<DT><A NAME="30109"></A><B>Step 4. </B></DT>
+
+<DD>Specify the location of your installed FLEXlm license key file. If
+your license key file is installed in <TT>/usr/local/flexlm/licenses/license.dat</TT>,
+choose option 1. If your license key file is <TT>LSF_CONFDIR/license.dat</TT>,
+choose option 2. Otherwise, choose option 3 and enter the full path name
+of the license file. <TT>lsfsetup</TT> adds your new license keys to the
+existing license file. </DD>
+
+<DT><A NAME="30110"></A><B>Step 5. </B></DT>
+
+<DD>Commit the changes to the license file. <TT>lsfsetup</TT> tells the
+license server daemons to reread the license file, and checks to make sure
+your LSF license is available. </DD>
+</DL>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="01-pre-installation.html">[Prev]</A>
+<A HREF="04-configure-lsf.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:13:01 --></P>
+
+</BODY>
+</HTML>

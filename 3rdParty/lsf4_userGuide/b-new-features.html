@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - New Features in LSF 3.0</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="a-xlsbatch-menu.html">[Prev]</A>
+<A HREF="users-title.html">[Title]</A> 
+<HR></P>
+
+<H1><A NAME="26636"></A>Appendix B. <A NAME="21664"></A>New Features in
+LSF 3.0</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="21667"></A>LSF version 3.0 includes many new features requested
+by LSF users, as well as bug fixes to LSF version 2.2. Most of the new
+features are enhancements to the LSF Batch system.</P>
+
+<P><A NAME="26379"></A>This chapter summarizes the new features that are
+related to LSF end users. The new features that concern LSF administration
+are described in the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I>.</P>
+
+<H2><A NAME="29293"></A>Host Preference</H2>
+
+<P><A NAME="29294"></A>When several hosts can satisfy the resource requirements
+of a job the hosts are ordered by load. However in certain situations it
+maybe desirable to override this behaviour to give preference to certain
+hosts even if they are more heavily loaded. For example, your LSF cluster
+may consist of a few dedicated batch servers and a few desktop machines.
+A desktop machine can also run jobs when the console user is not using
+it interactively. You prefer to run on the dedicated servers and only use
+the desktop if no dedicated server is available.</P>
+
+<P><A NAME="29326"></A>The -m option of <TT>bsub</TT> allows you to specify
+preference by using '+' after the host name. A special hostname '<TT>others</TT>'
+can be used to refer to other hosts not listed. You can also optionally
+specify a preference level for each host for more flexible preference.</P>
+
+<H2><A NAME="29356"></A>Interactive Batch Job Support</H2>
+
+<P><A NAME="29358"></A>A batch job can be submitted in interactive mode
+such that all input and output are through the terminal from which the
+<TT>bsub</TT> command is issued. This enables the user to run interactive
+jobs under the resource sharing control supported by LSF Batch. With this
+support, all the jobs can be under the effective resource sharing control,
+scheduling policies, and job accounting of LSF Batch.</P>
+
+<P><A NAME="29371"></A>An interactive batch job is submitted by specifying
+the <TT>-I</TT> option of the <TT>bsub</TT> command.</P>
+
+<H2><A NAME="29376"></A>Shell Mode for Remote Execution</H2>
+
+<P><A NAME="29378"></A>Shell mode support is provided for running interactive
+applications through the RES or through LSF Batch. Shell mode support is
+required to run interactive shells or applications which redefine the <B><FONT SIZE=-1>CNTL-C</FONT></B>&nbsp;and
+<B><FONT SIZE=-1>CNTL-Z</FONT></B>&nbsp;keys (for example, <TT>jove</TT>).
+The <TT>-S</TT> option to <TT>lsrun(1)</TT>, <TT>ch(1)</TT>, and <TT>lsgrun(1)</TT>
+creates the remote task with shell mode support. The <TT>-Is</TT> option
+to <TT>bsub(1)</TT> provides the same feature for interactive batch jobs.</P>
+
+<H2><A NAME="29391"></A>Job Starter</H2>
+
+<P><A NAME="29396"></A>Some jobs have to be started under particular shells
+or require certain setup steps to be performed before the actual job is
+executed. The Job Starter feature allows you to specify an executable which
+will perform the actual execution of the job, doing any necessary setup
+beforehand. For batch jobs, the job starter can be configured at the queue
+level by LSF administrator. For non-batch jobs through the RES it can be
+specified through an environment variable. This feature is particularly
+useful for users who run jobs in an Atria ClearCase environment.</P>
+
+<H2><A NAME="29411"></A>Resource Consumption Monitoring of Running Jobs</H2>
+
+<P><A NAME="29420"></A>In previous versions, resource consumption of jobs
+are only available when a job finishes. With LSF 3.0, it is now possible
+to see the resource consumption of jobs while they are still running. Such
+information is collected periodically by LSF Batch daemons and visible
+by users using the <TT>bjobs</TT> command.</P>
+
+<H2><A NAME="29424"></A>Job-Level Resource Limits</H2>
+
+<P><A NAME="29426"></A>The <TT>CPULIMIT</TT> parameter is now enforced
+at the job-level in addition to the process level. If a job starts multiple
+processes periodically which do some work and terminate, the system will
+accumulate the CPU time of previous processes in the job.</P>
+
+<H2><A NAME="29414"></A>Resource Reservation</H2>
+
+<P><A NAME="29437"></A>If you are concerned about other jobs be dispatched
+to the same hosts on which your jobs are running, you can use the resource
+reservation feature of LSF 3.0. Resources can be reserved as specified
+by resource requirements. No other job will use the reserved resources
+even if the job which reserved the resources has not consumed them. The
+amounts of reserved resources can be viewed by users through LSF commands.
+You can specify both the amount of reservation as well as a duration. </P>
+
+<H2><A NAME="29413"></A>More Specific Job Pending Reasons</H2>
+
+<P><A NAME="29447"></A>In previous versions, the job pending reasons printed
+out by bjobs do not give very specific information about related hosts.
+With 3.0, the related host names are printed out along with the job pending
+reasons by the <TT>bjobs</TT> <TT>-p</TT> <TT>-l</TT> command. </P>
+
+<H2><A NAME="29452"></A>Enhanced Parallel Job Support</H2>
+
+<P><A NAME="29455"></A>The following enhancements have been made to more
+effectively support parallel jobs running through LSF Batch. </P>
+
+<UL>
+<LI><A NAME="29463"></A>Range of processor requirement: The <TT>-n</TT>
+option of <TT>bsub</TT> now takes a minimum and maximum number. </LI>
+
+<LI><A NAME="29464"></A>Locality and dispersion: You can now specify that
+your parallel job should be limited to run on processors within one host.
+Or you can specify that the job should be distributed across host so that
+only one program component is allocated per machine. </LI>
+
+<LI><A NAME="29480"></A>Processor Reservation: The scheduling of parallel
+jobs has been enhanced to support the notion of processor reservation.
+Parallel jobs requiring a large number of processors often can not be started
+if there are many lower priority sequential jobs in the system. There may
+not be enough resources at any one instant to satisfy a large parallel
+job, but there may be enough to allow a sequential job to be started. With
+the processor reservation feature the problem of starvation of parallel
+jobs can be reduced. LSF Batch reserves job slots dynamically for parallel
+jobs to increase the chance of getting enough slots to run the job. Many
+LSF Batch commands now also displays a new field '<TT>RSV</TT>' to refer
+to slots that are reserved for parallel jobs or for jobs that preempt others.
+</LI>
+</UL>
+
+<H2><A NAME="29496"></A>Enhanced Checkpointing Interface</H2>
+
+<P><A NAME="29454"></A>LSF 3.0 provides a uniform checkpointing interface
+to allow users to either use the default checkpointing mechanism, or to
+integrate their own check-pointing method with LSF Batch. Checkpointing
+is now accomplished by two external executables: <TT>echkpnt</TT> and <TT>erestart</TT>.
+</P>
+
+<P><A NAME="29506"></A>Users or LSF administrator can modify or rewrite
+these executables to interface their own checkpointing facility with LSF
+Batch. </P>
+
+<H2><A NAME="29507"></A>Using Hostname in the Resource Requirement String</H2>
+
+<P><A NAME="29509"></A>LSF now recognize a new keyword &quot;<TT>hname</TT>&quot;
+in a resource requirement string. This allows more flexibility in host
+selections. For example, you can use &quot;<TT>hname != hostA</TT>&quot;
+to exclude the selection of <TT>hostA</TT>. </P>
+
+<H2><A NAME="29510"></A>Customizing Menu Items of <TT>xlsbatch</TT></H2>
+
+<P><A NAME="29512"></A><TT>xlsbatch</TT> is now customizable. You can customize
+the menu items of <TT>xlsbatch</TT> by specifying &quot;<TT>customizedMenu</TT>&quot;
+resource in the X resource file. With this feature, you can add/remove/modify
+menu items in the pull-down menus. Each menu item can be associated with
+an external executable. So you can define your own actions by changing
+the menu items.</P>
+
+<H2><A NAME="29516"></A>New Option for <TT>bjobs</TT> Command</H2>
+
+<P><A NAME="29518"></A>The <TT>-r</TT> option has been added to the <TT>bjobs</TT>
+command to display jobs in <TT>RUN</TT> status. </P>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="a-xlsbatch-menu.html">[Prev]</A>
+<A HREF="users-title.html">[Title]</A> </P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

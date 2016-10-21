@@ -1,0 +1,384 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - Getting Started</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-contents.html">[Contents]</A> <A HREF="1-intro.html">[Prev]</A>
+<A HREF="4-events.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="999239"></A>Chapter 2. <A NAME="997895"></A>Getting Started</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="1000941"></A>This chapter shows you how to use some of the
+basic features of LSF JobScheduler. After trying the following examples,
+you should be able to use JobScheduler for everyday tasks.</P>
+
+<H2><A NAME="1000948"></A>Using JobScheduler</H2>
+
+<P><A NAME="1000952"></A>You will most commonly use JobScheduler to process
+periodic or repetitive jobs. To accomplish this, you need to first select
+or create a calendar. Next you must associate jobs with the calendar. Once
+you have performed these two tasks, JobScheduler will automatically execute
+your jobs according to the calendar schedule and the resource specifications
+associated.</P>
+
+<P><A NAME="1001217"></A>You can also use JobScheduler to process jobs
+based on the occurrence of some other event in the system, for example,
+the creation (arrival) of a file.</P>
+
+<P><A NAME="1000197"></A>JobScheduler offers many utilities to check the
+status and progress of your jobs and calendars. You can set up automatic
+notification or re-submission to handle job failure. Other utilities allow
+you to discover the resources available in the <I>clusters</I> on the network.</P>
+
+<H2><A NAME="1000915"></A>Creating a Calendar</H2>
+
+<P><A NAME="1001240"></A>There are three possible types of calendars you
+can use to submit your job: a preconfigured system calendar, a calendar
+you or another user created, or an 'anonymous' calendar. See <A HREF="3-calendars.html#1006192">'What
+is a Calendar?'</A> for more details.</P>
+
+<P><A NAME="1001257"></A>The first step is to create a calendar with the
+<TT>bcaladd</TT> command. Create a calendar called 'daily'. This calendar
+becomes active once a day at 8 a.m.</P>
+
+<PRE><A NAME="1001258"></A><B>% bcaladd -d &quot;Daily Calendar&quot; -t &quot;*:*:*:08:0&quot; daily
+</B>Calendar &lt;daily&gt; is created.</PRE>
+
+<P><A NAME="1001259"></A>A calendar has a name, one or more time expressions,
+and an optional description.</P>
+
+<P><A NAME="999990"></A>A time expression is a colon-separated list that
+defines time events. An optional duration field in the time expression
+specifies the time duration in which the time event is active. Time expressions
+are specified with the <TT>-t</TT> option. To prevent the shell from interpreting
+any special characters, time expressions following the <TT>-t</TT> option
+should be placed within quotes. See <A HREF="3-calendars.html#999254">'Time
+Expression'</A> for further details.</P>
+
+<P><A NAME="1001237"></A>The optional description is a string of text declared
+with the <TT>-d</TT> option. If the string contains blanks or special characters,
+it should be placed within quotes as well.</P>
+
+<P><A NAME="1001238"></A>Once your calendar is created, it can be used
+to drive jobs. A calendar can be modified after it is created.</P>
+
+<H3><A NAME="999563"></A>Using <TT>xbcal</TT> to Create a Calendar</H3>
+
+<P><A NAME="1000008"></A><A HREF="2-get-started.html#999263">Figure 2</A>
+shows the calendar creation window of <TT>xbcal.</TT></P>
+
+<H4><A NAME="999263"></A>Figure 2. <TT>xbcal</TT> Calendar Creation Window
+</H4>
+
+<P><A HREF="pjs-figure02.gif"><IMG SRC="pjs-figure02.gif" ALT="xbcal Calendar Creation Window" BORDER=0 HEIGHT=425 WIDTH=312></A><TT>
+</TT></P>
+
+<P><A NAME="999248"></A>Each item in the Time Expression area has an 'extras'
+button which leads to a further pop-up window. These pop-ups allow you
+to select the details for each field. <A HREF="2-get-started.html#999523">Figure
+3</A> shows the resulting pop-up from clicking the button beside the Days
+item.</P>
+
+<H4><A NAME="999523"></A>Figure 3. <TT>xbcal</TT> Calendar Days Window
+</H4>
+
+<P><A HREF="pjs-figure03.gif"><IMG SRC="pjs-figure03.gif" ALT="xbcal Calendar Days Window" BORDER=0 HEIGHT=271 WIDTH=273></A>
+</P>
+
+<H2><A NAME="999518"></A>Displaying Calendars</H2>
+
+<P><A NAME="999659"></A>The <TT>bcal</TT> command displays information
+about the calendars on the system.</P>
+
+<PRE><A NAME="999667"></A>% <B>bcal
+</B>CALENDAR_NAME      OWNER      STATUS    DURATION         NEXT_EVENT_TIME
+hourly             user1      active        7        Tue Dec 24 16:00:00 1996
+complex            user1     inactive       -        Wed Dec 25 17:00:00 1996</PRE>
+
+<P><A NAME="999676"></A>By default, <TT>bcal</TT> displays all of your
+calendars. You can specify a calendar by name.</P>
+
+<PRE><A NAME="999678"></A>% <B>bcal hourly
+</B>CALENDAR_NAME      OWNER      STATUS    DURATION         NEXT_EVENT_TIME
+hourly             user1      active        7        Tue Dec 24 16:00:00 1996</PRE>
+
+<P><A NAME="1001400"></A>See <A HREF="3-calendars.html#1005998">'Displaying
+Calendars'</A> for details of the individual fields of the <TT>bcal</TT>
+output.</P>
+
+<H3><A NAME="999663"></A>Using <TT>xbcal</TT> to Display Calendars</H3>
+
+<P><A NAME="999584"></A>The same information is available using the GUI
+application <TT>xbcal</TT>. As shown in <A HREF="2-get-started.html#999601">Figure
+4</A>, the user has requested <TT>xbcal</TT> to display all the calendars
+on the system.</P>
+
+<H4><A NAME="999601"></A>Figure 4. <TT>xbcal</TT> Calendar List Window
+</H4>
+
+<P><A HREF="pjs-figure04.gif"><IMG SRC="pjs-figure04.gif" ALT="xbcal Calendar List Window" BORDER=0 HEIGHT=222 WIDTH=384></A>
+</P>
+
+<H3><A NAME="999841"></A>More Detail is Available</H3>
+
+<P><A NAME="999842"></A>You can use <TT>bcal</TT> to display more detail
+about your calendars.</P>
+
+<PRE><A NAME="999843"></A>% <B>bcal -l</B></PRE>
+
+<P><A NAME="999853"></A>See <A HREF="3-calendars.html#1005998">'Displaying
+Calendars'</A> for further details.</P>
+
+<H2><A NAME="999780"></A>Associating Jobs with Calendars</H2>
+
+<P><A NAME="999785"></A>Once you have created your calendar, you can associate
+jobs with it. Submit a calendar-driven job using the <TT>bsub</TT> command.
+The <TT>-w</TT> option is used with the calendar keyword to specify a calendar
+dependent job.</P>
+
+<PRE><A NAME="999933"></A>% <B>bsub -w &quot;calendar(daily)&quot; progA
+</B>Job &lt;3456&gt; is submitted to default queue &lt;priority&gt;.</PRE>
+
+<P><A NAME="999935"></A>A calendar-driven job will be executed each time
+the calendar becomes active.</P>
+
+<P><A NAME="1000257"></A>A job can be associated with a calendar and also
+have dependencies assigned to it. For example, a cheque-writing program
+should not run until the payroll jobs have successfully updated the employee
+records. Job dependencies are specified using the &quot;&amp;&amp;&quot;
+(AND), &quot;||&quot; (OR), and &quot;!&quot; (NOT) operators.</P>
+
+<PRE><A NAME="1000171"></A>% <B>bsub -w &quot;calendar(everyday) &amp;&amp; done(job3)&quot; -J cal-dep progB</B></PRE>
+
+<P><A NAME="1000105"></A>See <A HREF="6-job-define.html#1020088">'Calendar
+Dependencies'</A> for further details.</P>
+
+<H3><A NAME="1000326"></A>Using <TT>xbsub</TT> to Associate Jobs with Calendars</H3>
+
+<P><A NAME="1000331"></A>You can use the GUI application <TT>xbsub</TT>
+to associate jobs with your calendar. <A HREF="2-get-started.html#1000340">Figure
+5</A> shows submitting a job to the calendar 'daily.'</P>
+
+<H4><A NAME="1000340"></A>Figure 5. <TT>xbsub</TT> Window </H4>
+
+<P><A HREF="pjs-figure05.gif"><IMG SRC="pjs-figure05.gif" ALT="xbsub Window" BORDER=0 HEIGHT=344 WIDTH=351></A></P>
+
+<H2><A NAME="1000067"></A>Deleting Jobs Associated with Calendars</H2>
+
+<P><A NAME="999936"></A>Use the <TT>bdel</TT> command to remove a calendar-driven
+job.</P>
+
+<PRE><A NAME="1000070"></A>% <B>bdel 3456
+</B>Job &lt;3456&gt; is being deleted</PRE>
+
+<P><A NAME="1000081"></A>This command removes a specific job associated
+with a calendar from the system. If the job is currently running, <TT>bdel</TT>
+kills the process before removing the job from the system.</P>
+
+<P><A NAME="1000650"></A>See <A HREF="7-job-manage.html#999409">'Removing
+a Job'</A> for details.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="1000068"></A><B>Note<BR>
+</B><I>There is also the </I><TT>bkill</TT><I> command. This command will
+kill the current run of a job and requeue it for later execution.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="1001283"></A>Associating Jobs with Other Jobs</H2>
+
+<P><A NAME="1001284"></A>You can make a job depend on one or more prior
+jobs. For example, your job may require that the previous job has started
+processing (but it does not matter if it has completed).</P>
+
+<PRE><A NAME="1001287"></A>% <B>bsub -w &quot;started(first_job)&quot; -J second_job time_card</B></PRE>
+
+<P><A NAME="1001288"></A>In normal processing, your job probably requires
+that the prior job finished successfully.</P>
+
+<PRE><A NAME="1001289"></A>% <B>bsub -w &quot;done(pre_process)&quot; -J main_process cheque_run</B></PRE>
+
+<P><A NAME="1001301"></A>See <A HREF="6-job-define.html#1006504">'Inter-job
+Dependencies'</A> for more details.</P>
+
+<H2><A NAME="1001324"></A>Associating Jobs with File Events</H2>
+
+<P><A NAME="1001327"></A>You may want a job to run after some file event
+has occurred. JobScheduler will check for the creation of a file and run
+your job.</P>
+
+<PRE><A NAME="1001337"></A>% <B>bsub -w &quot;file(arrival(file_loc))&quot; command</B></PRE>
+
+<P><A NAME="1001339"></A>You can also run a job if the file exists.</P>
+
+<PRE><A NAME="1001371"></A>% <B>bsub -w &quot;file(exist(file_loc))&quot; command</B></PRE>
+
+<P><A NAME="1001375"></A>See <A HREF="6-job-define.html#1021937">'File
+Event Dependencies'</A> for all available file event functions and more
+examples.</P>
+
+<H2><A NAME="1001545"></A>Tracking Production Jobs</H2>
+
+<P><A NAME="1001546"></A>After you have submitted jobs to the JobScheduler,
+you can check the status of your jobs by running the <TT>bjobs</TT> command.</P>
+
+<PRE><A NAME="1001547"></A>% <B>bjobs
+</B>JOBID USER  STAT  QUEUE    FROM_HOST EXEC_HOST JOB_NAME SUBMIT_TIME
+1004  user6 RUN   sim      hostA     hostA     myjob0   Sep 1 09:23
+1235  user6 PEND  priority hostB               sleep 30 Sep 1 13:55
+1234  user6 SSUSP normal   hostD     hostB     sleep 30 Sep 1 10:09
+1250  user6 PEND  sim      hostA               myjob2   Sep 1 13:59</PRE>
+
+<P><A NAME="1001548"></A>Running jobs are listed first. Pending jobs are
+listed in the order in which they will be scheduled. Jobs in high priority
+queues are listed before those in lower priority queues.</P>
+
+<H2><A NAME="1001376"></A>Monitoring JobScheduler Cluster</H2>
+
+<P><A NAME="1000792"></A>JobScheduler not only enables you to submit and
+monitor your production jobs, but also allows you to view your cluster
+resource and load information from any machine in your cluster. JobScheduler
+gathers cluster resource information as well as system state information
+from all server hosts in the cluster. A variety of utilities are available
+to present such information in various formats.</P>
+
+<H3><A NAME="1000351"></A>Displaying the Cluster and Master Names</H3>
+
+<P><A NAME="1000352"></A>JobScheduler provides tools for users to get information
+about the system. The <TT>lsid</TT> command shows you the version of LSF,
+the name of the cluster, and the current master host.</P>
+
+<PRE><A NAME="1000354"></A>% <B>lsid
+</B>LSF 3.0, Dec 10, 1996
+Copyright 1992-1997 Platform Computing Corporation
+
+My cluster name is JScluster
+My master name is hostA</PRE>
+
+<H3><A NAME="1000416"></A>Displaying Host Load and Resource Information</H3>
+
+<P><A NAME="1000417"></A>The <TT>lsload</TT> command displays dynamic load
+information about JobScheduler server hosts.</P>
+
+<PRE><A NAME="1001507"></A>% <B>lsload
+</B>HOST_NAME   status  r15s  r1m r15m  ut    pg  ls it  tmp  swp   mem
+hostD          ok   0.4   0.3  0.1  14%   10   5  3  56M  203M  125M
+hostB          ok   0.8   0.8  1.6  42%   7    4  0  10M  71M   43M
+hostA       unavail </PRE>
+
+<P><A NAME="1001512"></A>Note that the hosts are ordered so that lightly
+loaded hosts are listed first. The status 'unavail' indicates that the
+Load Information Manager (LIM) on that host is not running.</P>
+
+<P><A NAME="1001643"></A>The <TT>lshosts</TT> command shows the static
+resource information about JobScheduler server hosts.</P>
+
+<PRE><A NAME="1001686"></A>% <B>lshosts
+</B>HOST_NAME      type    model cpuf ncpus maxmem  maxswp server    RESOURCES
+hostA           hppa   HP715   4    1     64M    128M    Yes     (hppa hpux)
+hostB          sunsol  sparc   3    1     96M    128M    Yes     (sun solaris)
+hostD           SGI    R10000  10   8     512M   1024M   Yes     (sgi irix6)</PRE>
+
+<P><A NAME="1001729"></A>Static resource information is either configured
+by your system administrator or automatically identified by LIM.</P>
+
+<P><A NAME="1001513"></A></P>
+
+<H3>Displaying JobScheduler Server Information</H3>
+
+<P><A NAME="1001573"></A>The <TT>bhosts</TT> command displays information
+about JobScheduler server hosts information.</P>
+
+<PRE><A NAME="1001589"></A><B>% bhosts
+</B>HOST_NAME          STATUS    JL/U  MAX  NJOBS  RUN  SSUSP USUSP  RSV
+hostA                 ok      -     1     0     0     0     0     0
+hostB              closed     -     1     1     1     0     0     0
+hostD                 ok      -     4     2     2     0     0     0</PRE>
+
+<P><A NAME="1001626"></A>These fields display the status and job counters
+on the JobScheduler servers. The status 'closed' indicates that the server
+will not accept any new jobs at the current time.</P>
+
+<P><A NAME="1001508"></A></P>
+
+<H3>Displaying the Job Queues</H3>
+
+<P><A NAME="1000491"></A>Job queues represent different job scheduling
+and resource allocation policies. All jobs submitted to a queue share the
+same policy. Each queue can be configured to use a subset of the servers
+in the JobScheduler cluster; the default is to use all servers.</P>
+
+<P><A NAME="1000493"></A>The <TT>bqueues</TT> command lists the available
+queues.</P>
+
+<PRE><A NAME="1000495"></A>% <B>bqueues
+</B>QUEUE_NAME     PRIO NICE    STATUS     MAX  JL/U JL/P NJOBS  PEND   RUN  SUSP
+nightly         43   10  Open:Inactive  -    -    -     5     5     0     0
+accounting      30   20  Open:Active    -    -    -     0     0     0     0
+evaluation      20   20  Open:Active    -    -    -     0     0     0     0</PRE>
+
+<P><A NAME="1001834"></A>A job queue can have many parameters that define
+the behaviour of the queue. See <A HREF="5-environment.html#1022510">'Listing
+User Information'</A> for further details.</P>
+
+<H2><A NAME="1000518"></A>Using JobScheduler GUI Tools</H2>
+
+<P><A NAME="1001734"></A>All the operations described above can be achieved
+using the JobScheduler GUI tools. </P>
+
+<DL>
+<DT><A NAME="1001735"></A><TT>xbsub </TT></DT>
+
+<DD>Job submission GUI. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1001803"></A><TT>xbmodify </TT></DT>
+
+<DD>This GUI allows you to modify attributes of already submitted jobs.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="1001802"></A><TT>xbcal </TT></DT>
+
+<DD>Calendar GUI that allows you to create, remove, and modify calendars.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="1001806"></A><TT>xlsbatch </TT></DT>
+
+<DD>This GUI allows you to do all of the above plus job, queue and host
+information monitoring. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1001807"></A><TT>xlsmon </TT></DT>
+
+<DD>Cluster monitoring tool that allows you to view various cluster-wide
+resource and load information. </DD>
+</DL>
+
+<P><A NAME="1001736"></A>The on-line help built into these GUI tools allows
+you to learn as you work. </P>
+
+<P>
+<HR><A HREF="pjs-contents.html">[Contents]</A> <A HREF="1-intro.html">[Prev]</A>
+<A HREF="4-events.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

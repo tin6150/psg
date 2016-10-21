@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Interoperation with NQS</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="13-multicluster.html">[Prev]</A>
+<A HREF="a-xlsbatch-menu.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="17425"></A>Chapter 14. <A NAME="6969"></A>Interoperation with
+NQS</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="17426"></A>The Network Queuing System (NQS) is a UNIX batch
+queuing facility that allows users to queue batch jobs to individual UNIX
+hosts from remote systems. Many users have been using NQS for years.</P>
+
+<P><A HREF="14-nqs.html#"> <A NAME="24650"></A></A>This chapter describes how LSF
+works with existing NQS systems. If you are not going to use LSF to interoperate
+with NQS, you do not need to read this chapter.</P>
+
+<P> <A NAME="24173"></A>For user sites who have been using NQS for years,
+LSF provides a set of NQS compatible commands for them to submit jobs to
+LSF using the NQS command syntax. Examples of NQS compatibility commands
+in LSF include <TT>qsub</TT>, <TT>qstat</TT>, and <TT>qdel</TT>.</P>
+
+<P> <A NAME="17524"></A>While it is desirable to run LSF on all hosts for
+transparent resource sharing, this is not always possible. Some of the
+computing resources may be under separate administrative control, or LSF
+may not currently be available for some of the hosts.</P>
+
+<P> <A NAME="21403"></A>An example of this are sites that use Cray supercomputers.
+The supercomputer is often not under the control of the workstation system
+administrators. Users on the workstation cluster still want to run jobs
+on the Cray supercomputer. LSF allows users to submit and control jobs
+on the Cray system using the same LSF interface as they use for jobs on
+the local cluster.</P>
+
+<P> <A NAME="20828"></A>LSF queues can be configured to forward jobs to
+remote NQS queues. Users can submit jobs, send signals to jobs, check status
+of jobs, and delete jobs that are forwarded to the remote NQS. Although
+running on an NQS server outside the LSF cluster, jobs are still managed
+by LSF Batch in almost the same way as jobs running inside the LSF cluster.</P>
+
+<H2><A HREF="14-nqs.html#"> <A NAME="19127"></A></A>Choosing an LSF Batch Queue</H2>
+
+<P><A NAME="21505"></A>To submit jobs to hosts where NQS is running, you
+first need to find out which LSF Batch queues are configured to forward
+jobs to NQS hosts.The <TT>bqueues -l</TT> command lists detailed information
+about all LSF Batch queues. Queues that have the `<TT>NQS DESTINATION QUEUES</TT>'
+parameter defined will forward jobs to remote NQS hosts. Below is an example
+of the output from the <TT>bqueues</TT> command that describes such a queue:</P>
+
+<P> </P>
+
+<PRE><A NAME="21542"></A>% <B>bqueues -l cray
+</B>QUEUE: cray
+-- For jobs to be sent to the Cray supercomputer.
+
+PARAMETERS/STATISTICS
+PRIO NICE     STATUS    MAX   JL/U JL/P NJOBS  PEND  RUN  SSUSP USUSP RSV
+30   15    Open:Active   5     -    -     1     0     1     0     0    0
+
+SCHEDULING PARAMETERS
+           r15s   r1m  r15m   ut    pg    io   ls   it    tmp    swp  mem
+loadSched   -      -    -     -     -     -    -     -     -      -    -
+loadStop    -      -    -     -     -     -    -     -     -      -    -
+
+USERS:  all users
+NQS DESTINATION QUEUES:nqs_queue@crayhost.company.com</PRE>
+
+<P><A NAME="22250"></A>Note that `<TT>nqs_queue</TT>' in the above output
+is the name of the NQS queue on the specified host.</P>
+
+<H2> <A NAME="22251"></A>Submitting a Job from LSF to NQS</H2>
+
+<P><A NAME="21744"></A>Submitting a job to run on an NQS host is the same
+as submitting an ordinary LSF job, except that only those options that
+reflect common functionality of both LSF and NQS can be used. This is because
+some NQS options do not make sense in the LSF context, and many LSF options
+are not supported by NQS. Options must be specified as LSF options; they
+are automatically translated when the job is forwarded to NQS. See the
+LSF <TT>bsub</TT>(<TT>1</TT>) manual page and the NQS <TT>qsub</TT>(<TT>1</TT>)
+manual page for more information on the options supported by LSF and NQS.</P>
+
+<H2> <A NAME="19461"></A>Controlling Jobs Running on NQS</H2>
+
+<P><A NAME="19472"></A>Job information from NQS is translated by LSF and
+reported by LSF Batch commands. Any signals supported by both LSF and NQS
+may be sent to a specified job.</P>
+
+<H2> <A NAME="19486"></A>Forwarding of Output Files</H2>
+
+<P><A NAME="19499"></A>The <TT>stdout</TT> and <TT>stderr</TT> output of
+the job is always transferred from the NQS host back to the LSF cluster.
+If the <TT>bsub -o</TT> or <TT>-e</TT> options are not specified, the output
+of the job is mailed to the user. If either of the <TT>-o</TT> or <TT>-e</TT>
+options are specified, the output received from the NQS server is stored
+in the specified files.</P>
+
+<P> 
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="13-multicluster.html">[Prev]</A>
+<A HREF="a-xlsbatch-menu.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:30:27 --></P>
+
+</BODY>
+</HTML>

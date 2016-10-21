@@ -1,0 +1,409 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Introduction</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="users-preface.html">[Prev]</A>
+<A HREF="02-get-started.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="998239"></A>Chapter 1. <A NAME="997895"></A>Introduction</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="998330"></A>The first two chapters of this guide give a quick
+introduction to load sharing and LSF. You should be able to begin using
+LSF after reading these chapters. The rest of the guide contains more detailed
+information on LSF features and commands.</P>
+
+<H2><A NAME="998896"></A>What is LSF?</H2>
+
+<P><A NAME="1000626"></A>LSF, the Load Sharing Facility, is a general purpose
+distributed computing system from Platform Computing Corporation. It is
+packaged as a suite of separately licensed components, including LSF Batch,
+LSF JobScheduler, and LSF MultiCluster all running on the LSF Base system.</P>
+
+<P><A NAME="1001520"></A>LSF unites a group of UNIX and NT computers into
+a single system to make better use of the resources on a network. Hosts
+from various vendors can be integrated into a seamless system. You can
+do your job and leave the system to find the best host to run your programs.</P>
+
+<P><A NAME="1000627"></A>LSF supports sequential and parallel applications
+running as interactive and batch jobs. LSF also allows new distributed
+applications to be developed through C programming libraries and a tool
+kit of programs for writing shell scripts.</P>
+
+<H3><A NAME="1000628"></A>LSF Features</H3>
+
+<P><A NAME="1000629"></A>With LSF you can use a network of heterogeneous
+computers as a single system. You are no longer limited to the resources
+on your own workstation. You do not need to rewrite or change your programs
+to take advantage of LSF. You only need to learn a few simple commands
+and the resources of your entire network will be within reach.</P>
+
+<P><A NAME="1000630"></A>LSF can automatically select hosts in a heterogeneous
+environment based on the current load conditions and the resource requirements
+of the applications.</P>
+
+<P><A NAME="1000631"></A>With LSF, remotely run jobs behave just like jobs
+run on the local host. Even jobs with complicated terminal controls behave
+transparently to the user as if they were run locally.</P>
+
+<P><A NAME="1001220"></A>LSF can run batch jobs automatically when required
+resources become available, or when systems are lightly loaded. LSF maintains
+full control over the jobs, including the ability to suspend and resume
+the jobs based on load conditions.</P>
+
+<P><A NAME="1000633"></A>LSF can run both sequential and parallel jobs.
+Some jobs speed up substantially when run on a group of idle or lightly
+loaded hosts. For example, the <TT>lsmake</TT> program allows you to do
+your software builds or automated tests many times faster than with traditional
+<TT>make</TT>.</P>
+
+<P><A NAME="1001141"></A>With LSF, you can transparently run software that
+is not available on your local host. For example, you could run a CAD tool
+that is only available on an HP host from your Sun workstation. The job
+would run on the HP and be displayed transparently on your Sun system.</P>
+
+<P><A NAME="1001125"></A>With LSF, the system administrators can easily
+control access to resources such as:</P>
+
+<UL>
+<LI><A NAME="1000636"></A>Who can submit jobs and which hosts they can
+use </LI>
+
+<LI><A NAME="1000637"></A>How many jobs specific users or user groups can
+run simultaneously </LI>
+
+<LI><A NAME="1000638"></A>Time windows during which each host can run load
+shared jobs </LI>
+
+<LI><A NAME="1000639"></A>Load conditions under which specific hosts can
+accept jobs or have to suspend some jobs </LI>
+
+<LI><A NAME="1000640"></A>Resource limits for jobs submitted to specific
+queues </LI>
+</UL>
+
+<P><A NAME="1000641"></A>LSF provides mechanisms for resource and job accounting.
+This information can help the administrator to find out which applications
+or users are consuming resources, at what times of the day (or week) the
+system is busy or idle, and whether certain resources are overloaded and
+need to be expanded or upgraded.</P>
+
+<P><A NAME="1000642"></A>LSF allows you to write your own load sharing
+applications, both as shell scripts using the <TT>lstools</TT> programs
+and as compiled programs using the LSF application programming libraries.</P>
+
+<H2><A NAME="1000643"></A>Host Resources</H2>
+
+<P><A NAME="1000644"></A>LSF provides comprehensive resource and load information
+about all hosts in the network.</P>
+
+<P><A NAME="1001222"></A>Resource information includes the number of processors
+on each host, total physical memory available to user jobs, the type, model,
+and relative speed of each host, the special resources available on each
+host, and the time windows when a host is available for load sharing.</P>
+
+<P><A NAME="1000646"></A>Dynamic load information includes: </P>
+
+<UL>
+<LI><A NAME="1000647"></A>CPU load </LI>
+
+<LI><A NAME="1000648"></A>Available real memory </LI>
+
+<LI><A NAME="1000649"></A>Available swap space </LI>
+
+<LI><A NAME="1000650"></A>Paging activity </LI>
+
+<LI><A NAME="1000651"></A>I/O activity </LI>
+
+<LI><A NAME="1000652"></A>Number of interactive users logged in </LI>
+
+<LI><A NAME="1000653"></A>Interactive idle time </LI>
+
+<LI><A NAME="1000654"></A>Space in the <TT>/tmp</TT> directory </LI>
+
+<LI><A NAME="1000655"></A>Arbitrary site-defined load indices </LI>
+</UL>
+
+<P><A NAME="1000656"></A></P>
+
+<H2>Interactive Processing</H2>
+
+<P><A NAME="1000657"></A>LSF divides jobs into either <I>interactive</I>
+or <I>batch</I> jobs. Interactive jobs are run from a terminal or X Window
+System display. These jobs start running as soon as you enter a command.
+You then interact directly with the program as it runs.</P>
+
+<P><A NAME="1000658"></A>LSF lets you run interactive jobs from your terminal
+or workstation on any computer in your network. All your input and output
+is transparently sent between local host and the job execution host.</P>
+
+<H2><A NAME="1000659"></A>Batch Processing</H2>
+
+<P><A NAME="1001546"></A>Batch processing can provide more efficient execution
+of resource intensive jobs. Rather than running immediately when you enter
+a command, batch jobs are kept on a list of jobs called a <I>queue</I>.
+The LSF Batch system runs jobs from the queue when the appropriate resources
+are available. By making sure that every job has the resources it needs,
+the resource intensive jobs can be processed more efficiently.</P>
+
+<P><A NAME="1001551"></A>In LSF, batch queues can have access to all the
+hosts in your network. Your job can run as soon as any suitable host becomes
+available. You do not need to hunt around your network to find an idle
+host.</P>
+
+<P><A NAME="1000662"></A>Batch processing also allows the system administrator
+to specify policies so that interactive use and resource intensive jobs
+do not interfere with each other. You can submit 'interactive' jobs to
+the LSF Batch system to take advantage of the queues and queuing policies.
+You can interact with your job from a terminal or X display. However, an
+interactive batch job is subject to the policies of the submission queue,
+so it is possible that it may not be dispatched immediately.</P>
+
+<H2><A NAME="1000666"></A>Clusters</H2>
+
+<P><A NAME="1000667"></A>Load sharing in LSF is based on clusters. A cluster
+is simply a group of hosts. Each cluster has one or more <I>LSF administrators</I>.
+An administrator is a user account that has permission to change the LSF
+configuration and perform other maintenance functions. An LSF administrator
+decides how the hosts are grouped together.</P>
+
+<P><A NAME="1000668"></A>A cluster can contain a mixture of host types.
+By putting all hosts types into a single cluster, you can have easy access
+to the resources available on all host types.</P>
+
+<P><A NAME="1000669"></A>Clusters are normally set up based on administrative
+boundaries. LSF clusters work best when each user has an account on all
+hosts in the cluster, and user files are shared among the hosts so that
+they can be accessed from any host. This way LSF can send a job to any
+host. You need not worry about whether the job will be able to access the
+correct files.</P>
+
+<P><A NAME="1000670"></A>LSF can also run batch jobs when files are not
+shared among the hosts. LSF includes facilities to copy files to and from
+the host where the batch job is run, so your data will always be in the
+right place.</P>
+
+<P><A NAME="1000671"></A>LSF can also run batch jobs when user accounts
+are not shared by all hosts in a cluster. Accounts can be mapped across
+machines.</P>
+
+<P><A NAME="1001688"></A>LSF MultiCluster supports interoperation across
+clusters. Your jobs can be forwarded transparently to be run on another
+cluster within your organization.</P>
+
+<H2><A NAME="1000672"></A>Fault Tolerance</H2>
+
+<P><A NAME="1000673"></A>LSF is designed to continue operating even if
+some of the hosts in the cluster are unavailable. One host in the cluster
+acts as the master, but if the master host becomes unavailable another
+host takes over. LSF services are available as long as any host in the
+cluster is up.</P>
+
+<P><A NAME="1000674"></A>When a host crashes, all jobs running on that
+host are lost. No other pending or running jobs are affected. Important
+jobs can be submitted to LSF Batch with an option to automatically restart
+if the job is lost because of a host failure.</P>
+
+<H2><A NAME="1000675"></A>Structure of LSF</H2>
+
+<P><A NAME="1000676"></A><A HREF="01-intro.html#1001182">Figure 1</A> shows
+the structure of LSF and how LSF fits into your system. The software modules
+that make up LSF are shaded.</P>
+
+<H4><A NAME="1001182"></A>Figure 1. Structure of LSF</H4>
+
+<P><IMG SRC="usr-figure01.gif" ALT="Structure of LSF" HEIGHT=231 WIDTH=498>
+</P>
+
+<P><A NAME="1000678"></A>A <I>server</I> is a host that runs load shared
+jobs. The Load Information Manager (LIM) and Remote Execution Server (RES)
+run on every server. The LIM and RES are implemented as daemons that interface
+directly with the underlying operating systems and provide users with a
+uniform, host independent environment. The Load Sharing LIBrary (LSLIB)
+is the basic interface.</P>
+
+<P><A NAME="1001232"></A>The LIM, RES and LSLIB form the LSF base system.</P>
+
+<H3><A NAME="1001197"></A>Load Information Manager</H3>
+
+<P><A NAME="1001695"></A>The LIM on each server monitors its host's load
+and exchanges load information with other LIMs. On one host in the cluster,
+the LIM acts as the master. The master LIM collects information for all
+hosts and provides that information to the applications. The master LIM
+is chosen among all the LIMs running in the cluster. If the master LIM
+becomes unavailable, another host will automatically take over.</P>
+
+<P><A NAME="1001697"></A>The LIM provides simple placement advice for interactive
+tasks. This information is used by some of the <TT>lstools</TT>(<TT>1</TT>)
+applications (for example, <TT>lsrun</TT>) to determine which host to run
+on.</P>
+
+<H3><A NAME="1001698"></A>Remote Execution Server</H3>
+
+<P><A NAME="1000680"></A>The RES on each server accepts remote execution
+requests and provides fast, transparent and secure remote execution of
+interactive jobs.</P>
+
+<H3><A NAME="1001210"></A>Load Sharing Library</H3>
+
+<P><A NAME="1000681"></A>LSLIB is the base Application Programming Interface
+(API) for the LSF system, providing easy access to the services of LIM
+and RES. LSLIB provides a powerful interface for advanced users to develop
+new load sharing applications in C.</P>
+
+<H3><A NAME="1001238"></A>Load Sharing Utility Programs</H3>
+
+<P><A NAME="1000682"></A>The interactive and batch computing environments
+of LSF consist of a set of load sharing utility programs. These utilities
+communicate directly with LSF through calls to LSLIB functions.</P>
+
+<H4><A NAME="1001424"></A>LSF Batch </H4>
+
+<P><A NAME="1000683"></A>The LSF Batch queuing system uses dynamic load
+information from the LIM to schedule batch jobs in an LSF cluster. LSF
+Batch is described further in the section <A HREF="01-intro.html#1000692">'Structure
+of LSF Batch'</A>.</P>
+
+<H4><A NAME="1001805"></A>LSF JobScheduler</H4>
+
+<P><A NAME="1001809"></A>The LSF JobScheduler is a separately licensed
+component of LSF that extends the LSF Batch queuing system by adding calendar
+and event driven jobs. See the <I><A HREF="pjs-title.html">LSF JobScheduler
+User's Guide</A></I> for further details.</P>
+
+<H4><A NAME="1001828"></A>LSF MultiCluster </H4>
+
+<P><A NAME="1001832"></A>A very large organization may divide its computing
+resources into a number of autonomous clusters, reflecting the structure
+of the company. The separately licensed LSF MultiCluster component enables
+load sharing across clusters resulting in more efficient use of the resources
+of the entire organization. LSF MultiCluster is described in more details
+in <A HREF="13-multicluster.html#343">'Using LSF MultiCluster'</A>.</P>
+
+<H4><A NAME="1001649"></A>Command Interpreter</H4>
+
+<P><A NAME="1001650"></A><TT>lstcsh</TT> is a load-sharing version of <TT>tcsh</TT>,
+a popular UNIX command interpreter (shell). In addition to all the features
+of <TT>tcsh</TT>, <TT>lstcsh</TT> allows arbitrary UNIX commands and user
+programs to be executed remotely. Remote execution with <TT>lstcsh</TT>
+is completely transparent. For example, you can run <TT>vi</TT> remotely,
+suspend it, and resume it. For more information, see <A HREF="09-lstcsh.html#16350">'Using
+<TT>lstcsh</TT>'</A>.</P>
+
+<H4><A NAME="1001427"></A>Distributed Make</H4>
+
+<P><A NAME="1000685"></A><TT>lsmake</TT><SUP><A HREF="01-intro.html#1001248">1.</A></SUP>
+is a load sharing version of GNU <TT>make</TT>. It uses the same makefiles
+as GNU <TT>make</TT> and behaves similarly, except that you can specify
+the number of hosts to use to run the make tasks in parallel. Tasks are
+started on many hosts simultaneously to reduce the execution time. <TT>lsmake</TT>
+can also automatically shrink or expand parallelism depending on file server
+load thresholds specified by the user. Read <A HREF="10-lsmake.html#12212">'Using
+<TT>lsmake</TT>'</A> for more information.</P>
+
+<H4><A NAME="1001642"></A>Load Sharing Tools</H4>
+
+<P><A NAME="1000687"></A>The <TT>lstools</TT> are a set of utilities for
+getting information from LSF and running programs on remote hosts. For
+example, you can write a script that uses the <TT>lstools</TT> to find
+the best hosts satisfying given resource requirements, then run jobs on
+one or more of the selected hosts.</P>
+
+<H4><A NAME="1001430"></A>PVM and MPI Support</H4>
+
+<P><A NAME="1001214"></A>The parallel tools are a set of utilities for
+users to run parallel applications using message passing packages. PVM
+and MPI jobs can be submitted to the LSF Batch system through <TT>pvmjob</TT>
+and <TT>mpijob</TT>, shell scripts for running PVM and MPI jobs under LSF
+Batch. See <A HREF="12-customizing.html#3050">'Parallel Jobs'</A> for more
+information.</P>
+
+<H4><A NAME="1001879"></A>GUI Tools</H4>
+
+<P><A NAME="1001880"></A>LSF has a comprehensive set of Motif-based Graphical
+User Interface tools that give complete access to the power and flexibility
+of the LSF Suite with the convenience of point and click.</P>
+
+<H3><A NAME="1001458"></A>Applications</H3>
+
+<P><A NAME="1000691"></A>Most applications can use the load-sharing utilities
+to access LSF. They do not communicate directly with LSF and do not need
+to be modified to work with LSF. Nearly all UNIX or Windows NT commands
+and third-party applications can be load shared using LSF utilities.</P>
+
+<H2><A NAME="1000692"></A>Structure of LSF Batch</H2>
+
+<P><A NAME="1000693"></A>LSF Batch is a distributed load-sharing batch
+system built on top of the LSF Base system to provide powerful batch job
+scheduling services to users. <A HREF="01-intro.html#1001451">Figure 2</A>
+shows the components of LSF Batch and the interactions among them.</P>
+
+<H4><A NAME="1001451"></A>Figure 2. Structure of LSF&nbsp;Batch</H4>
+
+<P><IMG SRC="usr-figure02.gif" ALT="Structure of LSF Batch" HEIGHT=234 WIDTH=348>
+</P>
+
+<P><A NAME="1001216"></A>LSF Batch accepts user jobs and holds them in
+queues until suitable hosts are available. Host selection is based on up-to-date
+load information from the master LIM, so LSF Batch can take full advantage
+of all your hosts without overloading any.</P>
+
+<P><A NAME="1000695"></A>LSF Batch runs user jobs on batch server hosts,
+those hosts that a site deems suitable for running batch jobs. It has sophisticated
+controls for sharing hosts with interactive users, so you do not need to
+set aside dedicated hosts for processing batch jobs.</P>
+
+<P><A NAME="1000696"></A>There is one master batch daemon (<TT>mbatchd</TT>)
+running in each LSF cluster, and one slave batch daemon (<TT>sbatchd</TT>)
+running on each batch server host. User jobs are held in batch queues by
+<TT>mbatchd</TT>. <TT>mbatchd</TT> checks the load information on all candidate
+hosts periodically. When a host with the necessary resources becomes available,
+<TT>mbatchd</TT> sends the job to the <TT>sbatchd</TT> on that host for
+execution. When more than one host is available, one of the best hosts
+is chosen. The <TT>sbatchd</TT> controls the execution of the jobs and
+report job status to the <TT>mbatchd</TT>.</P>
+
+<P><A NAME="1000698"></A>The LSF Batch LIBrary (LSBLIB) is the Application
+Programming Interface (API) for LSF Batch, providing easy access to the
+services of <TT>mbatchd</TT> and <TT>sbatchd</TT>. LSBLIB provides a powerful
+interface for advanced users to develop new batch processing applications
+in C.</P>
+
+<H4><A NAME="1001848"></A>NQS Interoperation</H4>
+
+<P><A NAME="1001856"></A>NQS interoperation allows LSF users to submit
+jobs to remote NQS servers using the LSF user interface. The LSF administrator
+can configure LSF Batch queues to forward jobs to NQS queues. Users may
+then use any supported interface, including LSF Batch commands, <TT>lsNQS</TT>
+commands, and <TT>xlsbatch</TT>, to submit, monitor, signal and delete
+batch jobs in NQS queues. This feature provides users with a consistent
+user interface for jobs running under LSF Batch and NQS.</P>
+
+<P>
+<HR><SUP>1.<A NAME="1001248"></A></SUP> <TT>lsmake</TT> is covered by the
+Free Software Foundation General Public License. <TT>tcsh</TT> is covered
+by copyrights held by the University of California. Read the file <TT>LSF_MISC/lsmake/COPYING</TT>
+in the LSF software distribution for details.</P>
+
+<P>
+<HR WIDTH="100%"><A HREF="users-contents.html">[Contents]</A> <A HREF="users-preface.html">[Prev]</A>
+<A HREF="02-get-started.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><I><A HREF="mailto:doc@platform.com">doc@platform.com</A></I></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved. </I></P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:25:02 --></P>
+
+</BODY>
+</HTML>

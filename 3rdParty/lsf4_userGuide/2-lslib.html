@@ -1,0 +1,1171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Programmer's Guide - Programming with LSLIB</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="programmers-contents.html">[Contents]</A> <A HREF="1-introduction.html">[Prev]</A>
+<A HREF="3-lsblib.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="58510"></A>Chapter 2. <A NAME="58272"></A>Programming with
+LSLIB</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="58275"></A>This chapter provides simple examples that demonstrate
+the use of LSLIB functions in an application. The function prototypes as
+well as data structures that are used by the functions are described. Many
+of the examples resemble the implementation of the existing LSF utilities.</P>
+
+<H2><A NAME="32479"></A>Getting Configuration Information</H2>
+
+<P><A NAME="7245"></A>One of the services that LSF provides to applications
+is cluster configuration information service. This section describes how
+to get such services with a C program using LSLIB.</P>
+
+<H3><A NAME="32887"></A>Getting General Cluster Configuration Information</H3>
+
+<P><A NAME="32871"></A>In the previous chapter, a very simple application
+was introduced that prints the name of the LSF cluster. This section extends
+that example to print out more information about the LSF cluster, namely,
+the current master host name and the defined resource names in the cluster.
+It uses the following additional LSLIB function calls:</P>
+
+<PRE><A NAME="48372"></A>struct lsInfo *ls_info()
+char *ls_getmastername()</PRE>
+
+<P><A NAME="58364"></A>The function <TT>ls_info()</TT> returns a pointer
+to the following data structure (as defined in <TT>&lt;lsf/lsf.h&gt;</TT>):</P>
+
+<PRE><A NAME="57695"></A>struct lsinfo {
+    int     nRes;                                /* Number of resources in the system */
+    struct  resItem  *resTable;                  /* A resItem for each resource in the system */
+    int     nTypes;                              /* Number of host types */
+    char    hostTypes[MAXTYPES][MAXLSFNAMELEN];  /* Host types */
+    int     nModels;                             /* Number of host models */
+    char    hostModels[MAXMODELS][AXLSFNAMELEN]; /* Host models */
+    float   cpuFactor[MAXMODELS];                /* CPU factors of each host model */
+    int     numIndx;                             /* Total number of load indices in resItem */
+    int     numUsrIndix;                         /* Number of user-defined load indices */
+};</PRE>
+
+<P><A NAME="58377"></A>The function <TT>ls_getmastername()</TT> returns
+a string containing the name of the current master host. </P>
+
+<P><A NAME="34271"></A>Both of these functions return <TT>NULL</TT> on
+failure and set <TT>lserrno</TT> to indicate the error.</P>
+
+<P><A NAME="34504"></A>The <TT>resItem</TT> structure describes the valid
+resources defined in the LSF cluster:</P>
+
+<PRE><A NAME="48385"></A>struct  resItem  {
+    name[MAXLSFNAMELEN];         /*&nbsp;The name of the resource */
+    char   des[MAXRESDESLEN];    /*&nbsp;The description of the resorce */
+    enum   valueType  valueType; /*&nbsp;BOOLEAN, NUMERIC, STRING */
+    enum   orderType  orderType; /*&nbsp;INCR, DECR, NA */
+    int    flags;                /*&nbsp;RESF_BUILTIN | RESF_DYNAMIC | RESF_GLOBAL */
+    int    interval;             /* The update interval for a load index, in seconds */
+}</PRE>
+
+<P><A NAME="34906"></A>The constants <TT>MAXTYPES,</TT> <TT>MAXMODELS</TT>,
+and <TT>MAXLSFNAMELEN</TT> are defined in &lt;<TT>lsf/lsf.h</TT>&gt;. <TT>MAXLSFNAMELEN</TT>
+is the maximum length of a name in the LSF system. </P>
+
+<P><A NAME="35089"></A>A <I>host type</I> in LSF refers to a class of hosts
+that are considered to be compatible from an application point of view.
+This is entirely configurable, although normally hosts with the same architecture
+(binary compatible hosts) should be configured to have the same host type.
+</P>
+
+<P><A NAME="35187"></A>A <I>host model</I> in LSF refers to a class of
+hosts with the same CPU performance. The CPU factor of a host model should
+be configured to reflect the CPU speed of the model relative to other host
+models in the LSF cluster. </P>
+
+<P><A NAME="36865"></A>Below is an example program that displays the general
+LSF cluster information using the above LSLIB function calls.</P>
+
+<PRE><A NAME="48400"></A>#include  &lt;stdio.h&gt;
+#include  &lt;lsf/lsf.h&gt;
+
+main()
+{
+    struct lsInfo *lsInfo;
+    char *cluster, *master;
+    int i;
+
+    cluster = ls_getclustername();
+    if (cluster == NULL) {
+        ls_perror(&quot;ls_getclustername&quot;);
+        exit(-1);
+    }
+    printf(&quot;My cluster name is &lt;%s&gt;\n&quot;, cluster);
+    master = ls_getmastername();
+    if (master == NULL) {
+        ls_perror(&quot;ls_getmastername&quot;);
+        exit(-1);
+    }
+    printf(&quot;Master host is &lt;%s&gt;\n&quot;, master);
+    lsInfo = ls_info();
+    if (lsInfo == NULL) {
+        ls_perror(&quot;ls_info&quot;);
+        exit(-1);
+    }
+    printf(&quot;\n%-15.15s %s\n&quot;, &quot;RESOURCE_NAME&quot;, &quot;DESCRIPTION&quot;);
+    for (i=0; i&lt;lsInfo-&gt;nRes; i++)
+        printf(&quot;-15.15s %s\n&quot;, 
+                lsInfo-&gt;resTable[i].name, lsInfo-&gt;resTable[i].des);
+
+    exit(0);
+}</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="48431"></A><B>Note:<BR>
+</B><I>The returned data structure of every LSLIB function is dynamically
+allocated inside LSLIB. This storage is automatically freed by LSLIB and
+re-allocated next time the same LSLIB function is called. An application
+should never attempt to free the storage returned by LSLIB. If you need
+to keep this information across calls, make your own copy of the data structure.
+This applies to all LSLIB function calls.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="36820"></A>The above program will produce output similar to
+the following:</P>
+
+<PRE><A NAME="50229"></A>% <B>a.out
+</B>My cluster name is &lt;test_cluster&gt;
+Master host is &lt;hostA&gt;
+
+RESOURCE_NAME      DESCRIPTION
+r15s               15-second CPU run queue length
+r1m                1-minute CPU run queue length (alias: cpu)
+r15m               15-minute CPU run queue length
+ut                 1-minute CPU utilization (0.0 to 1.0)
+pg                 Paging rate (pages/second)
+io                 Disk IO rate (Kbytes/second)
+ls                 Number of login sessions (alias: login)
+it                 Idle time (minutes) (alias: idle)
+tmp                Disk space in /tmp (Mbytes)
+swp                Available swap space (Mbytes) (alias: swap)
+mem                Available memory (Mbytes)
+ncpus              Number of CPUs
+ndisks             Number of local disks
+maxmem             Maximum memory (Mbytes)
+maxswp             Maximum swap space (Mbytes)
+maxtmp             Maximum /tmp space (Mbytes)
+cpuf               CPU factor
+type               Host type
+model              Host model
+status             Host status
+rexpri             Remote execution priority
+server             LSF server host
+sparc              SUN SPARC
+hppa               HPPA architecture
+bsd                BSD UNIX
+sysv               System V UNIX
+hpux               HP-UX UNIX
+solaris            SUN SOLARIS
+cs                 Compute server
+fddi               Hosts connected to the FDDI
+alpha              DEC alpha</PRE>
+
+<H3><A NAME="1419"></A>Getting Host Configuration Information</H3>
+
+<P><A NAME="7261"></A>Host configuration information describes the static
+attributes of individual hosts in the LSF cluster. Examples of such attributes
+are host type, host model, number of CPUs, total physical memory, and the
+special resources associated with the host. These attributes are either
+read from the LSF configuration file, or found out by LIM on starting up.
+</P>
+
+<P><A NAME="14729"></A>The host configuration information can be obtained
+by calling the following LSLIB function:</P>
+
+<PRE><A NAME="48450"></A>struct hostInfo *ls_gethostinfo(<I>resreq</I>, <I>numhosts</I>, <I>hostlist</I>, <I>listsize</I>, <I>options</I>)</PRE>
+
+<P><A NAME="37985"></A>The following parameters are used by this function:</P>
+
+<PRE><A NAME="48492"></A>
+char *resreq;      /* Resource requirements that a host of interest must satisfy */
+int  *numhosts;    /* If numhosts is not NULL, *numhosts contains the size of the returned array */
+char **hostlist;   /* An array of candidate hosts */
+int  listsize;     /* Number of candidate hosts */
+int  options;      /* Options, currently only DFT_FROMTYPE */</PRE>
+
+<P><A NAME="29324"></A>On success, this function returns an array containing
+a <TT>hostInfo</TT> structure for each host of interest. On failure, it
+returns <TT>NULL</TT> and sets <TT>lserrno</TT> to indicate the error.</P>
+
+<P><A NAME="38112"></A>The <TT>hostInfo</TT> structure is defined in <TT>lsf.h
+as</TT></P>
+
+<PRE><A NAME="51161"></A>struct hostInfo {
+    char  hostName[MAXHOSTNAMELEN]; /*&nbsp;Host name */
+    char  *hostType;                /*&nbsp;Host type */
+    char  *hostModel;               /*&nbsp;Host model */
+    float cpuFactor;                /*&nbsp;CPU factor of the host's CPUs */
+    int   maxCpus;                  /*&nbsp;Number of CPUs on the host */
+    int   maxMem;                   /*&nbsp;Size of physical memory on the host in MB */
+    int   maxSwap;                  /*&nbsp;Amount of swap space on the host in MB */
+    int   maxTmp                    /*&nbsp;Size of the /tmp file system on the host in MB */
+    int   nDisk;                    /*&nbsp;Number of disks on the host */
+    int   nRes;                     /*&nbsp;Size of the resources array */
+    char  **resources;              /*&nbsp;An array of resources configured for the host */
+    char  *windows;                 /*&nbsp;Run windows of the host */
+    int   numIndx;                  /*&nbsp;Size of the busyThreshold array */
+    float *busyThreshold;           /*&nbsp;Array of load thresholds for determining if the host is busy */
+    char  isServer;                 /*&nbsp;TRUE if the host is a server, FALSE otherwise */
+    char  licensed;                 /*&nbsp;TRUE if the host has an LSF license, FALSE otherwise */
+    int   rexPriority;              /*&nbsp;Default priority for remote tasks execution on the host */
+};</PRE>
+
+<P><A NAME="38222"></A>The following example shows how to use the above
+LSLIB function in a program. This example program displays the name, host
+type, total memory, number of CPUs and special resources for each host
+that has more than 50MB of total memory.</P>
+
+<PRE><A NAME="48529"></A>#include &lt;lsf/lsf.h&gt;
+#include &lt;stdio.h&gt;
+
+main()
+{
+    struct hostInfo *hostinfo;
+    char   *resreq;
+    int    numhosts = 0;
+    int    options = 0;
+    int    i, j;
+
+    resreq = &quot;maxmem&gt;50&quot;;
+    hostinfo = ls_gethostinfo(resreq, &amp;numhosts, NULL, 0, options); 
+
+    if (hostinfo == NULL) {
+        ls_perror(&quot;ls_gethostinfo&quot;);
+        exit(-10);
+    }
+
+    printf(&quot;There are %d hosts with more than 50MB total memory\n\n&quot;,
+                numhosts);
+    printf(&quot;%-11.11s %8.8s %6.6s %6.6s %9.9s\n&quot;,
+                &quot;HOST_NAME&quot;, &quot;type&quot;, &quot;maxMem&quot;, &quot;ncpus&quot;, &quot;RESOURCES&quot;);
+
+    for (i = 0; i &lt; numhosts; i++) {
+        printf(&quot;%-11.11s %8.8s %8.0fM &quot;, hostinfo[i].hostName,
+                hostinfo[i].hostType);
+
+        if (hostinfo[i].maxMem &gt; 0)
+            printf(&quot;%6d &quot;, hostinfo[i].maxMem);
+        else                       /* maxMem info not available for this host*/
+            printf(&quot;%6.6s &quot;, &quot;-&quot;);
+
+        if (hostinfo[i].maxCpus &gt; 0)
+            printf(&quot;%6d &quot;, hostinfo[i].maxCpus);
+        else                       /* ncpus is not known for this host*/
+            printf(&quot;%6.6s&quot;, &quot;-&quot;);
+
+        for (j = 0; j &lt; hostinfo[i].nRes; j++)
+            printf(&quot; %s&quot;, hostinfo[i].resources[j]);
+
+        printf(&quot;\n&quot;);
+    }
+    exit(0);
+}</PRE>
+
+<P><A NAME="37865"></A>In the above example, <TT>resreq</TT> is the resource
+requirements used to select the hosts. The variables we can use in a resource
+requirements must be the resource names returned from <TT>ls_info()</TT>.
+You can also run the <TT>lsinfo</TT> command to obtain a list of valid
+resource names in your LSF cluster.</P>
+
+<P><A NAME="24548"></A>Note that we have supplied <TT>NULL</TT> and <TT>0</TT>
+for the third and fourth parameters of the <TT>ls_gethostinfo()</TT> call.
+This causes all LSF hosts meeting <TT>resreq</TT> to be returned. If a
+host list parameter is supplied with this call, the selection of hosts
+will be limited to those belonging to the list. </P>
+
+<P><A NAME="25610"></A>If <TT>resreq</TT> is <TT>NULL</TT>, then the default
+resource requirements will be used. See <A HREF="2-lslib.html#46398">'Handling
+Default Resource Requirements'</A> for details.</P>
+
+<P><A NAME="14838"></A>Note the test of <TT>maxMem</TT> and <TT>maxCpus</TT>.
+The values of these fields (along with <TT>maxSwap</TT>, <TT>maxTmp</TT>
+and <TT>nDisks</TT>) are determined when LIM starts on a host. If the host
+is unavailable, the master LIM supplies a negative value.</P>
+
+<P><A NAME="17472"></A>The above example program produces output similar
+to the following:</P>
+
+<PRE><A NAME="56440"></A>% <B>a.out
+</B>There are 4 hosts with more than 50MB total memory
+
+HOST_NAME   type     maxMem ncpus RESOURCES
+hostA      HPPA10    128M    1    hppa hpux cs 
+hostB      ALPHA      58M    2    alpha cs
+hostD      ALPHA      72M    4    alpha fddi
+hostC      SUNSOL     54M    1    solaris fddi</PRE>
+
+<P><A NAME="48776"></A>LSLIB also provides functions simpler than <TT>ls_gethostinfo()</TT>
+to get frequently used information. These functions include:</P>
+
+<PRE><A NAME="48779"></A>char  *ls_gethosttype(<I>hostname</I>)
+char  *ls_gethostmodel(<I>hostname</I>)
+float *ls_gethostfactor(<I>hostname</I>)</PRE>
+
+<P><A NAME="53746"></A>See <A HREF="a-functions.html#1074">'List of LSF
+API Functions'</A> for more details about these functions.</P>
+
+<H2><A NAME="46398"></A>Handling Default Resource Requirements </H2>
+
+<P><A NAME="46440"></A>Some LSLIB functions require a resource requirement
+parameter. This parameter is passed to LIM for host selection. It is important
+to understand how LSF handles default resource requirements. See <A HREF="04-resources.html">'Resources'</A>
+in the <I><A HREF="users-title.html">LSF User's Guide</A></I> for the concept
+of resource requirements. </P>
+
+<P><A NAME="48227"></A>It is desirable that LSF automatically assume default
+values for some key requirements if they are not specified by the user.
+</P>
+
+<P><A NAME="48808"></A>The default resource requirements depend on the
+specific application context. For example, the <TT>lsload</TT> command
+would assume '<TT>type==any order[r15s:pg]</TT>' as the default resource
+requirements, while <TT>lsrun</TT> assumes '<TT>type==local order[r15s:pg]</TT>'
+as the default resource requirements. This is because the user usually
+expects <TT>lsload</TT> to show the load on all hosts, while, with <TT>lsrun</TT>,
+a conservative approach of running task on the same host type as the local
+host will in most cases cause the task to be run on the correct host type.
+</P>
+
+<P><A NAME="48853"></A>LSLIB provides flexibility for the application programmer
+to decide what the default behavior should be.</P>
+
+<P><A NAME="48837"></A>LSF default resource requirements contain two parts,
+a <I>type requirement</I> and an <I>order requirement</I>. The former makes
+sure that the correct type of hosts are selected, while the latter is used
+to order the selected hosts according to some reasonable criteria.</P>
+
+<P><A NAME="47543"></A>LSF appends a type resource requirement to the resource
+requirement string supplied by an application in the following situations:</P>
+
+<UL>
+<LI><A NAME="46543"></A><TT>resreq</TT> is <TT>NULL</TT> or an empty string.
+</LI>
+</UL>
+
+<UL>
+<LI><A NAME="46544"></A><TT>resreq</TT> does not contain a <I>boolean resource</I>,
+for example, '<TT>hppa</TT>', and does not contain a <I>type </I>or <I>model
+resource</I>, for example, '<TT>type==solaris</TT>', '<TT>model==HP715</TT>'.
+</LI>
+</UL>
+
+<P><A NAME="47737"></A>The default type requirement can be either '<TT>type==any</TT>'
+or '<TT>type==$fromtype</TT>' depending on whether or not the flag <TT>DFT_FROMTYPE</TT>
+is set in the options parameter of the function call, where <TT>DFT_FROMTYPE</TT>
+is defined in <TT>lsf.h</TT>. </P>
+
+<P><A NAME="48033"></A>If <TT>DFT_FROMTYPE</TT> is set in the options parameter,
+the default type requirement is '<TT>type==$fromtype</TT>'. If <TT>DFT_FROMTYPE</TT>
+is not set, then the default type requirement is '<TT>type==any</TT>'.</P>
+
+<P><A NAME="47946"></A>The value of <TT>fromtype</TT> depends on the function
+call. If the function has a <TT>fromhost</TT> parameter, then <TT>fromtype</TT>
+is the host type of the <TT>fromhost</TT>. Otherwise, <TT>fromtype</TT>
+is '<TT>local</TT>'. </P>
+
+<P><A NAME="48140"></A>LSF also appends an order requirement, <TT>order[r15s:pg]</TT>,
+to the resource requirement string if an order requirement is not already
+specified.</P>
+
+<P><A NAME="48203"></A><A HREF="2-lslib.html#48144">Table 2</A> lists some
+examples of how LSF appends the default resource requirements. </P>
+
+<H4><A NAME="48144"></A>Table 2. Examples of Default Resource Requirements</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TH colspan=1 rowspan=2><A NAME="48150"></A>User's Resource Requirement</TH>
+
+<TH colspan=2 rowspan=1><A NAME="48152"></A>Resource Requirement After
+Appending the Default</TH>
+</TR>
+
+<TR>
+<TH><A NAME="48158"></A><TT>DFT_FROMTYPE</TT> set</TH>
+
+<TH><A NAME="48160"></A><TT>DFT_FROMTYPE</TT> not set</TH>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48162"></A>NULL </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48164"></A>type==$fromtype 
+order[r15s:pg] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48166"></A>type==any order[r15s:pg] </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48168"></A>hpux </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48170"></A>hpux order[r15s:pg] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48172"></A>hpux order[r15s:pg] </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48174"></A>order[r1m] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48176"></A>type==$fromtype 
+order[r1m] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48178"></A>type==any order[r1m] </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48180"></A>model==hp735 </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48182"></A>model==hp735 
+order[r15s:pg] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48184"></A>model==hp735 order[r15s:pg] </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48186"></A>sparc order[ls] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48188"></A>sparc order[ls] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48190"></A>sparc order[ls] </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48192"></A>swp &gt; 25 &amp;&amp; it &gt; 10 </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48194"></A>swp &gt; 25 &amp;&amp; it&gt;10 &amp;&amp; 
+type==$fromtype 
+order[r15s:pg] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48196"></A>swp &gt; 25 &amp;&amp; it&gt;10 &amp;&amp; 
+type==any order[r15s:pg] </PRE>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48198"></A>ncpus &gt; 1 order[ut] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48200"></A>ncpus &gt; 1 &amp;&amp; 
+type==$fromtype 
+order[ut] </PRE>
+</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>
+<PRE><A NAME="48202"></A>ncpus &gt; 1 &amp;&amp; 
+type==any order[ut] </PRE>
+</TD>
+</TR>
+</TABLE>
+
+<H2><A NAME="48205"></A>Getting Dynamic Load Information</H2>
+
+<P><A NAME="29096"></A>LSLIB provides several functions to obtain dynamic
+load information about hosts. The dynamic load information is updated periodically
+by LIM. The load indices collected by LIM consist of 11 <I>built-in load
+indices</I> and up to 128 <I>external load indices</I>. The built-in load
+indices report load situation about CPU, memory, disk subsystem, interactive
+activities, etc. on each host. The external load indices are optionally
+defined by your LSF cluster administrator to collect whatever additional
+dynamic information that is of interest to your site.</P>
+
+<P><A NAME="40152"></A>The LSLIB function that will be used in the example
+program is:</P>
+
+<PRE><A NAME="49006"></A>struct hostLoad *ls_load(resreq, numhosts, options, fromhost)</PRE>
+
+<P><A NAME="29612"></A>On success, this function returns an array containing
+a <TT>hostLoad</TT> structure for each host of interest. On failure, it
+returns <TT>NULL</TT> and sets <TT>lserrno</TT> to indicate the error.
+</P>
+
+<P><A NAME="40532"></A>This function has the following parameters: </P>
+
+<PRE><A NAME="48951"></A>char  *resreq;       /* Resource requirements that each host of interest must satisfy */
+int   *numhosts;     /* *numhosts initially contains the number of hosts requested */
+int   options;       /* Option flags that affect the selection of hosts */
+char  *fromhost;     /* Used in conjunction with the DFT_FROMTYPE option */</PRE>
+
+<P><A NAME="41102"></A>The value of <TT>*numhosts</TT> determines how many
+hosts should be returned by this call. If <TT>*numhosts</TT> is 0, information
+is requested on all hosts satisfying <TT>resreq</TT>. If <TT>numhosts</TT>
+is <TT>NULL</TT>, load information is requested on one host. If <TT>numhosts</TT>
+is not <TT>NULL</TT>, then on a successful return <TT>*numhosts</TT> will
+contain the number of <TT>hostLoad</TT> structures returned.</P>
+
+<P><A NAME="24757"></A>The <TT>options</TT> argument is constructed from
+the bitwise inclusive OR of zero or more of the option flags defined in
+&lt;<TT>lsf/lsf.h&gt;</TT>. The most commonly used flags are:</P>
+
+<DL>
+<DT><A NAME="24851"></A><TT>EXACT </TT></DT>
+
+<DD>Exactly <TT>*numhosts</TT> hosts are desired. If <TT>EXACT</TT> is
+set, either exactly <TT>*numhosts</TT> hosts are returned, or the call
+returns an error. If <TT>EXACT</TT> is not set, then up to <TT>*numhosts</TT>
+hosts are returned. If <TT>*numhosts</TT> is zero, then the <TT>EXACT</TT>
+flag is ignored and as many hosts in the load sharing system as are eligible
+(that is, those that satisfy the resource requirement) are returned. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24860"></A><TT>OK_ONLY </TT></DT>
+
+<DD>Return only those hosts that are currently in the <TT>ok</TT> state.
+If <TT>OK_ONLY</TT> is set, those hosts that are <TT>busy</TT>, <TT>locked</TT>,
+<TT>unlicensed</TT>, or <TT>unavail</TT> are not returned. If <TT>OK_ONLY</TT>
+is not set, then some or all of the hosts whose status are not <TT>ok</TT>
+may also be returned, depending on the value of <TT>*numhosts</TT> and
+whether the <TT>EXACT</TT> flag is set. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24867"></A><TT>NORMALIZE </TT></DT>
+
+<DD>Normalize CPU load indices. If <TT>NORMALIZE</TT> is set, then the
+CPU run queue length load indices <TT>r15s</TT>, <TT>r1m</TT>, and <TT>r15m</TT>
+of each host returned are normalized. See <A HREF="04-resources.html">'Resources'</A>
+in the <I><A HREF="users-title.html">LSF User's Guide</A></I> or <TT>lsfintro</TT>(<TT>1</TT>)
+for the concept of different types of run queue lengths. The default is
+to return the raw run queue length. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="40761"></A><TT>EFFECTIVE </TT></DT>
+
+<DD>If <TT>EFFECTIVE</TT> is set, then the CPU run queue length load indices
+of each host returned are the effective load. The default is to return
+the raw run queue length. The options <TT>EFFECTIVE</TT> and <TT>NORMALIZE</TT>
+are mutually exclusive. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="24887"></A><TT>DFT_FROMTYPE </TT></DT>
+
+<DD>This flag determines the default resource requirements. See <A HREF="2-lslib.html#46398">'Handling
+Default Resource Requirements'</A> for details. </DD>
+</DL>
+
+<P><A NAME="24890"></A>The <TT>fromhost</TT> parameter is used when <TT>DFT_FROMTYPE</TT>
+is set in options. If <TT>fromhost</TT> is <TT>NULL</TT>, the local host
+is assumed.</P>
+
+<P><A NAME="41336"></A><TT>ls_load() </TT>returns an array of the following
+data structure as defined in <TT>&lt;lsf/lsf.h&gt;</TT>: </P>
+
+<PRE><A NAME="53895"></A>struct hostLoad {
+    char  hostName[MAXHOSTNAMELEN]; /* Name of the host */
+    int   status[2];                /* The operational and load status of the host */
+    float *li;                      /* Values for all load indices of this host */
+}</PRE>
+
+<P><A NAME="49236"></A>The returned <TT>hostLoad</TT> array is ordered
+according to the order requirement in the resource requirements. For details
+about the ordering of hosts, see <A HREF="04-resources.html#5092">'Resource
+Requirement Strings'</A> in the <I><A HREF="users-title.html">LSF User's
+Guide</A></I>. </P>
+
+<P><A NAME="49211"></A>The following example takes no option, and periodically
+displays the host name, host status and 1-minute effective CPU run queue
+length for each Sun SPARC host in the LSF cluster.</P>
+
+<PRE><A NAME="49256"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsf.h&gt;
+
+main()
+{
+    int i;
+    struct hostLoad *hosts;
+    char   *resreq = &quot;type==sparc&quot;;
+    int    numhosts = 0;
+    int    options = EFFECTIVE;
+    char   *fromhost = NULL;
+    char   field[20] = &quot;*&quot;;
+
+    for (;;) {                 /* repeatedly display load */
+        hosts = ls_load(resreq, &amp;numhosts, options, fromhost);
+
+        if (hosts == NULL) {
+            ls_perror(&quot;ls_load&quot;);
+            exit(-1);
+        }
+
+        printf(&quot;%-15.15s %6.6s%6.6s\n&quot;, &quot;HOST_NAME&quot;, &quot;status&quot;, &quot;r1m&quot;);
+
+        for (i = 0; i &lt; numhosts; i++) {
+            printf(&quot;%-15.15s &quot;, hosts[i].hostName);
+            if (LS_ISUNAVAIL(hosts[i].status)) {
+                 printf(&quot;%6s\n&quot;, &quot;unavail&quot;);
+            else if (LS_ISBUSY(hosts[i].status)) 
+                 printf(&quot;%6.6s&quot;, &quot;busy&quot;);
+            else if (LS_ISLCOKED(hosts[i].status)) 
+                 printf(&quot;%6.6s&quot;, &quot;locked&quot;);
+            else
+                 printf(&quot;%6.6s&quot;, &quot;ok&quot;);
+
+            if (hosts[i].li[R1M] &gt;= INFINIT_LOAD)
+                printf(&quot;%6.6s\n&quot;, &quot;-&quot;);
+            else {
+                sprintf(field + 1, &quot;%5.1f&quot;, hosts[i].li[R1M]);
+                if (LS_ISBUSYON(hosts[i].status, R1M))
+                    printf(&quot;%6.6s\n&quot;, field);
+                else
+                    printf(&quot;%6.6s\n&quot;, field + 1);
+             }
+        }
+        sleep(60);             /* until next minute */
+    }
+}</PRE>
+
+<P><A NAME="28753"></A>Each element of the <TT>li</TT> array is a floating
+point number between 0.0 and <TT>INFINIT_LOAD</TT> (defined in <TT>lsf.h</TT>).
+The index value is set to <TT>INFINIT_LOAD</TT> by LSF to indicate an invalid
+or unknown value for an index. </P>
+
+<P><A NAME="42009"></A>The <TT>li</TT> array can be indexed using different
+ways. The constants defined in <TT>lsf.h</TT> (see the <TT>ls_load</TT>(<TT>3</TT>)
+man page) can be used to index any built-in load indices as shown in the
+above example. If external load indices are to be used, the order in which
+load indices are returned will be the same as that of the resources returned
+by <TT>ls_info()</TT>. The variables <TT>numUsrIndx</TT> and <TT>numIndx</TT>
+in structure <TT>lsInfo</TT> can be used to determine which resources are
+load indices. <A HREF="4-advanced.html#1339">'Advanced Programming Topics'</A>
+discusses more flexible ways to map load index names to values.</P>
+
+<P><A NAME="42010"></A>LSF defines a set of macros in <TT>lsf.h</TT> to
+test the status field. The most commonly used macros include:</P>
+
+<DL>
+<DT><A NAME="28758"></A><TT>LS_ISUNAVAIL(status) </TT></DT>
+
+<DD>The LIM on the host is unavailable. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="28760"></A><TT>LS_ISBUSY(status) </TT></DT>
+
+<DD>Returns 1 if the host is busy. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="28762"></A><TT>LS_ISBUSYON(status, index) </TT></DT>
+
+<DD>Returns 1 if the host is busy on the given index. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="28764"></A><TT>LS_ISLOCKED(status) </TT></DT>
+
+<DD>Returns 1 if the host is locked. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="28766"></A><TT>LS_ISOK(status) </TT></DT>
+
+<DD>Returns 1 if none of the above is true. </DD>
+</DL>
+
+<P><A NAME="18576"></A>The output of the above program is similar to the
+following:</P>
+
+<PRE><A NAME="49552"></A>% <B>a.out
+</B>HOST_NAME       status    r1m
+hostB             ok      0.0
+hostC             ok      1.2
+hostA            busy     0.6
+hostD            busy     *4.3
+hostF           unavail</PRE>
+
+<P><A NAME="42062"></A>If the host status is busy because of <TT>r1m,</TT>
+then an '<TT>*</TT>' is printed in front of the value of the <TT>r1m</TT>
+load index.</P>
+
+<P><A NAME="42110"></A>Note that, in the above example, the returned data
+structure <TT>hostLoad</TT> never needs to be freed by the program even
+if <TT>ls_load()</TT> is called repeatedly.</P>
+
+<H2><A NAME="42184"></A>Making a Placement Decision</H2>
+
+<P><A NAME="42369"></A>If you are writing an application that needs to
+run tasks on the best available hosts, you need to make placement decision
+as to on which host each task should run. </P>
+
+<P><A NAME="42506"></A>Placement decision takes two factors into consideration.
+The first factor is the resource requirements of the task. Every task has
+a certain set of resource requirements. These may be static, such as a
+particular hardware architecture or operating system, or dynamic, such
+as a certain amount of swap space for virtual memory.</P>
+
+<P><A NAME="42537"></A>LSLIB provides services for placement advice. All
+you have to do is to call the appropriate LSLIB function with appropriate
+resource requirements. </P>
+
+<P><A NAME="49570"></A>A placement advice can be obtained by calling either
+<TT>ls_load()</TT> function or <TT>ls_placereq()</TT> function. <TT>ls_load()</TT>
+returns a placement advice together with load index values. <TT>ls_placereq()</TT>
+returns only the qualified host names. The result list of hosts are ordered
+by preference, with the first being the best. <TT>ls_placereq()</TT> is
+useful when a simple placement decision would suffice. <TT>ls_load()</TT>
+can be used if the placement advice from LSF must be adjusted by your additional
+criteria. The LSF utilities <TT>lsrun</TT>, <TT>lsmake</TT>, <TT>lslogin</TT>,
+and <TT>lstcsh</TT> all use <TT>ls_placereq()</TT> for placement decision,
+whereas LSF&nbsp;Batch utilities use <TT>ls_load()</TT> to get an ordered
+list of qualified hosts, and then makes placement decisions by considering
+batch-specific policies. </P>
+
+<P><A NAME="42564"></A>In order to make optimal placement decisions, it
+is important that your resource requirements best describe the resource
+needs of the application. For example, if your task is memory intensive,
+then your resource requirement string should have '<TT>mem</TT>' in the
+order segment, for example, '<TT>fddi order[mem:r1m]</TT>'.</P>
+
+<P><A NAME="42741"></A>The LSLIB function, <TT>ls_placereq()</TT>, takes
+the form of: </P>
+
+<PRE><A NAME="49624"></A>char **ls_placereq(resreq, num, options, fromhost)</PRE>
+
+<P><A NAME="42194"></A>On success, this function returns an array of host
+names that best meet the resource requirements. Hosts may be duplicated
+for hosts that have sufficient resources to accept multiple tasks (for
+example, multiprocessors).</P>
+
+<P><A NAME="42195"></A>On failure, this function returns <TT>NULL</TT>
+and sets <TT>lserrno</TT> to indicate the error.</P>
+
+<P><A NAME="42782"></A>The parameters for <TT>ls_placereq()</TT> are very
+similar to those of the <TT>ls_load()</TT> function described in the previous
+section. </P>
+
+<P><A NAME="46247"></A>LSLIB will append default resource requirement to
+<TT>resreq</TT> according to the rules described in <A HREF="2-lslib.html#46398">'Handling
+Default Resource Requirements'</A>.</P>
+
+<P><A NAME="42219"></A>Preference is given to <TT>fromhost</TT> over remote
+hosts that do not have significantly lighter load or greater resources.
+This preference avoids unnecessary task transfer and reduces overhead.
+If <TT>fromhost</TT> is <TT>NULL</TT>, then the local host is assumed.</P>
+
+<P><A NAME="49604"></A>The example program below takes a resource requirement
+string as an argument and displays the host in the LSF cluster that best
+satisfies the resource requirement. </P>
+
+<PRE><A NAME="49612"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsf.h&gt;
+
+main(argc, argv)
+    int  argc;
+    char *argv[];
+{
+    char *resreq = argv[1];
+    char **best;
+    int  num = 1;
+    int  options = 0;
+    char *fromhost = NULL;
+
+    if (argc != 2 ) {
+        fprintf(stderr, &quot;Usage: %s resreq\n&quot;, argv[0]);
+        exit(-2);
+    }
+
+    best = ls_placereq(resreq, &amp;num, options, fromhost);
+    if (best == NULL) {
+        ls_perror(&quot;ls_placereq()&quot;);
+        exit(-1);
+    }
+    printf(&quot;The best host is &lt;%s&gt;\n&quot;, best[0]);
+
+    exit(0);
+}</PRE>
+
+<P><A NAME="42307"></A>The above program will produce output similar to
+the following:</P>
+
+<PRE><A NAME="49660"></A>% <B>a.out &quot;type==local order[r1m:ls]&quot;
+</B>The best host is &lt;hostD&gt;</PRE>
+
+<P><A NAME="43036"></A>LSLIB also provides a variant of <TT>ls_placereq()</TT>.
+<TT>ls_placeofhosts()</TT> lets you provide a list of candidate hosts.
+See the <TT>ls_policy</TT>(<TT>3</TT>) man page for details.</P>
+
+<H2><A NAME="43021"></A>Getting Task Resource Requirements</H2>
+
+<P><A NAME="10531"></A>Host selection relies on resource requirements.
+To avoid the need to specify resource requirements each time you execute
+a task, LSF maintains a list of task names together with their default
+resource requirements for each user. This information is kept in three
+task list files: the system-wide defaults, the per-cluster defaults, and
+the per-user defaults. </P>
+
+<P><A NAME="27715"></A>A user can put a task name together with its resource
+requirements into his/her remote task list by running the <TT>lsrtasks</TT>
+command. The <TT>lsrtasks</TT> command can be used to add, delete, modify,
+or display a task entry in the task list. For more information on remote
+task list and an explanation of resource requirement strings, see the <I><A HREF="users-title.html">LSF
+User's Guide</A></I>. </P>
+
+<P><A NAME="43547"></A>LSLIB provides a function to get the resource requirements
+associated with a task name. With this function, LSF applications or utilities
+can automatically retrieve the resource requirements of a given task if
+the user does not explicitly specify it. For example, the LSF utility <TT>lsrun</TT>
+tries to find the resource requirements of the user-typed command automatically
+if <TT>-R</TT> option is not specified by the user on the command line.
+</P>
+
+<P><A NAME="43636"></A>The LSLIB function call <TT>ls_resreq()</TT> obtains
+resource requirements of a given task. The syntax of this function is:</P>
+
+<PRE><A NAME="49721"></A>char *ls_resreq(taskname)
+</PRE>
+
+<P><A NAME="29657"></A>If taskname does not appear in the remote task list,
+this function returns <TT>NULL</TT>. </P>
+
+<P><A NAME="43783"></A>Typically the resource requirements of a task are
+then used for host selection purpose. The following program takes the input
+argument as a task name, get the associated resource requirements from
+the remote task list, and then supply the resource requirements to a <TT>ls_placereq()</TT>
+call to get the best host for running this task. </P>
+
+<PRE><A NAME="49778"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsf.h&gt;
+
+main(argc, argv)
+    int  argc;
+    char *argv[];
+{
+    char *taskname = argv[1];
+    char *resreq;
+    char **best;
+
+    if (argc != 2 ) {
+        fprintf(stderr, &quot;Usage: %s taskname\n&quot;, argv[0]);
+        exit(-1);
+    }
+
+    resreq = ls_resreq(taskname);
+
+    if (resreq)
+        printf(&quot;Resource requirement for %s is \&quot;%s\&quot;.\n&quot;, taskname, resreq);
+    else
+        printf(&quot;Resource requirement for %s is NULL.\n&quot;, taskname);
+
+    best = ls_placereq(resreq, NULL, 0, NULL);
+    if (best == NULL) {
+        ls_perror(&quot;ls_placereq&quot;);
+        exit(-1);
+    }
+    printf(&quot;Best host for %s is &lt;%s&gt;\n&quot;, taskname, best[0]);
+
+    exit(0);
+}</PRE>
+
+<P><A NAME="19018"></A>The above program will produce output similar to
+the following:</P>
+
+<PRE><A NAME="49795"></A>% <B>a.out myjob
+</B>Resource requirement for myjob is &quot;swp&gt;50 order[cpu:mem]&quot;
+Best host for myjob is &lt;hostD&gt;</PRE>
+
+<H2><A NAME="28982"></A>Using Remote Execution Services</H2>
+
+<P><A NAME="44011"></A>Remote execution of interactive tasks in LSF is
+supported through the Remote Execution Server (RES). The RES listens on
+a well-known port for service requests. Applications initiate remote execution
+by making an LSLIB call.</P>
+
+<H3><A NAME="44000"></A>Remote Execution Mechanisms</H3>
+
+<P><A NAME="28983"></A>The following steps are typically involved during
+a remote execution: </P>
+
+<UL>
+<LI><A NAME="44108"></A>The application makes a remote execution request
+through LSLIB. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="28985"></A>The LSLIB establishes a connection with the RES
+on the remote host and passes the client's identity and current execution
+environment over to the RES. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="28988"></A>The LSLIB starts a Network I/O Server (NIOS) locally
+if one has not been started already and waits for a call back from the
+RES. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="28989"></A>If the LSLIB remote execution function is called
+with the pseudo-terminal option, the RES creates a pseudo-terminal for
+the remote task and calls back to the client's NIOS to establish terminal
+I/O channels. If a pseudo-terminal is not required, the RES creates a socket
+pair instead. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="28990"></A>The RES forks and executes the remote task with
+its <TT>stdin</TT>, <TT>stdout</TT>, and <TT>stderr</TT> associated with
+the pseudo-terminal or socket. The remote task runs, and the RES forwards
+any output from the remote task back to the client's NIOS. </LI>
+</UL>
+
+<UL>
+<LI><A NAME="28991"></A>The client's NIOS forwards the output from the
+remote task to the client's stdout or stderr. The NIOS also watches the
+user's terminal and forwards any input to the remote task through the RES.
+Signals received by the NIOS also are forwarded to the remote task. </LI>
+</UL>
+
+<H4><A NAME="58059"></A>Figure 5. Remote Execution Mechanisms</H4>
+
+<P><A HREF="prog-figure5.gif"><IMG SRC="prog-figure5.gif" ALT="Remote Execution Mechanisms" BORDER=0 HEIGHT=435 WIDTH=394></A></P>
+
+<P><A NAME="54376"></A>When the remote task finishes, the RES collects
+its status and resource usage and sends them back to the client through
+its NIOS</P>
+
+<P><A NAME="53578"></A>Note that all of the above transactions are triggered
+by an LSLIB remote execution function call and take place transparently
+to the programmer. <A HREF="2-lslib.html#58059">Figure 5</A> shows the relationships
+between these entities.</P>
+
+<P><A NAME="54284"></A>The same NIOS is shared by all remote tasks running
+on different hosts started by the same instance of LSLIB. The LSLIB contacts
+multiple RESes and they all call back to the same NIOS. The sharing of
+the NIOS is restricted to within the same application. </P>
+
+<P><A NAME="29035"></A>Remotely executed tasks behave as if they were executing
+locally. The local execution environment passed to the RES is re-established
+on the remote host, and the task's status and resource usage are passed
+back to the client. Terminal I/O is transparent, so even applications such
+as <TT>vi</TT> that do complicated terminal manipulation run transparently
+on remote hosts. UNIX signals are supported across machines, so that remote
+tasks get signals as if they were running locally. Job control also is
+done transparently. This level of transparency is maintained between heterogeneous
+hosts.</P>
+
+<H3><A NAME="44062"></A>Initializing an Application for Remote Execution</H3>
+
+<P><A NAME="29036"></A>Before executing a task remotely, an application
+must call the following LSLIB function:</P>
+
+<PRE><A NAME="49832"></A>int ls_initrex(numports, options)</PRE>
+
+<P><A NAME="30239"></A>On success, this function initializes the LSLIB
+for remote execution. If your application is installed as a setuid program,
+this function returns the number of socket descriptors bound to privileged
+ports. If your program is not installed as a setuid to root program, this
+function returns <TT>numports on success. </TT></P>
+
+<P><A NAME="45333"></A>On failure, this function returns -1 and sets the
+global variable <TT>lserrno</TT> to indicate the error. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="29057"></A><B>Note<BR>
+</B><I>This function must be called before any other remote execution function
+(see </I><TT>ls_rex(3)</TT><I>) or any remote file operation function (see
+</I><TT>ls_rfs(3)</TT><I>) in </I><TT>LSLIB</TT><I> can be called.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="49852"></A><TT>ls_initrex()</TT> has the following parameters:</P>
+
+<PRE><A NAME="49854"></A>
+int   numports;   /* The number of priviliged ports to create */
+int   options;    /* either KEEPUID or 0 */</PRE>
+
+<P><A NAME="29058"></A>If your program is installed as a setuid to root
+program, numports file descriptors, starting from <TT>FIRST_RES_SOCK</TT>
+(defined in <TT>&lt;lsf/lsf.h&gt;</TT>), are bound to privileged ports
+by <TT>ls_initrex()</TT>. These sockets are used only for remote connections
+to RES. If <TT>numports</TT> is 0, then the system will use the default
+value <TT>LSF_DEFAULT_SOCKS</TT> defined in <TT>lsf.h</TT>.</P>
+
+<P><A NAME="49879"></A>By default, <TT>ls_initrex()</TT> restores the effective
+user ID to real user ID if the program is installed as a setuid to root
+program. If <TT>options</TT> is <TT>KEEPUID</TT> (defined in <TT>lsf.h</TT>),
+<TT>ls_initrex()</TT> preserves the current effective user ID. This option
+is useful if the application needs to be a setuid to root program for some
+other purpose as well and does not want to go back to real user ID immediately
+after <TT>ls_initrex()</TT>. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="49935"></A><B>CAUTION!<BR>
+If <TT>KEEPUID</TT> flag is set in options, you must make sure that your
+application restores back to the real user ID at a proper time of the program
+execution.</B></P>
+</BLOCKQUOTE>
+
+<P><A NAME="29069"></A><TT>ls_initrex()</TT> function selects the security
+option according to the following rule: if the application program invoking
+it has an effective uid of root, then privileged ports are created; otherwise,
+no such port is created and, at remote task start-up time, RES will use
+the authentication protocol defined by <TT>LSF_AUTH</TT> in the <TT>lsf.conf</TT>
+file. </P>
+
+<H3><A NAME="28523"></A>Running a Task Remotely</H3>
+
+<P><A NAME="26934"></A>The example program below runs a command on one
+of the best available hosts. It makes use of the <TT>ls_resreq()</TT> function
+described in <A HREF="2-lslib.html#43021">'Getting Task Resource Requirements'</A>,
+the <TT>ls_placereq()</TT> function described in <A HREF="2-lslib.html#42184">'Making
+a Placement Decision'</A>, the <TT>ls_initrex()</TT> function described
+in <A HREF="2-lslib.html#44062">'Initializing an Application for Remote
+Execution'</A>, and the following LSLIB function:</P>
+
+<PRE><A NAME="49970"></A>int ls_rexecv(host, argv, options)</PRE>
+
+<P><A NAME="30475"></A>This function executes a program on the specified
+host. It does not return if successful. It returns -1 on failure.</P>
+
+<P><A NAME="30648"></A>This function is basically a remote <TT>execvp</TT>.
+If a connection with the RES on host has not been established, <TT>ls_rexecv()</TT>
+sets one up. The remote execution environment is set up to be exactly the
+same as the local one and is cached by the remote RES server. This LSLIB
+function has the following parameters:</P>
+
+<PRE><A NAME="49974"></A>char   *host;                The execution host
+char   *argv[];              The command and its arguments
+int    options;              See below</PRE>
+
+<P><A NAME="26083"></A>The <TT>options</TT> argument is constructed from
+the bitwise inclusive OR of zero or more of the option flags defined in
+<TT>&lt;lsf/lsf.h&gt;</TT> with names starting with '<TT>REXF_</TT>'. The
+most commonly used flag is:</P>
+
+<DL>
+<DT><A NAME="26086"></A><TT>REXF_USEPTY </TT></DT>
+
+<DD>Use a remote pseudo terminal as the <TT>stdin</TT>, <TT>stdout</TT>,
+and <TT>stderr</TT> of the remote task. This option provides a higher degree
+of terminal I/O transparency. This is only necessary for executing interactive
+screen applications such as <TT>vi</TT>. The use of a pseudo-terminal incurs
+more overhead and should be used only if necessary. </DD>
+</DL>
+
+<P><A NAME="20717"></A>LSLIB also provides an <TT>ls_rexecve(3)</TT> function
+that allows you to specify the environment to be set up on the remote host.</P>
+
+<P><A NAME="20642"></A>The program follows:</P>
+
+<PRE><A NAME="49986"></A>#include &lt;stdio.h&gt;
+#include &lt;lsf/lsf.h&gt;
+
+main(argc, argv)
+    int  argc;
+    char *argv[];
+{
+    char *command = argv[1];
+    char *resreq;
+    char **best;
+    int  num = 1;
+
+    if (argc &lt; 2 ) {
+        fprintf(stderr, &quot;Usage: %s command [argument ...]\n&quot;, argv[0]);
+        exit(-1);
+    }
+
+    if (ls_initrex(1, 0) &lt; 0) {
+        ls_perror(&quot;ls_initrex&quot;);
+        exit(-1);
+    }
+
+    resreq = ls_resreq(command);
+
+    best = ls_placereq(resreq, &amp;num, 0, NULL);
+    if (host == NULL) {
+        ls_perror(&quot;ls_placereq()&quot;);
+        exit(-1);
+    }
+
+    printf(&quot;&lt;&lt;Execute %s on %s&gt;&gt;\n&quot;, command, best[0]);
+    ls_rexecv(best[0], argv + 1, 0);
+    /* should never get here */
+    ls_perror(&quot;ls_rexecv()&quot;);
+    exit(-1);
+}</PRE>
+
+<P><A NAME="20922"></A>The output of the above program would be something
+like: </P>
+
+<PRE><A NAME="49990"></A>% <B>a.out myjob
+</B>&lt;&lt;Execute myjob on hostD&gt;&gt;
+(output from myjob goes here ....)</PRE>
+
+<BLOCKQUOTE>
+<P><B>Note:<BR>
+</B>Any application that uses LSF's remote execution service must be installed
+for proper authentication. See <A HREF="1-introduction.html#8311">'Authentication'</A>.</P>
+</BLOCKQUOTE>
+
+<P><A NAME="58754"></A>The LSF utility <TT>lsrun</TT> is implemented using
+the <TT>ls_rexecv()</TT> function. After remote task is initiated, <TT>lsrun</TT>
+calls the <TT>ls_rexecv() </TT>function, which then executes NIOS to handle
+all input/output to and from the remote task and exits with the same status
+when remote task exits. </P>
+
+<P><A NAME="58760"></A>See <A HREF="4-advanced.html#1339">'Advanced Programming
+Topics'</A> for an alternative way to start remote tasks.</P>
+
+<P>
+<HR><A HREF="programmers-contents.html">[Contents]</A> <A HREF="1-introduction.html">[Prev]</A>
+<A HREF="3-lsblib.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+</P>
+
+<ADDRESS><I><A HREF="mailto:doc@platform.com">doc@platform.com</A></I></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I></P>
+
+</BODY>
+</HTML>

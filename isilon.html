@@ -579,6 +579,7 @@ Troubleshooting
 <PRE>
 
 isi_hw_status
+isi_for_array   isi_hw_status | grep SerNo	# find serial number of all nodes
 
 
 Case data often stored in /ifs/data/Isilon_Support/nnnn
@@ -627,12 +628,23 @@ Caveats
 </H2>
 
 <UL>
-<LI>Isilon does not by default keep track of atime, one has to enable it.  see <A HREF="http://doc.isilon.com/onefs/7.1.0/help/en-us/GUID-29A0548E-C9C6-4692-A608-67DF9657F47B.html">OneFS 7.1.0 doc</A>.  This has an implication that if want to delete old files by last access time (find -atime +30 -delete), it seems to be silently reverting to depends on ctime :(
+<LI>Isilon does not by default keep track of atime (due to performance concerns), one has to enable it.  see <A HREF="http://doc.isilon.com/onefs/7.1.0/help/en-us/GUID-29A0548E-C9C6-4692-A608-67DF9657F47B.html">OneFS 7.1.0 doc</A>.  This has an implication that if want to delete old files by last access time (find -atime +30 -delete), it seems to be silently reverting to depends on ctime or mtime :(
 <LI> atime = access time (when file is read)
 <LI> ctime = change time, kept by system.  chmod, chown are considered changes and thus update the ctime of the file.
 <LI> mtime = modification time, and refer to actual file data content (and ignore meta data changes).  Furthermore, user can set mtime using the <TT>touch -t nnn</TT> command against the file.
 <LI> <A HREF="http://www.unix.com/tips-and-tutorials/20526-mtime-ctime-atime.html">ctime vs mtime</A> (postmark vs hand written date)
 </UL>
+
+To enable/disable atime track:
+<PRE>
+
+sysctl efs.bam.atime_enable=1			# 1=enable, 0=disable
+sysctl efs.bam.atime_grace_period=1209600	# how often to update last-access time, 1209600 sec = 2 weeks.
+
+</PRE>
+
+ref: page 64 of 
+<A HREF="https://www.emc.com/collateral/TechnicalDocument/docu56048.pdf">OneFS 7.2.0 cli admin guide</A>
 
 <H1>
 Links
@@ -678,7 +690,7 @@ History
 (cc) Tin Ho. See  
 <A HREF="psg.html#cc">main page</A>
  for copyright info. <BR>
-Last Updated: 2012-06-21<BR>
+Last Updated: 2016-10-20<BR>
 
 
 

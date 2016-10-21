@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - LSF Directories</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="b-sample-install.html">[Prev]</A>
+<A HREF="d-systems.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1024"></A>Appendix C. <A NAME="1022"></A>LSF Directories</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="4732"></A><A HREF="c-directories.html#4729">Table 3</A> lists
+the various directories used by the LSF system, their modes and their contents.</P>
+
+<H3><A NAME="4729"></A>Table 3. LSF Directories</H3>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD ALIGN=CENTER VALIGN=CENTER>
+<H4>Directory</H4>
+</TD>
+
+<TD ALIGN=CENTER VALIGN=CENTER>
+<H4>Mode </H4>
+</TD>
+
+<TD ALIGN=CENTER VALIGN=CENTER>
+<H3>Contents</H3>
+</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSB_CONFDIR</TT> and <TT>$LSB_CONFDIR/*</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD>LSF Batch configuration files, must be owned by the primary LSF administrator,
+and shared by all potential master hosts. </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSB_SHAREDIR/cluster/logdir</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD>LSF Batch accounting files, must be owned by the primary LSF administrator,
+and shared by all potential master hosts. </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_BINDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD>User commands, must allow setuid to root, shared by all hosts of the
+same type. </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_CONFDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD>LSF cluster configuration files, must be owned by the primary LSF administrator,
+and shared by all LSF server hosts. </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_ENVDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD><TT>lsf.conf</TT> file, must be owned by root. </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_INCLUDEDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD>Header files <TT>lsf/lsf.h</TT> and <TT>lsf/lsbatch.h</TT>. </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_INDEP</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD>Host type independent files shared by all hosts. </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_LIBDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD>LSF libraries, shared by all hosts of the same type. </TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_LOGDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>1777</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>Server error logs, must be owned by root</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_MACHDEP</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>Host type dependent files shared by all hosts
+of the same type</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_MANDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>LSF man pages shared by all hosts</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_MISC</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>Examples and other miscellaneous files shared
+by all hosts</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$LSF_SERVERDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>Server binaries, must be owned by root, and shared
+by all hosts of the same type</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$XLSF_APPDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>Window application resource files, shared by
+all hosts</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP><TT>$XLSF_UIDDIR</TT></TD>
+
+<TD ALIGN=CENTER VALIGN=TOP>755</TD>
+
+<TD ALIGN=LEFT VALIGN=TOP>GUI UID files, shared by all hosts of the same
+type</TD>
+</TR>
+</TABLE>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="b-sample-install.html">[Prev]</A>
+<A HREF="d-systems.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:18:03 --></P>
+
+</BODY>
+</HTML>

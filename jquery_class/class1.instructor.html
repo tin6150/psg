@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <style>
+            .screen { width: 300px; height: 200px; padding: 10px; border: 1px solid #ccc; background-color: #f8f8f8; }
+            .taskbar{ background-color: #e8f0ff; padding: 5px; border: 1px solid #ddd; overflow: hidden; }
+            button { background-color: #38c; border: 1px solid #27b; color: #fff; font-weight: bold; padding: .2em 1em; }
+            .taskbar button { float: right; }
+            form { margin: 10px; }
+            input { border: 1px solid #cde; margin: 5px 0; }
+            .disabled-class { background-color: #aaa; border: 1px solid #888; color: #888; }
+        </style>
+        
+    </head>
+    <body>
+        <div class="screen">
+            <form>
+                <input id="allowedInput" type="text" name="allowed"/>
+                <input id="disallowedInput" type="text" disabled="disabled" name="allowedagain"/>
+            </form>
+            <div class="taskbar">
+                <button id="ok_button" class="disabled-class" disabled="disabled">OK</button>
+            </div>
+            
+        </div>
+    </body>
+    
+    <script src="jquery-1.6.2.js"></script>
+    <script>
+    
+        var $okbtn = $("#ok_button");
+    
+        $("#allowedInput").click( function(){
+        
+            $("#ok_button")
+            .removeClass("disabled-class")
+            .removeAttr("disabled");
+        
+        }).blur( function(){
+        
+            if( $(this).val() != "" ){
+                
+                $("#disallowedInput").removeAttr("disabled")[0].focus();
+            }
+        
+        });
+    </script>
+</html>

@@ -1,0 +1,1213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Quick Reference</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+   <META NAME="Author" CONTENT="doc@platform.com">
+   <META NAME="Classification" CONTENT="Top Secret!">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P>
+<HR></P>
+
+<H1><A NAME="39"></A>LSF Administrator's Quick Reference</H1>
+
+<H4><A HREF="lsf-docs.html"><IMG SRC="logo.gif" ALT="Platform Computer Corporation" BORDER=0 HEIGHT=150 WIDTH=100></A></H4>
+
+<P>
+<HR></P>
+
+<H2><A NAME="925"></A>Common Options</H2>
+
+<P><A NAME="40"></A>All commands take the following options. They will
+not be shown unless they differ for a specific command:</P>
+
+<DL>
+<DT><A NAME="41"></A><TT>-h&nbsp;&nbsp;&nbsp;</TT>Print command usage to
+standard error and exit. </DT>
+
+<DT><A NAME="42"></A><TT>-V&nbsp;&nbsp;&nbsp;</TT>Print LSF version to
+standard error and exit. </DT>
+</DL>
+
+<P><A NAME="1758"></A>When used by the LSF system administrator, the <TT>bchkpnt</TT>,
+<TT>bmig</TT>, <TT>bkill</TT>, <TT>bstop</TT>, <TT>bresume</TT>, and <TT>bswitch</TT>
+commands take an extra option:</P>
+
+<DL>
+<DT><A NAME="1760"></A><TT>-u username</TT></DT>
+
+<DD>Operate on jobs submitted by the named user, or by all users if the
+reserved user name <TT>all</TT> is given. </DD>
+</DL>
+
+<H2><A NAME="43"></A>Administration</H2>
+
+<H3><A NAME="3782"></A><TT>lsfsetup</TT></H3>
+
+<P><A NAME="4243"></A>Menu driven LSF installation, upgrade, and configuration
+utility. </P>
+
+<H3><A NAME="4289"></A><TT>lsfrestart</TT> and <TT>lsfshutdown</TT></H3>
+
+<P><A NAME="4251"></A>Restart or shutdown the LSF daemons on all hosts
+in the local cluster. </P>
+
+<PRE><A NAME="4697"></A><TT>lsfrestart [-f]
+lsfshutdown [-f]</TT></PRE>
+
+<DT><A NAME="4032"></A><TT>-f&nbsp;&nbsp;&nbsp;</TT>Continue without seeking
+confirmation if an error is encountered. </DT>
+
+<H3><A NAME="4065"></A><TT>lsadmin</TT></H3>
+
+<P><A NAME="4719"></A>LSF administrative tool to control the operation
+of <A HREF="quick-admin.html#164">LIM</A> and <A HREF="quick-admin.html#166">RES</A>
+daemons in an LSF cluster. Without arguments, <TT>lsadmin</TT> prompts
+for commands. </P>
+
+<PRE><A NAME="4722"></A><TT>lsadmin [-h] [-V] [command [command_options] [command_args]]</TT></PRE>
+
+<DL>
+<DT><A NAME="4739"></A><TT>ckconfig [-v] </TT></DT>
+
+<DD>Check LSF <A HREF="quick-admin.html#164">LIM</A> configuration files.
+If <TT>-v</TT> is specified, display detailed messages about configuration
+file status. </DD>
+
+<DT><A NAME="4742"></A><TT>reconfig [-v] [-f] </TT></DT>
+
+<DD>Restart <A HREF="quick-admin.html#164">LIM</A> daemons on all hosts
+in the local cluster. If <TT>-v</TT> is specified, display detailed messages
+about configuration file status. If <TT>-f</TT> is specified, the operation
+will proceed without confirmation unless the configuration files contain
+fatal errors. </DD>
+
+<DT><A NAME="5282"></A><TT>limstartup [hostname ... | [-f] all]<BR>
+limrestart [-v] [-f] [hostname ... | all]<BR>
+limshutdown [hostname ... | [-f] all] </TT></DT>
+
+<DD>Start-up, restart, or shut down <A HREF="quick-admin.html#164">LIM</A>
+daemons on the hosts specified or on all hosts in the local cluster if
+the reserved hostname <TT>all</TT> is the only argument provided. Default:
+local host. If <TT>-v</TT> is specified, display detailed messages about
+configuration file status. If <TT>-f</TT> is specified, no confirmation
+will be requested. </DD>
+
+<DT><A NAME="4754"></A><TT>limlock [-l duration]<BR>
+limunlock </TT></DT>
+
+<DD>Lock or unlock <A HREF="quick-admin.html#164">LIM</A> daemon on the
+local host. If <TT>-l</TT> is specified, the host is locked for <I>duration</I>
+seconds; otherwise, it will be locked until explicitly unlocked. When a
+host is locked, its <A HREF="quick-admin.html#164">LIM</A> load status
+becomes <TT>lockU</TT>. </DD>
+
+<DT><A NAME="5184"></A><TT>resstartup [hostname ... | [-f] all]<BR>
+resrestart [hostname ... | [-f] all]<BR>
+resshutdown [hostname ... | [-f] all] </TT></DT>
+
+<DD>Start-up, restart, or shut down <A HREF="quick-admin.html#166">RES</A>
+daemons on the hosts specified or on all hosts in the local cluster if
+the reserved hostname <TT>all</TT> is the only argument provided. Default:
+local host. If <TT>-f</TT> is specified, no confirmation will be requested.
+For <TT>resstartup</TT>, the LSF administrator should be able to use <TT>rsh</TT>
+on all LSF hosts. </DD>
+
+<DT><A NAME="4769"></A><TT>reslogon [-c cpuTime] [hostname ... | all]<BR>
+reslogoff [hostname ... | all] </TT></DT>
+
+<DD>Turn on or turn off <A HREF="quick-admin.html#166">RES</A> daemon task
+logging on the hosts specified or on all hosts in the local cluster if
+the reserved hostname <TT>all</TT> is the only argument provided. Default:
+local host. <A HREF="quick-admin.html#166">RES</A> will write resource
+usage information into the log file <TT>lsf.acct.</TT><I>hostname</I>.
+If <TT>-c</TT> is specified, log only the tasks which used more than <I>cpuTime</I>;
+otherwise all tasks will be logged. </DD>
+
+<DT><A NAME="4777"></A><TT>help [command ...] </TT></DT>
+
+<DD>Display the syntax and functionality of the specified command(s). </DD>
+
+<DT><A NAME="4780"></A><TT>quit </TT></DT>
+
+<DD>Exit the <TT>lsadmin</TT> session. </DD>
+</DL>
+
+<P><A NAME="4916"></A><TT>lsreconfig</TT> is an alias for <TT>lsadmin reconfig</TT>,
+<TT>lslockhost</TT> is an alias for <TT>lsadmin limlock</TT>, and <TT>lsunlockhost</TT>
+is an alias for <TT>lsadmin limunlock</TT>. These commands are for backward
+compatibility. </P>
+
+<H3><A NAME="4334"></A><TT>badmin</TT></H3>
+
+<P><A NAME="5896"></A>Administration tool to control and monitor LSF Batch
+with a set of privileged and non-privileged commands. Privileged commands
+can only be invoked by <TT>root</TT> or LSF administrators; all other commands
+can be invoked by any user. Without arguments, <TT>badmin</TT> prompts
+for commands. </P>
+
+<PRE><A NAME="5331"></A><TT>badmin [-h] [-V] [command [command_options] [command_args]]</TT></PRE>
+
+<DL>
+<DT><A NAME="5341"></A><TT>ckconfig [-v] </TT></DT>
+
+<DD>Check LSF Batch configuration files. If <TT>-v</TT> is specified, display
+detailed messages about configuration file status. </DD>
+
+<DT><A NAME="5345"></A><TT>reconfig [-v] [-f] </TT></DT>
+
+<DD>Dynamically reconfigure the LSF Batch system. If <TT>-v</TT> is specified,
+display detailed messages about configuration file status. If <TT>-f</TT>
+is specified, the operation will proceed without confirmation unless the
+configuration files contain fatal errors. </DD>
+
+<DT><A NAME="5351"></A><TT>qopen [queue_name ... | all]<BR>
+qclose [queue_name ... | all]<BR>
+qact [queue_name ... | all]<BR>
+qinact [queue_name ... | all] </TT></DT>
+
+<DD>Open, close, activate, or inactivate the LSF Batch queues specified
+by <I>queue_name</I>, or all queues if the reserved word <TT>all</TT> is
+given. If no queue is specified, the system default queue is assumed. </DD>
+
+<DT><A NAME="5359"></A><TT>qhist [-t time0, time1] [-f logfile_name] [queue_name
+...]<BR>
+hhist [-t time0, time1] [-f logfile_name] [host_name ...]<BR>
+mbdhist [-t time0, time1] [-f logfile_name]<BR>
+hist [-t time0, time1] [-f logfile_name] </TT></DT>
+
+<DD>Display the event history of LSF Batch; <TT>qhist</TT> displays the
+named queues (default: all queues), <TT>hhist</TT> displays the named hosts
+(default: all hosts), <TT>mbdhist</TT> displays the master batch daemon
+(<TT><A HREF="quick-admin.html#2115">mbatchd</A></TT>) and <TT>hist</TT>
+displays all three. If <TT>-t</TT> is specified, display only those events
+that happened during the period from <I>time0</I> to <I>time1</I> (see
+<TT>bhist</TT>(<TT>1</TT>) for the time format). If <TT>-f</TT> is specified,
+use <I>logfile_name</I> as the event log file. </DD>
+
+<DT><A NAME="5365"></A><TT>hopen [host_name ... | all]<BR>
+hclose [host_name ... | all] </TT></DT>
+
+<DD>Open or close the server hosts specified or all hosts in the LSF Batch
+system if the reserved hostname <TT>all</TT> is given. Default: local host.
+</DD>
+
+<DT><A NAME="5857"></A><TT>hstartup [host_name ... | [-f] all]<BR>
+hrestart [host_name ... | [-f] all]<BR>
+hshutdown [host_name ... | [-f] all] </TT></DT>
+
+<DD>Start-up, restart, or shut down slave batch daemons (<TT><A HREF="quick-admin.html#1930">sbatchd</A></TT>)
+on the server hosts specified or all hosts in the LSF Batch system if the
+reserved hostname <TT>all</TT> is given. Default: local host. If -f is
+specified, , no confirmation will be requested. For <TT>hstartup</TT>,
+the LSF administrator should be able to use <TT>rsh</TT> on all LSF hosts.
+</DD>
+
+<DT><A NAME="5387"></A><TT>help [command ...]<BR>
+? [command ...] </TT></DT>
+
+<DD>Display the syntax and functionality of the specified command(s). </DD>
+
+<DT><A NAME="5391"></A><TT>quit </TT></DT>
+
+<DD>Exit the <TT>badmin</TT> session. </DD>
+</DL>
+
+<H3><A NAME="3506"></A><TT>xlsadmin</TT></H3>
+
+<DL>
+<P><A NAME="3507"></A>Motif-based Graphical User Interface application
+for LSF administration. </P>
+</DL>
+
+<H2><A NAME="929"></A>Accounting</H2>
+
+<H3><A NAME="1041"></A><TT>bacct</TT></H3>
+
+<DL>
+<P><A NAME="941"></A>Report accounting statistics on completed batch jobs
+in the LSF Batch system. </P>
+</DL>
+
+<PRE><A NAME="6113"></A><TT>bacct [-h] [-V] [-b] [-l] [-w] [-d] [-e] [-f logfile] [-N host_spec]
+[-C time0, time1] [-S time0, time1] [-D time0, time1] [-q queuelist]
+[-m hostlist] [-u userlist|all] [-P projectlist] [jobId ...]</TT></PRE>
+
+<DL>
+<DT><A NAME="6124"></A><TT>-b </TT></DT>
+
+<DD>Display brief information on each job and a summary. Default: display
+only the summary. </DD>
+
+<DT><A NAME="6125"></A><TT>-l </TT></DT>
+
+<DD>Display all the information on each job and a summary. Default: display
+only the summary. </DD>
+
+<DT><A NAME="6127"></A><TT>-w </TT></DT>
+
+<DD>Display in wide format. No truncation is performed on user name, queue
+name, from host, execution host or job name. </DD>
+
+<DT><A NAME="6209"></A><TT>-d </TT></DT>
+
+<DD>Consider only successfully completed jobs (<TT>DONE</TT> status). Default:
+all finished jobs (<TT>DONE</TT> or <TT>EXIT</TT> status). </DD>
+
+<DT><A NAME="6128"></A><TT>-e </TT></DT>
+
+<DD>Consider only exited jobs (<TT>EXIT</TT> status). Default: all finished
+jobs (<TT>DONE</TT> or <TT>EXIT</TT> status). </DD>
+
+<DT><A NAME="6129"></A><TT>-f logfile </TT></DT>
+
+<DD>Use <I>logfile</I> as the job log file to be analysed. Default: the
+current job log file (<TT>lsb.acct</TT>). </DD>
+
+<DT><A NAME="6130"></A><TT>-N host_spec </TT></DT>
+
+<DD>Display normalized CPU time relative to the host type, host model,
+or CPU factor of the execution host. </DD>
+
+<DT><A NAME="6131"></A><TT>-C time0, time1 </TT></DT>
+
+<DD>Consider only those jobs whose completion or exit times were within
+the time interval <I>time0</I> to <I>time1</I>. Default: all logged jobs.
+</DD>
+
+<DT><A NAME="6132"></A><TT>-S time0, time1 </TT></DT>
+
+<DD>Consider only those jobs whose submission times were within the time
+interval <I>time0 to time1</I>. Default: all logged jobs. </DD>
+
+<DT><A NAME="6133"></A><TT>-D time0, time1 </TT></DT>
+
+<DD>Consider only those jobs whose dispatch times were within the time
+interval <I>time0</I> to <I>time1</I>. Default: all logged jobs. </DD>
+
+<DT><A NAME="6289"></A><TT>-q queuelist </TT></DT>
+
+<DD>Consider only jobs submitted to the named queues. Default: all queues.
+</DD>
+
+<DT><A NAME="6290"></A><TT>-m hostlist </TT></DT>
+
+<DD>Consider only jobs executed on the named hosts. Default: all hosts.
+</DD>
+
+<DT><A NAME="6291"></A><TT>-u userlist|all </TT></DT>
+
+<DD>Consider only jobs submitted by the named users, or all users if the
+reserved name <TT>all</TT> is given. A mixture of user names and user IDs
+can be listed. Default: the invoker. </DD>
+
+<DT><A NAME="6292"></A><TT>-P projectlist </TT></DT>
+
+<DD>Consider only those jobs submitted to <I>projectlist</I>. If two or
+more project names are given, they must be enclosed by (<TT>&quot;</TT>)
+or (<TT>'</TT>). The default is to consider all project names. </DD>
+
+<DT><A NAME="6138"></A><TT>jobId </TT></DT>
+
+<DD>Consider only the specified jobs. This option overrides all other options
+except <TT><A HREF="quick-admin.html#41">-h</A></TT>, <TT><A HREF="quick-admin.html#42">-V</A></TT>, <TT><A HREF="quick-admin.html#6124">-b</A></TT>,
+<TT><A HREF="quick-admin.html#6125">-l</A></TT>, and <TT><A HREF="quick-admin.html#6129">-f</A></TT>. Default:
+all jobs that satisfy the other options. </DD>
+</DL>
+
+<H2><A NAME="161"></A>LSF Components</H2>
+
+<P><A NAME="162"></A>LSF has four parts to its architecture: a Load Information
+Manager (<A HREF="quick-admin.html#164">LIM</A>), a Remote Execution Server
+(<A HREF="quick-admin.html#166">RES</A>), a slave batch daemon (<TT><A HREF="quick-admin.html#1930">sbatchd</A></TT>)
+and a master batch daemon (<TT><A HREF="quick-admin.html#2115">mbatchd</A></TT>).</P>
+
+<P><A NAME="163"></A>They are root owned daemons. LIM, RES and <TT>sbatchd</TT>
+run on each host in a load sharing cluster. These daemons are invoked at
+boot time. The <TT>sbatchd</TT> daemon on the master host invokes <TT>mbatchd</TT>.</P>
+
+<H3><A NAME="164"></A>LIM</H3>
+
+<P><A NAME="165"></A>The LIM collects load and resource information about
+all hosts in the cluster and provides host selection services to applications
+through LSLIB. The LIM maintains information on static system resources
+and dynamic load.</P>
+
+<H3><A NAME="166"></A>RES</H3>
+
+<P><A NAME="167"></A>The RES provides the mechanisms for transparent remote
+execution of tasks. The RES accepts remote execution requests from all
+load sharing applications and handles input/output on the remote host for
+load shared processes.</P>
+
+<H3><A NAME="2115"></A><TT>mbatchd</TT></H3>
+
+<P><A NAME="2116"></A>User jobs are held by <TT>mbatchd</TT> when submitted.
+<TT>mbatchd</TT> periodically checks the load information on all candidate
+hosts by contacting the master <A HREF="quick-admin.html#164">LIM</A>.
+When a host with the necessary resource becomes available, <TT>mbatchd</TT>
+will send a job to the <TT><A HREF="quick-admin.html#1930">sbatchd</A></TT>
+on that host for execution. When more than one candidate host becomes available,
+<TT>mbatchd</TT> chooses the best host.</P>
+
+<H3><A NAME="1930"></A><TT>sbatchd</TT></H3>
+
+<P><A NAME="2383"></A>An <TT>sbatchd</TT> daemon accepts job execution
+requests from the <TT><A HREF="quick-admin.html#2115">mbatchd</A></TT>,
+and monitors the progress of its jobs. <TT>sbatchd</TT> controls the execution
+of the jobs and reports job status to <TT><A HREF="quick-admin.html#2115">mbatchd</A></TT>.</P>
+
+<H2><A NAME="8089"></A>Troubleshooting</H2>
+
+<H3><A NAME="8090"></A>What Should Be Running?</H3>
+
+<P><A NAME="8094"></A>The process status command, <TT>ps</TT>, run on an
+LSF server host should show the <A HREF="quick-admin.html#164">LIM</A>
+(<TT>lim</TT>), <A HREF="quick-admin.html#166">RES</A> (<TT>res</TT>),
+and <TT><A HREF="quick-admin.html#1930">sbatchd</A></TT> daemons. The master
+host should also show the <TT><A HREF="quick-admin.html#2115">mbatchd</A></TT>
+daemon.</P>
+
+<TABLE CELLSPACING=0 >
+<TR>
+<TD><B>LSF Files </B></TD>
+
+<TD><B>Directory </B></TD>
+</TR>
+
+<TR>
+<TD><TT>lsf.conf</TT></TD>
+
+<TD><TT>$LSF_ENVDIR/etc </TT></TD>
+</TR>
+
+<TR>
+<TD><TT>lsfsetup </TT></TD>
+
+<TD><TT>$LSF_SERVERDIR </TT></TD>
+</TR>
+
+<TR>
+<TD>All LSF daemons </TD>
+
+<TD><TT>$LSF_SERVERDIR </TT></TD>
+</TR>
+
+<TR>
+<TD>Administration tools </TD>
+
+<TD><TT>$LSF_BIN </TT></TD>
+</TR>
+
+<TR>
+<TD>Configuration files </TD>
+
+<TD><TT>$LSF_CONFDIR </TT></TD>
+</TR>
+
+<TR>
+<TD>Batch configuration files </TD>
+
+<TD><TT>$LSF_CONFDIR/lsbatch/<I>cluster</I>/configdir </TT></TD>
+</TR>
+
+<TR>
+<TD><TT>lsf.acct.<I>host </I></TT></TD>
+
+<TD><TT>$LSF_RES_ACCTDIR</TT> or <TT>/tmp </TT></TD>
+</TR>
+
+<TR>
+<TD><TT>lsb.acct </TT></TD>
+
+<TD><TT>$LSB_SHAREDIR/<I>cluster</I>/logdir </TT></TD>
+</TR>
+
+<TR>
+<TD><TT>lsb.events </TT></TD>
+
+<TD><TT>$LSB_SHAREDIR/<I>cluster</I>/logdir </TT></TD>
+</TR>
+
+<TR>
+<TD><TT>daemon.log.<I>host </I></TT></TD>
+
+<TD><TT>$LSF_LOGDIR </TT></TD>
+</TR>
+</TABLE>
+
+<H3><A NAME="8149"></A>LSF Error Log Files</H3>
+
+<P><A NAME="8153"></A>LSF error messages can be logged to either <TT>syslog</TT>,
+or log files if <TT>LSF_LOGDIR</TT> is defined in <TT>lsf.conf</TT>. There
+are three error log files for each server host: <TT>lim.log.<I>host</I></TT>,
+<TT>res.log.<I>host</I></TT> and <TT>sbatchd.log.<I>host</I></TT>. In addition,
+the master host has <TT>mbatchd.log.<I>host</I></TT>.</P>
+
+<H2><A NAME="7817"></A>LSF Configuration Files</H2>
+
+<H3><A NAME="7818"></A><TT>lsf.conf</TT></H3>
+
+<P><A NAME="7822"></A>Generic environment configuration file describing
+the configuration and operation of the LSF installation. </P>
+
+<DL>
+<DT><A NAME="7823"></A><TT>LSF_CONFDIR </TT></DT>
+
+<DD>The directory where all the rest of the LSF configuration files are
+installed. </DD>
+
+<DT><A NAME="7827"></A><TT>LSF_SERVERDIR </TT></DT>
+
+<DD>The directory where all LSF server binaries are installed. </DD>
+
+<DT><A NAME="7828"></A><TT>LSF_ROOT_REX </TT></DT>
+
+<DD>Allow root to run jobs through LSF. </DD>
+
+<DT><A NAME="7832"></A><TT>LSF_LOG_MASK </TT></DT>
+
+<DD>Set the level of daemon error message logging. </DD>
+
+<DT><A NAME="7833"></A><TT>LSF_LOGDIR </TT></DT>
+
+<DD>Directory under which error messages from all daemons are logged. </DD>
+
+<DT><A NAME="7834"></A><TT>LSF_SERVER_HOSTS </TT></DT>
+
+<DD>Defines one or more LSF server hosts that the application must contact
+in order to get in touch with a <A HREF="quick-admin.html#164">LIM</A>.
+Typically used by client-only hosts that do not run a <A HREF="quick-admin.html#164">LIM</A>.
+</DD>
+
+<DT><A NAME="7840"></A><TT>LSF_AFS_CELLNAME </TT></DT>
+
+<DD>AFS cellname must be specified here if AFS is installed. </DD>
+
+<DT><A NAME="7841"></A><TT>LSF_AUTH </TT></DT>
+
+<DD>Defines the type of authentication to use. </DD>
+
+<DT><A NAME="7842"></A><TT>LSF_STRIP_DOMAIN </TT></DT>
+
+<DD>If all hosts in the cluster can be reached using short host names,
+this parameter can be used to specify the portion of the domain name to
+remove. </DD>
+
+<DT><A NAME="7843"></A><TT>LSF_LICENSE_FILE </TT></DT>
+
+<DD>The full pathname of the FLEXlm license file used by LSF. </DD>
+
+<DT><A NAME="7847"></A><TT>LSF_LIM_PORT </TT></DT>
+
+<DD>Defines the UDP port number <A HREF="quick-admin.html#164">LIM</A>
+uses to serve all applications. </DD>
+
+<DT><A NAME="7848"></A><TT>LSF_RES_PORT </TT></DT>
+
+<DD>Defines the TCP port number <A HREF="quick-admin.html#166">RES</A>
+uses to serve all applications. </DD>
+
+<DT><A NAME="8170"></A><TT>LSB_CONFDIR </TT></DT>
+
+<DD>The directory where the LSF Batch configuration files are installed.
+</DD>
+
+<DT><A NAME="8174"></A><TT>LSB_DEBUG </TT></DT>
+
+<DD>If defined, LSF Batch will run in single user mode. </DD>
+
+<DT><A NAME="8177"></A><TT>LSB_MAILPROG </TT></DT>
+
+<DD>Defines the name of a <TT>sendmail</TT>-compatible transport program.
+</DD>
+
+<DT><A NAME="8179"></A><TT>LSB_MAILTO </TT></DT>
+
+<DD>Defines the user to whom LSF Batch sends electronic mail when jobs
+complete or have errors, and in the case of critical system errors. </DD>
+
+<DT><A NAME="8182"></A><TT>LSB_MBD_PORT </TT></DT>
+
+<DD>Defines the TCP port number <TT><A HREF="quick-admin.html#2115">mbatchd</A></TT>
+uses to serve all applications. </DD>
+
+<DT><A NAME="8185"></A><TT>LSB_SBD_PORT </TT></DT>
+
+<DD>Defines the TCP port number <TT><A HREF="quick-admin.html#1930">sbatchd</A></TT>
+uses to serve all applications. </DD>
+
+<DT><A NAME="8188"></A><TT>LSB_SHAREDIR </TT></DT>
+
+<DD>Defines where LSF Batch keeps job history and accounting log files
+for each cluster. </DD>
+</DL>
+
+<H3><A NAME="7860"></A><TT>lsf.shared</TT></H3>
+
+<P><A NAME="7864"></A>This is the system configuration file that is shared
+by all load sharing clusters of an LSF installation. This file contains
+the following sections: </P>
+
+<DL>
+<DT><A NAME="7865"></A><TT>Cluster </TT></DT>
+
+<DD>Contains a list of the names of the clusters in this LSF installation.
+Keywords: <TT>ClusterName</TT>, <TT>Servers</TT>. </DD>
+
+<DT><A NAME="7869"></A><TT>HostType </TT></DT>
+
+<DD>Defines the list of valid host types. Keywords: <TT>TypeName</TT> </DD>
+
+<DT><A NAME="7870"></A><TT>HostModel </TT></DT>
+
+<DD>Defines the host models and their associated CPU scaling factors. Keywords:
+<TT>ModelName</TT>, <TT>CPUFactor</TT>. </DD>
+
+<DT><A NAME="7871"></A><TT>Resource </TT></DT>
+
+<DD>Defines static resource names. Keywords: <TT>ResourceName</TT>, <TT>Description</TT>.
+</DD>
+
+<DT><A NAME="7872"></A><TT>NewIndex </TT></DT>
+
+<DD>Defines external load indices (site defined load indices). </DD>
+</DL>
+
+<H3><A NAME="7873"></A><TT>lsf.cluster.<I>cluster</I></TT></H3>
+
+<DL>
+<P><A NAME="7877"></A>The configuration file for the named <I>cluster</I>.
+The cluster name must be defined in <TT><A HREF="quick-admin.html#7860">lsf.shared</A></TT>.
+</P>
+
+<DT><A NAME="7878"></A><TT>Parameters </TT></DT>
+
+<DD>Specifies miscellaneous parameters. </DD>
+
+<DD><A NAME="7879"></A><TT>ELIMARGS </TT></DD>
+
+<DL>
+<DD>Specifies the arguments to be passed to the external <A HREF="quick-admin.html#164">LIM</A>
+on startup. </DD>
+</DL>
+
+<DD><A NAME="7887"></A><TT>FEATURES </TT></DD>
+
+<DL>
+<DD>Specifies the names of those LSF features that are to be enabled for
+all the hosts in the cluster. Valid names: <TT>lsf_base</TT> (LSF Base)
+<TT>lsf_batch</TT> (LSF Batch), <TT>lsf_mc</TT> (LSF MultiCluster), and
+<TT>lsf_js</TT> (LSF JobScheduler). Default: <TT>lsf_base</TT> and <TT>lsf_batch</TT>.
+</DD>
+</DL>
+
+<DT><A NAME="7903"></A><TT>ClusterAdmins </TT></DT>
+
+<DD>Defines LSF administrators for this cluster. Keywords: <TT>ADMINISTRATORS</TT>.
+</DD>
+
+<DT><A NAME="7907"></A><TT>RemoteClusters </TT></DT>
+
+<DD>Defines the remote clusters that the local cluster is interested in.
+Only used in an LSF MultiCluster environment. </DD>
+
+<DD><A NAME="7911"></A><TT>CACHE_INTERVAL </TT></DD>
+
+<DL>
+<DD>Controls how long load information from the remote cluster is cached
+locally. </DD>
+</DL>
+
+<DD><A NAME="7912"></A><TT>EQUIV </TT></DD>
+
+<DL>
+<DD>Specifies the remote cluster may be &quot;equivalent&quot; to the local
+cluster. </DD>
+</DL>
+
+<DD><A NAME="7913"></A><TT>RECV_FROM </TT></DD>
+
+<DL>
+<DD>Controls whether remote cluster users can run interactive jobs on local
+cluster. </DD>
+</DL>
+
+<DT><A NAME="7914"></A><TT>Host </TT></DT>
+
+<DD>Lists the hosts that form this cluster together with their attributes.
+</DD>
+
+<DD><A NAME="7915"></A><TT>HOSTNAME </TT></DD>
+
+<DL>
+<DD>The official host name (as returned by <TT>hostname</TT>(<TT>1</TT>)).
+Mandatory. </DD>
+</DL>
+
+<DD><A NAME="7916"></A><TT>model </TT></DD>
+
+<DL>
+<DD>Determines the CPU scaling factor for the host. Mandatory. </DD>
+</DL>
+
+<DD><A NAME="7917"></A><TT>type </TT></DD>
+
+<DL>
+<DD>Defines the host type. Mandatory. </DD>
+</DL>
+
+<DD><A NAME="7918"></A><TT>server </TT></DD>
+
+<DL>
+<DD>Defines the host as a server. Optional. Default: 1 (server). </DD>
+</DL>
+
+<DD><A NAME="7919"></A><TT>ND </TT></DD>
+
+<DL>
+<DD>Defines the number of local disks on this host. Optional. Used when
+<A HREF="quick-admin.html#164">LIM</A> does not report disks correctly.
+</DD>
+</DL>
+
+<DD><A NAME="7920"></A><TT>r15s</TT>, <TT>r1m</TT>, <TT>r15m</TT>, <TT>ut</TT>,
+<TT>pg</TT>, <TT>it</TT>, <TT>io</TT>, <TT>ls</TT>, <TT>swp</TT>, <TT>mem</TT>,
+<TT>tmp</TT>, and external index names </DD>
+
+<DL>
+<DD>Load threshold indices. The host is marked as <TT>busy</TT> when any
+value is exceeded. </DD>
+</DL>
+
+<DD><A NAME="7921"></A><TT>RESOURCES </TT></DD>
+
+<DL>
+<DD>The static resources associated with this host. </DD>
+</DL>
+
+<DD><A NAME="7922"></A><TT>RUNWINDOW </TT></DD>
+
+<DL>
+<DD>Defines when the host accepts remote jobs. </DD>
+</DL>
+</DL>
+
+<H3><A NAME="7924"></A><TT>lsf.task</TT>, <TT>lsf.task.<I>cluster</I></TT>,
+and <TT>.lsftask</TT></H3>
+
+<P><A NAME="7925"></A>Task resource requirement lists. <TT>lsf.task</TT>
+applies to all clusters and all users while <TT>lsf.task.<I>cluster</I></TT>
+applies to the named <I>cluster</I>. Individual users can define a <TT>.lsftask</TT>
+in their home directory. </P>
+
+<DL>
+<DT><A NAME="7927"></A><TT>RemoteTasks </TT></DT>
+
+<DD>Defines the tasks that can be run remotely. A resource requirement
+string may be appended to a task. </DD>
+</DL>
+
+<H3><A NAME="7928"></A><TT>hosts</TT></H3>
+
+<P><A NAME="7932"></A>Defines LSF hosts in order to resolve inconsistent
+host naming practices in some environments. The format is the same as <TT>/etc/hosts</TT>.
+</P>
+
+<H3><A NAME="7933"></A><TT>lsb.params</TT></H3>
+
+<P><A NAME="7937"></A>This file defines the operating parameters of LSF
+Batch. </P>
+
+<DL>
+<DT><A NAME="7938"></A><TT>DEFAULT_QUEUE </TT></DT>
+
+<DD>The system default queues. </DD>
+
+<DT><A NAME="7939"></A><TT>DEFAULT_HOST_SPEC </TT></DT>
+
+<DD>A host name or host model name used as the system default for adjusting
+CPU time limit. </DD>
+
+<DT><A NAME="7940"></A><TT>MBD_SLEEP_TIME </TT></DT>
+
+<DD>The job dispatching interval in seconds. </DD>
+
+<DT><A NAME="7941"></A><TT>SBD_SLEEP_TIME </TT></DT>
+
+<DD>The job checking interval in seconds. </DD>
+
+<DT><A NAME="7942"></A><TT>JOB_ACCEPT_INTERVAL </TT></DT>
+
+<DD>The minimum interval between dispatching jobs to the same host. Measured
+in numbers of <TT>MBD_SLEEP_TIME</TT> periods. </DD>
+
+<DT><A NAME="7944"></A><TT>MAX_SBD_FAIL </TT></DT>
+
+<DD>The maximum number of retries for reaching a non-responding <TT><A HREF="quick-admin.html#1930">sbatchd</A></TT>
+daemon. </DD>
+
+<DT><A NAME="7945"></A><TT>CLEAN_PERIOD </TT></DT>
+
+<DD>The amount of time that records are kept by the <TT><A HREF="quick-admin.html#2115">mbatchd</A></TT>
+daemon for jobs that have finished or been killed. </DD>
+
+<DT><A NAME="7946"></A><TT>MAX_JOB_NUM </TT></DT>
+
+<DD>The maximum number of finished jobs that the <TT>lsb.events</TT> file
+can store before <TT><A HREF="quick-admin.html#2115">mbatchd</A></TT> switches
+to a new file. </DD>
+
+<DT><A NAME="7947"></A><TT>HIST_HOURS </TT></DT>
+
+<DD>The number of resent hours during which the CPU time used by a user
+is considered when calculating the priorities of a fairshare queue. </DD>
+
+<DT><A NAME="7948"></A><TT>PG_SUSP_IT </TT></DT>
+
+<DD>The number of seconds during which a host should be interactively idle
+before a <TT>pg</TT> suspended job can be resumed. </DD>
+
+<DT><A NAME="7949"></A><TT>DEFAULT_PROJECT </TT></DT>
+
+<DD>The system default project name. </DD>
+</DL>
+
+<H3><A NAME="7950"></A><TT>lsb.queues</TT></H3>
+
+<P><A NAME="7954"></A>This file defines the job queues configured for an
+LSF cluster. </P>
+
+<DL>
+<DT><A NAME="7955"></A><TT>QUEUE_NAME </TT></DT>
+
+<DD>Name of the queue. '<TT>default</TT>' is reserved and cannot be used
+as queue name. </DD>
+
+<DT><A NAME="7956"></A><TT>DESCRIPTION </TT></DT>
+
+<DD>A brief description of the queue. </DD>
+
+<DT><A NAME="7957"></A><TT>PRIORITY </TT></DT>
+
+<DD>Priority of the queue. </DD>
+
+<DT><A NAME="7958"></A><TT>NICE </TT></DT>
+
+<DD>The nice value for running jobs. </DD>
+
+<DT><A NAME="7959"></A><TT>QJOB_LIMIT </TT></DT>
+
+<DD>The maximum number of job slots. </DD>
+
+<DT><A NAME="7960"></A><TT>UJOB_LIMIT </TT></DT>
+
+<DD>Per-user maximum number of job slots. </DD>
+
+<DT><A NAME="7961"></A><TT>HJOB_LIMIT </TT></DT>
+
+<DD>Per-host maximum number of job slots. </DD>
+
+<DT><A NAME="7962"></A><TT>PJOB_LIMIT </TT></DT>
+
+<DD>Per-processor maximum number of job slots. </DD>
+
+<DT><A NAME="7963"></A><TT>FAIRSHARE </TT></DT>
+
+<DD>Jobs in this queue are scheduled based on a fair share policy. </DD>
+
+<DT><A NAME="7964"></A><TT>PREEMPTION </TT></DT>
+
+<DD>Defines preemption relationship between this queue and other queues:</DD>
+
+<DD><TT>PREEMPTIVE </TT></DD>
+
+<DL>
+<DD>Jobs in this queue may preempt jobs (running or suspended) from lower
+priority queues.</DD>
+</DL>
+
+<DD><TT>PREEMPTABLE </TT></DD>
+
+<DL>
+<DD>Running jobs from this queue may be preempted by jobs in higher priority
+queues even if those higher priority queues have not specified <TT>PREEMPTIVE</TT>.
+</DD>
+</DL>
+
+<DT><A NAME="7965"></A><TT>EXCLUSIVE </TT></DT>
+
+<DD>Jobs dispatched from this queue can run exclusively on a host if the
+user so specifies at job submission time. </DD>
+
+<DT><A NAME="7966"></A><TT>INTERACTIVE </TT></DT>
+
+<DD>Specifies the queue's policy in accepting interactive jobs. </DD>
+
+<DT><A NAME="7970"></A><TT>JOB_ACCEPT_INTERVAL </TT></DT>
+
+<DD>The minimum interval between dispatching jobs to the same host. Overrides
+the same parameter in <TT><A HREF="quick-admin.html#7933">lsb.params</A></TT>.
+Measured in numbers of <TT><A HREF="quick-admin.html#7940">MBD_SLEEP_TIME</A></TT> periods
+</DD>
+
+<DT><A NAME="7971"></A><TT>JOB_CONTROLS </TT></DT>
+
+<DD>Control actions for suspending, resuming, and terminating jobs dispatched
+to this queue. </DD>
+
+<DT><A NAME="7972"></A><TT>TERMINATE_WHEN </TT></DT>
+
+<DD>Specifies that the TERMINATE action be invoked (instead of the SUSPEND
+action) when the run window closes, the load exceeds the suspending thresholds,
+or the job is being preempted to allow another job to run. </DD>
+
+<DT><A NAME="7973"></A><TT>DISPATCH_WINDOW </TT></DT>
+
+<DD>Defines the times during which jobs in this queue can be dispatched.
+</DD>
+
+<DT><A NAME="7974"></A><TT>RUN_WINDOW </TT></DT>
+
+<DD>Defines the times during which jobs in this queue may execute. </DD>
+
+<DT><A NAME="7975"></A><TT>NEW_JOB_SCHED_DELAY </TT></DT>
+
+<DD>The delay time after a new job has been submitted to this queue before
+<TT><A HREF="quick-admin.html#2115">mbatchd</A></TT> starts a new schedule
+session. </DD>
+
+<DT><A NAME="7976"></A><TT>SLOT_RESERVE </TT></DT>
+
+<DD>Job slots reservation time threshold for scheduling parallel jobs.
+Measured in numbers of <TT><A HREF="quick-admin.html#7940">MBD_SLEEP_TIME</A></TT> periods.
+Default: 0. </DD>
+
+<DT><A NAME="7977"></A><TT>USERS </TT></DT>
+
+<DD>The names of users and user groups that are authorized to use this
+queue. </DD>
+
+<DT><A NAME="7978"></A><TT>ADMINISTRATORS </TT></DT>
+
+<DD>Administrators of the queue. </DD>
+
+<DT><A NAME="7979"></A><TT>HOSTS </TT></DT>
+
+<DD>Names of hosts, host groups and host partitions that are used to run
+jobs from this queue. </DD>
+
+<DT><A NAME="7980"></A><TT>r15s</TT>, <TT>r1m</TT>, <TT>r15m</TT>, <TT>ut</TT>,
+<TT>pg</TT>, <TT>io</TT>, <TT>ls</TT>, <TT>it</TT>, <TT>swp</TT>, <TT>mem</TT>,
+<TT>tmp</TT>, and external index names </DT>
+
+<DD>The threshold values for the individual load indices used in scheduling
+and suspending jobs. </DD>
+
+<DT><A NAME="7981"></A><TT>RES_REQ </TT></DT>
+
+<DD>The resource requirements for selecting and sorting candidate hosts
+to run jobs in this queue. </DD>
+
+<DT><A NAME="7982"></A><TT>STOP_COND </TT></DT>
+
+<DD>Resource requirement string specifying the condition for suspending
+a running job in this queue. </DD>
+
+<DT><A NAME="7983"></A><TT>RESUME_COND </TT></DT>
+
+<DD>Resource requirement string specifying the condition for resuming a
+suspended job in this queue. </DD>
+
+<DT><A NAME="7984"></A><TT>MIG </TT></DT>
+
+<DD>The automatic job migration threshold in minutes. </DD>
+
+<DT><A NAME="7985"></A><TT>DEFAULT_HOST_SPEC </TT></DT>
+
+<DD>A host name or host model name for adjusting CPU time limits. </DD>
+
+<DT><A NAME="7986"></A><TT>SNDJOBS_TO </TT></DT>
+
+<DD>Specifies the list of remote queues to send jobs to. For LSF MultiCluster
+only. </DD>
+
+<DT><A NAME="7990"></A><TT>RCVJOBS_FROM </TT></DT>
+
+<DD>Specifies the list of remote clusters that are allowed to send jobs
+to the queue. For LSF MultiCluster only. </DD>
+
+<DT><A NAME="7994"></A><TT>CPULIMIT </TT></DT>
+
+<DD>The total amount of normalized CPU time that a job from this queue
+is allowed to consume. </DD>
+
+<DT><A NAME="7995"></A><TT>RUNLIMIT </TT></DT>
+
+<DD>The wall-clock run time limit for a job from this queue. </DD>
+
+<DT><A NAME="7996"></A><TT>PROCLIMIT </TT></DT>
+
+<DD>The processor limit (parallelism limit) for a parallel job which can
+be accepted by this queue. </DD>
+
+<DT><A NAME="7997"></A><TT>FILELIMIT </TT></DT>
+
+<DD>The per-process file size limit for all jobs from this queue. </DD>
+
+<DT><A NAME="7998"></A><TT>DATALIMIT </TT></DT>
+
+<DD>The per-process data segment size limit for all jobs from this queue.
+</DD>
+
+<DT><A NAME="7999"></A><TT>STACKLIMIT </TT></DT>
+
+<DD>The per-process stack segment size limit for all jobs from this queue.
+</DD>
+
+<DT><A NAME="8000"></A><TT>CORELIMIT </TT></DT>
+
+<DD>The per-process <TT>core</TT> file size limit for all jobs from this
+queue. </DD>
+
+<DT><A NAME="8001"></A><TT>MEMLIMIT </TT></DT>
+
+<DD>The amount of total resident set size limit for a job from this queue.
+</DD>
+
+<DT><A NAME="8002"></A><TT>SWAPLIMIT </TT></DT>
+
+<DD>The amount of total virtual memory limit for a job from this queue.
+</DD>
+
+<DT><A NAME="8003"></A><TT>PROCESSLIMIT </TT></DT>
+
+<DD>The number of concurrent processes for a job from this queue. </DD>
+
+<DT><A NAME="8004"></A><TT>PRE_EXEC </TT></DT>
+
+<DD>The pre-execution command for the jobs in the queue. </DD>
+
+<DT><A NAME="8005"></A><TT>POST_EXEC </TT></DT>
+
+<DD>The post execution command for the jobs in the queue. </DD>
+
+<DT><A NAME="8006"></A><TT>REQUEUE_EXIT_VALUES </TT></DT>
+
+<DD>The exit values used by LSF Batch to requeue jobs dispatched from a
+queue. </DD>
+
+<DT><A NAME="8010"></A><TT>JOB_STARTER </TT></DT>
+
+<DD>Job starter command for jobs in the queue. </DD>
+
+<DT><A NAME="8011"></A><TT>NQS_QUEUES </TT></DT>
+
+<DD>The NQS destination queues. </DD>
+</DL>
+
+<H3><A NAME="8012"></A><TT>lsb.hosts</TT></H3>
+
+<P><A NAME="8016"></A>This file contains information about the batch server
+hosts in an LSF cluster. </P>
+
+<DL>
+<DT><A NAME="8017"></A><TT>Host </TT></DT>
+
+<DD>Defines the hosts that are used by an LSF cluster as batch job servers.
+</DD>
+
+<DD><A NAME="8021"></A><TT>HOST_NAME </TT></DD>
+
+<DL>
+<DD>The host name. It can be the official host name, the host type name,
+the host model name, or the reserved word <TT>default</TT>. </DD>
+</DL>
+
+<DD><A NAME="8022"></A><TT>MXJ </TT></DD>
+
+<DL>
+<DD>The maximum number of job slots that this host can process concurrently.
+</DD>
+</DL>
+
+<DD><A NAME="8023"></A><TT>JL/U </TT></DD>
+
+<DL>
+<DD>The maximum number of job slots per user that can be processed concurrently
+on this host. </DD>
+</DL>
+
+<DD><A NAME="8024"></A><TT>DISPATCH_WINDOW </TT></DD>
+
+<DL>
+<DD>Defines the times during which batch jobs may be dispatched to this
+host to run. </DD>
+</DL>
+
+<DD><A NAME="8025"></A><TT>r15s</TT>, <TT>r1m</TT>, <TT>r15m</TT>, <TT>ut</TT>,
+<TT>pg</TT>, <TT>io</TT>, <TT>ls</TT>, <TT>it</TT>, <TT>swp</TT>, <TT>mem</TT>,
+<TT>tmp</TT>, and external index names </DD>
+
+<DL>
+<DD>The threshold values for individual load indices used in scheduling
+and suspending jobs. </DD>
+</DL>
+
+<DD><A NAME="8026"></A><TT>CHKPNT </TT></DD>
+
+<DL>
+<DD>Specifies special types of checkpoint support available on the host.
+</DD>
+</DL>
+
+<DD><A NAME="8027"></A><TT>MIG </TT></DD>
+
+<DL>
+<DD>The automatic job migration threshold. </DD>
+</DL>
+
+<DT><A NAME="8028"></A><TT>HostGroup </TT></DT>
+
+<DD>Defines host groups, which are aliases for groups of hosts. </DD>
+
+<DD><A NAME="8029"></A><TT>GROUP_NAME </TT></DD>
+
+<DL>
+<DD>The name of a host group. </DD>
+</DL>
+
+<DD><A NAME="8030"></A><TT>GROUP_MEMBER </TT></DD>
+
+<DL>
+<DD>A list of names of hosts and host groups that are members of the group.
+</DD>
+</DL>
+
+<DD><A NAME="8031"></A><TT>HostPartition </TT></DD>
+
+<DL>
+<DD>Defines subsets of hosts that must be accessed by users in a controlled
+manner, giving each user or user group a fair share of the resources. </DD>
+</DL>
+
+<DD><A NAME="8032"></A><TT>HPART_NAME </TT></DD>
+
+<DL>
+<DD>The name of the host partition. </DD>
+</DL>
+
+<DD><A NAME="8033"></A><TT>HOSTS </TT></DD>
+
+<DL>
+<DD>A list of names of hosts and host groups that are members of the host
+partition. </DD>
+</DL>
+
+<DD><A NAME="8034"></A><TT>USER_SHARES </TT></DD>
+
+<DL>
+<DD>A number of <TT>[username, share]</TT> pairs. </DD>
+</DL>
+</DL>
+
+<H3><A NAME="8035"></A><TT>lsb.users</TT></H3>
+
+<P><A NAME="8039"></A>This file contains information about the batch users
+in an LSF cluster. </P>
+
+<DL>
+<DT><A NAME="8040"></A><TT>UserGroup </TT></DT>
+
+<DD>Defines user groups, which are aliases for groups of users. </DD>
+
+<DD><A NAME="8041"></A><TT>GROUP_NAME </TT></DD>
+
+<DL>
+<DD>The name of a user group. </DD>
+</DL>
+
+<DD><A NAME="8042"></A><TT>GROUP_MEMBER </TT></DD>
+
+<DL>
+<DD>A list of names of users and user groups that are members of the group.
+</DD>
+</DL>
+
+<DT><A NAME="8043"></A><TT>User </TT></DT>
+
+<DD>Defines the maximum number of jobs that can be run concurrently by
+the LSF Batch system for specific users or user groups. </DD>
+
+<DD><A NAME="8047"></A><TT>USER_NAME </TT></DD>
+
+<DL>
+<DD>The user name, the user group name or the reserved word <TT>default</TT>.
+</DD>
+</DL>
+
+<DD><A NAME="8048"></A><TT>MAX_JOBS </TT></DD>
+
+<DL>
+<DD>The maximum number of job slots for this user or user group that can
+be used concurrently in the cluster. </DD>
+</DL>
+
+<DD><A NAME="8049"></A><TT>JL/P </TT></DD>
+
+<DL>
+<DD>The maximum number of job slots for this user or user group that can
+be used concurrently on each processor. </DD>
+</DL>
+</DL>
+
+<H3><A NAME="8053"></A><TT>lsb.calendars</TT></H3>
+
+<P><A NAME="8054"></A>This file contains the definitions of system calendars.
+It is only applicable to LSF JobScheduler systems. </P>
+
+<DL>
+<DT><A NAME="8055"></A><TT>NAME </TT></DT>
+
+<DD>The name of the calendar. </DD>
+
+<DT><A NAME="8056"></A><TT>TIME_EVENTS </TT></DT>
+
+<DD>A list of time expressions separated by spaces defining when this calendar
+is active. The format of a time expression is <TT>&quot;year:month:day:hour:min[%duration]&quot;</TT>.
+</DD>
+
+<DT><A NAME="8057"></A><TT>DESCRIPTION </TT></DT>
+
+<DD>A string description of the calendar. </DD>
+</DL>
+
+<H2><A NAME="2515"></A>LSF Architecture</H2>
+
+<P><A HREF="quick-admin.gif"><IMG SRC="quick-admin.gif" ALT="LSF Architecture" BORDER=0 HEIGHT=335 WIDTH=351></A></P>
+
+<H2><A NAME="2270"></A>Related Documents</H2>
+
+<P><A NAME="3535"></A>Documentation for LSF consists of this reference
+and the <I><A HREF="quick-user.html">LSF User's Quick Reference</A></I>,
+the <I><A HREF="quick-install.html">LSF Installation Quick Reference</A></I>,
+the <I><A HREF="users-title.html">LSF User's Guide</A></I>, the <I><A HREF="admin-title.html">LSF
+Administrator's Guide</A></I>, the <I><A HREF="programmers-title.html">LSF
+Programmer's Guide</A></I>, the <I><A HREF="pjs-title.html">LSF JobScheduler
+User's Guide</A></I>, the LSF<TT> man</TT> pages, and the <TT>xlsadmin</TT>,
+<TT>xlsbatch</TT>, and <TT>xlsmon</TT> on-line help.</P>
+
+<P>
+<HR></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:47:13 --></P>
+
+</BODY>
+</HTML>

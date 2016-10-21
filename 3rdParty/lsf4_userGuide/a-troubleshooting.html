@@ -1,0 +1,715 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Troubleshooting and Error Messages</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="11-lsbatch-reference.html">[Prev]</A>
+<A HREF="b-sample-install.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1076"></A>Appendix A. <A NAME="6199"></A>Troubleshooting and
+Error Messages</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="151"></A>This chapter describes some common problems with LSF
+and LSF Batch operations, answers some frequently asked questions, and
+provides some instructions for solving problems.</P>
+
+<H2><A NAME="1659"></A>Error Log Messages</H2>
+
+<P><A NAME="152"></A>When something goes wrong, the daemons almost always
+log an error message. The first step is to find the appropriate log and
+see whether there are any messages.</P>
+
+<P><A NAME="7009"></A>Specific error log messages are listed in <A HREF="a-troubleshooting.html#6208">'Error
+Messages'</A>.</P>
+
+<H3><A NAME="7010"></A>Finding the Error Logs</H3>
+
+<P><A NAME="7015"></A>Error messages of LSF servers are logged in either
+the <TT>syslog</TT>(<TT>3</TT>) or to files. This is determined by the
+<TT>LSF_LOGDIR</TT> definition in the <TT>lsf.conf</TT> file. For complete
+instructions on finding the LSF server logs, see <A HREF="05-manage-lsf.html#11523">'Managing
+Error Logs'</A>.</P>
+
+<P><A NAME="2605"></A>If you configure LSF to log daemon messages using
+syslog, the destination file is determined by the syslog configuration.
+On most systems, you can find out which file the LSF messages are logged
+in with the command:</P>
+
+<PRE><A NAME="2576"></A><TT>%&nbsp;<B>grep daemon /etc/syslog.conf</B></TT></PRE>
+
+<P><A NAME="2577"></A>Once you have found the syslog file, you can select
+the LSF error messages with the command:</P>
+
+<PRE><A NAME="2578"></A><TT>%&nbsp;<B>egrep 'lim|res|batchd' <I>syslog_file</I></B></TT></PRE>
+
+<P><A NAME="2579"></A>Look at the <TT>/etc/syslog.conf</TT> file and the
+manual page for <TT>syslog</TT> or <TT>syslogd</TT> for help in finding
+the system logs.</P>
+
+<P><A NAME="158"></A>When searching for log messages from LSF servers,
+you are more likely to find them on the remote machine where LSF put the
+task than on your local machine where the command was given.</P>
+
+<P><A NAME="159"></A>LIM problems are usually logged on the master host.
+Run <TT>lsid</TT> to find the master host, and check <TT>syslog</TT> or
+the <TT>lim.log.<I>hostname</I></TT> file on the master host. The <TT>res.log.<I>hostname</I></TT>
+file contains messages about RES problems, execution problems and setup
+problems for LSF. Most problems with interactive applications are logged
+in the remote machine's log files.</P>
+
+<P><A NAME="160"></A>Errors from LSF Batch are logged either in the <TT>mbatchd.log.<I>hostname</I></TT>
+file on the master host, or the <TT>sbatchd.log.<I>hostname</I></TT> file
+on the execution host. The <TT>bjobs</TT> or <TT>bhist</TT> command tells
+you the execution host for a specific job.</P>
+
+<P><A NAME="1177"></A>Most LSF log messages include the name of an internal
+LSF function to help the developers locate problems. Many error messages
+can be generated in more than one place, so it is important to report the
+entire error message when you ask for technical support.</P>
+
+<H2><A NAME="1671"></A>Shared File Access</H2>
+
+<P><A NAME="1309"></A>A frequent problem with LSF is non-accessible files
+due to a non-uniform file space. If a task is run on a remote host where
+a file it requires cannot be accessed using the same name, an error results.
+Almost all interactive LSF commands fail if the user's current working
+directory cannot be found on the remote host.</P>
+
+<P><A NAME="162"></A>If you are running NFS, rearranging the NFS mount
+table may solve the problem. If your system is running the <TT>automount</TT>
+server, LSF tries to map the file names, and in most cases it succeeds.
+If shared mounts are used, the mapping may break for those files. In such
+cases, specific measures need to be taken to get around it.</P>
+
+<P><A NAME="163"></A>The <TT>automount</TT> maps must be managed through
+NIS. When LSF tries to map file names, it assumes that automounted file
+systems are mounted under the <TT>/tmp_mnt</TT> directory.</P>
+
+<H2><A NAME="1685"></A>Common LSF Problems</H2>
+
+<P><A NAME="127"></A>This section lists some other common problems with
+the LIM, the RES and interactive applications.</P>
+
+<H3><A NAME="134"></A>LIM Dies Quietly</H3>
+
+<P><A NAME="136"></A>Run <TT>lsadmin ckconfig -v</TT> to check for errors
+in the LIM configuration files. This displays most configuration errors.
+If this does not report any errors, check in the LIM error log.</P>
+
+<H3><A NAME="164"></A>LIM Unavailable</H3>
+
+<P><A NAME="165"></A>Sometimes the LIM is up but <TT>lsload</TT> prints
+the error message '<TT>Communication time out</TT>'. If the LIM has just
+been started, this is normal because the LIM needs time to get initialized
+by reading configuration files and contacting other LIMs.</P>
+
+<P><A NAME="166"></A>If the LIM does not become available within one or
+two minutes, check the LIM error log on the local host.</P>
+
+<P><A NAME="167"></A>When the local LIM is running but there is no master
+LIM in the cluster, LSF applications display the message <TT>&quot;Cannot
+locate master LIM now, try later&quot;</TT>. Check the LIM error logs on
+the first few hosts listed in the <TT>Host</TT> section of the <TT>lsf.cluster.<I>cluster</I></TT>
+file.</P>
+
+<H3><A NAME="168"></A>RES Does Not Start</H3>
+
+<P><A NAME="169"></A>Check the RES error log. If the RES is unable to read
+the <TT>lsf.conf</TT> file and does not know where to write error messages,
+it logs errors into <TT>syslog</TT>(<TT>3</TT>).</P>
+
+<H3><A NAME="170"></A>User Permission Denied</H3>
+
+<P><A NAME="171"></A>If remote execution fails with error message '<TT>User
+permission denied</TT>', the remote host could not securely determine the
+user ID of the user requesting remote execution. Check the RES error log
+on the remote host; this usually contains a more detailed error message.</P>
+
+<P><A NAME="173"></A>If you are not using an identification daemon (<TT>LSF_AUTH</TT>
+is not defined in <TT>lsf.conf</TT>), then all applications that do remote
+executions must be owned by root with setuid bit set (as done by '<TT>chmod
+4755 filename</TT>'). If the binaries are on an NFS mounted file system,
+make sure that the file system is not mounted with the nosuid flag.</P>
+
+<P><A NAME="1821"></A>If you are using an identification daemon (defined
+in <TT>lsf.conf</TT> by the variable <TT>LSF_AUTH</TT>), <TT>inetd</TT>
+must be configured to run the daemon. The identification daemon must not
+be run directly.</P>
+
+<P><A NAME="174"></A>If <TT>LSF_USE_HOSTEQUIV</TT> is defined in the <TT>lsf.conf</TT>
+file, check if <TT>/etc/hosts.equiv</TT> or <TT>HOME/.rhosts</TT> on the
+destination host has the client host name in it. Inconsistent host names
+in a name server with <TT>/etc/hosts</TT> and <TT>/etc/hosts.equiv</TT>
+can also cause this problem.</P>
+
+<P><A NAME="175"></A>On SGI hosts running a name server, you can try:</P>
+
+<PRE><A NAME="176"></A>% <B>setenv HOSTRESORDER = local,nis,bind</B></PRE>
+
+<P><A NAME="177"></A>to tell the host name lookup code to search the <TT>/etc/hosts</TT>
+file before calling the name server.</P>
+
+<H3><A NAME="6409"></A>Non-uniform File Name Space</H3>
+
+<P><A NAME="178"></A>A command may fail with the error message '<TT>chdir(...)
+failed: no such file or directory</TT>', due to a non-uniform file name
+space. You are trying to execute a command remotely, where either your
+current working directory does not exist on the remote host, or your current
+working directory is mapped to a different name on the remote host.</P>
+
+<P><A NAME="180"></A>If your current working directory does not exist on
+a remote host, you should not execute commands remotely on that host.</P>
+
+<P><A NAME="181"></A>If the directory exists, but is mapped to a different
+name on the remote host, you have to create symbolic links to make them
+consistent.</P>
+
+<P><A NAME="3775"></A>LSF can resolve most, but not all, problems using
+<TT>automount</TT>. The automount maps must be managed through NIS. Follow
+the instructions in your Release Notes for obtaining technical support
+if you are running automount and LSF is not able to locate directories
+on remote hosts.</P>
+
+<H2><A NAME="1699"></A>Common LSF Batch Problems</H2>
+
+<P><A NAME="183"></A>This section lists some common problems with LSF Batch.
+Most problems are due to incorrect installation or configuration. Check
+the <TT>mbatchd</TT> and <TT>sbatchd</TT> error log files; often the log
+messages points directly to the problem.</P>
+
+<H3><A NAME="184"></A>Batch Daemons Die Quietly</H3>
+
+<P><A NAME="185"></A>First, check the <TT>sbatchd</TT> and <TT>mbatchd</TT>
+error logs. Try running <TT>badmin ckconfig</TT> to check the configuration.
+This reports most errors. You should also check if there is any electronic
+mail from LSF Batch in the LSF administrator's mail box. If the <TT>mbatchd</TT>
+is running but the <TT>sbatchd</TT> dies on some hosts, it may be because
+<TT>mbatchd</TT> has not been configured to use those hosts. See <A HREF="a-troubleshooting.html#196">'Host
+Not Used By LSF Batch'</A>.</P>
+
+<H3><A NAME="188"></A><TT>sbatchd</TT> Starts But <TT>mbatchd</TT> Does
+Not</H3>
+
+<P><A NAME="189"></A>Check whether LIM is running. You can test this by
+running the <TT>lsid</TT> command. If LIM is not running properly, follow
+the suggestions in this chapter to fix the LIM first. You should make sure
+that LSF and LSF Batch are using the same <TT>lsf.conf</TT> file. Note
+that it is possible that <TT>mbatchd</TT> is temporarily unavailable because
+the master LIM is temporarily unknown.</P>
+
+<H3><A NAME="190"></A><TT>sbatchd: unknown service</TT></H3>
+
+<P><A NAME="191"></A>Check whether services are registered properly. See
+<A HREF="02-installation.html#15422">'Registering LSF Service Ports'</A>.</P>
+
+<H3><A NAME="196"></A>Host Not Used By LSF Batch</H3>
+
+<P><A NAME="197"></A>If you configure a list of server hosts in the <TT>Host</TT>
+section of the <TT>lsb.hosts</TT> file, <TT>mbatchd</TT> allows <TT>sbatchd</TT>
+to run only on the hosts listed. If you try to configure an unknown host
+in the <TT>HostGroup</TT> or <TT>HostPartition</TT> sections of the <TT>lsb.hosts</TT>
+file, or as a <TT>HOSTS</TT> definition for a queue in the <TT>lsb.queues</TT>
+file, <TT>mbatchd</TT> logs the message:</P>
+
+<UL>
+<PRE><A NAME="199"></A>mbatchd on <I>host</I>: <I>LSB_CONFDIR</I>/<I>cluster</I>/configdir/<I>file</I>(<I>line #</I>): Host <I>hostname
+</I>is not used by lsbatch; ignored</PRE>
+</UL>
+
+<P><A NAME="201"></A>If you start <TT>sbatchd</TT> on a host that is not
+known by <TT>mbatchd</TT>, <TT>mbatchd</TT> rejects the <TT>sbatchd</TT>.
+The <TT>sbatchd</TT> logs the message:</P>
+
+<UL>
+<PRE><A NAME="139"></A>This host is not used by lsbatch system</PRE>
+</UL>
+
+<P><A NAME="203"></A>and exits. Both of these errors are most often caused
+by forgetting to run <TT>lsadmin reconfig</TT> and then <TT>badmin reconfig</TT>
+after adding a host to the configuration. You must run both of these before
+starting the daemons on the new host.</P>
+
+<H2><A NAME="6208"></A>Error Messages</H2>
+
+<P><A NAME="6209"></A>The following error messages are logged by the LSF
+daemons, or displayed by the <TT>lsadmin ckconfig</TT> and <TT>badmin ckconfig</TT>
+commands. LSF daemon message logs are described in <A HREF="05-manage-lsf.html#11523">'Managing
+Error Logs' on page 83</A>.</P>
+
+<H3><A NAME="6211"></A>General Errors</H3>
+
+<P><A NAME="6212"></A>The messages listed in this section may be generated
+by any LSF daemon.</P>
+
+<PRE><A NAME="6213"></A>can't open <I>file</I>: <I>error</I></PRE>
+
+<UL>
+<P><A NAME="6214"></A>The daemon could not open the named file for the
+reason given by <I>error</I>. This error is usually caused by incorrect
+file permissions or missing files. All directories in the path to the configuration
+files must have 'x' permission for the LSF administrator, and the actual
+files must have 'r' permission. Missing files could be caused by incorrect
+path names in the <TT>lsf.conf</TT> file, running LSF daemons on a host
+where the configuration files have not been installed, or having a symbolic
+link pointing to a nonexistent file or directory.</P>
+</UL>
+
+<PRE><A NAME="6215"></A><I>file</I>(<I>line</I>): malloc failed</PRE>
+
+<UL>
+<P><A NAME="6216"></A>Memory allocation failed. Either the host does not
+have enough available memory or swap space, or there is an internal error
+in the daemon. Check the program load and available swap space on the host;
+if the swap space is full, you must add more swap space or run fewer (or
+smaller) programs on that host.</P>
+</UL>
+
+<PRE><A NAME="6217"></A>auth_user: getservbyname(ident/tcp) failed: <I>error</I>; ident must be registered in 
+services</PRE>
+
+<UL>
+<P><A NAME="6218"></A><TT>LSF_AUTH=ident</TT> is defined in <TT>lsf.conf</TT>,
+but the <TT>ident/tcp</TT> service is not defined in the services database.
+Add <TT>ident/tcp</TT> to the services database, or remove <TT>LSF_AUTH</TT>
+from <TT>lsf.conf</TT> and setuid root those LSF binaries that require
+authentication.</P>
+</UL>
+
+<PRE><A NAME="6219"></A>auth_user: <I>operation</I>(&lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;) failed: <I>error</I></PRE>
+
+<UL>
+<P><A NAME="6220"></A><TT>LSF_AUTH=ident</TT> is defined in <TT>lsf.conf</TT>,
+but the LSF daemon failed to contact the <TT>ident</TT> daemon on <I>host</I>.
+Check that <TT>ident</TT> is defined in <I>host</I>'s <TT>inetd.conf</TT>
+and the <TT>ident</TT> daemon is running on <I>host</I>.</P>
+</UL>
+
+<PRE><A NAME="6221"></A>auth_user: Authentication data format error (rbuf=&lt;<I>data</I>&gt;) from &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;</PRE>
+
+<PRE><A NAME="6222"></A>auth_user: Authentication port mismatch (...) from &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;</PRE>
+
+<UL>
+<P><A NAME="6223"></A><TT>LSF_AUTH=ident</TT> is defined in <TT>lsf.conf</TT>,
+but there is a protocol error between LSF and the <TT>ident</TT> daemon
+on <I>host</I>. Make sure the <TT>ident</TT> daemon on <I>host </I>is configured
+correctly.</P>
+</UL>
+
+<PRE><A NAME="6224"></A>userok: Request from bad port (&lt;<I>portno</I>&gt;), denied</PRE>
+
+<UL>
+<P><A NAME="6225"></A><TT>LSF_AUTH</TT> is not defined, and the LSF daemon
+received a request that originates from a non-privileged port. The request
+is not serviced.</P>
+
+<P><A NAME="6226"></A>Set the LSF binaries (for example, <TT>lsrun</TT>)
+to be owned by root with the setuid bit set, or define <TT>LSF_AUTH=ident</TT>
+and set up an <TT>ident</TT> server on all hosts in the cluster. If the
+binaries are on an NFS mounted file system, make sure that the file system
+is not mounted with the <TT>nosuid</TT> flag.</P>
+</UL>
+
+<PRE><A NAME="6227"></A>userok: Forged username suspected from &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;: &lt;<I>claimed user</I>&gt;/&lt;<I>actual
+user</I>&gt;</PRE>
+
+<UL>
+<P><A NAME="6228"></A>The service request claimed to come from user <I>claimed
+user </I>but <TT>ident</TT> authentication returned that the user was actually
+<I>actual user</I>. The request was not serviced.</P>
+</UL>
+
+<PRE><A NAME="6229"></A>userok: ruserok(&lt;<I>host</I>&gt;,&lt;<I>uid</I>&gt;) failed</PRE>
+
+<UL>
+<P><A NAME="6230"></A><TT>LSF_USE_HOSTEQUIV</TT> is defined in <TT>lsf.conf</TT>
+but <I>host </I>has not been set up as an equivalent host (see <TT>/etc/host.equiv</TT>),
+and user <I>uid </I>has not set up a <TT>.rhosts</TT> file.</P>
+</UL>
+
+<PRE><A NAME="6231"></A>init_AcceptSock: RES service(res) not registered, exiting</PRE>
+
+<PRE><A NAME="6232"></A>init_AcceptSock: res/tcp: unknown service, exiting</PRE>
+
+<PRE><A NAME="6233"></A>initSock: LIM service not registered. See LSF Guide for help</PRE>
+
+<PRE><A NAME="6234"></A>initSock: Service lim/udp is unknown. Read LSF Guide for help</PRE>
+
+<PRE><A NAME="6235"></A>get_ports: &lt;<I>serv</I>&gt; service not registered</PRE>
+
+<UL>
+<P><A NAME="6236"></A>The LSF services are not registered. See <A HREF="02-installation.html#15422">'Registering
+LSF Service Ports'</A>.</P>
+</UL>
+
+<PRE><A NAME="6237"></A>init_AcceptSock: Can't bind daemon socket to port &lt;<I>port</I>&gt;: <I>error</I>, exiting</PRE>
+
+<PRE><A NAME="6238"></A>init_ServSock: Could not bind socket to port &lt;<I>port</I>&gt;: <I>error</I></PRE>
+
+<UL>
+<P><A NAME="6239"></A>These error messages can occur if you try to start
+a second LSF daemon (e.g., RES is already running, and you execute RES
+again). If this is the case, and you want to start the new daemon, kill
+the running daemon or use the <TT>lsadmin</TT> or <TT>badmin</TT> command
+to shut down or restart the daemon.</P>
+</UL>
+
+<H3><A NAME="6240"></A>Configuration Errors</H3>
+
+<P><A NAME="6241"></A>The messages listed in this section are caused by
+problems in the LSF configuration files. General errors are listed first,
+and then errors from specific files.</P>
+
+<PRE><A NAME="6242"></A><I>file</I>(<I>line</I>): Section name expected after Begin; ignoring section</PRE>
+
+<PRE><A NAME="6243"></A><I>file</I>(<I>line</I>): Invalid section name <I>name</I>; ignoring section</PRE>
+
+<UL>
+<P><A NAME="6244"></A>The keyword begin at the specified line is not followed
+by a section name, or is followed by an unrecognised section name.</P>
+</UL>
+
+<PRE><A NAME="6245"></A><I>file</I>(<I>line</I>): section <I>section</I>: Premature EOF</PRE>
+
+<UL>
+<P><A NAME="6246"></A>The end of file was reached before reading the <TT>end</TT>
+<I>section</I> line for the named section.</P>
+</UL>
+
+<PRE><A NAME="6247"></A><I>file</I>(<I>line</I>): keyword line format error for section <I>section</I>; Ignore this section</PRE>
+
+<UL>
+<P><A NAME="6248"></A>The first line of the section should contain a list
+of keywords. This error is printed when the keyword line is incorrect or
+contains an unrecognised keyword.</P>
+</UL>
+
+<PRE><A NAME="6249"></A><I>file</I>(<I>line</I>): values do not match keys for section <I>section</I>; Ignoring line</PRE>
+
+<UL>
+<P><A NAME="6250"></A>The number of fields on a line in a configuration
+section does not match the number of keywords. This may be caused by forgetting
+to put '<TT>()</TT>' in a column to represent the default value.</P>
+</UL>
+
+<PRE><A NAME="6251"></A><I>file</I>: HostModel section missing or invalid</PRE>
+
+<PRE><A NAME="6252"></A><I>file</I>: Resource section missing or invalid</PRE>
+
+<PRE><A NAME="6253"></A><I>file</I>: HostType section missing or invalid</PRE>
+
+<UL>
+<P><A NAME="6254"></A>The <TT>HostModel</TT>, <TT>Resource</TT>, or <TT>HostType</TT>
+section in the <TT>lsf.shared</TT> file is either missing, or contains
+an unrecoverable error.</P>
+</UL>
+
+<PRE><A NAME="6257"></A><I>file</I>(<I>line</I>): Name <I>name</I> reserved or previously defined. Ignoring index</PRE>
+
+<UL>
+<P><A NAME="6258"></A>The name assigned to an external load index must
+not be the same as any built-in or previously defined resource or load
+index.</P>
+</UL>
+
+<PRE><A NAME="6259"></A><I>file</I>(<I>line</I>): Duplicate clustername <I>name</I> in section cluster. Ignoring current line</PRE>
+
+<UL>
+<P><A NAME="6260"></A>A cluster name is defined twice in the same <TT>lsf.shared</TT>
+file. The second definition is ignored.</P>
+</UL>
+
+<PRE><A NAME="6261"></A><I>file</I>(<I>line</I>): Bad cpuFactor for host model <I>model</I>. Ignoring line</PRE>
+
+<UL>
+<P><A NAME="6262"></A>The CPU factor declared for the named host model
+in the <TT>lsf.shared</TT> file is not a valid number.</P>
+</UL>
+
+<PRE><A NAME="6263"></A><I>file</I>(<I>line</I>): Too many host models, ignoring model <I>name</I></PRE>
+
+<UL>
+<P><A NAME="6264"></A>You can declare at most 25 host models in the <TT>lsf.shared</TT>
+file.</P>
+</UL>
+
+<PRE><A NAME="6265"></A><I>file</I>(<I>line</I>): Resource name <I>name</I> too long in section resource. Should be less than
+40 characters. Ignoring line</PRE>
+
+<UL>
+<P><A NAME="6266"></A>The maximum length of a resource name is 39 characters.
+Choose a shorter name for the resource.</P>
+</UL>
+
+<PRE><A NAME="6267"></A><I>file</I>(<I>line</I>): Resource name <I>name</I> reserved or previously defined. Ignoring line</PRE>
+
+<UL>
+<P><A NAME="6268"></A>You have attempted to define a resource name that
+is reserved by LSF or already defined in the lsf.shared file. Choose another
+name for the resource.</P>
+</UL>
+
+<PRE><A NAME="6269"></A><I>file</I>(<I>line</I>): illegal character in resource name: <I>name</I>, section resource. Line
+ignored</PRE>
+
+<UL>
+<P><A NAME="6270"></A>Resource names must begin with a letter in the set
+[a-zA-Z], followed by letters, digits or underscores [a-zA-Z0-9_].</P>
+</UL>
+
+<H3><A NAME="6271"></A>LIM Messages</H3>
+
+<P><A NAME="6272"></A>The following messages are logged by the LIM:</P>
+
+<PRE><A NAME="6273"></A>main: LIM cannot run without licenses, exiting</PRE>
+
+<UL>
+<P><A NAME="6274"></A>The LSF software license key is not found or has
+expired. Check that FLEXlm is set up correctly, or contact your LSF technical
+support.</P>
+</UL>
+
+<PRE><A NAME="6275"></A>main: Received request from unlicensed host &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;</PRE>
+
+<UL>
+<P><A NAME="6276"></A>LIM refuses to service requests from hosts that do
+not have licenses. Either your LSF license has expired, or you have configured
+LSF on more hosts than your license key allows.</P>
+</UL>
+
+<PRE><A NAME="6277"></A>initLicense: Trying to get license for LIM from source &lt;LSF_CONFDIR/license.dat&gt;</PRE>
+
+<PRE><A NAME="6278"></A>getLicense: Can't get software license for LIM from license file 
+&lt;LSF_CONFDIR/license.dat&gt;: feature not yet available.</PRE>
+
+<UL>
+<P><A NAME="6279"></A>Your LSF license is not yet valid. Check whether
+the system clock is correct.</P>
+</UL>
+
+<PRE><A NAME="6280"></A>findHostbyAddr/&lt;<I>proc</I>&gt;: Host &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt; is unknown by &lt;<I>myhostname</I>&gt;</PRE>
+
+<PRE><A NAME="6281"></A><I>function</I>: Gethostbyaddr_(&lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;) failed: <I>error</I></PRE>
+
+<PRE><A NAME="6282"></A>main: Request from unknown host &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;: <I>error</I></PRE>
+
+<PRE><A NAME="6283"></A><I>function</I>: Received request from non-LSF host &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;</PRE>
+
+<UL>
+<P><A NAME="6284"></A>The daemon does not recognize <I>host</I> as an LSF
+host. The request is not serviced. These messages can occur if <I>host</I>
+was added to the configuration files, but not all the daemons have been
+reconfigured to read the new information. If the problem still occurs after
+reconfiguring all the daemons, check whether <I>host </I>is a multi-addressed
+host. See <A HREF="03-concepts.html#3293">'Host Naming'</A>.</P>
+</UL>
+
+<PRE><A NAME="6285"></A>rcvLoadVector: Sender (&lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;) may have different config?</PRE>
+
+<PRE><A NAME="6286"></A>MasterRegister: Sender (<I>host</I>) may have different config?</PRE>
+
+<UL>
+<P><A NAME="6287"></A>LIM detected inconsistent configuration information
+with the sending LIM. Run <TT>lsadmin reconfig</TT> so that all the LIMs
+have the same configuration information; note any hosts that failed to
+be contacted.</P>
+</UL>
+
+<PRE><A NAME="6288"></A>rcvLoadVector: Got load from client-only host &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;. Kill LIM on
+&lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;</PRE>
+
+<UL>
+<P><A NAME="6289"></A>A LIM is running on an LSF client host. Run <TT>lsadmin
+limshutdown <I>host</I></TT>, or go to the client host and kill the LIM
+daemon.</P>
+</UL>
+
+<PRE><A NAME="6290"></A>saveIndx: Unknown index name &lt;<I>name</I>&gt; from ELIM</PRE>
+
+<UL>
+<P><A NAME="6291"></A>LIM received an external load index name that is
+not defined in <TT>lsf.shared</TT>. If <I>name</I> is defined in <TT>lsf.shared</TT>,
+reconfigure the LIM. Otherwise, add <I>name</I> to <TT>lsf.shared</TT>
+and reconfigure all the LIMs.</P>
+</UL>
+
+<PRE><A NAME="6292"></A>saveIndx: ELIM over-riding value of index &lt;<I>name</I>&gt;</PRE>
+
+<UL>
+<P><A NAME="6293"></A>This is a warning message. The ELIM sent a value
+for one of the built-in index names. LIM uses the value from ELIM in place
+of the value obtained from the kernel.</P>
+</UL>
+
+<PRE><A NAME="6294"></A>getusr: Protocol error numIndx not read (cc=<I>num</I>): <I>error</I></PRE>
+
+<PRE><A NAME="6951"></A>getusr: Protocol error on index <I>number</I> (cc=<I>num</I>): <I>error</I></PRE>
+
+<UL>
+<P><A NAME="6955"></A>Protocol error between ELIM and LIM. See <A HREF="05-manage-lsf.html#23513">'Changing
+LIM Configuration'</A> for a description of the protocol.</P>
+</UL>
+
+<H3><A NAME="6956"></A>RES Messages</H3>
+
+<P><A NAME="6298"></A>These messages are logged by the RES.</P>
+
+<PRE><A NAME="6299"></A>doacceptconn: getpwnam(&lt;<I>username</I>&gt;@&lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;) failed: <I>error</I></PRE>
+
+<PRE><A NAME="6300"></A>doacceptconn: User &lt;<I>username</I>&gt; has uid &lt;<I>uid1</I>&gt; on client host &lt;<I>host</I>&gt;/&lt;<I>port</I>&gt;, uid
+&lt;<I>uid2</I>&gt; on RES host; assume bad user</PRE>
+
+<PRE><A NAME="6301"></A>authRequest: username/uid &lt;<I>userName</I>&gt;/&lt;<I>uid</I>&gt;@&lt;<I>host</I>&gt;/&lt;<I>port</I>&gt; does not exist</PRE>
+
+<PRE><A NAME="6302"></A>authRequest: Submitter's name &lt;<I>clname</I>&gt;@&lt;<I>clhost</I>&gt; is different from name &lt;<I>lname</I>&gt;
+on this host</PRE>
+
+<UL>
+<P><A NAME="6303"></A>RES assumes that a user has the same user ID and
+user name on all the LSF hosts. These messages occur if this assumption
+is violated. If the user is allowed to use LSF for interactive remote execution,
+make sure the user's account has the same user ID and user name on all
+LSF hosts.</P>
+</UL>
+
+<PRE><A NAME="6304"></A>doacceptconn: root remote execution permission denied</PRE>
+
+<PRE><A NAME="6305"></A>authRequest: root job submission rejected</PRE>
+
+<UL>
+<P><A NAME="6306"></A>Root tried to execute or submit a job but <TT>LSF_ROOT_REX</TT>
+is not defined in the <TT>lsf.conf</TT> file.</P>
+</UL>
+
+<PRE><A NAME="6307"></A>resControl: <I>operation</I> permission denied, uid = &lt;<I>uid</I>&gt;</PRE>
+
+<UL>
+<P><A NAME="6308"></A>The user with user ID <I>uid</I> is not allowed to
+make RES control requests. Only the LSF manager, or root if <TT>LSF_ROOT_REX</TT>
+is defined in <TT>lsf.conf</TT>, can make RES control requests.</P>
+</UL>
+
+<PRE><A NAME="6309"></A>resControl: access(<I>respath</I>, X_OK): <I>error</I>
+</PRE>
+
+<P><A NAME="6310"></A>The RES received a reboot request, but failed to
+find the file <I>respath</I> to re-execute itself. Make sure <I>respath</I>
+contains the RES binary, and it has execution permission.</P>
+
+<P><A NAME="6314"></A></P>
+
+<H3>LSF Batch Messages</H3>
+
+<P><A NAME="6315"></A>The following messages are logged by the <TT>mbatchd</TT>
+and <TT>sbatchd</TT> daemons:</P>
+
+<PRE><A NAME="6316"></A>renewJob: Job &lt;<I>jobId</I>&gt;: rename(&lt;<I>from</I>&gt;,&lt;<I>to</I>&gt;) failed: <I>error</I></PRE>
+
+<UL>
+<P><A NAME="6317"></A><TT>mbatchd</TT> failed in trying to re-submit a
+rerunnable job. Check that the file <I>from</I> exists and that the LSF
+administrator can rename the file. If <I>from</I> is in an AFS directory,
+check that the LSF administrator's token processing is properly setup (see
+<A HREF="02-installation.html#10750">'Installing on AFS'</A>).</P>
+</UL>
+
+<PRE><A NAME="6318"></A>logJobInfo_: fopen(&lt;<I>logdir</I>/info/<I>jobfile</I>&gt;) failed: <I>error</I></PRE>
+
+<PRE><A NAME="6319"></A>logJobInfo_: write &lt;<I>logdir</I>/info/<I>jobfile</I>&gt; &lt;data&gt; failed: <I>error</I></PRE>
+
+<PRE><A NAME="6320"></A>logJobInfo_: seek &lt;<I>logdir</I>/info/<I>jobfile</I>&gt; failed: <I>error</I></PRE>
+
+<PRE><A NAME="6321"></A>logJobInfo_: write &lt;<I>logdir</I>/info/<I>jobfile</I>&gt; xdrpos &lt;<I>pos</I>&gt; failed: <I>error</I></PRE>
+
+<PRE><A NAME="6322"></A>logJobInfo_: write &lt;<I>logdir</I>/info/<I>jobfile</I>&gt; xdr buf len &lt;<I>len</I>&gt; failed: <I>error</I></PRE>
+
+<PRE><A NAME="6323"></A>logJobInfo_: close(&lt;<I>logdir</I>/info/<I>jobfile</I>&gt;) failed: <I>error</I></PRE>
+
+<PRE><A NAME="6324"></A>rmLogJobInfo: Job &lt;<I>jobId</I>&gt;: can't unlink(&lt;<I>logdir</I>/info/<I>jobfile</I>&gt;): <I>error</I></PRE>
+
+<PRE><A NAME="6325"></A>rmLogJobInfo_: Job &lt;<I>jobId</I>&gt;: can't stat(&lt;<I>logdir</I>/info/<I>jobfile</I>&gt;): <I>error</I></PRE>
+
+<PRE><A NAME="6326"></A>readLogJobInfo: Job &lt;<I>jobId</I>&gt; can't open(&lt;<I>logdir</I>/info/<I>jobfile</I>&gt;): <I>error</I></PRE>
+
+<PRE><A NAME="6327"></A>start_job: Job &lt;<I>jobId</I>&gt;: readLogJobInfo failed: <I>error</I></PRE>
+
+<PRE><A NAME="6328"></A>readLogJobInfo: Job &lt;<I>jobId</I>&gt;: can't read(&lt;<I>logdir</I>/info/<I>jobfile</I>&gt;) size <I>size</I>: <I>error</I></PRE>
+
+<PRE><A NAME="6329"></A>initLog: mkdir(&lt;<I>logdir</I>/<I>info</I>&gt;) failed: <I>error</I></PRE>
+
+<PRE><A NAME="6330"></A>&lt;fname&gt;: fopen(&lt;<I>logdir</I>/<I>file</I>&gt; failed: <I>error</I></PRE>
+
+<PRE><A NAME="6331"></A>getElogLock: Can't open existing lock file &lt;<I>logdir</I>/<I>file</I>&gt;: <I>error</I></PRE>
+
+<PRE><A NAME="6332"></A>getElogLock: Error in opening lock file &lt;<I>logdir</I>/<I>file</I>&gt;: <I>error</I></PRE>
+
+<PRE><A NAME="6333"></A>releaseElogLock: unlink(&lt;<I>logdir</I>/<I>lockfile</I>&gt;) failed: <I>error</I></PRE>
+
+<PRE><A NAME="6334"></A>touchElogLock: Failed to open lock file &lt;<I>logdir</I>/<I>file</I>&gt;: <I>error</I></PRE>
+
+<PRE><A NAME="6335"></A>touchElogLock: close &lt;<I>logdir</I>/<I>file</I>&gt; failed: <I>error</I></PRE>
+
+<UL>
+<P><A NAME="6336"></A><TT>mbatchd</TT> failed to create, remove, read,
+or write the log directory or a file in the log directory, for the reason
+given in <I>error</I>. Check that LSF administrator has read, write, and
+execute permissions on the directory <I>logdir</I>.</P>
+
+<P><A NAME="6337"></A>If <I>logdir</I> is on AFS, check that the instructions
+in <A HREF="02-installation.html#10750">'Installing on AFS'</A> have been
+followed. Do <TT>fs la</TT> to verify that the LSF administrator owns <I>logdir</I>
+and that the directory has the correct acl.</P>
+</UL>
+
+<PRE><A NAME="6338"></A>replay_newjob: File &lt;<I>logfile</I>&gt; at line &lt;<I>line</I>&gt;: Queue &lt;<I>queue</I>&gt; not found, saving to
+queue &lt;lost_and_found&gt;</PRE>
+
+<PRE><A NAME="6339"></A>replay_switchjob: File &lt;<I>logfile</I>&gt; at line &lt;<I>line</I>&gt;: Destination queue &lt;<I>queue</I>&gt; not
+found, switching to queue &lt;lost_and_found&gt;</PRE>
+
+<UL>
+<P><A NAME="6340"></A>When <TT>mbatchd</TT> was reconfigured, jobs were
+found in <I>queue</I> but that queue is no longer in the configuration.</P>
+</UL>
+
+<PRE><A NAME="6341"></A>replay_startjob: JobId &lt;<I>jobId</I>&gt;: exec host &lt;<I>host</I>&gt; not found, saving to host
+&lt;lost_and_found&gt;</PRE>
+
+<UL>
+<P><A NAME="6342"></A>When <TT>mbatchd</TT> was reconfigured, the event
+log contained jobs dispatched to <I>host</I>, but that host is no longer
+configured to be used by LSF Batch.</P>
+</UL>
+
+<PRE><A NAME="6343"></A>do_restartReq: Failed to get hData of host &lt;<I>hostname</I>&gt;/&lt;<I>hostaddr</I>&gt;</PRE>
+
+<UL>
+<P><A NAME="6344"></A><TT>mbatchd</TT> received a request from sbatchd
+on host <I>hostname</I>, but that host is not known to <TT>mbatchd</TT>.
+Either the configuration file has been changed but <TT>mbatchd</TT> has
+not been reconfigured to pick up the new configuration, or <I>hostname</I>
+is a client host but the <TT>sbatchd</TT> daemon is running on that host.
+Run the <TT>badmin reconfig</TT> command to reconfigure the <TT>mbatchd</TT>
+or kill the <TT>sbatchd</TT> daemon on <I>hostname</I>.</P>
+</UL>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="11-lsbatch-reference.html">[Prev]</A>
+<A HREF="b-sample-install.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:17:21 --></P>
+
+</BODY>
+</HTML>

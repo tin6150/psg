@@ -1,0 +1,539 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - JobScheduler Environment</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-contents.html">[Contents]</A> <A HREF="3-calendars.html">[Prev]</A>
+<A HREF="6-job-define.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="1019956"></A>Chapter 5. <A NAME="1019487"></A>JobScheduler
+Environment</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="1019966"></A>There are a number of commands in the JobScheduler
+system to allow you to monitor the system and to acquire information about
+available resources.</P>
+
+<DL>
+<DT><A NAME="1019970"></A><TT>bhosts </TT></DT>
+
+<DD>Displays information about JobScheduler servers. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1019972"></A><TT>bparams </TT></DT>
+
+<DD>Displays information about the configurable system parameters of JobScheduler.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="1022967"></A><TT>bqueues </TT></DT>
+
+<DD>Displays status and other information about the JobScheduler queues.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="1021004"></A><TT>lshosts </TT></DT>
+
+<DD>Displays static resource information about the hosts available in the
+cluster. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1019989"></A><TT>lsinfo </TT></DT>
+
+<DD>Displays all valid resource information about the cluster. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="1019990"></A><TT>lsload </TT></DT>
+
+<DD>Displays load information of the hosts in the JobScheduler cluster.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="1019994"></A><TT>lsmon </TT></DT>
+
+<DD>Displays and updates the load information of the hosts in a cluster.
+</DD>
+</DL>
+
+<H2><A NAME="1022520"></A>Viewing Cluster Information</H2>
+
+<P><A NAME="1022524"></A>The <TT>lsclusters</TT> command lists JobScheduler
+cluster and resource summary information. The <TT>-l</TT> option displays
+all information available about the cluster and its configuration:</P>
+
+<PRE><A NAME="1022528"></A>% <B>lsclusters -l
+</B>CLUSTER_NAME   STATUS   MASTER_HOST               ADMIN    HOSTS  SERVERS
+production        ok       hostG                  JSadm      19       17
+LSF administrators: JSadm user8 user2
+Available resources:hpux solaris aix nt cserver fserver
+Available host types:hppa sgi sparc rs6k intel
+Available host models:hp735 hp715 PENTIUM120 IBM350 SunSparc r10000
+Accept jobs from this cluster: yes
+Send jobs to this cluster: yes</PRE>
+
+<P><A NAME="1022580"></A>The first name listed in the <TT>LSF administrators</TT>
+line is the primary cluster administrator who can actually change the cluster
+configuration. The value for <TT>SERVERS</TT> means total number of server
+hosts in the cluster, while the value for <TT>HOSTS</TT> means total hosts
+including servers and client-only hosts. The last two lines in the output
+are useful for multi-cluster only. </P>
+
+<P><A NAME="1022582"></A>Detailed resource and host information can be
+found by other commands as described below.</P>
+
+<H2><A NAME="1022518"></A>Cluster Host Resource Information</H2>
+
+<P><A NAME="1020381"></A>A cluster may consist of hosts of different architectures
+and capabilities. Your jobs may depend on specific features being available.
+Use the <TT>lshosts</TT> command to display static information about hosts.</P>
+
+<PRE><A NAME="1020382"></A>% <B>lshosts
+</B>HOST_NAME      type    model cpuf ncpus maxmem  maxswp server    RESOURCES
+hostA           hppa   HP715   4    1     64M    128M    Yes     (cs hpux)
+hostB          sunsol  sparc   3    1     96M    128M    Yes     (sun solaris)
+hostD           SGI    R10000  10   8     512M   1024M   Yes     (sgi irix6)</PRE>
+
+<P><A NAME="1020383"></A>The output displays the CPU architecture (<TT>type</TT>),
+model (<TT>model</TT>), and relative performance factor (<TT>cpuf</TT>),
+the number of processors (<TT>ncpus</TT>), the maximum amount of physical
+memory available for user processes (<TT>maxmem</TT>), total swap space
+available (<TT>maxswp</TT>), if the host is a JobScheduler server or client
+(<TT>server</TT>), and the resources defined for each host (<TT>RESOURCES</TT>).</P>
+
+<P><A NAME="1022074"></A>To view a particular machine, you can specify
+a host name on the command line.</P>
+
+<PRE><A NAME="1022174"></A>% <B>lshosts hostD
+</B>HOST_NAME      type    model cpuf ncpus maxmem  maxswp server    RESOURCES
+hostD           SGI    R10000  10   8     512M   1024M   Yes     (sgi irix6)</PRE>
+
+<P><A NAME="1020596"></A>The parameters displayed by <TT>lshosts</TT> are
+either defined by the JobScheduler administrator in the configuration files,
+or determined directly from the system. </P>
+
+<H2><A NAME="1022435"></A>Cluster Host Dynamic Load Information</H2>
+
+<P><A NAME="1022437"></A>The Load Information Managers (LIM) in the JobScheduler
+system monitors the dynamic load situation of every server host in the
+cluster. This information is used by JobScheduler to make job scheduling
+decisions to achieve load balancing. Use the <TT>lsload</TT> command to
+display the current load information.</P>
+
+<PRE><A NAME="1022438"></A>% <B>lsload
+</B>HOST_NAME   status  r15s   r1m  r15m  ut   pg   ls  it  tmp  swp  mem
+hostB           ok   0.1   0.0  0.1   2%   0.0   5   9  24M  52M  45M
+hostD           ok   2.2   2.6  1.6  89%   14    4   0  45M  189M 33M
+hostA         busy   1.4  *2.1  1.5  99%   0.8   5  33  12M  24M  23M</PRE>
+
+<P><A NAME="1022439"></A>The first line lists all the load index names.
+The load indices are host status (<TT>status</TT>), 15-second run queue
+length (<TT>r15s</TT>), 1-minute run queue length (<TT>r1m</TT>), 15-minute
+run queue length (<TT>r15m</TT>), CPU utilization (<TT>ut</TT>), paging
+activity (<TT>pg</TT>), logins (<TT>ls</TT>), idle time (<TT>it</TT>),
+available space in temporary file system (<TT>tmp</TT>), available swap
+space (<TT>swp</TT>), and available memory (<TT>mem</TT>).</P>
+
+<P><A NAME="1022440"></A>A host is busy if any load index is beyond its
+configured threshold. When a load index is beyond its threshold, it is
+printed with an asterisk. In the example, host <TT>hostA </TT>is busy because
+load index <TT>r1m</TT> is too high.</P>
+
+<P><A NAME="1022442"></A>The JobScheduler system collects 11 built-in load
+indices and an arbitrary number of external load indices. The external
+load indices are site configured load indices that reflect any site specific
+load information. </P>
+
+<P><A NAME="1022479"></A>The <TT>-l</TT> option displays the values of
+all load indices, including external load indices. You can also specify
+host names on the command line to display the load of specific hosts.</P>
+
+<PRE><A NAME="1022444"></A>% <B>lsload -l hostA
+</B>HOST_NAME status  r15s  r1m  r15m   ut   pg  io  ls  it  tmp  swp  mem  nio
+hostA      lockW   0.2  0.1   0.1  11%  0.0 228   7   0  11M  52M  25M  3.5</PRE>
+
+<P><A NAME="1022496"></A>In this example, <TT>nio</TT> is an external load
+index defined by the JobScheduler administrator.</P>
+
+<P><A NAME="1022585"></A>The <TT>lsmon</TT> command provides a continuous
+updating display of load information. An example display from <TT>lsmon</TT>
+is shown below. You can specify the resource requirements, refresh interval
+and other parameters interactively or on the command line. See the <TT>lsmon</TT>(<TT>1</TT>)
+manual page for more information.</P>
+
+<PRE><A NAME="1022448"></A>
+Hostname: hostE                                      Refresh rate:  10 secs
+
+HOST_NAME      status  r15s   r1m  r15m   ut    pg  ls    it   swp   mem   tmp
+hostA          ok       0.4   0.5   0.7   5%   0.1  28     0  538M  421M   12M
+hostE          ok       0.0   0.1   0.1   8%   9.9   8     0   27M   51M  253M
+hostB          ok       0.0   0.0   0.0   5%   0.0   2     0   47M    0M   45M
+hostF          busy     3.2  *3.1   2.4  96%   0.9  20     0  129M    2M   29M</PRE>
+
+<H2><A NAME="1022186"></A>Cluster Resource Information</H2>
+
+<P><A NAME="1022187"></A>The <TT>lsinfo</TT> command lists all valid resource
+names in the cluster. The resource names are either built-in resource names
+maintained by the Load Information Manager (LIM), or defined by cluster
+administrators through configuration. The output from the <TT>lsinfo</TT>
+command is usually quite long; the following example has been edited.</P>
+
+<PRE><A NAME="1022261"></A>% <B>lsinfo
+RESOURCE_NAME   TYPE   ORDER  DESCRIPTION
+</B>r15s          Numeric   Inc   15-second CPU run queue length
+r1m           Numeric   Inc   1-minute CPU run queue length (alias: cpu)
+r15m          Numeric   Inc   15-minute CPU run queue length
+ut            Numeric   Inc   1-minute CPU utilization (0.0 to 1.0)
+pg            Numeric   Inc   Paging rate (pages/second)
+ls            Numeric   Inc   Number of login sessions (alias: login)
+it            Numeric   Dec   Idle time (minutes) (alias: idle)
+swp           Numeric   Dec   Available swap space (Mbytes) (alias: swap)
+mem           Numeric   Dec   Available memory (Mbytes)
+ncpus         Numeric   Dec   Number of CPUs
+ndisks        Numeric   Dec   Number of local disks
+maxmem        Numeric   Dec   Maximum memory (Mbytes)
+maxswp        Numeric   Dec   Maximum swap space (Mbytes)
+cpuf          Numeric   Dec   CPU factor
+hppa          Boolean   N/A   HPPA architecture
+solaris       Boolean   N/A   SunSolaris
+cs            Boolean   N/A   Compute Server
+fs            Boolean   N/A   File server
+type           String   N/A   Host type
+model          String   N/A   Host model
+hname          String   N/A   Host name
+
+<B>TYPE_NAME
+</B>SGI
+hppa
+sunsol
+intel
+
+<B>MODEL_NAME       CPU_FACTOR
+</B>R10000             10
+HP715               3
+sparc               5
+pentium120          2</PRE>
+
+<P><A NAME="1022267"></A>You will frequently find it convenient to use
+resource requirements to restrict the selection of hosts to run your jobs.
+The output of <TT>lsinfo</TT> tells you the whole dictionary of valid resource
+names that you can use in your resource requirements. For details of using
+resource requirements, see <A HREF="8-advanced.html#1020091">'Resource
+Requirements'</A>.</P>
+
+<H2><A NAME="1020313"></A>JobScheduler Server Host Information</H2>
+
+<P><A NAME="1022278"></A>The <TT>bhosts</TT> command displays information
+about the JobScheduler server hosts that have been configured to run production
+jobs. It is possible to configure your cluster such that only some server
+hosts in the JobScheduler cluster run jobs.</P>
+
+<PRE><A NAME="1022309"></A>% <B>bhosts
+</B>HOST_NAME     STATUS   JL/U  MAX   NJOBS   RUN  SSUSP USUSP RSV
+hostA         closed     2     1     1      1     0     0     0
+hostB         ok         2     4     1      1     0     0     0
+hostD         ok         -     8     4      3     0     1     0</PRE>
+
+<P><A NAME="1020317"></A>The command displays the status of the host (<TT>status</TT>),
+job limit per user (<TT>JL/U</TT>), maximum number of job slots on the
+host for running jobs concurrently (<TT>MAX</TT>), number of jobs currently
+dispatched (<TT>NJOBS</TT>), running (<TT>RUN</TT>), suspended by the system
+(<TT>SSUSP</TT>), and suspended by users (<TT>USUSP</TT>). The field <TT>RSV</TT>
+indicates job slots that are currently reserved for future jobs. </P>
+
+<P><A NAME="1022333"></A>A server host is closed if it cannot accept more
+jobs. In the above example, <TT>hostA</TT> is only allowed to run one job
+at a time (<TT>MAX=1</TT>) and it already has one job running, so its status
+is closed. </P>
+
+<P><A NAME="1020320"></A>The <TT>-l</TT> option gives all information about
+each JobScheduler server. You can also specify host names on the command
+line to list the information for specific hosts.</P>
+
+<PRE><A NAME="1020321"></A>% <B>bhosts -l hostB
+
+</B>HOST: hostB
+ STATUS     CPUF  JL/U  MAX  NJOBS  RUN SSUSP USUSP  RSV  DISPATCH_WINDOWS
+  ok         3     1     4    1      1     0     0    0    2:00-20:30
+
+CURRENT LOAD USED FOR SCHEDULING:
+           r15s   r1m  r15m   ut    pg    io   ls    it    tmp    swp    mem
+ Total     0.8   0.4   0.6   18%   0.3   61    3     0     19M    36M    19M
+ Reserved  0.0   0.0   0.0    0%   0.0    0    0     0      0M    0M     0M
+
+LOAD THRESHOLD USED FOR SCHEDULING
+           r15s   r1m  r15m   ut    pg    io   ls    it    tmp    swp    mem
+ loadSched   -    1.2    -     -    34     -    -     -     -      20      -
+ loadStop    -     -     -     -     -     -    -     -     -      -       -</PRE>
+
+<P><A NAME="1020322"></A>The <TT>DISPATCH_WINDOWS</TT> field is a configuration
+parameter that your cluster administrator can set to disallow jobs to be
+sent to the host unless inside the time windows. </P>
+
+<P><A NAME="1022394"></A>The <TT>CURRENT LOAD USED FOR SCHEDULING</TT>
+section of the output shows you the load values used by JobScheduler in
+determining whether additional jobs should be sent to this host. The <TT>Total</TT>
+load includes the real load information adjusted by <TT>Reserved</TT> load.
+The <TT>Reserved</TT> load will be non-zero if some jobs are submitted
+with the resource reservation option.</P>
+
+<P><A NAME="1022482"></A>The <TT>LOAD THRESHOLD USED FOR SCHEDULING</TT>
+section of the output is the configured load threshold for this host. JobScheduler
+will not schedule a new job to this host if one or more of its load indices
+go beyond the <TT>loadSched</TT> threshold. If the host load is beyond
+the <TT>loadStop</TT> threshold, then some or all existing jobs running
+on this host will be suspended until the load situation falls within <TT>loadStop</TT>
+threshold. A '-' in the threshold values means that there is no threshold
+defined for this load index.</P>
+
+<H2><A NAME="1022510"></A>Listing User Information</H2>
+
+<P><A NAME="1022416"></A>The <TT>busers</TT> command displays the maximum
+number of jobs a user or group may execute on a single processor, the maximum
+number of jobs a user or group may execute in the cluster, the total number
+of jobs submitted by the user, and the number of jobs in the <TT>PEND</TT>,
+<TT>RUN</TT>, <TT>SSUSP</TT> and <TT>USUSP</TT> states. The default is
+to display information about your options.</P>
+
+<PRE><A NAME="1022418"></A>% <B>busers all
+</B>USER/GROUP       JL/P  MAX  NJOBS  PEND  RUN  SSUSP USUSP RSV
+default            1    12     -     -     -     -     -   -
+userD              1    12    34    22    10     2     0   0
+groupA             -   100    19     7    11     1     1   0
+user1              2     -     1     0     0     1     0   0</PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="1022419"></A><B>Note<BR>
+</B><I>If the reserved user name </I><TT>all</TT><I> is specified, </I><TT>busers</TT><I>
+reports all users who currently have jobs in the system, as well as </I><TT>default</TT><I>,
+which represents a typical user. The purpose of listing <TT>default</TT>
+in the output is to show the job limits (</I><TT>JL/P</TT><I> and </I><TT>MAX</TT><I>)
+of a typical user. No other parameters make sense for </I><TT>default</TT><I>.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="1022596"></A>Viewing the JobScheduler Queues</H2>
+
+<P><A NAME="1022601"></A>Jobs are kept in job queues. JobScheduler runs
+jobs from a queue when resources are available and user specified conditions
+are met. An arbitrary number of queues can be configured by your cluster
+administrators to implement different scheduling policies and job execution
+constraints. A job queue can be configured to run jobs on all server hosts
+in the JobScheduler cluster, or to run jobs only on some designated hosts.
+Queues can be configured for different purposes. For example, a 'DBM' queue
+could be configured only to run jobs that do database maintenance and an
+'orderCenter' queue can be configured to run data-driven order processing
+jobs. </P>
+
+<P><A NAME="1022658"></A>The <TT>bqueues</TT> command lists the available
+JobScheduler queues.</P>
+
+<PRE><A NAME="1022603"></A><TT>% <B>bqueues
+</B>QUEUE_NAME     PRIO NICE    STATUS     MAX  JL/U JL/P NJOBS  PEND  RUN  SUSP
+orderCenter     43    0   Open:Active    -    -    -     3     0     3     0
+DBM             43   10   Open:Active    -    -    1     5     4     1     0
+nightly         30   20   Open:Inactive  -    -    2    23    23     0     0</TT></PRE>
+
+<P><A NAME="1022604"></A>For each queue defined in the system, the output
+displays the priority (<TT>PRIO</TT>), the operating system scheduling
+priority to be set when the job is started (<TT>NICE</TT>), the queue status
+(<TT>STATUS</TT>), the limit on the number of jobs dispatched at one time
+(<TT>MAX</TT>), the limit on the number of jobs dispatched at one time
+for each user (<TT>JL/U</TT>), the limit on the number of jobs dispatched
+to each processor (<TT>JL/P</TT>), the total number of jobs in queue (<TT>NJOBS</TT>)<SUP><A HREF="5-environment.html#1022607">1</A></SUP>,
+the number of pending jobs (<TT>PEND</TT>), the number of running jobs
+(<TT>RUN</TT>), and the number of suspended jobs (<TT>SUSP</TT>).</P>
+
+<H3><A NAME="1022608"></A>Detailed Queue Information</H3>
+
+<P><A NAME="1022610"></A>The <TT>-l</TT> option displays the complete status
+and configuration for each queue. You can specify a queue name on the command
+line to select specific queues:</P>
+
+<PRE><A NAME="1022611"></A>% <B>bqueues -l DBM
+
+</B>QUEUE: DBM
+  -- For Database maintenance jobs. Only run on hosts that have access to DB.
+
+PARAMETERS/STATISTICS
+ PRIO NICE     STATUS      MAX  JL/U  JL/P  NJOBS  PEND  RUN  SSUSP USUSP
+  40   10    Open:Active    -    -     1      5      4    1     0     0
+
+SCHEDULING PARAMETERS
+           r15s   r1m  r15m   ut    pg    io   ls    it    tmp    swp    mem
+ loadSched   -    0.8    -     -    -      -    -     -     -      5M     -
+ loadStop    -     -     -    -     -      -    -     -     -      -      -
+
+USERS: all users
+HOSTS:all hosts used by lsbatch system
+RES_REQ: type==rs6000
+ADMINISTRATORS:  user4
+PRE_EXEC: su $DBADMIN -c /usr/local/bin/dbinit
+POST_EXEC:su $DBADMIN -c /usr/local/bin/dbclose
+REQUEUE_EXIT_VALUES:  45</PRE>
+
+<P><A NAME="1022612"></A>The <TT>SCHEDULING PARAMETERS</TT> define the
+job scheduling and/or suspending load thresholds. JobScheduler only runs
+jobs on hosts that are within the <TT>loadSched</TT> threshold. A job that
+is already running will be suspended if the load of the execution host
+has gone beyond the <TT>loadStop</TT> threshold. In the above example,
+a job in DBM queue will be dispatched to a host only if the host's 1-minute
+run queue length is less than 0.8, and the free swap space is greater than
+5MB. An already running job will never be stopped because no <TT>loadStop</TT>
+threshold has been defined for this queue. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="1022744"></A><B>Note<BR>
+</B><I>Queue level </I><TT>SCHEDULING PARAMETERS</TT><I> apply to all hosts
+in the queue as defined by the </I><TT>HOSTS</TT><I> parameter. If a particular
+host also has </I><TT>LOAD THRESHOLD USED FOR SCHEDULING</TT><I> defined
+(See <A HREF="5-environment.html#1020313">'JobScheduler Server Host Information'</A>),
+JobScheduler will use whichever value is more restrictive in doing the
+scheduling.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="1022721"></A>The <TT>RES_REQ</TT> parameter is a queue-level
+resource requirement. This allows your cluster administrator to specify
+a common resource requirement for all jobs in this queue. In the previous
+example, the resource requirement tells JobScheduler only to run jobs on
+hosts of type <TT>rs6000</TT>. See <A HREF="8-advanced.html#1020091">'Resource
+Requirements'</A> for details about resource requirements.</P>
+
+<P><A NAME="1022766"></A>A queue can also have one or more administrators
+so that they can do some administrative control over the queue and jobs
+in the queue. </P>
+
+<P><A NAME="1022767"></A>The <TT>PRE_EXEC</TT> (pre-execution command)
+and <TT>POST_EXEC</TT> (post-execution command) parameters allow your cluster
+administrators to define operations that must be done before or after the
+execution of a job. If pre-execution command fails, the job will be requeued
+and retried later. In this example, the pre-execution command initializes
+the database and post-execution command does some cleaning up. The <I><A HREF="admin-title.html">LSF
+Administrator's Guide</A></I> discusses more details about setting up pre-execution
+and post-execution commands at queue level.</P>
+
+<P><A NAME="1022772"></A>The <TT>REQUEUE_EXIT_VALUES</TT> parameter defines
+one or more job exit values such that if a job from this queue exits with
+one of the values, the job will be requeued and automatically retried later.
+This can be used for robust job processing so that temporary error conditions
+will not abort the job execution.</P>
+
+<P><A NAME="1022760"></A>Note that the <TT>bqueues</TT> output only displays
+fields that apply to the queue. Any status or configuration field that
+is not displayed has a default value that does not affect job scheduling
+or execution. See the <I><A HREF="admin-title.html">LSF Administrator's
+Guide</A></I> for the complete features available for queues. </P>
+
+<H2><A NAME="1022591"></A>Cluster Monitoring GUI</H2>
+
+<P><A NAME="1020200"></A>JobScheduler comes with two graphical interface
+applications for displaying the system and cluster information previously
+described.</P>
+
+<H2><A NAME="1022794"></A><TT>xlsmon</TT></H2>
+
+<P><A NAME="1022795"></A><TT>xlsmon</TT> displays cluster host configuration
+information and real-time load information. It displays host status, load
+levels, load history, and cluster configuration information. </P>
+
+<P><A NAME="1022793"></A>The <TT>xlsmon</TT> main window shows an icon
+for each host in the cluster. Each host is labelled with its status. Hosts
+change colour as their status changes. <A HREF="5-environment.html#1023280">Figure
+16</A> shows the <TT>xlsmon</TT> main window.</P>
+
+<H4><A NAME="1023280"></A>Figure 16. <TT>xlsmon</TT> Main Window </H4>
+
+<P><A HREF="pjs-figure16.gif"><IMG SRC="pjs-figure16.gif" ALT="xlsmon Main Window" BORDER=0 HEIGHT=211 WIDTH=365></A>
+</P>
+
+<P><A NAME="1020204"></A>You can choose other displays from the View menu.
+The Detailed Host Load window displays load levels as bar graphs. You can
+select which load indices and which hosts are displayed by choosing options
+from the View menu in the Detailed Host Load window. <A HREF="5-environment.html#1020954">Figure
+17</A> shows the Detailed Host Load window.</P>
+
+<H4><A NAME="1020954"></A>Figure 17. <TT>xlsmon</TT> Detailed Host Load
+Window </H4>
+
+<P><A HREF="pjs-figure17.gif"><IMG SRC="pjs-figure17.gif" ALT="xlsmon Detailed Host Load Window" BORDER=0 HEIGHT=411 WIDTH=376></A>
+</P>
+
+<P><A NAME="1020208"></A>The History of Host Load window displays the load
+levels as strip charts, so you can see the load history starting from when
+the History of Host Load window is first displayed. As with the Detailed
+Host Load window, you can select hosts and load indices by choosing options
+from the View menu. <A HREF="5-environment.html#1020960">Figure 18</A>
+shows the Detailed Host Load window.</P>
+
+<H4><A NAME="1020960"></A>Figure 18. <TT>xlsmon</TT> History of Host Load
+Window </H4>
+
+<P><A HREF="pjs-figure18.gif"><IMG SRC="pjs-figure18.gif" ALT="xlsmon History of Host Load Window" BORDER=0 HEIGHT=335 WIDTH=593></A>
+</P>
+
+<P><A NAME="1020215"></A>The Cluster Configuration window, shown in <A HREF="5-environment.html#1020966">Figure
+19</A>, displays the same host information as the <TT>lshosts</TT> command
+displays.</P>
+
+<H4><A NAME="1020966"></A>Figure 19. <TT>xlsmon</TT> Cluster Configuration
+Window </H4>
+
+<P><A HREF="pjs-figure19.gif"><IMG SRC="pjs-figure19.gif" ALT="xlsmon Cluster Configuration Window" BORDER=0 HEIGHT=325 WIDTH=654></A>
+</P>
+
+<P><A NAME="1023290"></A>Each <TT>xlsmon</TT> window has a Help menu item
+that calls up on-line help. For more information about using <TT>xlsmon</TT>,
+see the on-line help.</P>
+
+<H3><A NAME="1022890"></A><TT>xlsbatch</TT></H3>
+
+<P><A NAME="1022891"></A><TT>xlsbatch</TT> displays information about various
+JobScheduler entities such as queues, hosts, jobs, etc. </P>
+
+<P><A NAME="1022892"></A>The main window of <TT>xlsbatch</TT> contains
+three optional areas: job area, host area, and queue area. You can choose
+to display some areas but not others. <A HREF="5-environment.html#1023108">Figure
+20</A> shows the main window of <TT>xlsbatch</TT>.</P>
+
+<H4><A NAME="1023108"></A>Figure 20. <TT>xlsbatch</TT> Main Window </H4>
+
+<P><A HREF="pjs-figure20.gif"><IMG SRC="pjs-figure20.gif" ALT="xlsbatch Main Window" BORDER=0 HEIGHT=347 WIDTH=408></A>
+</P>
+
+<P><A NAME="1022896"></A>By double-clicking on the corresponding icon of
+a host, queue, or job, you will get a pop-up window which shows more detailed
+information. <A HREF="5-environment.html#1023131">Figure 21</A> is the
+pop-up window for queue information.</P>
+
+<H4><A NAME="1023131"></A>Figure 21. Queue Information Pop-up Window </H4>
+
+<P><A HREF="pjs-figure21.gif"><IMG SRC="pjs-figure21.gif" ALT="Queue Information Pop-up Window" BORDER=0 HEIGHT=259 WIDTH=467></A>
+</P>
+
+<P>
+<HR><SUP>1.<A NAME="1022607"></A></SUP> Includes jobs that have not been
+dispatched and jobs that have been dispatched but have not finished.</P>
+
+<P>
+<HR><A HREF="pjs-contents.html">[Contents]</A> <A HREF="3-calendars.html">[Prev]</A>
+<A HREF="6-job-define.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,578 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Before Installation</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="admin-preface.html">[Prev]</A>
+<A HREF="02-installation.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="13162"></A>Chapter 1. <A NAME="13160"></A>Before Installation</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="155"></A>This chapter introduces necessary concepts for LSF
+system administrators, and describes the preparation that is necessary
+before the LSF software can be installed and configured. This chapter should
+be read by system administrators before installing the software.</P>
+
+<P><A NAME="413"></A>Topics covered in this chapter are:</P>
+
+<UL>
+<LI><A NAME="12604"></A>LSF packaging and licensing </LI>
+
+<LI><A NAME="12580"></A>System requirements </LI>
+
+<LI><A NAME="416"></A>Obtaining a software license key </LI>
+
+<LI><A NAME="417"></A>Choosing hosts for the LSF cluster </LI>
+
+<LI><A NAME="5092"></A>Planning the installation </LI>
+
+<LI><A NAME="5108"></A>Installation directory structures </LI>
+
+<LI><A NAME="5086"></A>Backing up the system disks </LI>
+</UL>
+
+<H2><A NAME="12449"></A>LSF Packaging and Licensing</H2>
+
+<P><A NAME="12453"></A>The LSF Suite is divided into functional components
+allowing you to install the exact system you require. Each component is
+licensed separately. LSF Suite includes the following components:</P>
+
+<DL>
+<DT><A NAME="12460"></A>1) LSF Base</DT>
+
+<DD>The software upon which all the other components are based. Regardless
+of your final configuration, you will have this component. It includes
+the network servers, the LSF API, <TT>lsmake</TT>, and load-sharing tools.</DD>
+
+<DT><A NAME="12470"></A>2) LSF Batch</DT>
+
+<DD>The set of utilities providing seamless batch job scheduling for distributed
+and heterogeneous environments, ensuring optimal resource sharing.</DD>
+
+<DT><A NAME="12477"></A>3) LSF JobScheduler (formerly LSF-PJS)</DT>
+
+<DD>A distributed production job scheduler that integrates heterogeneous
+servers into a <I>virtual mainframe</I>.</DD>
+
+<DT><A NAME="12481"></A>4) LSF MultiCluster</DT>
+
+<DD>A set of functions enabling multiple clusters of computers to share
+their workload using any of the other LSF products. </DD>
+</DL>
+
+<P><A NAME="12494"></A>LSF Base is a prerequisite for all LSF users and
+all other LSF components. All components are packaged in the same distribution
+file. The installation program requires you to specify which components
+are to be installed. By default LSF Batch together with LSF Base are installed.
+Individual hosts can be configured to run as LSF Batch servers or LSF JobScheduler
+servers within the same cluster. LSF MultiCluster is licensed on a cluster-wide
+basis (the entire cluster is either enabled or disabled for multicluster
+operation). </P>
+
+<P><A NAME="13172"></A>For detailed descriptions about the LSF Suite components,
+see <A HREF="03-concepts.html#24804">'LSF Product Suite'</A>. </P>
+
+<H2><A NAME="2805"></A>System Requirements</H2>
+
+<P><A NAME="4824"></A>This section lists the host types and operating systems
+supported by LSF, and the disk space required to install LSF.</P>
+
+<H3><A NAME="470"></A>Hardware and Software Requirements</H3>
+
+<P><A NAME="481"></A>LSF requires a UNIX operating system with Internet
+Protocol (IP) networking. The LSF configuration files and LSF Batch working
+directories must be installed in a shared file system. The standard installation
+installs the on-line manual pages as <TT>nroff -man</TT> source. Preformatted
+manual pages are included for SGI systems that do not have <TT>nroff</TT>;
+you must install these by hand if they are needed.</P>
+
+<P><A NAME="500"></A>Specific hardware and software platforms supported
+are:</P>
+
+<DT><A NAME="12851"></A><B>Convex</B></DT>
+
+<DD><A NAME="12853"></A>C-Series systems running ConvexOS 11. </DD>
+
+<DT><A NAME="13290"></A><B>Cray Research</B></DT>
+
+<DD><A NAME="13291"></A>J90 systems running UNICOS 8.0.</DD>
+
+<DD><A NAME="13292"></A>T90 and C90 systems running UNICOS 9.0.</DD>
+
+<DT><A NAME="12859"></A><B>Digital Equipment Corp</B></DT>
+
+<DD><A NAME="3080"></A>ALPHA/AXP systems running Digital UNIX 3.x or 4.0.
+</DD>
+
+<DT><A NAME="12863"></A><B>Hewlett-Packard</B></DT>
+
+<DD><A NAME="4531"></A>HP 9000/700 and 9000/800 systems running HP-UX 9.x
+or 10.x. </DD>
+
+<DD><A NAME="12812"></A>HP Exemplar systems running SPP-UX 4.2. </DD>
+
+<DT><A NAME="12864"></A><B>IBM</B></DT>
+
+<DD><A NAME="491"></A>IBM RS/6000 and PowerPC systems running AIX 3.2.x,
+4.1, or 4.2. </DD>
+
+<DT><A NAME="13274"></A><B>Linux</B></DT>
+
+<DD><A NAME="13275"></A>Intel systems running Linux 1.2.13 with support
+for ELF binaries. </DD>
+
+<DT><A NAME="13283"></A><B>NEC</B></DT>
+
+<DD><A NAME="13284"></A>EWS4800 systems running UX-4800 9.2, 10.x, or 11.x.
+</DD>
+
+<DD><A NAME="13285"></A>SX-3 systems running SUPER-UX unix 5.10. </DD>
+
+<DD><A NAME="13286"></A>SX-4 systems running SUPER-UX unix 6.2. </DD>
+
+<DT><A NAME="12865"></A><B>Silicon Graphics</B></DT>
+
+<DD><A NAME="488"></A>SGI systems running IRIX 5.2, 5.3, 6.1, 6.2, or 6.4.
+</DD>
+
+<DT><A NAME="12866"></A><B>SONY</B></DT>
+
+<DD><A NAME="12829"></A>NEWS5000 systems running NEWS-OS 6.1.1. </DD>
+
+<DT><A NAME="12870"></A><B>Sun Microsystems</B></DT>
+
+<DD><A NAME="489"></A>SPARC systems running SunOS 4.1.x or Solaris 2.3,
+2.4, or 2.5. </DD>
+
+<DT><A NAME="12901"></A><B>Windows NT</B></DT>
+
+<DD><A NAME="12849"></A>Intel systems running Windows NT V3.51 or V4.0.
+</DD>
+
+<H3><A NAME="501"></A>Disk Space Requirements</H3>
+
+<P><A NAME="502"></A>Some components of LSF, like the command and daemon
+binaries, depend on the host type. Others, like the on-line manual pages,
+are the same size on all systems. Typically, hosts of the same binary type
+share a single copy of the binaries through a shared file system, and all
+hosts in the cluster share a single copy of the configuration files, log
+files and manual pages.</P>
+
+<P><A NAME="13077"></A>Approximate sizes for the components are given in
+<A HREF="01-pre-installation.html#11199">Table 1</A> below.</P>
+
+<H4><A NAME="11199"></A>Table 1. Component Sizes</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD ALIGN="CENTER" VALIGN="TOP">Component</TD>
+
+<TD WIDTH="250" ALIGN="CENTER" VALIGN="TOP" NOWRAP="NoWrap">Platform</TD>
+
+<TD ALIGN="CENTER" VALIGN="TOP" WIDTH="150">Size (KB)</TD>
+</TR>
+
+<TR>
+<TD ALIGN=LEFT VALIGN=TOP ROWSPAN="21">binaries</TD>
+
+<TD ALIGN="LEFT" VALIGN="TOP">Convex C-Series</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">55,700</TD>
+</TR>
+
+<TR>
+<TD NOWRAP="NoWrap">Cray T90 UNICOS 9.0</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">52,000</TD>
+</TR>
+
+<TR>
+<TD ALIGN="LEFT" VALIGN="TOP">Cray J90 UNICOS 8.0</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">102,300</TD>
+</TR>
+
+<TR>
+<TD>DEC ALPHA AXP</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">36,500</TD>
+</TR>
+
+<TR>
+<TD>DEC ALPHA AXP (AFS)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">2,300</TD>
+</TR>
+
+<TR>
+<TD>HP 9000/700, 800</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">31,300</TD>
+</TR>
+
+<TR>
+<TD>HP 9000/700, 800 (AFS)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">1,900</TD>
+</TR>
+
+<TR>
+<TD>IBM RS/6000</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">30,200</TD>
+</TR>
+
+<TR>
+<TD>IBM RS/6000 (AFS)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">1,800</TD>
+</TR>
+
+<TR>
+<TD>IBM RS/6000 (DCE)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">950</TD>
+</TR>
+
+<TR>
+<TD>Linux 1.2.13</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">31,900</TD>
+</TR>
+
+<TR>
+<TD>NEC EWS4800 UX-4800 11.1</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">19,000</TD>
+</TR>
+
+<TR>
+<TD>SGI IRIX 5.2, 5.3, 6.1</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">47,700</TD>
+</TR>
+
+<TR>
+<TD>SGI IRIX 5.2, 5.3 (AFS)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">2,500</TD>
+</TR>
+
+<TR>
+<TD>SONY NEWS-OS 6.1.1</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">19,000</TD>
+</TR>
+
+<TR>
+<TD>SunOS 4.1.x</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">40,200</TD>
+</TR>
+
+<TR>
+<TD>SunOS 4.1.x (AFS)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">2,100</TD>
+</TR>
+
+<TR>
+<TD>Solaris 2.3, 2.4, 2.5</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">39,500</TD>
+</TR>
+
+<TR>
+<TD>Solaris 2.3, 2.4, 2.5 (AFS)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">2,300</TD>
+</TR>
+
+<TR>
+<TD>Solaris 2.3, 2.4, 2.5 (DCE)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">1,100</TD>
+</TR>
+
+<TR>
+<TD>Windows NT V3.51, V4.0</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">25,100</TD>
+</TR>
+
+<TR>
+<TD>manual pages</TD>
+
+<TD>(shared)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">1,520</TD>
+</TR>
+
+<TR>
+<TD>configuration files</TD>
+
+<TD>(shared)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">70</TD>
+</TR>
+
+<TR>
+<TD>log files</TD>
+
+<TD>(shared)</TD>
+
+<TD ALIGN="RIGHT" VALIGN="TOP">5,000</TD>
+</TR>
+</TABLE>
+
+<P><A NAME="785"></A>During installation on each hardware and operating
+system platform, 30 megabytes of scratch space is necessary. This space
+can be freed after the installation is complete.</P>
+
+<H2><A NAME="2841"></A>Obtaining a Software License</H2>
+
+<P><A NAME="13212"></A>You must have a software license key to run LSF.
+You may be able to get a time-limited DEMO key by contacting your LSF vendor.
+Instructions for getting a floating license key are given in <A HREF="02-installation.html#29979">'Getting
+License Key Information'</A>. Also see the <I>Release Notes</I> for any
+vendor-specific information about obtaining and installing license keys.</P>
+
+<H2><A NAME="2870"></A>Choosing Hosts for the Cluster</H2>
+
+<P><A NAME="942"></A>Hosts should be chosen so that users on any host in
+the cluster have shared access to the computing resources on all hosts.
+LSF includes sophisticated controls to prevent overloading hosts, so interactive
+workstations can be configured as LSF servers without degrading performance
+for the owner.</P>
+
+<P><A NAME="943"></A>LSF works best when users' home directories are shared
+across all hosts in the cluster by NFS, by the Andrew File System (AFS),
+or by the Distributed File System (DCE/DFS). Interactive and batch jobs
+can then access files just as they would on the local host. LSF can also
+be used on systems without shared file space, using built-in remote file
+access to move job input and output. Additionally, batch jobs can also
+be run on systems without shared user accounts by using LSF's account mapping
+facility.</P>
+
+<P><A NAME="1878"></A>Almost all administrative tasks can be done from
+a non-root account, so LSF can be used on groups of hosts where other system
+administration tasks are not shared.</P>
+
+<P><A NAME="887"></A>If you have more than one type of host, you should
+put all available host types together in a single cluster. If you have
+applications that require specific host types, you can configure resource
+requirements to select the correct host type for each job. This gives users
+transparent access to applications, regardless of the host they are logged
+in to.</P>
+
+<P><A NAME="888"></A>The maximum size of an LSF cluster is determined by
+the load on your network and the memory available on your hosts. Installations
+exist with clusters of more than 200 hosts supporting heavy workload, and
+extensive ranges of system sizes and types. The cluster size you select
+depends on the number of hosts you have available, the administrative organization
+of the hosts, and the tasks you wish to run. Larger clusters usually allow
+better load sharing, at the cost of slightly more processing overhead in
+the LSF servers.</P>
+
+<H2><A NAME="4539"></A>LSF Client and Server Hosts</H2>
+
+<P><A NAME="4540"></A>All hosts in an LSF cluster can send jobs to other
+hosts. A <I>server host </I>is a host where LSF sends jobs to run. A <I>client
+host</I> is a host that only sends jobs out to other hosts to run. Client
+hosts do not run any LSF daemons and do not run jobs from other hosts.</P>
+
+<P><A NAME="4543"></A>You should use as many hosts as possible as servers.
+The more resources you have available for load sharing, the better performance
+you can get from your cluster. Client hosts can be used when administrative
+or resource constraints prevent you from using some hosts as servers, or
+the hosts are too slow or do not have enough resources to run jobs.</P>
+
+<H2><A NAME="3926"></A>Planning the Installation</H2>
+
+<P><A NAME="5236"></A>Before starting the installation you must decide
+where to install the components of LSF. The LSF installation script has
+defaults for all components, and provides you with the option of selecting
+a custom location for each component.</P>
+
+<H3><A NAME="12654"></A>Choose Components</H3>
+
+<P><A NAME="12660"></A>LSF Suite V3.0 includes the following components:
+LSF Base, LSF Batch, LSF JobScheduler (formerly LSF-PJS), and LSF MultiCluster.
+Select the appropriate components during the installation with <TT>lsfsetup</TT>.
+You should have a corresponding software licence (see <A HREF="01-pre-installation.html#2841">'Obtaining
+a Software License'</A>).</P>
+
+<P><A NAME="12737"></A>LSF Base is a prerequisite for all other LSF components.
+Unless you specify otherwise, the default is that LSF Batch together with
+LSF Base are installed.</P>
+
+<H3><A NAME="5239"></A>Mixed Clusters</H3>
+
+<P><A NAME="5240"></A>A single LSF cluster can contain hosts of every type
+supported by LSF. Clusters that include hosts of more than one type are
+called <I>mixed clusters </I>or <I>heterogeneous clusters</I>. The LSF
+documentation uses the term mixed cluster. When installing LSF on a mixed
+cluster, you should install and configure LSF on one type of host first.
+After you have the cluster running you can add the other host types.</P>
+
+<P><A NAME="3932"></A>The recommended directory structure for installing
+LSF on mixed clusters is given in <A HREF="01-pre-installation.html#9872">'Directory
+Structure for Mixed Clusters'</A>. Read that section before installing
+the software.</P>
+
+<H3><A NAME="6975"></A>Naming the LSF Cluster</H3>
+
+<P><A NAME="6976"></A>The cluster name can be any alphanumeric string up
+to 39 characters long. The cluster name does not need to be the same as
+the DNS or NIS domain name of the hosts. You should not use a valid host
+name as the cluster name.</P>
+
+<H3><A NAME="3936"></A>Choosing the Primary LSF Administrator</H3>
+
+<P><A NAME="3938"></A>You must choose a user account to act as the primary
+LSF administrator. This account owns the LSF configuration files and has
+permission to reconfigure LSF and to control batch jobs submitted by other
+users. You can use an existing user account, or you can create a new account.
+By creating a separate LSF administrator account you can allow more than
+one person to modify the configuration files; if you assign only one individual
+as the administrator then no one else can modify the configuration.</P>
+
+<P><A NAME="8648"></A>Once you have installed LSF, you can configure secondary
+LSF administrators (see <A HREF="10-lsf-reference.html#1967">'LSF Administrators'</A>).
+Secondary LSF administrators have the same privileges as the primary administrator
+except that they do not have permission to update the LSF configuration
+files as these files are owned by the primary administrator.</P>
+
+<P><A NAME="8685"></A>You should not configure the root account as the
+LSF administrator. Many UNIX network installations restrict the root account
+so that it does not have permission to write to NFS or AFS mounted directories.</P>
+
+<H3><A NAME="3942"></A>Choosing the Installation Directories</H3>
+
+<P><A NAME="3943"></A>The components of LSF are divided into those files
+that do not depend on host type and those that do. The LSF installation
+procedure allows you to choose where to install all parts of the distribution.</P>
+
+<P><A NAME="4943"></A>The installation examples use <TT>/usr/local/lsf</TT>
+as the name of the directory where all LSF files are installed. If you
+install LSF under another directory name, substitute your directory name
+in all procedures.</P>
+
+<P><A NAME="6943"></A><TT>LSF_INDEP</TT> specifies the default top-level
+directory for all host type independent LSF files. This includes manual
+pages, configuration files, working directories, and miscellaneous files.
+For example, defining <TT>LSF_INDEP</TT> as <TT>/usr/local/lsf/mnt</TT>
+places manual pages in <TT>/usr/local/lsf/mnt/man</TT>, configuration files
+in <TT>/usr/local/lsf/mnt/conf</TT>, and so on.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="6952"></A><B>CAUTION!<BR>
+The LSF master host must have read/write access to all files and directories
+under the <TT>LSF_INDEP/work</TT> directory, otherwise LSF Batch services
+will be unavailable. This directory must be shared by all hosts that may
+potentially become the master. </B></P>
+</BLOCKQUOTE>
+
+<P><A NAME="3955"></A><TT>LSF_MACHDEP</TT> specifies the directory where
+host type dependent files are installed. The machine dependent files are
+the user programs, daemons, and libraries.</P>
+
+<P><A NAME="12317"></A>During installation in a mixed cluster, you need
+to set <TT>LSF_MACHDEP</TT> to a different directory for each host type.
+See <A HREF="01-pre-installation.html#9872">'Directory Structure for Mixed
+Clusters'</A> for details.</P>
+
+<P><A NAME="12414"></A>The LSF directory structure is shown in <A HREF="01-pre-installation.html#12413">Figure
+1</A>.</P>
+
+<H4><A NAME="12413"></A>Figure 1 LSF Directory Structure</H4>
+
+<P><IMG SRC="adm-figure01.gif" ALT="LSF Directory Structure" HEIGHT=180 WIDTH=511></P>
+
+<P><A NAME="12421"></A><A HREF="c-directories.html#1024">Appendix C</A>
+lists the various directories used by the LSF system, their mode and their
+contents.</P>
+
+<H2><A NAME="9872"></A>Directory Structure for Mixed Clusters</H2>
+
+<P><A NAME="4419"></A>This section describes the recommended method for
+installing the LSF configuration files, executables, and other components
+in mixed clusters.</P>
+
+<P><A NAME="4270"></A>The goal of this installation procedure is to set
+up the LSF directory structure so that every host type finds the LSF executables
+and configuration files under the same file names. For example, if LSF
+is installed under the <TT>/usr/local/lsf</TT> directory, then the file
+name <TT>/usr/local/lsf/etc/lim</TT> refers to the HP-UX compiled LIM binary
+on an HP-UX system, and to the SunOS binary on a SunOS system.</P>
+
+<P><A NAME="4271"></A>To make administration simpler, this procedure places
+all LSF files on a single NFS partition that must be mounted on every LSF
+host. Symbolic links are used so that each machine sees the correct host
+type-specific files.</P>
+
+<H3><A NAME="4273"></A>Directory Structure</H3>
+
+<P><A NAME="7144"></A>All of the LSF files are placed in the mnt subdirectory
+of the <TT>/usr/local/lsf</TT> directory on the file server. The file server
+exports the <TT>/usr/local/lsf/mnt</TT> directory, and all other LSF hosts
+mount this directory as <TT>/usr/local/lsf/mnt</TT>.</P>
+
+<P><A NAME="7145"></A>All the host type-specific files are placed in a
+subdirectory of <TT>/usr/local/lsf/mnt</TT> named for the host type. <A HREF="01-pre-installation.html">Figure
+2</A> shows the directory structure for an LSF installation with SunOS
+4.1 and HP-UX versions of the software. In this example, the <TT>LSF_INDEP</TT>
+parameter is set to <TT>/usr/local/lsf/mnt</TT>. <TT>LSF_MACHDEP</TT> is
+set to <TT>/usr/local/lsf/mnt/HP-UX</TT> to install the HP-UX binaries,
+and <TT>/usr/local/lsf/mnt/SUN41</TT> to install the SunOS 4.1 binaries.</P>
+
+<P><A NAME="9735"></A>After installation, on each HP-UX host add the following
+symbolic links:</P>
+
+<UL>
+<LI><A NAME="9737"></A>from <TT>/usr/local/lsf/bin</TT> to <TT>/usr/local/lsf/mnt/HPUX/bin</TT>
+</LI>
+
+<LI><A NAME="9738"></A>from <TT>/usr/local/lsf/lib</TT> to <TT>/usr/local/lsf/mnt/HPUX/lib</TT>
+</LI>
+
+<LI><A NAME="9739"></A>from <TT>/usr/local/lsf/etc</TT> to <TT>/usr/local/lsf/mnt/HPUX/etc</TT>
+</LI>
+</UL>
+
+<P><A NAME="9740"></A>and similarly for the SunOS 4.1 hosts, replacing
+<TT>HPUX</TT> with <TT>SUN41</TT>. Now users can put <TT>/usr/local/lsf/bin</TT>
+in their <TT>PATH environment variable, and their PATH is valid on all
+hosts.</TT></P>
+
+<H4><A NAME="12184"></A>Figure 2 Directory Structure For Mixed Clusters</H4>
+
+<P><IMG SRC="adm-figure02.gif" ALT="Directory Structure for Mixed Clusters" HEIGHT=94 WIDTH=282></P>
+
+<H2><A NAME="4490"></A>Backing Up the System Disk</H2>
+
+<P><A NAME="3829"></A>You should back up the root partition disk on each
+host and the file server disks where LSF components will be placed before
+installing LSF. Use the normal backup procedure for your site.</P>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="admin-preface.html">[Prev]</A>
+<A HREF="02-installation.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:12:39 --></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Programmer's Guide - LSF Shell Programming</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="programmers-contents.html">[Contents]</A> <A HREF="4-advanced.html">[Prev]</A>
+<A HREF="a-functions.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+<HR></P>
+
+<H1><A NAME="10923"></A>Chapter 5. <A NAME="5011"></A>LSF Shell Programming</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="5012"></A>LSF provides a set of tools (<TT>lstools</TT>) that
+allow users to write load sharing shell scripts. This set of tools perform
+the LSF API services at the command line level. </P>
+
+<P><A NAME="10507"></A>The most commonly used tools include <TT>lsrun</TT>,
+<TT>lsgrun</TT>, <TT>lsplace</TT>, <TT>lsload</TT>, <TT>lsrcp</TT>, <TT>lshosts</TT>,
+<TT>lseligible</TT>, <TT>lsid</TT>, and <TT>lsinfo</TT>. </P>
+
+<P><A NAME="10502"></A>This chapter briefly describes how to use the <TT>lstools</TT>
+commands to write load sharing shell programs.</P>
+
+<P> <A NAME="6282"></A>All shell examples are written in the Bourne shell
+(<TT>/bin/sh</TT>). The techniques in this chapter also apply to higher
+level languages such as Perl and TCL.</P>
+
+<H2><A HREF="5-shell.html#"> <A NAME="8157"></A></A>Wrapper Scripts</H2>
+
+<P><A NAME="8159"></A>The most common load sharing shell scripts are simple
+wrappers around third party binaries. The shell script turns an ordinary
+application into a load sharing application with no changes to the third
+party code. For example, this script starts up FrameMaker on a host that
+has the <TT>frame</TT> resource:</P>
+
+<P> </P>
+
+<PRE><A NAME="10464"></A>#! /bin/sh
+exec lsrun -R &quot;frame&quot; maker</PRE>
+
+<H2><A NAME="6402"></A>The Simple Shell Example</H2>
+
+<P><A NAME="6015"></A>In this section is a simple load sharing shell, written
+as a Bourne shell (<TT>/bin/sh</TT>) script. The simple shell loops reading
+lines of input from the keyboard. Each line is checked to see if the command
+entered is eligible for remote execution. If so, it is executed remotely
+using <TT>lsrun</TT>. Otherwise the command is executed on the local host.</P>
+
+<P> </P>
+
+<PRE><A NAME="7206"></A><TT>#! /bin/sh
+while echo Input command: ; read command
+do
+if [ &quot;$command&quot; ]; then
+    # put the command into the positional parameters $1, $2 etc. so you
+    # can get the command name ($1, the first argument in the command)
+    set $command
+    # lseligible returns true if command is eligible for remote execution
+    if resourcereq=`lseligible -q $1`
+    then
+        lsrun  -v  -R  &quot;$resourcereq&quot;  $command
+    else
+        $command
+    fi
+fi
+done</TT></PRE>
+
+<P><A NAME="6051"></A>The <TT>lseligible</TT> <TT>-q</TT> command is used
+to determine whether the given task is eligible for remote execution or
+not. It displays the resource requirement for the command and exits with
+status 0 if the command can be run remotely. <TT>lseligible</TT> exits
+with a non-zero status if the command should be run on the local host.</P>
+
+<H2><A HREF="5-shell.html#"> <A NAME="3064"></A></A>Changing the Placement Algorithm</H2>
+
+<P><A NAME="6090"></A>If you do not like the default placement decision
+made by <TT>lsrun</TT>, you can also make your own placement decision by
+getting the load information with <TT>lsload</TT> and choosing the host
+based on your own policy. For example, you could use an <TT>awk</TT> or
+<TT>perl</TT> script to process the load information and sort the hosts
+based on your own criteria.</P>
+
+<P> 
+<HR><A HREF="programmers-contents.html">[Contents]</A> <A HREF="4-advanced.html">[Prev]</A>
+<A HREF="a-functions.html">[Next]</A> <A HREF="a-functions.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I></P>
+
+</BODY>
+</HTML>

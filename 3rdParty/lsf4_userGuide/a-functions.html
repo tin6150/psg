@@ -1,0 +1,688 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Programmer's Guide - List of LSF API Functions</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="programmers-contents.html">[Contents]</A> <A HREF="5-shell.html">[Prev]</A>
+<A HREF="programmers-title.html">[Title]</A> 
+<HR></P>
+
+<H1><A NAME="13863"></A>Appendix A. <A NAME="1074"></A>List of LSF API
+Functions</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="1115"></A>This appendix lists all the LSF API functions for
+your reference. Many of the functions listed below are not documented in
+this guide, but are described in detail in the on-line man pages. See <TT>lslib(3)</TT>
+and <TT>lsblib(3)</TT> for details of these functions.</P>
+
+<H2><A NAME="1116"></A>LSLIB Functions</H2>
+
+<P><A NAME="3987"></A>These are the function calls provided by the LSF
+base system API. The function calls are listed by service categories.</P>
+
+<H3><A NAME="6181"></A>Cluster Configuration Information </H3>
+
+<DL>
+<DT><A NAME="4079"></A><TT>struct lsInfo *ls_info(void) </TT></DT>
+
+<DD>Get cluster-wide configuration information. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6164"></A><TT>char *ls_getclustername(void) </TT></DT>
+
+<DD>Get the name of the local cluster. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6210"></A><TT>char *ls_getmastername(void) </TT></DT>
+
+<DD>Get the name of the master host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6211"></A><TT>float *ls_getmodelfactor(char *modelname) </TT></DT>
+
+<DD>Get the CPU factor of the given host model. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6213"></A><TT>char *ls_gethosttype(char *hostname) </TT></DT>
+
+<DD>Get the host type of the given host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6215"></A><TT>char *ls_gethostmodel(char *hostname) </TT></DT>
+
+<DD>Get the host model of the given host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6217"></A><TT>float *ls_gethostfactor(char *hostname) </TT></DT>
+
+<DD>Get the CPU factor of the given host. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="6219"></A><TT>struct hostInfo *ls_gethostinfo(char *resreq,
+int *numhosts,<BR>
+char **hostlist, int listsize, int options) </TT></DT>
+
+<DD>Get host related configuration information. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10922"></A><TT>int ls_readconfenv(struct config_param *paramList,
+char *confPath) </TT></DT>
+
+<DD>Get the variables defined in <TT>lsf.conf</TT>. </DD>
+</DL>
+
+<H3><A NAME="3992"></A>Load Information and Placement Advice </H3>
+
+<DL>
+<DT><A NAME="8488"></A><TT>struct hostLoad *ls_load(char *resreq, int *numhosts,
+int options,<BR>
+char *fromhost) </TT></DT>
+
+<DD>Get load information of qualified hosts, simple version. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9089"></A><TT>struct hostLoad *ls_loadinfo(char *resreq, int
+*numhosts,<BR>
+int options, char *fromhost, char **hostlist, int listsize,<BR>
+char ***indxnamelist) </TT></DT>
+
+<DD>Get load information of qualified hosts, generic version. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="8489"></A><TT>struct hostLoad *ls_loadofhosts(char *resreq,
+int *numhosts,<BR>
+int options, char *fromhost, char **hostlist, int listsize) </TT></DT>
+
+<DD>Get load information of the qualified hosts from the given list of
+hosts. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="8491"></A><TT>struct hostLoad *ls_loadoftype(char *resreq,
+int *numhosts,<BR>
+int options, char *fromhost, char *hosttype) </TT></DT>
+
+<DD>Get load information about hosts of the given host type. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="8498"></A><TT>char **ls_placereq(char *resreq, int *numhosts,
+int options,<BR>
+char *fromhost) </TT></DT>
+
+<DD>Get the best qualified hosts. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="8500"></A><TT>char **ls_placeofhosts(char *resreq, int *numhosts,
+int options,<BR>
+char *fromhost, char **hostlist, int listsize) </TT></DT>
+
+<DD>Get the best qualified hosts from the given list of hosts. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="8503"></A><TT>char **ls_placeoftype(char *resreq, int *numhosts,
+int options,<BR>
+char *fromhost, char *hosttype) </TT></DT>
+
+<DD>Get the best qualified hosts with the given host type. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9528"></A><TT>int ls_loadadj(char *resreq, struct placeInfo
+*hostlist,<BR>
+int listsize) </TT></DT>
+
+<DD>Adjust the load of the given host(s). </DD>
+</DL>
+
+<H3><A NAME="9866"></A>Task List Manipulation </H3>
+
+<DL>
+<DT><A NAME="9868"></A><TT>char *ls_resreq(char *task) </TT></DT>
+
+<DD>Get resource requirements of task in the remote task list. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9933"></A><TT>int ls_eligible(char *task, char *resreqstr,
+char mode)<BR>
+</TT>Get resource requirements of <I>task </I>in the task list indicated
+by <I>mode</I>. </DT>
+</DL>
+
+<DL>
+<DT><A NAME="9719"></A><TT>int ls_insertrtask(char *task) </TT></DT>
+
+<DD>Insert <I>task </I>into the remote <TT>task</TT> list. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10056"></A><TT>int ls_insertltask(char *task) </TT></DT>
+
+<DD>Insert <I>task </I>into the local task list. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9721"></A><TT>int ls_deletertask(char *task) </TT></DT>
+
+<DD>Remove <I>task </I>from the remote task list. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9722"></A><TT>int ls_deleteltask(char *task) </TT></DT>
+
+<DD>Remove <I>task </I>from the local task list. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9723"></A><TT>int ls_listrtask(char ***taskList, int sortflag)
+</TT></DT>
+
+<DD>Get all tasks in the remote task list. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="9724"></A><TT>int ls_listltask (char ***taskList, int sortflag)
+</TT></DT>
+
+<DD>Get all tasks in the local task list. </DD>
+</DL>
+
+<H3><A NAME="3686"></A>Remote Execution and Task Control</H3>
+
+<P><A NAME="13450"></A>These functions are subject to the authentication
+protocols described in <A HREF="1-introduction.html#8311">'Authentication'</A>.</P>
+
+<DL>
+<DT><A NAME="10938"></A><TT>int ls_initrex(int numPorts, int options) </TT></DT>
+
+<DD>Initialize for remote execution or file operation. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="13271"></A><TT>int ls_connect(char *hostname) </TT></DT>
+
+<DD>Establish a connection with a remote RES. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="13272"></A><TT>int ls_rexecv(char *host, char **argv, int
+options) </TT></DT>
+
+<DD>Remote <TT>execv(2)</TT>. Execute <I>argv </I>on <I>host </I>with the
+local environment. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10940"></A><TT>int ls_rexecve(char *host, char **argv, int
+options, char **envp) </TT></DT>
+
+<DD>Remote <TT>execve(2)</TT>. Execute <I>argv </I>on <I>host </I>with
+the given environment. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10941"></A><TT>int ls_rtask(char *host, char **argv, int options)
+</TT></DT>
+
+<DD>Start <I>argv </I>on <I>host </I>with local environment. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10942"></A><TT>int ls_rtaske(char *host, char **argv, int
+options, char **envp) </TT></DT>
+
+<DD>Start <I>argv </I>on <I>host </I>with the given environment. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10943"></A><TT>int ls_rwait(LS_WAIT_T *status, int options,
+struct rusage *ru) </TT></DT>
+
+<DD>Remote <TT>wait(2)</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10944"></A><TT>int ls_rwaittid(int tid, LS_WAIT_T *status,
+int options,<BR>
+struct rusage *ru) </TT></DT>
+
+<DD>Remote <TT>waitpid</TT>(<TT>2</TT>). </DD>
+</DL>
+
+<DL>
+<DT><A NAME="10945"></A><TT>int ls_rkill(int tid, int sig) </TT></DT>
+
+<DD>Remote <TT>kill(2)</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11071"></A><TT>int ls_rsetenv(char *host, char **envp) </TT></DT>
+
+<DD>Reset the environment for remote tasks on <I>host</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11073"></A><TT>int ls_chdir(char *host, char *clntdir) </TT></DT>
+
+<DD>Set the working directory for remote tasks on <I>host</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12070"></A><TT>int ls_stoprex(void) </TT></DT>
+
+<DD>Inform the NIOS to suspend itself and restore local tty settings. </DD>
+</DL>
+
+<H3><A NAME="11070"></A>Remote File Operation </H3>
+
+<P><A NAME="13445"></A>These functions are subject to the authentication
+protocols described in <A HREF="1-introduction.html#8311">'Authentication'</A>.</P>
+
+<DL>
+<DT><A NAME="11087"></A><TT>int ls_ropen (char *host, char *fn, int flags,
+int mode) </TT></DT>
+
+<DD>Remote <TT>open(2)</TT> on <I>host</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11088"></A><TT>int ls_rclose(int rfd) </TT></DT>
+
+<DD>Remote <TT>close(2)</TT> on <I>host</I><B>.</B> </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11089"></A><TT>int ls_rwrite(int rfd, char *buf, int len)
+</TT></DT>
+
+<DD>Remote <TT>write(2)</TT> on <I>host</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11090"></A><TT>int ls_rread(int rfd, char *buf, int len) </TT></DT>
+
+<DD>Remote <TT>read(2)</TT> on <I>host</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11091"></A><TT>off_t ls_rlseek(int rfd, off_t offset, int
+whence) </TT></DT>
+
+<DD>Remote l<TT>seek(2)</TT> on <I>host</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11092"></A><TT>int ls_rfstat(int rfd, struct stat *buf) </TT></DT>
+
+<DD>Remote <TT>fstat(2)</TT> on <I>host</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11093"></A><TT>int ls_rstat(char *host, char *fn, struct stat
+*buf) </TT></DT>
+
+<DD>Remote <TT>stat(2)</TT> on <I>host</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11153"></A><TT>int ls_getmnthost(char *file) </TT></DT>
+
+<DD>Returns the host name of the file server for <I>file</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11094"></A><TT>char *ls_rgetmnthost(char *host, char *file)
+</TT></DT>
+
+<DD>Return the host name of the file server for <I>file </I>on <I>host</I>.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="11133"></A><TT>int ls_rfcontrol(int command, int arg) </TT></DT>
+
+<DD>Control the behavior of remote file operations. </DD>
+</DL>
+
+<H3><A NAME="11257"></A>Administration Operation </H3>
+
+<DL>
+<DT><A NAME="12954"></A><TT>int ls_lockhost(time_t duration) </TT></DT>
+
+<DD>Set LIM status of the local host to 'locked' for <I>duration</I> seconds.
+The application must be a setuid to root program to use this function.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="12958"></A><TT>int ls_unlockhost(void) </TT></DT>
+
+<DD>Cancel a previous lock operation. The application must be a setuid
+to root program to use this function. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12962"></A><TT>int ls_limcontrol(char *hostname, int opCode)
+</TT></DT>
+
+<DD>Perform a LIM administration operation as specified by <I>opCode</I>.
+The application must be a setuid to root program to use this function.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="12971"></A><TT>int ls_rescontrol(char *host, int opCode, int
+options) </TT></DT>
+
+<DD>Perform a RES administrative operation as specified by <I>opCode</I>.
+The use of this function is subject to authentication protocols described
+in <A HREF="1-introduction.html#8311">'Authentication'</A>. </DD>
+</DL>
+
+<H3><A NAME="12022"></A>Error Handling </H3>
+
+<DL>
+<DT><A NAME="11294"></A><TT>void ls_perror(char *usrMsg) </TT></DT>
+
+<DD>Print <I>usrMsg </I>followed by the LSLIB error message associated
+with <TT>lserrno</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11295"></A><TT>char *ls_sysmsg(void) </TT></DT>
+
+<DD>Return the LSLIB error message associated with <TT>lserrno</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11357"></A><TT>void ls_errlog(FILE *fp, const char *fmt, ...)
+</TT></DT>
+
+<DD>Logging an LSLIB error message with time stamp. </DD>
+</DL>
+
+<H3><A NAME="12167"></A>Miscellaneous </H3>
+
+<DL>
+<DT><A NAME="12168"></A><TT>int ls_fdbusy(int fd) </TT></DT>
+
+<DD>Test if a file descriptor <I>fd </I>is in use or reserved by LSF. </DD>
+</DL>
+
+<H2><A NAME="11358"></A>LSBLIB Functions</H2>
+
+<P><A NAME="11409"></A>These are function calls provided by the LSF Batch
+system API. The functions are listed by service categories. </P>
+
+<H3><A NAME="11482"></A>Initialization </H3>
+
+<DL>
+<DT><A NAME="11498"></A><TT>lsb_init(char *appName) </TT></DT>
+
+<DD>Initialize an LSF Batch application. </DD>
+</DL>
+
+<H3><A NAME="11287"></A>LSF Batch System Information </H3>
+
+<DL>
+<DT><A NAME="11555"></A><TT>struct groupInfoEnt *lsb_hostgrpinfo(char **groups,
+int *numGroups,<BR>
+int options) </TT></DT>
+
+<DD>Get membership of the LSF Batch host groups. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11557"></A><TT>struct groupInfoEnt *lsb_usergrpinfo(char **groups,
+int *numGroups,<BR>
+int options) </TT></DT>
+
+<DD>Get membership of the LSF Batch user groups. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="13403"></A><TT>struct parameterInfo *lsb_parameterinfo(char
+**names, int *numUsers,<BR>
+int options) </TT></DT>
+
+<DD>Get the LSF Batch cluster parameters. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="13404"></A><TT>struct hostInfoEnt *lsb_hostinfo(char **hosts,
+int *numHosts) </TT></DT>
+
+<DD>Get information about the LSF Batch server hosts or host groups. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11663"></A><TT>struct userInfoEnt *lsb_userinfo(char **users,
+int *numUsers) </TT></DT>
+
+<DD>Get system information about the LSF Batch users and user groups.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="12218"></A><TT>struct hostPartInfoEnt *lsb_hostpartinfo(char
+**hostParts,<BR>
+int *numHostParts) </TT></DT>
+
+<DD>Get information about the LSF Batch host partitions. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="12938"></A><TT>.struct queueInfoEnt *lsb_queueinfo(char **queues,
+int *numQueues,<BR>
+char *host, char *userName, int options) </TT></DT>
+
+<DD>Get information about the LSF Batch queues. </DD>
+</DL>
+
+<H3><A NAME="11620"></A>Job Manipulation </H3>
+
+<P><A NAME="13440"></A>These functions are subject to the authentication
+protocols described in <A HREF="1-introduction.html#8311">'Authentication'</A>.</P>
+
+<DL>
+<DT><A NAME="11629"></A><TT>int lsb_submit(struct submit *jobSubReq,<BR>
+struct submitReply *jobSubReply) </TT></DT>
+
+<DD>Submit a job to the LSF Batch system. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="13111"></A><TT>int lsb_modify(struct submit *jobSubReq,<BR>
+struct submitReply *jobSubReply, int jobId) </TT></DT>
+
+<DD>Change the attributes of an already submitted job. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11668"></A><TT>int lsb_signaljob(int jobId, int sigValue)
+</TT></DT>
+
+<DD>Send job <I>jobId </I>signal <I>sigValue</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11669"></A><TT>int lsb_chkpntjob (int jobId, time_t period,
+int options) </TT></DT>
+
+<DD>Checkpoint the job <I>jobId</I>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11670"></A><TT>int lsb_deletejob (int jobId, int times, int
+options) </TT></DT>
+
+<DD>Delete a calendar-driven job. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11671"></A><TT>int lsb_mig(struct submig *mig, int *badHostIdx)
+</TT></DT>
+
+<DD>Migrate a job from one host to another. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11672"></A><TT>int lsb_movejob(int jobId, int *position, int
+opCode) </TT></DT>
+
+<DD>Change the position of a pending job within its queue. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11673"></A><TT>int lsb_switchjob(int jobId, char *queue) </TT></DT>
+
+<DD>Switch a job <I>jobId </I>to queue <I>queue</I>. </DD>
+</DL>
+
+<H3><A NAME="11744"></A>Job Information </H3>
+
+<DL>
+<DT><A NAME="11751"></A><TT>int lsb_openjobinfo(int jobId, char *jobName,
+char *user,<BR>
+char *queue, char *host, int options) </TT></DT>
+
+<DD>Open a job information stream for the matching job(s) with <TT>mbatchd</TT>.
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="11752"></A><TT>struct jobInfoEnt *lsb_readjobinfo(int *more)
+</TT></DT>
+
+<DD>Read a job record from the opened job information stream. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11753"></A><TT>void lsb_closejobinfo(void) </TT></DT>
+
+<DD>Close a job information stream. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11800"></A><TT>char *lsb_suspreason(int reasons, int subreasons,<BR>
+struct loadIndexLog *ld) </TT></DT>
+
+<DD>Convert suspending reason codes into text. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11801"></A><TT>char *lsb_pendreason(int reasons, int subreasons,<BR>
+struct loadIndexLog *ld) </TT></DT>
+
+<DD>Convert pending reason codes into text. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="13019"></A><TT>char *lsb_peekjob(int jobId) </TT></DT>
+
+<DD>Get the name of the job's buffered output file. This function is subject
+to the authentication protocols described in <A HREF="1-introduction.html#8311">'Authentication'</A>.
+</DD>
+</DL>
+
+<H3><A NAME="11745"></A>Event File Processing</H3>
+
+<DL>
+<DT><A NAME="11835"></A><TT>struct eventRec *lsb_geteventrec(FILE *log_fp,
+int *lineNum) </TT></DT>
+
+<DD>Read an event record from the opened log file. </DD>
+</DL>
+
+<H3><A NAME="11895"></A>LSF Batch Administration</H3>
+
+<P><A NAME="13006"></A>These functions are subject to the authentication
+protocols described in <A HREF="1-introduction.html#8311">'Authentication'</A>.</P>
+
+<DL>
+<DT><A NAME="11905"></A><TT>int lsb_reconfig(void) </TT></DT>
+
+<DD>Reconfigure the LSF Batch system using the current configuration files.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="11907"></A><TT>int lsb_hostcontrol(char *host, int opCode)
+</TT></DT>
+
+<DD>Open, close <I>host </I>for batch jobs, or restart, shut down <TT>sbatchd</TT>
+on <TT>host</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11859"></A><TT>int lsb_queuecontrol(char *queue, int opCode)
+</TT></DT>
+
+<DD>Change the status of an LSF Batch queue. </DD>
+</DL>
+
+<H3><A NAME="11945"></A>Calendar Manipulation </H3>
+
+<P><A NAME="13031"></A>These functions can be used only if the LSF JobScheduler
+component is enabled.</P>
+
+<DL>
+<DT><A NAME="11946"></A><TT>int lsb_calendarop(int opCode, int numNames,
+char **names,<BR>
+char *desc, char *timeEvents, int options, char **badStr) </TT></DT>
+
+<DD>Add, modify, or delete a calendar. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11930"></A><TT>struct calendarInfoEnt *lsb_calendarinfo(char
+**calendars,<BR>
+int *numCalendars, char *user) </TT></DT>
+
+<DD>Get calendar information. </DD>
+</DL>
+
+<H3><A NAME="11980"></A>Error Handling </H3>
+
+<DL>
+<DT><A NAME="11991"></A><TT>void lsb_perror(char *usrMsg) </TT></DT>
+
+<DD>Print the LSBLIB error message associated with <TT>lsberrno</TT> together
+with <TT>usrMsg</TT>. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="11992"></A><TT>char *lsb_sysmsg (void) </TT></DT>
+
+<DD>Return the LSBLIB error message associated with <TT>lsberrno</TT>.
+</DD>
+</DL>
+
+<P>
+<HR><A HREF="programmers-contents.html">[Contents]</A> <A HREF="5-shell.html">[Prev]</A>
+<A HREF="programmers-title.html">[Title]</A> </P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I></P>
+
+</BODY>
+</HTML>

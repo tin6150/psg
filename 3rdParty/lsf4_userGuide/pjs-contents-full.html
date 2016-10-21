@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - Detailed Contents</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-title.html">[Title]</A> <A HREF="pjs-legal.html">[Prev]</A>
+<A HREF="pjs-contents.html">[Contents]</A> <A HREF="pjs-figures.html">[Next]</A>
+<A HREF="8-advanced.html">[End]</A> 
+<HR></P>
+
+<H1><A NAME="140"></A>Contents</H1>
+
+<P>
+<HR></P>
+
+<H4><A HREF="pjs-figures.html#61">Figures </A></H4>
+
+<H4><A HREF="pjs-preface.html#997187">Preface </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="pjs-preface.html#997942">Audience </A></DD>
+
+<DD><A HREF="pjs-preface.html#997847">Using This Guide </A></DD>
+
+<DD><A HREF="pjs-preface.html#998255">Related Documents </A></DD>
+
+<DD><A HREF="pjs-preface.html#997893">Technical Assistance </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="1-intro.html#997895">1. Introduction </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="1-intro.html#998896">What is JobScheduler? </A></DD>
+
+<DL>
+<DD><A HREF="1-intro.html#1000977">Calendar and Event-driven Scheduling
+</A></DD>
+
+<DD><A HREF="1-intro.html#1000705">Fault Tolerance </A></DD>
+
+<DD><A HREF="1-intro.html#999288">Inter-job Dependency </A></DD>
+
+<DD><A HREF="1-intro.html#999485">Pre-execution and Post-execution </A></DD>
+
+<DD><A HREF="1-intro.html#1001135">Job History </A></DD>
+
+<DD><A HREF="1-intro.html#1001140">Command Set and GUI Tools </A></DD>
+
+<DD><A HREF="1-intro.html#1000415">Automatic Load Balancing </A></DD>
+
+<DD><A HREF="1-intro.html#1001166">Network-wide Load and Resource Monitoring
+</A></DD>
+</DL>
+
+<DD><A HREF="1-intro.html#1001165">Structure of JobScheduler </A></DD>
+
+<DL>
+<DD><A HREF="1-intro.html#1000806">Clusters </A></DD>
+
+<DD><A HREF="1-intro.html#1000419">Jobs </A></DD>
+
+<DD><A HREF="1-intro.html#1000615">Events </A></DD>
+
+<DD><A HREF="1-intro.html#1000425">Calendars </A></DD>
+
+<DD><A HREF="1-intro.html#1001018">Queues </A></DD>
+</DL>
+</DL>
+</DL>
+
+<H4><A HREF="2-get-started.html#997895">2. Getting Started </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="2-get-started.html#1000948">Using JobScheduler </A></DD>
+
+<DD><A HREF="2-get-started.html#1000915">Creating a Calendar </A></DD>
+
+<DL>
+<DD><A HREF="2-get-started.html#999563">Using <TT>xbcal</TT> to Create
+a Calendar </A></DD>
+</DL>
+
+<DD><A HREF="2-get-started.html#999518">Displaying Calendars </A></DD>
+
+<DL>
+<DD><A HREF="2-get-started.html#999663">Using <TT>xbcal</TT> to Display
+Calendars </A></DD>
+
+<DD><A HREF="2-get-started.html#999841">More Detail is Available </A></DD>
+</DL>
+
+<DD><A HREF="2-get-started.html#999780">Associating Jobs with Calendars
+</A></DD>
+
+<DL>
+<DD><A HREF="2-get-started.html#1000326">Using <TT>xbsub</TT> to Associate
+Jobs with Calendars </A></DD>
+</DL>
+
+<DD><A HREF="2-get-started.html#1000067">Deleting Jobs Associated with
+Calendars </A></DD>
+
+<DD><A HREF="2-get-started.html#1001283">Associating Jobs with Other Jobs
+</A></DD>
+
+<DD><A HREF="2-get-started.html#1001324">Associating Jobs with File Events
+</A></DD>
+
+<DD><A HREF="2-get-started.html#1001545">Tracking Production Jobs </A></DD>
+
+<DD><A HREF="2-get-started.html#1001376">Monitoring JobScheduler Cluster
+</A></DD>
+
+<DL>
+<DD><A HREF="2-get-started.html#1000351">Displaying the Cluster and Master
+Names </A></DD>
+
+<DD><A HREF="2-get-started.html#1000416">Displaying Host Load and Resource
+Information </A></DD>
+
+<DD><A HREF="2-get-started.html#1001513">Displaying JobScheduler Server
+Information </A></DD>
+
+<DD><A HREF="2-get-started.html#1001508">Displaying the Job Queues </A></DD>
+</DL>
+
+<DD><A HREF="2-get-started.html#1000518">Using JobScheduler GUI Tools </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="4-events.html#1019490">3. Events </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="4-events.html#1019507">Event Status </A></DD>
+
+<DD><A HREF="4-events.html#1020080">Built-in Events </A></DD>
+
+<DL>
+<DD><A HREF="4-events.html#1019729">Time Events </A></DD>
+
+<DD><A HREF="4-events.html#1020641">Prior Job Events </A></DD>
+</DL>
+
+<DD><A HREF="4-events.html#1020108">External Events </A></DD>
+
+<DL>
+<DD><A HREF="4-events.html#1020203">File Events </A></DD>
+
+<DD><A HREF="4-events.html#1019842">User Events </A></DD>
+</DL>
+
+<DD><A HREF="4-events.html#1020460">Viewing External Events </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="3-calendars.html#1006181">4. Calendars </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="3-calendars.html#1006192">What is a Calendar? </A></DD>
+
+<DD><A HREF="3-calendars.html#999240">Calendar Specification </A></DD>
+
+<DL>
+<DD><A HREF="3-calendars.html#1006477">Time Event </A></DD>
+
+<DD><A HREF="3-calendars.html#999254">Time Expression </A></DD>
+
+<DD><A HREF="3-calendars.html#999985">Example Time Expressions </A></DD>
+
+<DD><A HREF="3-calendars.html#1000097">Time Expression List </A></DD>
+</DL>
+
+<DD><A HREF="3-calendars.html#1006223">Creating Calendars </A></DD>
+
+<DL>
+<DD><A HREF="3-calendars.html#1000595">Example of Creating a Calendar </A></DD>
+
+<DD><A HREF="3-calendars.html#1001015">Using the GUI to Create Calendars
+</A></DD>
+</DL>
+
+<DD><A HREF="3-calendars.html#1005998">Displaying Calendars </A></DD>
+
+<DL>
+<DD><A HREF="3-calendars.html#1003149">Displaying Details </A></DD>
+
+<DD><A HREF="3-calendars.html#1003097">System Calendars </A></DD>
+
+<DD><A HREF="3-calendars.html#1006742">Viewing Calendars with the GUI </A></DD>
+</DL>
+
+<DD><A HREF="3-calendars.html#1003088">Modifying Calendars </A></DD>
+
+<DL>
+<DD><A HREF="3-calendars.html#1006596">Using the GUI to Modify Calendars
+</A></DD>
+</DL>
+
+<DD><A HREF="3-calendars.html#1006610">Viewing the History of Calendars
+</A></DD>
+
+<DD><A HREF="3-calendars.html#1002155">Deleting Calendars </A></DD>
+
+<DL>
+<DD><A HREF="3-calendars.html#1002520">Deleting Calendars with the GUI
+</A></DD>
+</DL>
+</DL>
+</DL>
+
+<H4><A HREF="5-environment.html#1019487">5. JobScheduler Environment </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="5-environment.html#1022520">Viewing Cluster Information </A></DD>
+
+<DD><A HREF="5-environment.html#1022518">Cluster Host Resource Information
+</A></DD>
+
+<DD><A HREF="5-environment.html#1022435">Cluster Host Dynamic Load Information
+</A></DD>
+
+<DD><A HREF="5-environment.html#1022186">Cluster Resource Information </A></DD>
+
+<DD><A HREF="5-environment.html#1020313">JobScheduler Server Host Information
+</A></DD>
+
+<DD><A HREF="5-environment.html#1022510">Listing User Information </A></DD>
+
+<DD><A HREF="5-environment.html#1022596">Viewing the JobScheduler Queues
+</A></DD>
+
+<DL>
+<DD><A HREF="5-environment.html#1022608">Detailed Queue Information </A></DD>
+</DL>
+
+<DD><A HREF="5-environment.html#1022591">Cluster Monitoring GUI </A></DD>
+
+<DL>
+<DD><A HREF="5-environment.html#1022794"><TT>xlsmon</TT> </A></DD>
+
+<DD><A HREF="5-environment.html#1022890"><TT>xlsbatch</TT> </A></DD>
+</DL>
+</DL>
+</DL>
+
+<H4><A HREF="6-job-define.html#997895">6. Defining Jobs </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="6-job-define.html#1019876">Job Attributes </A></DD>
+
+<DL>
+<DD><A HREF="6-job-define.html#1020051">JobID and JobName </A></DD>
+
+<DD><A HREF="6-job-define.html#1019991">Dependency Condition </A></DD>
+
+<DD><A HREF="6-job-define.html#1019886">Resource Requirements </A></DD>
+
+<DD><A HREF="6-job-define.html#1021799">Job Status </A></DD>
+</DL>
+
+<DD><A HREF="6-job-define.html#1020998">Submitting a Simple Job </A></DD>
+
+<DL>
+<DD><A HREF="6-job-define.html#1021521">Using <TT>xbsub</TT> to Submit
+a Job </A></DD>
+
+<DD><A HREF="6-job-define.html#1021523">Queue Selection </A></DD>
+
+<DD><A HREF="6-job-define.html#1021319">Host Selection </A></DD>
+
+<DD><A HREF="6-job-define.html#1021104">Input and Output </A></DD>
+</DL>
+
+<DD><A HREF="6-job-define.html#1000466">Submitting a Job with Dependencies
+</A></DD>
+
+<DL>
+<DD><A HREF="6-job-define.html#1020088">Calendar Dependencies </A></DD>
+
+<DD><A HREF="6-job-define.html#1006504">Inter-job Dependencies </A></DD>
+
+<DD><A HREF="6-job-define.html#1006112">Pre-execution Commands </A></DD>
+
+<DD><A HREF="6-job-define.html#1021937">File Event Dependencies </A></DD>
+
+<DD><A HREF="6-job-define.html#1020582">User Event Dependencies </A></DD>
+
+<DD><A HREF="6-job-define.html#1021614">Checking External Event Status
+</A></DD>
+
+<DD><A HREF="6-job-define.html#1000499">Defining a Job Dependent on a Combination
+of Conditions </A></DD>
+
+<DD><A HREF="6-job-define.html#1021472">Synchronizing Dependent Jobs </A></DD>
+</DL>
+
+<DD><A HREF="6-job-define.html#1020670">Grouping Related Jobs </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="7-job-manage.html#1019582">7. Managing Jobs </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="7-job-manage.html#1020033">Tracking Jobs </A></DD>
+
+<DL>
+<DD><A HREF="7-job-manage.html#1019655">Checking Status of your Jobs </A></DD>
+
+<DD><A HREF="7-job-manage.html#1019685">Tracking a Job </A></DD>
+</DL>
+
+<DD><A HREF="7-job-manage.html#1016050">Modifying a Job </A></DD>
+
+<DL>
+<DD><A HREF="7-job-manage.html#1017150">Changing Queues </A></DD>
+</DL>
+
+<DD><A HREF="7-job-manage.html#999409">Removing a Job </A></DD>
+
+<DL>
+<DD><A HREF="7-job-manage.html#1019892">Specifying Number of Executions
+</A></DD>
+
+<DD><A HREF="7-job-manage.html#1018090">Suspending and Resuming Jobs </A></DD>
+</DL>
+
+<DD><A HREF="7-job-manage.html#1020662">Managing Related Jobs </A></DD>
+
+<DD><A HREF="7-job-manage.html#1020315">Using JobScheduler GUI to Manage
+Jobs </A></DD>
+</DL>
+</DL>
+
+<H4><A HREF="8-advanced.html#997895">8. Advanced Features </A></H4>
+
+<DL>
+<DL>
+<DD><A HREF="8-advanced.html#1020025">Resources </A></DD>
+
+<DL>
+<DD><A HREF="8-advanced.html#1020091">Resource Requirements </A></DD>
+
+<DD><A HREF="8-advanced.html#1020043">Resource Limits </A></DD>
+</DL>
+
+<DD><A HREF="8-advanced.html#1020013">File Transfer </A></DD>
+
+<DD><A HREF="8-advanced.html#1020494">Start and Termination Time </A></DD>
+
+<DD><A HREF="8-advanced.html#1020575">Reinitializing the Job Environment
+</A></DD>
+
+<DD><A HREF="8-advanced.html#1021797">Exclusive Jobs </A></DD>
+
+<DD><A HREF="8-advanced.html#1020611">Job Scripts </A></DD>
+
+<DL>
+<DD><A HREF="8-advanced.html#1020617">Embedded Submission Options </A></DD>
+
+<DD><A HREF="8-advanced.html#1020631">Running a Job Under a Particular
+Shell </A></DD>
+</DL>
+
+<DD><A HREF="8-advanced.html#1022013">Resource Reservation </A></DD>
+</DL>
+</DL>
+
+<P>
+<HR><A HREF="pjs-title.html">[Title]</A> <A HREF="pjs-legal.html">[Prev]</A>
+<A HREF="pjs-contents.html">[Contents]</A> <A HREF="pjs-figures.html">[Next]</A>
+<A HREF="8-advanced.html">[End]</A> </P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

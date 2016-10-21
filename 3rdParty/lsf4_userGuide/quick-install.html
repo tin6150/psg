@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Installation Quick Reference</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P>
+<HR></P>
+
+<H1><A NAME="6969"></A>LSF Installation Quick Reference</H1>
+
+<P><A HREF="lsf-docs.html"><IMG SRC="logo.gif" ALT="Platform Computing Corporation" BORDER=0 HEIGHT=150 WIDTH=100></A></P>
+
+<P>
+<HR></P>
+
+<H2><A NAME="8327"></A>Overview</H2>
+
+<P><A NAME="52664"></A>Follow these instructions to extract the software
+from the distribution medium, then use the <TT>lsfsetup</TT> command to
+install and configure LSF. <TT>lsfsetup</TT> prompts for all information
+needed to install LSF. Most prompts include a default value, displayed
+in square brackets. If you press <B><FONT SIZE=-1>[RETURN]</FONT></B>,
+that value is used. If you type a question mark (<B><FONT SIZE=-1>[?]</FONT></B>)
+at any prompt, a short help message is displayed.</P>
+
+<H3><A NAME="53322"></A>Privileges Needed for Installation</H3>
+
+<P><A NAME="53074"></A>These instructions assume you have some UNIX system
+administration experience, your environment has uniform user names (UID),
+a shared file system structure across your network, and the network is
+behind a firewall. You must have superuser privileges to install LSF. Your
+Network File System (NFS) mounted directories must be exported and mounted
+<TT>setuid</TT> (client root access).</P>
+
+<H2><A NAME="8262"></A>Reading the Distribution Medium</H2>
+
+<P><A NAME="51559"></A>LSF is available on a variety of distribution media
+(<TT>ftp</TT> net access, CD-ROM, or tape). </P>
+
+<P><A NAME="53996"></A>The LSF files are compressed <TT>tar</TT> archives
+for each host type supported by LSF. The archives are named by LSF version
+and host type, for example <TT>lsf3.0_sparc-sol2.tar.Z</TT>. Extract the
+desired archives into a temporary directory, for example <TT>/var/tmp</TT>.
+Uncompressing the archive creates a <I>distribution directory</I>, for
+example <TT>lsf3.0_sparc-sol2</TT>. The distribution directory takes between
+50MB to 120MB for each architecture. You need to plan your space requirements
+accordingly.</P>
+
+<H3><A NAME="53904"></A>Selecting the Desired LSF Components</H3>
+
+<P><A NAME="53919"></A>LSF Suite V3.0 includes the following components:
+LSF Base, LSF Batch, LSF JobScheduler, and LSF MultiCluster. The distribution
+file for each host type contains all the components. During installation,
+specify which components you want to run.</P>
+
+<P><A NAME="53933"></A>The default installation is LSF Batch together with
+LSF Base. LSF Base is a prerequisite for all other LSF components.</P>
+
+<H2><A NAME="53151"></A>Installing LSF with <TT>lsfsetup</TT></H2>
+
+<P><A NAME="53158"></A>The following examples install the LSF binaries
+for Solaris 2.x on the file server. The distribution directory is called
+<TT>lsf3.0_sparc-sol2</TT> and requires approximately 40.2MB of disk space:</P>
+
+<H3><A NAME="28453"></A>Installing the First Host Type</H3>
+
+<DL>
+<P><A NAME="28456"></A><B>1. </B>Log in to the file server host as root.
+Change to the temporary directory. Extract the Solaris 2.x version of the
+LSF software from the distribution tape. Uncompress the distribution file.
+Change directory to the distribution directory. </P>
+</DL>
+
+<PRE><A NAME="51858"></A><TT>% <B>cd /var/tmp
+</B>% <B>zcat lsf3.0_sparc-sol2.tar.Z | tar xf -
+</B>% <B>cd lsf3.0_sparc-sol2</B></TT></PRE>
+
+<DL>
+<P><A NAME="48435"></A><B>2. </B>Run the <TT>lsfsetup</TT> command: </P>
+</DL>
+
+<PRE><A NAME="50576"></A><TT>% <B>./lsfsetup</B></TT></PRE>
+
+<DL>
+<P><A NAME="50574"></A><B>3. </B>Choose '1. Install for the First Time'.
+Then select one or more of the following components to install: '1. Batch
+(default)', '2. JobScheduler', '3. MultiCluster', or '4. Base-only' by
+typing in the corresponding number. If you select more than one component,
+make sure you separate them with commas: </P>
+</DL>
+
+<PRE><A NAME="50580"></A><TT>Please enter your choice(s) separated by comma (e.g., 1,3)? [1] <B>1</B></TT></PRE>
+
+<DL>
+<P><A NAME="18129"></A><B>4. </B>Select the installation directories. For
+the host independent installation directory, enter <TT>/usr/local/lsf</TT>.
+For the host type dependent installation directory, enter <TT>/usr/local/lsf/mnt/SOLARIS</TT>.
+Enter the name of the LSF cluster, and the login name of the LSF administrator:
+</P>
+</DL>
+
+<PRE><A NAME="50607"></A><TT>LSF_INDEP? [? for help] [/usr/local/lsf] <B>/lsf/local/lsf
+</B>...
+LSF_MACHDEP? [? for help] [/lsf/local/lsf] <B>/lsf/local/lsf/mnt/SOLARIS
+</B>...
+LSF_CLUSTER_NAME? [? for help] <B>test_cluster
+</B>...
+LSF_MANAGER? [? for help] [lsf] <B>lsf</B></TT></PRE>
+
+<DL>
+<P><A NAME="50608"></A><B>5. </B>Review and modify the settings as needed.
+Choose '1. List Current Settings' to review the configuration settings.
+If you wish to change any setting or see the help text for any setting,
+choose '2. Change Current Settings'<TT>. </TT></P>
+
+<P><A NAME="28184"></A><B>6. </B>Choose '3. Install the Software Now'.
+This copies all the LSF files into their final locations and creates a
+default set of cluster configuration files. The <TT>lsfsetup</TT> command
+is installed into the <TT>LSF_SERVERDIR</TT> directory. You can use <TT>lsfsetup</TT>
+later to maintain LSF. </P>
+</DL>
+
+<H3><A NAME="18725"></A>Installing Additional Host Types</H3>
+
+<P><A NAME="18726"></A>For the following example, the HP-UX version of
+LSF is installed on the file server. The distribution directory is called
+<TT>lsf3.0_hpux</TT> and requires approximately 31.3MB of disk space.</P>
+
+<DL>
+<P><A NAME="52479"></A><B>1. </B>Log in to the file server host as root.
+Change to the directory where you want the distribution directory created.
+Extract the HP-UX version of the LSF software from the distribution medium,
+in this example a tape. Uncompress the distribution file. Change directory
+to the HP-UX distribution directory. </P>
+</DL>
+
+<PRE><A NAME="52483"></A><TT>% <B>cd /var/tmp
+</B>% <B>zcat lsf3.0_hpux.tar.Z | tar xf -
+</B>% <B>cd ./lsf3.0_hpux</B></TT></PRE>
+
+<DL>
+<P><A NAME="18729"></A><B>2. </B>Copy the LSF configuration file from the
+Solaris 2.x distribution directories with the following command: </P>
+</DL>
+
+<PRE><A NAME="31103"></A><TT># <B>cp /usr/local/lsf/mnt/SOLARIS/etc/lsf.conf .</B></TT></PRE>
+
+<DL>
+<P><A NAME="52521"></A><B>3. </B>Run the <TT>lsfsetup</TT> command: </P>
+</DL>
+
+<PRE><A NAME="52522"></A><TT>% <B>./lsfsetup</B></TT></PRE>
+
+<DL>
+<P><A NAME="52514"></A><B>4. </B>Choose '2. Install Another Host Type (for
+a mixed cluster)'. </P>
+
+<P><A NAME="18731"></A><B>5. </B>The <TT>lsfsetup</TT> command asks whether
+you want to base your configuration on an existing <TT>lsf.conf</TT> file.
+Answer yes, and enter the name of the <TT>lsf.conf</TT> file you copied
+from the Solaris 2.x directories. </P>
+
+<P><A NAME="18732"></A><B>6. </B>Enter <TT>/usr/local/lsf/mnt/HPUX</TT>
+as the directory for machine-dependent files. The other installation settings
+are automatically updated. </P>
+
+<P><A NAME="52542"></A><B>7. </B>Choose '3. Install the Software Now'.
+The <TT>lsfsetup</TT> command installs all the components necessary for
+the additional host type. </P>
+</DL>
+
+<H3><A NAME="28738"></A>Additional Steps on Each LSF Server Host</H3>
+
+<P><A NAME="30834"></A>Each server host in the LSF cluster must be setup
+as follows:</P>
+
+<DL>
+<P><A NAME="28740"></A><B>1. </B>Create a <TT>/usr/local/lsf/mnt</TT> directory
+and NFS mount the <TT>/usr/local/lsf/mnt</TT> directory from the file server.
+You must not mount this directory with the <TT>nosuid</TT> flag; some LSF
+programs require setuid permission. </P>
+
+<P><A NAME="28743"></A><B>2. </B>Create the symbolic links appropriate
+for the host type. For example, on a Solaris 2.x host: </P>
+</DL>
+
+<PRE><A NAME="28745"></A><TT># <B>ln -s /usr/local/lsf/mnt/SOLARIS/{bin,etc,lib} /usr/local/lsf</B></TT></PRE>
+
+<DL>
+<P><A NAME="30918"></A><B>3. </B>Log in as root and run the <TT>lsfsetup</TT>
+command. </P>
+</DL>
+
+<PRE><A NAME="52575"></A><TT>% <B>/usr/local/lsf/etc/lsfsetup</B></TT></PRE>
+
+<DL>
+<P><A NAME="52573"></A><B>4. </B>Choose '6. Host Setup'. </P>
+</DL>
+
+<P><A NAME="31438"></A><TT>lsfsetup</TT> creates a symbolic link to the
+<TT>lsf.conf</TT> file (used by LSF daemons and applications to find the
+LSF configuration files and working directories) in <TT>LSF_ENVDIR</TT>
+(<TT>/etc</TT> by default). It adds the LSF services to the <TT>/etc/services</TT>
+file if they are not defined in NIS or NIS+ and configures the system so
+that the LSF daemons are started when the system boots.</P>
+
+<H2><A NAME="49770"></A>Initial Configuration</H2>
+
+<P><A NAME="49772"></A>Once the file server host is completely set up,
+you need to configure the system parameters. These parameters tell the
+LSF daemons about the definition of your cluster by defining hosts, host
+types, and resources in your cluster. You can use default settings for
+most parameters.</P>
+
+<DL>
+<P><A NAME="49777"></A><B>1. </B>Log in as root and run the <TT>lsfsetup</TT>
+command. </P>
+</DL>
+
+<PRE><A NAME="52655"></A><TT>% <B>/usr/local/lsf/etc/lsfsetup</B></TT></PRE>
+
+<DL>
+<P><A NAME="52652"></A><B>2. </B>Choose '5. Configure LSF Cluster'. <TT>lsfsetup</TT>
+will prompt you to enter or confirm the location of your <TT>lsf.conf</TT>
+file. Then it will enter the configuration sub-menu. </P>
+
+<P><A NAME="49782"></A><B>3. </B>Choose '4. View/Add/Delete Currently Defined
+Host Types'. Use the menu to include the host types you have in your cluster.
+When you are finished, select 'q. Done Modifying Host Types'. </P>
+
+<P><A NAME="49785"></A><B>4. </B>Choose '2. View/Add/Delete/Modify Currently
+Defined Host Models'. Use the menu to add host model specifications and
+CPU factors for the systems in your cluster. When you are finished, select
+'q. Done Modifying Host Models'. </P>
+
+<P><A NAME="49790"></A><B>5. </B>Choose '1. View/Add/Delete/Modify Currently
+Configured Hosts'. From the sub-menu, choose '2. Add Hosts To LSF Configuration'.
+The <TT>lsfsetup</TT> command prompts for a host name and then runs the
+<TT>vi</TT> editor. Edit the appropriate line for the host and set the
+host type, model, load thresholds, and resources as required. </P>
+</DL>
+
+<P><A NAME="49800"></A>You can add more than one host at this time. Enter
+the host information for all hosts in the cluster. The master LIM and <TT>mbatchd</TT>
+daemons run on the first available host in this list, so you should put
+reliable server hosts first.</P>
+
+<P><A NAME="49805"></A>When you are done adding hosts select 'q. Done Modifying
+Host Configuration'.</P>
+
+<DL>
+<P><A NAME="49808"></A><B>6. </B>Choose '5. Configuration File Error Checking'.
+This option runs a check of the LSF configuration files, and reports any
+problems found. </P>
+</DL>
+
+<P><A NAME="52805"></A>Select 'q. Quit' to exit the configuration sub-menu
+and again to exit <TT>lsfsetup</TT>. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="49834"></A><B>Note<BR>
+</B><TT>lsfsetup</TT><I> creates a default LSF Batch configuration, including
+a set of batch queues. You do not need to change any LSF Batch files to
+use the default configuration. After you have the system running, you may
+want to reconfigure LSF Batch.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="53830"></A>Installing the FLEXlm License Key</H2>
+
+<P><A NAME="53834"></A>LSF uses the FLEXlm license management software
+from Globetrotter Software. FLEXlm supports network-wide <I>permanent licenses</I>
+as well as limited time <I>DEMO licenses</I>. You must have a license key
+to run LSF. These instructions only show using a DEMO license.</P>
+
+<H3><A NAME="53838"></A>Getting a DEMO License</H3>
+
+<P><A NAME="53845"></A>Contact your LSF vendor. Tell them components of
+LSF you want to run. They will give you a time limited license key(s) with
+the desired feature(s) enabled.</P>
+
+<H3><A NAME="53846"></A>Creating the <TT>license.dat</TT> File</H3>
+
+<P><A NAME="53847"></A>Store the license key(s) in a a file named <TT>license.dat</TT>
+in the distribution directory. The LIM on every host need to read the license
+key, so this file should be available on all LSF hosts. It can be shared
+using NFS or you can install a copy on each host.</P>
+
+<H3><A NAME="53851"></A>Installing a DEMO license</H3>
+
+<P><A NAME="53858"></A>If you are installing LSF with a DEMO license, you
+do not need to run the license server daemons. Each LSF host reads the
+license file directly. Until the license expires, LSF will run without
+trying to contact a server.</P>
+
+<DL>
+<P><A NAME="53862"></A><B>1. </B>Change directory to the distribution directory.
+Run the <TT>lsfsetup</TT> command. </P>
+</DL>
+
+<PRE><A NAME="53863"></A><TT>% <B>cd /var/tmp/lsf3.0_sparc-sol2
+</B>% <B>./lsfsetup</B></TT></PRE>
+
+<DL>
+<P><A NAME="53864"></A><B>2. </B>Choose '4. License Management'. From the
+next menu, choose '2. Install a New License From the LSF Vendor'. </P>
+
+<P><A NAME="53865"></A><B>3. </B>From the next menu choose '1. Set up a
+DEMO license'. </P>
+</DL>
+
+<P><A NAME="53866"></A>It looks for the license key in a <TT>license.dat</TT>
+file in the current and parent directories. If the file is not found, it
+prompts you to enter the full path name of the file containing your DEMO
+license key.</P>
+
+<DL>
+<P><A NAME="53867"></A><B>4. </B>You are then prompted for a location in
+which to store the installed license file. Choose '2. Use $LSF_CONFDIR/license.dat'
+and type 'y' to commit the changes. </P>
+</DL>
+
+<P><A NAME="53868"></A><TT>lsfsetup</TT> checks the <TT>license.dat</TT>
+file to confirm the licensed components. It then prompts for permission
+to enter appropriate features in the '<TT>FEATURES=...</TT>' line in the
+<TT>lsf.cluster.<I>cluster</I></TT> file.</P>
+
+<P><A NAME="53869"></A><TT>lsfsetup</TT> installs the key in the FLEXlm
+license file, creating it if necessary. It updates the <TT>lsf.conf</TT>
+file to include the full path name of the license file.</P>
+
+<H2><A NAME="49904"></A>Checking the LSF Configuration</H2>
+
+<P><A NAME="49909"></A>Before you can start any LSF daemons, you should
+make sure that your cluster configuration is correct. To confirm the LSF
+configuration, you can run the <TT>ckconfig</TT> option of the <TT>lsadmin</TT>
+and <TT>badmin</TT> commands.</P>
+
+<P><A NAME="49930"></A>Log into the first host listed in <TT>lsf.cluster.<I>cluster</I></TT>
+as the LSF administrator and check LIM configuration with the following
+command:</P>
+
+<PRE><A NAME="49932"></A><TT>% <B>lsadmin ckconfig -v</B></TT></PRE>
+
+<P><A NAME="49946"></A>To check the LSF Batch configuration files, LIM
+must be running on the master server. Log in as root and start <TT>LSF_SERVERDIR/lim</TT>.
+Wait a minute and then run the <TT>lsid</TT> program to make sure LIM is
+available. Then run the following command to check the LSF Batch configuration:</P>
+
+<PRE><A NAME="49948"></A><TT>% <B>badmin ckconfig -v</B></TT></PRE>
+
+<H3><A NAME="53800"></A>Starting the LSF Daemons</H3>
+
+<P><A NAME="53807"></A>The LSF daemons must be run by root on every host
+in the cluster. When LSF is first configured, the daemons are started by
+hand.</P>
+
+<DL>
+<P><A NAME="53817"></A><B>1. </B>Start the LSF daemons by running <TT>LSF_SERVERDIR/lsf_daemons
+start</TT> and use the <TT>ps</TT> command to make sure that <TT>res</TT>,
+<TT>lim</TT> and <TT>sbatchd</TT> have started. </P>
+</DL>
+
+<P><A NAME="53823"></A>Under normal operation, the daemons are restarted
+automatically each time the host boots. The steps required to set up daemons
+are different under different versions of UNIX. In all cases, the LSF daemons
+should be started after NFS and all other networking daemons.</P>
+
+<H2><A NAME="49963"></A>Testing the LSF Cluster</H2>
+
+<P><A NAME="53694"></A>Testing consists of running a number of LSF commands
+and making sure that correct results are reported for all hosts in the
+cluster. Log in as a non-root user. Your <TT>PATH</TT> must include the
+LSF user binaries (<TT>LSF_BINDIR</TT> as defined in <TT>/etc/lsf.conf</TT>).
+The following steps may be performed from any host in the cluster.</P>
+
+<DL>
+<P><A NAME="49980"></A><B>1. </B>Check cluster name and master host name:
+</P>
+</DL>
+
+<PRE><A NAME="49981"></A><TT>% <B>lsid</B></TT></PRE>
+
+<DL>
+<P><A NAME="49993"></A><B>2. </B>The <TT>lsinfo</TT> command displays cluster-wide
+configuration information. </P>
+</DL>
+
+<PRE><A NAME="49994"></A><TT>% <B>lsinfo</B></TT></PRE>
+
+<DL>
+<P><A NAME="49997"></A><B>3. </B>The <TT>lshosts</TT> command displays
+configuration information about your hosts: </P>
+</DL>
+
+<PRE><A NAME="49998"></A><TT>% <B>lshosts</B></TT></PRE>
+
+<DL>
+<P><A NAME="50001"></A><B>4. </B>Check the current load levels: </P>
+</DL>
+
+<PRE><A NAME="50002"></A><TT>% <B>lsload</B></TT></PRE>
+
+<DL>
+<P><A NAME="50012"></A><B>5. </B>The <TT>lsgrun</TT> command runs a UNIX
+command on a group of hosts: </P>
+</DL>
+
+<PRE><A NAME="50013"></A><TT>% <B>lsgrun -v -m &quot;hostA hostD hostB&quot; hostname</B></TT></PRE>
+
+<DL>
+<P><A NAME="50024"></A><B>6. </B>The <TT>bhosts</TT> command lists the
+LSF Batch server hosts in the cluster: </P>
+</DL>
+
+<PRE><A NAME="50025"></A><TT>% <B>bhosts</B></TT></PRE>
+
+<DL>
+<P><A NAME="50032"></A><B>7. </B>Submit a job to the default queue: </P>
+</DL>
+
+<PRE><A NAME="50033"></A><TT>% <B>bsub sleep 60</B></TT></PRE>
+
+<DL>
+<P><A NAME="50036"></A><B>8. </B>Check available queues and their configuration
+parameters: </P>
+</DL>
+
+<PRE><A NAME="50037"></A><TT>% <B>bqueues</B></TT></PRE>
+
+<DL>
+<P><A NAME="50040"></A><B>9. </B>Check job status: </P>
+</DL>
+
+<PRE><A NAME="50041"></A><TT>% <B>bjobs</B></TT></PRE>
+
+<H2><A NAME="53532"></A>Documentation</H2>
+
+<P><A NAME="53541"></A>Documentation for LSF consists of this reference
+and the <I><A HREF="quick-admin.html">LSF Administrator's Quick Reference</A></I>,
+the <I><A HREF="quick-user.html">LSF User's Quick Reference</A></I>, the
+<I><A HREF="admin-title.html">LSF Administrator's Guide</A></I>, the <I><A HREF="users-title.html">LSF
+User's Guide</A></I>, the <I><A HREF="pjs-title.html">LSF JobScheduler
+User's Guide</A></I>, the <I><A HREF="programmers-title.html">LSF Programmer's
+Guide</A></I>, the LSF<TT> man</TT> pages, and the <TT>xlsbatch</TT>, <TT>xlsmon</TT>,
+<TT>xbsub</TT>, and <TT>xbcal</TT> on-line help. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="53959"></A><B>Note<BR>
+</B><I>To install LSF on Windows NT, please refer to the instructions in
+the file </I><TT>README.NT</TT><I> in the distribution directory. The Windows
+NT version is supplied as a ZIP archive. You need WinZip, PKZIP, or similar
+applications to extract the files and directories.</I></P>
+</BLOCKQUOTE>
+
+<P>
+<HR></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> <!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:40:06 --></P>
+
+</BODY>
+</HTML>

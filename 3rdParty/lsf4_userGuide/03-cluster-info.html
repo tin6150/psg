@@ -1,0 +1,354 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Cluster Information</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="02-get-started.html">[Prev]</A>
+<A HREF="04-resources.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<P>
+<HR></P>
+
+<H1><A NAME="355"></A>Chapter 3. <A NAME="343"></A>Cluster Information</H1>
+
+<P><A NAME="356"></A>This chapter is a detailed tutorial on how to use
+the LSF commands that report information about the LSF cluster. Cluster
+information includes:</P>
+
+<UL>
+<LI><A NAME="4815"></A>Cluster status </LI>
+
+<LI><A NAME="4835"></A>Resource configuration </LI>
+
+<LI><A NAME="4849"></A>Host configuration </LI>
+
+<LI><A NAME="4858"></A>Host load levels </LI>
+</UL>
+
+<P><A NAME="4867"></A>Cluster information is available through commands
+and a Motif graphical user interface.</P>
+
+<H2><A NAME="14824"></A>Finding the Master</H2>
+
+<P><A NAME="14829"></A>The <TT>lsid</TT> command tells you the version
+of LSF, the name of the load-sharing cluster, and the current master host.</P>
+
+<PRE><A NAME="2495"></A>% <B>lsid
+</B>LSF 3.0, Dec 10, 1996
+Copyright 1992-1996 Platform Computing Corporation
+
+My cluster name is test_cluster
+My master name is hostA</PRE>
+
+<H2><A NAME="2662"></A>Listing Resources</H2>
+
+<P><A NAME="2551"></A>The <TT>lsinfo</TT> command displays the resources,
+host types, and host models in the LSF cluster. See <A HREF="02-get-started.html#1535">'Displaying
+Available Resources'</A> for an example of the <TT>lsinfo</TT> command.</P>
+
+<P><A NAME="2570"></A>The <TT>-l</TT> option to the <TT>lsinfo</TT> command
+displays all information available about load indices. You can also specify
+load indices on the command line to display information about the selected
+indices:</P>
+
+<PRE><A NAME="14536"></A>% <B>lsinfo -l swp cs irix
+</B>RESOURCE_NAME:  swp
+DESCRIPTION: Available swap space (Mbytes) (alias: swap)
+TYPE    ORDER   INTERVAL  BUILTIN  DYNAMIC
+Numeric   Dec        60      Yes      Yes
+
+RESOURCE_NAME:  cpuf
+DESCRIPTION:  CPU factor
+TYPE    ORDER   INTERVAL  BUILTIN  DYNAMIC
+Numeric   Dec        0      Yes       No
+
+RESOURCE_NAME:  irix
+DESCRIPTION: IRIX UNIX
+TYPE    ORDER   INTERVAL  BUILTIN  DYNAMIC
+Boolean   N/A        0       No       No</PRE>
+
+<P><A NAME="5046"></A>The extra fields displayed by <TT>lsinfo -l</TT>
+are:</P>
+
+<DL>
+<DT><A NAME="5112"></A><TT>INTERVAL</TT></DT>
+
+<DD>The load index is updated every <TT>INTERVAL</TT> seconds. a value
+of 0 means the value never changes. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="5169"></A><TT>BUILTIN</TT></DT>
+
+<DD>If <TT>BUILTIN</TT> is <TT>Yes</TT>, the resource name is defined internally
+by the LIM. If <TT>BUILTIN</TT> is <TT>No</TT>, the resource name is site-specific
+defined by the LSF administrator. </DD>
+</DL>
+
+<DL>
+<DT><A NAME="7520"></A><TT>DYNAMIC</TT></DT>
+
+<DD>If <TT>DYNAMIC</TT> is <TT>Yes</TT> the resource value changes over
+time. If <TT>DYNAMIC</TT> is <TT>No</TT> the resource represents information
+that does not change such as the total swap space in the host. </DD>
+</DL>
+
+<H2><A NAME="2682"></A>Listing Hosts</H2>
+
+<P><A NAME="2403"></A>A load-sharing cluster may consist of hosts of different
+architecture and speeds. The <TT>lshosts</TT> command displays static information
+about hosts.</P>
+
+<PRE><A NAME="14886"></A>% <B>lshosts
+</B>HOST_NAME      type    model cpuf ncpus maxmem maxswp server RESOURCES
+hostD         SUNSOL SunSparc 6.0    1   64M    112M    Yes (solaris cserver)
+hostB         ALPHA  DEC3000 10.0    1   94M    128M    Yes (alpha cserver)
+hostM          RS6K   IBM350  7.0    1   64M    124M    Yes (cserver aix)
+hostC         SGI6  ORIGIN2K 14.0   16 1024M    1896M   Yes (irix cserver)
+hostA         HPPA     HP715  6.0    1   98M    200M    Yes (hpux fserver)</PRE>
+
+<P><A NAME="2410"></A>The fields displayed are:</P>
+
+<DL>
+<DT><A NAME="2411"></A><TT>type</TT></DT>
+
+<DD>The host CPU architecture. Hosts that can run the same binary programs
+should have the same <TT>type</TT>.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="2412"></A><TT>model</TT> and <TT>cpuf</TT></DT>
+
+<DD>The host model and relative CPU performance factor. The higher the
+number, the faster the CPU.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="10012"></A><TT>ncpus</TT></DT>
+
+<DD>The number of processors on this host.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="10013"></A><TT>maxmem </TT></DT>
+
+<DD>The maximum amount of physical memory available for user processes.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="9829"></A><TT>maxswp</TT></DT>
+
+<DD>The total swap space available.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="9872"></A><TT>server</TT></DT>
+
+<DD><TT>Yes</TT> if the host is an LSF server, <TT>No</TT> if the host
+is a client.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="2415"></A><TT>RESOURCES</TT></DT>
+
+<DD>The boolean resources defined for this host.</DD>
+</DL>
+
+<P><A NAME="2417"></A>All these parameters are defined by the LSF administrator
+in the LSF configuration files, or determined directly from the system.</P>
+
+<P><A NAME="14727"></A>The <TT>-l</TT> option to the <TT>lshosts</TT> command
+displays more detailed information about hosts, including the load thresholds.
+You can also use the <TT>-R</TT> <I>resreq</I> option to display hosts
+with specific resources, or specify hosts on the command line. </P>
+
+<P><A NAME="14730"></A>There is also the <TT>-w</TT> option which displays
+information in table format without truncating the fields. This is especially
+useful for scripts that parse the output of <TT>lshosts</TT>.</P>
+
+<PRE><A NAME="7720"></A>% <B>lshosts -l hostC
+
+</B>HOST_NAME: hostC
+type         model  cpuf ncpus ndisks maxmem maxswp maxtmp rexpri server
+SGI6      ORIGIN2K   14    16     4    1024M  1896M   120M     0    Yes
+
+RESOURCES: irix cserver
+RUN_WINDOWS:  (always open)
+LOAD_THRESHOLDS:
+  r15s   r1m  r15m   ut    pg    io   ls   it   tmp   swp   mem
+   -     3.5   -     -     -     -    -    -    -     974M  451M</PRE>
+
+<P><A NAME="7737"></A>The extra fields displayed by the <TT>-l</TT> option
+are:</P>
+
+<DL>
+<DT><A NAME="7828"></A><TT>ndisks</TT> </DT>
+
+<DD>The number of disk drives directly attached to the host </DD>
+</DL>
+
+<DL>
+<DT><A NAME="14495"></A><TT>maxtmp</TT> </DT>
+
+<DD>The size of the disk partition that contains the <TT>/tmp</TT> directory
+</DD>
+</DL>
+
+<DL>
+<DT><A NAME="14497"></A><TT>rexpri</TT> </DT>
+
+<DD>The execution priority of remote jobs run by the RES. <TT>rexpri</TT>
+is a number between -20 and 20, with -20 representing the highest priority
+and 20 the lowest. The default <TT>rexpri</TT> is 0, which corresponds
+to the default scheduling priority of 0 on BSD-based UNIX systems and 20
+on System V-based systems.</DD>
+</DL>
+
+<DL>
+<DT><A NAME="9948"></A><TT>RUN_WINDOWS </TT></DT>
+
+<DD>The time windows during which LIM considers the host as available to
+execute remote jobs. </DD>
+</DL>
+
+<BLOCKQUOTE>
+<P><A NAME="12845"></A><B>Note<BR>
+</B><I>These run windows have the same function for LSF hosts as dispatch
+windows have for LSF Batch hosts.</I></P>
+</BLOCKQUOTE>
+
+<DL>
+<DT><A NAME="7862"></A><TT>LOAD_THRESHOLDS </TT></DT>
+
+<DD>The host is considered busy if any load index is above its threshold
+(or below, for decreasing load indices). LSF does not send interactive
+jobs to busy hosts. If the threshold is displayed as a dash '-', the value
+of that load index does not affect the host's status. </DD>
+</DL>
+
+<H2><A NAME="2707"></A>Displaying the Load</H2>
+
+<P><A NAME="2420"></A>The <TT>lsload</TT> command prints out current load
+information.</P>
+
+<PRE><A NAME="2422"></A>% <B>lsload
+</B>HOST_NAME   status  r15s  r1m r15m  ut    pg   ls  it   tmp  swp  mem
+hostD           ok   0.1  0.0  0.1   2%   0.0   5   3   81M  82M  45M
+hostC           ok   0.7  1.2  0.5  50%   1.1  11   0  322M 337M 252M 
+hostM           ok   0.8  2.2  1.4  60%  15.4   0  136  62M  37M  44M
+hostA         busy  *5.2  3.6  2.6  99% *34.4   4   0   70M  34M  18M
+hostB        lockU   1.0  1.0  1.5  99%   0.8   5  33   12M  24M  23M</PRE>
+
+<P><A NAME="2428"></A>The first line lists all the load index names. The
+load indices are described in <A HREF="04-resources.html#1797">'Load Indices'</A>.</P>
+
+<P><A NAME="4280"></A>The <TT>status</TT> column gives the load status
+of the host. A host is busy if any load index is beyond its configured
+threshold. When a load index is beyond its threshold, it is printed with
+an asterisk '<TT>*</TT>'. In the above example, <TT>hostA</TT> is busy
+because load indices <TT>r15s</TT> and <TT>pg</TT> are too high.</P>
+
+<P><A NAME="2443"></A>By default hosts are sorted based on CPU and memory
+load, with the best host listed first. You can specify an order string
+using the <TT>-R</TT> <I>resreq</I> option to sort the hosts in other ways.</P>
+
+<P><A NAME="8044"></A>The <TT>-l</TT> option displays the values of all
+load indices, including external load indices. You can also specify host
+names on the command line to display the load of specific hosts. In this
+example <TT>nio</TT> is an external load index defined by the LSF administrator.</P>
+
+<PRE><A NAME="9002"></A>% <B>lsload -l hostM
+</B>HOST_NAME status  r15s  r1m  r15m   ut   pg  io  ls  it  tmp  swp  mem  nio
+hostM      lockW   0.7  0.5   0.1  21%  0.0 228   7   0  31M  52M  25M  3.5</PRE>
+
+<P><A NAME="2603"></A>The <TT>-l</TT> option displays the full host name,
+rather than truncating the name to fit in a limited screen width. The output
+from <TT>lsload -l</TT> is better suited for automatic processing, since
+the host name is always complete. It also shows all the load indices rather
+than just some of them. </P>
+
+<P><A NAME="2444"></A>The <TT>lsmon</TT> command provides an updating display
+of load information. An example display from <TT>lsmon</TT> is shown below.
+You can specify the resource requirements, refresh interval, and other
+parameters interactively or on the command line. See the <TT>lsmon(1)</TT>
+manual page for more information.</P>
+
+<PRE><A NAME="11008"></A>% <B>lsmon hostA hostB
+</B>Hostname: hostA                                     Refresh rate:  10 secs
+
+HOST_NAME   status  r15s   r1m  r15m   ut    pg   ls   it   swp   mem   tmp
+hostB           ok   0.0   0.0   0.0   6%   0.0    7   45   82M   51M  206M
+hostA           ok   0.2   0.2   0.1   5%   8.9    2    0   140M  70M  119M</PRE>
+
+<H2><A NAME="2728"></A>Graphical Load Display</H2>
+
+<P><A NAME="2617"></A><TT>xlsmon</TT> is a Motif graphical user interface
+(GUI) that displays host status, load levels, load history, and LSF cluster
+configuration information. The <TT>xlsmon</TT> main window shows an icon
+for each host in the cluster, with each host labelled with its status.
+Hosts change colour as their status changes. <A HREF="03-cluster-info.html#14247">Figure
+5</A> shows the <TT>xlsmon</TT> main window.</P>
+
+<P><A NAME="4266"></A>You can choose other displays from the View menu.
+The 'Detailed Host Load' window displays load levels as bar graphs. You
+can select which load indices and which hosts are displayed by choosing
+options from the View menu in the 'Detailed Host Load' window. <A HREF="03-cluster-info.html#14263">Figure
+6</A> shows the 'Detailed Host Load' window.</P>
+
+<P><A NAME="4348"></A>The 'History of Host Load' window displays the load
+levels as stripcharts, so you can see the load history starting from when
+the 'History of Host Load' window is first displayed. As with the 'Detailed
+Host Load' window, you can select hosts and load indices by choosing options
+from the View menu. <A HREF="03-cluster-info.html#14280">Figure 7</A> shows
+the 'Detailed Host Load' window.</P>
+
+<P><A NAME="11051"></A>The 'Cluster Configuration' window, shown in <A HREF="03-cluster-info.html#14288">Figure
+8</A>, displays the same host information as the <TT>lshosts</TT> command
+displays.</P>
+
+<P><A NAME="12275"></A>Each <TT>xlsmon</TT> window has a Help menu item
+that calls up on-line help. For more information about using <TT>xlsmon</TT>,
+see the on-line help.</P>
+
+<H4><A NAME="14247"></A>Figure 5. <TT>xlsmon</TT> Main Window </H4>
+
+<P><A HREF="usr-figure05.gif"><IMG SRC="usr-figure05.gif" ALT="xlsmon Main Window" BORDER=0 HEIGHT=211 WIDTH=365></A>
+</P>
+
+<H4><A NAME="14263"></A>Figure 6. <TT>xlsmon</TT> Detailed Host Load Window
+</H4>
+
+<P><A HREF="usr-figure06.gif"><IMG SRC="usr-figure06.gif" ALT="xlsmon Detailed Host Load Window" BORDER=0 HEIGHT=411 WIDTH=376></A>
+</P>
+
+<H4><A NAME="14280"></A>Figure 7. <TT>xlsmon</TT> History of Host Load
+Window </H4>
+
+<P><A HREF="usr-figure07.gif"><IMG SRC="usr-figure07.gif" ALT="xlsmon History of Host Load Window" BORDER=0 HEIGHT=335 WIDTH=593></A>
+</P>
+
+<H4><A NAME="14288"></A>Figure 8. <TT>xlsmon</TT> Cluster Configuration
+Window </H4>
+
+<P><A HREF="usr-figure08.gif"><IMG SRC="usr-figure08.gif" BORDER=0 HEIGHT=325 WIDTH=654></A>
+</P>
+
+<P>
+<HR></P>
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="02-get-started.html">[Prev]</A>
+<A HREF="04-resources.html">[Next]</A> <A HREF="b-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:26:02 --></P>
+
+</BODY>
+</HTML>

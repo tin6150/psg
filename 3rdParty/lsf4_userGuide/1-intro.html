@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF JobScheduler User's Guide - Introduction</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="pjs-contents.html">[Contents]</A> <A HREF="pjs-preface.html">[Prev]</A>
+<A HREF="2-get-started.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="998239"></A>Chapter 1. <A NAME="997895"></A>Introduction</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="998330"></A>The first two chapters of this guide give a quick
+introduction to production job scheduling and LSF JobScheduler. You should
+be able to begin using JobScheduler after reading these chapters. The rest
+of the guide contains more detailed information on JobScheduler features
+and commands.</P>
+
+<H2><A NAME="998896"></A>What is JobScheduler?</H2>
+
+<P><A NAME="998872"></A>Production job scheduling has been an integral
+part of mainframe data processing operation for decades. With the emergence
+of distributed computing along with Unix and Windows NT workstations and
+fileservers, the system architecture has changed drastically, calling for
+a new approach to production job scheduling.</P>
+
+<P><A NAME="999214"></A>LSF JobScheduler is a distributed production job
+scheduling product from Platform Computing Corporation. It is a separately
+licensed component of the Load Sharing Facility (LSF) Suite, a general
+purpose distributed computing system that unites a network of computers
+into a single system.</P>
+
+<P><A NAME="1000973"></A>JobScheduler integrates heterogeneous servers
+into a 'virtual mainframe' to deliver high availability, robustness and
+ease-of-use. It provides the functions of traditional mainframe job scheduling
+with transparent operation across a network of heterogeneous UNIX and NT
+systems. JobScheduler offers GUI input tools in addition to the standard
+command line interface.</P>
+
+<H3><A NAME="1000977"></A>Calendar and Event-driven Scheduling</H3>
+
+<P><A NAME="998939"></A>In production data processing environments, jobs
+often need to be processed repetitively and periodically according to user-defined
+calendars. Job processing may also be conditional upon certain events occurring
+such as the arrival of a specific file or the availability of a data set.</P>
+
+<P><A NAME="998921"></A>Calendars can be defined in JobScheduler to drive
+time dependent job processing. Flexible time expressions can be used to
+define time events that constitute a calendar. Calendars are defined independent
+of jobs; jobs can be associated with calendars.</P>
+
+<P><A NAME="998990"></A>Job scheduling in JobScheduler can also be driven
+by arbitrarily configured network-wide events. This can be used, for example,
+to detect a change in the size of a file or the mount of a tape to trigger
+production jobs.</P>
+
+<H3><A NAME="1000705"></A>Fault Tolerance</H3>
+
+<P><A NAME="1000514"></A>JobScheduler is designed to continue operating
+even if some of the servers in the system are unavailable. A dynamic master
+succession algorithm ensures that as long as one server is up the jobs
+will continue to be scheduled on the remaining hosts. Even if the entire
+network goes down, no jobs will be lost because all calendars, job records
+and events are logged in a configured file system. When the system comes
+back up, it will recover the state of the JobScheduler and continue operation.</P>
+
+<H3><A NAME="999288"></A>Inter-job Dependency</H3>
+
+<P><A NAME="999292"></A>JobScheduler allows you to control a job's execution
+upon the completion, failure, or start of other jobs. For example, you
+can configure the system to start several main processing jobs only after
+a data preparation job has completed, then you can start the post-processing
+job after all the main processing jobs are done. These jobs do not have
+to run on the same host. </P>
+
+<H3><A NAME="999485"></A>Pre-execution and Post-execution</H3>
+
+<P><A NAME="1001134"></A>JobScheduler can also be configured to run a pre-execution
+command before job execution and a post-execution command after job execution.
+This is useful if some preparation work (for example, mounting a device)
+has to be performed successfully before starting the job and/or when cleaning
+up is needed after the job finishes.</P>
+
+<H3><A NAME="1001135"></A>Job History</H3>
+
+<P><A NAME="1001141"></A>JobScheduler maintains full history data of all
+jobs. The history information tells you what has happened to your job since
+it was submitted.</P>
+
+<H3><A NAME="1001140"></A>Command Set and GUI Tools</H3>
+
+<P><A NAME="1000764"></A>JobScheduler provides a rich set of command line
+and GUI tools to define, monitor and manage the workload using any desktop
+as the system console. Typically you define your calendars and jobs together
+with any interdependency using the GUI tools<I> </I><TT>xbcal</TT> and
+<TT>xbsub</TT>. Once these are set up, JobScheduler will ensure that jobs
+are run according to the conditions and policies specified.</P>
+
+<P><A NAME="1000774"></A>You can keep close track of your jobs with JobScheduler
+using the GUI program <TT>xlsbatch</TT>. As well as monitoring the status
+of jobs, the system allows you to perform various operations on them, including:</P>
+
+<UL>
+<LI><A NAME="1000769"></A>Terminating, suspending, and resuming each run
+of a job, as well as removing the entire job from the system. </LI>
+
+<LI><A NAME="1000742"></A>Inspecting the output of a running job. </LI>
+
+<LI><A NAME="1000743"></A>Looking at the history of a repetitive job for
+all its run instances. </LI>
+
+<LI><A NAME="1000744"></A>Changing any parameter of a job, including switching
+it from one queue to another even while it is running. </LI>
+
+<LI><A NAME="1000745"></A>Inquiring why a job has not been scheduled. </LI>
+</UL>
+
+<H3><A NAME="1000415"></A>Automatic Load Balancing</H3>
+
+<P><A NAME="999325"></A>With JobScheduler, you can target jobs to specific
+servers or you can allow the system to match resource requirements of your
+jobs to the capabilities of the servers. JobScheduler dynamically collects
+system load information about all aspects of computing resource including
+CPU, memory, I/O, disk space, interactive activities, etc. Jobs are dynamically
+scheduled to run on the best server available. For example, you can submit
+a job indicating it requires 100 megabytes of temporary storage space before
+it starts. JobScheduler will ensure that the server the job is run on satisfies
+the condition.</P>
+
+<H3><A NAME="1001166"></A>Network-wide Load and Resource Monitoring</H3>
+
+<P><A NAME="1001167"></A>JobScheduler comes with a comprehensive set of
+tools for monitoring your cluster. These tools allow you to view your cluster
+of resources from any node of the cluster so that you know the dynamic
+resource usage of all your machines.</P>
+
+<H2><A NAME="1001165"></A>Structure of JobScheduler</H2>
+
+<H4><A NAME="1000874"></A>Figure 1. The Structure of LSF JobScheduler </H4>
+
+<P><A HREF="pjs-figure01.gif"><IMG SRC="pjs-figure01.gif" ALT="The Stucture of LSF JobScheduler" BORDER=0 HEIGHT=266 WIDTH=301></A>
+</P>
+
+<H3><A NAME="1000806"></A>Clusters</H3>
+
+<P><A NAME="1000811"></A>Production job scheduling and load sharing in
+JobScheduler is based on <I>clusters</I>. A cluster is a named group of
+machines configured to share resources transparently. It consists of one
+or more server hosts and zero or more client-only hosts. A server host
+is a machine that runs JobScheduler daemons and executes user jobs. A client-only
+host does not run JobScheduler daemons and does not execute user submitted
+jobs, but users on a client-only host can still use the JobScheduler user
+interface such as commands and GUIs.</P>
+
+<P><A NAME="1001190"></A>One of the server hosts is configured as the master
+for the cluster. It runs the master scheduler daemon, <TT>mbatchd</TT>.
+All server hosts run the slave execution server, <TT>sbatchd</TT>, which
+manages jobs dispatched by the master scheduler. Each server host also
+runs a Load Information Manager daemon, <TT>lim</TT>. It monitors the availability
+of resources and makes this information available to JobScheduler and other
+LSF utilities.</P>
+
+<P><A NAME="1000819"></A>Each cluster has one or more cluster administrators.
+A cluster administrator is a user account that has permission to change
+the JobScheduler configuration and perform other maintenance functions.
+The cluster administrator decides how the JobScheduler cluster is configured.</P>
+
+<P><A NAME="1001048"></A>The master scheduler maintains the status of all
+entities defined in the system including jobs, events, calendars, and queues.</P>
+
+<H3><A NAME="1000419"></A>Jobs</H3>
+
+<P><A NAME="1000434"></A>A <I>job</I> is a program or command that is scheduled
+to run in a specific environment. A job has many attributes specifying
+the scheduling and execution requirements. Job attributes are specified
+by the user who submits the job. JobScheduler uses job attributes, system
+resource information and configured scheduling policies to decide when,
+where, and how to run the job. Each job is assigned a unique job identification
+number by the system. You can associate your own job names to make referencing
+easier.</P>
+
+<H3><A NAME="1000615"></A>Events</H3>
+
+<P><A NAME="1000634"></A>An <I>event</I> is a change or occurrence in the
+system such as the arrival (creation) of a specific file, a tape becoming
+on-line, a prior job completing successfully, or a particular time, that
+can be used to trigger jobs. JobScheduler responds to four types of events:</P>
+
+<UL>
+<LI><A NAME="1000622"></A>Time events are points of time that can be used
+to trigger the scheduling of jobs. Time events are defined by calendars.
+</LI>
+
+<LI><A NAME="1000623"></A>Job events are the starting and completion of
+other jobs. </LI>
+
+<LI><A NAME="1000624"></A>File events are changes in the file status. </LI>
+
+<LI><A NAME="1000628"></A>Site events are site specific occurrences, such
+as a tape mount, defined by the JobScheduler administrators for your cluster.
+</LI>
+</UL>
+
+<P><A NAME="1001060"></A>When defining a job, it is possible to specify
+any combination of events that must be satisfied before the job is considered
+eligible for execution.</P>
+
+<H3><A NAME="1000425"></A>Calendars</H3>
+
+<P><A NAME="1000427"></A>A <I>calendar</I> consists of a sequence of time
+events, during which a job can be scheduled. Calendars are defined and
+manipulated independently of jobs so that multiple jobs can share the same
+calendar. Each user can maintain a private set of calendars, reference
+calendars of other users, or use the calendars configured into the system.
+A calendar can be modified after it has been created. Any new jobs associated
+with it will automatically run according to the new definition.</P>
+
+<H3><A NAME="1001018"></A>Queues</H3>
+
+<P><A NAME="1001019"></A>Production job scheduling provides efficient,
+timely execution of mission-critical jobs. When you submit a job, it is
+placed into a <I>queue</I>. The JobScheduler system runs jobs from the
+queue based on the scheduled time and when the appropriate resources are
+available. Jobs from a queue can be dispatched to any server hosts in your
+cluster that are configured to run jobs for the queue.</P>
+
+<P><A NAME="1001244"></A>A queue can be configured with many features that
+make your life easier. JobScheduler allows you to define various types
+of services by configuring different queues. For each queue, you can configure
+a rich set of parameters that customize job scheduling policies, job execution
+behavior, and resource allocation constraints.</P>
+
+<P>
+<HR><A HREF="pjs-contents.html">[Contents]</A> <A HREF="pjs-preface.html">[Prev]</A>
+<A HREF="2-get-started.html">[Next]</A> <A HREF="8-advanced.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

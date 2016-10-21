@@ -1,0 +1,591 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF Administrator's Guide - Configuring LSF Cluster</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="admin-contents.html">[Contents]</A> <A HREF="02-installation.html">[Prev]</A>
+<A HREF="03-concepts.html">[Next]</A> <A HREF="f-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="22858"></A>Chapter 3. <A NAME="22856"></A>Configuring LSF
+Cluster</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="22969"></A>This chapter describes how to set up a simple LSF
+cluster. This simple cluster should allow your users to use LSF and run
+jobs with a simple default configuration. You will need to read the remaining
+chapters only if you want to make use of the full features and options
+in the LSF products. </P>
+
+<P><A NAME="22848"></A>The topics covered in this chapter are:</P>
+
+<UL>
+<LI><A NAME="18941"></A>Initial configuration of LSF </LI>
+
+<LI><A NAME="22945"></A>Setting up client hosts </LI>
+
+<LI><A NAME="13322"></A>Checking the configuration </LI>
+
+<LI><A NAME="23006"></A>Starting LSF daemons </LI>
+
+<LI><A NAME="13327"></A>Testing the LSF system </LI>
+
+<LI><A NAME="13332"></A>Providing LSF to users </LI>
+</UL>
+
+<H2><A NAME="19007"></A>Initial Configuration</H2>
+
+<P><A NAME="19009"></A>The initial configuration uses default settings
+for most parameters. Some of these parameters are mandatory. They tell
+the LSF daemons about the structure of your cluster by defining hosts,
+host types, and resources in your cluster. </P>
+
+<P><A NAME="19013"></A>The <TT>lsfsetup</TT> command is used to perform
+the initial configuration.</P>
+
+<DL>
+<DT><A NAME="23614"></A><B>Step 1. </B></DT>
+
+<DD>Log in as root (or yourself if you are planning to create your own
+cluster) and change directory to the distribution directory. Run the <TT>./lsfsetup</TT>
+command and choose option 5, 'Configure LSF Cluster', and confirm or enter
+the location of your <TT>lsf.conf</TT> file. </DD>
+
+<DT><A NAME="19015"></A><B>Step 2. </B></DT>
+
+<DD>Choose option 4, 'View/Add/Delete Currently Defined Host Types'. Modify
+the list of host types to include the types you have in your cluster. Host
+types can be any alphanumeric string up to 29 characters long. When you
+are finished enter 'q', 'Done Modifying Host Types'. </DD>
+
+<DT><A NAME="19017"></A><B>Step 3. </B></DT>
+
+<DD>Choose option 2, 'View/Add/Delete/Modify Currently Defined Host Models'.
+Use the menu to add host model specifications and CPU factors for each
+different processor in your cluster. For more information on CPU factors,
+see <A HREF="05-manage-lsf.html#378">'Tuning CPU Factors'</A>. When you
+are finished enter 'q', 'Done Modifying Host Models'. </DD>
+
+<DT><A NAME="19023"></A><B>Step 4. </B></DT>
+
+<DD>Choose option 1, 'View/Add/Delete/Modify Currently Configured Hosts'.
+Choose option 2, 'Add Hosts To LSF Configuration'. The <TT>lsfsetup</TT>
+command asks for the host name and then runs the <TT>vi</TT> editor on
+the LSF configuration file where the host thresholds are configured. Edit
+the configuration line for the host and set the host type, model, load
+thresholds, and resources as desired. For the initial cluster configuration,
+you can use the same thresholds as the examples in the configuration file.
+These parameters can be changed later without interrupting LSF service.
+</DD>
+
+<P><A NAME="19024"></A>You can add more than one host at this time. Enter
+the host information for all hosts in the cluster. The master LIM and <TT>mbatchd</TT>
+daemons run on the first available host in this list, so you should list
+reliable batch server hosts first. For more information see <A HREF="03-concepts.html#3741">'Fault
+Tolerance'</A>.</P>
+
+<DL>
+<P><A NAME="19028"></A>If your cluster includes client hosts, enter the
+host names in this step and set the <TT>SERVER</TT> field for these hosts
+to <TT>0</TT> (zero).</P>
+
+<P><A NAME="19029"></A>When you are done adding hosts enter 'q', 'Done
+Modifying Host Configuration'.</P>
+</DL>
+
+<DT><A NAME="19031"></A><B>Step 5. </B></DT>
+
+<DD>Choose option 5, 'Configuration File Error Checking'. This option runs
+a check of the LSF configuration, and reports any problems found. If there
+are any problems, refer to <A HREF="a-troubleshooting.html#1659">'Error
+Log Messages'</A>. Next enter 'q', 'Quit' twice. </DD>
+
+<DT><A NAME="19035"></A><B>Step 6. </B></DT>
+
+<DD>Start the LSF daemons by running <TT>LSF_SERVERDIR/lsf_daemons start</TT>
+and use <TT>ps</TT> to make sure that <TT>res</TT>, <TT>lim</TT> and <TT>sbatchd</TT>
+have started. </DD>
+
+<DL>
+<P><A NAME="23626"></A><B>CAUTION!<BR>
+LSF daemons start must be run as root. If you are creating a private cluster
+do not attempt to use <TT>lsf_daemons</TT> to start your daemons. Start
+them manually.</B></P>
+
+<P><A NAME="23021"></A><B>Note<BR>
+</B><I>If you choose the option to start LSF daemons for all machines using
+</I><TT>lsadmin</TT><I> and </I><TT>badmin</TT><I> commands, then run '</I><TT>lsadmin
+limstartup</TT><I>', '</I><TT>lsadmin resstartup</TT><I>', and '</I><TT>badmin
+hstartup</TT><I>' respectively instead of running <A HREF="04-configure-lsf.html#19035">Step
+6</A> manually.</I></P>
+</DL>
+</DL>
+
+<P><A NAME="22867"></A><TT>lsfsetup</TT> creates a default LSF Batch configuration,
+including a set of batch queues. You do not need to change any LSF Batch
+files to use the default configuration. After you have the system running,
+you may want to reconfigure LSF Batch. See <A HREF="07-manage-lsbatch.html#1283">'Managing
+LSF Batch'</A> for a discussion of how to do this.</P>
+
+<H2><A NAME="22881"></A>Setting Up LSF Client Hosts</H2>
+
+<P><A NAME="22886"></A>You need to read this section only if you are configuring
+some hosts as client-only hosts.</P>
+
+<P><A NAME="22893"></A>LSF client hosts have transparent access to the
+resources on LSF server hosts, but do not run the LSF daemons. This means
+that you can run all LSF commands and tools from a client host, but your
+submitted jobs will only run on server hosts.</P>
+
+<P><A NAME="22952"></A>On client hosts the <TT>lsf.conf</TT> file must
+contain the names of some server hosts. LSF applications run on a client
+host contact the servers named in the <TT>lsf.conf</TT> file to find the
+master host.</P>
+
+<P><A NAME="22903"></A>Client hosts need access to the LSF configuration
+directory to read the <TT>lsf.task</TT> files. This can be a private read-only
+copy of the files; you do not need access to a shared copy on a file server
+host. If you install local copies of the <TT>lsf.task</TT> files, you must
+remember to update them when the files are changed on the server hosts.
+See <A HREF="10-lsf-reference.html#2757">'The <TT>lsf.task</TT> and <TT>lsf.task.<I>cluster</I></TT>
+Files'</A> for a detailed description of these files.</P>
+
+<P><A NAME="22910"></A>Client hosts must have access to the LSF user commands
+in the <TT>LSF_BINDIR</TT> directory and to the <TT>nios</TT> program in
+the <TT>LSF_SERVERDIR</TT> directory. These can be installed directly on
+the client host or mounted from a file server.</P>
+
+<P><A NAME="22916"></A>The client hosts must be configured as described
+in <A HREF="04-configure-lsf.html#19017">Step 3</A> of the chapter <A HREF="04-configure-lsf.html#19007">'Initial
+Configuration'</A>.</P>
+
+<DL>
+<DT><A NAME="22921"></A><B>Step 1. </B></DT>
+
+<DD>Make a copy of the <TT>lsf.conf</TT> file from an LSF server host.
+Edit the copy and add a line like: </DD>
+
+<DL>
+<PRE><A NAME="22923"></A><TT>LSF_SERVER_HOSTS=&quot;hostA hostD hostB&quot;</TT></PRE>
+
+<P><A NAME="22927"></A>Replace the example host names with the names of
+some LSF server hosts listed in your <TT>lsf.cluster.</TT><I>cluster</I>
+file. You should choose reliable hosts for the <TT>LSF_SERVER_HOSTS</TT>
+list; if all the hosts on this list are unavailable, the client host cannot
+use the LSF cluster.</P>
+</DL>
+
+<DT><A NAME="22931"></A><B>Step 2. </B></DT>
+
+<DD>On each client host, copy the modified <TT>lsf.conf</TT> file to <TT>LSF_ENVDIR</TT>.
+</DD>
+</DL>
+
+<H2><A NAME="22940"></A>Checking the LSF Configuration</H2>
+
+<P><A NAME="23033"></A>Before you can start any LSF daemons, you should
+make sure that your cluster configuration is correct. The <TT>lsfsetup
+program includes an option to check the LSF configuration. The default
+LSF Batch configuration should work as it is installed following the steps
+described in <A HREF="02-installation.html#6969">'Installation'</A>. </TT></P>
+
+<P><A NAME="23038"></A>You should have done the configuration checking
+during <A HREF="04-configure-lsf.html#19031">Step 5</A>. If you want to
+confirm the configuration checking again, you can run <TT>lsadmin</TT>
+and <TT>badmin</TT> commands. </P>
+
+<P><A NAME="23050"></A>Log into the first host listed in <TT>lsf.cluster.<I>cluster</I></TT>,
+as the LSF administrator to check LIM configuration:</P>
+
+<PRE><A NAME="22956"></A><TT>% <B>lsadmin ckconfig -v
+</B>Checking configuration files ...
+LSF 3.0, Dec 10, 1996
+Copyright 1992-1996 Platform Computing Corporation
+Reading configuration from /etc/lsf.conf
+Dec 21 21:15:51 13412 /usr/local/lsf/etc/lim -C
+Dec 21 21:15:52 13412 initLicense: Trying to get license for LIM from source 
+&lt;/usr/local/lsf/conf/license.dat&gt;
+Dec 21 21:15:52 13412 main: Got 1 licenses
+Dec 21 21:15:52 13412 main: Configuration checked. No fatal errors found.
+---------------------------------------------------------
+No errors found.</TT></PRE>
+
+<P><A NAME="540"></A>The messages shown above are the normal output from
+<TT>lsadmin ckconfig -v</TT>. Other messages may indicate problems with
+the LSF configuration. See <A HREF="10-lsf-reference.html#9953">'LSF Base
+Configuration Reference'</A> and <A HREF="a-troubleshooting.html#6199">'Troubleshooting
+and Error Messages'</A> if any problem is found.</P>
+
+<P><A NAME="542"></A>To check the LSF Batch configuration files, LIM must
+be running on the master host. If the LIM is not running, log in as root
+and start <TT>LSF_SERVERDIR/lim</TT>. Wait a minute and then run the <TT>lsid</TT>
+program to make sure LIM is available. Then run <TT>badmin ckconfig -v</TT>:</P>
+
+<PRE><A NAME="544"></A><TT>% <B>badmin ckconfig -v
+</B>Checking configuration files ...
+Dec 21 21:22:14 13545 mbatchd: LSF_ENVDIR not defined; assuming /etc
+Dec 21 21:22:15 13545 minit: Trying to call LIM to get cluster name ...
+Dec 21 21:22:17 13545 readHostFile: 3 hosts have been specified in file 
+&lt;/usr/local/lsf/conf/lsbatch/test_cluster/configdir/lsb.hosts&gt;; only these 
+hosts will be used by lsbatch
+Dec 21 21:22:17 13545 Checking Done
+---------------------------------------------------------
+No fatal errors found.</TT></PRE>
+
+<P><A NAME="546"></A>The above messages are normal; other messages may
+indicate problems with the LSF Batch configuration. See <A HREF="11-lsbatch-reference.html#154">'LSF
+Batch Configuration Reference'</A> and <A HREF="a-troubleshooting.html#6199">'Troubleshooting
+and Error Messages'</A> if any problem is found.</P>
+
+<H2><A NAME="8111"></A>Testing the LSF Cluster</H2>
+
+<P><A NAME="558"></A>After you started the LSF daemons in your cluster,
+you should run some simple tests. Wait a minute or two for all the LIMs
+to get in touch with each other, to elect a master, and to exchange some
+setup information.</P>
+
+<P><A NAME="559"></A>The testing should be performed as a non-root user.
+This user's <TT>PATH</TT> must include the LSF user binaries (<TT>LSF_BINDIR</TT>
+as defined in <TT>/etc/lsf.conf</TT>).</P>
+
+<P><A NAME="560"></A>Testing consists of running a number of LSF commands
+and making sure that correct results are reported for all hosts in the
+cluster. This section shows suggested tests and examples of correct output.
+The output you see on your system will reflect your local configuration.</P>
+
+<P><A NAME="561"></A>The following steps may be performed from any host
+in the cluster.</P>
+
+<H3><A NAME="562"></A>Testing LIM</H3>
+
+<DL>
+<DT><A NAME="563"></A><B>Step 1. </B></DT>
+
+<DD>Check cluster name and master host name: </DD>
+
+<DL>
+<PRE><A NAME="564"></A><TT>% <B>lsid
+</B>LSF 3.0, Dec 10, 1996
+Copyright 1992-1996 Platform Computing Corporation
+
+My cluster name is test_cluster
+My master name is hostA</TT></PRE>
+
+<P><A NAME="565"></A>The master name may vary but is usually the first
+host configured in the <TT>Hosts</TT> section of the <TT>lsf.cluster.<I>cluster</I></TT>
+file.</P>
+
+<P><A NAME="566"></A>If the LIM is not available on the local host, <TT>lsid</TT>
+displays the following message:</P>
+
+<PRE><A NAME="568"></A><TT>lsid: ls_getmastername failed: LIM is down; try later</TT></PRE>
+
+<P><A NAME="2695"></A>If the LIM is not running, try running <TT>lsid</TT>
+a few more times. If the LIM still does not respond, see <A HREF="a-troubleshooting.html#6199">'Troubleshooting
+and Error Messages'</A>.</P>
+
+<P><A NAME="570"></A>The error message:</P>
+
+<PRE><A NAME="20438"></A><TT>lsid: ls_getmastername failed: Cannot locate master LIM now, try later</TT></PRE>
+
+<P><A NAME="573"></A>means that local LIM is running, but the master LIM
+has not contacted the local LIM yet. Check the LIM on the first host listed
+in <TT>lsf.cluster.<I>cluster</I></TT>. If it is running, wait for 30 seconds
+and try <TT>lsid</TT> again. Otherwise, another LIM will take over after
+one or two minutes.</P>
+</DL>
+
+<DT><A NAME="574"></A><B>Step 2. </B></DT>
+
+<DD>The <TT>lsinfo</TT> command displays cluster-wide configuration information.
+</DD>
+
+<DL>
+<PRE><A NAME="576"></A><TT>% <B>lsinfo
+</B>RESOURCE_NAME   TYPE   ORDER  DESCRIPTION
+r15s          Numeric   Inc   15-second CPU run queue length
+r1m           Numeric   Inc   1-minute CPU run queue length (alias: cpu)
+r15m          Numeric   Inc   15-minute CPU run queue length
+ut            Numeric   Inc   1-minute CPU utilization (0.0 to 1.0)
+pg            Numeric   Inc   Paging rate (pages/second)
+ls            Numeric   Inc   Number of login sessions (alias: login)
+it            Numeric   Dec   Idle time (minutes) (alias: idle)
+tmp           Numeric   Dec   Disk space in /tmp (Mbytes)
+mem           Numeric   Dec   Available memory (Mbytes)
+ncpus         Numeric   Dec   Number of CPUs
+maxmem        Numeric   Dec   Maximum memory (Mbytes)
+maxtmp        Numeric   Dec   Maximum /tmp space (Mbytes)
+cpuf          Numeric   Dec   CPU factor
+type           String   N/A   Host type
+model          String   N/A   Host model
+status         String   N/A   Host status
+server        Boolean   N/A   LSF server host
+cserver       Boolean   N/A   Compute Server
+solaris       Boolean   N/A   Sun Solaris operating system
+fserver       Boolean   N/A   File Server
+NT            Boolean   N/A   Windows NT operating system
+
+TYPE_NAME
+hppa
+SUNSOL
+alpha
+sgi
+NTX86
+rs6000
+
+MODEL_NAME            CPU_FACTOR
+HP735                   4.0
+ORIGIN2K                8.0
+DEC3000                 5.0
+PENT200                 3.0</TT></PRE>
+
+<P><A NAME="600"></A>The resource names, host types, and host models should
+be those configured in <TT>LSF_CONFDIR/lsf.shared</TT>.</P>
+</DL>
+</DL>
+
+<DT><A NAME="601"></A><B>Step 3. </B></DT>
+
+<DD>The <TT>lshosts</TT> command displays configuration information about
+your hosts: </DD>
+
+<UL>
+<PRE><A NAME="603"></A><TT>% <B>lshosts
+</B>HOST_NAME type   model   cpuf ncpus maxmem maxswp   server  RESOURCES
+hostA    hppa   HP735   4.00     1    128M  256M     Yes  (fserver hpux)
+hostD    sgi  ORIGIN2K  8.00    32    512M 1024M     Yes  (cserver)
+hostB   NTX86  PENT200  3.00     1    96M   180M     Yes  (NT)</TT></PRE>
+
+<P><A NAME="609"></A>The output should contain one line for each host configured
+in the cluster, and the <TT>type</TT>, <TT>model</TT>, and <TT>RESOURCES</TT>
+should be those configured for that host in <TT>lsf.cluster.<I>cluster</I></TT>.
+<TT>cpuf</TT> should match the CPU factor given for the host model in <TT>lsf.shared</TT>.</P>
+</UL>
+
+<DT><A NAME="610"></A><B>Step 4. </B></DT>
+
+<DD>Check the current load levels: </DD>
+
+<UL>
+<PRE><A NAME="2773"></A><TT>% <B>lsload
+</B>HOST_NAME  status  r15s   r1m  r15m    ut    pg  ls   it   tmp   swp   mem
+hostA          ok   0.3   0.1   0.0    3%   1.0   1   12  122M  116M    56M
+hostD          ok   0.6   1.2   2.0   23%   3.0  14    0   63M  698M   344M
+hostB          ok   0.6   0.3   0.0    5%   0.3   1    0   55M   41M    37M</TT></PRE>
+
+<P><A NAME="618"></A>The output contains one line for each host in the
+cluster.</P>
+
+<P><A NAME="619"></A>If any host has <TT>unavail</TT> in the <TT>status</TT>
+column, the master LIM is unable to contact the LIM on that host. This
+can occur if the LIM was started recently and has not yet contacted the
+master LIM, or if no LIM was started on that host, or if that host was
+not configured correctly.</P>
+
+<P><A NAME="620"></A>If the entry in the <TT>status</TT> column begins
+with <TT>-</TT> (for example, <TT>-ok</TT>), the RES is not available on
+that host. RES status is checked every 90 seconds, so allow enough time
+for <TT>status</TT> to reflect this.</P>
+</UL>
+
+<P><A NAME="622"></A>See <A HREF="a-troubleshooting.html#6199">'Troubleshooting
+and Error Messages'</A> if any of these tests do not display the expected
+results. If all these tests succeed, the LIMs on all hosts are running
+correctly.</P>
+
+<H3><A NAME="623"></A>Testing RES</H3>
+
+<DL>
+<DT><A NAME="624"></A><B>Step 1. </B></DT>
+
+<DD>The <TT>lsgrun</TT> command runs a UNIX command on a group of hosts:
+</DD>
+
+<DL>
+<PRE><A NAME="626"></A><TT>% <B>lsgrun -v -m &quot;hostA hostD hostB&quot; hostname
+</B>&lt;&lt;Executing hostname on hostA&gt;&gt;
+hostA
+&lt;&lt;Executing hostname on hostD&gt;&gt;
+hostD
+&lt;&lt;Executing hostname on hostB&gt;&gt;
+hostB</TT></PRE>
+</DL>
+</DL>
+
+<P><A NAME="634"></A>If remote execution fails on any host, check the RES
+error log on that host.</P>
+
+<H3><A NAME="22803"></A>Testing LSF Batch</H3>
+
+<P><A NAME="23078"></A>Testing consists of running a number of LSF commands
+and making sure that correct results are reported for all hosts in the
+cluster.</P>
+
+<DL>
+<DT><A NAME="23089"></A><B>Step 1. </B></DT>
+
+<DD>The <TT>bhosts</TT> command lists the batch server hosts in the cluster:
+</DD>
+
+<DL>
+<PRE><A NAME="23090"></A><TT>% <B>bhosts
+</B>HOST_NAME          STATUS    JL/U  MAX  NJOBS  RUN  SSUSP USUSP  RSV
+hostD              ok          -    10     1     1     0     0     0
+hostA              ok          -    10     4     2     2     0     0
+hostC              unavail     -     3     1     1     0     0     0</TT></PRE>
+
+<P><A NAME="23091"></A>The <TT>STATUS</TT> column shows the status of <TT>sbatchd</TT>
+on that host. If the <TT>STATUS</TT> column contains <TT>unavail</TT>,
+that host is not available. Either the <TT>sbatchd</TT> on that host has
+not started or it has started but has not yet contacted the <TT>mbatchd</TT>.
+If hosts are still listed as unavailable after roughly three minutes, check
+the error logs on those hosts. See <A HREF="a-troubleshooting.html#6199">'Troubleshooting
+and Error Messages'</A>.</P>
+</DL>
+
+<P><A NAME="23095"></A>See the <TT>bhosts(1)</TT> manual page for explanations
+of the other columns.</P>
+
+<DT><A NAME="23098"></A><B>Step 2. </B></DT>
+
+<DD>Submit a job to the default queue: </DD>
+
+<DL>
+<PRE><A NAME="23099"></A><TT>% <B>bsub sleep 60
+</B>Job &lt;1&gt; is submitted to default queue &lt;normal&gt;</TT></PRE>
+
+<P><A NAME="23100"></A>If the job you submitted was the first ever, it
+should have job ID 1. Otherwise, the number varies.</P>
+</DL>
+
+<DT><A NAME="23105"></A><B>Step 3. </B></DT>
+
+<DD>Check available queues and their configuration parameters: </DD>
+
+<DL>
+<PRE><A NAME="23106"></A><TT>% <B>bqueues
+</B>QUEUE_NAME     PRIO      STATUS      MAX  JL/U JL/P JL/H NJOBS  PEND  RUN  SUSP
+interactive    400    Open:Active      -    -    -    -     1     1     0     0
+fairshare      300    Open:Active      -    -    -    -     2     0     2     0
+owners          43    Open:Active      -    -    -    -     0     0     0     0
+priority        43    Open:Active      -    -    -    -    29    29     0     0
+night           40   Open:Inactive     -    -    -    -     1     1     0     0
+short           35    Open:Active      -    -    -    -     0     0     0     0
+normal          30    Open:Active      -    -    -    -     0     0     0     0
+idle            20    Open:Active      -    -    -    -     0     0     0     0</TT></PRE>
+
+<P><A NAME="23107"></A>See the <TT>bqueues(1)</TT> manual page for an explanation
+of the output.</P>
+</DL>
+</DL>
+
+<DT><A NAME="23110"></A><B>Step 4. </B></DT>
+
+<DD>Check job status: </DD>
+
+<UL>
+<PRE><A NAME="23111"></A><TT>% <B>bjobs
+</B>JOBID USER STAT QUEUE  FROM_HOST EXEC_HOST  JOB_NAME SUBMIT_TIME
+1    user1 RUN  normal hostA     hostD      sleep 60 Dec 10 22:44</TT></PRE>
+
+<P><A NAME="23112"></A>Note that if all hosts are busy, the job is not
+started immediately so the <TT>STAT</TT> column says <TT>PEND</TT>. This
+job should take one minute to run. When the job completes, you should receive
+mail reporting the job completion.</P>
+</UL>
+
+<H2><A NAME="23117"></A>Configuring LSF MultiCluster</H2>
+
+<P><A NAME="23118"></A>You do not need to read this section if you are
+not using the LSF MultiCluster product. </P>
+
+<P><A NAME="23421"></A>LSF MultiCluster unites multiple LSF clusters so
+that they can share resources transparently, while at the same time, still
+maintain resource ownership and autonomy of individual clusters. </P>
+
+<P><A NAME="23425"></A>LSF MultiCluster extends the functionality of a
+single cluster. Configuration involves a few more steps. First you setup
+a single cluster as described above, then you need to do some additional
+steps specific to LSF MultiCluster. See <A HREF="09-multicluster.html#9953">'Managing
+LSF MultiCluster'</A> for more details.</P>
+
+<H2><A NAME="23166"></A>Configuring LSF JobScheduler</H2>
+
+<P><A NAME="23167"></A>You do not need to read this section if you are
+not using the LSF JobScheduler product.</P>
+
+<P><A NAME="23168"></A>LSF JobScheduler provides reliable production job
+scheduling according to user specified calendars and events. It runs user
+defined jobs automatically at the right time, under the right conditions,
+and on the right machines.</P>
+
+<P><A NAME="23171"></A>The configuration of LSF JobScheduler is almost
+the same as that of the LSF Batch cluster, except that you may have to
+define system-level calendars for your cluster and you might need to add
+additional events to monitor your site. Some of the configuration options
+for LSF Batch may not be as useful for LSF JobScheduler, such as NQS inter-operation
+and fairshare. You can ignore those features you do not need and use the
+features you think are useful for your LSF JobScheduler cluster. More details
+about the concept of LSF JobScheduler are described in the <I><A HREF="pjs-title.html">LSF
+JobScheduler User's Guide</A></I>. </P>
+
+<P><A NAME="23590"></A>See <A HREF="08-jobscheduler.html#9953">'Managing
+LSF JobScheduler'</A> for details about the additional configuration options
+for LSF JobScheduler.</P>
+
+<H2><A NAME="23083"></A>Providing LSF to Users</H2>
+
+<P><A NAME="677"></A>When you have finished installing and testing LSF
+cluster, you can let users try it out. LSF users must add <TT>LSF_BINDIR</TT>
+to their <TT>PATH</TT> environment variables to run the LSF utilities.</P>
+
+<P><A NAME="678"></A>If users wish to use <TT>lstcsh</TT> as their login
+shell, most systems require that you modify the <TT>/etc/shells</TT> file.
+Add a line containing the full path name of <TT>lstcsh</TT>. Users may
+then use <TT>chsh</TT>(<TT>1</TT>) to choose <TT>lstcsh</TT> as their login
+shell. If your site uses NIS for password information, you must change
+<TT>/etc/shells</TT> on the NIS master host and update the NIS database.
+Otherwise, you must change <TT>/etc/shells</TT> on all hosts.</P>
+
+<UL>
+<P><A NAME="23532"></A><B>Note<BR>
+</B><I>If you configure </I><TT>lstcsh</TT><I> as the login shell for users
+but do not add </I><TT>LSF_BINDIR/lstcsh</TT><I> to the </I><TT>/etc/shells</TT><I>
+file, users will not be able to log in using </I><TT>ftp</TT><I> on some
+versions of UNIX.</I></P>
+</UL>
+
+<P><A NAME="23533"></A>Users also need access to the on-line manual pages,
+which were installed in <TT>LSF_MANDIR</TT> (as defined in <TT>lsf.conf</TT>)
+by the <TT>lsfsetup</TT> installation procedure. For most versions of UNIX,
+users should add the directory <TT>LSF_MANDIR</TT> to their <TT>MANPATH</TT>
+environment variable. If your system has a man command that does not understand
+<TT>MANPATH</TT>, you should either install the manual pages in the <TT>/usr/man</TT>
+directory or get one of the freely available <TT>man</TT> programs.</P>
+
+<H2><A NAME="23180"></A>Using <TT>xlsadmin</TT></H2>
+
+<P><A NAME="23181"></A>You can use the <TT>xlsadmin</TT> GUI to do most
+of the cluster configuration and management work that has been described
+in this chapter. Details about <TT>xlsadmin</TT> can be found in <A HREF="07-manage-lsbatch.html#16208">'Managing
+LSF Cluster Using <TT>xlsadmin</TT>'</A>.</P>
+
+<P>
+<HR><A HREF="admin-contents.html">[Contents]</A> <A HREF="02-installation.html">[Prev]</A>
+<A HREF="03-concepts.html">[Next]</A> <A HREF="f-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:13:18 --></P>
+
+</BODY>
+</HTML>

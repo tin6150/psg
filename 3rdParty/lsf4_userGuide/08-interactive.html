@@ -1,0 +1,392 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Running Interactive Jobs</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="07-tracking.html">[Prev]</A>
+<A HREF="09-lstcsh.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="355"></A>Chapter 8. <A NAME="343"></A>Running Interactive
+Jobs </H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="2621"></A>Interactive jobs communicate with the user in real
+time. Programs like <TT>vi</TT> use a text-based terminal interface; Computer
+Aided Design and desktop publishing applications usually use a graphic
+user interface (GUI).</P>
+
+<P><A NAME="4590"></A>LSF can run interactive jobs on any host in the cluster
+transparently. All interaction through a terminal or GUI, including keyboard
+signals such as <B><FONT SIZE=-1>CTRL-C</FONT></B>, work the same as if
+the job was running directly on the user's host.</P>
+
+<P><A NAME="12190"></A>LSF supports interactive jobs in two optional ways:
+</P>
+
+<UL>
+<LI><A NAME="12191"></A>Using <TT>lstools</TT> programs, such as <TT>lsrun</TT>,
+<TT>lsmake</TT>, <TT>lsgrun</TT>, etc. </LI>
+
+<LI><A NAME="12192"></A>Using LSF Batch to run interactive jobs. </LI>
+</UL>
+
+<P><A NAME="4658"></A>This chapter contains detailed descriptions of the
+basic LSF tools for running jobs on remote hosts as well as ways to run
+interactive jobs via LSF Batch. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="12135"></A><B>Note:<BR>
+</B><I>Interactive jobs are currently not supported on Windows NT.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="2899"></A>Shared Files and User IDs </H2>
+
+<P><A NAME="2631"></A>When LSF runs a task on a remote host, the task uses
+standard UNIX system calls to access files and devices. The user must have
+an account on the remote host. All operations on the remote host are done
+with the user's access permissions.</P>
+
+<P><A NAME="7111"></A>Tasks that read and write files are accessing the
+files on the remote host. For load sharing to be transparent, your files
+should be available on all hosts in the cluster using a file sharing mechanism
+such as NFS or the Andrew File System (AFS). When your files are available
+on all hosts in the cluster, you can run your tasks on any host without
+worrying about how your task will access files.</P>
+
+<P><A NAME="7254"></A>LSF can operate correctly in cases where these conditions
+are not met, but the results may not be what you expect. For example, the
+<TT>/tmp</TT> directory is usually private on each host. If you copy a
+file into <TT>/tmp</TT> on a remote host, you can only read that file on
+the same remote host.</P>
+
+<P><A NAME="7144"></A>LSF can also be used when files are not available
+on all hosts. LSF provides the <TT>lsrcp</TT>(<TT>1</TT>) command to copy
+files across LSF hosts. You can use UNIX pipes to redirect the standard
+input and output of remote commands, or write scripts to copy the data
+files to the execution host. </P>
+
+<H2><A NAME="2935"></A>Running Remote Jobs with <TT>lsrun </TT></H2>
+
+<P><A NAME="2752"></A>The <TT>lsrun</TT> command runs a job on a remote
+host. The default is to run the job on the host with the least CPU load
+(the lowest normalized CPU run queue length) and the most available memory.
+Command line arguments can be used to select other resource requirements
+or to specify the execution host. For example, to run <TT>myjob</TT> on
+the best available host, enter:</P>
+
+<PRE><A NAME="2718"></A>% <B>lsrun myjob</B></PRE>
+
+<P><A NAME="2719"></A>LSF automatically selects a host of the same type
+as the local host, if one is available. By default the host with the lowest
+CPU and memory load is selected.</P>
+
+<P><A NAME="2720"></A>If you want to run <TT>myjob</TT> on a host with
+specific resources, you can specify the resource requirements using the
+<TT>-R <I>resreq</I></TT> option to <TT>lsrun</TT>.</P>
+
+<PRE><A NAME="2721"></A>% <B>lsrun -R &quot;swap&gt;=100 &amp;&amp; cserver&quot; myjob</B></PRE>
+
+<P><A NAME="2724"></A>This command runs <TT>myjob</TT> on a host that has
+resource <TT>cserver</TT> (see <A HREF="02-get-started.html#1883">'Getting
+Cluster Information'</A>) and has at least 100 megabytes of virtual memory
+available.</P>
+
+<P><A NAME="11320"></A>You can also configure LSF to store the resource
+requirements of specific jobs, as described in <A HREF="04-resources.html#2438">'Configuring
+Resource Requirements'</A>. If you configure LSF with the resource requirements
+of your job, you do not need to specify the <TT>-R <I>resreq</I></TT> argument
+to <TT>lsrun</TT> on the command line. If you do specify resource requirements
+on the command line, they override the configured resource requirements.</P>
+
+<P><A NAME="2729"></A>If you want to run your job on a particular host,
+use the <TT>-m</TT> option to <TT>lsrun</TT>:</P>
+
+<PRE><A NAME="2730"></A>% <B>lsrun -m hostD myjob</B></PRE>
+
+<P><A NAME="2731"></A>When you run an interactive job on a remote host,
+you can use signals as if it were running locally. If your shell supports
+job control, you can suspend and resume the job and bring the job to background
+or foreground as if it were a local job.</P>
+
+<P><A NAME="7405"></A>Some jobs, such as text editors, require special
+terminal handling. These jobs must be run using a pseudo-terminal so that
+the special terminal handling can be used over the network. The <TT>-P</TT>
+option to <TT>lsrun</TT> specifies that the job should be run using a pseudo-terminal:</P>
+
+<PRE><A NAME="7471"></A>% <B>lsrun -P vi</B></PRE>
+
+<P><A NAME="7414"></A>To avoid typing in the <TT>lsrun</TT> command every
+time you want to execute a remote job, you can also use a shell alias or
+script to run your job. </P>
+
+<P><A NAME="7696"></A>For a complete description of the command line arguments,
+see the <TT>lsrun(1)</TT> manual page.</P>
+
+<H2><A NAME="2971"></A>Running Parallel Jobs with <TT>lsgrun </TT></H2>
+
+<P><A NAME="2732"></A>The <TT>lsgrun</TT> command allows you to run the
+same task on many hosts, either one after another or in parallel. For example,
+to merge the <TT>/tmp/out</TT> file on hosts hostA, hostD, and hostB into
+a single file named <TT>gout</TT>, enter:</P>
+
+<PRE><A NAME="2733"></A>% <B>lsgrun -m &quot;hostA hostD hostB&quot; cat /tmp/out &gt;&gt; gout</B></PRE>
+
+<P><A NAME="2734"></A>To remove the <TT>/tmp/core</TT> file on all three
+hosts, enter:</P>
+
+<PRE><A NAME="2735"></A>% <B>lsgrun -m &quot;hostA hostD hostB&quot; -p rm -r /tmp/core</B></PRE>
+
+<P><A NAME="2736"></A>The <TT>-p</TT> option tells <TT>lsgrun</TT> that
+the task specified should be run in parallel. If the <TT>-p</TT> argument
+is not given, tasks are run on each host one after another. See <TT>lsgrun(1)</TT>
+for more details.</P>
+
+<P><A NAME="4930"></A>The <TT>lsgrun -f <I>host_file</I></TT> option reads
+the <I>host_file</I> file to get the list of hosts on which to run the
+task. For example, the <TT>lsgrun.wrap</TT> shell script shown in <A HREF="08-interactive.html#4930">Figure
+13</A> uses the <TT>sed</TT> command to get a list of all the hosts in
+the <TT>lsf.cluster.test_cluster</TT> file and then uses <TT>lsgrun</TT>
+to run the command given as arguments to the script on every host in the
+cluster.</P>
+
+<H4><A NAME="4930"></A>Figure 13. <TT>lsgrun.wrap</TT> Example Shell Script</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD>
+<PRE>#! /bin/sh
+
+tempfile=/tmp/lsgrun.wrap.$$ 
+conffile=/usr/local/lsf/conf/lsf.cluster.test_cluster
+
+# Note that the [ ] in the command below should contain a space and a tab 
+sed -e ’1,/^HOSTNAME/d;/^End.*Host/,$d;s/[ ].*//’ &lt; $conffile &gt; $tempfile 
+lsgrun -f $tempfile &quot;$@&quot;</PRE>
+</TD>
+</TR>
+</TABLE>
+
+<H2><A NAME="6196"></A>Load Sharing Interactive Sessions</H2>
+
+<P><A NAME="6198"></A>There are different ways to use LSF to start an interactive
+session on the best available host. </P>
+
+<H3><A NAME="12224"></A>Load Sharing Login</H3>
+
+<P><A NAME="12223"></A>To login to the least loaded host, the simplest
+way is to use the <TT>lslogin</TT> command. <TT>lslogin</TT> automatically
+chooses the best host and does an <TT>rlogin</TT> to that host. With no
+argument, <TT>lslogin</TT> picks a host that is lightly loaded in CPU,
+has few login sessions, and is binary compatible with the current host.</P>
+
+<P><A NAME="5392"></A>If you want to log into a host with specific resources,
+use the <TT>lslogin -R </TT><I>resreq</I> option.</P>
+
+<PRE><A NAME="2670"></A>% <B>lslogin -R &quot;sunos order[ls:cpu]&quot;</B></PRE>
+
+<P><A NAME="2671"></A>This command opens a remote login to a host that
+has the <TT>sunos</TT> resource, few other users logged in, and a low cpu
+load level. This is equivalent to using <TT>lsplace</TT> to find the best
+host and then using <TT>rlogin</TT> to log in to that host:</P>
+
+<PRE><A NAME="2673"></A>% <B>rlogin `lsplace -R &quot;sunos order[ls:cpu]&quot;`</B></PRE>
+
+<H3><A NAME="12218"></A>Load Sharing X Sessions</H3>
+
+<P><A NAME="2674"></A>If you are using the X Window System, you can start
+an <TT>xterm</TT> that opens a shell session on the best host by entering:</P>
+
+<PRE><A NAME="7834"></A>% <B>lsrun sh -c &quot;xterm &amp;&quot;</B></PRE>
+
+<P><A NAME="12107"></A>In this example, no processes are left running on
+the local host. The <TT>lsrun</TT> command exits as soon as the <TT>xterm</TT>
+starts, and the <TT>xterm</TT> on the remote host connects directly to
+the X server on the local host. </P>
+
+<P><A NAME="12213"></A>If you are using a PC as a desk top machine and
+are running an X-Window server on your PC, then you can start an X session
+on the least loaded machine. The following steps assume you are using eXceed
+from Hummingbird Communications: </P>
+
+<UL>
+<LI><A NAME="12212"></A>Click the <TT>Xstart</TT> icon in the <TT>eXceed4</TT>
+program group </LI>
+
+<LI><A NAME="12228"></A>Choose '<TT>REXEC (TCP/IP, ...)</TT>' as start
+method, program type is <TT>X window</TT> </LI>
+
+<LI><A NAME="12230"></A>Set the host to be any server host in your LSF
+cluster, for example <I>hostA</I> </LI>
+
+<LI><A NAME="12232"></A>Set the command line to be: </LI>
+
+<PRE><A NAME="12240"></A><TT>lsrun sh -c &quot;xterm -ls -display yourPC:0.0&amp;&quot;</TT></PRE>
+</UL>
+
+<BLOCKQUOTE>
+<P><A NAME="12428"></A><B>Note:<BR>
+</B><I>The '</I><TT>&amp;</TT><I>' in this command line is important as
+it frees resources on the server hostA once the </I><TT>xterm</TT><I> is
+running.</I></P>
+</BLOCKQUOTE>
+
+<UL>
+<LI><A NAME="12246"></A>Set description to be '<TT>Best</TT>' </LI>
+
+<LI><A NAME="12247"></A>Choose the '<TT>install</TT>' button in the '<TT>Xstart</TT>'
+window. This installs '<TT>Best</TT>' as an icon in the program group you
+choose (for example, <TT>xterms</TT>). </LI>
+</UL>
+
+<P><A NAME="12423"></A>Now, by double clicking on the '<TT>Best</TT>' icon
+you will get an <TT>xterm</TT> started on the least loaded host in the
+cluster and displayed on your screen. </P>
+
+<P><A NAME="12425"></A>An alternative to start an X session on the best
+host is to submit it as a LSF Batch job:</P>
+
+<PRE><A NAME="12280"></A>%<B> bsub xterm </B></PRE>
+
+<P><A NAME="12284"></A>This starts an <TT>xterm</TT> on the least loaded
+host in the cluster and displays on your screen. </P>
+
+<P><A NAME="12285"></A>When you run X applications using <TT>lsrun</TT>
+or <TT>bsub</TT>, the environment variable <TT>DISPLAY</TT> is handled
+properly for you. It behaves as if you were running the X application on
+the local machine.</P>
+
+<H2><A NAME="12109"></A>Job Starter</H2>
+
+<P><A NAME="12110"></A>Some jobs have to be started under particular shells
+or require certain setup steps to be performed before the actual job is
+executed. This is often handled by writing wrapper scripts around the job.
+The LSF Job Starter allows you to specify an executable, which will perform
+the actual execution of the job, doing any necessary setup beforehand.</P>
+
+<P><A NAME="11957"></A>A Job Starter can be specified for interactive remote
+execution. If the environment variable <TT>LSF_JOB_STARTER</TT> is defined,
+the RES will invoke the Job Starter using <TT>/bin/sh</TT> with your commands
+as arguments as shown:</P>
+
+<PRE><A NAME="11958"></A>/bin/sh -c &quot;$LSF_JOB_STARTER command [argument ...]&quot;</PRE>
+
+<P><A NAME="12020"></A>where '<TT>command [argument...]</TT>' are the command
+line arguments you specified in <TT>lsrun</TT>, <TT>lsgrun</TT>, or <TT>ch</TT>.</P>
+
+<P><A NAME="12023"></A>If you define <TT>LSF_JOB_STARTER</TT> environment
+variable as:</P>
+
+<PRE><A NAME="12005"></A>% <B>setenv LSF_JOB_STARTER=&quot;/bin/csh -c&quot;</B></PRE>
+
+<P><A NAME="12079"></A>Then you run a simple C-shell job:</P>
+
+<PRE><A NAME="12080"></A>% <B>lsrun &quot;a.out; echo hi&quot;</B></PRE>
+
+<P><A NAME="12083"></A>The following will be invoked to correctly start
+the job:</P>
+
+<PRE><A NAME="12084"></A>lsrun /bin/sh -c &quot;/bin/csh -c a.out; echo hi&quot;</PRE>
+
+<P><A NAME="12088"></A>A Job Starter can also be defined at the queue level
+(see <A HREF="07-manage-lsbatch.html#15643">'Using A Job Starter'</A> of
+the <I><A HREF="admin-title.html#998232">LSF Administrator's Guide</A></I>)
+using the <TT>JOB_STARTER</TT> parameter. It functions in a similar manner.
+This feature is primarily used to customize LSF for particular environments
+(for example, to support Atria ClearCase).</P>
+
+<H2><A NAME="11905"></A>Interactive Batch Job Support</H2>
+
+<P><A NAME="11906"></A>When you run interactive jobs using <TT>lsrun</TT>,
+<TT>lsgrun</TT>, etc., these utilities use LIM's simple placement advice
+for host selection. It is sometimes desirable from a system management
+point of view to control all workload through a single centralized scheduler,
+LSF Batch. </P>
+
+<P><A NAME="12302"></A>Since all interactive jobs submitted to LSF Batch
+are subject to policies of LSF Batch, your system will have better control.
+For example, your system administrator may dedicate two servers as interactive
+servers and disable interactive access to all other servers by defining
+a interactive queue that only uses the two interactive servers. </P>
+
+<P><A NAME="12337"></A>Running an interactive job through LSF Batch also
+allows you to take the advantage of the batch scheduling policy and host
+selection features for resource intensive jobs. </P>
+
+<P><A NAME="12303"></A>To submit an interactive job, you should first find
+out which queues accept interactive jobs by running <TT>bqueues -l</TT>
+command. If the output of this command contains:</P>
+
+<PRE><A NAME="12305"></A>SCHEDULING POLICIES:  NO_INTERACTIVE</PRE>
+
+<P><A NAME="12321"></A>then this is a batch only queue. If the output contains:</P>
+
+<PRE><A NAME="12322"></A>SCHEDULING POLICIES:  ONLY_INTERACTIVE</PRE>
+
+<P><A NAME="12323"></A>then this is an interactive only queue. If none
+of the above is defined or &quot;<TT>SCHEDULING POLICIES</TT>&quot; is
+not in the output of the <TT>bqueues -l</TT> command, then both interactive
+and batch jobs are accepted by this queue. </P>
+
+<P><A NAME="12296"></A>You can use LSF Batch to submit an interactive job
+with the <TT>bsub</TT> command. Your job can be submitted so that all input
+and output are through the terminal that you used to type the command.
+</P>
+
+<P><A NAME="11907"></A>An interactive batch job is submitted by specifying
+the <TT>-I</TT> option of the <TT>bsub</TT> command. When an interactive
+job is submitted, a message is displayed while the job is awaiting scheduling.
+The <TT>bsub</TT> command will block until the job completes and no mail
+is sent to the user by default. A user can issue a <B>ctrl-c</B> at any
+time to effectively terminate the job. For example:</P>
+
+<PRE><A NAME="11908"></A>% <B>bsub -I -q interactive -n 4,10 lsmake
+</B>&lt;&lt;Waiting for dispatch ...&gt;&gt;</PRE>
+
+<P><A NAME="11909"></A>would start <TT>lsmake</TT> on 4 to 10 processors
+and display the output on the terminal.</P>
+
+<P><A NAME="11912"></A>It is possible to use the <TT>-I</TT> option together
+with the <TT>-i</TT>, <TT>-o</TT>, and <TT>-e</TT> options (see <A HREF="06-submitting.html#8283">'Input
+and Output'</A>) to selectively redirect the streams to a files. For example:</P>
+
+<PRE><A NAME="11914"></A>% <B>bsub -I -q interactive -e job.err</B></PRE>
+
+<P><A NAME="11915"></A>would save the standard error stream in the '<TT>job.err</TT>'
+file, while standard input and output would come from the terminal.</P>
+
+<P><A NAME="11916"></A>For jobs requiring pseudo-terminal support, <TT>bsub</TT>
+supports <TT>-Ip</TT> and <TT>-Is</TT> options. See the <TT>bsub</TT>(<TT>1</TT>)
+man page for more details.</P>
+
+<H2><A NAME="12119"></A>Shell Mode for Remote Execution</H2>
+
+<P><A NAME="12120"></A>Shell mode support is provided for running interactive
+applications through the RES or through LSF Batch. Shell mode support is
+required for running interactive shells or applications that redefine <B><FONT SIZE=-1>CTRL-C</FONT></B>
+and <B><FONT SIZE=-1>CTRL-Z</FONT></B> keys (for example, <TT>jove</TT>).
+The <TT>-S</TT> option to <TT>lsrun</TT>, <TT>ch</TT> or <TT>lsgrun</TT>
+creates the remote task with shell mode support. The default is not to
+enable shell mode support. The <TT>-Is</TT> option to <TT>bsub</TT> provides
+the same feature for interactive batch jobs.</P>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="07-tracking.html">[Prev]</A>
+<A HREF="09-lstcsh.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:28:37 --></P>
+
+</BODY>
+</HTML>

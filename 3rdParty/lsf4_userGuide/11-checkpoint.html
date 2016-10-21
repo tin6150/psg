@@ -1,0 +1,611 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Checkpointing and Migration</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="10-lsmake.html">[Prev]</A>
+<A HREF="12-customizing.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="12620"></A>Chapter 11. <A NAME="12618"></A>Checkpointing and
+Migration</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="12643"></A>Checkpointing allows you to take a snapshot of the
+state of a running batch job, so that the job can be restarted later. There
+are two main reasons for checkpointing a job: fault tolerance and load
+balancing.</P>
+
+<P><A NAME="17555"></A>A batch job can be checkpointed periodically during
+its run. If the execution host goes down for any reason, the job can resume
+execution from the last checkpoint when the host comes back up, rather
+than having to start from the beginning. The job can also be restarted
+on a different host if the original execution host remains unavailable.</P>
+
+<P><A NAME="12645"></A>Sometimes one host is overloaded while the others
+are idle or lightly loaded. LSF Batch can checkpoint one or more jobs on
+the overloaded host and restart the jobs on other idle or lightly loaded
+hosts. Job migration can also be used to move intensive jobs away from
+hosts with interactive users such as desktop workstations, so that the
+intensive jobs do not interfere with the users.</P>
+
+<P><A NAME="12706"></A>Topics covered in this chapter are: </P>
+
+<UL>
+<LI><A NAME="12707"></A>Approaches to checkpointing </LI>
+
+<LI><A NAME="12708"></A>Submitting a checkpointable job </LI>
+
+<LI><A NAME="12709"></A>Checkpointing a job </LI>
+
+<LI><A NAME="12710"></A>Restarting a job from its checkpoint </LI>
+
+<LI><A NAME="18963"></A>Job migration </LI>
+
+<LI><A NAME="13943"></A>Submitting jobs that are automatically rerun if
+the execution host fails </LI>
+
+<LI><A NAME="13948"></A>Building checkpointable batch jobs </LI>
+</UL>
+
+<H2><A NAME="12646"></A>Approaches to Checkpointing</H2>
+
+<P><A NAME="12647"></A>Checkpointing can be implemented at three levels.
+These levels are called <I>kernel-level</I>, <I>user-level</I> and <I>application-level</I>.</P>
+
+<P><A NAME="17180"></A>LSF Batch uses the kernel-level support available
+on ConvexOS, Cray (UNICOS), and SPP-UX systems to implement checkpointing
+on these machines and provides user-level support on most other platforms
+(HP-UX 9.x, DEC Alpha, SGI IRIX 5,6, Solaris 2.x, and SunOs 4). It also
+supports application-level checkpointing.</P>
+
+<H3><A NAME="12648"></A>Kernel-level Checkpointing</H3>
+
+<P><A NAME="12649"></A>In kernel-level checkpointing, the operating system
+supports checkpointing and restarting processes. The checkpointing is transparent
+to applications.: they do not have to be modified or linked with any special
+library to support checkpointing.</P>
+
+<H3><A NAME="12650"></A>User-level Checkpointing</H3>
+
+<P><A NAME="12651"></A>Application programs to be checkpointed are linked
+with a checkpoint user library. Upon checkpointing, a checkpoint triggering
+signal is sent to the process. The functions in the checkpoint library
+respond to the signal and save the information necessary to restart the
+process. On restart, the functions in the checkpoint library restore the
+execution environment for the process. To applications, checkpointing is
+transparent. But unlike kernel-level support, applications must be relinked
+to allow checkpointing.</P>
+
+<H3><A NAME="12652"></A>Application-level Checkpointing</H3>
+
+<P><A NAME="12653"></A>Applications can be coded in a way to checkpoint
+themselves either periodically or in response to signals sent by other
+processes. When restarted, the application must look for the checkpoint
+files and restore its state.</P>
+
+<H3><A NAME="24041"></A>Checkpoint Directory </H3>
+
+<P><A NAME="24045"></A>Checkpoint directory stores checkpoint files that
+are necessary to recreate a checkpointed job. LSF allows more than one
+job to be checkpointed into the same directory. Each job is saved in a
+different subdirectory named by the job ID.</P>
+
+<P><A NAME="24064"></A>LSF Batch automatically renames <TT>chkpntdir/<I>jobId</I></TT>
+to <TT>chkpntdir/<I>newjobId</I></TT> after a job is restarted. A conflict
+may occur when a directory <TT>chkpntdir/<I>jobId</I></TT> already exists
+and the restart jobID is the same as the existing directory. In this case,
+LSF Batch first renames the existing directory <TT>chkpntdir/<I>jobId</I></TT>
+to <TT>chkpntdir/<I>jobId</I>.bak</TT>.</P>
+
+<P><A NAME="24055"></A>If the conflict cannot be solved, <TT>sbatchd</TT>
+will report it to <TT>mbatchd</TT> and the job will be aborted.</P>
+
+<H3><A NAME="23817"></A>Uniform Checkpointing Interface</H3>
+
+<P><A NAME="23803"></A>All interaction between LSF and the platform or
+application dependent facility goes through a common interface provided
+by two executables: <TT>echkpnt</TT> and <TT>erestart</TT><SUP><A HREF="11-checkpoint.html#23868">1.</A></SUP>.
+<TT>echkpnt</TT> is invoked when LSF needs to checkpoint a job. <TT>erestart</TT>
+is invoked when LSF needs to start a previously checkpointed job.</P>
+
+<P><A NAME="23812"></A>For systems supporting kernel-level checkpointing,
+<TT>echkpnt</TT> and <TT>erestart</TT> are just wrapper scripts for the
+vendor's checkpointing commands. User-level checkpointing for the supported
+platforms uses whichever <TT>echkpnt</TT>/<TT>erestart</TT> interacts with
+the supplied checkpoint library.</P>
+
+<P><A NAME="23848"></A>You can follow the format given below to extend
+or replace <TT>echkpnt</TT> and <TT>erestart</TT> for other checkpoint
+facilities, including the application-level checkpointing.</P>
+
+<H3><A NAME="23821"></A>The <TT>echkpnt</TT> Command</H3>
+
+<P><A NAME="23823"></A>The <TT>echkpnt</TT> command must support the following
+arguments and take appropriate actions to perform the checkpointing:</P>
+
+<PRE><A NAME="23888"></A>echkpnt [-c] [-f] [-k |-s] [-d <I>chkpnt_dir </I>] <I>process-group-id</I></PRE>
+
+<DL>
+<DT><A NAME="23707"></A><TT>-c </TT></DT>
+
+<DD>Copy all regular files in use by the checkpointed process to the checkpoint
+directory. </DD>
+
+<DT><A NAME="23708"></A><TT>-f </TT></DT>
+
+<DD>Checkpoint the job even if non-checkpointable conditions exist (non-checkpointable
+conditions are specific to the type of checkpoint facility being used).
+This may create checkpoint files that will not restart properly. </DD>
+
+<DT><A NAME="23709"></A><TT>-k </TT></DT>
+
+<DD>Kill the job if the checkpoint operation is successful. Default is
+that the job continues execution after being checkpointed. If this option
+is specified and the checkpoint fails for any reason, the job continues
+normal execution. </DD>
+
+<DT><A NAME="23894"></A><TT>-s </TT></DT>
+
+<DD>Stop the job if the checkpoint operation is successful. Default is
+that the job continues execution after being checkpointed. If this option
+is specified and the checkpoint fails for any reason, the job continues
+normal execution. </DD>
+
+<DT><A NAME="23710"></A><TT>-d <I>chkpnt_dir </I></TT></DT>
+
+<DD>The directory containing the checkpoint files. Default is the current
+directory. </DD>
+
+<DT><A NAME="23711"></A><I><TT>process-group-id </TT></I></DT>
+
+<DD>The process group ID of the job to be checkpointed. </DD>
+</DL>
+
+<H3><A NAME="23712"></A>The <TT>erestart</TT> Command</H3>
+
+<P><A NAME="23830"></A>The <TT>erestart</TT> command must support the following
+arguments and take appropriate actions to perform the restart:</P>
+
+<PRE><A NAME="23713"></A>erestart [-c] [-f]  <I>chkpnt_dir</I> </PRE>
+
+<DL>
+<DT><A NAME="23714"></A><TT>-c </TT></DT>
+
+<DD>Copy data files from the checkpoint directory to the original pathname.
+If any of the process's data files are copied into the checkpoint directory
+at the time of checkpoint, this option will cause restart to replace the
+contents of the original files with the copies. This option is currently
+only supported on ConvexOS. </DD>
+
+<DT><A NAME="23715"></A><TT>-f </TT></DT>
+
+<DD>Force a restart of the process even if non-restartable conditions exist.
+</DD>
+
+<DT><A NAME="23716"></A><I><TT>chkpnt_dir </TT></I></DT>
+
+<DD>Checkpoint directory. </DD>
+</DL>
+
+<P><A NAME="23720"></A>When LSF Batch calls <TT>erestart</TT>, it will
+first pass the process-ID and process group-ID of the original job via
+the environment variables <TT>LSB_RESTART_PID</TT> and <TT>LSB_RESTART_PGID</TT>,
+respectively. Then it waits for a message from the standard error of erestart
+before proceeding. Upon success, <TT>erestart</TT> sends back either a
+message of <TT>&quot;pid=NEW_PID pgid=NEW_PGID&quot;</TT> if there are
+any restart process-id or process group-id changes, or a null message by
+closing the standard error if there are not any changes. On failure, LSF
+Batch expects <TT>erestart</TT> will write the error messages via its standard
+error.</P>
+
+<H2><A NAME="13676"></A>Submitting Checkpointable Jobs</H2>
+
+<P><A NAME="12661"></A>Checkpointable jobs are submitted using the <TT>-k
+&quot;<I>checkpoint_dir</I>[<I>period</I>]&quot;</TT> option of the <TT>bsub</TT>
+command. The <I>checkpoint_dir</I> parameter specifies the directory where
+the checkpoint files are created. The <I>period</I> parameter specifies
+an optional time interval in minutes for automatic and periodic checkpointing.
+If the <I>period </I>parameter is specified, the checkpoint directory and
+period must be enclosed in quotes.</P>
+
+<P><A NAME="12662"></A>If the checkpoint period is not specified, the job
+is considered checkpointable but it is not automatically checkpointed.
+A checkpoint can be created for any checkpointable batch job using the
+<TT>bchkpnt</TT> command. If the checkpoint period is specified, LSF Batch
+automatically checkpoints the job at the specified time interval.</P>
+
+<PRE><A NAME="23986"></A>% <B>bsub -k &quot;io.chkdir 10&quot; io_job
+</B>Job &lt;3426&gt; is submitted to default queue &lt;normal&gt;.</PRE>
+
+<PRE><A NAME="24172"></A>% <B>bjobs -l
+
+</B>Job Id &lt;3426&gt;, User &lt;user2&gt;, Status &lt;RUN&gt;, Queue &lt;normal&gt;, Command &lt;io_job&gt;
+Thu Oct 24 16:50:27: Submitted from host &lt;hostB&gt;, CWD &lt;$HOME/tmp&gt;,
+                     Checkpoint period 10 min., Checkpoint directory
+                     &lt;io.chkdir/3426&gt;;
+Thu Oct 24 16:50:28: Started on &lt;hostB&gt;;
+
+           r15s   r1m  r15m   ut     pg   io   ls    it    tmp    swp    mem
+ loadSched   -    0.7   1.0    -    4.0    -   12     -     0M     -      -
+ loadStop    -    1.5   2.5    -    8.0    -   15     -     -      -      -</PRE>
+
+<P><A NAME="14802"></A>This example submits the checkpointable batch job
+<TT>io_job</TT>. Checkpoint files will be stored in the directory io.chkdir/3426
+(relative to the current directory), and checkpoints will automatically
+be created every 10 minutes, each overwriting the previous one.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="22038"></A><B>Note<BR>
+</B><I>It is your responsibility to clean up the checkpoint directory when
+it is no longer needed.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="12666"></A>If the checkpoint directory does not exist, LSF
+Batch creates it. If it does exist, it must be writable by the user. To
+restart a job on a different host, the checkpoint files must be stored
+in a directory accessible to both hosts.</P>
+
+<H2><A NAME="12795"></A>Checkpointing a Job</H2>
+
+<P><A NAME="12796"></A>In addition to automatic checkpointing, users can
+checkpoint jobs explicitly with the <TT>bchkpnt</TT> command. A job is
+checkpointable only if it was submitted with the <TT>-k</TT> option to
+<TT>bsub</TT>.</P>
+
+<P><A NAME="17883"></A>The <TT>-p <I>period</I></TT><I> </I>option to <TT>bchkpnt</TT>
+allows you to set or change the checkpointing period for a job. <I>period</I>
+is specified in minutes. If <I>period </I>is 0 (zero), periodic checkpointing
+is turned off. Otherwise, periodic checkpointing is turned on and the checkpoint
+period is set to the value given.</P>
+
+<P><A NAME="12798"></A>Some jobs cannot be checkpointed and restarted correctly
+because it is not possible to recreate the running state of the job. See
+<A HREF="11-checkpoint.html#14114">'Limitations'</A> and the <TT>chkpnt(1)</TT>
+manual page on ConvexOS and Cray systems for a list of conditions that
+can cause checkpointing to fail.</P>
+
+<P><A NAME="16652"></A>The <TT>-f</TT> option to <TT>bchkpnt</TT> forces
+the job to be checkpointed, even if some condition exists that would normally
+make the job non-checkpointable. When a non-checkpointable job is checkpointed
+using the <TT>-f</TT> flag, the job may not be restarted correctly.</P>
+
+<P><A NAME="12799"></A>The <TT>-k</TT> option to <TT>bchkpnt</TT> checkpoints
+and kills the batch job as an atomic action. This guarantees that the job
+does not do any processing or I/O after the checkpoint, so that the restarted
+job does not repeat any operations already performed by the original job.</P>
+
+<PRE><A NAME="15062"></A>% <B>bchkpnt -f -p 15
+</B>Job &lt;3426&gt; is being checkpointed
+% <B>bjobs -l
+</B>Job Id &lt;3426&gt;, User &lt;user2&gt;, Status &lt;RUN&gt;, Queue &lt;normal&gt;, Command &lt;io_job&gt;
+Thu Oct 24 16:50:27: Submitted from host &lt;hostB&gt;, CWD &lt;$HOME/tmp&gt;,
+                     Checkpoint period 15 min., Checkpoint directory
+                     &lt;io.chkdir/3426&gt;;
+Thu Oct 24 16:50:28: Started on &lt;hostB&gt;;
+
+           r15s   r1m  r15m   ut     pg   io   ls    it    tmp    swp    mem
+ loadSched   -    0.7   1.0    -    4.0    -   12     -     0M     -      -
+ loadStop    -    1.5   2.5    -    8.0    -   15     -     -      -      -
+% <B>bhist -l
+</B>Job Id &lt;3426&gt;, User &lt;user2&gt;, Command &lt;io_job&gt;
+Thu Oct 24 16:50:27: Submitted from host &lt;hostB&gt; to Queue &lt;normal&gt;, CWD
+                     &lt;$HOME/tmp&gt;, Checkpoint period 10 min., Checkpoint
+                     directory &lt;io.chkdir/3426&gt;;
+Thu Oct 24 16:50:28: Started on &lt;hostB&gt;, Pid &lt;4705&gt;;
+Thu Oct 24 16:51:21: Checkpoint initiated (actpid 4717); checkpoint period
+                     is 15 min.;
+Thu Oct 24 16:51:29: Checkpoint succeeded (actpid 4717).
+
+Summary of time in seconds spent in various states by Thu Oct 24 16:51:36 1996
+  PEND     PSUSP    RUN      USUSP    SSUSP    UNKWN    TOTAL
+  1        0        68       0        0        0        69</PRE>
+
+<H2><A NAME="12667"></A>Restarting a Checkpointed Job</H2>
+
+<P><A NAME="12668"></A>A checkpointed batch job can be restarted on a host
+of the same type as, and running the same operating system version as,
+the original execution host. The executable being run and all open files
+must be located at the same absolute path name.</P>
+
+<P><A NAME="12669"></A>In addition to automatic job restart, specified
+with the <TT>-r</TT> option to <TT>bsub</TT>, LSF Batch provides the <TT>brestart</TT>
+command that restarts a checkpointed batch job from the information stored
+in the checkpoint directory. The checkpoint directory must have been created
+by a previously submitted job that was checkpointed successfully.</P>
+
+<P><A NAME="24068"></A>When you restart a job with <TT>brestart</TT> command,
+you should specify a <I>jobId</I> and <I>chkpntDir</I> directory. The command
+looks like:</P>
+
+<PRE><A NAME="24069"></A>brestart  <I>chkpntDir</I>  [<I>lastJobId</I>]</PRE>
+
+<P><A NAME="24070"></A>where <I>lastJobId</I> must be specified if there
+is more than one <I>jobId</I> directory under <I>chkpntDir</I>.</P>
+
+<P><A NAME="18340"></A><TT>brestart</TT> creates a new batch job that uses
+the checkpoint information. The restarted job is assigned a new job ID
+number, and is placed at the end of the specified queue. The job begins
+executing when a suitable host is available, like any other batch job.</P>
+
+<P><A NAME="18674"></A>The <TT>brestart</TT> command takes many of the
+same options as the <TT>bsub</TT> command to specify the conditions under
+which the restarted job runs. The restarted job has the same output file
+and file transfer specifications, job name, run window signal value, checkpoint
+directory and period, and rerunability as the original job.</P>
+
+<PRE><A NAME="15618"></A>% <B>brestart io.chkdir 3426
+</B>Job &lt;3427&gt; is submitted to default queue &lt;normal&gt;.
+% <B>bjobs -l
+</B>Job Id &lt;3427&gt;, User &lt;user2&gt;, Status &lt;RUN&gt;, Queue &lt;normal&gt;, Command &lt;io_job&gt;
+Thu Oct 24 17:05:01: Submitted from host &lt;hostB&gt;, CWD &lt;$HOME/tmp&gt;,
+                     Checkpoint directory &lt;io.chkdir/3427&gt;;
+Thu Oct 24 17:05:01: Started on &lt;hostB&gt;;
+
+           r15s   r1m  r15m   ut     pg   io   ls    it    tmp    swp    mem
+ loadSched   -    0.7   1.0    -    4.0    -   12     -     0M    -       -
+ loadStop    -    1.5   2.5    -    8.0    -   15     -     -      -      -</PRE>
+
+<H2><A NAME="15676"></A>Job Migration</H2>
+
+<P><A NAME="20737"></A>Checkpointable jobs and rerunable jobs (jobs that
+are submitted with the <TT>bsub -r</TT> option) can be migrated to another
+host for execution if the current host is too busy or the host is going
+to be shut down. Such jobs can be moved from one host to another, as long
+as both hosts are binary compatible and run the same version of the operating
+system.</P>
+
+<P><A NAME="20739"></A>The job's owner or the LSF administrator can use
+the <TT>bmig</TT> command to migrate jobs. If the job is checkpointable,
+the <TT>bmig</TT> command first checkpoints it. Then LSF kills the running
+or suspended job, and restarts or reruns the job on another suitable host
+if one is available. If LSF is unable to rerun or restart the job immediately,
+the job reverts to <TT>PEND</TT> status and is requeued with a higher priority
+than any submitted job, so it is rerun or restarted before other queued
+jobs are dispatched.</P>
+
+<PRE><A NAME="15414"></A>% <B>bmig 3426
+</B>Job &lt;3426&gt; is being migrated
+% <B>bhist -l 3426
+
+</B>Job Id &lt;3426&gt;, User &lt;user2&gt;, Command &lt;io_job&gt;
+Thu Oct 24 16:50:27: Submitted from host &lt;hostB&gt; to Queue &lt;normal&gt;, CWD
+                     &lt;$HOME/tmp&gt;, Checkpoint period 10 min., Checkpoint
+                     directory &lt;io.chkdir/3426&gt;;
+Thu Oct 24 16:50:28: Started on &lt;hostB&gt;, Pid &lt;4705&gt;;
+Thu Oct 24 16:51:21: Checkpoint initiated (actpid 4717); checkpoint period
+                     is 15 min.;
+Thu Oct 24 16:51:29: Checkpoint succeeded (actpid 4717);
+Thu Oct 2424 16:53:42: Migration requested;
+Thu Oct 24 16:54:03: Migration checkpoint initiated (actpid 4746);
+Thu Oct 24 16:54:15: Migration checkpoint succeeded (actpid 4746);
+Thu Oct 24 16:54:15: Pending: Migrating job is waiting for reschedule;
+Thu Oct 24 16:55:16: Started on &lt;lemon&gt;, Pid &lt;10354&gt;.
+
+Summary of time in seconds spent in various states by Thu Oct 24 16:57:26 1996
+  PEND     PSUSP    RUN      USUSP    SSUSP    UNKWN    TOTAL
+  62       0        357      0        0        0        419</PRE>
+
+<H3><A NAME="19942"></A>Queues and Hosts for Automatic Job Migration</H3>
+
+<P><A NAME="19943"></A>LSF Batch will not automatically migrate a job unless
+the job has a migration threshold. A job has a migration threshold if it
+is dispatched from a queue or to a host that has a migration threshold
+defined. The <TT>bqueues -l</TT> and <TT>bhosts -l</TT> commands display
+the migration threshold if it is defined.</P>
+
+<H2><A NAME="12674"></A>Automatically Rerunning and Restarting Jobs</H2>
+
+<P><A NAME="12675"></A>Batch jobs submitted with the <TT>-r</TT> option
+to the <TT>bsub</TT> command are automatically rerun or restarted if the
+execution host becomes unavailable. (A host is considered unavailable if
+both the LIM and <TT>sbatchd</TT> daemons are unreachable.) If the job
+has not been checkpointed, the job is rerun from the beginning. If the
+job has been checkpointed, either automatically or by the <TT>bchkpnt</TT>
+command, it is restarted from the last checkpoint.</P>
+
+<P><A NAME="14078"></A>When a job is rerun or restarted, it is returned
+to the batch queue in which it was executing, with the same options but
+a higher priority as the original batch job. The job uses the same job
+ID number. It is executed when a suitable host is available, and an email
+message is sent to the job submitter informing the user of the restart.</P>
+
+<H3><A NAME="23931"></A>Submitting a Job for Automatic Migration</H3>
+
+<P><A NAME="23933"></A>If you want to submit a rerunable job and have the
+system automatically migrate it to another host when the job is suspended
+due to load, you must submit the job to a queue or a host configured for
+automatic job migration. </P>
+
+<P><A NAME="23934"></A>If a job with a migration threshold has been suspended
+for more than the specified number of minutes, LSF Batch attempts to migrate
+the job to another host. Only checkpointable or rerunable jobs are considered
+for migration. To submit a rerunable job, you must use the <TT>-r</TT>
+option to the <TT>bsub</TT> command.</P>
+
+<P><A NAME="23938"></A>If you want a job to be rerunable but you do not
+want the system to migrate it automatically, submit the job to a queue
+or host that does not have a migration threshold defined. You can still
+migrate the job manually with the <TT>bmig</TT> command.</P>
+
+<H2><A NAME="14043"></A>Building Checkpointable Jobs</H2>
+
+<P><A NAME="14009"></A>The LSF checkpoint library provides user-level checkpointing
+facilities on operating systems that do not provide kernel checkpointing.
+It consists of three parts: </P>
+
+<UL>
+<LI><A NAME="14010"></A>The checkpoint library, <TT>libckpt.a </TT></LI>
+
+<LI><A NAME="14011"></A>The special checkpoint startup routine, <TT>ckpt_crt0.o
+</TT></LI>
+
+<LI><A NAME="14012"></A>The checkpoint linkers, <TT>ckpt_ld and ckpt_ld_f
+</TT></LI>
+</UL>
+
+<P><A NAME="14013"></A>Programs to be checkpointed must be linked with
+the checkpoint startup routine and library. The checkpoint linkers are
+shell scripts that call the standard linkers on your operating system with
+the correct options to link a checkpointable program.</P>
+
+<P><A NAME="14014"></A>The LSF user-level checkpoint library is based on
+the Condor system from the University of Wisconsin.</P>
+
+<H3><A NAME="14015"></A>The Checkpoint Library</H3>
+
+<P><A NAME="14016"></A>The checkpoint library consists of a set of file
+system call stubs for file operations such as <TT>open()</TT>, <TT>close()</TT>,
+and <TT>dup()</TT>, intercepted by the checkpoint library. It also contains
+a checkpoint signal handler and routines used internally to implement checkpointing.</P>
+
+<H3><A NAME="14017"></A>The Checkpoint Startup Routine</H3>
+
+<P><A NAME="14018"></A>The startup routine sets the checkpoint signal handler
+and initializes some data structures. The data structures are used to record
+file accesses of the process and are used during the restart to re-open
+files opened before the checkpoint and to restore the current access positions
+in those files. The signal handler settings of the process are also saved
+at the checkpoint time and restored when the process is restarted. All
+these operations are transparent to applications.</P>
+
+<H3><A NAME="14019"></A>Linking</H3>
+
+<P><A NAME="14112"></A>Except on those systems with kernel checkpointing
+support, checkpointable programs must be linked with the special checkpoint
+library and startup routine instead of the standard ones. LSF comes with
+replacement linkers for programs to be checkpointed. The <TT>ckpt_ld</TT>
+and <TT>ckpt_ld_f</TT> commands are shell scripts that take the same parameters
+as the system linker, <TT>ld</TT>. The checkpoint linkers call <TT>ld</TT>
+with the correct flags to link the user's program with the checkpoint library
+<TT>libckpt.a</TT> and the special startup routine <TT>ckpt_crt0.o</TT>.
+<TT>ckpt_ld</TT> is for linking C programs and <TT>ckpt_ld_f</TT> is for
+linking FORTRAN programs.</P>
+
+<P><A NAME="14191"></A>In most cases, users run the compiler for the language
+used, and the compiler then invokes the linker on behalf of the user. Because
+of this, few users call the linker directly. This section describes the
+steps involved in building a checkpointable application.</P>
+
+<P><A NAME="14195"></A>Suppose you have a C program called <TT>prog.c</TT>,
+and you normally create an executable, <TT>prog</TT>, as follows:</P>
+
+<PRE><A NAME="14196"></A>% <B>cc -o prog prog.c</B></PRE>
+
+<P><A NAME="14197"></A>To build a checkpointable program, however, you
+need to build the object file, <TT>prog.o</TT>, as follows:</P>
+
+<PRE><A NAME="14198"></A>% <B>cc -c prog.c</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="21220"></A><B>Note<BR>
+</B><I>On SGI systems running IRIX version 5 or 6, use the </I><TT>-nonshared</TT><I>
+option.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="14199"></A>Use the LSF linker script to build the executable:</P>
+
+<PRE><A NAME="14200"></A>% <B>ckpt_ld -o prog prog.o</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="21250"></A><B>Note<BR>
+</B><TT>ckpt_ld</TT><I> requires the static library </I><TT>libc.a</TT><I>
+on all platforms. In addition, on AIX version 3.2 it requires </I><TT>libbsd.a</TT><I>;
+on Solaris version 2 it requires </I><TT>libmalloc.a, libsocket.a</TT><I>,
+</I><TT>libnsl.a</TT><I>, and </I><TT>libintl.a</TT><I>.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="14201"></A>Like C programs, FORTRAN source files must be compiled
+to object files and then linked with the <TT>ckpt_ld_f</TT> command. To
+build a checkpointable version of <TT>prog1</TT> from the <TT>prog1.f</TT>
+source file, proceed as follows:</P>
+
+<PRE><A NAME="16166"></A>% <B>f77 -c prog1.f</B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="21282"></A><B>Note<BR>
+</B><I>On SGI systems running IRIX version 5 or 6, use the </I><TT>-nonshared</TT><I>
+option.</I></P>
+</BLOCKQUOTE>
+
+<PRE><A NAME="21273"></A>% <B>ckpt_ld_f -o prog1 prog1.o </B></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="21293"></A><B>Note<BR>
+</B><I><TT>ckpt_ld_f</TT> requires the static library <TT>libc.a</TT> on
+all platforms. It requires additional static libraries on each platform,
+as shown in the table below.</I></P>
+</BLOCKQUOTE>
+
+<H4><A NAME="21293"></A>Table 5. Static Libraries for ckpt_ld_f</H4>
+
+<P><!-- table 'ere --></P>
+
+<P><A NAME="16153"></A>In addition to the checkpoint library and startup
+routine, <TT>ckpt_ld</TT> and <TT>ckpt_ld_f</TT> may also link in a few
+other system-provided object files that are platform-dependent. Normally,
+these files are installed in a standard directory by the operating system.
+However, you may get an error if your system administrator set things up
+differently. In this case, see the ckpt_ld(1) manual page for more information.</P>
+
+<H3><A NAME="14114"></A>Limitations</H3>
+
+<P><A NAME="14115"></A>There are restrictions to the use of the current
+implementation of the checkpoint library for user level checkpointing.
+These are: </P>
+
+<UL>
+<LI><A NAME="14116"></A>The checkpointed process can only be restarted
+on hosts of the same architecture and running the same operating system
+as the host on which the checkpoint was created </LI>
+
+<LI><A NAME="14117"></A>Only single process jobs can be checkpointed </LI>
+
+<LI><A NAME="14118"></A>All file operations must be idempotent </LI>
+
+<LI><A NAME="14119"></A>Processes with open pipes or sockets can be checkpointed
+but may not properly restart as the pipes/sockets are not re-opened on
+restart </LI>
+
+<LI><A NAME="14120"></A>If a process has <TT>stdin</TT>, <TT>stdout</TT>,
+or <TT>stderr</TT> as open pipes, all data in the pipes is lost on restart
+</LI>
+
+<LI><A NAME="14131"></A>The checkpointed process cannot be operating on
+a private stack when the checkpoint happens </LI>
+
+<LI><A NAME="14136"></A>The checkpointed process cannot use internal timers
+</LI>
+
+<LI><A NAME="21127"></A>The checkpointed program must be statically linked.
+</LI>
+
+<LI><A NAME="21745"></A><TT>SIGHUP</TT> is used internally to implement
+checkpointing. Do not use this signal in programs to be checkpointed. </LI>
+</UL>
+
+<P>
+<HR><SUP>1.<A NAME="23868"></A></SUP> <TT>echkpnt</TT> and <TT>erestart</TT>
+are by default located in the <TT>LSF_SERVERDIR</TT> directory (as defined
+in <TT>lsf.conf</TT>). You can specify another directory with the <TT>LSF_ECHKPNTDIR</TT>
+environment variable. </P>
+
+<P>
+<HR WIDTH="100%"><A HREF="users-contents.html">[Contents]</A> <A HREF="10-lsmake.html">[Prev]</A>
+<A HREF="12-customizing.html">[Next]</A> <A HREF="b-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:29:34 --></P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Using lsmake</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="09-lstcsh.html">[Prev]</A>
+<A HREF="11-checkpoint.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="12214"></A>Chapter 10. <A NAME="12212"></A>Using <TT>lsmake</TT></H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="2621"></A>This chapter describes how to use <TT>lsmake</TT>
+to perform parallel software builds and similar tasks.</P>
+
+<P><A NAME="5743"></A><TT>lsmake</TT> is based on GNU <TT>make</TT>, and
+supports all GNU <TT>make</TT> features. Additional command line options
+control parallel execution. GNU <TT>make</TT> is upwardly compatible with
+the <TT>make</TT> programs supplied by most UNIX vendors.</P>
+
+<P><A NAME="2977"></A>To use <TT>lsmake</TT> you do not need to change
+your makefile, although reorganizing the contents of the makefile might
+increase the parallelism and therefore reduce the running time.</P>
+
+<P><A NAME="10167"></A>The <TT>lsmake(1)</TT> manual page describes the
+command line options that control load sharing. The <TT>gmake(1)</TT> manual
+pages describes the other command line options.</P>
+
+<BLOCKQUOTE>
+<P><A NAME="12207"></A><B>Note<BR>
+</B><I>Interactive tasks, including </I><TT>lsmake</TT><I>, are not supported
+on Windows NT.</I></P>
+</BLOCKQUOTE>
+
+<H2><A NAME="3013"></A>Parallel Execution</H2>
+
+<P><A NAME="2631"></A>Many tasks consist of many subtasks, with dependencies
+between the subtasks. For example, compiling a software package requires
+compiling each file in the package and then linking all the compiled files
+together.</P>
+
+<P><A NAME="4832"></A>In many cases most of the subtasks do not depend
+on each other. For a software package, the individual files in the package
+can be compiled at the same time; only the linking step needs to wait for
+all the other tasks to complete.</P>
+
+<P><A NAME="12190"></A>In an LSF cluster you can use <TT>lsmake</TT> to
+select a group of hosts and run parts of your make in parallel.</P>
+
+<H2><A NAME="12192"></A>Invoking <TT>lsmake</TT></H2>
+
+<P><A NAME="8044"></A><TT>lsmake</TT> supports all the GNU <TT>make</TT>
+command line options.</P>
+
+<H3><A NAME="5872"></A>Specifying the Number of Processors</H3>
+
+<P><A NAME="5819"></A>The <TT>lsmake -j <I>num_processors</I></TT> option
+tells <TT>lsmake</TT> to ask the LIM for <I>num_processors</I> processors.
+If fewer processors are available, <TT>lsmake</TT> uses all the available
+processors. If no processors are available and the local host meets all
+resource requirements specified using the <TT>lsmake -R</TT> option, all
+<TT>make</TT> tasks are run on the local host.</P>
+
+<P><A NAME="6039"></A>By default <TT>lsmake</TT> selects the same host
+type as the submitting host. This is necessary for most compilation jobs;
+all components must be compiled on the same host type and operating system
+version to run correctly. If your <TT>make</TT> task requires other resources
+you can override the default resource requirements with the <TT>lsmake
+-R <I>resreq</I></TT> option.</P>
+
+<P><A NAME="5059"></A>To build your software in parallel on 10 processors,
+enter:</P>
+
+<PRE><A NAME="4953"></A>% <B>lsmake -j 10</B></PRE>
+
+<P><A NAME="4955"></A>If you want to take advantage of parallelism between
+the CPU and I/O on a powerful host, you can also specify the number of
+concurrent jobs for each processor using the <TT>lsmake -c</TT> option:</P>
+
+<PRE><A NAME="4956"></A>% <B>lsmake -j 10 -c 2</B></PRE>
+
+<P><A NAME="4957"></A>This selects up to 10 processors and starts two tasks
+on each processor.</P>
+
+<H2><A NAME="3043"></A>File Server Load</H2>
+
+<P><A NAME="3181"></A><TT>lsmake</TT> can significantly reduce the response
+time of your make; however, it may also overload your file server or network
+if the jobs you are running are I/O intensive.</P>
+
+<P><A NAME="3182"></A>You can specify a threshold load so that parallelism
+is automatically reduced when the file server load is above a threshold
+and expanded when the file server load is below the threshold.</P>
+
+<PRE><A NAME="3183"></A>% <B>lsmake -j 10 -F &quot;r15s &lt; 5 &amp;&amp; pg &lt; 20&quot;</B></PRE>
+
+<P><A NAME="3184"></A>This <TT>lsmake</TT> job uses up to 10 hosts, and
+reduces the parallelism if the file server CPU load <TT>r15s</TT> goes
+beyond 5, or if the file server paging rate goes beyond 20 pages per second.
+<TT>lsmake</TT> automatically determines the file server for the current
+working directory.</P>
+
+<H2><A NAME="3064"></A>Tuning Your Makefile</H2>
+
+<P><A NAME="2941"></A>The smallest unit that <TT>lsmake</TT> runs in parallel
+is a single <TT>make</TT> rule. If your makefile has rules that include
+many steps, or rules that contain shell loops to build sub-parts of your
+project, <TT>lsmake</TT> runs the steps serially.</P>
+
+<P><A NAME="10984"></A>You can increase the parallelism in your makefile
+by breaking up complex rules into groups of simpler rules. Steps that must
+run in sequence can use <TT>make</TT> dependencies to enforce the order.
+<TT>lsmake</TT> can then find more subtasks to run in parallel.</P>
+
+<H2><A NAME="11075"></A>Building in Subdirectories</H2>
+
+<P><A NAME="11077"></A>If your <TT>make</TT> job is divided into subdirectories,
+<TT>lsmake -M</TT> can process the subdirectories in parallel. The total
+number of parallel tasks is shared over all the subdirectories. Without
+the <TT>-M</TT> option, <TT>lsmake</TT> processes subdirectories sequentially,
+although tasks within each subdirectory can be run in parallel.</P>
+
+<P><A NAME="11078"></A>To process subdirectories in parallel they must
+be built as separate targets in your makefile. You must specify the <TT>make</TT>
+command for each subdirectory with the built-in <TT>$(MAKE)</TT> macro
+so that <TT>lsmake</TT> can substitute the correct <TT>lsmake</TT> command
+for the subdirectory.</P>
+
+<P><A NAME="5241"></A>Some makefiles may work correctly when run on a single
+machine, but may not work correctly when run in parallel through <TT>lsmake</TT>.</P>
+
+<P><A NAME="11054"></A><A HREF="10-lsmake.html#11054">Figure 15</A> shows
+a makefile rule that uses a shell loop to process subdirectories.</P>
+
+<H4><A NAME="11054"></A>Figure 15. Makefile Rules With Shell Loop</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD>
+<PRE>DIRS = lib misc main
+prog:
+       for subdir in $(DIRS) ; do \
+              cd $subdir ; $(MAKE) ; cd .. ;\ 
+       done</PRE>
+</TD>
+</TR>
+</TABLE>
+
+<P><A NAME="12071"></A>When this makefile is run on a single machine, the
+directories are processed sequentially; that is <TT>lib</TT> is built before
+<TT>misc</TT> and <TT>main</TT>. However, when run using <TT>lsmake</TT>
+using the <TT>-M</TT> option, all directories can be built in parallel.
+Therefore, it is possible for the <TT>misc</TT> and <TT>main</TT> directories
+to be built before <TT>lib</TT>, which is not correct.</P>
+
+<P><A NAME="7189"></A><A HREF="10-lsmake.html#7189">Figure 16</A> shows
+a set of makefile rules to perform the same tasks and allows the subdirectories
+to be built in parallel in the correct order. Note that an extra rule is
+added so that the <TT>lib</TT> and <TT>misc</TT> subdirectories are built
+before the main directory:</P>
+
+<H4><A NAME="7189"></A>Figure 16. Makefile Rules With No Shell Loop</H4>
+
+<TABLE BORDER=1 CELLSPACING=0 >
+<TR>
+<TD>
+<PRE>DIRS = lib misc main 
+prog:  $(DIRS)
+$(DIRS):
+       cd $@ ; $(MAKE) 
+main:  lib misc</PRE>
+</TD>
+</TR>
+</TABLE>
+
+<H2><A NAME="6447"></A>Running <TT>lsmake</TT> as a Batch Job</H2>
+
+<P><A NAME="7424"></A><TT>make</TT> jobs often require a lot of resources,
+but no user interaction. Such jobs can be submitted to the LSF Batch system
+so that they are processed when the needed resources are available. <TT>lsmake</TT>
+includes extensions to run as a parallel batch job under LSF Batch:</P>
+
+<PRE><A NAME="7499"></A>% <B>bsub -n 10 lsmake</B></PRE>
+
+<P><A NAME="7547"></A>This command queues an <TT>lsmake</TT> job that needs
+10 hosts. When all 10 hosts are available, LSF Batch starts <TT>lsmake</TT>
+on the first host, and passes the names of all hosts in an environment
+variable. <TT>lsmake</TT> gets the host names from the environment variable
+and uses the RES to run tasks.</P>
+
+<P><A NAME="12215"></A>You can also specify a minimum and maximum number
+of processors to dedicate to your <TT>make</TT> job (see <A HREF="06-submitting.html#26818">'Minimum
+and Maximum Number of Processors'</A>):</P>
+
+<PRE><A NAME="12220"></A>% <B>bsub -n 6,18 lsmake</B></PRE>
+
+<P><A NAME="7638"></A>Because <TT>lsmake</TT> passes the suspend signal
+(<TT>SIGTSTP</TT>) to all its remote processes, the entire parallel <TT>make</TT>
+job can be suspended and resumed by the user or the LSF Batch system.</P>
+
+<H2><A NAME="7396"></A>Differences from Other Versions of make</H2>
+
+<P><A NAME="2959"></A><TT>lsmake</TT> is fully compatible with GNU <TT>make</TT>.
+There are some incompatibilities between GNU <TT>make</TT> and some other
+versions of <TT>make</TT>; these are beyond the scope of this document.</P>
+
+<P><A NAME="7741"></A>When <TT>lsmake</TT> is running processes on more
+than one host, it does not send standard input to the remote processes.
+Most makefiles do not require any user interaction through standard I/O.
+If you have makefile steps that require user interaction, you can put the
+commands that require interaction into your local task list. Commands in
+the local task list always run on the local host, where they can read from
+standard input and write to standard output.</P>
+
+<P>
+<HR><A HREF="users-contents.html">[Contents]</A> <A HREF="09-lstcsh.html">[Prev]</A>
+<A HREF="11-checkpoint.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+</P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+</BODY>
+</HTML>

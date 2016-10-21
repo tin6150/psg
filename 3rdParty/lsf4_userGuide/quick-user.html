@@ -1,0 +1,1694 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Quick Reference</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+   <META NAME="Classification" CONTENT="Secret">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P>
+<HR></P>
+
+<H1><A NAME="39"></A>LSF User's Quick Reference</H1>
+
+<P><A HREF="lsf-docs.html"><IMG SRC="logo.gif" ALT="Platform Computing Corporation" BORDER=0 HEIGHT=150 WIDTH=100></A></P>
+
+<P>
+<HR></P>
+
+<H2><A NAME="40"></A>Common Options</H2>
+
+<P><A NAME="5867"></A>All commands take the following options. They will
+not be shown unless they differ for a specific command:</P>
+
+<DL>
+<DT><A NAME="6660"></A><TT>-h&nbsp;&nbsp;&nbsp;</TT>Print command usage
+to standard error and exit. </DT>
+
+<DT><A NAME="6664"></A><TT>-V&nbsp;&nbsp;&nbsp;</TT>Print LSF version to
+standard error and exit. </DT>
+</DL>
+
+<H2><A NAME="43"></A>LSF Base System Information</H2>
+
+<H3><A NAME="6473"></A><TT>lsid</TT></H3>
+
+<P><A NAME="6474"></A>Display the LSF release version, the name of the
+local load sharing cluster, and the name of its master LIM host. </P>
+
+<H3><A NAME="51"></A><TT>lsclusters</TT></H3>
+
+<P><A NAME="2536"></A>Display general configuration information about LSF
+clusters. </P>
+
+<PRE><A NAME="5850"></A><TT>lsclusters [-l] [cluster...]</TT></PRE>
+
+<DL>
+<DT><A NAME="2542"></A><TT>-l </TT></DT>
+
+<DD>Display information in a (long) multi-line format. </DD>
+
+<DT><A NAME="6611"></A><TT>cluster... </TT></DT>
+
+<DD>Display information about the named cluster(s). Default: all clusters.
+</DD>
+</DL>
+
+<H3><A NAME="53"></A><TT>lsinfo</TT></H3>
+
+<P><A NAME="54"></A>Display information about the LSF configuration, including
+available resources, host types and host models. </P>
+
+<PRE><A NAME="5854"></A><TT>lsinfo [-l] [-r] [-m] [-t] [resource...]</TT></PRE>
+
+<DL>
+<DT><A NAME="4128"></A><TT>-l </TT></DT>
+
+<DD>Display resource information in a (long) multi-line format. </DD>
+
+<DT><A NAME="4135"></A><TT>-r </TT></DT>
+
+<DD>Display information about configured resources. </DD>
+
+<DT><A NAME="4138"></A><TT>-m </TT></DT>
+
+<DD>Display information about configured host models. </DD>
+
+<DT><A NAME="4141"></A><TT>-t </TT></DT>
+
+<DD>Display information about configured host types. </DD>
+
+<DT><A NAME="5861"></A><TT>resource... </TT></DT>
+
+<DD>Display information about the named resource(s). Default: all resources.
+</DD>
+</DL>
+
+<H3><A NAME="5862"></A><TT>lshosts</TT></H3>
+
+<P><A NAME="5863"></A>Display information about LSF host configuration,
+including host type, host model, CPU normalization factor, number of CPUs,
+maximum memory, and available resources. </P>
+
+<PRE><A NAME="5858"></A><TT>lshosts [-l] [-R res_req] [host...|cluster...]</TT></PRE>
+
+<DL>
+<DT><A NAME="2524"></A><TT>-l </TT></DT>
+
+<DD>Display information in a (long) multi-line format. </DD>
+
+<DT><A NAME="2525"></A><TT>-R res_req </TT></DT>
+
+<DD>Display information about the hosts that meet the specified resource
+requirements. Default: display information for all hosts. </DD>
+
+<DT><A NAME="2526"></A><TT>host...|cluster... </TT></DT>
+
+<DD>Display configuration information for the named host(s) or cluster(s).
+Default: display information for all hosts. </DD>
+</DL>
+
+<H2><A NAME="14355"></A>LSF Batch System Information</H2>
+
+<H3><A NAME="2655"></A><TT>bhosts</TT></H3>
+
+<P><A NAME="556"></A>Display information about the server hosts in the
+LSF Batch system. </P>
+
+<PRE><A NAME="6570"></A><TT>bhosts [-l|-w] [-R res_req] [host...|cluster]</TT></PRE>
+
+<DL>
+<DT><A NAME="559"></A><TT>-l</TT> </DT>
+
+<DD>Display information in a (long) multi-line format. </DD>
+
+<DT><A NAME="6623"></A><TT>-w</TT> </DT>
+
+<DD>Display fields in a (long) multi-line format without truncation. </DD>
+
+<DT><A NAME="14622"></A><TT>-R res_req </TT></DT>
+
+<DD>Display information about the hosts that meet the specified resource
+requirements. Default: display information for all hosts in the local cluster.
+</DD>
+
+<DT><A NAME="14623"></A><TT>host...|cluster </TT></DT>
+
+<DD>Display information on the named host(s) or cluster. Default: display
+information for all hosts in the local cluster. </DD>
+</DL>
+
+<H3><A NAME="583"></A><TT>bhpart</TT></H3>
+
+<P><A NAME="584"></A>Display information about host partitions in the LSF
+Batch system. </P>
+
+<PRE><A NAME="6327"></A><TT>bhpart [host_partition...]</TT></PRE>
+
+<DL>
+<DT><A NAME="586"></A><TT>host_partition... </TT></DT>
+
+<DD>Display information about the named host partition(s). Default: all.
+</DD>
+</DL>
+
+<H3><A NAME="596"></A><TT>bparams</TT></H3>
+
+<P><A NAME="6666"></A>Display information about the configurable LSF Batch
+system parameters. By default only display the most 'interesting' parameters.
+</P>
+
+<PRE><A NAME="6331"></A><TT>bparams [-l]</TT></PRE>
+
+<DL>
+<DT><A NAME="2615"></A><TT>-l</TT> </DT>
+
+<DD>Display all the parameters along with brief descriptions and their
+corresponding names. </DD>
+</DL>
+
+<H3><A NAME="2603"></A><TT>bqueues</TT></H3>
+
+<P><A NAME="597"></A>Display information about batch queues in the LSF
+Batch system. </P>
+
+<PRE><A NAME="6698"></A><TT>bqueues [-l|-w] [-m host|cluster] [-u user] [queue...]</TT></PRE>
+
+<DL>
+<DT><A NAME="6747"></A><TT>-l</TT> </DT>
+
+<DD>Display information in a (long) multi-line format. </DD>
+
+<DT><A NAME="6748"></A><TT>-w</TT> </DT>
+
+<DD>Display fields in a (long) multi-line format without truncation. </DD>
+
+<DT><A NAME="6877"></A><TT>-m host|cluster </TT></DT>
+
+<DD>Display queues from which jobs may be dispatched to the named host
+or host group. Default: all hosts. Otherwise, display the queues in the
+named remote cluster. </DD>
+
+<DT><A NAME="6878"></A><TT>-u user </TT></DT>
+
+<DD>Display the queues to which the named user or user group may submit
+batch jobs. Default: all users. </DD>
+
+<DT><A NAME="958"></A><TT>queue... </TT></DT>
+
+<DD>Display information about the named queue(s). </DD>
+</DL>
+
+<H3><A NAME="603"></A><TT>busers</TT></H3>
+
+<P><A NAME="604"></A>Display information about LSF Batch users and user
+groups. </P>
+
+<PRE><A NAME="6890"></A><TT>busers [user...|all]</TT></PRE>
+
+<DL>
+<DT><A NAME="966"></A><TT>user...|all </TT></DT>
+
+<DD>Display information about the named user(s) or user group(s) or about
+<TT>all</TT> users and user groups. Default: display information about
+the invoker. </DD>
+</DL>
+
+<H3><A NAME="607"></A><TT>bugroup</TT> and <TT>bmgroup</TT></H3>
+
+<P><A NAME="6928"></A>Display LSF Batch user or host group membership.
+If a group member is a group itself (subgroup), then a slash '/' is appended
+to its name. </P>
+
+<PRE><A NAME="6909"></A><TT>bugroup [-r] [group...]
+bmgroup [-r] [group...]</TT></PRE>
+
+<DL>
+<DT><A NAME="610"></A><TT>-r</TT> </DT>
+
+<DD>Expand the group membership recursively. </DD>
+
+<DT><A NAME="611"></A><TT>group... </TT></DT>
+
+<DD>Display the membership of the named group(s). Default: display the
+members of all groups. </DD>
+</DL>
+
+<H2><A NAME="96"></A>Placement Tools</H2>
+
+<H3><A NAME="4713"></A><TT>lsplace</TT></H3>
+
+<P><A NAME="6989"></A>Query LIM daemon for a placement decision. This command
+is normally used in an argument to select hosts for other commands. </P>
+
+<PRE><A NAME="6973"></A><TT>lsplace [-L] [-R res_req] [-n needed] [-w wanted] [host...]</TT></PRE>
+
+<DL>
+<DT><A NAME="7014"></A><TT>-L </TT></DT>
+
+<DD>Attempt to place tasks on as few hosts as possible. </DD>
+
+<DT><A NAME="7031"></A><TT>-R res_req </TT></DT>
+
+<DD>Only the hosts that meet the specified resource requirements are considered.
+Those with lowest load are selected. Default: select for CPU and memory
+intensive tasks, needing the same type of hosts as the local host. </DD>
+
+<DT><A NAME="7046"></A><TT>-n needed </TT></DT>
+
+<DD>The number of CPUs that are minimally required. Default: 1. </DD>
+
+<DT><A NAME="4718"></A><TT>-w wanted </TT></DT>
+
+<DD>Maximum number of CPUs wanted. Default: 1. </DD>
+
+<P><A NAME="4720"></A>Command exit status: </P>
+
+<DD><A NAME="4721"></A><TT>0&nbsp;&nbsp;&nbsp;</TT>Normal. </DD>
+
+<DD><A NAME="4722"></A><TT>1&nbsp;&nbsp;&nbsp;</TT>Not enough hosts available.
+</DD>
+
+<DD><A NAME="4723"></A><TT>-10&nbsp;</TT>Failure detected in the LSF system.
+</DD>
+
+<DD><A NAME="4724"></A><TT>-1&nbsp;&nbsp;</TT>Other errors. </DD>
+</DL>
+
+<H3><A NAME="3097"></A><TT>lsrtasks</TT> and <TT>lsltasks</TT></H3>
+
+<P><A NAME="3098"></A>Display or update the user's remote or local task
+lists. These task lists are maintained by LSF on a per user basis to store
+the resource requirements of tasks. Default: display the task list in multi-column
+format. </P>
+
+<PRE><A NAME="7082"></A><TT>lsrtasks [+|- task[/res_req]...]
+lsltasks [+|- task...]</TT></PRE>
+
+<DL>
+<DT><A NAME="7096"></A><TT>+ task[/resreq]... </TT></DT>
+
+<DD>Add the task(s) to the task list, along with any optional resource
+requirements. </DD>
+
+<DT><A NAME="3102"></A><TT>- task... </TT></DT>
+
+<DD>Remove the task(s) from the task list. </DD>
+</DL>
+
+<H2><A NAME="121"></A>Interactive Remote Execution</H2>
+
+<H3><A NAME="253"></A><TT>lsrun</TT></H3>
+
+<P><A NAME="7140"></A>Submit a task to the LSF system for execution, possibly
+on a remote host. </P>
+
+<PRE><A NAME="7157"></A><TT>lsrun [-S] [-P] [-l] [-v] [-m host...|cluster...] [-R res_req] 
+task [arg...]</TT></PRE>
+
+<DL>
+<DT><A NAME="7628"></A><TT>-S </TT></DT>
+
+<DD>Create a pseudo-terminal with shell mode support when starting a remote
+task. Shell mode support is required for applications which redefine the
+<B><FONT SIZE=-1>CTRL-C</FONT></B>&nbsp;and <B><FONT SIZE=-1>CTRL-Z</FONT></B>
+keys. </DD>
+
+<DT><A NAME="7632"></A><TT>-P </TT></DT>
+
+<DD>Create a pseudo-terminal when starting a remote task. </DD>
+
+<DT><A NAME="7400"></A><TT>-l </TT></DT>
+
+<DD>Always execute the task locally if remote execution fails. Default:
+execute locally only if the local host also satisfies the resource requirements.
+</DD>
+
+<DT><A NAME="7634"></A><TT>-v </TT></DT>
+
+<DD>Verbose mode. The name of the selected host is displayed. </DD>
+
+<DT><A NAME="7182"></A><TT>-m host...|cluster... </TT></DT>
+
+<DD>Specify the candidate host(s) or cluster(s) for executing the task.
+If none of the candidate hosts satisfy the resource requirements, the task
+will not run. If only one host is specified, this option overrides the
+<TT><A HREF="quick-user.html#7538">-R</A></TT> option and the task will be executed on
+that host. </DD>
+
+<DT><A NAME="7538"></A><TT>-R res_req </TT></DT>
+
+<DD>Execute the task on a host that meets the resource requirements. If
+<TT><A HREF="quick-user.html#7538">-R</A></TT> and <TT><A HREF="quick-user.html#7182">-m</A> </TT>are
+not specified, the resource requirements from the remote task list are
+used. Default:<B> </B><TT>type==local</TT> unless a model or boolean resource
+is specified, in which case <TT>type==any order[r1m:pg]</TT>. </DD>
+</DL>
+
+<H3><A NAME="7751"></A><TT>lsgrun</TT></H3>
+
+<P><A NAME="7752"></A>Execute a task on the specified group of hosts. </P>
+
+<PRE><A NAME="7753"></A><TT>lsgrun [-i] [-S] [-P] [-p] [-v] -f file | -m host...| -n needed 
+[-R res_req] [task [arg... ]]</TT></PRE>
+
+<DL>
+<DT><A NAME="7776"></A><TT>-i </TT></DT>
+
+<DD>Interactive operation mode. The user is asked if task will be executed
+on all hosts. </DD>
+
+<DT><A NAME="7795"></A><TT>-S </TT></DT>
+
+<DD>Create a pseudo-terminal with shell mode support when starting a remote
+task. Shell mode support is required for applications which redefine the
+<B><FONT SIZE=-1>CTRL-C</FONT></B> and <B><FONT SIZE=-1>CTRL-Z</FONT></B>
+keys. </DD>
+
+<DT><A NAME="7796"></A><TT>-P </TT></DT>
+
+<DD>Create a pseudo-terminal when starting a remote task. </DD>
+
+<DT><A NAME="7797"></A><TT>-p </TT></DT>
+
+<DD>Parallel run mode. If specified, the task is executed on all hosts
+simultaneously without pseudo-terminal support. </DD>
+
+<DT><A NAME="7830"></A><TT>-v</TT> </DT>
+
+<DD>Verbose mode. The name of the selected host is displayed. </DD>
+
+<DT><A NAME="8580"></A><TT>-f file </TT></DT>
+
+<DD>Specify a file that contains a list of host names. This option is exclusive
+of options <TT><A HREF="quick-user.html#7836">-m</A></TT>, <TT><A HREF="quick-user.html#7859">-n</A></TT>,
+and <TT><A HREF="quick-user.html#7891">-R</A></TT>. </DD>
+
+<DT><A NAME="7836"></A><TT>-m host... </TT></DT>
+
+<DD>Specify the candidate host(s) to execute task. This option is exclusive
+of options <TT><A HREF="quick-user.html#8580">-f</A></TT>, <TT><A HREF="quick-user.html#7859">-n</A></TT>,
+and <TT><A HREF="quick-user.html#7891">-R</A></TT>. </DD>
+
+<DT><A NAME="7859"></A><TT>-n needed </TT></DT>
+
+<DD>Specify the number of processors to run task. A host may be used to
+start several tasks if it is a multiprocessor. This option can be used
+with option <TT><A HREF="quick-user.html#7891">-R</A></TT>, and is exclusive of options
+<TT><A HREF="quick-user.html#8580">-f</A></TT> and <TT><A HREF="quick-user.html#7836">-m</A></TT>. </DD>
+
+<DT><A NAME="7891"></A><TT>-R res_req </TT></DT>
+
+<DD>Execute the task on a host that meets the specified resource requirements.
+This option can be used with option <TT>-n</TT>. Default:<B> </B><TT>type==local</TT>
+unless a model or boolean resource is specified, in which case <TT>type==any
+order[r15s:pg]</TT>. </DD>
+
+<DT><A NAME="7898"></A><TT>task[arg...] </TT></DT>
+
+<DD>The name of the task to be executed. If it is not specified, then the
+user is prompted to enter a command terminated by <B><FONT SIZE=-1>CTRL-D</FONT></B>
+or <TT>EOF</TT>. </DD>
+</DL>
+
+<H3><A NAME="730"></A><TT>lstcsh</TT></H3>
+
+<P><A NAME="731"></A>A load sharing version of <TT>tcsh</TT> (an enhanced
+version of the C shell). <TT>lstcsh</TT> accepts all the options used by
+<TT>tcsh</TT>, plus the additional <TT>-L</TT> option. </P>
+
+<PRE><A NAME="7965"></A><TT>lstcsh [-bcdefimnstvVxXL] [arg...]</TT> </PRE>
+
+<DL>
+<DT><A NAME="733"></A><TT>-L&nbsp;&nbsp;&nbsp;</TT>Execute an <TT>lstcsh</TT>
+script with load sharing enabled. </DT>
+</DL>
+
+<H3><A NAME="734"></A><TT>lsmake</TT></H3>
+
+<P><A NAME="8026"></A>A modified version of GNU <TT>make</TT> which executes
+make tasks in parallel on LSF hosts. <TT>lsmake</TT> accepts all the options
+used by GNU <TT>make</TT> (<I>makeoptions</I>). It also has additional
+options to support its LSF features. </P>
+
+<PRE><A NAME="8047"></A><TT>lsmake [-m host... | [[-R res_req] [-j N]]] [-c N] [-F res_req] 
+[-P period] [-M] [-V] [-E] [-v] [makeoptions] [target...]</TT></PRE>
+
+<DL>
+<DT><A NAME="8159"></A><TT>-m host... </TT></DT>
+
+<DD>Specify the candidate host(s) to execute task. This option cannot be
+used if <TT><A HREF="quick-user.html#8067">-j</A></TT> and/or <TT><A HREF="quick-user.html#8222">-R</A></TT>
+is specified. </DD>
+
+<DT><A NAME="8222"></A><TT>-R res_req </TT></DT>
+
+<DD>Use hosts satisfying the specified resource requirements. Used along
+with the <TT><A HREF="quick-user.html#8067">-j</A></TT> option. Default: use hosts that
+are the same type and are lightly loaded in CPU and memory. </DD>
+
+<DT><A NAME="8067"></A><TT>-j N </TT></DT>
+
+<DD>Select at most <I>N</I> CPU slots. A CPU slot corresponds to a host,
+with multiprocessors having several CPU slots. This option cannot be used
+if <TT><A HREF="quick-user.html#8159">-m</A></TT> is specified. </DD>
+
+<DT><A NAME="8128"></A><TT>-c N </TT></DT>
+
+<DD>Start <I>N</I> tasks concurrently in each CPU slot. Default: only one
+task is started in each CPU slot. </DD>
+
+<DT><A NAME="8280"></A><TT>-F res_req </TT></DT>
+
+<DD>File server saturation threshold requirement. If the file server becomes
+overloaded, the parallelism is gradually reduced until the load is within
+the threshold. Default: do not consider file server load. </DD>
+
+<DT><A NAME="8402"></A><TT>-P period </TT></DT>
+
+<DD>CPU slot reselection period in minutes. This ensures that lightly loaded
+hosts are used. Default: do not reselect slots. </DD>
+
+<DT><A NAME="8481"></A><TT>-M </TT></DT>
+
+<DD>Process sub-makes in parallel. Default: process submakes sequentially.
+</DD>
+
+<DT><A NAME="738"></A><TT>-V </TT></DT>
+
+<DD>Turn on verbose remote execution mode. </DD>
+
+<DT><A NAME="8509"></A><TT>-E </TT></DT>
+
+<DD>Set environment variables for each task executed remotely. Default:
+when <TT>lsmake</TT> first starts up, set the environment variables once
+on the remote hosts. </DD>
+
+<DT><A NAME="8552"></A><TT>-v </TT></DT>
+
+<DD>Print LSF version and the version number of GNU <TT>make</TT> to standard
+error and exit. </DD>
+</DL>
+
+<H3><A NAME="8635"></A><TT>lslogin</TT></H3>
+
+<P><A NAME="8651"></A>Select a lightly loaded host that has few users and
+remotely log in, using the <TT>rlogin</TT> command. <TT>lslogin</TT> accepts
+all the options used by <TT>rlogin</TT>, including the host option. It
+has additional options to support its LSF features </P>
+
+<PRE><A NAME="8638"></A><TT>lslogin [-v] [-R res_req] [rlogin_options]</TT></PRE>
+
+<DL>
+<DT><A NAME="752"></A><TT>-v</TT></DT>
+
+<DD>Display the name of the selected host. </DD>
+
+<DT><A NAME="8682"></A><TT>-R res_req </TT></DT>
+
+<DD>Select a host satisfying the specified resource requirements. Default:
+<TT>type==any order[ls:r1m]</TT>. </DD>
+</DL>
+
+<H3><A NAME="8692"></A><TT>ch</TT></H3>
+
+<P><A NAME="8801"></A>Change to a host with the same execution environment
+on which subsequent commands will be executed. </P>
+
+<PRE><A NAME="8695"></A><TT>ch [-t] [-S] [hostname]</TT></PRE>
+
+<DL>
+<DT><A NAME="8733"></A><TT>-t </TT></DT>
+
+<DD>Timing option. Display amount of time each subsequent command takes
+to execute. </DD>
+
+<DT><A NAME="8751"></A><TT>-S </TT></DT>
+
+<DD>Start the remote tasks with shell mode support. Shell mode support
+is required for applications which redefine the <B><FONT SIZE=-1>CTRL-C</FONT></B>
+and <B><FONT SIZE=-1>CTRL-Z</FONT></B> keys. The default is not to enable
+shell mode support. </DD>
+
+<DT><A NAME="273"></A><TT>hostname </TT></DT>
+
+<DD>Change host to <TT>hostname</TT>. Default: local host. </DD>
+
+<P><A NAME="274"></A>Built-in commands: </P>
+
+<DD><A NAME="275"></A><TT>cd [dir] </TT></DD>
+
+<DL>
+<DD>Change current working directory to <TT>dir</TT>. Default: user's <TT>HOME</TT>
+directory. </DD>
+</DL>
+
+<DD><A NAME="3228"></A><TT>ch [hostname] </TT></DD>
+
+<DL>
+<DD>Change the current host to <TT>hostname</TT>. Default: host where <TT>ch</TT>
+command was first executed<B>.</B> </DD>
+</DL>
+
+<DD><A NAME="278"></A><TT>post [command [arg...]] </TT></DD>
+
+<DL>
+<DD>Execute <TT>command</TT> in the background on the current host. Display
+a unique <TT>taskID</TT>. Output from background jobs may be sent to your
+monitor which could cause display problems. Default: display all currently
+running background tasks. </DD>
+</DL>
+
+<DD><A NAME="279"></A><TT>contact taskID </TT></DD>
+
+<DL>
+<DD>Put the previously posted background task into the foreground. <TT>taskID</TT>
+was returned by the <TT>post</TT> command. </DD>
+</DL>
+
+<DD><A NAME="280"></A><TT>exit </TT></DD>
+
+<DL>
+<DD>Exit <TT>ch</TT> if there are no posted commands running. </DD>
+
+<P><A NAME="9037"></A>An ampersand <TT>&amp;</TT> following a command line
+(Bourne shell background job) is ignored by <TT>ch</TT>. Use <TT>post</TT>
+to execute a command in the background. </P>
+
+<P><A NAME="9044"></A>The special path name <TT>~</TT> is treated as in
+the Bourne shell. </P>
+</DL>
+</DL>
+
+<H2><A NAME="3118"></A>Cluster Load Monitoring</H2>
+
+<H3><A NAME="8965"></A><TT>lsload</TT></H3>
+
+<P><A NAME="3120"></A>Display load information on hosts, in order of increasing
+load<TT>.</TT> </P>
+
+<PRE><A NAME="8993"></A><TT>lsload [-N | -E] [-l] [-R res_req] [-I index] [-n number] 
+[host...|cluster...]</TT></PRE>
+
+<DL>
+<DT><A NAME="3123"></A><TT>-N </TT></DT>
+
+<DD>Return normalized CPU run queue length load indices. CPU run queue
+values are normalized using the number of CPUs and the CPU factors of the
+hosts. Default: return raw load indices. Options <TT><A HREF="quick-user.html#3123">-N</A></TT>
+and <TT><A HREF="quick-user.html#3124">-E</A></TT> are mutually exclusive. </DD>
+
+<DT><A NAME="3124"></A><TT>-E </TT></DT>
+
+<DD>Return effective CPU run queue length load indices. CPU run queue values
+are normalized using the number of CPUs of the hosts. Default: return raw
+load indices. Options <TT><A HREF="quick-user.html#3123">-N</A></TT> and <TT><A HREF="quick-user.html#3124">-E</A></TT>
+are mutually exclusive. </DD>
+
+<DT><A NAME="3125"></A><TT>-l </TT></DT>
+
+<DD>Display information in a long format. </DD>
+
+<DT><A NAME="9149"></A><TT>-R res_req </TT></DT>
+
+<DD>Display information about the hosts that meet the specified resource
+requirements. Default: <TT>type==any order[r1m:pg]</TT>. </DD>
+
+<DT><A NAME="9155"></A><TT>-I index </TT></DT>
+
+<DD>Display only the specified load indices. List of load index names are
+separated by '<TT>:</TT>' (<TT>r1m:pg:ut</TT>). </DD>
+
+<DT><A NAME="3127"></A><TT>-n number </TT></DT>
+
+<DD>Display up to the specified number of hosts that best satisfy the resource
+requirements. Default: display all hosts that satisfy the resource requirements.
+</DD>
+
+<DT><A NAME="9207"></A><TT>host...|cluster... </TT></DT>
+
+<DD>Display information for the named host(s) or cluster(s). Default: display
+information for all hosts. If <TT><A HREF="quick-user.html#9149">-R</A></TT> is specified,
+display all hosts that satisfy the resource requirements. </DD>
+</DL>
+
+<H3><A NAME="9215"></A><TT>lsmon</TT></H3>
+
+<P><A NAME="3130"></A>Full screen LSF monitoring utility displaying dynamic
+load information of hosts. <TT>lsmon</TT> supports all the <TT><A HREF="quick-user.html#8965">lsload</A></TT>
+options, plus the additional <TT>-i</TT> and <TT>-L</TT> options. It also
+has run-time options. </P>
+
+<PRE><A NAME="9223"></A><TT>lsmon [-N | -E] [-n number] [-R res_req] [-I index] [-i interval] 
+[-L logfile] [host...|cluster...]</TT></PRE>
+
+<DL>
+<DT><A NAME="9251"></A><TT>-i interval </TT></DT>
+
+<DD>Update interval of load information. Default: 10 seconds. </DD>
+
+<DT><A NAME="4821"></A><TT>-L logfile </TT></DT>
+
+<DD>Save the load information into the specified file. </DD>
+
+<P><A NAME="3133"></A>Run-time options: </P>
+
+<DD><A NAME="3134"></A><TT>^L&nbsp;&nbsp;&nbsp;</TT>Refresh the screen.
+</DD>
+
+<DD><A NAME="3135"></A><TT>i&nbsp;&nbsp;&nbsp;&nbsp;</TT>Input a new update
+interval. </DD>
+
+<DD><A NAME="3136"></A><TT>n&nbsp;&nbsp;&nbsp;&nbsp;</TT>Input a new number
+of hosts to display. </DD>
+
+<DD><A NAME="3137"></A><TT>N&nbsp;&nbsp;&nbsp;&nbsp;</TT>Switch between
+displaying normalized and raw CPU load indices. </DD>
+
+<DD><A NAME="3138"></A><TT>E&nbsp;&nbsp;&nbsp;&nbsp;</TT>Switch between
+displaying effective and raw CPU load indices. </DD>
+
+<DD><A NAME="3139"></A><TT>R&nbsp;&nbsp;&nbsp;&nbsp;</TT>Input new resource
+requirements. </DD>
+
+<DD><A NAME="3140"></A><TT>q&nbsp;&nbsp;&nbsp;&nbsp;</TT>Quit <TT>lsmon</TT>.
+</DD>
+</DL>
+
+<H3><A NAME="14217"></A><TT>xlsmon</TT></H3>
+
+<P><A HREF="quick-usr01.gif"><IMG SRC="quick-usr01.gif" ALT="xlsmon" BORDER=0 HEIGHT=211 WIDTH=365></A></P>
+
+<P><A NAME="14221"></A>A Motif graphical user interface for monitoring
+the load on the hosts in an LSF cluster. </P>
+
+<H2><A NAME="4824"></A>Batch Job Submission</H2>
+
+<H3><A NAME="291"></A><TT>bsub</TT></H3>
+
+<P><A NAME="9392"></A>Submit a job for execution in the LSF Batch system.
+If no command is given, <TT>bsub</TT> reads job commands from the standard
+input. If the standard input is a controlling terminal, <TT>bsub</TT> prompts
+for commands. </P>
+
+<PRE><A NAME="9276"></A><TT>bsub [-x] [-r] [-N] [-B] [-I | -Ip | -Is] [-q queue...] 
+[-m host[+[level]]...] [-n min[,max]] [-R res_req] [-J jobname] [-b begin] 
+[-t terminate] [-i infile] [-o outfile] [-e errfile] [-u user] 
+[[-f &quot;[lfile op [rfile]]&quot;] ...] [-c cpu[/spec]] [-W run[/spec]] [-F file] 
+[-M mem] [-D data] [-S stack] [-C core] [-k &quot;dir [period]&quot;] [-w depend] 
+[-E &quot;pre_exec [arg...]&quot;] [-L shell] [-P project] [command [arg...]] </TT></PRE>
+
+<DL>
+<DT><A NAME="9460"></A><TT>-x </TT></DT>
+
+<DD>Exclusive execution mode. </DD>
+
+<DT><A NAME="9466"></A><TT>-r </TT></DT>
+
+<DD>Specifies that the job can be rerun. </DD>
+
+<DT><A NAME="9468"></A><TT>-N </TT></DT>
+
+<DD>Notify the submitter by mail when the job finishes. If <TT><A HREF="quick-user.html#9502">-o</A></TT>
+option is not given, the standard output from the job is included in the
+message. </DD>
+
+<DT><A NAME="9470"></A><TT>-B </TT></DT>
+
+<DD>Notify the submitter by mail when the job is dispatched and begins
+execution. </DD>
+
+<DT><A NAME="9472"></A><TT>-I </TT></DT>
+
+<DD>Submit an interactive job. bsub blocks until the job is terminated.
+See <TT><A HREF="quick-user.html#9499">-i</A></TT>, <TT><A HREF="quick-user.html#9502">-o</A></TT>, and
+<TT><A HREF="quick-user.html#9505">-e</A></TT> options. Default: job interacts with user's
+terminal. </DD>
+
+<DT><A NAME="9474"></A><TT>-Ip </TT></DT>
+
+<DD>Submit an interactive job and create a pseudo-terminal when the job
+starts. </DD>
+
+<DT><A NAME="9476"></A><TT>-Is </TT></DT>
+
+<DD>Submit an interactive job and create a pseudo-terminal with shell mode
+support when the job starts. Shell mode support is required for applications
+which redefine the <B><FONT SIZE=-1>CTRL-C</FONT></B> and <B><FONT SIZE=-1>CTRL-Z</FONT></B>
+keys. </DD>
+
+<DT><A NAME="9478"></A><TT>-q queue... </TT></DT>
+
+<DD>Submit the job to the specified queue(s). Default: the system default
+queue. </DD>
+
+<DT><A NAME="9481"></A><TT>-m host[+[level]] ... </TT></DT>
+
+<DD>Limit candidate hosts for executing this job to the specified host(s).
+'<TT>+</TT>' is used to specify preference. <TT>level</TT> is a positive
+number specifying the preference level of a host. </DD>
+
+<DT><A NAME="9484"></A><TT>-n min[,max] </TT></DT>
+
+<DD>The minimum and maximum number of processors requested to run a (parallel)
+job. Default: one processor. </DD>
+
+<DT><A NAME="9662"></A><TT>-R res_req </TT></DT>
+
+<DD>Execute the task on a host that meets the resource requirements. Default:<B>
+</B><TT>type==local</TT> unless a model or boolean resource is specified,
+in which case <TT>type==any order[r1m:pg]</TT>. </DD>
+
+<DT><A NAME="9490"></A><TT>-J jobname </TT></DT>
+
+<DD>Assign the specified character string to the job. </DD>
+
+<DT><A NAME="9493"></A><TT>-b begin </TT></DT>
+
+<DD>Dispatch the job for execution on or after the specified time. </DD>
+
+<DT><A NAME="9496"></A><TT>-t terminate </TT></DT>
+
+<DD>The job termination deadline. Default: allow the job to run as long
+as its resource limits permit. </DD>
+
+<DT><A NAME="9499"></A><TT>-i infile </TT></DT>
+
+<DD>The job gets its standard input from the specified file. Default: <TT>/dev/null</TT>
+(UNIX). </DD>
+
+<DT><A NAME="9502"></A><TT>-o outfile </TT></DT>
+
+<DD>Write the standard output of the job to the specified file. Default:
+sent by mail to the user. </DD>
+
+<DT><A NAME="9505"></A><TT>-e errfile </TT></DT>
+
+<DD>Write the standard error output of the job to the specified file. </DD>
+
+<DT><A NAME="9508"></A><TT>-u user </TT></DT>
+
+<DD>Send mail to a specified email address. Default: send mail to the submitting
+user according to the format specified in <TT>lsf.conf</TT> file. </DD>
+
+<DT><A NAME="9511"></A><TT>-f &quot;[lfile op [rfile]]&quot;... </TT></DT>
+
+<DD>Copy a file between the local (submission) host and the remote (execution)
+host. <TT>op</TT> is one of '<TT>&gt;</TT>', '<TT>&lt;</TT>', '<TT>&lt;&lt;</TT>',
+or '<TT>&gt;&lt;</TT>' (or '<TT>&lt;&gt;</TT>'). <TT>op</TT> is illegal
+without at least one of <TT>lfile</TT> or <TT>rfile</TT>. </DD>
+
+<DT><A NAME="9514"></A><TT>-c cpu[/spec] </TT></DT>
+
+<DD>Set the total CPU time limit for this job. Default: no limit. The optional
+<TT>spec</TT> defines the appropriate host CPU scaling factor. </DD>
+
+<DT><A NAME="9517"></A><TT>-W run[/spec] </TT></DT>
+
+<DD>Set the wall-clock run time limit of this job. Default: no limit. <TT>spec</TT>
+is the same as in the <TT>-c</TT> option. </DD>
+
+<DT><A NAME="9520"></A><TT>-F file </TT></DT>
+
+<DD>Set a per-process (soft) file size limit for each of process belonging
+to this job. Default: no soft limit. </DD>
+
+<DT><A NAME="9523"></A><TT>-M mem </TT></DT>
+
+<DD>Set the total process resident set size limit in Kbytes for the whole
+job. Default: no limit. </DD>
+
+<DT><A NAME="9526"></A><TT>-D data </TT></DT>
+
+<DD>Set a per-process (soft) data segment size limit for each of the processes
+that belong to this job. Default: no soft limit. </DD>
+
+<DT><A NAME="9529"></A><TT>-S stack </TT></DT>
+
+<DD>Set a per-process (soft) stack segment size limit for each of the processes
+that belong to this job. Default: no soft limit. </DD>
+
+<DT><A NAME="9532"></A><TT>-C core </TT></DT>
+
+<DD>Set a per-process (soft) core file size limit for all the processes
+that belong to this job. Default: no soft limit. </DD>
+
+<DT><A NAME="9535"></A><TT>-k dir [period] </TT></DT>
+
+<DD>This job can be checkpointed. The checkpoint directory is a relative
+or absolute path name, and is used for restarting the job (see <TT><A HREF="quick-user.html#343">brestart</A></TT>).
+Multiple jobs can checkpoint into the same directory. Optionally, a checkpoint
+period in minutes may be specified. </DD>
+
+<DT><A NAME="9784"></A><TT>-w depend </TT></DT>
+
+<DD>Only when the dependency condition is satisfied (<TT>TRUE</TT>), will
+the job be considered for dispatch. The expression is composed of job or
+system conditions using '<TT>&amp;&amp;</TT>', '<TT>||</TT>' and '<TT>!</TT>'
+logic operators. Conditions are job status, calendar, file event, or user
+event. </DD>
+
+<DD>Job status conditions:</DD>
+
+<DL>
+<DD><TT>started(jobId|jobName)</TT>, <TT>done(jobId|jobName)</TT>, <TT>exit(jobId|jobName)</TT>,
+and <TT>ended(jobId|jobName)</TT></DD>
+</DL>
+
+<DD>Calendar conditions (calendars are only available with <A HREF="quick-user.html#4912">LSF
+JobScheduler</A>): </DD>
+
+<DL>
+<DD><TT>calendar(cal_spec)</TT> or <TT>cal(cal_spec) </TT></DD>
+</DL>
+
+<DD>File event conditions: </DD>
+
+<DL>
+<DD><TT>file(arrival(location)|exist(location)|size(location)| age(location))</TT></DD>
+</DL>
+
+<DD>User event conditions: </DD>
+
+<DL>
+<DD><TT>event(spec)</TT> or <TT>ev(spec)</TT> </DD>
+</DL>
+
+<DT><A NAME="9559"></A><TT>-E &quot;pre_exec [ arg... ]&quot; </TT></DT>
+
+<DD>Execute the pre-execution command on the host to which the job is dispatched
+to run (or on the first host selected for a parallel job) before actually
+running the job. If the pre-execution command exits with 0, start the primary
+job; otherwise the job remains pending. </DD>
+
+<DT><A NAME="9562"></A><TT>-L shell </TT></DT>
+
+<DD>Specifies the name of the login shell used to initialize the execution
+environment. </DD>
+
+<DT><A NAME="9568"></A><TT>-P project </TT></DT>
+
+<DD>Specifies the name of the project that this job will be charged to.
+</DD>
+</DL>
+
+<H2><A NAME="1709"></A>Batch Job Tracking</H2>
+
+<H3><A NAME="9838"></A><TT>bjobs</TT></H3>
+
+<P><A NAME="3059"></A>Display the status and other information about jobs
+in the LSF Batch system. </P>
+
+<PRE><A NAME="9856"></A><TT>bjobs [-l | -w] [-a] [-d] [-p] [-s] [-r] [-N spec] [-q queue] 
+[-m host|cluster] [-u user|all] [-J jobname] [-P project] [jobId...]</TT></PRE>
+
+<DL>
+<DT><A NAME="9912"></A><TT>-l </TT></DT>
+
+<DD>Display information in a (long) multi-line format. </DD>
+
+<DT><A NAME="9913"></A><TT>-w </TT></DT>
+
+<DD>Display fields in a (long) multi-line format without truncation. </DD>
+
+<DT><A NAME="3063"></A><TT>-a </TT></DT>
+
+<DD>Display information about all jobs, including unfinished jobs (pending,
+running or suspended) and recently finished jobs. </DD>
+
+<DT><A NAME="3064"></A><TT>-d </TT></DT>
+
+<DD>Display only recently finished jobs. </DD>
+
+<DT><A NAME="3065"></A><TT>-p </TT></DT>
+
+<DD>Display only pending jobs, with the reasons they were not dispatched
+during the last dispatch turn. </DD>
+
+<DT><A NAME="9919"></A><TT>-s </TT></DT>
+
+<DD>Display only suspended jobs, showing the reason for suspension. </DD>
+
+<DT><A NAME="9921"></A><TT>-r </TT></DT>
+
+<DD>Display only running jobs. </DD>
+
+<DT><A NAME="10058"></A><TT>-N spec </TT></DT>
+
+<DD>Display CPU time consumed by the job. The appropriate CPU scaling factor
+for the specified host, or defined host model, is used to normalize the
+actual CPU time consumed by the job. </DD>
+
+<DT><A NAME="10095"></A><TT>-q queue </TT></DT>
+
+<DD>Display only jobs in the named queue. </DD>
+
+<DT><A NAME="10099"></A><TT>-m hostname </TT></DT>
+
+<DD>Display only jobs dispatched to the named host or host group. </DD>
+
+<DT><A NAME="10117"></A><TT>-u user|all </TT></DT>
+
+<DD>Display jobs submitted by the named user or by all users. Default:
+display the jobs submitted by the user who invoked this command. </DD>
+
+<DT><A NAME="3071"></A><TT>-J jobname </TT></DT>
+
+<DD>Display all jobs with the s[ecified name. </DD>
+
+<DT><A NAME="4850"></A><TT>-P project </TT></DT>
+
+<DD>Display only jobs belonging to the named project. Default: display
+jobs belonging to all projects. </DD>
+
+<DT><A NAME="3072"></A><TT>jobId... </TT></DT>
+
+<DD>Display the job(s) with the specified job ID. The value 0 is ignored.
+</DD>
+</DL>
+
+<H3><A NAME="10136"></A><TT>bhist</TT></H3>
+
+<P><A NAME="3074"></A>Display the history of one or more jobs in the LSF
+Batch system. </P>
+
+<PRE><A NAME="10152"></A><TT>bhist [-b] [-l] [-w] [-a] [-d] [-p] [-s] [-r] [-f logfile] [-N spec]
+[-C time0,time1] [-S time0,time1] [-D time0,time1] [-q queue] [-m host]
+[-u user|all] [-J job] [-n number] [-P project] [jobId...]</TT></PRE>
+
+<DL>
+<DT><A NAME="10255"></A><TT>-b </TT></DT>
+
+<DD>Display the job history in a brief format. Default: display summary
+format. </DD>
+
+<DT><A NAME="10346"></A><TT>-l </TT></DT>
+
+<DD>Display the job history in a (long) multi-line format, giving detailed
+information about each job. Default: display summary format. </DD>
+
+<DT><A NAME="10354"></A><TT>-w </TT></DT>
+
+<DD>Display the job history in a (wide) multi-line format without truncation.
+Default: display summary format. </DD>
+
+<DT><A NAME="10370"></A><TT>-a </TT></DT>
+
+<DD>Display all, both finished and unfinished, jobs. Default: finished
+jobs are not displayed. </DD>
+
+<DT><A NAME="10373"></A><TT>-d </TT></DT>
+
+<DD>Display only the finished jobs. </DD>
+
+<DT><A NAME="10374"></A><TT>-p </TT></DT>
+
+<DD>Display only the pending jobs. </DD>
+
+<DT><A NAME="10375"></A><TT>-s </TT></DT>
+
+<DD>Display only the suspended jobs. If option <TT><A HREF="quick-user.html#10346">-l</A></TT>
+or <TT><A HREF="quick-user.html#10255">-b</A></TT> is also specified, show the reason
+why each job was suspended. </DD>
+
+<DT><A NAME="10377"></A><TT>-r </TT></DT>
+
+<DD>Display only the running jobs. </DD>
+
+<DT><A NAME="10378"></A><TT>-f logfile </TT></DT>
+
+<DD>Specify the file name of the event log file. Either an absolute or
+a relative path name may be specified. Default: use the system event log
+file <TT>lsb.events</TT>. </DD>
+
+<DT><A NAME="10536"></A><TT>-N spec </TT></DT>
+
+<DD>Display CPU time consumed by the job. The appropriate CPU scaling factor
+for the specified host, or defined host model, is used to normalize the
+actual CPU time consumed by the job. </DD>
+
+<DT><A NAME="10540"></A><TT>-C time0,time1 </TT></DT>
+
+<DD>Display only those jobs whose completion or exit times were between
+<I>time0</I> and <I>time1</I>. Default: display all jobs that have completed
+or exited. </DD>
+
+<DT><A NAME="10546"></A><TT>-S time0,time1 </TT></DT>
+
+<DD>Display only those jobs whose submission times were between <I>time0</I>
+and <I>time1</I>. Default: display all jobs that have been submitted. </DD>
+
+<DT><A NAME="10552"></A><TT>-D time0,time1 </TT></DT>
+
+<DD>Display only those jobs whose dispatch times were between <I>time0</I>
+and <I>time1</I>. Default: display all jobs that have been dispatched.
+</DD>
+
+<DT><A NAME="10681"></A><TT>-q queue </TT></DT>
+
+<DD>Display jobs submitted to the specified queue only. Default: display
+all queues. </DD>
+
+<DT><A NAME="10684"></A><TT>-m host </TT></DT>
+
+<DD>Display jobs dispatched to the specified host only. Default: display
+all hosts. </DD>
+
+<DT><A NAME="10860"></A><TT>-u user|all </TT></DT>
+
+<DD>Display jobs submitted by the named user or by all users. Default:
+display the jobs submitted by the user who invoked this command. </DD>
+
+<DT><A NAME="10862"></A><TT>-J jobname </TT></DT>
+
+<DD>Display all jobs with the s[ecified name. </DD>
+
+<DT><A NAME="10870"></A><TT>-P project </TT></DT>
+
+<DD>Display only jobs belonging to the named project. Default: display
+jobs belonging to all projects. </DD>
+
+<DT><A NAME="10878"></A><TT>jobId... </TT></DT>
+
+<DD>Display the specified job(s). </DD>
+</DL>
+
+<H3><A NAME="316"></A><TT>bpeek</TT></H3>
+
+<P><A NAME="10970"></A>Display the standard output and standard error that
+has been produced by an unfinished batch job in the LSF Batch system. </P>
+
+<PRE><A NAME="10937"></A><TT>bpeek [-f] [-q queue | -m host | -J jobname | jobId]</TT></PRE>
+
+<DL>
+<DT><A NAME="11001"></A><TT>-f </TT></DT>
+
+<DD>Display the output of the job using the command &quot;<TT>tail -f</TT>&quot;.
+Default: use the command &quot;<TT>cat</TT>&quot;. </DD>
+
+<DT><A NAME="11003"></A><TT>-q queue </TT></DT>
+
+<DD>Display the output of the most recently submitted job in the specified
+queue. </DD>
+
+<DT><A NAME="11006"></A><TT>-m host </TT></DT>
+
+<DD>Display the output of the most recently submitted job that has been
+dispatched to the specified host. </DD>
+
+<DT><A NAME="11009"></A><TT>-J jobname </TT></DT>
+
+<DD>Display the output of the most recently submitted job that has the
+given name. </DD>
+
+<DT><A NAME="11012"></A><TT>jobId</TT></DT>
+
+<DD>Display the output of the specified job. Default: display the output
+of the most recently submitted job that satisfies options <TT><A HREF="quick-user.html#11003">-q</A></TT>,
+<TT><A HREF="quick-user.html#11006">-m</A></TT>, or <TT><A HREF="quick-user.html#11009">-J</A></TT>.
+</DD>
+</DL>
+
+<H2><A NAME="323"></A>Batch Job Manipulation</H2>
+
+<H3><A NAME="14386"></A><TT>bmodify</TT></H3>
+
+<P><A NAME="14390"></A>Modify the options of a previously submitted job.
+<TT>bmodify</TT> uses a subset of the <TT><A HREF="quick-user.html#291">bsub</A></TT>
+options. To reset an option to its default value, use the option string
+followed by '<TT>n</TT>'. </P>
+
+<PRE><A NAME="14391"></A><TT>bmodify [-x | -xn] [-r | -rn] [-N | -Nn] [-B | -Bn] [-q queue... | -qn] 
+[-m host... | -mn] [-n number | -nn] [-R res_req | -Rn] [-J jobname | -Jn] 
+[-b begin | -bn] [-t terminate | -tn] [-i infile | -in] [-o outfile | -on] 
+[-e errfile | -en] [[-f &quot;[lfile] op [rfile]&quot;] ... | -fn] 
+[-c cpu[/host | -cn]] [-W run [/host ] | -Wn] [-F file | -Fn] 
+[-M mem | -Mn] [-D data | -Dn] [-S stack | -Sn] [-C core | -Cn] 
+[-k dir [period] | -kn] [-s sigval | -sn] [-w depend | -wn] 
+[-P project | -Pn] [-E &quot;pre_exec [arg...]&quot; | -En] [-L &quot;shell&quot; | -Ln] 
+[-O] jobId</TT></PRE>
+
+<DL>
+<DT><A NAME="14392"></A><TT>-O </TT></DT>
+
+<DD>Change the option values temporarily for the next run of the job. This
+option only affects calendar-driven jobs. See <A HREF="quick-user.html#4912">LSF
+JobScheduler Specific Commands</A>. </DD>
+
+<DT><A NAME="14396"></A><TT>jobId</TT></DT>
+
+<DD>Modify the options of the specified job. </DD>
+</DL>
+
+<H3><A NAME="11336"></A><TT>bstop</TT> and <TT>bresume</TT></H3>
+
+<P><A NAME="11341"></A>Suspend or resume one or more unfinished batch jobs.
+</P>
+
+<PRE><A NAME="11193"></A><TT>bstop [-q queue] [-m host] [-u user | all] [-J jobname] [jobId...]
+bresume [-q queue] [-m host] [-u user | all] [-J jobname] [jobId...]</TT></PRE>
+
+<DL>
+<DT><A NAME="12137"></A><TT>-q queue </TT></DT>
+
+<DD>Stop or resume the jobs in the specified queue. </DD>
+
+<DT><A NAME="12138"></A><TT>-m host </TT></DT>
+
+<DD>Stop or resume the jobs dispatched to the specified host or host group.
+Ignored if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="12139"></A><TT>-u user | all </TT></DT>
+
+<DD>Stop or resume the jobs submitted by the named user or by all users.
+Ignored if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="12140"></A><TT>-J jobname </TT></DT>
+
+<DD>Stop or resume the named jobs. Ignored if a job ID other than 0 is
+specified. </DD>
+
+<DT><A NAME="12141"></A><TT>jobId... </TT></DT>
+
+<DD>Stop or resume the specified jobs. </DD>
+</DL>
+
+<H3><A NAME="11337"></A><TT>bkill</TT></H3>
+
+<P><A NAME="11358"></A>Send a signal to one or more unfinished batch jobs
+</P>
+
+<PRE><A NAME="11197"></A><TT>bkill [-l] [-s value | name] [-q queue] [-m host] [-u user | all] 
+[-J jobname] [jobId...]</TT></PRE>
+
+<DL>
+<DT><A NAME="11680"></A><TT>-l </TT></DT>
+
+<DD>Display the set of signal names supported. (This is a subset of those
+supported by <TT>/bin/kill</TT> and is platform dependent). </DD>
+
+<DT><A NAME="11681"></A><TT>-s value | name </TT></DT>
+
+<DD>Send the signal specified by value or name to the specified jobs. Default:
+<TT>SIGKILL</TT> or <TT>9</TT>. </DD>
+
+<DT><A NAME="12116"></A><TT>-q queue </TT></DT>
+
+<DD>Send a signal to the jobs in the specified queue. </DD>
+
+<DT><A NAME="12117"></A><TT>-m host </TT></DT>
+
+<DD>Send a signal to the jobs dispatched to the specified host or host
+group. Ignored if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="12118"></A><TT>-u user | all </TT></DT>
+
+<DD>Send a signal to the jobs submitted by the named user or by all users.
+Ignored if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="12119"></A><TT>-J jobname </TT></DT>
+
+<DD>Send a signal to the named jobs. Ignored if a job ID other than 0 is
+specified. </DD>
+
+<DT><A NAME="12120"></A><TT>jobId... </TT></DT>
+
+<DD>Send a signal to the specified jobs. </DD>
+</DL>
+
+<H3><A NAME="12181"></A><TT>bchkpnt</TT></H3>
+
+<P><A NAME="12184"></A>Checkpoint one or more unfinished (running or suspended)
+jobs. The job must have been submitted with <TT><A HREF="quick-user.html#9535">bsub -k</A></TT>.
+</P>
+
+<PRE><A NAME="12204"></A><TT>bchkpnt [-f] [-k] [-q queue] [-m host] [-u user | all] [-J jobname] 
+[-p period] [jobId...]</TT></PRE>
+
+<DL>
+<DT><A NAME="12248"></A><TT>-f </TT></DT>
+
+<DD>Checkpoint a job even if non-checkpointable (operating system-specific)
+conditions exist. </DD>
+
+<DT><A NAME="12250"></A><TT>-k </TT></DT>
+
+<DD>The job is checkpointed and killed atomically by the system. </DD>
+
+<DT><A NAME="12253"></A><TT>-q queue </TT></DT>
+
+<DD>Checkpoint the jobs in the specified queue. Ignored if a job ID other
+than 0 is specified. </DD>
+
+<DT><A NAME="12398"></A><TT>-m host </TT></DT>
+
+<DD>Checkpoint the jobs dispatched to the named by host or host group.
+Ignored if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="12404"></A><TT>-u user | all </TT></DT>
+
+<DD>Checkpoint the jobs submitted by the named user or by all users. Ignored
+if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="12411"></A><TT>-J jobname </TT></DT>
+
+<DD>Checkpoint the named jobs. Ignored if a job ID other than 0 is specified.
+</DD>
+
+<DT><A NAME="12416"></A><TT>-p period </TT></DT>
+
+<DD>Checkpoint the job and change its checkpoint period in minutes. A period
+of 0 disables periodic checkpointing. </DD>
+
+<DT><A NAME="12424"></A><TT>jobId... </TT></DT>
+
+<DD>Checkpoint the specified jobs. </DD>
+</DL>
+
+<H3><A NAME="343"></A><TT>brestart</TT></H3>
+
+<P><A NAME="12978"></A>Submit a job to be restarted from the checkpoint
+files in the specified directory. <TT>brestart</TT> uses a subset of the
+<TT><A HREF="quick-user.html#291">bsub</A></TT> options. </P>
+
+<PRE><A NAME="12834"></A><TT>brestart [-f] [-x] [-N] [-B] [-q queue] [-m host...] [-b begin] 
+[-t terminate] [-c cpu[/spec]] [-W run[/spec]] [-F file] [-M mem] [-D data] 
+[-S stack] [-C core] [-w depend] [-E &quot;pre_exec [arg...]&quot;] dir [jobID]</TT></PRE>
+
+<DL>
+<DT><A NAME="13015"></A><TT>-f </TT></DT>
+
+<DD>Force the job to be restarted even if non-restartable conditions exist.
+Non-restartable conditions are operating system-specific. </DD>
+
+<DT><A NAME="13038"></A><TT>dir </TT></DT>
+
+<DD>The checkpoint directory specified with <TT><A HREF="quick-user.html#9535">bsub -k</A></TT>.
+</DD>
+
+<DT><A NAME="13052"></A><TT>jobID </TT></DT>
+
+<DD>The last jobID of the checkpointed job. </DD>
+</DL>
+
+<H3><A NAME="13055"></A><TT>bmig</TT></H3>
+
+<P><A NAME="3160"></A>Migrate one or more unfinished (running or suspended)
+jobs to another host. The job must have been submitted with <TT><A HREF="quick-user.html#9466">-r</A></TT>
+or <TT><A HREF="quick-user.html#9535">-k</A></TT> options to <TT><A HREF="quick-user.html#291">bsub</A></TT>.
+</P>
+
+<PRE><A NAME="13057"></A><TT>bmig [-f] [-m host...] [-u user | all] [-J jobname] [jobId...]</TT></PRE>
+
+<DL>
+<DT><A NAME="13216"></A><TT>-f </TT></DT>
+
+<DD>Force the job to be migrated and restarted even if non-restartable
+conditions exist. Non-restartable conditions are operating system-specific.
+</DD>
+
+<DT><A NAME="13224"></A><TT>-m host... </TT></DT>
+
+<DD>Restrict candidate jobs for migration to those from the named host(s).
+</DD>
+
+<DT><A NAME="13247"></A><TT>-u user | all </TT></DT>
+
+<DD>Migrate the jobs submitted by the named user or by all users. Ignored
+if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="13251"></A><TT>-J jobname </TT></DT>
+
+<DD>Migrate the named jobs. Ignored if a job ID other than 0 is specified.
+</DD>
+
+<DT><A NAME="13255"></A><TT>jobId... </TT></DT>
+
+<DD>Migrate the specified jobs. </DD>
+</DL>
+
+<H3><A NAME="13260"></A><TT>btop</TT> and <TT>bbot</TT></H3>
+
+<P><A NAME="13263"></A>Move a pending job to the top (beginning) or bottom
+(end) of its queue. This only effects the user's own jobs. </P>
+
+<PRE><A NAME="344"></A><TT>btop jobId [position]
+bbot jobId [position]</TT></PRE>
+
+<DL>
+<DT><A NAME="349"></A><TT>jobId </TT></DT>
+
+<DD>Move the specified job. </DD>
+
+<DT><A NAME="13289"></A><TT>position </TT></DT>
+
+<DD>A positive number that indicates the target position of the job relative
+to the beginning (for <TT>btop</TT>) or end (for <TT>bbot</TT>) of the
+queue. </DD>
+</DL>
+
+<H3><A NAME="13303"></A><TT>bswitch</TT></H3>
+
+<P><A NAME="13304"></A>Switch one or more unfinished (running or suspended)
+jobs from one queue to another. </P>
+
+<PRE><A NAME="13307"></A><TT>bswitch [-q queue] [-m host] [-u user | all] [-J jobname] destination 
+[jobId...]</TT></PRE>
+
+<DL>
+<DT><A NAME="13348"></A><TT>-q queue </TT></DT>
+
+<DD>Switch jobs from the specified queue. Ignored if a job ID other than
+0 is specified. </DD>
+
+<DT><A NAME="13349"></A><TT>-m host </TT></DT>
+
+<DD>Switch jobs dispatched to the named by host or host group. Ignored
+if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="13350"></A><TT>-u user | all </TT></DT>
+
+<DD>Switch jobs submitted by the named user or by all users. Ignored if
+a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="13351"></A><TT>-J jobname </TT></DT>
+
+<DD>Switch the named jobs. Ignored if a job ID other than 0 is specified.
+</DD>
+
+<DT><A NAME="13373"></A><TT>destination </TT></DT>
+
+<DD>The destination queue to which jobs will be switched. </DD>
+
+<DT><A NAME="13353"></A><TT>jobId... </TT></DT>
+
+<DD>Switch the specified jobs. </DD>
+</DL>
+
+<H2><A NAME="4919"></A>LSF Batch Graphical User Interface Applications</H2>
+
+<H3><A NAME="4914"></A><TT>xlsbatch</TT></H3>
+
+<P><A HREF="quick-usr02.gif"><IMG SRC="quick-usr02.gif" ALT="xlsbatch" BORDER=0 HEIGHT=357 WIDTH=391></A></P>
+
+<P><A NAME="4915"></A>A Motif based graphical user interface for monitoring
+jobs and other aspects of the LSF Batch system. </P>
+
+<H3><A NAME="14106"></A><TT>xbsub</TT></H3>
+
+<P><A HREF="quick-usr03.gif"><IMG SRC="quick-usr03.gif" ALT="xbsub" BORDER=0 HEIGHT=344 WIDTH=352></A></P>
+
+<P><A NAME="14109"></A>A Motif based graphical user interface for submitting
+a job to the LSF Batch system. </P>
+
+<H2><A NAME="4912"></A>LSF JobScheduler Specific Commands</H2>
+
+<P><A NAME="4930"></A>LSF JobScheduler allows users to run calendar-driven
+jobs. LSF JobScheduler users can also make use of all LSF Batch capabilities.</P>
+
+<H3><A NAME="13775"></A><TT>bcaladd</TT>, <TT>bcalmod</TT>, and <TT>bcaldel
+</TT></H3>
+
+<P><A NAME="13783"></A>Create , modify, or delete a calendar in the LSF
+JobScheduler system (excluding system calendars). </P>
+
+<PRE><A NAME="13778"></A><TT>bcaladd [-d description] -t expression... calendar
+bcalmod [-d description] [-t expression...] calendar
+bcaldel calendar...</TT></PRE>
+
+<DL>
+<DT><A NAME="4976"></A><TT>-d description </TT></DT>
+
+<DD>A string description of the calendar. If the description contains spaces,
+it must be quoted. </DD>
+
+<DT><A NAME="4979"></A><TT>-t expression... </TT></DT>
+
+<DD>A list of time expressions separated by spaces. These indicate when
+the calendar will be active. The format of a time expression is <TT>&quot;year:month:day:hour:min[%duration]&quot;</TT>.
+The time expression list must be quoted. </DD>
+
+<DT><A NAME="4986"></A><TT>calendar </TT></DT>
+
+<DD>Name of the calendar. </DD>
+</DL>
+
+<H3><A NAME="5009"></A><TT>bcal</TT></H3>
+
+<P><A NAME="5010"></A>Display information about the calendars in the LSF
+JobScheduler system. </P>
+
+<PRE><A NAME="13904"></A><TT>bcal [-l] [-u user | all] [calendar...]</TT></PRE>
+
+<DL>
+<DT><A NAME="13905"></A><TT>-l </TT></DT>
+
+<DD>Display detailed calendar information in a (long) multi-line format.
+</DD>
+
+<DT><A NAME="13931"></A><TT>-u user | all </TT></DT>
+
+<DD>Display information about calendars owned by the named user (not applicable
+to system calendars) or by all users. Default: display information about
+calendars owned by the user who invoked this command and system calendars.
+</DD>
+
+<DT><A NAME="5036"></A><TT>calendar... </TT></DT>
+
+<DD>Display information only about the named calendar(s). Default: display
+all calendars. </DD>
+</DL>
+
+<H3><A NAME="13907"></A><TT>bcalhist</TT></H3>
+
+<P><A NAME="13910"></A>Display a history of events associated with calendars
+(excluding system calendars). </P>
+
+<PRE><A NAME="13942"></A><TT>bcalhist [-t time0,time1] [-f file] calendar...</TT></PRE>
+
+<DL>
+<DT><A NAME="13958"></A><TT>-t time0,time1 </TT></DT>
+
+<DD>Display only those calendar modification events between <I>time0</I>
+and <I>time1</I>. </DD>
+
+<DT><A NAME="13977"></A><TT>-f file </TT></DT>
+
+<DD>Specify the file name of the event log file. Either an absolute or
+a relative path name may be specified. The default is to use the event
+log file currently used by the LSF&nbsp;Batch system: <TT>$LSB_SHAREDIR/clustername/logdir/lsb.events</TT>.
+Search the named file for history information. The default is to search
+the event log file currently used by the LSF Batch system. </DD>
+
+<DT><A NAME="14035"></A><TT>calendar... </TT></DT>
+
+<DD>Display information about the named calendar(s). </DD>
+</DL>
+
+<H3><A NAME="14046"></A><TT>bdel</TT></H3>
+
+<P><A NAME="14047"></A>Delete one or more unfinished batch jobs. This command
+must be used to remove a calendar-driven job from the LSF JobScheduler
+system. <TT><A HREF="quick-user.html#11337">bkill</A></TT> kills the current
+run of the job, while <TT>bdel</TT> removes the job completely. Running
+<TT>bdel</TT> on a job that is not calendar-driven is equivalent to <TT><A HREF="quick-user.html#11337">bkill</A></TT>.
+</P>
+
+<PRE><A NAME="14048"></A><TT>bdel [-n number] [-q queue] [-m host] [-u user | all] [-J jobname] 
+[jobId...]</TT></PRE>
+
+<DL>
+<DT><A NAME="14049"></A><TT>-n number </TT></DT>
+
+<DD>Delete the jobs after the specified number of runs have completed.
+</DD>
+
+<DT><A NAME="14050"></A><TT>-q queue </TT></DT>
+
+<DD>Delete the jobs in the specified queue. </DD>
+
+<DT><A NAME="14051"></A><TT>-m host </TT></DT>
+
+<DD>Delete the jobs dispatched to the specified host or host group. Ignored
+if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="14052"></A><TT>-u user | all </TT></DT>
+
+<DD>Delete the jobs submitted by the named user or by all users. Ignored
+if a job ID other than 0 is specified. </DD>
+
+<DT><A NAME="14053"></A><TT>-J jobname </TT></DT>
+
+<DD>Delete the named jobs. Ignored if a job ID other than 0 is specified.
+</DD>
+
+<DT><A NAME="14054"></A><TT>jobId... </TT></DT>
+
+<DD>Delete the specified jobs. </DD>
+</DL>
+
+<H3><A NAME="14404"></A><TT>bevents</TT></H3>
+
+<P><A NAME="14407"></A>Display information about events in the LSF JobScheduler
+system. </P>
+
+<PRE><A NAME="14409"></A><TT>bevents [-l] [-u user | all] [event...]</TT></PRE>
+
+<DT><A NAME="14466"></A><TT>-l </TT></DT>
+
+<DD>Display detailed information for each event in a (long) multi-line
+format. </DD>
+
+<DT><A NAME="14556"></A><TT>-u user | all </TT></DT>
+
+<DD>Print information about events used by the jobs submitted by the named
+user or by all users. </DD>
+
+<DT><A NAME="14449"></A><TT>event... </TT></DT>
+
+<DD>Display information about the specified event(s). </DD>
+
+<H3><A NAME="5086"></A><TT>xbcal</TT></H3>
+
+<DL>
+<P><A HREF="quick-usr04.gif"><IMG SRC="quick-usr04.gif" ALT="xbcal" BORDER=0 HEIGHT=425 WIDTH=312></A></P>
+
+<P><A NAME="14130"></A>A Motif based graphical user interface for creating,
+modifying, and deleting calendars in the LSF JobScheduler system. </P>
+</DL>
+
+<H2><A NAME="5095"></A>Resources</H2>
+
+<P><A NAME="5300"></A>There are two types of resources for a task: dynamic
+resources and static resources. Use <TT><A HREF="quick-user.html#53">lsinfo</A></TT>
+to see a complete list of dynamic and static resources available on your
+system.</P>
+
+<H2><A NAME="158"></A>Dynamic Resources</H2>
+
+<P><A NAME="159"></A>LSF defines several dynamic resources. Each dynamic
+resource corresponds to a Load Index. Load indices are used to determine
+how busy a host is (see <TT><A HREF="quick-user.html#8965">lsload</A></TT>).</P>
+
+<H3><A NAME="160"></A>Static Resources</H3>
+
+<P><A NAME="161"></A>Any unchanging characteristic or attribute of a host
+that can be useful in selecting hosts for remote tasks may be considered
+a static resource. Static resource requirements of a task limit the eligible
+machine set for the task, or the set of machines that can execute the task.</P>
+
+<P><A NAME="162"></A>Some static boolean resources are site-dependent,
+defined by the LSF administrator in the LSF configuration files. </P>
+
+<P><A NAME="163"></A>Use <TT><A HREF="quick-user.html#5862">lshosts</A></TT><B>
+</B>to see what static resources are available on each host. </P>
+
+<H3><A NAME="164"></A>Specifying Resource Requirements</H3>
+
+<P><A NAME="165"></A>A resource requirement string describes the resources
+a job needs. LSF uses resource requirements to select hosts for remote
+execution and job execution.</P>
+
+<P><A NAME="166"></A>The syntax of a resource requirement string is:</P>
+
+<PRE><A NAME="167"></A><TT>select[selectstr] order[orderstr] rusage[usagestr]</TT></PRE>
+
+<BLOCKQUOTE>
+<P><A NAME="169"></A><B>Note<BR>
+</B><I>These are real brackets, not syntactic notation.<BR>
+The keyword </I><TT>select</TT><I> and its associated brackets can be omitted.</I></P>
+</BLOCKQUOTE>
+
+<P><A NAME="171"></A>The <TT>selectstr</TT> specifies the characteristics
+a host must have to match the resource requirement. It is a logical expression
+built from resource names combined with logical and arithmetic operators
+using standard C language syntax and precedence.</P>
+
+<P><A NAME="172"></A>Boolean resources have a value of 1 if they are defined
+for a host, and 0 otherwise. Non-zero arithmetic values are treated as
+logical <TT>TRUE</TT>, and zero as logical <TT>FALSE</TT>. </P>
+
+<P><A NAME="173"></A>The special values <TT>any</TT> and <TT>local</TT>
+(meaning the same value as the local host) may be used with the resources
+<TT>type</TT> and <TT>model</TT>. </P>
+
+<BLOCKQUOTE>
+<P><A NAME="14199"></A><B>Note<BR>
+</B><I>The values of </I><TT>r15s</TT><I>, </I><TT>r1m</TT><I>, and </I><TT>r15m</TT><I>
+used for selection are the effective load indices returned by </I><TT>lsload
+-E<I>.</I></TT></P>
+</BLOCKQUOTE>
+
+<P><A NAME="14200"></A>For <TT><A HREF="quick-user.html#5862">lshosts</A></TT>,
+<TT><A HREF="quick-user.html#8965">lsload</A></TT>, <TT><A HREF="quick-user.html#9215">lsmon</A></TT>,
+and <TT><A HREF="quick-user.html#8635">lslogin</A></TT> the default is
+<TT>type==any</TT>. For <TT><A HREF="quick-user.html#4713">lsplace</A></TT>,
+<TT><A HREF="quick-user.html#253">lsrun</A></TT>, <TT><A HREF="quick-user.html#7751">lsgrun</A></TT>,
+<TT><A HREF="quick-user.html#734">lsmake</A></TT>, and <TT><A HREF="quick-user.html#291">bsub</A></TT>
+the default is <TT>type==local</TT> unless a model or boolean resource
+is specified, in which case it is <TT>type==any</TT>. </P>
+
+<P><A NAME="14250"></A>The <TT>orderstr</TT> allows the selected hosts
+to be sorted according to the values of resources. The syntax of <TT>orderstr</TT>
+is:</P>
+
+<PRE><A NAME="14182"></A><TT>res[:res]...</TT></PRE>
+
+<P><A NAME="14189"></A>Each <TT>res</TT> must be a dynamic load index (see
+<TT><A HREF="quick-user.html#8965">lsload</A></TT>) or an external load
+index defined by the LSF administrator. </P>
+
+<P><A NAME="178"></A><B>Note<BR>
+</B><I>The values of </I><TT>r15s</TT><I>, </I><TT>r1m</TT><I>, and </I><TT>r15m</TT><I>
+used for sorting are the normalized load indices returned by </I><TT>lsload
+-N</TT><I>.</I></P>
+
+<P><A NAME="179"></A>The <TT>orderstr</TT> is used for host sorting and
+selection. The ordering begins with the right most index in the string
+and proceeds from right to left.The hosts are sorted into order based on
+each load index, and if more hosts are available than were requested the
+LIM drops the least desirable hosts according to that index. The remaining
+hosts are then sorted by the next index. </P>
+
+<P><A NAME="180"></A>After the hosts are sorted by the left most index
+in <TT>orderstr</TT>, the final phase of sorting orders the hosts according
+to their status, with hosts that are currently not available for load sharing
+(that is, not in the <TT>ok</TT> state) listed at the end. </P>
+
+<P><A NAME="181"></A>The default is <TT>r1m:pg</TT> (except for <TT><A HREF="quick-user.html#8635">lslogin</A></TT>
+which is <TT>ls:r1m</TT>). </P>
+
+<P><A NAME="182"></A>The <TT>usagestr</TT> specifies the expected resource
+usage of the task. This is used to specify resource reservation the load
+and for mapping tasks onto hosts during a placement decision. The syntax
+of <TT>usagestr</TT> is:</P>
+
+<PRE><A NAME="14597"></A><TT>res=value[:res=value]...[:res=value][:duration=value][:decay=value]</TT></PRE>
+
+<P><A NAME="184"></A>Here <TT>res</TT> can be any load index. The <TT>value</TT>
+parameter is the initial reserved amount. </P>
+
+<P><A NAME="185"></A>The default is <TT>r1m:r15s:mem:ut</TT>. </P>
+
+<H2><A NAME="5304"></A>Documentation</H2>
+
+<P><A NAME="5725"></A>Documentation for LSF consists of this reference
+and the <I><A HREF="quick-admin.html">LSF Administrator's Quick Reference</A></I>,
+the <I><A HREF="quick-install.html">LSF Installation Quick Reference</A></I>,
+the <I><A HREF="users-title.html">LSF User's Guide</A></I>, the <I><A HREF="admin-title.html">LSF
+Administrator's Guide</A></I>, the <I><A HREF="programmers-title.html">LSF
+Programmer's Guide</A></I>, the <I><A HREF="pjs-title.html">LSF JobScheduler
+User's Guide</A></I>, the LSF<TT> man</TT> pages, and the <TT>xlsbatch</TT>,
+<TT>xlsmon</TT>, <TT>xbsub</TT>, and <TT>xbcal</TT> on-line help.</P>
+
+<P>
+<HR></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> <!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:39:49 --></P>
+
+</BODY>
+</HTML>

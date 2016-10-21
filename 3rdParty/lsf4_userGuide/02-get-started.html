@@ -1,0 +1,478 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>LSF User's Guide - Getting Started</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BACKGROUND="bkgrd.jpg">
+
+<P><A HREF="users-contents.html">[Contents]</A> <A HREF="01-intro.html">[Prev]</A>
+<A HREF="03-cluster-info.html">[Next]</A> <A HREF="b-new-features.html">[End]</A>
+
+<HR></P>
+
+<H1><A NAME="3298"></A>Chapter 2. <A NAME="356"></A>Getting Started</H1>
+
+<P>
+<HR></P>
+
+<P><A NAME="3276"></A>This chapter describes how to use some of the basic
+features of LSF. After following the examples in this chapter you should
+be able to use LSF for most of the everyday tasks.</P>
+
+<P><A NAME="5183"></A>Configuration options shown in the following examples,
+such as host types and model names, host CPU factors (representing relative
+processor speed), and resource names are examples only; your system likely
+has different values for these settings.</P>
+
+<H2><A NAME="1883"></A>Getting Cluster Information</H2>
+
+<P><A NAME="399"></A>Cluster information includes the cluster master host,
+cluster name, cluster resource definitions, cluster administrator, etc.
+</P>
+
+<H3><A NAME="1546"></A>Displaying the Cluster and Master Names</H3>
+
+<P><A NAME="400"></A>LSF provides tools for users to get information about
+the system. The first command you want to use when you learn LSF is <TT>lsid</TT>.
+This command tells you the version of LSF, the name of your LSF cluster,
+and the current master host.</P>
+
+<PRE><A NAME="822"></A>% <B>lsid
+</B>LSF 3.0, Dec 10, 1996
+Copyright 1992-1996 Platform Computing Corporation
+
+My cluster name is test_cluster
+My master name is hostA</PRE>
+
+<P><A NAME="13658"></A>To find out who your cluster administrator is and
+a summary of your cluster, run the <TT>lsclusters</TT> command:</P>
+
+<PRE><A NAME="13662"></A>% <B>lsclusters 
+</B>CLUSTER_NAME   STATUS   MASTER_HOST               ADMIN    HOSTS  SERVERS
+test_cluster    ok      hostb                     lsf      6      6</PRE>
+
+<P><A NAME="13692"></A>If you are using the LSF MultiCluster product, you
+will see one line for each of the clusters that your local cluster is connected
+to in the output of <TT>lsclusters</TT>. </P>
+
+<H3><A NAME="1535"></A>Displaying Available Resources</H3>
+
+<P><A NAME="1537"></A>The <TT>lsinfo</TT> command lists all the resources
+available in the cluster.</P>
+
+<PRE><A NAME="13322"></A>% <B>lsinfo
+</B>RESOURCE_NAME   TYPE   ORDER  DESCRIPTION
+r15s          Numeric   Inc   15-second CPU run queue length
+r1m           Numeric   Inc   1-minute CPU run queue length (alias: cpu)
+r15m          Numeric   Inc   15-minute CPU run queue length
+ut            Numeric   Inc   1-minute CPU utilization (0.0 to 1.0)
+pg            Numeric   Inc   Paging rate (pages/second)
+io            Numeric   Inc   Disk IO rate (Kbytes/second)
+ls            Numeric   Inc   Number of login sessions (alias: login)
+it            Numeric   Dec   Idle time (minutes) (alias: idle)
+tmp           Numeric   Dec   Disk space in /tmp (Mbytes)
+swp           Numeric   Dec   Available swap space (Mbytes) (alias: swap)
+mem           Numeric   Dec   Available memory (Mbytes)
+ncpus         Numeric   Dec   Number of CPUs
+ndisks        Numeric   Dec   Number of local disks
+maxmem        Numeric   Dec   Maximum memory (Mbytes)
+maxswp        Numeric   Dec   Maximum swap space (Mbytes)
+maxtmp        Numeric   Dec   Maximum /tmp space (Mbytes)
+cpuf          Numeric   Dec   CPU factor
+rexpri        Numeric   N/A   Remote execution priority
+server        Boolean   N/A   LSF server host
+irix          Boolean   N/A   IRIX UNIX
+hpux          Boolean   N/A   HP_UX
+solaris       Boolean   N/A   SunSolaris
+cserver       Boolean   N/A   Compute Server
+fserver       Boolean   N/A   File server
+aix           Boolean   N/A   AIX UNIX
+type           String   N/A   Host type
+model          String   N/A   Host model
+status         String   N/A   Host status
+hname          String   N/A   Host name
+
+TYPE_NAME
+HPPA
+SGI6
+ALPHA
+SUNSOL
+RS6K
+NTX86
+
+MODEL_NAME             CPU_FACTOR
+DEC3000                  10.00
+R10K                     14.00
+PENT200                   6.00
+IBM350                    7.00
+SunSparc                  6.00
+HP735                     9.00
+HP715                     6.00</PRE>
+
+<P><A NAME="1539"></A>The <TT>lsinfo</TT> command displays three lists
+of information: </P>
+
+<UL>
+<LI><A NAME="1540"></A>Available resource names in the system </LI>
+
+<LI><A NAME="1541"></A>Available host types </LI>
+
+<LI><A NAME="1542"></A>Available host models </LI>
+</UL>
+
+<P><A NAME="1543"></A>The resources listed by <TT>lsinfo</TT> include built-in
+resources maintained by the LIM and site specific resources configured
+by the LSF administrator. For a complete description of how LSF manages
+resources, see <A HREF="04-resources.html#356">'Resources'</A>.</P>
+
+<P><A NAME="13342"></A>The host types and host models are defined by the
+LSF administrator. Host types represent binary compatible hosts; all hosts
+of the same type can run the same executables. Host models give the relative
+CPU performance of different processors. In this example, your LSF cluster
+treats an <TT>R10K</TT> processor as being twice as fast as an IBM 350
+processor<SUP><A HREF="02-get-started.html#13348">1.</A></SUP>.</P>
+
+<H2><A NAME="13349"></A>Getting Host Information</H2>
+
+<P><A NAME="1554"></A>LSF keeps information about all hosts in the cluster.
+Some information is static and some is dynamic. Static information is either
+configured by the LSF administrator, or is a fixed property of the system.
+An example of static host information is the amount of RAM memory available
+to users on a host.</P>
+
+<P><A NAME="3875"></A>Dynamic host information, or load indices, is determined
+by the LSF system, and updated regularly. Dynamic information represents
+the changing resources available on the host. Examples of dynamic host
+information are the current CPU load and the currently available temporary
+file space.</P>
+
+<H3><A NAME="402"></A>Displaying Static Host Information</H3>
+
+<P><A NAME="1823"></A>A load sharing cluster may consist of hosts of differing
+architecture and speed. The <TT>lshosts</TT> command displays configuration
+information about hosts. All these parameters are defined by the LSF administrator
+in the LSF configuration files, or determined by the LIM directly from
+the system.</P>
+
+<PRE><A NAME="13368"></A>% <B>lshosts
+</B>HOST_NAME      type    model cpuf ncpus maxmem maxswp server  RESOURCES
+hostD         SUNSOL SunSparc 6.0    1   64M    112M    Yes (solaris cserver)
+hostB         ALPHA  DEC3000 10.0    1   94M    168M    Yes (alpha cserver)
+hostM          RS6K   IBM350  7.0    1   64M    124M    Yes (cserver aix)
+hostC         SGI6     R10K  14.0   16 1024M    1896M   Yes (irix cserver)
+hostA         HPPA     HP715  6.0    1   98M    200M    Yes (hpux fserver)</PRE>
+
+<P><A NAME="1840"></A>In this example, the host type <TT>SUNSOL</TT> represents
+Sun SPARC systems running Solaris, and <TT>ALPHA</TT> represents a Digital
+Alpha server running Digital Unix.</P>
+
+<P><A NAME="4086"></A>See <A HREF="03-cluster-info.html#2682">'Listing
+Hosts'</A> for a complete description of the <TT>lshosts</TT> command.</P>
+
+<H3><A NAME="1813"></A>Displaying Load Information</H3>
+
+<P><A NAME="423"></A>The <TT>lsload</TT> command prints out current load
+information.</P>
+
+<PRE><A NAME="13131"></A>% <B>lsload
+</B>HOST_NAME   status  r15s  r1m r15m  ut    pg   ls  it   tmp  swp  mem
+hostD           ok   0.1  0.0  0.1   2%   0.0   5   3   81M  82M  45M
+hostC           ok   0.7  1.2  0.5  50%   1.1  11   0  322M 337M 252M 
+hostM           ok   0.8  2.2  1.4  60%  15.4   0  136  62M  57M  45M
+hostA         busy  *5.2  3.6  2.6  99% *34.4   4   0   70M  34M  18M
+hostB        lockU   1.0  1.0  1.5  99%   0.8   5  33   12M  24M  23M</PRE>
+
+<P><A NAME="6899"></A>The first line lists the load index names, and each
+following line gives the load levels for one host. The <TT>r15s</TT>, <TT>r1m</TT>
+and <TT>r15m</TT> fields give the CPU load, averaged over different time
+intervals. The <TT>ut</TT> field gives the percentage of time the CPU is
+in use. <TT>pg</TT> is the paging rate, <TT>ls</TT> is the number of login
+sessions, <TT>it</TT> is the idle time (the time since the last interactive
+user activity), <TT>swp</TT> is the available swap space in megabytes,
+<TT>mem</TT> is the available RAM in megabytes, and <TT>tmp</TT> is the
+available temporary disk space in megabytes.</P>
+
+<P><A NAME="4233"></A>The <TT>status</TT> column gives the load status
+of the host. A host is busy if any load index is beyond its configured
+threshold. When a load index is beyond its threshold, it is printed with
+an asterisk '<TT>*</TT>'. In the above example, <I>hostA</I> is busy because
+load indices <TT>r15s</TT> and <TT>pg</TT> are too high. The <TT>lshosts
+-l</TT> command shows the load thresholds.</P>
+
+<P><A NAME="4253"></A>Hosts with <TT>ok</TT> status are listed first. The
+<TT>ok</TT> hosts are sorted based on CPU and memory load, with the best
+host listed first.</P>
+
+<P><A NAME="4202"></A>The <TT>lsload</TT> command reports more load indices
+if the <TT>-l</TT> option is given.</P>
+
+<P><A NAME="443"></A>The <TT>lsmon</TT> command provides an updating display
+of load information. The <TT>xlsmon</TT> command is an X-windows graphical
+display of host status and load levels in your LSF cluster.</P>
+
+<P><A NAME="12788"></A>See the <TT>lsload</TT>(<TT>1</TT>), <TT>lsmon</TT>(<TT>1</TT>),
+and <TT>xlsmon</TT>(<TT>1</TT>) manual pages for more information. Also
+see <A HREF="03-cluster-info.html#2707">'Displaying the Load'</A>.</P>
+
+<H2><A NAME="1946"></A>Running Jobs</H2>
+
+<P><A NAME="1598"></A>LSF supports transparent execution of jobs on all
+server hosts in the cluster. You can run your program on the best available
+host and interact with it just as if it were running directly on your workstation.
+Keyboard signals such as <B><FONT SIZE=-1>CTRL-Z</FONT></B>&nbsp;and <B><FONT SIZE=-1>CTRL-C</FONT></B>&nbsp;work
+as expected.</P>
+
+<H3><A NAME="1564"></A>Running Jobs on Remote Hosts</H3>
+
+<P><A NAME="1566"></A>There are different ways to run jobs on a remote
+host. To run <TT>myjob</TT> on the best available host, enter:</P>
+
+<PRE><A NAME="1567"></A>% <B>lsrun myjob</B></PRE>
+
+<P><A NAME="1568"></A>LSF automatically selects the best host that is of
+the same type as the local host.</P>
+
+<P><A NAME="1569"></A>If you want to run <TT>myjob</TT> on a host with
+specific resources, you must specify the resource requirements. For example,</P>
+
+<PRE><A NAME="1570"></A>% <B>lsrun -R 'cserver &amp;&amp; swp&gt;100' myjob</B></PRE>
+
+<P><A NAME="1573"></A>runs <TT>myjob</TT> on a host that has resource '<TT>cserver</TT>'
+(see <A HREF="02-get-started.html#1535">'Displaying Available Resources'</A>)
+and has at least 100 megabytes of virtual memory available.</P>
+
+<P><A NAME="1578"></A>If you want to run your job on a particular host,
+use the <TT>-m</TT> option:</P>
+
+<PRE><A NAME="1579"></A>% <B>lsrun -m hostD myjob</B></PRE>
+
+<P><A NAME="7014"></A>When you run an interactive job on a remote host,
+you can do most of the job controls as if it were running locally. If your
+shell supports job control, you can suspend and resume the job and bring
+the job to background or foreground as if it were a local job. For a complete
+description, see the <TT>lsrun(1)</TT> manual page.</P>
+
+<P><A NAME="7015"></A>You can also write one-line shell scripts or <TT>csh</TT>
+aliases to hide the remote execution. For example:</P>
+
+<PRE><A NAME="11864"></A>#! /bin/sh
+# Script to remote execute myjob
+exec lsrun -m hostD myjob</PRE>
+
+<P><A NAME="11850"></A>or</P>
+
+<PRE><A NAME="7020"></A>% <B>alias myjob &quot;lsrun -m hostD myjob&quot;</B></PRE>
+
+<H3><A NAME="7141"></A>Load Sharing Commands With <TT>lstcsh</TT></H3>
+
+<P><A NAME="4430"></A>The <TT>lstcsh</TT> shell is a load-sharing version
+of the <TT>tcsh</TT> command interpreter. It is compatible with <TT>csh</TT>
+and supports many useful extensions. <TT>csh</TT> and <TT>tcsh</TT> users
+can use <TT>lstcsh</TT> to send jobs to other hosts in the cluster without
+needing to learn any new commands. You can run <TT>lstcsh</TT> from the
+command line, or use the <TT>chsh</TT> command to set it as your login
+shell. Refer to <A HREF="09-lstcsh.html#16352">'Using <TT>lstcsh</TT>'</A>
+for a more detailed description.</P>
+
+<H3><A NAME="4434"></A>Parallel Processing With <TT>lsmake</TT></H3>
+
+<P><A NAME="4449"></A><TT>lsmake</TT> is a load-sharing, parallel version
+of GNU <TT>make</TT>. It is compatible with <I>makefiles</I> for most versions
+of <TT>make</TT>. <TT>lsmake</TT> uses the LSF load information to choose
+the best group of hosts for your make job. Targets in the <I>makefile</I>
+are processed in parallel on the chosen hosts using the LSF remote execution
+facilities. You do not need to modify your <I>makefile</I> to use <TT>lsmake</TT>.
+By default, <TT>lsmake</TT> chooses hosts that are all of the same type.</P>
+
+<P><A NAME="9387"></A>The following example uses the <TT>lsmake -V</TT>
+and <TT>-j 3</TT> options to run on three hosts and produce verbose output:</P>
+
+<PRE><A NAME="5909"></A>% <B>lsmake -V -j 3
+</B>[hostA] [hostD] [hostK]
+&lt;&lt; Execute on local host &gt;&gt;
+cc -O -c arg.c -o arg.o
+&lt;&lt; Execute on remote host hostA &gt;&gt;
+cc -O -c dev.c -o dev.o
+&lt;&lt; Execute on remote host hostK &gt;&gt;
+cc -O -c main.c -o main.o
+&lt;&lt; Execute on remote host hostD &gt;&gt;
+cc -O arg.o dev.o main.o</PRE>
+
+<P><A NAME="4536"></A><TT>lsmake</TT> includes control over parallelism
+for recursive makes, which are often used for source code trees that are
+organized into subdirectories. Parallelism can also be controlled by the
+load on the NFS file server, so that parallel makes do not overload the
+server and slow everyone else down. See <A HREF="10-lsmake.html#12212">'Using
+lsmake'</A> for details.</P>
+
+<H2><A NAME="12712"></A>Batch Processing</H2>
+
+<H3><A NAME="12714"></A>Listing Hosts</H3>
+
+<P><A NAME="12808"></A>LSF Batch uses some (or all) of the hosts in an
+LSF cluster as batch server hosts. The host list is configured by the LSF
+administrator. The <TT>bhosts</TT> command displays information about these
+hosts.</P>
+
+<PRE><A NAME="8913"></A>% <B>bhosts
+</B>HOST_NAME     STATUS    JL/U  MAX   NJOBS  RUN  SSUSP USUSP  RSV
+hostA           ok       -     2     1     1     0     0     0
+hostB           ok       -     3     2     1     0     0     1
+hostC           ok       -     32   10     9     0     1     0
+hostD           ok       -     32   10     9     0     1     0
+hostM        unavail     -     3     3     1     1     1     0</PRE>
+
+<P><A NAME="4709"></A><TT>STATUS</TT> gives the status of <TT>sbatchd</TT>.
+If a host is down or its <TT>sbatchd</TT> is not up, its <TT>STATUS</TT>
+is '<TT>unavail</TT>'. The <TT>JL/U</TT> column shows the maximum number
+of job slots a single user can use on each host at one time. <TT>MAX</TT>
+gives the maximum number of job slots that are configured for each host.
+The <TT>RUN</TT>, <TT>SSUSP</TT>, and <TT>USUSP</TT> columns display the
+number of job slots in use by jobs in <TT>RUN</TT> state, suspended by
+the system, and suspended by the user, respectively. The field <TT>RSV</TT>
+shows job slots that are reserved by LSF Batch for some jobs. The <TT>NJOBS</TT>
+field shows the sum of field <TT>RUN</TT>, <TT>SSUSP</TT>, <TT>USUSP</TT>,
+and <TT>RSV</TT>.</P>
+
+<P><A NAME="4723"></A>For a more detailed description of the <TT>bhosts</TT>
+command see <A HREF="05-lsbatch.html#3189">'Batch Hosts'</A>.</P>
+
+<H3><A NAME="4717"></A>Submitting a Job</H3>
+
+<P><A NAME="1637"></A>To submit a job to the LSF Batch system, use the
+<TT>bsub</TT> command.</P>
+
+<P><A NAME="13047"></A>For example, submit the job <TT>sleep 30</TT>. This
+command does nothing, and takes 30 seconds to do it. The LSF administrator
+configures one queue to be the <I>default job queue</I>; if you submit
+a job without specifying a queue, the job goes to the default queue.</P>
+
+<PRE><A NAME="8347"></A>% <B>bsub sleep 30
+</B>Job &lt;1234&gt; is submitted to default queue &lt;normal&gt;</PRE>
+
+<P><A NAME="1639"></A>In the above example, <TT>1234</TT> is the job ID
+assigned by LSF Batch to this job, and <TT>normal</TT> is the name of the
+default job queue.</P>
+
+<P><A NAME="5265"></A>Your batch job remains pending until all conditions
+for its execution are met. Each batch queue has execution conditions that
+apply to all jobs in the queue, and you can specify additional conditions
+when you submit the job.</P>
+
+<P><A NAME="6060"></A>The <TT>-m &quot;</TT><I>host1</I><TT> </TT><I>host2</I><TT>
+...&quot;</TT> option specifies that the job must run on one of the specified
+hosts. By specifying a single host, you can force your job to wait until
+that host is available and then run on that host.</P>
+
+<P><A NAME="6024"></A>For a detailed description of the <TT>bsub</TT> command
+see <A HREF="06-submitting.html#343">'Submitting Batch Jobs'</A>.</P>
+
+<H3><A NAME="1753"></A>Selecting a Job Queue </H3>
+
+<P><A NAME="1683"></A><I>Job queues</I> represent different job scheduling
+and control policies. All jobs submitted to the same queue share the same
+scheduling and control policy. Each job queue can use a configured subset
+of the server hosts in the LSF cluster; the default is to use all server
+hosts.</P>
+
+<P><A NAME="1684"></A>System administrators can configure job queues to
+control resource access by different users and types of application. Users
+select the job queue that best fits each job.</P>
+
+<P><A NAME="1687"></A>The <TT>bqueues</TT> command lists the available
+LSF Batch queues:</P>
+
+<PRE><A NAME="1689"></A>% <B>bqueues
+</B>QUEUE_NAME     PRIO NICE    STATUS     MAX  JL/U JL/P NJOBS  PEND  RUN  SUSP
+owners          49   10   Open:Active    -    -    -     1     0     1     0
+priority        43   10   Open:Active   10    -    -     8     5     3     0
+night           40   10  Open:Inactive   -    -    -    44    44     0     0
+short           35   20   Open:Active   20    -    2     4     0     4     0
+license         33   10   Open:Active   40    -    -     1     1     0     0
+normal          30   20   Open:Active    -    2    -     0     0     0     0
+idle            20   20   Open:Active    -    2    1     2     0     0     2</PRE>
+
+<P><A NAME="1708"></A>A dash '-' in any entry means that the column does
+not apply to the row. In this example some queues have no per-queue, per-user
+or per-processor job limits configured, so the <TT>MAX</TT>, <TT>JL/U</TT>
+and <TT>JL/P</TT> entries are '-'.</P>
+
+<P><A NAME="7289"></A>You can submit jobs to a queue as long as its <TT>STATUS</TT>
+is <TT>Open</TT>. However, jobs are not dispatched unless the queue is
+<TT>Active</TT>.</P>
+
+<H3><A NAME="659"></A>Tracking Batch Jobs</H3>
+
+<P><A NAME="660"></A>The <TT>bjobs</TT> command reports the status of LSF
+Batch jobs. The <TT>-u all</TT> option specifies that jobs for all users
+should be listed; the default is to list only jobs you submitted. Running
+jobs are listed first. Pending jobs are listed in the order in which they
+will be scheduled. Jobs in high priority queues are listed before those
+in lower priority queues.</P>
+
+<PRE><A NAME="662"></A>% <B>bjobs -u all
+</B>JOBID USER  STAT  QUEUE    FROM_HOST EXEC_HOST JOB_NAME  SUBMIT_TIME
+1004  user7 RUN   short      hostA     hostA     myjob0   Dec 16 09:23
+1235  user2 PEND  priority hostM               sleep 30 Dec 11 13:55
+1234  user2 SSUSP normal   hostD     hostM     sleep 30 Dec 11 10:09
+1250  user1 PEND  short    hostA               myjob2   Dec 11 13:59</PRE>
+
+<P><A NAME="669"></A>If you also want to see jobs that finished recently,
+enter:</P>
+
+<PRE><A NAME="670"></A>% <B>bjobs -a</B></PRE>
+
+<P><A NAME="671"></A>All your jobs that are still in the LSF Batch system
+and jobs finished recently are displayed.</P>
+
+<P><A NAME="12983"></A>The <TT>bjobs</TT> command has many other options.
+See <A HREF="05-lsbatch.html#3160">'Batch Jobs'</A>. Also refer to the
+<TT>bjobs(1)</TT> manual page for a complete description.</P>
+
+<H3><A NAME="12984"></A><TT>xbsub</TT> and <TT>xlsbatch</TT> GUI Applications</H3>
+
+<P><A NAME="12988"></A>You can submit your job to the LSF Batch system
+using the X-windows graphical user interface application <TT>xbsub</TT>
+as shown in <A HREF="02-get-started.html#13001">Figure 3</A>.</P>
+
+<H4><A NAME="13001"></A>Figure 3. <TT>xbsub</TT> Job Submission Window</H4>
+
+<P><A HREF="usr-figure03.gif"><IMG SRC="usr-figure03.gif" ALT="xbsub Job Submission Window" BORDER=0 HEIGHT=344 WIDTH=352></A><TT>
+</TT></P>
+
+<P><A NAME="12951"></A>The <TT>xlsbatch</TT> command is another X-windows
+application for LSF Batch (<A HREF="02-get-started.html#13749">Figure 4</A>).
+You can use it to monitor host, job, and queue status, and control your
+jobs.</P>
+
+<H4><A NAME="13749"></A>Figure 4. <TT>xlsbatch</TT> Main Window</H4>
+
+<P><A HREF="usr-figure04.gif"><IMG SRC="usr-figure04.gif" ALT="xlsbatch Main Window" BORDER=0 HEIGHT=357 WIDTH=391></A>
+</P>
+
+<P><A NAME="12887"></A>Both <TT>xbsub</TT> and <TT>xlsbatch</TT> have extensive
+on-line help available through the Help menu of each application.</P>
+
+<P><A NAME="13489"></A><TT>xbsub</TT> can be started either directly from
+the command line or from <TT>xlsbatch</TT> using the '<TT>Submit</TT>'
+button. </P>
+
+<P>
+<HR><SUP>1.<A NAME="13348"></A></SUP> These numbers were invented for the
+example, and do not necessarily correspond to the actual performance of
+these systems. These values can be changed by your LSF administrator.</P>
+
+<P>
+<HR WIDTH="100%"><A HREF="users-contents.html">[Contents]</A> <A HREF="01-intro.html">[Prev]</A>
+<A HREF="03-cluster-info.html">[Next]</A> <A HREF="b-new-features.html">[End]</A></P>
+
+<ADDRESS><A HREF="mailto:doc@platform.com">doc@platform.com</A></ADDRESS>
+
+<P><I>Copyright &copy; 1994-1997 Platform Computing Corporation. <BR>
+All rights reserved.</I> </P>
+
+<P><!-- This file was created with Quadralay WebWorks Publisher 3.0.9 --><!-- Last updated: 02/14/97 13:25:32 --></P>
+
+</BODY>
+</HTML>
