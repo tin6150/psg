@@ -290,6 +290,9 @@ alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/  &&  \$1 ~ /default.q@/  {print \$0
 <PRE>
 qmon			# GUI mon 
 
+qstat 
+	-s c		# show complex eg license, load_avg
+
 qsub -q default.q@compute-4-1 $SGE_ROOT/examples/jobs/sleeper.sh 120
 			# run job on a specific host/node, using SGE example script that sleeps for 120 sec.
 			 
@@ -649,6 +652,12 @@ qconf -Ae compute-2-$X.qc
 rm compute-2-$X.qc
 
 done
+
+Add submit host:
+qconf -as hostname.fqdn
+
+# note that execution and submit host rever IP to DNS must lookup and match
+
 </PRE>
 
 
@@ -752,27 +761,7 @@ depends on info logged $sge_root/$cell/common/accounting ( eg /cm/shared/apps/sg
 
 <LI>qmon (GUI)
 <LI>sgeinspect (GUI)
-
-<LI>Default location of Sun Grid Engine log files:
-<UL>
-	<LI>qmaster_spool_dir/messages
-	<LI>$execd_spool_dir/hostname/messages
-	<LI>$sge_root/$sge_cell/common/accounting   
-</UL>
-
-<DIV class="mono">
-</DIV>
-<PRE> <!-- had to use PRE as monospace still doesn't treat extra space padding to line up the stuff-->
-<LI>SGE_ROOT            eg /cm/shared/apps/sge/current
-<LI>SGE_CELL            eg                             default
-<LI>SGE_HOME Bright UGE eg /cm/shared/apps/sge/current/default == /cm/shared/apps/sge/var/default
-<LI>SGE_HOME SGE        eg /opt/gridengine
-<LI>qmater_spool_dir    eg       $sge_root/$cell/spool/qmaster 
-<LI>execd_spool_dir	eg /cm/local/apps/sge/var/spool         # qconf -sconf | grep execd  
-
-
-</PRE>
-
+<LI>Univa Unicluster windows-based monitoring tool
 <LI>$SGE_HOME/default/spool/qmaster/messages contains log of errors when SGE tries to run jobs.
 <LI>$SGE_HOME/default/spool/qmaster/schedd/messages contains info from the scheduler    [where is this for bright uge?].
 <LI>$SGE_HOME/default/spool/NODENAME/messages error specific to each node.  may actually be a local dir on each node...
