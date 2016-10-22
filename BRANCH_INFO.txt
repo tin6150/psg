@@ -1,0 +1,33 @@
+
+there are several branches, they are for:
+
+
+master :	the one i will continue dev on
+droboxUrl : 	prior to using github, page doc URL used dropbox  URL like
+		https://dl.dropboxusercontent.com/u/31360775/psg/sourceControl.html
+		this branch was created before adopting github.io as doc URL
+		this branch would likely be a deadend/abandone branch
+
+snap20161016 : 	a snapshot taken in oct, mostly for backup purpose
+		no further dev on this branch
+
+
+
+commands used to create the dropboxUrl branch:
+git branch dropboxUrl
+git branch --edit-description dropboxUrl
+# added description inside EDITOR, but don't know how to see it
+
+git checkout dropboxUrl
+git add BRANCH_INFO.txt
+git commit -m "marker for dropboxUrl branch"
+git push --set-upstream origin dropboxUrl
+
+
+## git branch state prior to this commit
+  $ git branch -vv
+  dropboxUrl   d3e4692 [origin/dropboxUrl] marker (2) for dropboxUrl branch
+  * master       2b6e82e [origin/master] adding google_tracking file
+  snap20161016 1a66ca2 added progit ref
+
+
