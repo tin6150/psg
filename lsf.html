@@ -290,6 +290,9 @@ alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/  &&  \$1 ~ /default.q@/  {print \$0
 <PRE>
 qmon			# GUI mon 
 
+qstat 
+	-s c		# show complex eg license, load_avg
+
 qsub -q default.q@compute-4-1 $SGE_ROOT/examples/jobs/sleeper.sh 120
 			# run job on a specific host/node, using SGE example script that sleeps for 120 sec.
 			 
@@ -649,6 +652,12 @@ qconf -Ae compute-2-$X.qc
 rm compute-2-$X.qc
 
 done
+
+Add submit host:
+qconf -as hostname.fqdn
+
+# note that execution and submit host rever IP to DNS must lookup and match
+
 </PRE>
 
 
@@ -752,6 +761,7 @@ depends on info logged $sge_root/$cell/common/accounting ( eg /cm/shared/apps/sg
 
 <LI>qmon (GUI)
 <LI>sgeinspect (GUI)
+<LI>Univa Unicluster windows-based monitoring tool
 
 <LI>Default location of Sun Grid Engine log files:
 <UL>

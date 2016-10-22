@@ -73,7 +73,7 @@ Brendan Gregg on Linux Performance</A>
 <LI> slabtop 			# realtime kernel slab cache utilization
 <LI>
 
-
+<LI>procinfo (procinfo.rpm, <A HREF=http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo>http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo</A>)
 <H5>kernel, system calls </H5>
 <LI> strace -tttT -p `pgrep java` 2>&1 | head -100 	# see system calls, exit after getting 100 trace calls.
 							# eg is it reading 0 or 1 bytes at a time and thus spinning the CPU?  
@@ -111,7 +111,7 @@ Brendan Gregg on Linux Performance</A>
 
 <LI> nmon 		
 <LI> vmstat    
-<LI> sar
+<LI> sar  collectl, dstat) <BR> 
 <LI> Virtual Adrian Performance Monitor (<A HREF="#se">SE</A> Toolkit) for Solaris 6 onward.
 <LI> Ganglia
 
@@ -122,6 +122,27 @@ Brendan Gregg on Linux Performance</A>
 <UL>
 <LI> systemtap 
 <LI> sysdig
+<LI> http://linuxperf.sourceforge.net/tools/tools.php
+<LI> Kernprof
+<LI> Lockmeter
+<LI> Gcov
+<LI> strace
+<LI> ltt (linux trace facility)
+<LI> DProbes
+<LI>
+<LI>
+
+<LI>free, swapon, cat /proc/meminfo
+<LI> nicstat
+<LI> pidstat 1    (sysstat rpm)
+<LI> pidstat -t 1 (by thread, disk IO)
+<LI> iotop     (iostat rpm)
+<LI> perf     (linux-tools-generic rpm, + kernel specific rpm) , eg:<BR>
+     perf top
+<LI> iostat -xz 1
+<LI>slaptop
+<LI>fio      (fio rpm)
+<LI>hdparam
 <LI>sysbench (sysbench rpm) eg cmd:   <BR>
     sysbench --test=cpu run <BR> 
     sysbench --test=fileio --file-test-mode=seqrewr run <BR>
@@ -129,11 +150,25 @@ Brendan Gregg on Linux Performance</A>
 <LI>stap     (systemtap rpm)
     need some script...    
 <LI>lttng    (lttng-tools rpm)
+<LI>iptraf-ng    (TUI network IO by port, protocol, live trace) [easy]
 <LI>dtrace   (systemtap-sdt-dev rpm)
 <LI>dstat
 <LI>collectl (sar like, designed for distributed computing/hpc)
 <LI>
 </UL>
+<BR>
+
+<BR>
+<BR>
+
+advanced tools to perform full software stack analysis:
+<UL>
+<LI>systemtap 
+<LI>perf        (linux-tools-common rpm)
+<LI>sysdig
+</UL>
+
+
 
 
 <H3>Determining memory utilization of a process</H3>
@@ -160,11 +195,90 @@ So, these things will help finding a decent number for memory request.
 
 
 
+<A NAME="perf"></A>
 
 <A NAME="performance"></A>
 <A NAME="performance_measurements_commands"></A>
 <H1>Performance Measurements Commands</H1>
 <BR>
+
+These are pretty platform agnostic
+
+<H2>System Build-In tools</H2>
+                                                                                                      
+<!-- cmd.admin.ref.tr -->
+
+<PRE>
+netstat -ta     show current intenet services/connections
+        -a  : show (a)ll  (include listening port process)
+        -n  : ip (n)umber only (no dns lookup)
+        -r  : (r)outing table   (change with route cmd)
+        -i  : show stat for diff nic (i)nterfaces
+        -k ce0 : lot of interface specific info, ce NIC will have duplex stat.
+
+netstat -p	: print ip to mac address table known to host
+netstat -k 	: print lot of kernel stat, among it hme0 is for the sun's build in 
+		  happy meal ethernet nic (see sunsolve infodoc 17416 for explanation of these 
+		  undocumented stats, good for trobleshooting network latency, comare agaist cisco stat.)
+netstat -s	: show high level packet send/receive/fragment info
+vmstat -a   : all 
+       -n   : 
+       -p   : process owning port
+
+iostat -xn 30	: check for disk activity, anything more than 5% busy and avg resp time > 30 ms is bad.
+
+nfsstat
+
+mpstat	10	: processor stats, repeat every 10 seconds
+		: In Solaris, it reports context switch, interrupt, mutex spin, xcal, etc
+		: see http://sunsite.uakom.sk/sunworldonline/swol-08-1998/swol-08-perf.html
+
+cpustat		: find out what cpu is doing...
+
+lockstat sleep 5	: gather kernel lock stats during the sleep period (5 sec)
+			: solaris, run as root
+
+truss -c -p PID		: find number of system call and usr time for a process (sol).  ??
+
+top
+protocol
+sysmon
+
+trapstat, thread list, kmastat, kmausers
+
+
+GUDS
+
+Guds is a script to gather performance stats for Solaris.
+Sample usage is
+./guds_2.4.5
+./guds_2.4.5 -qX -H3 -s65040465
+
+-qX is for quite mode
+-H3 is for running it for 3 hours
+-sNNNNN is the sun case number (info embeded in dirs created by guds to
+store the files).
+
+It collects lots of info in /var/tmp/CASEID/guds-DATE-TIME/...
+
+May need lot of know how to analyze data.
+Having a baseline when things is good and when there are 
+performance problems would help.
+
+
+
+
+
+date; mkfile 1000m test; date			 	# create a 1 GB file (filled with 0)
+date; dd if=/dev/urandom of=test bs=1024 count=100000 	# same, file has random data.
+</PRE>
+
+<H5>Performance Tunning</H5>
+
+<LI>Use Jumbo Frame (MTU of 9000) if running specilized application (eg, cluster, RAC).
+<LI>NFS, use TCP instead of UDP, and specify a larger rsize and wsize of 32K instead of default 8K.  (noac?)
+
+<BR><BR>
 
 
 <H3>
