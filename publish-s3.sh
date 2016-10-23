@@ -1,5 +1,12 @@
 #!/bin/bash 
 
+# in x1carb, need to run this on a cygwin bash that has aws cli configured.
+# the psg sym link in this cygwin works.
+#
+# moba wasn't configured and probably had problem getting it
+# maybe can get it to work on MINGW64/git-bash, 
+# but this is the pain of this dev in windows not having proper linux support!
+
 cp -p psg2.html psg.html
 cp -p psg2.html index.html
 ## linux dropbox tends to change file perm to 000 !! :(
