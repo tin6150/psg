@@ -1,7 +1,7 @@
 #!/bin/bash 
 
-# in x1carb, need to run this on a cygwin bash that has aws cli configured.
-# the psg sym link in this cygwin works.
+# !! in x1carb, need to run this on a cygwin bash that has aws cli configured.
+#    the psg sym link in this cygwin works.
 #
 # moba wasn't configured and probably had problem getting it
 # maybe can get it to work on MINGW64/git-bash, 
@@ -24,5 +24,6 @@ find  . -type f -exec chmod a+r,u+rw {} \;
 #aws s3 sync conf     s3://sapsg/conf   --acl public-read
 # this will recursively copy everything from  current dir.  ensure run this in the psg/ folder !!
 # sync is like rsync, so a second run, sync files won't be xfered again.
-#aws s3 sync .        s3://sapsg/       --acl public-read
-aws s3 sync .        s3://tin6150/       --acl public-read
+#aws s3 sync .        s3://sapsg/       	--acl public-read
+#aws s3 sync .        s3://tin6150/       	--acl public-read
+aws s3 sync .        s3://psg.ask-margo.com/    --acl public-read
