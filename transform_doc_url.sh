@@ -13,4 +13,6 @@
 #fgrep -l "unixville.com"  *html | awk '{print " sed -i \"s/unixville.com\\\/\~sn\\\/psg/tin6150.s3-website-us-west-1.amazonaws.com/g\" " $0 }'  > run2016_dropbox.sh
 
 
-fgrep -l "cs.fiu" *html | awk '{print " sed -i \"s/www.cs.fiu.edu\\\/\~tho01\\\/psg/psg.ask-margo.com/g\" " $0 }'  > run2016_dropbox.sh
+#fgrep -l "cs.fiu" *html | awk '{print " sed -i \"s/www.cs.fiu.edu\\\/\~tho01\\\/psg/psg.ask-margo.com/g\" " $0 }'  > run2016_dropbox.sh
+
+fgrep -l "2007-06" *html | awk '{print " sed -i \"s/\(no longer updated as of 2007-06\)//\" " $0 }'  > run2016_dropbox.sh
