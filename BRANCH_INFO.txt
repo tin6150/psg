@@ -1,15 +1,54 @@
 
 there are several branches, they are for:
 
+
+*sigh*   github.io pages will only build against master branch
+so will merge sansDropSync back into master.
+perhaps mark it with some release tag...
+
+so, attempted to merge sansDropSync with master via
+
+git checkout sansDropSync
+git merge -s ours -m "..."   origin/master
+	# which should just take all the content of sansDropSync and make it the content of the branch master
+	# but things are not showing up.
+	# git checkout master
+	# will revert to previous changes
+# made changes to BRANCH_INFO.txt in sansDropSync branch
+git commit -a -m "update BRANCH_INFO after merged sansDropSync w/ master"
+	# hope this seals the merge!
+
+something isn't right... maybe previous attempts to remove master massed things up royally...
+
+git log --oneline --graph --decorate
+
+* 0f2bdab (HEAD -> sansDropSync, origin/sansDropSync, origin/HEAD) update BRANCH_INFO after merged sansDropSync w/ master
+*   74ef5bd merge sansDropSync(ours) back into master(theirs) as need to be in master to get github.io build.  done as git merge -s ours ... origin/master
+|\
+| * bfc4a75 (tag: v0.2, origin/master, master) rename master branch to masterIwas.  marking its abandonment.  sorry Yoda :)
+
+
+yet github graphics have master moving down to the branch of sansDropSync...  
+not sure what's going on...
+
+
+
 sansDropSync : 	stop using dropbox sync in this branch.
 		moba, cygwin, mingw64, really messy
 		diff uid, permission don't match, CRLF... 
 		that's why real developer hate windows :(
 		git remote add origin https://tin6150@github.com/tin6150/psg.git
+		DIR: /cygdrive/c/tin-gh/psg
 
-masterIwas :	the one i will continue dev on
-		was "master", was done while using dropbox sync, 
-		will be abandoning the use of this branch
+masterIwas :
+master :	will abandone this branch.  it was done while using dropbox sync, which was messy.
+		was going to rename this to masterIwas
+		can rename locally, but not on origin :(
+		even tried 
+			git push -f origin :master
+		gave up renaming.  will just make sandDropSync default chckout/clone  
+		http://stackoverflow.com/questions/1526794/rename-master-branch-for-both-local-and-remote-git-repositories?answertab=votes#tab-top		
+
 
 droboxUrl : 	prior to using github, page doc URL used dropbox  URL like
 		https://dl.dropboxusercontent.com/u/31360775/psg/sourceControl.html
