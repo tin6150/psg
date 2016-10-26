@@ -6,6 +6,20 @@ there are several branches, they are for:
 so will merge sansDropSync back into master.
 perhaps mark it with some release tag...
 
+so, attempted to merge sansDropSync with master via
+
+git checkout sansDropSync
+git merge -s ours -m "..."   origin/master
+	# which should just take all the content of sansDropSync and make it the content of the branch master
+	# but things are not showing up.
+	# git checkout master
+	# will revert to previous changes
+# made changes to BRANCH_INFO.txt in sansDropSync branch
+git commit -a -m "update BRANCH_INFO after merged sansDropSync w/ master"
+	# hope this seals the merge!
+
+
+
 
 sansDropSync : 	stop using dropbox sync in this branch.
 		moba, cygwin, mingw64, really messy
