@@ -18,6 +18,18 @@ git merge -s ours -m "..."   origin/master
 git commit -a -m "update BRANCH_INFO after merged sansDropSync w/ master"
 	# hope this seals the merge!
 
+something isn't right... maybe previous attempts to remove master massed things up royally...
+
+git log --oneline --graph --decorate
+
+* 0f2bdab (HEAD -> sansDropSync, origin/sansDropSync, origin/HEAD) update BRANCH_INFO after merged sansDropSync w/ master
+*   74ef5bd merge sansDropSync(ours) back into master(theirs) as need to be in master to get github.io build.  done as git merge -s ours ... origin/master
+|\
+| * bfc4a75 (tag: v0.2, origin/master, master) rename master branch to masterIwas.  marking its abandonment.  sorry Yoda :)
+
+
+yet github graphics have master moving down to the branch of sansDropSync...  
+not sure what's going on...
 
 
 
