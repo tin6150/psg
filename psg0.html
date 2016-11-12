@@ -1,0 +1,415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+ 
+
+<!-- psg0.html: a strip down version of psg2.html, so that LinkedIn can pull a better snapshot as profile image -->
+
+
+   
+<!--  xhtml format, hw6 (tables) had to use transitional instead of strict dtd.  -->    
+<!--
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+the one below for strict html:
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+-->
+
+
+
+
+
+<!--  
+CSS Class - UCSCX - 2012.07 - Final Project 
+Also making it as part of my PSG page remake.
+Tin Ho 
+
+CSS validator: http://jigsaw.w3.org/css-validator/#validate_by_uri
+HTML validator: http://validator.w3.org/
+-->    
+    
+<head>
+	<title>Sys Admin Pocket Survival Guide</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="psg2.css"                type="text/css" media="screen">
+        <link rel="stylesheet" href="psg-table.css"           type="text/css"> 
+        <link rel="stylesheet" href="psg2-links-icons.css"    type="text/css">
+        <link rel="stylesheet" href="psg-positioning.css"     type="text/css">
+        <link rel="stylesheet" href="psg-print.css" type="text/css" media="print">
+</head>
+
+    
+<body>
+
+    
+<div id="wrapper">
+  <div id="header">
+    <div id="title">Sys Admin Pocket Survival Guide</div>
+    <div id="sub-title">A Quick Reference Guide for Sys Admins with Alzeimer :)</div>
+  </div> <!-- closes header -->
+  
+  <div id="navigation">
+      <!-- the replace was not inside hightlight area, but whole page, finc and put back some strong and em in doc...-->
+   <!--  strong, em, h5, or div are not allowed to be nested inside ul !!  -->
+       <div class="azul">Cloud</div>
+        <ul>
+        <li> <a href="docker.html">docker</a></li>
+        <li> <a href="aws.html">AWS</a></li>
+        <li> <a href="openstack.html">OpenStack</a></li>
+        </ul>
+
+       <div class="azul">Unix</div>
+	<ul>
+        <li> <a href="nixos.html">NixOS</a></li>
+        <li> <a href="coreos.html">CoreOS</a></li>
+        <li> <a href="sol.html">Solaris</a></li>
+        <li> <a href="linux.html">Linux</a></li>
+        <li> <a href="hpux.html">HP-UX</a> and <br>
+                <a href="hpux.supl.html">supplement</a></li>
+        <li> <a href="aix.html">AIX</a> and <br>
+                <a href="aix_cd_catalog.html">AIX CD catalog</a><br></li>
+        <li> <a href="irix.html">Irix</a></li>
+        <li> <a href="dos.html">Windows</a></li>
+        <li> <a href="apple.html">Apple Mac</a></li>
+	</ul>
+
+        <div class="azul">HPC</div>
+	<ul>
+        <li> <a href="bigdata.html">Big Data engines</a></li>
+        <li> <a href="lsf.html">LSF, PBS/Torque, SGE/UGE</a></li>
+        <li> <a href="mpi.html">MPI, PVM</a></li>
+        <li> <a href="sci-file.html">Science File Format/Info</a></li>
+        <li> <a href="sci-app.html">Sci-App</a></li>
+	</ul>
+
+        <div class="azul">Storage</div>
+	<ul>
+        <li> <a href="mrf.html">RFC 007 - MRF</a></li>
+        <li> <a href="netapp.html">NetApp</a></li>
+        <li> <a href="emc.html">EMC SAN - Clariion</a></li>
+        <li> <a href="emcCelerra.html">EMC NAS - Celerra</a></li>
+        <li> <a href="isilon.html">Isilon</a></li>     
+        <li> <a href="fs.html">Unix File System</a></li>
+        <li> <a href="fusionio.html">FusionIO "SSD"</a></li>
+	</ul>
+
+            
+      
+        <div class="azul">Unix Dev</div>
+	<ul>
+  	<li><a href="devops.html">DevOps</a></li>
+  	<li><a href="development.html">compilers, etc</a></li>
+  	<li><a href="python.html">Python</a></li>
+  	<li><a href="perl.html">Perl</a></li>
+  	<li><a href="php.txt">PHP</a></li>
+  	<li><a href="shellScript.txt">sh/bash, csh/tcsh</a></li>
+  	<li><a href="awk.txt">AWK</a></li>
+  	<li><a href="javascript_eg.html">javascript_eg</a></li>
+   	<li>gcc</li>
+  	<li><a href="gdb.html">gdb</a></li>
+   	<li>java</li>
+	<li><a href="sourceControl.html#svn">subversion</a></li> 
+	<li><a href="sourceControl.html#cvs">cvs</a></li> 
+	<li><a href="sourceControl.html#rcs">rcs</a></li> 
+	<li><a href="sourceControl.html#hg">mercurial hg</a></li> 
+	<li><a href="sourceControl.html#git">git</a></li> 
+	<li><a href="sourceControl.html#p4">perforce</a></li> 
+	<li><a href="vi.html">vi</a></li> 
+	</ul>
+
+        <div class="azul">Network</div>
+	<ul>
+        <li> <a href="infiniband.html">InfiniBand</a><br></li>
+        <li> <a href="net.html">Network</a></li>
+        <li> <a href="acopia.html">Acopia</a></li>
+        <li> <a href="ipmi.html">IPMI</a></li>
+        <li> <a href="ipv6.html">IPv6</a></li>
+	</ul>
+
+        <div class="azul">Database</div>
+	<ul>
+        <li> <a href="mysql.html">MySQL</a></li>
+        <li> <a href="sqlite.html">SQLite</a></li>
+        <li> <a href="db2.html">DB2</a></li>
+        <li> <a href="oracle.html">oracle</a></li>
+	</ul>
+            
+  </div> <!-- closes #navigation -->
+  
+  <div id="content">
+
+<!-- ######################################################################### -->
+
+
+<div align="CENTER">
+</div><!-- end CENTER -->
+
+<br>
+      <p>
+
+  Hello World!  Welcome to the Pocket Survival Guide :)  
+  This is my collection of notes that I have collected over the years 
+  as a Sys Admin. I am sharing them here hoping that they will be useful 
+  to you. These are concise notes to refresh your mind on how to do certain things, 
+  maybe you know what need to be done on one platform but don't know the commands 
+  on another. Or maybe just pointers for you to read up the relevan man pages 
+  or know what to google for :)    Some pages are really random notes to myself.  
+  They are all work in progress, as if they are stuck in an infinite loop...
+  Some of the more salient pages are:
+  </p>
+  <UL>
+  <LI> <A HREF="docker.html">Docker</A>
+  <LI> <A HREF="nixos.html">NixOS</A>
+  <LI> <A HREF="coreos.html">CoreOS</A>
+  <LI> <A HREF="bigdata.html">BigData</A>
+  <LI> <A HREF="ldap.html">LDAP</A>:  There was a lack of good sys admin book on the topic of implementing/deploying LDAP.  I almost tried to write one.  But I changed job soon after I completed the project, so this html has become the book's gravestone.  
+  <LI> <A HREF="mrf.html">RFC 007 - MRF</A>
+	My current work is on an algorithm I am calling MRF - Modified Raid Five.  I had long ago thought of applying RAID 5 to tape drives.  But recently I learned that large scale archiving operations may actually benefit from this superficially paradoxical approach.  
+  </UL>
+
+
+  <!--<div align="CENTER"> <IMG SRC="fig/cordova_psg.png"><br></div>-->
+  <p>
+  <table cellspacing="0" width="100%" border=0px>
+  <tbody>
+  <TR class="noColor" border-bottom=0px>
+  <TD class="noorder">
+  <IMG SRC="fig/cordova_psg.png"><br>
+  </TD>
+  <TD>
+  <strong>NEW</strong>  I am learning mobile development.  With that, the <I>Pocket</I> part of PSG can really become true! :).  It is a <A HREF="development.html#phonegap">phonegap/cordova</A> app containing all the PSG pages.  <BR>
+  <UL>
+  <LI>iOS .ipa TBA.  <BR>
+  <LI><A HREF="https://github.com/tin6150/cordova/releases/download/0.1/psg.apk">android .apk</A> (4.4 KitKat and later).  Google Play store link TBA.
+  </UL>
+  </TD>
+  </TR>
+  </tbody>
+  </table>
+  <p>
+<!--
+  They are work in progress, I know I need to polish 
+  up my notes so that other can make sense of them.  
+As time permits...
+  <strong>which never really happens</strong> :-/
+-->
+  </p>
+
+  <!--<div align="CENTER"> ~ 0 ~ </div>-->
+
+  <p>
+  Thanks for those who have send kind and encouraging words to me, it is nice to know that 
+  these notes are actually useful for someone other than myself!  
+  </p>
+  <p>
+  And special thanks to those who send me notes about mistakes, some pretty bad ones that could have
+  caused someone to loose his/her job!  So, be warned, check the man pages etc when doing something that
+  could have dramatic negative impact (unexporting file system, shrinking volume, etc)!
+  </p>
+  <p>
+  Apologies for those of you who are trying to bookmark this site.  
+  I started this long time ago.  While once in a blue moon I try to write a blog (<A HREF="http://geekyap.blogspot.com/">Geek Yap</A>), 
+  I don't feel like that's the right interface is my ever evolving/updating admin notes.  
+  WordPress with the Annotum Base theme would fit the bill, but it doesn't take HTML pages, and I am too lazy to convert 
+  the contents.  With that, I am hosting PSG on dropbox now.
+  This URL shortener would be good to bookmark:
+  <strong><A HREF="http://tiny.cc/tin6150">http://tiny.cc/tin6150/</A></strong>
+  </p>
+  <p>
+  At one point I was taking some Internet Development classes to catch up to the ever changing field.  So this PSG site 
+  has also become my playground.  Part of the page looks wacky because the homeworks required demonstration of some constructs.
+  I have left them in place to remind myself how to do them.  Sorry if they are eye sores... But to compensate, 
+  I have sprinkled many of the pages with Randall Munroe's <A HREF="http://xkcd.com">XKCD comics</A>.  Hope you like them.  
+  
+  <!--
+  Note that I am remaking the "main page" of PSG as part of my <strong>Internet Development classes.</strong>  
+  Some of the original contents are not yet linked here, please refer to the 
+  <a href="psg-orig.html">old page</a> for them.  
+  -->
+  Some of my notes are not easily displayable in html, please see 
+  <a href="robot.txt">robot.txt</a>, <a href="scriptRosetta.rtf">unix script rosetta</a>, (jquery example tba).
+  The older front page is at
+  <a href="psg1.html">psg1.html</a>.
+  </p>
+  <p>
+  </p>
+  
+
+
+Sys admins are wacky bunch, hard to please.  But here are my favorite providers: <BR>
+<UL>
+<LI><A HREF="http://freedns.afraid.org/">FreeDNS</A>
+<LI><A HREF="http://Arvixe.com/">Arvixe</A>
+</UL>
+
+    <br><br><HR><br>
+
+
+
+<HR><BR>
+  
+  <H3>About me</H3>
+<p>
+I have been "hacking" computers for 10+ years now.  I started liking to fiddle with OS since college days in FIU, 
+and it is still a hobby when I am not hiking or biking or studying for biotech :-) 
+</p>
+
+<p><A HREF="aboutMe.html">This page</A> has links to my other social media profiles.</p>
+
+<p>Drop me a line at <a href="https://plus.google.com/114127907203802598849/posts">G+</a> 
+    or reward me by using 
+    <a href="http://db.tt/W1wFD7Xy">this link</a> to get your own dropbox account (we'll both get an extra 500MB of free storage).
+</p>
+    
+<BR><BR>
+
+
+
+
+<A NAME="cc"></A>
+<A NAME="CreativeCommon"></A>
+<H3>Copyright info about this work
+</H3>    
+
+<p>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">Creative Commons Attribution-NonCommercial-ShareAlike2.5 License</a>.
+       <!--/Creative Commons License-->
+       <!-- <rdf:RDF xmlns="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+       <Work rdf:about="">
+       <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.5/" />
+            <dc:title>Pocket Sys Admin Survival Guide</dc:title>
+            <dc:date>2005</dc:date>
+            <dc:description>A series of concise system administration notes</dc:description>
+            <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
+            <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+            <dc:source rdf:resource="http://psg.ask-margo.com/" />
+            </Work>
+            <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
+                                       <requires rdf:resource="http://web.resource.org/cc/Notice"/><requires rdf:resource="http://web.resource.org/cc/Attribution"/>
+                                       <prohibits rdf:resource="http://web.resource.org/cc/CommercialUse"/>
+                                       <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"/><requires rdf:resource="http://web.resource.org/cc/ShareAlike"/>
+            </License>
+            </rdf:RDF> -->
+
+
+<Strong>Pocket Sys Admin Survival Guide</Strong>: for content that I wrote, (<a
+ href="http://creativecommons.org/licenses/by-nc-sa/2.5/">CC</a>)  
+ <a href="http://creativecommons.org/learnmore"> <i>some rights reserved</i></a>.  
+ 2005,2016 Tin Ho [ tin6150 (at) gmail.com ]  <br>
+ 
+Some contents are <I>cached</I> here for easy reference. Sources include man pages, 
+vendor documents, online references, discussion groups, etc. Copyright of those 
+are obviously those of the vendor and original authors.  I am merely caching them here for quick reference and avoid broken URL problems.
+</p>
+
+  <br><br>
+
+
+<h3>Where is PSG hosted these days?</h3>
+  <div id="psg-url">
+
+<OL>
+  <LI>
+  <A HREF="http://ask-margo.com">ask-margo.com</A>
+  = <BR>
+  <A HREF="http://psg.ask-margo.com.s3-website-us-west-1.amazonaws.com/">http://psg.ask-margo.com.s3-website-us-west-1.amazonaws.com/</A><BR>
+  Amazon S3 main mirror site. <BR>
+  <BR>
+  <BR>
+
+  <LI>
+  <A HREF="http://tiny.cc/tin6150">tiny.cc/tin6150</A>
+  = <BR>
+  <A HREF="https://tin6150.github.io/psg/">https://tin6150.github.io/psg/</A> <BR>
+  GitHub is the new home starting 2016.10 <BR>
+  <BR>
+  <BR>
+
+  <LI>
+  <A HREF="http://tiny.cc/TIN6150">tiny.cc/TIN6150</A>
+  = <BR>
+  <A HREF="http://psg.skinforum.org/">http://psg.skinforum.org/</A> <BR>
+  Arvixe mirror, fairly well updated<BR>
+  <BR>
+
+  <LI>
+  <A HREF="http://tiny.cc/TIN">tiny.cc/TIN</A>
+  = <BR>
+  <A HREF="http://psg.skinforum.org/">http://tin6150.s3-website-us-west-1.amazonaws.com/</A> <BR>
+  Amazon S3 mirror site, will keep fairly well updated if cost does not skyrocket<BR>
+  <BR>
+
+
+
+  <LI>
+  <A HREF="http://tiny.cc/tin6150d">tiny.cc/tin6150d</A>
+  = <BR>
+  <a href="http://dl.dropboxusercontent.com/u/31360775/psg/psg2.html">http://dl.dropboxusercontent.com/u/31360775/psg/psg2.html</a>
+  = <BR>
+  <a href="http://dl.dropbox.com/u/31360775/psg/psg2.html">http://dl.dropbox.com/u/31360775/psg/psg2.html</a> <BR>
+  Dropbox master.  However, drobpox is no longer rendering html page in browser as of 2016.10.  Viewing page becomes cumbersome :( <BR>
+  <BR>
+
+
+  <LI>
+  <A HREF="http://tiny.cc/tin6150a">http://tiny.cc/tin6150a</A>
+  = <BR>
+  <A HREF="http://grumpyxmas.medianewsonline.com/">http://grumpyxmas.medianewsonline.com/</A><BR>
+  Freebie mirror at medianewsonline. last updated Dec 2012 <BR>
+  <BR>
+</OL>
+	<!--
+	<A HREF="http://tin6150.s3-website-us-west-1.amazonaws.com/psg.html">http://tin6150.s3-website-us-west-1.amazonaws.com/psg.html</A> 
+	(won't likely be coming after all)
+	<BR>
+	<a href="ftp://read:only@sn.is-a-geek.com/psg/psg.html">ftp://sn.is-a-geek.com/psg/psg.html</a> 
+	My home "server".  Up sporadically.
+	<BR>
+	-->
+
+	<!--
+	Other caches in decreasing order of update frequency:  <BR>
+
+	<A HREF="http://tin6150.github.io/psg/psg.html">
+	http://tin6150.github.io/psg/psg.html
+	</A> 
+	(Google site, they are changing their policy and I may not be update these pages in the near future.  Last updated 2009-10-10)<BR>
+
+
+	<A HREF="http://psg.ask-margo.com/psg.html">http://psg.ask-margo.com/psg.html</A> <BR>
+	<A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
+	-->
+
+  </div>       
+      
+  </div> <!-- #content -->
+    
+  <div id="tailer">      
+            <div class="noicon">
+            <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/2.5/">
+                <img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights20.png"></a>
+            <a href="http://jigsaw.w3.org/css-validator/check/referer">
+                <img style="border:0;width:88px;height:31px"
+                    src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+                    alt="Valid CSS!">
+            </a>
+            <a href="http://validator.w3.org/check?uri=referer">
+                <img src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Strict" height="31" width="88">
+            </a>
+        </div>
+  </div> <!-- #tailer -->
+
+  
+  
+  
+  
+  <div id="footer"> (CC 2012) Some Rights Reserved.</div>
+  
+</div> <!-- closes wrapper --> 
+</body>
+</html>

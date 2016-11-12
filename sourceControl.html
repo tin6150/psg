@@ -299,7 +299,6 @@ git remote set-url repoName url	# use this if need to change remote github/bitbu
 
 git push --set-upstream repoName master	# the first push to a new repo need to specify the repository and branch name 
 
-git config --global alias.lol "log --online --graph --decorate"		# create alias "git lol"
 
 
 </PRE>
@@ -339,7 +338,16 @@ git merge 			# merge branch
 # which may cause lot of conflict in other's code.
 
 # config git to use proxy
+# note that shell env var http_proxy isn't heeded
 git config --global http.proxy http://proxy01.eville.com:2011
+
+git config --global --unset http.proxy
+
+
+git config --global alias.proxy   "config --global http.proxy http://proxy01.eville.com:2011"
+git config --global alias.noproxy "config --global --unset http.proxy"
+
+git config --global alias.lol "log --oneline --graph --decorate"		# create alias "git lol"   # logd
 
 </PRE>
 

@@ -698,7 +698,7 @@ operators accepted:
 eg cmd of tcpdump [expression]  :
 
 tcpdump host 10.0.71.165
-tcpdump src  10.0.71.165
+tcpdump src  10.0.71.165 -w myfile.tcpdump	# -w write output to file
 tcpdump 'dst net 128.3'
 tcpdump 'src or dst port ftp-data'   
 tcpdump 'ether host 0:d0:b7:a9:c9:5a'
@@ -959,7 +959,8 @@ http://www.ns.aus.com/ethereal/user-guide/ch03capfilt.html</A>
 <BR>
 
 
-<H1>Network Scanner</H1>
+<H1>Network Troubleshooting</H1>
+
 <A NAME="nmap"></A>
 <H2>nmap</H2>
 <PRE>
@@ -972,7 +973,34 @@ sudo nmap -p1-62000 somehost		# scan port 1 to 62000 against machine named someh
 sudo nmap -sU somehost -p8255		# check UDP port 8255 to see if it is open
 	
 
+</PRE>
+
+
+<A NAME="netcat"></A>
+<H2>netcat</H2>
+<PRE>
+
+
+nc -v -l -n 8666			# create a "netcat server", listening on TCP port 8666
+					# -v verbose
+					# -l listen
+					# -n no DNS lookup
+
+dd if=/dev/zero bs=100M count=1 | nc -v -v -n NcServer 8666	# simple connectivity and network performance test 
+					# like a crude version of ttcp w/o installing new sw
+
+
 echo "hi" | nc -4u somehost 8255	# send string "hi" via netcat on IPv4 UDP port 8255 to a remote machine named somehost
+
+
+
+echo "GET / HTTP 1.1" | nc www.google.com 80; echo $?	# can test ability to connect, but won't see output
+
+telnet www.google.com 80 		# simple network connectivity test using the telnet tool
+GET / HTTP 1.1				
+
+
+
 </PRE>
 
 <BR><BR>
@@ -1088,8 +1116,98 @@ A very popular Network-Based IDS.
 
 <BR><BR>
 
-<H1>Network Benchmark</H1>
+<A NAME="bench"></A>
+<H1>Network Performance Benchmark</H1>
 
+<A NAME="jumbo_frame"></A>
+<A NAME="jumbo"></A>
+<H2>Jumbo Frame</H2>
+
+Jumbo frame is setting ethernet to use a larger frame so that the data payload vs packet management ratio is improved.  Default frame is to use MTU=1500.  Jumbo Frame is to set MTU=9000.  <BR>
+Sound simple, but there are a few caveats: <BR>
+
+<OL>
+<LI>Device using different MTU may stop talking to one another, due to dropped packet, often silently.
+<LI>Enable MTU=9000 on switch/router first, then make changes to the hosts.
+
+<LI>Frame Fragmentation is possible, but for (most?/all?) switches, it seems to happen only at layer 3, not layer 2.  <BR>
+Thus, only when packet need to be ROUTED would large frame be split into multiple packets. <BR>
+At layer 2, large frame would just be dropped when the given switch port MTU is exceeded <BR>
+
+<LI>Probably easiest to have a performance subnet and all devices in this subnet use MTU=9000, then they can communicate with each other efficiently, and still work with other devices with MTU=1500 that are outside the subnet , as they would be fragmented by the router.
+
+<LI>IP layer has a flag "DF", Don't Fragment.
+<!-- not really?: which is often set to be true. -->
+
+<LI> Router will fragment packet at Layer 3 if destination MTU is smaller than original sender.  <BR>
+     Sender must not set DF (don't fragment) for router to carry out this work (eg, ping -M dont will get response)  <BR>
+     Recipient would respond, but it would send them as multiple smaller packet (so echo-reply packet, router don't have to refragment, recipient will get multiple fragments and assemble them to form one complete packet).
+     
+<LI>(Router?) will send ICMP to sender if MTU mismatch, if sender DF flag is set. <BR>
+     If DF isn't set, router should perform fragmentation, but if somehow it isn't doing its job, then network connectivity fails silently.  This is perhaps the biggest pain point of jumbo frame adoption.
+<BR>
+
+</OL>
+
+Baby Giant Frame.  May see this in MPLS network, where MTU is slightly larger than 1500 so that MPLS protocol can add its packet data on top of the 1500 MTU of Ethernet without restoring to fragmentation.
+<BR>
+
+
+<BR><BR>
+
+<H5>RHEL config and test</H5>
+
+<PRE>
+
+# temporary change MTU on the fly, but network still unresponsive for about a minute
+sudo ip link set dev eth0 mtu 1500
+
+# permanently set jumbo frame 
+/etc/sysconfig/network-scripts/ifcfg-eth1   add
+	MTU=9000
+sudo service network reload		# can do this when ssh in to host, unresponsive for about a min
+
+
+
+# tcp_mtu_probing controls TCP Packetization-Layer Path MTU Discovery. 
+# traffic with host with smaller MTU would use smaller frame, 
+# doesn't seems to work reliably, cuz depends on switch ICMP directives?
+#   0 Disabled (default, since Linux 2.6.17)
+#   1 Disabled by default, enabled when an ICMP black hole detected
+#   2 Always enabled, use initial MSS of tcp_base_mss.
+# ESnet recommend setting to 1 ( http://fasterdata.es.net/host-tuning/linux/ )
+
+/etc/sysctl.conf  add
+	net.ipv4.tcp_mtu_probing=2
+
+Tmp change:
+cat       /proc/sys/net/ipv4/tcp_mtu_probing
+echo 2 >  /proc/sys/net/ipv4/tcp_mtu_probing
+
+
+
+tcpdump -i eth2 'icmp'
+	# capture all ICMP traffic
+	# -i eth2   	capture only for named interface
+	# -v        	verbose output 
+	# -w filename	output file to write to
+
+
+ping -c 1 -s 8970 -M do 10.11.12.201
+	# -s packet size.  Linux add 28 bytes to the packet header, so need to deduct this from the MTU of 9000 
+	# -M do    set Don't Fragment flag  ie, MTU mismatch will drop packet, would see ICMP error msg
+	# -M dont  set Don't Fragment flag  ie, MTU mismatch will refragment to smaller packet
+	# -M want  ie, desire Don't Fragment,   MTU mismatch fails silently
+	# -c 4     send only count (1) number of packets
+
+</PRE>
+
+ref: 
+<A HREF="http://www.cisco.com/c/en/us/support/docs/ip/generic-routing-encapsulation-gre/25885-pmtud-ipfrag.html#t4">Cisco PMTUD protocol</A>
+
+
+
+<H2>Benchmark tools</H2>
 <H5>ttcp</H5>
 
 <PRE>
@@ -1129,6 +1247,7 @@ http://www.netcordia.com/network-services.html
 
 <H5>iozone</H5>
 
+<PRE>
 
 wget http://www.iozone.org/src/current/iozone3_434.tar
 tar xf iozone3_434.tar
@@ -1147,15 +1266,13 @@ mkdir $DIR
 time -p ../iozone -i 0 -c -e -w -r 1024k -s 16g -t $THREAD -+n -b $DIR/result.xls
 
 
+using qsub script in cluster (mostly to generate random storage traffic):
 
-as qsub script in cluster (mostly to generate random storage traffic):
-
-	
-
-                qsub -b y -p 1024 -l exclusive=true  -l h_rt=600 -q admin.q@$TARGETHOST  $BINDIR/iozone -i 0 -c -e -w -r 1024k -s 4g -t $THREAD -+n -b $DIR/result.xls && \
-                echo "   ... submitted iozone on  $TARGETHOST "
+    qsub -b y -p 1024 -l exclusive=true  -l h_rt=600 -q admin.q@$TARGETHOST  $BINDIR/iozone -i 0 -c -e -w -r 1024k -s 4g -t $THREAD -+n -b $DIR/result.xls && \
+      echo "   ... submitted iozone on  $TARGETHOST "
 
 
+</PRE>
 
 <BR><HR>
 <div align="CENTER">
