@@ -10,8 +10,9 @@
 cp -p psg2.html psg.html
 cp -p psg2.html index.html
 ## linux dropbox tends to change file perm to 000 !! :(
-find  . -type d -exec chmod a+rx,u+rwx {} \;
-find  . -type f -exec chmod a+r,u+rw {} \;
+## but s3 don't care about these perms, so only fix when pushing to arvixe.
+#find  . -type d -exec chmod a+rx,u+rwx {} \;
+#find  . -type f -exec chmod a+r,u+rw {} \;
 
 ## test deploy to aws s3 t6@g acc 
 ## for now to sapsg, but eventually to tin6150, which is actually where i have published the web site.
@@ -26,4 +27,5 @@ find  . -type f -exec chmod a+r,u+rw {} \;
 # sync is like rsync, so a second run, sync files won't be xfered again.
 #aws s3 sync .        s3://sapsg/       	--acl public-read
 #aws s3 sync .        s3://tin6150/       	--acl public-read
+
 aws s3 sync .        s3://psg.ask-margo.com/    --acl public-read

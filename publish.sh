@@ -3,22 +3,18 @@
 cp -p psg2.html psg.html
 cp -p psg2.html index.html
 ## linux dropbox tends to change file perm to 000 !! :(
-find  . -type d -exec chmod a+rx,u+rwx {} \;
-find  . -type f -exec chmod a+r,u+rw {} \;
+## probably not needed anymore, as not in dropbox folder anymore...  takes a long time to run...
+#find  . -type d -exec chmod a+rx,u+rwx {} \;
+#find  . -type f -not -path ".git" -exec chmod a+r,u+rw {} \;
 
 MAQUINA=$(hostname)
 
-if [[ $MAQUINA == "backbay" ]]; then
-	## backbay ssh key req pw, so chain the ssh commands into one.  ssh-agent doesn't help.
+if [[ $MAQUINA == "PHUSEM-L43453" && $HOME == "/home/mobaxterm" ]]; then
 	scp -pr * bofh@stats.dunlin.arvixe.com:public_html/psg/
-	echo "scp done"
-	ssh -x bofh@stats.dunlin.arvixe.com  "chmod -R a+r,u+w  public_html/psg/ 	&& \
-		find  public_html/psg -type d -exec chmod a+rx,u+rwx {} \; 		&& \
-		find  public_html/psg -type f -exec chmod a+r,u+rw {} \;		&& \
-		chmod -R a+r,u+w  public_html/psg/"
-elif [[ $MAQUINA == "PHUSEM-L43453" ]]; then
 
 	# mobaxterm can't seems to handle above cascaded cmd in ssh (or new jailshell in dunlin don't let me?  
+
+
 	# try the good old way...
 	# commands works when pasted, but not in script.... something bout ssh_askpass exec...
 	ssh -x bofh@stats.dunlin.arvixe.com  "find  public_html/psg -type d -exec chmod a+rx,u+rwx {} \;"
@@ -26,8 +22,20 @@ elif [[ $MAQUINA == "PHUSEM-L43453" ]]; then
 	ssh -x bofh@stats.dunlin.arvixe.com  chmod -R a+r,u+w  public_html/psg/
 	## -x:  disable X11 fwd
 	## also changed .bashrc not to source /etc/bashrc as there is some bug there
+
 else
-	echo "host not coded for xfer, run cmd manually... "
+#if [[ $MAQUINA == "backbay" ]]; then
+	## backbay ssh key req pw, so chain the ssh commands into one.  ssh-agent doesn't help.
+	## cygwin in x1carb also ask for pw... till ssh key work in there...
+	scp -pr * bofh@stats.dunlin.arvixe.com:public_html/psg/
+	echo "scp done"
+	ssh -x bofh@stats.dunlin.arvixe.com  "chmod -R a+r,u+w  public_html/psg/ 	&& \
+		find  public_html/psg -type d -exec chmod a+rx,u+rwx {} \; 		&& \
+		find  public_html/psg -type f -exec chmod a+r,u+rw {} \;		&& \
+		chmod -R a+r,u+w  public_html/psg/"
+
+#else
+#	echo "host not coded for xfer, run cmd manually... "
 fi
 exit 0
 
