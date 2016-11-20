@@ -58,30 +58,37 @@ Brendan Gregg on Linux Performance</A>
 
 <BR>
 
-<PRE>
-<!-- something is wrong, H5 should not put these texts in all caps :( -->
 
 <H5>CPU and memory</H5>
+
+<PRE>
 <LI> uptime
 <LI> free -m, cat /proc/meminfo
 <LI> top 
-<LI> htop			# tends to return a different "top" process list than top/pidstat/nmon
-<LI> pidstat 1 			# like top, run every 1 sec, but loggable. from sysstat rpm
-<LI> mpstat -P ALL 1		# cpu utilization stat every 1 second (if no number defined, give avg of past X sec, not too useful)
+<LI> htop                       # tends to return a different "top" process list than top/pidstat/nmon
+<LI> pidstat 1                  # like top, run every 1 sec, but loggable. from sysstat rpm
+<LI> mpstat -P ALL 1            # cpu utilization stat every 1 second (if no number defined, give avg of past X sec, not too useful)
 <LI>
 <LI> procinfo 			# procinfo.rpm, <A HREF=http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo>http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo</A>
 <LI> slabtop 			# realtime kernel slab cache utilization
 <LI>
 
-<LI>procinfo (procinfo.rpm, <A HREF=http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo>http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo</A>)
+<LI> procinfo (procinfo.rpm, <A HREF=http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo>http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo</A>)
+<LI>
+</PRE>
+
 <H5>kernel, system calls </H5>
+
+<PRE>
 <LI> strace -tttT -p `pgrep java` 2>&1 | head -100 	# see system calls, exit after getting 100 trace calls.
 							# eg is it reading 0 or 1 bytes at a time and thus spinning the CPU?  
 							# note that strace cause ~100x delay
 <LI>
 <LI> perf top		# see <A HREF="#perf_events">perf_events</A>
+</PRE>
 
 <H5>Network</H5>
+<PRE>
 <LI> sar -n DEV 1     	# check network utilization.  reported in kBytes/s.
 <LI> sar -n TCP,ETCP 1	# check TCP stats, eg retransmit.  active = outbound, passive = inbound
 <LI> iptraf (ubuntu) iptraf-ng (rhel7) 	# TUI network IO by port, protocol, live trace [easy]
@@ -97,8 +104,10 @@ Brendan Gregg on Linux Performance</A>
 <LI> ntop  		# run server, then http://localhost:3000 or https://localhost:3001 
 <LI> tcpdump		# trace network packages, advance
 <LI>
+</PRE>
 
 <H5>Disk I/O</H5>
+<PRE>
 <LI> iostat -xz 1	# -x = extended stats; -z = ommit zero / idle entries
 <LI> iostat -xn 1	# NFS stats only
 <LI> iotop		# iostat in top-like fashion, show top process using disk.  from iostat rpm
@@ -106,16 +115,17 @@ Brendan Gregg on Linux Performance</A>
 <LI>
 <LI> hdparam
 <LI> fio      		# Flexible IO tester (fio rpm)
+</PRE>
 
 <H5>Multipurpose</H5>
 
+<UL>
 <LI> nmon 		
 <LI> vmstat    
 <LI> sar  collectl, dstat) <BR> 
 <LI> Virtual Adrian Performance Monitor (<A HREF="#se">SE</A> Toolkit) for Solaris 6 onward.
 <LI> Ganglia
-
-</PRE>
+</UL>
 
 
 <H5> Advanced tools, eg to perform full software stack analysis </H5>
@@ -161,7 +171,7 @@ Brendan Gregg on Linux Performance</A>
 <BR>
 <BR>
 
-advanced tools to perform full software stack analysis:
+<H5> advanced tools to perform full software stack analysis </H5>
 <UL>
 <LI>systemtap 
 <LI>perf        (linux-tools-common rpm)
@@ -688,6 +698,7 @@ tcpdump parameters
 -i: interface
 -s 16000		: set capture frame size to 16k 
 -w [FILE]		: write output to file (capture use, more info than redirect output)
+			  file can be opened by wireshark
 host IP-or-NAME		: capture info only related to the specified host
 
 operators accepted:
@@ -697,11 +708,20 @@ operators accepted:
 
 eg cmd of tcpdump [expression]  :
 
-tcpdump host 10.0.71.165
+tcpdump host 10.0.71.165			# bi-directional traffic
 tcpdump src  10.0.71.165 -w myfile.tcpdump	# -w write output to file
 tcpdump 'dst net 128.3'
 tcpdump 'src or dst port ftp-data'   
 tcpdump 'ether host 0:d0:b7:a9:c9:5a'
+tcpdump icmp -w myfile.tcpdump			# only icmp traffic, all hosts
+
+tcpdump -v -v host 10.0.71.165			# -v -v, increase verbosity.  
+						# usable in screen output for low amount of traffic
+
+tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump	
+		# -i eth2, only traffic flowing thru specified nic
+		# -s 64000, max packet capture size.  64k is probably bigger than needed, but works well
+		# -w write output to file
 
 
 
@@ -962,7 +982,7 @@ http://www.ns.aus.com/ethereal/user-guide/ch03capfilt.html</A>
 <H1>Network Troubleshooting</H1>
 
 <A NAME="nmap"></A>
-<H2>nmap</H2>
+<H5>nmap</H5>
 <PRE>
 nmap: network scanner
 nmapfe: w/ gui front end, supposed to need gtk, but worked anyway.
@@ -977,7 +997,7 @@ sudo nmap -sU somehost -p8255		# check UDP port 8255 to see if it is open
 
 
 <A NAME="netcat"></A>
-<H2>netcat</H2>
+<H5>netcat</H5>
 <PRE>
 
 
@@ -998,10 +1018,40 @@ echo "GET / HTTP 1.1" | nc www.google.com 80; echo $?	# can test ability to conn
 
 telnet www.google.com 80 		# simple network connectivity test using the telnet tool
 GET / HTTP 1.1				
+</PRE>
 
 
+<H5>scamper</H5>
+
+<PRE>
+scamper is a tool to analyze internet topology and performance.
+In a simpler form, it combines traceroute and mtu discovery.
+
+http://www.caida.org/tools/measurement/scamper/
+
+wget http://www.caida.org/tools/measurement/scamper/code/scamper-cvs-20161113.tar.gz
+tar xfz scamper-cvs-20161113.tar.gz
+./configure --prefix=$HOME/prog/
+make		# will take a while...
+make install
+-or-
+./scamper/scamper -c "trace -M" -i 10.11.12.13
+	# perform a trace with MTU discovery against specified IP (cannot use DNS name of host)
+	# root priv req
 
 </PRE>
+
+
+<H5>other</H5>
+<UL>
+<LI> ping -s 8800 -M dont 10.11.12.13 
+<LI> tracepath 10.11.12.13  -- also see <A HREF="#jumbo_test">jumbo test</A> below.
+<LI> traceroute 
+<LI> nuttcp : this can help check for retransmission
+<LI> bwctl : combine traceroute and MTU discovery
+<LI> <A HREF="https://fasterdata.es.net/assets/Uploads/20131016-TCPDumpTracePlot.pdf">tcptrace + xplot</A>
+<LI>
+</UL>
 
 <BR><BR>
 
@@ -1117,16 +1167,22 @@ A very popular Network-Based IDS.
 <BR><BR>
 
 <A NAME="bench"></A>
-<H1>Network Performance Benchmark</H1>
+<H1>Network Performance & Benchmark</H1>
 
 <A NAME="jumbo_frame"></A>
 <A NAME="jumbo"></A>
 <H2>Jumbo Frame</H2>
 
 Jumbo frame is setting ethernet to use a larger frame so that the data payload vs packet management ratio is improved.  Default frame is to use MTU=1500.  Jumbo Frame is to set MTU=9000.  <BR>
-Sound simple, but there are a few caveats: <BR>
+Larger MTU is more efficient and therefore can yield better performance.  eg.
+NFS packet at 8k can fit in a single MTU of 9000 bytes, instead of 6 frames at MTU of 1500.
+<BR>
+<BR>
+Caveats in adopting jumbo frame: <BR>
 
 <OL>
+<LI> Fragmentation should be avoid pretty much universally.  A dropped fragment means the whole IP packet isn't received, and it would have to be resend after a timeout.  This may mean the large packet with its many fragments are send along the wire multiple times.
+
 <LI>Device using different MTU may stop talking to one another, due to dropped packet, often silently.
 <LI>Enable MTU=9000 on switch/router first, then make changes to the hosts.
 
@@ -1144,8 +1200,15 @@ At layer 2, large frame would just be dropped when the given switch port MTU is 
      Recipient would respond, but it would send them as multiple smaller packet (so echo-reply packet, router don't have to refragment, recipient will get multiple fragments and assemble them to form one complete packet).
      
 <LI>(Router?) will send ICMP to sender if MTU mismatch, if sender DF flag is set. <BR>
-     If DF isn't set, router should perform fragmentation, but if somehow it isn't doing its job, then network connectivity fails silently.  This is perhaps the biggest pain point of jumbo frame adoption.
+     If DF isn't set, router should perform fragmentation, but if somehow it isn't doing its job, then network connectivity fails silently.  This is perhaps the biggest pain point of jumbo frame adoption.  <BR>
+     One case where fragmentation doesn't happen is when the switch has enabled a port to be MTU 9000, but the host is still at MTU 1500, then the "routing switch" may think no fragmentation is needed, resulting in silent failures.  AFAIK, there is no "autonegotiation" for MTU size.  (there is tcp_mtu_probing, but that's between two host on layer 3, not between a switch and a host nic at layer 2).
 <BR>
+
+<LI> Path MTU Discovery is a critical protocol for hosts with differing MTU size to configure correct TCP MSS (Max Segment Size) so that router is not overloaded with fragmentation work.    
+See   
+<A HREF="http://www.cisco.com/c/en/us/support/docs/ip/generic-routing-encapsulation-gre/25885-pmtud-ipfrag.html#anc9">Cisco PMTUD protocol</A>.  
+Note the problem section, where ICMP is blocked due to security concern causes a lot of grief in getting correctly working jumbo frame environment.
+
 
 </OL>
 
@@ -1155,12 +1218,13 @@ Baby Giant Frame.  May see this in MPLS network, where MTU is slightly larger th
 
 <BR><BR>
 
-<H5>RHEL config and test</H5>
+<H5>RHEL6 config</H5>
 
 <PRE>
 
 # temporary change MTU on the fly, but network still unresponsive for about a minute
-sudo ip link set dev eth0 mtu 1500
+sudo ip link set  dev eth0 mtu 9000
+     ip link show dev eth0
 
 # permanently set jumbo frame 
 /etc/sysconfig/network-scripts/ifcfg-eth1   add
@@ -1183,8 +1247,13 @@ sudo service network reload		# can do this when ssh in to host, unresponsive for
 Tmp change:
 cat       /proc/sys/net/ipv4/tcp_mtu_probing
 echo 2 >  /proc/sys/net/ipv4/tcp_mtu_probing
+</PRE>
 
 
+<A ID="jumbo_test"></A>
+<H5>Jumbo test</H5>
+
+<PRE>
 
 tcpdump -i eth2 'icmp'
 	# capture all ICMP traffic
@@ -1193,17 +1262,30 @@ tcpdump -i eth2 'icmp'
 	# -w filename	output file to write to
 
 
-ping -c 1 -s 8970 -M do 10.11.12.201
+ping -c 3 -s 8970 -M do 10.11.12.201
 	# -s packet size.  Linux add 28 bytes to the packet header, so need to deduct this from the MTU of 9000 
 	# -M do    set Don't Fragment flag  ie, MTU mismatch will drop packet, would see ICMP error msg
 	# -M dont  set Don't Fragment flag  ie, MTU mismatch will refragment to smaller packet
 	# -M want  ie, desire Don't Fragment,   MTU mismatch fails silently
-	# -c 4     send only count (1) number of packets
+	# -c 3     send only count (3) number of packets
+  # if -M do -s 8800 works, then jumbo frame is working correctly on the interface with MTU=9000
+  # however, if want to test communication with host running MTU=1500, 
+  #   -M dont failing does not necessarily means things wont work.
+  #   PMTUD (Path MTU Discovery) protocol only works for TCP and UDP, and lots of ICMP traffic is dropped by many network
+
+tracepath 10.11.12.201 
+	# use UDP to to traceroute, no root priv required
+	# discover MTU size between two hosts
+
+iptraf
+  # TUI, statistical breakdown, by packet size, on a given interface
+
+
+sudo scamper -c "trace -M" -i 10.11.12.13
+	# perform a trace with MTU discovery against specified IP (cannot use DNS name of host)
 
 </PRE>
 
-ref: 
-<A HREF="http://www.cisco.com/c/en/us/support/docs/ip/generic-routing-encapsulation-gre/25885-pmtud-ipfrag.html#t4">Cisco PMTUD protocol</A>
 
 
 
@@ -1245,6 +1327,38 @@ http://www.netcordia.com/network-services.html
 </PRE>
 
 
+<A NAME="iperf3">
+<H5>iperf3</H5>
+
+iperf3 is ESnet rewrite of the original iperf.  It performs memory to memory network performance test.  There is some obscure memory to disk and disk to memory test after performing network test as well...
+<BR>
+
+
+Network perf measurement:
+
+<PRE>
+
+iperf3 -s			# start server, def use TCP, port 5201
+
+iperf3 -c SERVER -t 30 -i 1	# start as client, connect to SERVER
+				# run test for 30 sec, report progress every 1 sec
+
+iperf3 -c SVR -t 10 -i 1 -P 2		# -P 2 = parallel 4 streams
+iperf3 -c SVR -t 10 -i 1 -P 2 w 32M 	# -w 16M = use 32M TCP buffer
+
+</PRE>
+
+
+iperf3 is single threaded, for 40G and above network, may become CPU bound.  
+Refer to 
+<A HREF="https://fasterdata.es.net/performance-testing/network-troubleshooting-tools/iperf-and-iperf3/">Performance testing using iperf3</A> 
+for info in running multiple streams on multiple cores. <BR>
+Using -Z for zero copy mode will also reduce cpu load. <BR>
+
+<BR>
+<BR>
+
+
 <H5>iozone</H5>
 
 <PRE>
@@ -1278,8 +1392,8 @@ using qsub script in cluster (mostly to generate random storage traffic):
 <div align="CENTER">
   [Doc URL]<BR>
 <A HREF="http://tiny.cc/TOOL">tiny.cc/TOOL</A><BR>
-<A HREF="https://tin6150.github.io/psg/index.html">https://tin6150.github.io/psg/index.html</A><BR>
-<A HREF=http://psg.ask-margo.com/tool.html">http://psg.ask-margo.com/tool.html</A> 
+<A HREF="https://tin6150.github.io/psg/tool.html">https://tin6150.github.io/psg/tool.html</A><BR>
+<A HREF="http://psg.ask-margo.com/tool.html">http://psg.ask-margo.com/tool.html</A> 
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html>main page</A>

@@ -155,7 +155,7 @@ qsub sge-script.sh -q default.q@compute-4-1	# submit to a specific, named node/h
 # -binding linear:8  is to allow multiple threads of the process to use multiple cores (some uge or cgroup config seems to default bind to single core even when pe smp 8 is specified.  
 #    incidentally, load average counts runnable jobs.  so even if 6 threads are bound to a single core, 
 #    load avg maybe at 6 but most other core sits idle as visible by htop.
-qsbu -M me@example.com -m abe -cwd -V -r y -b y -l h_rt=86400,m_mem_free=62G -pe smp 8 -binding linear:8 -q default.q -N jobTitle  binaryCmd -a -b -c input.file 
+qsbu -M me@example.com -m abe -cwd -V -r y -b y -l h_rt=86400,m_mem_free=6G -pe smp 8 -binding linear:8 -q default.q -N jobTitle  binaryCmd -a -b -c input.file 
 
 
 
@@ -193,7 +193,9 @@ qsub	-S /bin/bash	# tell SGE/qsub to parse the script file using specifed SHELL
 	-q queue-name	# submit the job to the named queue.
 			# eg default@@10gb  would seelct default queue, with 10gb (complex) resource available
 	-r y		# resume job (yes/no).  Typically when a job exit with non-zero exit code, rerun the job.
-	-R y		# use Reservation. useful in busy cluster and req > 1 core.  hog system till all cores become avail.  less likely to get starvation, but less efficient.  
+	-R y		# use Reservation. useful in busy cluster and req > 1 core.  
+			# hog system till all cores become avail.  
+			# less likely to get starvation, but less efficient.  
 
 	-N job-name	# specify a name for the job, visible in qstat, output filename, etc.  not too important.
 
@@ -202,6 +204,7 @@ qsub	-S /bin/bash	# tell SGE/qsub to parse the script file using specifed SHELL
     -l ...		# specify resources shown in qconf -sc
     -l h_rt=3600	# hard time limit of 3600 seconds (after that process get a kill -9)
     -l m_mem_free=4GB	# ask for node with 4GB of free memory.
+			# if also req smp, memory req is per cpu core
 
 	
 
@@ -277,7 +280,7 @@ qstat -f | awk '$6 ~ /[a-zA-Z]/ {print $0}'                                     
 qstat -f | awk '$6 ~ /[a-zA-Z]/  &&  $1 ~ /default.q@compute/  {print $0}'      # add an additional test for nodes in a specific queue
 
 alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/ {print \$0}'"				# this escape seq works for alias
-alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/  &&  \$1 ~ /default.q@/  {print \$0}'"	# this escape seq works for alias
+alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/  &&  \$1 ~ /default.q@/  {print \$0}'"	# this works too
 </PRE>
 
 
@@ -290,8 +293,6 @@ alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/  &&  \$1 ~ /default.q@/  {print \$0
 <PRE>
 qmon			# GUI mon 
 
-qstat 
-	-s c		# show complex eg license, load_avg
 
 qsub -q default.q@compute-4-1 $SGE_ROOT/examples/jobs/sleeper.sh 120
 			# run job on a specific host/node, using SGE example script that sleeps for 120 sec.
@@ -306,14 +307,15 @@ qsub -l h=compute-[567]-* $SGE_ROOT/examples/jobs/sleeper.sh 120
 qconf 
 	-sc		# show complex eg license, load_avg
 	-ss		# see which machine is listed as submit host
-	-se		# show execution hosts
+	-sel		# show execution hosts
 	-sql 		# see list of queues   (but more useful to do qstat -g c)
 
 
 
 qhost			# see list of hosts (those that can run jobs)
 			# 	their arch, state, etc info also
-	-F		# Full details
+      -F		# Full details
+qhost -F -h compute-7-1 # Full detail of a specific node, include topology, slot limit, etc.
 
 </PRE>
 
@@ -476,7 +478,7 @@ qconf -msconf	# scheduler config
 	weight_tickets_functional 10000
 
 	# fair share only schedule job within its 0.x level
-	# each urgency of 1000 ads 0.1 to the priority value, 
+	# each urgency of 1000 add 0.1 to the priority value, 
 	# thus a high priority job will be be affected by fair share of default job.
 	# any 0.6xx level job will run to completion before any 0.5xx job will be scheduled to run.
 
@@ -1030,6 +1032,13 @@ bacct -u all -S 2007/1/1,2007/3/31	# similar to above, but for Submitted jobs, w
 .bashrc function, to count host and cpu cores.  
 <PRE class="code">
 qhostTot() { qhost | sed 's/G//g' | awk '/^compute/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
+</PRE>
+
+
+alias:
+
+<PRE>
+alias qchk='qstat -f | awk '\''$6 ~ /[a-zA-Z]/  &&  $1 ~ /default.q@/  {print $0}'\'''
 </PRE>
 
 

@@ -40,7 +40,7 @@
 <!---------------------------------------------------->
 
 <div align="CENTER">
-<A HREF="http://www.explainxkcd.com/wiki/index.php/1638"><IMG SRC="fig/xkcd_backslashes.png"></A>
+<A HREF="http://www.explainxkcd.com/wiki/index.php/456"><IMG SRC="fig/xkcd_cautionary.png"></A>
 </div>
  
 <BR>
@@ -1706,12 +1706,14 @@ http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/rhlcom
 
 </PRE>
 
-<PRE>
 Starting with RHEL6 (or 5?), there is an enforcing mode.  This will add an extra layer of restrictions.  eg, httpd that got hacked, but if running in SELinux environment, the kernel will still block access to things beyond its context (eg access to user's home dir).
 <BR>
 <BR>
 
-sudo chcon -v  --type=httpd_sys_content_t /var/www/html/index.html	# change SELinux context for a file, this eg allow apache httpd to be allowed access to the file (SELinux restrictions will show up in error_log).
+<PRE>
+sudo chcon -v  --type=httpd_sys_content_t /var/www/html/index.html	# change SELinux context for a file, 
+									# this eg allow apache httpd to be allowed access to the file 
+									# (SELinux restrictions will show up in error_log).
 sudo chcon -vR --type=httpd_sys_content_t /var/www/html			# change SELinux context for a dir, Recursively.
 
 sestatus					# check status and mode of SELinux, such as enforcing or monitoring
@@ -1864,10 +1866,18 @@ systemctl daemon-reload bruker_lmgr		# reload service after changes to init scri
 
 /etc/systemd/system				# dir where startup files are stored
 
-# http://www.tejasbarot.com/2014/07/22/rhel-7-centos-7-how-to-get-started-with-systemd/
-# https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/chap-Managing_Services_with_systemd.html
-
 </PRE> 
+
+Ref:
+
+<UL>
+<LI>
+<A HREF="http://www.tejasbarot.com/2014/07/22/rhel-7-centos-7-how-to-get-started-with-systemd/">CentOS 7 Get Started w/ systemD</A><BR>
+
+<LI>
+<A HREF="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/chap-Managing_Services_with_systemd.html">RHEL 7 Managing Services w/ systemD</A>
+
+</UL>
 
 <A NAME="systemctl_vnc"></A>
 
