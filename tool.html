@@ -1031,8 +1031,8 @@ http://www.caida.org/tools/measurement/scamper/
 
 wget http://www.caida.org/tools/measurement/scamper/code/scamper-cvs-20161113.tar.gz
 tar xfz scamper-cvs-20161113.tar.gz
-./configure --prefix=$HOME/prog/
-make		# will take a while...
+./configure --prefix=$HOME/prog/	# scamper need root, useful only when nfs hosted
+make					# will take a while...
 make install
 -or-
 ./scamper/scamper -c "trace -M" -i 10.11.12.13
