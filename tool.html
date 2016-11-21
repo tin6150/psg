@@ -69,11 +69,12 @@ Brendan Gregg on Linux Performance</A>
 <LI> pidstat 1                  # like top, run every 1 sec, but loggable. from sysstat rpm
 <LI> mpstat -P ALL 1            # cpu utilization stat every 1 second (if no number defined, give avg of past X sec, not too useful)
 <LI>
-<LI> procinfo 			# procinfo.rpm, <A HREF=http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo>http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo</A>
-<LI> slabtop 			# realtime kernel slab cache utilization
+<LI> procinfo           # procinfo.rpm: <A HREF=http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo>http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo</A>
+<LI> slabtop            # realtime kernel slab cache utilization
+                        # think of slab as block of kernel memory holding cache of identical objects
+                        # instead of kmalloc, a block of memory is allocated at once for efficiency and reduced fragmentation
 <LI>
-
-<LI> procinfo (procinfo.rpm, <A HREF=http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo>http://www.kodkast.com/linux-package-installation-steps?pkg=procinfo</A>)
+                      
 <LI>
 </PRE>
 
@@ -90,9 +91,11 @@ Brendan Gregg on Linux Performance</A>
 <H5>Network</H5>
 <PRE>
 <LI> sar -n DEV 1     	# check network utilization.  reported in kBytes/s.
+<LI> sar -n EDEV 1    	# rxfram reports frame alignment problems
 <LI> sar -n TCP,ETCP 1	# check TCP stats, eg retransmit.  active = outbound, passive = inbound
+
 <LI> iptraf (ubuntu) iptraf-ng (rhel7) 	# TUI network IO by port, protocol, live trace [easy]
-<LI> iftop		
+<LI> iftop -i eth2						# provide live stats for inter-host traffic 
 <LI> nicstat 1		# read/write KB/s, repeat every 1 second
 <LI> netstat
 <LI> ethtool eth0	# speed, duplex, but no collision info
@@ -101,7 +104,10 @@ Brendan Gregg on Linux Performance</A>
 <LI>
 <LI> nfsstat
 <LI>
-<LI> ntop  		# run server, then http://localhost:3000 or https://localhost:3001 
+<LI> ntop                   # run server, then http://localhost:3000 or https://localhost:3001 
+<LI> ntop -i "eth0,eth1,lo" # run server listening on multiple ports (need multi-thread version)
+                            # lots of network stats, but mtu info > 1500 is incorrect for v. 5.0 (2012)
+
 <LI> tcpdump		# trace network packages, advance
 <LI>
 </PRE>
@@ -122,7 +128,7 @@ Brendan Gregg on Linux Performance</A>
 <UL>
 <LI> nmon 		
 <LI> vmstat    
-<LI> sar  collectl, dstat) <BR> 
+<LI> sar  collectl, dstat <BR> 
 <LI> Virtual Adrian Performance Monitor (<A HREF="#se">SE</A> Toolkit) for Solaris 6 onward.
 <LI> Ganglia
 </UL>
@@ -245,15 +251,12 @@ mpstat	10	: processor stats, repeat every 10 seconds
 
 cpustat		: find out what cpu is doing...
 
+truss -c -p PID		: find number of system call and usr time for a process (sol, linux use strace)
+
 lockstat sleep 5	: gather kernel lock stats during the sleep period (5 sec)
 			: solaris, run as root
-
-truss -c -p PID		: find number of system call and usr time for a process (sol).  ??
-
-top
 protocol
 sysmon
-
 trapstat, thread list, kmastat, kmausers
 
 
@@ -291,15 +294,16 @@ date; dd if=/dev/urandom of=test bs=1024 count=100000 	# same, file has random d
 <BR><BR>
 
 
+<A ID="sar"></A>
 <H3>
 SAR - System Activity Reporter
 </H3>
 <!--sar.ref-->
-<A ID="sar"></A>
 
-Tool to collect performance stat, 
-often a cronjob to collect iostat, vmsat, etc and put them in a nicely accessible directory structure.  
-very similar in HP-UX, Sun, AIX, and now even for Linux.
+
+SAR is a simple tool to collect performance stat shipped with most OS.
+It is often a cronjob to collect iostat, vmsat, etc and put them in a nicely accessible directory structure.  
+Setup and usage are very similar in HP-UX, Sun, AIX, and now even for Linux.
 Very lightweight, can run on all machines and keep logs for when trouble arises.
 
 <BR>
@@ -314,10 +318,10 @@ and sar2rrd
 http://www.trickytools.com/php/sar2rrd.php</A>
 )
 <BR>
-SARReporter is moneywre.
+SARReporter is moneyware.
 <BR><BR>
 
-
+<A NAME="sar"></A>
 <h4>SAR in Linux</h4>
 <PRE>
 
@@ -325,7 +329,8 @@ yum install sysstat
 It install /etc/init.d/sysstat, run sadc to collect the stats.
 Data saved in /var/log/sa/saNN, where NN is the calendar day for which the stat is collected.  
 Data is kept for 1 week.
-
+sadc -S SNMP  is needed to collect history info for IP, TCP, UDP, ICMP.
+sadc -S IP6   is needed for v6 version of above.
 
 
 sar         # shows most common stats
@@ -339,6 +344,23 @@ sar -f /var/log/sa/sa22 -s 22:00:00 -e 23:59:00 -i 1800
 
 </PRE>
 
+Live Network Reporting
+
+<PRE>
+
+sar -n KEYWORD 1		# live network report every 1 sec
+
+sar -n ALL 1-5			# report all network stats
+
+sar -n DEV 1			# check network dev utilization.  reported in kBytes/s. 
+sar -n EDEV 1			# dev errors, eg rxfram reports frame alighment errors
+sar -n NFS,NFSD 1		# NFS client and server stats
+sar -n SOCK 1			# reports IP fragment in use (from mismatched MTU?)
+
+sar -n IP 1				# check network dev utilization.  reported in kBytes/s. 
+sar -n TCP,ETCP 1  		# check TCP stats, and errors eg retransmit.  active = outbound, passive = inbound
+
+</PRE>
 
 <h4>SAR in HP-UX</h4>
 
@@ -356,12 +378,6 @@ sar -u -f /tmp/sar.data			# read data from file (HP-UX)
 	-d disk activity
 	-q avg queue length (if run queue > num of cpu, will have to wait).
 	-w swap info
-
-
-Solaris starts sadc in /etc/rc2.d/S21perf , a deamon to collect sar info.
-	the script really run /usr/lib/sa/sadc /var/adm/sa/sa`date +%d`
-
-------------
 
 Setup SAR data collection for HP-UX (should also work for other platform):
 
@@ -386,11 +402,22 @@ then setup root crontab:
 
 # filenames are reused every month.
 # use sar -A -f /var/adm/sa/saXX to get more detail report than std summary.
+</PRE>
 
--------------
+<h4>SAR in Solaris</h4>
+
+<PRE>
+Solaris starts sadc in /etc/rc2.d/S21perf , a deamon to collect sar info.
+	the script really run /usr/lib/sa/sadc /var/adm/sa/sa`date +%d`
+
+</PRE>
+
+<h4>SAR in AIX</h4>
+
+<PRE>
+
 AIX has preset entries in crontab for 'adm'.  Check to ensure script exsit.
 sar logs are stored in /var/adm/sa
--------------
 
 </PRE>
 
@@ -1036,7 +1063,8 @@ make					# will take a while...
 make install
 -or-
 ./scamper/scamper -c "trace -M" -i 10.11.12.13
-	# perform a trace with MTU discovery against specified IP (cannot use DNS name of host)
+	# perform a trace with MTU discovery against specified IP 
+  # cannot use DNS hostname, scamper just exist without a word
 	# root priv req
 
 </PRE>
@@ -1045,10 +1073,10 @@ make install
 <H5>other</H5>
 <UL>
 <LI> ping -s 8800 -M dont 10.11.12.13 
-<LI> tracepath 10.11.12.13  -- also see <A HREF="#jumbo_test">jumbo test</A> below.
+<LI> tracepath 10.11.12.13   combine traceroute and MTU discovery -- see also <A HREF="#jumbo_test">jumbo test</A> below.
 <LI> traceroute 
 <LI> nuttcp : this can help check for retransmission
-<LI> bwctl : combine traceroute and MTU discovery
+<LI> bwctl 
 <LI> <A HREF="https://fasterdata.es.net/assets/Uploads/20131016-TCPDumpTracePlot.pdf">tcptrace + xplot</A>
 <LI>
 </UL>
@@ -1327,7 +1355,7 @@ http://www.netcordia.com/network-services.html
 </PRE>
 
 
-<A NAME="iperf3">
+<A NAME="iperf3"></A>
 <H5>iperf3</H5>
 
 iperf3 is ESnet rewrite of the original iperf.  It performs memory to memory network performance test.  There is some obscure memory to disk and disk to memory test after performing network test as well...
