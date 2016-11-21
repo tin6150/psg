@@ -117,7 +117,7 @@ HTML validator: http://validator.w3.org/
 	<ul>
         <li> <a href="ldap.html">LDAP</a><BR></li>
         <li> <a href="admin.html">General Unix Sys Admin </a></li>
-        <li> <a href="toul>.html">Sys Admin tools and performance tuning</a></li>
+        <li> <a href="tool.html">Sys Admin tools and performance tuning</a></li>
         <li> <a href="vnc.html">VNC, X Emulation</a></li>
         <li> <a href="backup.html">Unix backup</a></li>
         <li> <a href="general_unix.html">Generic Unix Commands</a></li>
@@ -280,8 +280,9 @@ hdfs fsck PATH OPTIONS		# check health of hdfs
     <LI> long term storage can be stored in variety of "disk" based system, such as HDFS.
     <LI> Can be installed and run alongside Hive.
     <LI> Support MapReduce, but native model is RDD (resilient distributed dataset), which also allows for imperative programming.
-    <LI> Provides a uniform access to data irrespective to its underlaying source (Hive, JSON, JDBC, etc)
-    <LI> Touted as using columnar store for fast data access.  Wonder how it compares to Vertica DB.  
+    <LI> Provides a uniform access to data irrespective to its underlaying source (Hive, JSON, JDBC, etc)  <BR>
+         For example, Spark can use Parquet, which is a columnar store touted for fast data access.  
+		 Compare this to Vertica DB.  
     <LI>
     <LI> My <A HREF="python.html#pyspark">Python</A> page has an example code for submitting a spark job into a Cloudera YARN cluster.
     <LI> 
@@ -319,6 +320,7 @@ hdfs fsck PATH OPTIONS		# check health of hdfs
   <H2>Apache Kafka</H2>
     <UL>
     <LI> A Message queue for stream processing (use publish-subscribe model)
+    <LI> Compare to AWS Kinesis?  Aim for IoT?
     <LI>
     </UL>
 
@@ -349,7 +351,7 @@ Storm makes it easy to reliably process unbounded streams of data, doing for rea
     <LI> Non relational, NoSQL, Schema-Free, document-oriented database for interactive application.
     <LI> Support peer-to-peer sync, where copies of a DB can go offline, get updates, and resync with rest of network copies when reconnect online.
     <LI> CouchDB written in the functional language Erlang!! 
-    <LI> Couchbase server is from the merching of CouchDB and memcached.
+    <LI> Couchbase server is from the merging of CouchDB and memcached.
     </UL>
 
 
@@ -408,7 +410,7 @@ Storm makes it easy to reliably process unbounded streams of data, doing for rea
   <H2>Node.JS</H2>
     <UL>
     <LI>App server, think of Tomcat, JBoss.  
-    <LI>Support Java Script for Map Reduce queries.  (eg, as opposed to using C#)
+    <LI>Support JavaScript for Map Reduce queries.  (eg, as opposed to using C#)
     <LI>npm is the "yum" for node.js
     <LI>
     </UL>

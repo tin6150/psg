@@ -426,7 +426,7 @@ docker run --help		# help specific to the sub command.
 <H3>Process Isolation</H3>
 
 <OL>
-<LI> Each container has its own process tree, with its init process as PID 1.
+<LI> Each container has its own process tree, with its "seed" process (eg httpd) as PID 1.
 <LI> Achieved using Namespace.
 <LI> Parent is aware of all child process, but child don't know anything about parent -- security.
 <LI> Parent see child process, and each child process really has 2 PIDs.
@@ -710,9 +710,12 @@ https://docs.docker.com/engine/userguide/dockervolumes/
 
 <H3>Performance</H3>
 
-<PRE>
-Better than VM, as no hypervisor overhead.
+Better than VM, as no hypervisor overhead.  
+However, best hypervisor overhead is said to be just 2% over baremetal, so beyond the VM boot up time, some claim there is little room for container to improve on.
+For microservice, app startup time is important thus container still offer advantage over VM.
 
+
+<PRE>
 
 docker run --cpu-shares=n
 	# assign a weight of how much cpu this run command get
@@ -813,7 +816,8 @@ eg Both examples of wordpress setup has reference to Docker Compose.
 
 <!-- remove H1 after presentation -->
 <div class="tomb">
-<A HREF="http://tiny.cc/dock">
+<!-- tiny.cc/dock was registered but prob not under the tin6150 acc -->
+<A HREF="http://tiny.cc/DOCKER">
 http://tiny.cc/DOCKER</A>
 </div>
 
