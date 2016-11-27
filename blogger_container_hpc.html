@@ -1,12 +1,100 @@
 <HTML>
 
+<HEAD>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-1.12.0.min.js">
+        </script>
+        <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js">
+        </script>
+        <script type="text/javascript" class="init">
+         $(document).ready(function() {
+          $('table.display').DataTable( {       // multi table example use table.display as selector
+            lengthMenu: [ [ 5, 10, 15, 20, -1 ], [ 5, 10, 15, 20, "All" ] ],        // all is coded as -1, thus the double array
+            pageLength: 15,                     // YES, can use -1 to display all rows by default
+            order: [ 0, "desc" ],               // descending order // https://datatables.net/reference/option/order  // def *should* be no ordering, show data as they are loaded.  
+          } );
+         } );
+        </script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">  
+        <!-- overwrite some css to my liking -->
+        <STYLE>
+                H1, H2, H3, H4 {
+                        /*color: green;*/
+                        padding:        0.1em;
+                        margin-top:     0.2em;
+                        margin-bottom:  0.4em;
+                        font-family: helvetica, arial, lucida, sans-serif;
+                        /*text-align:     center;*/
+                }
+                H1 {
+                        background-color: #CCCCCC; /* #BBF0BB; */
+                        font-size:      170%;
+                        font-weight:    bolder;
+                        text-transform: uppercase;
+                        ; list-style-type: decimal
+                }
+                H2 {
+                        background-color:       #D0F0D0;
+                        font-size:              150%;
+                        font-variant:           small-caps;
+                        text-transform:         uppercase;
+                        border-style:           solid;
+                        /* text-transform:      capitalize; */
+                        ; list-style-type: decimal
+                }
+                a:link{     color: green;  text-decoration: underline;  }
+                a:visited{  color: gray;   text-decoration: underline;    font-weight: bold;  }
+                a:hover{    color: Red;    text-decoration: underline;    background-color: #BBF0BB }  
+                /* a:active{   color: Olive;  text-decoration: overline;     background-color: #334433 } */
+                table.dataTable tbody td{padding:1px 1px 1px 1px;}
+                /* table.dataTable.hover tbody tr:hover { background: cyan; }  don't work */
+                /* table.dataTable tbody td:hover { background: magenta; }  this one works but don't like it */
+				
+				
+				table {
+				  width: 100%;
+				  background-color: #ffffff;
+				  border-collapse: collapse;
+				  border-width: 1px;
+				  border-color: #a4a4a4;
+				  border-style: solid;
+				  color: #000000;
+				}
+
+				table td, table th {
+				  border-width: 1px;
+				  border-color: #a4a4a4;
+				  border-style: solid;
+				  padding: 3px;
+				}
+
+				table thead, table tfoot {
+				  background-color: #CCCCCC; /*#BBF0BB;  ;*/
+				}
+				
+        </STYLE>
+</HEAD>
+
+
+<BODY>
+<title>Docker vs Singularity vs Shifter vs UGE Container Edition</title>
+<h1>Docker vs Singularity vs Shifter vs UGE Container Edition</h1>
+
+
+<!-- ################################################################## -->
+<!-- content below can go to blogger, sans tailing /body and /html tags -->
+
 <div dir="ltr" style="text-align: left;" trbidi="on">
 <div dir="ltr" style="text-align: left;" trbidi="on">
 <br /></div>
 
-(Work in progress...  These are my understanding as I investigate whether to adopt Singularity or Shifter.  Please comment to improve the doc.)
+These are my understanding as I investigate whether to adopt Singularity or Shifter.  Please comment on 
+<A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">the blogger page</A> 
+to improve the doc.)
 <BR/>
 <!-- CSS Code: Place this code in the document's head (between the 'head' tags) -->
+<!--
 <style>
 table.GeneratedTable {
   width: 100%;
@@ -29,24 +117,35 @@ table.GeneratedTable thead {
   background-color: #00a400;
 }
 </style>
+-->
 
 <!-- HTML Code: Place this code in the document's body (between the 'body' tags) where the table should appear -->
 <br />
-<table class="GeneratedTable">
-  <thead>
-  
-<tr>
+<!--table class="GeneratedTable"-->
+<table class="Display">
+<thead>
+	<tr>
       <th></th>
       <th>Docker</th>
       <th>Singularity</th>
       <th>Shifter</th>
-	  <th>Univa Grid Engine Container Edition</th>
+	  <th>UGE Container Ed.</th>
     </tr>
 </thead>
+<tfoot>
+	<tr>
+      <th></th>
+      <th>Docker</th>
+      <th>Singularity</th>
+      <th>Shifter</th>
+	  <th>UGE Container Ed.</th>
+    </tr>
+</tfoot>
+
+
+
+
 <tbody>
-
-
-
 
 <tr>
       <td>Version</td>
@@ -296,11 +395,12 @@ table.GeneratedTable thead {
 
 </tbody>
 </table>
-<!-- Codes by Quackit.com -->
 
 
+<BR><BR>
 
-<H3>Containers in HPC</H3>
+
+<H3>Readings for Containers in HPC</H3>
 <UL>
 <LI> <A HREF="https://medium.com/@ople/containers-meet-hpc-2aab7aa2d54a#.b23izdadz">Container meets HPC</A> blog.
 <LI> <A HREF=""></A>
@@ -333,4 +433,5 @@ table.GeneratedTable thead {
 
 </div>
 
+</BODY>
 </HTML>
