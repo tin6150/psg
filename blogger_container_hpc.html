@@ -1,6 +1,7 @@
 <HTML>
 
 <HEAD>
+		<!-- DataTables jQuery -->
         <meta http-equiv="Content-type" content="text/html; charset=utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-1.12.0.min.js">
@@ -11,8 +12,9 @@
          $(document).ready(function() {
           $('table.display').DataTable( {       // multi table example use table.display as selector
             lengthMenu: [ [ 5, 10, 15, 20, -1 ], [ 5, 10, 15, 20, "All" ] ],        // all is coded as -1, thus the double array
-            pageLength: 15,                     // YES, can use -1 to display all rows by default
-            order: [ 0, "desc" ],               // descending order // https://datatables.net/reference/option/order  // def *should* be no ordering, show data as they are loaded.  
+            pageLength: -1,                     // YES, can use -1 to display all rows by default
+            order: [ ]                          // ie no ordering, show data as they are loaded
+            //order: [ 0, "desc" ],             // descending order https://datatables.net/reference/option/order
           } );
          } );
         </script>
@@ -28,6 +30,7 @@
                         /*text-align:     center;*/
                 }
                 H1 {
+                        text-align:     center;
                         background-color: #CCCCCC; /* #BBF0BB; */
                         font-size:      170%;
                         font-weight:    bolder;
@@ -91,12 +94,12 @@
 
 These are my understanding as I investigate whether to adopt Singularity or Shifter.  Please comment on 
 <A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">the blogger page</A> 
-to improve the doc.)
+to improve the doc.
 <BR/>
 <!-- CSS Code: Place this code in the document's head (between the 'head' tags) -->
 <!--
 <style>
-table.GeneratedTable {
+table.Display {
   width: 100%;
   background-color: #ffffff;
   border-collapse: collapse;
@@ -106,15 +109,15 @@ table.GeneratedTable {
   color: #000000;
 }
 
-table.GeneratedTable td, table.GeneratedTable th {
+table.Display td, table.Display th {
   border-width: 2px;
   border-color: #00a400;
   border-style: solid;
   padding: 3px;
 }
 
-table.GeneratedTable thead {
-  background-color: #00a400;
+table.Display thead, table.Display tfoot {
+  background-color: #00a400; 
 }
 </style>
 -->
@@ -157,14 +160,17 @@ table.GeneratedTable thead {
 <tr>
     <td>Host OS</td>
     <td>
-		RHEL 7<br />
-		Ubuntu ...<br />
-		SLES ... <BR />
+    Linux kernel 3.10 and above.  eg: <BR />
+		RHEL 7 <br />
+		Debian 8.0 <BR />
+    Ubuntu 12.04<br />
+	  SUSE Linux Enterprise 12<br />
+    <A HREF="https://docs.docker.com/engine/installation/linux/">other</A>
     </td>
     <td>
 		RHEL 6<BR />
-		Ubuntu ?<br />
-		SLES ? <BR />
+		Ubuntu <br />
+		...<BR />
 	</td>
     <td>
 		Cray OS<BR />
@@ -228,13 +234,14 @@ table.GeneratedTable thead {
     <td>Application portability (single image file, this become an executable) <BR>
 		Reproducibility and portability (once app stack is build on Singularity).<BR>
 		Support for legacy apps/OS.</td>
-    <td>Utilize the large number of docker apps.  Run them in HPC, but strip out all the requirements of root so that they are runnable as user process.</td>
-	<td>Running dockers verbatim HPC  </td>
+    <td>Utilize the large number of docker apps.  Run them in HPC, but strip out all the requirements of root so that they are runnable as user process.  <BR />
+    Shifter is essentially a monstrous wrapper around Docker</td>
+	<td>Running dockers verbatim in HPC, with UGE managing the docker daemon process (?) </td>
 </tr>
 
 
 <tr>
-    <td>Possible Cons?</td>
+    <td>Potential Cons?</td>
     <td>Not easily adoptable in HPC environment</td>
     <td>All dependencies in a single image file -> Requires large storage space?  Docker allowed small update if lower stack images remained the same</td>
     <td>While live docker images are editable, it requires root.  Shifter sanitazed the root requirements, so its containers are immutable</td>
@@ -340,7 +347,7 @@ table.GeneratedTable thead {
       <td>
 		root to install shifter binary.  <BR>
 		Need special integration into scheduler.<BR>
-		User run shifter image/app without special privileges.  
+		User run shifter image/app without special privileges.  <BR>
 	  </td>
 	  <td></td>
 </tr>
@@ -349,8 +356,8 @@ table.GeneratedTable thead {
 <tr>
       <td>Network access</td>
       <td>NAT (default)</td>
-      <td>"transparent"</td>
-      <td>"transparent"</td>
+      <td>transparent?</td>
+      <td>transparent?</td>
 	  <td></td>
 </tr>
 
@@ -364,10 +371,12 @@ table.GeneratedTable thead {
 
 
 <tr>
-    <td>Access to Host's file systems</td>
+    <td>Host's file system access</td>
     <td>Start container with a special mapping (loopback mount inside the container?), writable as root</td>
     <td>Singularity app run as a user process, therefore it has access to all of host's fs and devices that any user process have access to, including Lustre, GPFS, IB? etc?</td>
-    <td></td>
+    <td>Start shifter with volume mapping, done using loop dev.
+        See <A HREF="#shifter_workflow">shifter workflow</A> below.
+    </td>
     <td></td>	
 </tr>
 
@@ -378,6 +387,41 @@ table.GeneratedTable thead {
     <td>UC Berkeley, Stanford, TACC, SDSC, GSI, HPC-UGent, Perdue, UFL, NIH, etc </td>
     <td>NeRSC, VLSCI, CSCS, CERN, etc</td>
 	<td></td>
+</tr>
+
+
+<tr>
+    <td>Sample User Commands</td>
+    <td></td>
+    <td>
+      singularity build example.sspec # build an app using a spec file <BR />
+      ./example.sapp    # execute the singularity app <BR />
+    </td>
+    <td>
+      module load shifter <BR />
+      shiftering pull docker:python:3.5  # pull docker image <BR />   
+      shifterimg images # list images <BR />
+      shifter --image=python:3.5 python  # execute a container app <BR />
+      module load slurm <BR />
+      sbatch --image=docker:python:3.5 shifter python # run as job <BR />
+      <!--shiftering pull docker:ubuntu:14.04 <BR />   -->
+      <!-- # pull docker image, recommend specific version rather than using :latest  -->
+      <!--shifter --image=r-base:latest R  # execute a container app <BR />-->
+      <!--
+      salloc -n1 --image=docker:python:3.5.1
+      srun shifter ./myscript.py              # 
+      -->
+    </td>
+  <td></td>
+</tr>
+
+
+<tr>
+    <td>Misc</td>
+    <td></td>
+    <td>Singularity app can run outside HPC, without any job scheduler.  It can serve as a container for app portability outside the HPC world.  NeRSC's shifter potentially run singularity app as well.</td>
+    <td>Integrated into SLURM, so would need to be used in HPC so configured.   Also, outside HPC, may as well just use Docker?</td>
+  <td></td>
 </tr>
 
 <!--
@@ -397,6 +441,18 @@ table.GeneratedTable thead {
 
 <BR><BR>
 
+<A NAME="shifter_workflow"></A>
+<H3> Shifter Workflow</H3>
+As per <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-environments">CSCS/ETH slide share</A>, based on Shifter 15.12.0.
+<br/><br/>
+
+<IMG SRC="fig/shifter_flow1.png"><BR />
+<IMG SRC="fig/shifter_flow2.png"><BR />
+<IMG SRC="fig/shifter_flow3.png"><BR />
+
+
+
+<BR><BR>
 
 <H3>Readings for Containers in HPC</H3>
 <UL>
@@ -416,9 +472,9 @@ table.GeneratedTable thead {
 
 <UL>
 <LI> <A HREF="https://www.nersc.gov/research-and-development/user-defined-images/">User defined images</A> NeRSC documentation.
-<LI> <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-environments">Shifter use cases</A> slide share from ETH Zurich
+<LI> <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-environments">Shifter use cases</A> slide share from CSCS/ETH Zurich
 <LI> <A HREF="http://www.slideshare.net/OlliPekkaLehto/containers-and-hpc">Container and HPC</A> slide share. 
-<LI> <A HREF="https://www.vlsci.org.au/documentation/running_jobs/shifter/">Shifter vs Docker</A> documentation at VLSCI.
+<LI> <A HREF="https://www.vlsci.org.au/documentation/running_jobs/shifter/">Shifter vs Docker</A> documentation at VLSCI, with step-by-step instructions on how to obtain and build a shifter app in a SLURM cluster.
 <LI> <A HREF=""></A>
 </UL>
 
