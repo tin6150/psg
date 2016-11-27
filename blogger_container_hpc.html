@@ -1,0 +1,332 @@
+<HTML>
+
+<div dir="ltr" style="text-align: left;" trbidi="on">
+<div dir="ltr" style="text-align: left;" trbidi="on">
+<br /></div>
+
+(Work in progress...  These are my understanding as I investigate whether to adopt Singularity or Shifter.  Please comment to improve the doc.)
+
+
+<!-- CSS Code: Place this code in the document's head (between the 'head' tags) -->
+<style>
+table.GeneratedTable {
+  width: 100%;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  border-width: 2px;
+  border-color: #00a400;
+  border-style: solid;
+  color: #000000;
+}
+
+table.GeneratedTable td, table.GeneratedTable th {
+  border-width: 2px;
+  border-color: #00a400;
+  border-style: solid;
+  padding: 3px;
+}
+
+table.GeneratedTable thead {
+  background-color: #00a400;
+}
+</style>
+
+<!-- HTML Code: Place this code in the document's body (between the 'body' tags) where the table should appear -->
+<br />
+<table class="GeneratedTable">
+  <thead>
+  
+<tr>
+      <th></th>
+      <th>Docker</th>
+      <th>Singularity</th>
+      <th>Shifter</th>
+	  <th>Univa Grid Engine  (8.3?) </th>
+    </tr>
+</thead>
+<tbody>
+
+
+
+
+<tr>
+      <td>Version</td>
+      <td></td>
+      <td>2.2</td>
+      <td>(2016?)</td>
+	  <td>Some newer version of UGE can starts and manages Docker containers...</td>
+</tr>
+	
+	
+<tr>
+    <td>Host OS</td>
+    <td>
+		RHEL 7<br />
+		Ubuntu ...<br />
+		SLES ... <BR />
+    </td>
+    <td>
+		RHEL 6<BR />
+		Ubuntu ?<br />
+		SLES ? <BR />
+	</td>
+    <td>
+		Cray OS<BR />
+		Other? 
+	</td>
+    <td>
+		RHEL 7<BR />
+		Newer version of Linux that  supports Docker/cgroup. 
+	</td>
+</tr>
+
+
+<tr>
+      <td>Process isolation via Kernel Namespace?</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+	  <td></td>
+</tr>
+
+
+<tr>
+      <td>Resource restriction via cgroup?</td>
+      <td>?</td>
+      <td>No?</td>
+      <td></td>
+	  <td>Yes?  Define in scheduler config?</td>
+</tr>
+
+
+<tr>
+      <td>User management</td>
+      <td>?</td>
+      <td>Yes.  Container has sanitized passwd, group files</td>
+      <td></td>
+	  <td></td>
+</tr>
+
+
+<tr>
+      <td>Run different OS/Kernel?</td>
+      <td>Yes ?</td>
+      <td>Yes</td>
+      <td>Yes</td>
+	  <td>Yes ? </td>
+</tr>
+
+
+<tr>
+    <td>User group of primary focus</td>
+    <td>Developers/DevOps</td>
+    <td>Scientific Application Users</td>
+    <td>Slurm admins</td>
+	<td>UGE users</td>
+</tr>
+
+
+<tr>
+    <td>Main Problem being addressed</td>
+    <td>DevOps, microservices.  Enterprise applications</td>
+    <td>Application portability (single image file, this become an executable) <BR>
+		Reproducibility and portability (once app stack is build on Singularity).<BR>
+		Support for legacy apps/OS.</td>
+    <td>Utilize the large number of docker apps.  Run them in HPC, but strip out all the requirements of root so that they are runnable as user process.</td>
+	<td>Running dockers verbatim HPC  </td>
+</tr>
+
+
+<tr>
+    <td>Possible Cons?</td>
+    <td>Not easily adoptable in HPC environment</td>
+    <td>All dependencies in a single image file -> Requires large storage space?  Docker allowed small update if lower stack images remained the same</td>
+    <td>While live docker images are editable, it requires root.  Shifter sanitazed the root requirements, so its containers are immutable</td>
+	<td>User need elevated priviledges to start containers ? </td>
+</tr>
+
+
+
+<tr>
+      <td>MPI</td>
+      <td>MP-what?</td>
+      <td> Singularity has build-in support for openMPI.  <BR />
+		Once app is build with OpenMPI libraries, execute mpirun as normal, replacing the usual binary with the single file singularity app.  <BR />
+		While the app is running inside the singularity container, Process Management Interface (PMI) calls will pass thru the singularity launcher onto ORTED. <BR />
+	  </td>
+      <td>Being worked on</td>
+	  <td></td>
+</tr>
+
+<tr>
+    <td>IB</td>
+    <td></td>
+	<td></td>
+    <td></td>
+    <td></td>
+</tr>
+
+<tr>
+      <td>GPU/Phi</td>
+      <td>Your app should run head-less, why you trying to access video card? :-)</td>
+      <td></td>
+      <td>In progress.  Reportedly getting near native performance</td>
+	  <td></td>
+</tr>
+
+
+
+<tr>
+      <td>Scheduler</td>
+      <td>What scheduler?</td>
+      <td>Agnostic, run singularity as a job</td>
+      <td>SLURM, via SPANK plugin</td>
+	  <td></td>
+</tr>
+
+<tr>
+    <td>Run on multiple nodes?</td>
+    <td>Swarm tool provided by Docker</td>
+    <td>Scheduler's job to spin multiple instances on multiple nodes</td>
+    <td>salloc -nX ... srun ... </td>	
+    <td></td>
+</tr>
+
+<tr>
+      <td>Portability</td>
+      <td>Docker Hub<BR></td>
+      <td>Single image file.  Container purpose build for singularity.  Working to accept docker file or Rocket definition</td>
+      <td>Image Gateway pulls from Docker Hub, automatically convert to shifter image.  </td>
+	  <td></td>
+</tr>
+
+
+
+
+
+<tr>
+      <td>Container activation</td>
+      <td>Docker daemon running on each host</td>
+      <td>loopback mount on singularity image file to utilize container</td>
+      <td>No docker daemon on CN. srun ... loopback mount </td>
+	  <td></td>
+</tr>
+
+
+<tr>
+    <td>Deployment</td>
+    <td></td>
+    <td>
+		Single .rpm/.deb (in all nodes?) <BR>
+		No scheduler modification needed.
+	</td>
+    <td>
+		Need an ImageGateway <BR>
+		
+	</td>
+    <td>
+		Upgrade to new version of UGE <BR>
+		Head and compute nodes need to be newer version of Linux that supports Docker (eg RHEL 7).
+	</td>
+	
+	</tr>
+
+
+<tr>
+      <td>Security</td>
+      <td>
+		User running docker commands need to be in special docker group to gain elevated system access <BR>
+	  </td>
+      <td>
+		No change in security paradigm.<BR>
+		User run singularity image/app without special privileges.  
+	  </td>
+      <td>
+		root to install shifter binary.  <BR>
+		Need special integration into scheduler.<BR>
+		User run shifter image/app without special privileges.  
+	  </td>
+	  <td></td>
+</tr>
+
+
+<tr>
+      <td>Network access</td>
+      <td>NAT (default)</td>
+      <td>"transparent"</td>
+      <td>"transparent"</td>
+	  <td></td>
+</tr>
+
+<tr>
+    <td>Host device access</td>
+    <td></td>
+    <td></td>
+    <td>/dev, /sys and /proc of host show up inside container</td>
+	<td></td>
+</tr>
+
+
+<tr>
+    <td>Access to Host's file systems</td>
+    <td>Start container with a special mapping (loopback mount inside the container?), writable as root</td>
+    <td>Singularity app run as a user process, therefore it has access to all of host's fs and devices that any user process have access to, including Lustre, GPFS, IB? etc?</td>
+    <td></td>
+    <td></td>	
+</tr>
+
+
+<tr>
+    <td>Adopters</td>
+    <td>Like wildfire</td>
+    <td>UC Berkeley, Stanford, TACC, SDSC, GSI, HPC-UGent, Perdue, UFL, NIH, etc </td>
+    <td>NeRSC, VLSCI, CSCS, CERN, etc</td>
+	<td></td>
+</tr>
+
+<!--
+<tr>
+    <td>Topic</td>
+    <td></td>
+    <td></td>
+    <td></td>
+	<td></td>
+</tr>
+-->
+
+
+</tbody>
+</table>
+<!-- Codes by Quackit.com -->
+
+
+
+<H3>Containers in HPC</H3>
+<UL>
+<LI><A HREF="https://medium.com/@ople/containers-meet-hpc-2aab7aa2d54a#.b23izdadz">Container meets HPC</A> blog.
+<LI>
+</UL>
+
+<H3>Readings for Singularity</H3>
+<UL>
+<LI> <A HREF="http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC">Admin mag</A> Setup and example run with singularity.
+<LI> <A HREF="https://www.hpcwire.com/2016/10/20/singularity-containers-easing-scientific-computing/">HPC Wire</A> Q&A with main Singularity author Gregory Kurtzer
+<LI>
+</UL>
+
+
+<H3>Readings for Shifter</H3>
+
+<UL>
+<LI> <A HREF="https://www.nersc.gov/research-and-development/user-defined-images/">User defined images</A> NeRSC documentation.
+<LI> <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-environments">Shifter use cases</A> slide share from ETH Zurich
+
+<LI> <A HREF="http://www.slideshare.net/OlliPekkaLehto/containers-and-hpc">Container and HPC</A> slide share. 
+<LI> <A HREF="https://www.vlsci.org.au/documentation/running_jobs/shifter/">Shifter vs Docker</A> documentation at VLSCI.
+<LI>
+</UL>
+
+
+</div>
+
+</HTML>
