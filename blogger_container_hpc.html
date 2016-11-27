@@ -5,8 +5,7 @@
 <br /></div>
 
 (Work in progress...  These are my understanding as I investigate whether to adopt Singularity or Shifter.  Please comment to improve the doc.)
-
-
+<BR/>
 <!-- CSS Code: Place this code in the document's head (between the 'head' tags) -->
 <style>
 table.GeneratedTable {
@@ -41,7 +40,7 @@ table.GeneratedTable thead {
       <th>Docker</th>
       <th>Singularity</th>
       <th>Shifter</th>
-	  <th>Univa Grid Engine  (8.3?) </th>
+	  <th>Univa Grid Engine Container Edition</th>
     </tr>
 </thead>
 <tbody>
@@ -51,10 +50,10 @@ table.GeneratedTable thead {
 
 <tr>
       <td>Version</td>
-      <td></td>
+      <td>1.13</td>
       <td>2.2</td>
-      <td>(2016?)</td>
-	  <td>Some newer version of UGE can starts and manages Docker containers...</td>
+      <td>16.08.3</td>
+	  <td>8</td>
 </tr>
 	
 	
@@ -178,7 +177,7 @@ table.GeneratedTable thead {
 
 <tr>
       <td>Scheduler</td>
-      <td>What scheduler?</td>
+      <td><A HREF="https://docs.docker.com/swarm/overview/">Docker Swarm</A></td>
       <td>Agnostic, run singularity as a job</td>
       <td>SLURM, via SPANK plugin</td>
 	  <td></td>
@@ -188,7 +187,7 @@ table.GeneratedTable thead {
     <td>Run on multiple nodes?</td>
     <td>Swarm tool provided by Docker</td>
     <td>Scheduler's job to spin multiple instances on multiple nodes</td>
-    <td>salloc -nX ... srun ... </td>	
+    <td>Yes.  <BR/>salloc -NX ... <BR />srun ... </td>	
     <td></td>
 </tr>
 
@@ -303,15 +302,15 @@ table.GeneratedTable thead {
 
 <H3>Containers in HPC</H3>
 <UL>
-<LI><A HREF="https://medium.com/@ople/containers-meet-hpc-2aab7aa2d54a#.b23izdadz">Container meets HPC</A> blog.
-<LI>
+<LI> <A HREF="https://medium.com/@ople/containers-meet-hpc-2aab7aa2d54a#.b23izdadz">Container meets HPC</A> blog.
+<LI> <A HREF=""></A>
 </UL>
 
 <H3>Readings for Singularity</H3>
 <UL>
 <LI> <A HREF="http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC">Admin mag</A> Setup and example run with singularity.
 <LI> <A HREF="https://www.hpcwire.com/2016/10/20/singularity-containers-easing-scientific-computing/">HPC Wire</A> Q&A with main Singularity author Gregory Kurtzer
-<LI>
+<LI> <A HREF="http://singularity.lbl.gov/contributing-docs">Singularity doc</A>
 </UL>
 
 
@@ -320,12 +319,17 @@ table.GeneratedTable thead {
 <UL>
 <LI> <A HREF="https://www.nersc.gov/research-and-development/user-defined-images/">User defined images</A> NeRSC documentation.
 <LI> <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-environments">Shifter use cases</A> slide share from ETH Zurich
-
 <LI> <A HREF="http://www.slideshare.net/OlliPekkaLehto/containers-and-hpc">Container and HPC</A> slide share. 
 <LI> <A HREF="https://www.vlsci.org.au/documentation/running_jobs/shifter/">Shifter vs Docker</A> documentation at VLSCI.
-<LI>
+<LI> <A HREF=""></A>
 </UL>
 
+<H3>Readings for UGE </H3>
+
+<UL>
+<LI> <A HREF="http://www.univa.com/resources/files/gridengine_container_edition.pdf">Univa Grid Engine Container Edition</A> pdf.
+<LI>
+</UL>
 
 </div>
 
