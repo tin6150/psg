@@ -93,8 +93,7 @@
 <!-- content below can go to blogger, sans tailing /body and /html tags -->
 
 <div dir="ltr" style="text-align: left;" trbidi="on">
-<div dir="ltr" style="text-align: left;" trbidi="on">
-<br /></div>
+
 
 This is work in progress.  It helps me understanding whether to adopt Singularity or Shifter.  Please comment on the 
 <A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">blogger comment section</A> 
@@ -335,8 +334,9 @@ table.Display thead, table.Display tfoot {
 		No scheduler modification needed.
 	</td>
     <td>
-		Need an ImageGateway <BR>
-		
+		Shifter need to be installed in all hpc nodes <BR />
+    Docker NOT needed in hpc <BR />
+    Need an ImageGateway <BR />
 	</td>
     <td>
 		Upgrade to new version of UGE <BR>
@@ -373,7 +373,7 @@ table.Display thead, table.Display tfoot {
 </tr>
 
 <tr>
-    <td>Host device access</td>
+    <td>Host's device access</td>
     <td></td>
     <td></td>
     <td>/dev, /sys and /proc of host show up inside container</td>
@@ -384,7 +384,8 @@ table.Display thead, table.Display tfoot {
 <tr>
     <td>Host's file system access</td>
     <td>Start container with a special mapping (loopback mount inside the container?), writable as root</td>
-    <td>Singularity app run as a user process, therefore it has access to all of host's fs and devices that any user process have access to, including Lustre, GPFS, IB? etc?</td>
+    <td>Singularity app run as a user process, therefore it has access to all of host's fs and devices that any user process have access to, including Lustre, GPFS, IB? etc?  Need to setup device mapping?
+    </td>
     <td>Start shifter with volume mapping, done using loop dev.
     </td>
     <td></td>	
@@ -422,6 +423,22 @@ table.Display thead, table.Display tfoot {
       srun shifter ./myscript.py              # 
       -->
     </td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>Unix pipes</td>
+  <td>
+    output of container captured by pipe.  eg: <BR />
+    docker run centos:6 ls /etc | wc <BR />
+  </td>
+  <td>
+    can daisy chain singularity apps like regular unix commands.  eg <BR />
+    ./echo.sapp | ./grep.sapp  <BR />
+  </td>
+  <td>
+    echo 'cat("Hello world\n")' | shifter R --no-save
+  </td>
   <td></td>
 </tr>
 
@@ -513,11 +530,9 @@ As per <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-en
 <LI>
 </UL>
 
-</div>   <!-- this last /div tag maybe added by blogger and don't really have an opening tag in this html file -->
 
 
-
-
+</div>    <!-- ends blogger req tag started as <div dir="ltr" style="text-align: left;" trbidi="on"> -->
 
 <!-- ################################################################## -->
 <!-- JavaScript for G+ button -->
