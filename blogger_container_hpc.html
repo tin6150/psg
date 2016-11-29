@@ -153,7 +153,7 @@ table.Display thead, table.Display tfoot {
 
 <tr>
       <td>Version</td>
-      <td>1.13</td>
+      <td>1.15-1</td>
       <td>2.2</td>
       <td>16.08.3</td>
 	  <td>8</td>
@@ -163,7 +163,7 @@ table.Display thead, table.Display tfoot {
 <tr>
     <td>Host OS</td>
     <td>
-    Linux kernel > 3.10.  eg: <BR />
+    Linux kernel 3.10+, eg: <BR />
 		RHEL 7 <br />
 		Debian 8.0 <BR />
     Ubuntu 12.04<br />
@@ -177,7 +177,7 @@ table.Display thead, table.Display tfoot {
 	</td>
     <td>
 		Cray OS<BR />
-		Linux with kernel > 2.6.25, eg <BR />
+		Linux with kernel 2.6.25+, eg <BR />
     RHEL 6. <BR /> 
         ...<BR />
 	</td>
@@ -301,7 +301,11 @@ table.Display thead, table.Display tfoot {
     <td>Run on multiple nodes?</td>
     <td>Swarm tool provided by Docker</td>
     <td>Scheduler's job to spin multiple instances on multiple nodes</td>
-    <td>Yes.  <BR/>salloc -NX ... <BR />srun ... </td>	
+    <td>Yes.  <BR/>
+	<TT>
+	salloc -N4 ... <BR />srun ... 
+	<TT>
+    </td>	
     <td></td>
 </tr>
 
@@ -406,15 +410,19 @@ table.Display thead, table.Display tfoot {
     <td></td>
     <td>
       singularity build example.sspec # build an app using a spec file <BR />
+      <TT>
       ./example.sapp    # execute the singularity app <BR />
+      </TT>
     </td>
     <td>
+      <TT>
       module load shifter <BR />
       shiftering pull docker:python:3.5  # pull docker image <BR />   
       shifterimg images # list images <BR />
       shifter --image=python:3.5 python  # execute a container app <BR />
       module load slurm <BR />
       sbatch --image=docker:python:3.5 shifter python # run as job <BR />
+      </TT>
       <!--shiftering pull docker:ubuntu:14.04 <BR />   -->
       <!-- # pull docker image, recommend specific version rather than using :latest  -->
       <!--shifter - -image=r-base:latest R  # execute a container app <BR />-->
@@ -430,18 +438,18 @@ table.Display thead, table.Display tfoot {
   <td>Unix pipes</td>
   <td>
     output of container captured by pipe.  eg: <BR />
-    docker run centos:6 ls /etc | wc <BR />
-    However, docker won't take standard input,  at least not for 1.5-1.  The follwing does not work as one hope: <BR />
-    echo 'cat("Hello world\n")' | docker run r-base:latest R --no-save <BR />
+    <TT>docker run centos:6 ls /etc | wc</TT> <BR />
+    However, docker won't take standard input,  at least not for 1.5-1.  The follwing does not work as one might expect: <BR />
+    <TT>echo 'cat("Hello world\n")' | docker run r-base:latest R --no-save</TT> <BR />
     <!-- echo "print hello world" | docker run python:latest python <BR /> -->
   </td>
   <td>
     can daisy chain singularity apps like regular unix commands.  eg <BR />
-    ./echo.sapp | ./grep.sapp  <BR />
+    <TT>./echo.sapp | ./grep.sapp</TT>  <BR />
   </td>
   <td>
     Shifter will capture standard input as well inside an sbatch script: <BR />
-    echo 'cat("Hello world\n")' | shifter R --no-save
+    <TT>echo 'cat("Hello world\n")' | shifter R --no-save</TT>
   </td>
   <td></td>
 </tr>
