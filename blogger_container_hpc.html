@@ -89,15 +89,16 @@
 
 
 <!-- ################################################################## -->
+<!-- ################################################################## -->
 <!-- content below can go to blogger, sans tailing /body and /html tags -->
 
 <div dir="ltr" style="text-align: left;" trbidi="on">
 <div dir="ltr" style="text-align: left;" trbidi="on">
 <br /></div>
 
-These are my understanding as I investigate whether to adopt Singularity or Shifter.  Please comment on 
-<A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">the blogger page</A> 
-to improve the doc.
+This is work in progress.  It helps me understanding whether to adopt Singularity or Shifter.  Please comment on the 
+<A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">blogger comment section</A> 
+to improve the doc.  Much thanks!
 <BR/>
 <!-- CSS Code: Place this code in the document's head (between the 'head' tags) -->
 <!--
@@ -163,7 +164,7 @@ table.Display thead, table.Display tfoot {
 <tr>
     <td>Host OS</td>
     <td>
-    Linux kernel 3.10 and above.  eg: <BR />
+    Linux kernel > 3.10.  eg: <BR />
 		RHEL 7 <br />
 		Debian 8.0 <BR />
     Ubuntu 12.04<br />
@@ -177,7 +178,9 @@ table.Display thead, table.Display tfoot {
 	</td>
     <td>
 		Cray OS<BR />
-		Other? 
+		Linux with kernel > 2.6.25, eg <BR />
+    RHEL 6. <BR /> 
+        ...<BR />
 	</td>
     <td>
 		RHEL 7<BR />
@@ -226,7 +229,7 @@ table.Display thead, table.Display tfoot {
     <td>User group of primary focus</td>
     <td>Developers/DevOps</td>
     <td>Scientific Application Users</td>
-    <td>Slurm admins</td>
+    <td>Slurm admins, docker users</td>
 	<td>UGE users</td>
 </tr>
 
@@ -237,8 +240,8 @@ table.Display thead, table.Display tfoot {
     <td>Application portability (single image file, this become an executable) <BR>
 		Reproducibility and portability (once app stack is build on Singularity).<BR>
 		Support for legacy apps/OS.</td>
-    <td>Utilize the large number of docker apps.  Run them in HPC, but strip out all the requirements of root so that they are runnable as user process.  <BR />
-    Shifter is essentially a monstrous wrapper around Docker</td>
+    <td>Utilize the large number of docker apps.  Provides a way to run them in HPC after a conversion process.  It also strip out all the requirements of root so that they are runnable as user process.  <BR />
+    </td>
 	<td>Running dockers verbatim in HPC, with UGE managing the docker daemon process (?) </td>
 </tr>
 
@@ -255,19 +258,24 @@ table.Display thead, table.Display tfoot {
 
 <tr>
       <td>MPI</td>
-      <td>MP-what?</td>
-      <td> Singularity has build-in support for openMPI.  <BR />
+      <td>
+          MP-what? :-)<BR />
+      </td>
+      <td> 
+      Singularity has build-in support for openMPI.  <BR />
 		Once app is build with OpenMPI libraries, execute mpirun as normal, replacing the usual binary with the single file singularity app.  <BR />
 		While the app is running inside the singularity container, Process Management Interface (PMI) calls will pass thru the singularity launcher onto ORTED. <BR />
 	  </td>
-      <td>Being worked on</td>
+      <td>Shifter relies on MPICH Application Binary Interface (ABI).  <BR />
+      Apps that use vanilla MPI that is compatibile with MPICH would work.  Site-specific MPI libraries need to be copied to the container at run time.  LD_LIBRARY_PATH need to include for example /opt/udiImage/...  
+      </td>
 	  <td></td>
 </tr>
 
 <tr>
     <td>IB</td>
     <td></td>
-	<td></td>
+	  <td>Native access</td>
     <td></td>
     <td></td>
 </tr>
@@ -275,7 +283,7 @@ table.Display thead, table.Display tfoot {
 <tr>
       <td>GPU/Phi</td>
       <td>Your app should run head-less, why you trying to access video card? :-)</td>
-      <td></td>
+      <td>Native access, native speed.</td>
       <td>In progress.  Reportedly getting near native performance</td>
 	  <td></td>
 </tr>
@@ -286,7 +294,7 @@ table.Display thead, table.Display tfoot {
       <td>Scheduler</td>
       <td><A HREF="https://docs.docker.com/swarm/overview/">Docker Swarm</A></td>
       <td>Agnostic, run singularity as a job</td>
-      <td>SLURM, via SPANK plugin</td>
+      <td>Can work as stand alone container environment.  For scalability, scheduler integration currently exist for SLURM, via SPANK plugin.  (Should work with other scheduler) </td>
 	  <td></td>
 </tr>
 
@@ -378,7 +386,6 @@ table.Display thead, table.Display tfoot {
     <td>Start container with a special mapping (loopback mount inside the container?), writable as root</td>
     <td>Singularity app run as a user process, therefore it has access to all of host's fs and devices that any user process have access to, including Lustre, GPFS, IB? etc?</td>
     <td>Start shifter with volume mapping, done using loop dev.
-        See <A HREF="#shifter_workflow">shifter workflow</A> below.
     </td>
     <td></td>	
 </tr>
@@ -422,8 +429,15 @@ table.Display thead, table.Display tfoot {
 <tr>
     <td>Misc</td>
     <td></td>
-    <td>Singularity app can run outside HPC, without any job scheduler.  It can serve as a container for app portability outside the HPC world.  NeRSC's shifter potentially run singularity app as well.</td>
-    <td>Integrated into SLURM, so would need to be used in HPC so configured.   Also, outside HPC, may as well just use Docker?</td>
+    <td>
+    Singularity app can run outside HPC, without any job scheduler.  It can serve as a container for app portability outside the HPC world, and since a single file encompass the whole container, this maybe advantageous for sharing, portability and archive.  <BR />
+    The use of singularity would require compiling all apps into the Singularity container, spec files would need to be written.  I hear they are looking to adopt Docker and/or RKT specfile to minimize this burden.  <BR />
+    In the future, maybe NeRSC's shifter could  run singularity app as well.  <BR />
+    </td>
+    <td>
+    Shifter container/app can run as stand alone outside HPC scheduler.  This is certainly useful for testing and development.  However, if one isn't trying to utilize container in HPC, maybe there is not much point in converting docker images to shifter images.  <BR />
+    Shifter works by pulling the large number of existing containers.  Docker isn't needed inside the HPC, some gateway location can be used for Shifter to pull docker images and store converted image in a location accessible cluster-wide, eg /scratch.  See <A HREF="#shifter_workflow">shifter workflow</A> below for more details. <BR />
+    </td>
   <td></td>
 </tr>
 
@@ -441,6 +455,11 @@ table.Display thead, table.Display tfoot {
 </tbody>
 </table>
 
+<!-- ################################################################## -->
+<!-- end of table section -->
+<!-- ################################################################## -->
+
+
 
 <BR><BR>
 
@@ -454,6 +473,10 @@ As per <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-en
 <IMG SRC="https://tin6150.github.io/psg/fig/shifter_flow2.png"></IMG><BR />
 <IMG SRC="https://tin6150.github.io/psg/fig/shifter_flow3.png"></IMG><BR />
 
+
+<!-- ################################################################## -->
+<!-- start of reference/reading section -->
+<!-- ################################################################## -->
 
 
 <BR><BR>
@@ -479,6 +502,7 @@ As per <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-en
 <LI> <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-environments">Shifter use cases</A> slide share from CSCS/ETH Zurich
 <LI> <A HREF="http://www.slideshare.net/OlliPekkaLehto/containers-and-hpc">Container and HPC</A> slide share. 
 <LI> <A HREF="https://www.vlsci.org.au/documentation/running_jobs/shifter/">Shifter vs Docker</A> documentation at VLSCI, with step-by-step instructions on how to obtain and build a shifter app in a SLURM cluster.
+<LI> <A HREF="https://github.com/NERSC/shifter/blob/master/doc/mpi/mpich_abi.rst">Using MPI in Shifter</A>
 <LI> <A HREF=""></A>
 </UL>
 
@@ -490,6 +514,14 @@ As per <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-en
 </UL>
 
 </div>   <!-- this last /div tag maybe added by blogger and don't really have an opening tag in this html file -->
+
+
+
+
+
+<!-- ################################################################## -->
+<!-- JavaScript for G+ button -->
+<!-- ################################################################## -->
 
 
       <div id="google-plus">      
