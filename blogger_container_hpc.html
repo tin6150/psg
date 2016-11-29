@@ -417,9 +417,9 @@ table.Display thead, table.Display tfoot {
       sbatch --image=docker:python:3.5 shifter python # run as job <BR />
       <!--shiftering pull docker:ubuntu:14.04 <BR />   -->
       <!-- # pull docker image, recommend specific version rather than using :latest  -->
-      <!--shifter --image=r-base:latest R  # execute a container app <BR />-->
+      <!--shifter - -image=r-base:latest R  # execute a container app <BR />-->
       <!--
-      salloc -n1 --image=docker:python:3.5.1
+      salloc -n1 - -image=docker:python:3.5.1
       srun shifter ./myscript.py              # 
       -->
     </td>
@@ -431,12 +431,16 @@ table.Display thead, table.Display tfoot {
   <td>
     output of container captured by pipe.  eg: <BR />
     docker run centos:6 ls /etc | wc <BR />
+    However, docker won't take standard input,  at least not for 1.5-1.  The follwing does not work as one hope: <BR />
+    echo 'cat("Hello world\n")' | docker run r-base:latest R --no-save <BR />
+    <!-- echo "print hello world" | docker run python:latest python <BR /> -->
   </td>
   <td>
     can daisy chain singularity apps like regular unix commands.  eg <BR />
     ./echo.sapp | ./grep.sapp  <BR />
   </td>
   <td>
+    Shifter will capture standard input as well inside an sbatch script: <BR />
     echo 'cat("Hello world\n")' | shifter R --no-save
   </td>
   <td></td>
@@ -453,7 +457,7 @@ table.Display thead, table.Display tfoot {
     </td>
     <td>
     Shifter container/app can run as stand alone outside HPC scheduler.  This is certainly useful for testing and development.  However, if one isn't trying to utilize container in HPC, maybe there is not much point in converting docker images to shifter images.  <BR />
-    Shifter works by pulling the large number of existing containers.  Docker isn't needed inside the HPC, some gateway location can be used for Shifter to pull docker images and store converted image in a location accessible cluster-wide, eg /scratch.  See <A HREF="#shifter_workflow">shifter workflow</A> below for more details. <BR />
+    Shifter works by pulling the large number of existing containers.  Docker isn't needed inside the HPC, some gateway location can be used for Shifter to pull docker images and store converted image in a location accessible cluster-wide, eg /scratch.  See <A HREF="https://tin6150.github.io/psg/blogger_container_hpc.html#shifter_workflow">shifter workflow</A> below for more details. <BR />
     </td>
   <td></td>
 </tr>
