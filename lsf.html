@@ -718,14 +718,10 @@ qconf -se node-4-10	# see slots and other complex that the named execution host 
 <H4>Cgroup</H4>
 
 
-cgroup_params contains the configuration of cgroups feature.  This need to be set via qconf -mconf.  UGE 8.1.7 and later, and config may need to be added by hand if hot-upgraded the system.
+cgroups_params contains the configuration of cgroups feature.  This need to be set via qconf -mconf.  UGE 8.1.7 and later, and config may need to be added by hand if hot-upgraded the system.
 
 <PRE>
-  cgroups_params           cgroup_path=none cpuset=false mount=false \
-                           freezer=false freeze_pe_tasks=false killing=false \
-                           forced_numa=false h_vmem_limit=false \
-                           m_mem_free_hard=false m_mem_free_soft=false \
-                           min_memory_limit=0
+  cgroups_params             cgroup_path=/cgroup cpuset=false m_mem_free_hard=true
 </PRE>
 
 <H4>Places where (CPU) slots are defined</H4>
