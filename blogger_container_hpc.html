@@ -202,7 +202,8 @@ table.display thead, table.display tfoot {
       <td>docker run -c ... -m ... --cpuset ... </td>
       <td>?</td>
       <td></td>
-	  <td>  Define in scheduler config?</td>
+	  <td> <A HREF="https://tin6150.github.io/psg/lsf.html#cgroups">cgroups_params</A> in qconf -mconf
+    </td>
 </tr>
 
 
@@ -217,9 +218,10 @@ table.display thead, table.display tfoot {
 
 <tr>
       <td>Run different OS</td>
-      <td>Yes.  docker pull centos/ubuntu/etc
+      <td>Yes.  <BR /> 
+          docker pull centos/ubuntu/etc
       </td>
-      <td>Yes.  Need package like debootstrap and febootstrap command to be available.</td>
+      <td>Yes.  Need commands like debootstrap and febootstrap to be available.</td>
       <td>Yes</td>
       <td></td>
 </tr>
@@ -409,11 +411,11 @@ table.display thead, table.display tfoot {
 <tr>
     <td>Sample User Commands</td>
     <td></td>
-    <td>
-      singularity build example.sspec # build an app using a spec file <BR />
-      <TT>
-      ./example.sapp    # execute the singularity app <BR />
-      </TT>
+    <td><TT>
+        sudo singularity create ubuntu.img <BR />
+        sudo singularity bootstrap ubuntu.img ubuntu.def <BR />
+        singularity shell ubuntu.img <BR />
+        </TT>
     </td>
     <td>
       <TT>
@@ -445,8 +447,10 @@ table.display thead, table.display tfoot {
     <!-- echo "print hello world" | docker run python:latest python <BR /> -->
   </td>
   <td>
+    <!--
     can daisy chain singularity apps like regular unix commands.  eg <BR />
     <TT>./echo.sapp | ./grep.sapp</TT>  <BR />
+    -->
   </td>
   <td>
     Shifter will capture standard input as well inside an sbatch script: <BR />
@@ -512,16 +516,17 @@ As per <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-en
 
 <H3>Example Commands in Docker</H3>
 
-
+<PRE>
 # get a container with anaconda python and jupyter notebook 
 
 docker run -i -t -p 8888:8888 continuumio/anaconda /bin/bash -c "/opt/conda/bin/conda install jupyter -y --quiet && mkdir /opt/notebooks && /opt/conda/bin/jupyter notebook --notebook-dir=/opt/notebooks --ip='*' --port=8888 --no-browser"
-
+</PRE>
 
 
 <H3>Example Commands in Singularity</H3>
 
 
+<PRE>
 # 
 # if behind a proxy, sudo -E will preserve http_proxy env var 
 # create an image file to host the content of the container.  
@@ -538,7 +543,7 @@ singularity shell ubuntu.def
 
 # need to find an rpm for anaconda python, 
 # or run commands in the .def file to install the package...
-
+</PRE>
 
 
 <!-- ################################################################## -->
@@ -556,9 +561,9 @@ singularity shell ubuntu.def
 
 <H3>Readings for Singularity</H3>
 <UL>
-<LI> <A HREF="http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC">Admin mag</A> Setup and example run with singularity (but this is for version 1.x of singularity).
-<LI> <A HREF="https://www.hpcwire.com/2016/10/20/singularity-containers-easing-scientific-computing/">HPC Wire</A> Q+A with main Singularity author Gregory Kurtzer
+<LI> <A HREF="https://www.hpcwire.com/2016/10/20/singularity-containers-easing-scientific-computing/">HPC Wire</A> Q+A with main Singularity author Greg Kurtzer
 <LI> <A HREF="http://singularity.lbl.gov/contributing-docs">Singularity doc</A>
+<LI> <A HREF="http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC">Admin mag</A> Cover background of container and problem of using Docker in HPC.  Also has setup and example run with singularity, but this is for version 1.x of singularity, which is very different than 2.x.
 </UL>
 
 
