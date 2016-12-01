@@ -59,6 +59,7 @@ task:  			     	svn		rcs		git 			hg/mercurial
 -----------------------------   --------------- -------------   ----------------------- -------------
 update repo:			up		co?
 check out			co 		co		clone			clone
+                                                                checkout tags/2.2
 lock file for edit		not needed?	co -l		not needed
 check in			ci		ci		commit -a, push	
 
@@ -239,6 +240,18 @@ commands to manipulate the local git database which is the central view of the s
 Additionally, git can sync to a remote server (think github), and this is the repo server where many collaborators "check in" their codes for sharing.
 
 <BR>
+<H5>Downloading open source sw</H5>
+
+<PRE>
+git clone https://github.com/singularityware/singularity.git	# download the whole sw repo
+git tag								# see available tagged releases
+git checkout tags/2.2						# switch to use the named tag release (2.2)
+
+</PRE>
+
+
+<BR>
+
 <H5>git against local copy of repository</H5>
 
 
