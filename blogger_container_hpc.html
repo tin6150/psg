@@ -79,6 +79,15 @@
 				  background-color: #CCCCCC; /*#BBF0BB;  ;*/
 				}
 				
+
+        # border for code
+        .code {
+            border:   #630 1px solid;
+            color:    #630;
+            padding-left:  0.5em;
+        }
+
+
         </STYLE>
 </HEAD>
 
@@ -409,12 +418,26 @@ table.display thead, table.display tfoot {
 
 
 <tr>
+    <td>Env</td>
+    <td></td>
+    <td>container inherit the env of user invoking the singularity cmd<BR />
+        /bin/sudo, if installed, will have setuid flag, but it is blocked inside a singularity container<BR />    
+        root can be had via "sudo singularity shell centos7.img" <BR />
+        /home, /var/tmp, /tmp, /root are loopback mount from host <BR />
+        / is read-only mount (unless started with -w flag, as root)<BR />
+    </td>
+    <td></td>
+  <td></td>
+</tr>
+
+
+<tr>
     <td>Sample User Commands</td>
     <td></td>
     <td><TT>
         sudo singularity create ubuntu.img <BR />
         sudo singularity bootstrap ubuntu.img ubuntu.def <BR />
-        singularity shell ubuntu.img <BR />
+        singularity exec  ubuntu.img bash <BR />
         </TT>
     </td>
     <td>
@@ -447,10 +470,9 @@ table.display thead, table.display tfoot {
     <!-- echo "print hello world" | docker run python:latest python <BR /> -->
   </td>
   <td>
-    <!--
-    can daisy chain singularity apps like regular unix commands.  eg <BR />
-    <TT>./echo.sapp | ./grep.sapp</TT>  <BR />
-    -->
+      can daisy chain singularity apps like regular unix commands.  eg <BR />
+      <TT>echo "echo hello world" | singularity exec centos7.img bash </TT>  <BR />
+    
   </td>
   <td>
     Shifter will capture standard input as well inside an sbatch script: <BR />
@@ -474,6 +496,16 @@ table.display thead, table.display tfoot {
     </td>
   <td></td>
 </tr>
+
+<tr>
+    <td>Feel</td>
+    <td></td>
+    <td>Building a singularity 2.2 image feels a lot like building a VM using kickstart file.
+    </td>
+    <td></td>
+  <td></td>
+</tr>
+
 
 <!--
 <tr>
@@ -535,15 +567,103 @@ docker run -i -t -p 8888:8888 continuumio/anaconda /bin/bash -c "/opt/conda/bin/
 sudo -E singularity create --size 2048 /opt/singularity_repo/ubuntu16.img
 sudo -E singularity bootstrap /opt/singularity_repo/ubuntu16.img /opt/src/singularity/exampless/ubuntu.def
 singularity shell ubuntu.def
+singularity exec  ubuntu.img bash  # slight diff than shell, PS1 not changed, .bash_profile sourced here
+singularity exec  centos.img  rpm -qa<BR />
+# Note that uname and uptime will always report info of the host, not the container.
 
-# to add more packages to image, vi /opt/src/singularity/exampless/ubuntu.def   
-# run bootstrap command again.  it will expand on existing file, not overwritting it
+
+     singularity exec  -w centos.img  zsh  # -w for writable container, FS ACL still applies
+                                           # centos.img needs to be writable by the user
+sudo singularity shell -w centos.img       # root can edit all contents inside container
 
 
+# best to build up container using kickstart mentality.  
+# ie, to add more packages to image, vi /opt/src/singularity/exampless/ubuntu.def   
+# re-run bootstrap command again.  
+# bootstap on existing image will build on top of it, not overwritting it/restarting from scratch
+# singularity .def file is kinda like kickstart file
+# unix commands can be run, but if there is any error, the bootstrap process ends.
 
-# need to find an rpm for anaconda python, 
-# or run commands in the .def file to install the package...
+
+# pipe works as input and output for singularity container executions: 
+
+echo "echo hello world" | singularity exec centos7.img bash
+singularity exec centos7.img echo 'echo hello world' | singularity exec centos7.img bash
+singularity exec centos7.img rpm -qa | singularity exec centos7.img wc -l
+
+
 </PRE>
+
+
+<H3>Example Singularity container definition file</H3>
+
+
+CentOS:
+
+<PRE class="code">
+# Copyright (c) 2015-2016, Gregory M. Kurtzer. All rights reserved.
+#
+# "Singularity" Copyright (c) 2016, The Regents of the University of California,
+# through Lawrence Berkeley National Laboratory (subject to receipt of any
+# required approvals from the U.S. Dept. of Energy).  All rights reserved.
+
+
+BootStrap: yum
+OSVersion: 7
+MirrorURL: http://mirror.centos.org/centos-%{OSVERSION}/%{OSVERSION}/os/$basearch/
+Include: yum
+
+# If you want the updates (available at the bootstrap date) to be installed
+# inside the container during the bootstrap instead of the General Availability
+# point release (7.x) then uncomment the following line
+#UpdateURL: http://mirror.centos.org/centos-%{OSVERSION}/%{OSVERSION}/updates/$basearch/
+
+
+%runscript
+    echo "This is what happens when you run the container..."
+
+
+%post
+    echo "Hello from inside the container"
+    yum -y install vim-minimal
+
+    # adding a number of rather useful packages
+    yum -y install bash
+    yum -y install zsh
+    yum -y install environment-modules
+    yum -y install which
+    yum -y install less
+    yum -y install sudo         # binary has setuid flag, but it is not honored inside singularity
+    yum -y install wget
+    yum -y install coreutils    # provide yes
+    yum -y install bzip2        # anaconda extract
+    yum -y install tar          # anaconda extract
+    
+    # bootstrap will terminate on first error, so be careful!
+    test -d /etc/singularity || mkdir /etc/singularity
+    touch                          /etc/singularity/singularity_bootstart.log
+    echo '*** env ***'          >> /etc/singularity/singularity_bootstart.log
+    env                         >> /etc/singularity/singularity_bootstart.log
+
+    # install anaconda python by download and execution of installer script 
+    test -f Anaconda3-4.2.0-Linux-x86_64.sh || wget https://repo.continuum.io/archive/ Anaconda3-4.2.0-Linux-x86_64.sh
+    bash Anaconda3-4.2.0-Linux-x86_64.sh -b     # batch mode, accept license w/o user input
+
+</PRE>
+
+post section for ubuntu, i found that --force-yes is needed  <BR />
+debootstrap rpm also needed in CentOS machine for this bootstrap to work <BR />
+
+
+<PRE class="code">
+%post
+    echo "Hello from inside the container"
+    sed -i 's/$/ universe/' /etc/apt/sources.list
+    apt-get -y --force-yes install vim
+    apt-get -y --force-yes install ncurses-term
+</PRE>
+
+
 
 
 <!-- ################################################################## -->
@@ -561,8 +681,10 @@ singularity shell ubuntu.def
 
 <H3>Readings for Singularity</H3>
 <UL>
+
+<LI> <A HREF="https://github.com/singularityware/singularity/blob/master/README.md">Qucik, concise intro on latest Singularity (~2.2) </A>
+<LI> <A HREF="http://singularity.lbl.gov/contributing-docs">Singularity documentation site</A>
 <LI> <A HREF="https://www.hpcwire.com/2016/10/20/singularity-containers-easing-scientific-computing/">HPC Wire</A> Q+A with main Singularity author Greg Kurtzer
-<LI> <A HREF="http://singularity.lbl.gov/contributing-docs">Singularity doc</A>
 <LI> <A HREF="http://www.admin-magazine.com/HPC/Articles/Singularity-A-Container-for-HPC">Admin mag</A> Cover background of container and problem of using Docker in HPC.  Also has setup and example run with singularity, but this is for version 1.x of singularity, which is very different than 2.x.
 </UL>
 
@@ -584,6 +706,8 @@ singularity shell ubuntu.def
 <LI> <A HREF="http://www.univa.com/resources/files/gridengine_container_edition.pdf">Univa Grid Engine Container Edition</A> pdf.
 <LI>
 </UL>
+
+
 
 
 
