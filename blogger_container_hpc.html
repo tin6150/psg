@@ -101,15 +101,7 @@
 <!-- ################################################################## -->
 <!-- content below can go to blogger, sans tailing /body and /html tags -->
 
-<div dir="ltr" style="text-align: left;" trbidi="on">
-
-
-This is work in progress.  It helps me understanding whether to adopt Singularity or Shifter.  Please comment on the 
-<A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">blogger comment section</A> 
-to improve the doc.  Much thanks!
-<BR/>
-(Working version of this file in github is <A HREF="https://tin6150.github.io/psg/blogger_container_hpc.html">here</A>)
-<!-- CSS Code: Place this code in the document's head (between the 'head' tags) -->
+<!-- CSS to format table in blogger where DataTables jQuery is not used to format the table -->
 <!--
 <style>
 table.display {
@@ -136,7 +128,23 @@ table.display thead, table.display tfoot {
 -->
 
 <!-- HTML Code: Place this code in the document's body (between the 'body' tags) where the table should appear -->
-<br />
+
+
+
+<div dir="ltr" style="text-align: left;" trbidi="on">
+
+Here is a comparison of HPCS Singularity vs NeRSC Shifter.  They both bring the benefits of container to the HPC world.  As such, both provide very similar features.  The subtleties are in their implementation approach.  
+
+This is work in progress and I update it frequently as I work with them and get better understanding.  Yes, THEM, because I can't make a decision which tool is better to my problem at hand from just reading docs.  
+Please comment on the 
+<A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html#comment">blogger comment section</A> 
+to improve the doc.  Much thanks!
+<BR/>
+(Working version of this file in github is <A HREF="https://tin6150.github.io/psg/blogger_container_hpc.html">here</A>)
+<BR />
+<BR />
+
+
 <!--table class="GeneratedTable"-->
 <table class="display">
 <thead>
@@ -161,17 +169,108 @@ table.display thead, table.display tfoot {
 
 <tbody>
 
+	
+
+<tr>
+    <td>Main problem being addressed</td>
+    <td>DevOps, microservices.  Enterprise applications</td>
+    <td>
+        Application portability (single image file, contain all dependencies) <BR>
+        Reproducibility, run cross platform, provide support for legacy OS and apps.<BR>
+    </td>
+    <td>Utilize the large number of docker apps.  Provides a way to run them in HPC after a conversion process.  It also strip out all the requirements of root so that they are runnable as user process.  <BR />
+    </td>
+  <td>Running dockers verbatim in HPC, with UGE managing the docker daemon process (?) </td>
+</tr>
+
+
+
+<tr>
+    <td>Interaction w/ Docker</td>
+    <td></td>
+    <td>
+        Singularity work completely independent of Docker.  <BR />
+        It does have ability to import docker images, convert them to singularity images, or run docker container directly<BR />
+    </td>
+    <td>
+        Shifter primary workflow is to pull and convert docker image into shifter image.<BR />
+        Docker pull is used minimally, in Image Gateway.
+    </td>
+    <td></td>
+</tr>
+
+<tr>
+    <td>Possible Use Case</td>
+    <td>microservices.  Do one small thing alone but does it well.  Often daemon listening on TCP port 24/7</td>
+    <td>
+        <LI> A large-ish container with all dependencies build-in, but targetting only a very specific application (eg a custom python program needed a specific version of Anaconda and set of python libraries)  <BR />
+        <LI> A "gigantic" image containing the whole OS of a dying computer, running a mission critical legacy app <BR />
+        <LI> Potentially docker-like, with many small containers, and string them together via command chain (not sure if there are ways to configure dependencies/versions in definition file) <BR />
+    </td>
+    <td></td>
+    <td></td>
+</tr>
+
+<tr>
+    <td>User group of primary focus</td>
+    <td>Developers/DevOps</td>
+    <td>Scientific Application Users</td>
+    <td>Slurm admins, docker users</td>
+    <td>UGE users</td>
+</tr>
+
+
+<tr>
+      <td>Portability</td>
+      <td>Docker Hub<BR></td>
+      <td>Single image file.  Container purpose build for singularity.  Can import docker images.  Working to accept docker file or Rocket definition syntax as Singularity definition.  <BR />
+      Hub of singular repository by utilizing google drive file share <BR />  
+      </td>
+      <td>Image Gateway pulls from Docker Hub, automatically convert to shifter image.  </td>
+    <td></td>
+</tr>
+
+
+
+<!--
+<tr>
+    <td>Potential Cons/Questions?</td>
+    <td>Not easily adoptable in HPC environment</td>
+    <td>All dependencies in a single image file -> Requires large storage space?  Docker allowed small update if lower stack images remained the same</td>
+    <td>While live docker images are editable, it requires root.  Shifter sanitazed the root requirements, so its containers are immutable? </td>
+  <td>User need elevated priviledges to start containers ? </td>
+</tr>
+-->
+
+
+
+<tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+</tr>
+
+
+
+
+
+
+
+
+
 <tr>
       <td>Version</td>
       <td>1.15-1</td>
       <td>2.2</td>
       <td>16.08.3</td>
-	  <td>8</td>
+      <td>8</td>
 </tr>
-	
+
 	
 <tr>
-    <td>Host OS</td>
+    <td>Host OS Req</td>
     <td>
     Linux kernel 3.10+, eg: <BR />
 		RHEL 7 <br />
@@ -184,18 +283,54 @@ table.display thead, table.display tfoot {
 		RHEL 6<BR />
 		Ubuntu <br />
 		...<BR />
-	</td>
+	  </td>
     <td>
 		Cray OS<BR />
 		Linux with kernel 2.6.25+, eg <BR />
     RHEL 6. <BR /> 
         ...<BR />
-	</td>
+  	</td>
     <td>
 		RHEL 7<BR />
 		Newer version of Linux that  supports Docker/cgroup. 
 	</td>
 </tr>
+
+
+<tr>
+      <td>Run different OS</td>
+      <td>Yes.  <BR /> 
+          docker pull centos/ubuntu/etc
+      </td>
+      <td>Yes.  Utilize commands like debootstrap and febootstrap to bootstrap a new image</td>
+      <td>Yes</td>
+      <td></td>
+</tr>
+
+
+
+<tr>
+      <td>Scheduler</td>
+      <td><A HREF="https://docs.docker.com/swarm/overview/">Docker Swarm</A></td>
+      <td>Agnostic, run singularity as a job</td>
+      <td>Can work as stand alone container environment.  For scalability, scheduler integration currently exist for SLURM, via SPANK plugin.  (Should work with other scheduler) </td>
+    <td></td>
+</tr>
+
+<tr>
+    <td>Run on multiple nodes?</td>
+    <td>Swarm tool provided by Docker</td>
+    <td>Scheduler's job to spin multiple instances on multiple nodes</td>
+    <td>Yes.  <BR/>
+  <TT>
+  salloc -N4 ... <BR />srun ... 
+  <TT>
+    </td> 
+    <td></td>
+</tr>
+
+
+
 
 
 <tr>
@@ -216,55 +351,6 @@ table.display thead, table.display tfoot {
     </td>
 </tr>
 
-
-<tr>
-      <td>User management</td>
-      <td>?</td>
-      <td>Yes.  Container has sanitized passwd, group files</td>
-      <td></td>
-	  <td></td>
-</tr>
-
-
-<tr>
-      <td>Run different OS</td>
-      <td>Yes.  <BR /> 
-          docker pull centos/ubuntu/etc
-      </td>
-      <td>Yes.  Need commands like debootstrap and febootstrap to be available.</td>
-      <td>Yes</td>
-      <td></td>
-</tr>
-
-
-<tr>
-    <td>User group of primary focus</td>
-    <td>Developers/DevOps</td>
-    <td>Scientific Application Users</td>
-    <td>Slurm admins, docker users</td>
-	<td>UGE users</td>
-</tr>
-
-
-<tr>
-    <td>Main Problem being addressed</td>
-    <td>DevOps, microservices.  Enterprise applications</td>
-    <td>Application portability (single image file, this become an executable) <BR>
-		Reproducibility and portability (once app stack is build on Singularity).<BR>
-		Support for legacy apps/OS.</td>
-    <td>Utilize the large number of docker apps.  Provides a way to run them in HPC after a conversion process.  It also strip out all the requirements of root so that they are runnable as user process.  <BR />
-    </td>
-	<td>Running dockers verbatim in HPC, with UGE managing the docker daemon process (?) </td>
-</tr>
-
-
-<tr>
-    <td>Potential Cons?</td>
-    <td>Not easily adoptable in HPC environment</td>
-    <td>All dependencies in a single image file -> Requires large storage space?  Docker allowed small update if lower stack images remained the same</td>
-    <td>While live docker images are editable, it requires root.  Shifter sanitazed the root requirements, so its containers are immutable</td>
-	<td>User need elevated priviledges to start containers ? </td>
-</tr>
 
 
 
@@ -301,92 +387,12 @@ table.display thead, table.display tfoot {
 </tr>
 
 
-
-<tr>
-      <td>Scheduler</td>
-      <td><A HREF="https://docs.docker.com/swarm/overview/">Docker Swarm</A></td>
-      <td>Agnostic, run singularity as a job</td>
-      <td>Can work as stand alone container environment.  For scalability, scheduler integration currently exist for SLURM, via SPANK plugin.  (Should work with other scheduler) </td>
-	  <td></td>
-</tr>
-
-<tr>
-    <td>Run on multiple nodes?</td>
-    <td>Swarm tool provided by Docker</td>
-    <td>Scheduler's job to spin multiple instances on multiple nodes</td>
-    <td>Yes.  <BR/>
-	<TT>
-	salloc -N4 ... <BR />srun ... 
-	<TT>
-    </td>	
-    <td></td>
-</tr>
-
-<tr>
-      <td>Portability</td>
-      <td>Docker Hub<BR></td>
-      <td>Single image file.  Container purpose build for singularity.  Working to accept docker file or Rocket definition</td>
-      <td>Image Gateway pulls from Docker Hub, automatically convert to shifter image.  </td>
-	  <td></td>
-</tr>
-
-
-
-
-
-<tr>
-      <td>Container activation</td>
-      <td>Docker daemon running on each host</td>
-      <td>loopback mount on singularity image file to utilize container</td>
-      <td>No docker daemon on CN. srun ... loopback mount </td>
-	  <td></td>
-</tr>
-
-
-<tr>
-    <td>Deployment</td>
-    <td></td>
-    <td>
-		Single .rpm/.deb (in all nodes?) <BR>
-		No scheduler modification needed.
-	</td>
-    <td>
-		Shifter need to be installed in all hpc nodes <BR />
-    Docker NOT needed in hpc <BR />
-    Need an ImageGateway <BR />
-	</td>
-    <td>
-		Upgrade to new version of UGE <BR>
-		Head and compute nodes need to be newer version of Linux that supports Docker (eg RHEL 7).
-	</td>
-	
-	</tr>
-
-
-<tr>
-      <td>Security</td>
-      <td>
-		User running docker commands need to be in special docker group to gain elevated system access <BR>
-	  </td>
-      <td>
-		No change in security paradigm.<BR>
-		User run singularity image/app without special privileges.  
-	  </td>
-      <td>
-		root to install shifter binary.  <BR>
-		Need special integration into scheduler.<BR>
-		User run shifter image/app without special privileges.  <BR>
-	  </td>
-	  <td></td>
-</tr>
-
-
 <tr>
       <td>Network access</td>
       <td>NAT (default)</td>
       <td>transparent?</td>
       <td>transparent?</td>
-	  <td></td>
+    <td></td>
 </tr>
 
 <tr>
@@ -394,7 +400,7 @@ table.display thead, table.display tfoot {
     <td></td>
     <td></td>
     <td>/dev, /sys and /proc of host show up inside container</td>
-	<td></td>
+  <td></td>
 </tr>
 
 
@@ -405,17 +411,67 @@ table.display thead, table.display tfoot {
     </td>
     <td>Start shifter with volume mapping, done using loop dev.
     </td>
-    <td></td>	
+    <td></td> 
+</tr>
+
+
+
+<tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
 </tr>
 
 
 <tr>
-    <td>Adopters</td>
-    <td>Like wildfire</td>
-    <td>UC Berkeley, Stanford, TACC, SDSC, GSI, HPC-UGent, Perdue, UFL, NIH, etc </td>
-    <td>NeRSC, VLSCI, CSCS, CERN, etc</td>
-	<td></td>
+    <td>Deployment</td>
+    <td></td>
+    <td>
+    root to install singularity. <BR />
+    Single .rpm/.deb  <BR>
+    No scheduler modification needed.
+  </td>
+    <td>
+    Shifter need to be installed in all hpc nodes <BR />
+    Docker NOT needed in hpc <BR />
+    Need an ImageGateway <BR />
+  </td>
+    <td>
+    Upgrade to new version of UGE <BR>
+    Head and compute nodes need to be newer version of Linux that supports Docker (eg RHEL 7).
+  </td>
 </tr>
+
+
+<tr>
+      <td>Container activation</td>
+      <td>Docker daemon running on each host</td>
+      <td>loopback mount on singularity image file to utilize container</td>
+      <td>No docker daemon on CN. srun ... loopback mount </td>
+    <td></td>
+</tr>
+
+
+
+<tr>
+      <td>Security</td>
+      <td>
+    User running docker commands need to be in special docker group to gain elevated system access <BR>
+    </td>
+      <td>
+    No change in security paradigm.<BR>
+    User run singularity image/app without special privileges.  
+    </td>
+      <td>
+    root to install shifter binary.  <BR>
+    Need special integration into scheduler.<BR>
+    User run shifter image/app without special privileges.  <BR>
+    </td>
+    <td></td>
+</tr>
+
 
 
 <tr>
@@ -425,11 +481,21 @@ table.display thead, table.display tfoot {
         /bin/sudo, if installed, will have setuid flag, but it is blocked inside a singularity container<BR />    
         root can be had via "sudo singularity shell centos7.img" <BR />
         /home, /var/tmp, /tmp, /root are loopback mount from host <BR />
-        / is read-only mount (unless started with -w flag, as root)<BR />
+        / is read-only mount (unless started with -w flag)<BR />
     </td>
     <td></td>
   <td></td>
 </tr>
+
+
+<tr>
+      <td>User management</td>
+      <td>?</td>
+      <td>Yes.  Container has sanitized passwd, group files</td>
+      <td></td>
+    <td></td>
+</tr>
+
 
 
 <tr>
@@ -460,6 +526,11 @@ table.display thead, table.display tfoot {
     </td>
   <td></td>
 </tr>
+
+
+
+
+
 
 <tr>
   <td>Unix pipes</td>
@@ -508,13 +579,22 @@ table.display thead, table.display tfoot {
 </tr>
 
 
+<tr>
+    <td>Adopters</td>
+    <td>Like wildfire</td>
+    <td>UC Berkeley, Stanford, TACC, SDSC, GSI, HPC-UGent, Perdue, UFL, NIH, etc </td>
+    <td>NeRSC, VLSCI, CSCS, CERN, etc</td>
+  <td></td>
+</tr>
+
+
 <!--
 <tr>
     <td>Topic</td>
     <td></td>
     <td></td>
     <td></td>
-	<td></td>
+	  <td></td>
 </tr>
 -->
 
@@ -560,20 +640,23 @@ docker run -i -t -p 8888:8888 continuumio/anaconda /bin/bash -c "/opt/conda/bin/
 
 
 <PRE>
-# 
-# if behind a proxy, sudo -E will preserve http_proxy env var 
-# create an image file to host the content of the container.  
-# in ext3, an actual file of specified size is created.
-# it doesn't seems to be file with hole, df will report all the used space, and may run out of space!
+ 
 sudo -E singularity create --size 2048 /opt/singularity_repo/ubuntu16.img
+# Create an image file to host the content of the container.  
+# Think of it like creating the virtual hard drive for a VM.
+# In ext3, an actual file of specified size is created.
+# It doesn't seems to be file with hole, df will report all the used space, and may run out of space!
+# If behind a proxy, sudo -E will preserve http_proxy env var 
+
 sudo -E singularity bootstrap /opt/singularity_repo/ubuntu16.img /opt/src/singularity/exampless/ubuntu.def
+# "kickstart" build the container
+
 singularity shell ubuntu.def
 singularity exec  ubuntu.img bash  # slight diff than shell, PS1 not changed, .bash_profile sourced here
-singularity exec  centos.img  rpm -qa<BR />
+singularity exec  centos.img  rpm -qa
 # Note that uname and uptime will always report info of the host, not the container.
 
-
-     singularity exec  -w centos.img  zsh  # -w for writable container, FS ACL still applies
+singularity  exec  -w  centos.img  zsh     # -w for writable container, FS ACL still applies
                                            # centos.img needs to be writable by the user
 sudo singularity shell -w centos.img       # root can edit all contents inside container
 
@@ -710,7 +793,8 @@ debootstrap rpm is needed in a CentOS machine for this bootstrap to work <BR />
 </UL>
 
 
-
+<A ID="comment"></A>
+<!-- expect HTML for blogger to ends here, where blogger place a comment section -->
 
 
 </div>    <!-- ends blogger req tag started as <div dir="ltr" style="text-align: left;" trbidi="on"> -->
