@@ -108,6 +108,7 @@ This is work in progress.  It helps me understanding whether to adopt Singularit
 <A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">blogger comment section</A> 
 to improve the doc.  Much thanks!
 <BR/>
+(Working version of this file in github is <A HREF="https://tin6150.github.io/psg/blogger_container_hpc.html">here</A>)
 <!-- CSS Code: Place this code in the document's head (between the 'head' tags) -->
 <!--
 <style>
@@ -647,12 +648,13 @@ Include: yum
 
     # install anaconda python by download and execution of installer script 
     test -f Anaconda3-4.2.0-Linux-x86_64.sh || wget https://repo.continuum.io/archive/ Anaconda3-4.2.0-Linux-x86_64.sh
-    bash Anaconda3-4.2.0-Linux-x86_64.sh -b     # batch mode, accept license w/o user input
+    bash Anaconda3-4.2.0-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
 
 </PRE>
 
-post section for ubuntu, i found that --force-yes is needed  <BR />
-debootstrap rpm also needed in CentOS machine for this bootstrap to work <BR />
+Ubuntu snipplet.   <BR />
+i found that --force-yes is needed  <BR />
+debootstrap rpm is needed in a CentOS machine for this bootstrap to work <BR />
 
 
 <PRE class="code">

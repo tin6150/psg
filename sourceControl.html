@@ -292,8 +292,9 @@ git log issue123 ^master	# branch diff, changes in branch issue123 but NOT in ma
 git show COMMIT_HASH		# details of the commit
 
 git branch			# list branches.  * indicate the current branch working on.
-git branch issue123		# create a branch called "issue123" (eg after a bug#)
 git branch -r			# list all branches avail in (r)emote server
+git branch issue123		# create a branch called "issue123" (eg after a bug#)
+git branch --edit-description issue123	# modify a description for the named branch.  it brings up a text editor
 
 git checkout -b issue123	# 
 git checkout master		# swich to the master branch (master is trunk branch created by default)
