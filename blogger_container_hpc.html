@@ -79,14 +79,14 @@
 				  background-color: #CCCCCC; /*#BBF0BB;  ;*/
 				}
 				
-
-        # border for code
-        .code {
+        /* border for code */
+        PRE.code {
             border:   #630 1px solid;
             color:    #630;
             padding-left:  0.5em;
         }
 
+        TT, table.TT  {   color: green; }
 
         </STYLE>
 </HEAD>
@@ -104,36 +104,46 @@
 <!-- CSS to format table in blogger where DataTables jQuery is not used to format the table -->
 <!--
 <style>
-table.display {
-  width: 100%;
-  background-color: #ffffff;
-  border-collapse: collapse;
-  border-width: 2px;
-  border-color: #00a400;
-  border-style: solid;
-  color: #000000;
-}
+    table.display {
+      width: 100%;
+      background-color: #ffffff;
+      border-collapse: collapse;
+      border-width: 2px;
+      border-color: #00a400;
+      border-style: solid;
+      color: #000000;
+    }
 
-table.display td, table.display th {
-  border-width: 2px;
-  border-color: #00a400;
-  border-style: solid;
-  padding: 3px;
-}
+    table.display td, table.display th {
+      border-width: 2px;
+      border-color: #00a400;
+      border-style: solid;
+      padding: 3px;
+    }
 
-table.display thead, table.display tfoot {
-  background-color: #00a400; 
-}
+    table.display thead, table.display tfoot {
+      background-color: #00a400; 
+    }
+
+    /* border for code */
+    PRE.code {
+        border:   #630 1px solid;
+        color:    #630;
+        padding-left:  0.5em;
+    }
+
+    TT, table.TT  {   color: green; }
 </style>
 -->
 
 <!-- HTML Code: Place this code in the document's body (between the 'body' tags) where the table should appear -->
 
 
+<div dir="ltr" style="text-align: left;" trbidi="on"> </div>  <!-- this extra div is needed or title format get messed up in blogger-->
 
 <div dir="ltr" style="text-align: left;" trbidi="on">
 
-Here is a comparison of HPCS Singularity vs NeRSC Shifter.  They both bring the benefits of container to the HPC world.  As such, both provide very similar features.  The subtleties are in their implementation approach.  
+Here is a comparison of HPCS Singularity vs NeRSC Shifter.  They both bring the benefits of container to the HPC world.  As such, both provide very similar features.  The subtleties are in their implementation approach.  MPI maybe the place with the biggest difference.  <BR />
 
 This is work in progress and I update it frequently as I work with them and get better understanding.  Yes, THEM, because I can't make a decision which tool is better to my problem at hand from just reading docs.  
 Please comment on the 
@@ -163,7 +173,7 @@ to improve the doc.  Much thanks!
       <th>Singularity</th>
       <th>Shifter</th>
 	  <th>UGE Container Ed.</th>
-    </tr>
+  </tr>
 </tfoot>
 
 
@@ -345,8 +355,8 @@ to improve the doc.  Much thanks!
 <tr>
       <td>Resource restriction via cgroup?</td>
       <td>docker run -c ... -m ... --cpuset ... </td>
-      <td>?</td>
-      <td></td>
+      <td>Not touched by Singularity.  Scheduler/Resource Manager to control what is available to Singularity </td>
+      <td>Let SLURM manage cgroup restrictions</td>
 	  <td> <A HREF="https://tin6150.github.io/psg/lsf.html#cgroups">cgroups_params</A> in qconf -mconf
     </td>
 </tr>
@@ -571,7 +581,7 @@ to improve the doc.  Much thanks!
 
 <tr>
     <td>Feel</td>
-    <td></td>
+    <td>High :)</td>
     <td>Building a singularity 2.2 image feels a lot like building a VM using kickstart file.
     </td>
     <td></td>
@@ -616,9 +626,9 @@ to improve the doc.  Much thanks!
 As per <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-environments">CSCS/ETH slide share</A>, based on Shifter 15.12.0.
 <br/><br/>
 
-<IMG SRC="https://tin6150.github.io/psg/fig/shifter_flow1.png"></IMG><BR />
-<IMG SRC="https://tin6150.github.io/psg/fig/shifter_flow2.png"></IMG><BR />
-<IMG SRC="https://tin6150.github.io/psg/fig/shifter_flow3.png"></IMG><BR />
+<IMG SRC="https://tin6150.github.io/psg/fig/shifter_flow1.png" width="100%"></IMG><BR />
+<IMG SRC="https://tin6150.github.io/psg/fig/shifter_flow2.png" width="100%"></IMG><BR />
+<IMG SRC="https://tin6150.github.io/psg/fig/shifter_flow3.png" width="100%"></IMG><BR />
 
 
 <!-- ################################################################## -->
@@ -736,7 +746,7 @@ Include: yum
 </PRE>
 
 Ubuntu snipplet.   <BR />
-i found that --force-yes is needed  <BR />
+I found that --force-yes is needed  <BR />
 debootstrap rpm is needed in a CentOS machine for this bootstrap to work <BR />
 
 
@@ -793,7 +803,7 @@ debootstrap rpm is needed in a CentOS machine for this bootstrap to work <BR />
 </UL>
 
 
-<A ID="comment"></A>
+<A NAME="comment"></A>
 <!-- expect HTML for blogger to ends here, where blogger place a comment section -->
 
 
