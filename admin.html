@@ -1006,6 +1006,87 @@ ADMIN  ALL=(ALL)  ALL, NOPASSWD: FILE_READ, NOPASSWD: /usr/prog/cfengine/2.2.10/
 </PRE>
 
 
+
+
+<A NAME="dns"></A>
+<H1>DNS</H1>
+
+<PRE>
+
+nslookup
+server ns1.att.net
+set query=a
+www.yahoo.com
+set query=ns
+set q=mx
+set t=soa
+yahoo.com
+set q=any
+
+
+set d2                  # place in debug level 2 , lot more info about record eg TTL
+                        # diff output depending on implementation (eg, linux vs dos)
+
+eg:
+
+nslookup
+> set query=soa
+> ask-margo.com
+Non-authoritative answer:
+Server:  e3k-toadsman
+Address:  192.168.188.1
+
+ask-margo.com
+        primary name server = ns1.dunlin.arvixe.com
+        responsible mail addr = servers.arvixe.com
+        serial  = 2016092722
+        refresh = 86400 (1 day)
+        retry   = 7200 (2 hours)
+        expire  = 3600000 (41 days 16 hours)
+        default TTL = 86400 (1 day)
+
+> set q=ns
+> ask-margo.com
+Non-authoritative answer:
+Server:  e3k-toadsman
+Address:  192.168.188.1
+
+ask-margo.com   nameserver = ns1.dunlin.arvixe.com
+ask-margo.com   nameserver = ns2.dunlin.arvixe.com
+
+
+
+
+---
+
+dig
+
+Usage:  dig [@global-server] [domain] [q-type] [q-class] {q-opt}
+        {global-d-opt} host [@local-server] {local-d-opt}
+        [ host [@local-server] {local-d-opt} [...]]
+
+
+
+
+dig www.yahoo.com
+dig soa fiu.edu.
+dig mx  cs.fiu.edu.
+
+dig -x 131.94.125.125
+dig cs.fiu.edu @zorba.cs.fiu.edu any
+
+generating hint file, use one of:
+
+dig @f.root-servers.net . ns > root.cache
+dig . ns > root.cache
+
+
+first line seemed better in getting more complete list of servers.
+
+
+
+</PRE>
+
 <BR><HR><BR>
 
 <H1>TBD</H1>
