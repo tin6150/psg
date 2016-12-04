@@ -515,6 +515,7 @@ to improve the doc.  Much thanks!
         sudo singularity create ubuntu.img <BR />
         sudo singularity bootstrap ubuntu.img ubuntu.def <BR />
         singularity exec  ubuntu.img bash <BR />
+	./ubuntu.img  # the %runscript section of the container will autoamtically be invoked <BR />
         </TT>
     </td>
     <td>
@@ -651,15 +652,15 @@ docker run -i -t -p 8888:8888 continuumio/anaconda /bin/bash -c "/opt/conda/bin/
 
 <PRE>
  
-sudo -E singularity create --size 2048 /opt/singularity_repo/ubuntu16.img
+sudo  singularity create --size 2048 /opt/singularity_repo/ubuntu16.img
 # Create an image file to host the content of the container.  
 # Think of it like creating the virtual hard drive for a VM.
 # In ext3, an actual file of specified size is created.
 # It doesn't seems to be file with hole, df will report all the used space, and may run out of space!
-# If behind a proxy, sudo -E will preserve http_proxy env var 
 
-sudo -E singularity bootstrap /opt/singularity_repo/ubuntu16.img /opt/src/singularity/exampless/ubuntu.def
+sudo -E singularity bootstrap /opt/singularity_repo/ubuntu16.img /opt/src/singularity/examples/ubuntu.def
 # "kickstart" build the container
+# If behind a proxy, sudo -E will preserve http_proxy env var 
 
 singularity shell ubuntu.def
 singularity exec  ubuntu.img bash  # slight diff than shell, PS1 not changed, .bash_profile sourced here
@@ -679,11 +680,13 @@ sudo singularity shell -w centos.img       # root can edit all contents inside c
 # unix commands can be run, but if there is any error, the bootstrap process ends.
 
 
-# pipe works as input and output for singularity container executions: 
+# pipe and redirect works as input and output for singularity container executions: 
 
 echo "echo hello world" | singularity exec centos7.img bash
 singularity exec centos7.img echo 'echo hello world' | singularity exec centos7.img bash
 singularity exec centos7.img rpm -qa | singularity exec centos7.img wc -l
+
+singularity exec centos7.img python < ./myscript.py
 
 
 </PRE>
