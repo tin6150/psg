@@ -345,8 +345,11 @@ to improve the doc.  Much thanks!
 
 <tr>
       <td>Process isolation via Kernel Namespace?</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td>Yes.  PID 1 is the process executed by the container.  Cannot see host's processes.</td>
+      <td>?  <BR />
+	  While inside a singularity shell, ps -ef shows all process of host.  kill on PID on host will work.  
+	  
+      </td>
       <td>Yes</td>
 	  <td></td>
 </tr>
@@ -655,8 +658,9 @@ docker run -i -t -p 8888:8888 continuumio/anaconda /bin/bash -c "/opt/conda/bin/
 sudo  singularity create --size 2048 /opt/singularity_repo/ubuntu16.img
 # Create an image file to host the content of the container.  
 # Think of it like creating the virtual hard drive for a VM.
-# In ext3, an actual file of specified size is created.
-# It doesn't seems to be file with hole, df will report all the used space, and may run out of space!
+# The image created should be a sparse file (ie with holes),
+# However, while ext4/ubuntu seems to result in compact file
+# RHEL6/ext3 img take up their final file size.
 
 sudo -E singularity bootstrap /opt/singularity_repo/ubuntu16.img /opt/src/singularity/examples/ubuntu.def
 # "kickstart" build the container
