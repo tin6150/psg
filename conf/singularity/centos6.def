@@ -33,6 +33,7 @@ Include: yum
     yum -y install bash
     yum -y install zsh
     yum -y install environment-modules
+    # source /etc/profile.d/modules.sh # to get the "module command" to work
     yum -y install which
     yum -y install less
     yum -y install sudo         # binary has setuid flag, but it is not honored inside singularity
@@ -42,14 +43,29 @@ Include: yum
     yum -y install tar          # anaconda extract
 
 
+    # http://mirror.centos.org/centos/7/os/x86_64/Packages/
+    #yum -y install system-config-network       # not in rhel7
+    #yum -y install NetworkManager		# rhel7
+    #yum -y install gedit
+    #yum -y install eog
+    #yum -y install gnome-common
+    #yum -y install gnome-terminal
+
     
     # bootstrap will terminate on first error, so be careful!
     test -d /etc/singularity || mkdir /etc/singularity
     touch                          /etc/singularity/singularity_bootstart.log
+    date                        >> /etc/singularity_was_here/singularity_bootstart.log
     echo '*** env ***'          >> /etc/singularity/singularity_bootstart.log
     env                         >> /etc/singularity/singularity_bootstart.log
     #echo '*** mount ***'          >> /etc/singularity/singularity_bootstart.log
     #mount                         >> /etc/singularity/singularity_bootstart.log
+    echo '*** pwd ***'          >> /etc/singularity_was_here/singularity_bootstart.log      # /
+    pwd                         >> /etc/singularity_was_here/singularity_bootstart.log
+    #echo '*** ls  ***'          >> /etc/singularity_was_here/singularity_bootstart.log
+    #ls                          >> /etc/singularity_was_here/singularity_bootstart.log
+
+
 
     # install anaconda python by download and execution of installer script 
     # test -f Anaconda3-4.2.0-Linux-x86_64.sh || wget https://repo.continuum.io/archive/ Anaconda3-4.2.0-Linux-x86_64.sh
