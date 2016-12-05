@@ -1,0 +1,57 @@
+# Copyright (c) 2015-2016, Gregory M. Kurtzer. All rights reserved.
+#
+# "Singularity" Copyright (c) 2016, The Regents of the University of California,
+# through Lawrence Berkeley National Laboratory (subject to receipt of any
+# required approvals from the U.S. Dept. of Energy).  All rights reserved.
+
+
+BootStrap: yum
+OSVersion: 6
+
+# dont work when build from ubuntu14 :(
+# releasever: 6Workstation
+
+MirrorURL: http://mirror.centos.org/centos-%{OSVERSION}/%{OSVERSION}/os/$basearch/
+##MirrorURL: http://mirror.centos.org/centos-6/6.8/os/x86_64
+Include: yum
+
+# If you want the updates (available at the bootstrap date) to be installed
+# inside the container during the bootstrap instead of the General Availability
+# point release (7.x) then uncomment the following line
+# UpdateURL: http://mirror.centos.org/centos-%{OSVERSION}/%{OSVERSION}/updates/$basearch/
+
+
+%runscript
+    echo "This is what happens when you run the container..."
+
+
+%post
+    echo "Hello from inside the container"
+    yum -y install vim-minimal
+
+    # adding a number of rather useful packages
+    yum -y install bash
+    yum -y install zsh
+    yum -y install environment-modules
+    yum -y install which
+    yum -y install less
+    yum -y install sudo         # binary has setuid flag, but it is not honored inside singularity
+    yum -y install wget
+    yum -y install coreutils    # provide yes
+    yum -y install bzip2        # anaconda extract
+    yum -y install tar          # anaconda extract
+
+
+    
+    # bootstrap will terminate on first error, so be careful!
+    test -d /etc/singularity || mkdir /etc/singularity
+    touch                          /etc/singularity/singularity_bootstart.log
+    echo '*** env ***'          >> /etc/singularity/singularity_bootstart.log
+    env                         >> /etc/singularity/singularity_bootstart.log
+    #echo '*** mount ***'          >> /etc/singularity/singularity_bootstart.log
+    #mount                         >> /etc/singularity/singularity_bootstart.log
+
+    # install anaconda python by download and execution of installer script 
+    # test -f Anaconda3-4.2.0-Linux-x86_64.sh || wget https://repo.continuum.io/archive/ Anaconda3-4.2.0-Linux-x86_64.sh
+    # bash Anaconda3-4.2.0-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
+
