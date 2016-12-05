@@ -42,7 +42,9 @@ HTML validator: http://validator.w3.org/
 
     
 <body>
-  <div id="fixie"> <!-- add a fixed position example for css final project.   potentially use to place ad, which will appear like a 3rd column on right -->
+
+  <!-- use hidden to get rid of the floater icons on upper right, they are just on the way! -->
+  <div id="fixie" hidden> <!-- add a fixed position example for css final project.   potentially use to place ad, which will appear like a 3rd column on right -->
           <div id="one"   class="skinny"><a href="plug/plug.html"><img src="plug/nema-5-20R-drawing.gif" alt="nema5pic" width="100" height="100"></a></div>
           <div id="two"   class="skinny"><a href="fig/unixoid_hell.gif"><img src="fig/unixoid_hell.gif"  alt="vi-hell"   width="100" height="77" ></a></div>
           <div id="three" class="skinny"><a href="fig/Assistant.gif"><img    src="fig/Assistant.gif"     alt="clippie"   width="100" height="77" ></a></div>
@@ -344,13 +346,10 @@ sudo docker run httpd			# will download httpd container if not already present
 
 </PRE>
 
-<div align="CENTER">
-</IMG></div>
-
 <H3>Basic Commands</H3>
 
 <CENTER>
-<A HREF="http://www.slideshare.net/insideHPC/docker-for-hpc-in-a-nutshell"><IMG SRC="fig/docker-workflow-cmd.png"></IMG></A>
+<A HREF="http://www.slideshare.net/insideHPC/docker-for-hpc-in-a-nutshell"><IMG SRC="fig/docker-workflow-cmd.png" width="96%" alt="diagram of basic docker actions and commands"></A>
 </CENTER>
 
 <PRE>
@@ -796,12 +795,6 @@ Docker Compose is a declarative way of managing containers.  Think Puppet, Chef 
 eg Both examples of wordpress setup has reference to Docker Compose.
 <BR>
 
-<H3>Container in HPC</H3>
-
-Container in HPC is a large topic on itself.  For a feature comparison table of Shifter vs Singularity, and a list of relevant articles, see my blogger article 
-<A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">Docker vs Singularity vs Shifter</A>
-<BR>
-
 <H3>Reference</H3>
 
 <UL>
@@ -844,12 +837,19 @@ http://tiny.cc/DOCKER</A>
 <BR>
 
 
-<H1>Container in HPC</H1>
 
+<A ID="hpc"></A>
+
+<H3>Container in HPC</H3>
+
+Container in HPC is a quite a large topic.  For a feature comparison table of Shifter vs Singularity, and a list of relevant articles, see my blogger article 
+<A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">Docker vs Singularity vs Shifter</A>
+<BR>
 
 
 <H2>LBNL/NERSC Shifter</H2>
 
+<UL>
 <LI> NeRSC R&D + collaboration w/ Cray, in production use at NeRSC (Edison, Cori), open source release soon.  Cray may develop commercial support for this.
 <LI> <A HREF="http://slurm.schedmd.com/SLUG15/shifter.pdf">Paper in SC 2015.11</A>
 <LI> <A HREF="https://www.nersc.gov/news-publications/nersc-news/nersc-center-news/2015/shifter-makes-container-based-hpc-a-breeze/">https://www.nersc.gov/news-publications/nersc-news/nersc-center-news/2015/shifter-makes-container-based-hpc-a-breeze/</A>
@@ -863,11 +863,14 @@ http://tiny.cc/DOCKER</A>
 <LI> Containers are read-only to user (write to network location?)  (Dockers allow changes to container after admin issue save command.)
 <LI> Shifter essentially adopt docker images, but have to redo the backend to provide docker daemon-like features executed by the HPC batch manager system.
 <LI> 
+</UL>
 <BR>
 
-<H2>LBNL/HPCS Singularity</H2>
+<H2>LBNL/HPCS Singularity v 1.0 </H2>
 
-<LI>
+<UL>
+<LI> For feature of the newer Singularity 2.2, see 
+<A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html">Docker vs Singularity vs Shifter</A>
 <LI> VM does not address portability.  Singularity address portability.  
 <LI> It is like getting the portability of Docker and make it run in an HPC batch system.  However, Singularity does not use any piece of Docker.  
 <LI> SAPP (Singularity App) = Combination of RPM and Container.
@@ -888,15 +891,18 @@ http://tiny.cc/DOCKER</A>
 <LI> On the high level, there are a lot of ideas similarity with Shifter.  After all, both address similar concerns of wanting reproducible workflow.   Implementations of the two are drastically different.  see <A HREF="singularity.lbl.gov/docs_faq.html">faq</A>
 <LI> Developed by Gregory Kurtzer, of Warewulf fame et al.  Ver 1 was released April 14, 2016.  Ver 2 in beta now.  Avail at <A HREF="https://gmkurtzer.github.io/">gmkurtzer.github.io/</A>.  G.K. is from Berkeley Lab <A HREF="http://scs.lbl.gov/">High Performance Computing Services (HPCS)</A>.
 <LI> 
+</UL>
 <BR>
 
 
 <H2>Container in UGE</H2>
+<UL>
 <LI> Univa promises to allow qsub to run job involving docker Containers.
 <LI> qsub will have an -xdv option to map file system of the host to process running inside container
 <LI> docker will be defined as a boolean resrouce, and requested via -l option of qsub
 <LI> Additional management and orchestration by new products: Navops Launch, Command.
 <LI> Prioritization for different containers 
+</UL>
 <BR>
 
 
