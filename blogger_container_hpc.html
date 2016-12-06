@@ -649,7 +649,9 @@ to improve the doc.  Much thanks!
     <td>Adopters</td>
     <td>Like wildfire by internet companies</td>
     <td>UC Berkeley, Stanford, TACC, SDSC, GSI, HPC-UGent, Perdue, UFL, NIH, etc.  <BR />
-        Seems like the non-cray community is gravitating toward Singularity.  </td>
+        Seems like the non-cray community is gravitating toward Singularity.  <BR />
+        Integrated into Qlustar, Bright <BR />
+    </td>
     <td>NeRSC, VLSCI, CSCS, CERN, etc.  <BR />
         Seems like the big physics number crunchers are gravitating toward shifter, cuz they use Cray? </td>
   <td></td>
@@ -801,8 +803,10 @@ Include: yum
     env                         >> /etc/singularity/singularity_bootstart.log
 
     # install anaconda python by download and execution of installer script 
-    test -f Anaconda3-4.2.0-Linux-x86_64.sh || wget https://repo.continuum.io/archive/ Anaconda3-4.2.0-Linux-x86_64.sh
-    bash Anaconda3-4.2.0-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
+    # the test condition is so that subsequent singularity bootstrap to expand the image don't re-install anaconda
+    cd /opt
+    [[ -f Anaconda3-4.2.0-Linux-x86_64.sh ]] || wget https://repo.continuum.io/archive/ Anaconda3-4.2.0-Linux-x86_64.sh
+    [[ -d /opt/anaconda3 ]] || bash Anaconda3-4.2.0-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
 
 </PRE>
 
@@ -815,15 +819,17 @@ debootstrap rpm is needed in a CentOS machine for this bootstrap to work <BR />
 %post
     echo "Hello from inside the container"
     sed -i 's/$/ universe/' /etc/apt/sources.list
+    # when building from ubuntu, should avoid using --force-yes in apt-get
+    # but when building from RHEL, had to use --force-yes for it to work (at least in RHEL6)
     apt-get -y --force-yes install vim
     apt-get -y --force-yes install ncurses-term
 </PRE>
 
 <BR>
 
-<!--  till skinforum content can be updated..., github and s3 won't do directory listing.
-<A HREF="http://psg.skinforum.org/conf/singularity/">Additional singularity .def examples</A>
--->
+<!--  could use skinforum URL, not github.io or s3, as those don't allow dir listing -->
+<A HREF="https://github.com/tin6150/psg/tree/master/conf/singularity">Additional singularity .def examples</A>
+
 
 <!-- ################################################################## -->
 <!-- start of reference/reading section -->
