@@ -15,8 +15,35 @@ MirrorURL: http://us.archive.ubuntu.com/ubuntu/
     echo "This is what happens when you run the container..."
 
 
+
 %post
     echo "Hello from inside the container"
     sed -i 's/$/ universe/' /etc/apt/sources.list
-    apt-get -y install vim
+    apt-get -y --force-yes install vim
+    apt-get -y --force-yes install ncurses-term
+    apt-get -y --force-yes install gedit
+    apt-get -y --force-yes install less
+    apt-get -y --force-yes install wget
+    apt-get -y --force-yes install git
+    apt-get -y --force-yes install tar
+    apt-get -y --force-yes install bzip2
+    apt-get -y --force-yes install coreutils
+    #apt-get -y --force-yes install
+
+        touch /THIS_IS_INSIDE_SINGULARITY
+
+        mkdir -p /usr/prog/MOUNT+PENDING
+        cd /opt
+        git clone https://github.com/rdkit/rdkit.git
+
+        # install anaconda python
+        [[ -f Anaconda3-4.2.0-Linux-x86_64.sh ]] || wget https://repo.continuum.io/archive/Anaconda3-4.2.0-Linux-x86_64.sh
+        [[ -d /opt/anaconda3 ]] || bash Anaconda3-4.2.0-Linux-x86_64.sh -p /opt/anaconda3 -b     # batch mode, accept license w/o user input
+
+
+
+
+#    genome MuSiC has some strange dep on med-config which pop up a TUI asking for config...
+#    so cant install till figure how to deal with that...
+#    apt-get -y --force-yes install libgenome-model-tools-music-perl
 
