@@ -651,32 +651,37 @@ A way to script adding a bunch of nodes at the same time.  create a shell script
 <PRE class="cf">
 for X in $(seq 1 16 ) ; do
 
-echo "
-hostname              compute-2-$X
-load_scaling          NONE
-complex_values        m_mem_free=98291.000000M,m_mem_free_n0=49152.000000M, \
-                      m_mem_free_n1=49139.093750M,ngpus=0,slots=28
-user_lists            NONE
-xuser_lists           NONE
-projects              NONE
-xprojects             NONE
-usage_scaling         NONE
-report_variables      NONE " > compute-2-$X.qc
+	echo "
+	hostname              compute-2-$X
+	load_scaling          NONE
+	complex_values        m_mem_free=98291.000000M,m_mem_free_n0=49152.000000M, \
+	                      m_mem_free_n1=49139.093750M,ngpus=0,slots=28
+	user_lists            NONE
+	xuser_lists           NONE
+	projects              NONE
+	xprojects             NONE
+	usage_scaling         NONE
+	report_variables      NONE " > compute-2-$X.qc
 
 qconf -Ae compute-2-$X.qc
 rm compute-2-$X.qc
 
 done
 
-Add submit host:
-qconf -as hostname.fqdn
+</PRE>
 
-# note that execution and submit host rever IP to DNS must lookup and match
+<PRE>
+qhost -F gpu | grep -B1 ngpus=[1-9]		# list host with at least 1 GPU installed
 
 </PRE>
 
 
+
 <PRE>
+
+qconf -as hostname.fqdn
+$ -as = add submit host
+# note that execution and submit host rever IP to DNS must lookup and match
 
 
 # remove a workstation form a workstation.q

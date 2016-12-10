@@ -98,20 +98,18 @@ is NOT good.  Especially at reduced redundancy state, this could result in data 
 <BR>
 Typical protection policy is +2:1 which can tolerate two drive failure at the same time.  But under some certain circumpstance, eg node fail and autobalance job did not complete, protection could drop down to just 2x.  ie mirror, and two disks within a protection group could fail at the same time and it would have data lost.   Protection group can and typically do span multiple nodes.  Files (LIN) at 2x scenario may just span mirrored pair across two nodes and one can hit the lotto and have those two disks fails at same time.  <BR>
 
-/var/log/messages would spill error like too many restrape error.  Complain about LIN=... having problems.  <BR>
+/var/log/messages would spill error like too many restripe error.  Complain about LIN=... having problems.  <BR>
+<BR>
 
 On each disk, Isilon lay a two digits lnum N on it, and refers to it when smart failing drive, running FlexProtect job.  
-When drives are pulled out, replaced or swapped out in a bay, can tell system what/how to use the disk based on this lnum.  It is kept track of also until all necessary data has been recovered by FlexProtect job.  (and at time may need to manually remove them, stopfail command?)
+When drives are pulled out, replaced or swapped out in a bay, can tell system what/how to use the disk based on this lnum.  It is kept track of until all necessary data has been recovered by FlexProtect job.  (and at time may need to manually remove them, stopfail command?)
 
 <PRE>
  
-
 isi devices 				# list all devices of the node logged in
 isi devices -a status -d 14:bay28	# see status of node 14, drive 28
 isi devices -a status -d 14      	# see status of node 14, all info
 isi devices           -d 14      	# "-a status" is assumed 
-
-
 
 
 isi devices -a add    -d 14:28		# add the drive (after being replaced)
@@ -371,7 +369,7 @@ Files can NOT be moved between quota domains.  Copy and remove must be used in s
 <PRE>
 ACE = Access Control Entry
 ACL = Access Control List, a list of ACE
-DACL = Deny ACL ??
+DACL = Deny ACL 
 
 ls -led			# show ACL for the current dir (or file if filename given)
 ls -lze   		# display ACE of a file
@@ -419,6 +417,8 @@ ls -lR | grep -e "^.......... +" -e "/"  | grep -B 1 "^.......... +"	# morse cod
 
 <H4>windows shares</H4>
 
+<PRE>
+
 isi smb share list		# list shares
 isi smb share view SHARENAME	# give details of the named share
 isi smb share create ...	# can create shares via cli as well, but that's not a very windowy thing to do :p   but the create mask thing is very tedious in OneFS 7.x WebGUI...
@@ -428,6 +428,8 @@ isi smb shares permission delete --share=ccdc$ --wellknown=everyone		# remove th
 isi smb shares permission create --share=ccdc$ --group=ADDOM\\grp_site_user --permission=read   --permission-type=allow
 isi smb shares permission create --share=ccdc$ --group=ADDOM\\grp_ccdc      --permission=change --permission-type=allow
 isi smb shares view --share=ccdc$		# in windows, share ending with $ are "hidden" 
+
+</PRE>
 
 
 <H4>Time Sync</H4>
@@ -532,11 +534,11 @@ isi sync reports ls --policy-name=... --limit=1
 isi sync job ls
 
 # list the first line status of each sync job
-for n in `isi sync policy list --no-footer --no-header | awk '{print $1}'`; do
+for n in `isi sync poli list --no-footer --no-header | awk '{print $1}'`; do
     isi sync reports ls --policy-name=${n} --limit=1
 done
 
-isi sync policy view home_mirror
+isi sync polic view home_mirror
 isi sync report list --policy-name=home_mirror 
 
 job logs in 
