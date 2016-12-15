@@ -66,8 +66,8 @@ Include: yum
     #ls                          >> /etc/singularity_was_here/singularity_bootstart.log
 
 
-
     # install anaconda python by download and execution of installer script 
-    # test -f Anaconda3-4.2.0-Linux-x86_64.sh || wget https://repo.continuum.io/archive/ Anaconda3-4.2.0-Linux-x86_64.sh
-    # bash Anaconda3-4.2.0-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
+    cd /tmp
+    # test -f Anaconda3-4.2.0-Linux-x86_64.sh || wget https://repo.continuum.io/archive/Anaconda3-4.2.0-Linux-x86_64.sh
+    # test -d /opt/anaconda3 || bash Anaconda3-4.2.0-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
 
