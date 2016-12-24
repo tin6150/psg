@@ -6,7 +6,8 @@
 
 
 BootStrap: yum
-OSVersion: 7
+#OSVersion: 7
+OSVersion: 6
 MirrorURL: http://mirror.centos.org/centos-%{OSVERSION}/%{OSVERSION}/os/$basearch/
 Include: yum
 
@@ -24,13 +25,20 @@ AnacondaVersion: 4.2.0
 
 
 %post
-    #echo "Hello from inside the container"
-    #yum -y install vim-minimal
+    echo "Hello from inside the container"
+    yum --releasever=6 -y install vim-minimal
+    ##yum --releasever=$OSVersion -y install vim-minimal  # dont work :(
 
     # kludge needed in ubuntu 14 due to differing BDB version
-    [[ -d /var/cache/yum/x86_64/\$releasever ]] && ln -s /var/cache/yum/x86_64/\$releasever /var/cache/yum/x86_64/7
-    # no dice, link created, but still not usable.  need to do that Tru recommended in email.
+    #[[ -d /var/cache/yum/x86_64/\$releasever ]] && ln -s /var/cache/yum/x86_64/\$releasever /var/cache/yum/x86_64/7
+    # no dice, link created, but still not usable.  need to do what Tru recommended in email.
     #[[ -d /var/cache/yum/x86_64/\$releasever ]] && mv /var/cache/yum/x86_64/\$releasever /var/cache/yum/x86_64/%{OSVERSION}
+
+    #cd /var/lib/rpm
+    #rm __db.* 
+    #rpmdb --rebuilddb
+    # db is rebuild, but yum still dont work
+    # it is cuz yum cant solve the $releasever issue
 
 
     # adding a number of rather useful packages
@@ -40,13 +48,20 @@ AnacondaVersion: 4.2.0
     #yum -y install which
     #yum -y install less
     #yum -y install sudo         # binary has setuid flag, but it is not honored inside singularity
-    yum -y install wget
+    yum --releasever=6 -y install wget
     #yum -y install coreutils    # provide yes
-    yum -y install bzip2        # anaconda extract
-    yum -y install tar          # anaconda extract
+    yum --releasever=6 -y install bzip2        # anaconda extract
+    yum --releasever=6 -y install tar          # anaconda extract
     
     # install anaconda python by download and execution of installer script 
     cd /tmp
-    test -f Anaconda3-%{AnacondaVersion}-Linux-x86_64.sh || wget https://repo.continuum.io/archive/Anaconda3-%{AnacondaVersion}-Linux-x86_64.sh
-    test -d /opt/anaconda3 || bash Anaconda3-%{AnacondaVersion}-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
+    #test -f Anaconda3-%{AnacondaVersion}-Linux-x86_64.sh || wget https://repo.continuum.io/archive/Anaconda3-%{AnacondaVersion}-Linux-x86_64.sh
+    #test -f Anaconda3-%{AnacondaVersion}-Linux-x86_64.sh || wget https://repo.continuum.io/archive/Anaconda3-${AnacondaVersion}-Linux-x86_64.sh
+    #test -d /opt/anaconda3 || bash Anaconda3-%{AnacondaVersion}-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
+    #test -d /opt/anaconda3 || bash Anaconda3-${AnacondaVersion}-Linux-x86_64.sh -p /opt/anaconda3 -b     # -b = batch mode, accept license w/o user input
+
+	# end up trying to get  https://repo.continuum.io/archive/Anaconda3-%25%7BAnacondaVersion%7D-Linux-x86_64.sh
+    
+	# var resolution not working as expected :(
+    echo ""
 
