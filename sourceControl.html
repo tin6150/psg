@@ -365,6 +365,40 @@ git config --global alias.lol "log --oneline --graph --decorate"		# create alias
 
 </PRE>
 
+<H5>git against upstream</H5>
+
+<TT>upstream</TT> usually refer to the "grand daddy" repo of an open source project, where <TT>Pull Requests</TT> are submitted to add one's contribution to the open source project.  <BR>
+Example workflow can be seen at 
+<A HREF="http://singularity.lbl.gov/contributing-code">Singularity documentationcontribution</A> page.
+
+<PRE>
+
+# fork the project 
+# git clone the fork above
+
+git checkout master
+git remote add "upstream" https://github.com/singularityware/singularityware.github.io
+
+
+# made changes
+git commit ...
+
+
+# goal is to make any conflicting changes locally and 
+# address them before pushing it upstream 
+# where many other folks will see conflict and be affected by it
+
+git pull upstream master	# resync upstream (grand daddy repo) to my master (what i forked)
+git pull --rebase		
+# perform any necessary merges
+git commit ...
+git push origin master 		# really same as `git push`
+
+# create Pull Request on github.com 
+# forks are tracked by github.com, the PR will submit the changes to the grand daddy repo.
+
+</PRE>
+
 <H5>git terminology</H5>
 
 <UL>
@@ -394,6 +428,9 @@ git config --global color.ui      true
 
 git remote add origin https://github.com/tin6150/psg.git
 git push -u origin master
+
+
+
 
 </PRE>
 
