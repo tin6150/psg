@@ -29,7 +29,7 @@ There are a number of solutions:
 1.  Obtain db*_load that match the Berkeley DB version for the version of CentOS being imaged, and add a conversion step  during singularity bootstrap process.
 2.  Perform a double bootstrap process: Build a base container containg CentOS (eg import from docker) and use this image to build the final desired centos image.  One can run container from within containers with Singularity as long as you are root when you do it.  
 3.  Go to a CentOS machine and create a basic singularity image, and copy this image to the ubuntu machine.  Since such image already have a working `/bin/sh`, `rpm`, `yum` commands, RPM database with the correct version of Berkeley DB, subsequent `singularity bootstrap` on this image can successfully run `yum` to update and add additional software to this image.
-4.  Leverate `singularity import centos.img docker://centos:6` to seed the CentOS image
+4.  Leverage `singularity import centos.img docker://centos:6` to seed the CentOS image. 
 5.  Import the container from Singularity Hub, when this feature becomes available.
 
 
@@ -43,8 +43,7 @@ There are a number of solutions:
 5. On the ubuntu host, can execute the centos container as `singularity shell centos.img`
 6. If further update is desired on this image, update the centos.def as desired, then run `singularity bootstrap centos.img centos.def`.  At this stage, this works because the container already has the minimum ingredients to run yum from its own content.   There isn't even a need to install `yum` on the Ubuntu host.
 
-	* ++ does this really work?  or still have a DB version conflict?  ... should be working, cuz host don't have yum and it still work...  ++
-
+Instead of building your own seed CentOS image, the docker image imported using Option 4 can be used as well.  Subsequent `singularity bootstrap` on such .img file works.
 
 ## Pursuing Option 1 or 2
 
@@ -58,32 +57,20 @@ refer to [this thread](https://groups.google.com/a/lbl.gov/forum/#!topic/singula
 
 - The rpm command is NOT needed on the host to carry out the singularity bootstrap process
 - Initial bootstrap from an empty image need yum, but after a basic image w/ /bin/sh and yum in place, yum from inside the container is called.  
+- The rpm containing db*_load are different in different OS.   Here is a helping list:
 
-- db_load does NOT have a --version option, thus at time it maybe hard to find out which version is being used.  Here are md5sum and file size of various versions of db_load, as well as package the provides the binary:
-   
 ``` 
-OS              rpm                                     size  md5sum                            path to db*_load 
-rhel6.8         db4-utils-4.7.25-20.el6_7.x86_64        27256 50fa35640fba53d86f5b8bb08a661238  /usr/bin/db_load
-centos6.8       db4-utils-4.7.25-20.el6_7.x86_64        23272 556a9cc8e4acb00573fb9e99e3ae20e6  /usr/bin/db_load
-centos6.8       compat-db43-4.3.29-15.el6.x86_64 	23272 7f750158f0e491cdeedc5e2324d1c5fe  /usr/bin/db42_load
-centos6.8	compat-db42-4.2.52-15.el6.x86_64	22176 867d7f94db3465e3581f6a97a9a6c057  /usr/bin/db43_load
-centos7.2       libdb-utils-5.3.21-19.el7.x86_64        28144 5f242be723c2bce8a24f24b781a251e9  /usr/bin/db_load
+OS             rpm                               path to db*_load 
+CentOS-6       db4-utils-4.7.25-20.el6_7.x86_64  /usr/bin/db_load
+CentOS-6       compat-db43-4.3.29-15.el6.x86_64  /usr/bin/db42_load
+CentOS-6       compat-db42-4.2.52-15.el6.x86_64  /usr/bin/db43_load
+CentOS-7       libdb-utils-5.3.21-19.el7.x86_64  /usr/bin/db_load
 ```
-
-- `file /var/lib/rpm/Basenames` returns version 9 in both CentOS 6 and 7 :( (coreutils rpm provides /usr/bin/file) 
-- `db_dump -p /var/lib/rpm/Basenames | head -1` seems to show version info, but it does NOT seems to be version of  Berkeley DB the file is "encoded" in :(  (ie, in both CentOS 6.8 and 7.3 containers, all DB files return "VERSION=3") 
+- Unfortunately the `file` command provided by coreutils cannot give accurate version details of BerkeleyDB used by the RPM database.  `file /var/lib/rpm/Packages` returns "version 9" in both CentOS 6 and 7.
+- Unfortunately the `db_dump` command provided by db4-utils doesn't help either.  `db_dump -p /var/lib/rpm/Packages | head -1` always returns "VERSION=3", for RPM DB found natively in RHEL-6 and 7 hosts.  
 
 
 ## Caveat Emptor
 
 If building CentOS image from an Ubuntu host, one can seemingly use `yum --releasever=6` to get yum to work and get a container build.  This kinda work, but some packages maybe installed twice while others may not be consistent, since `yum` is not able to properly query the rpm database created in the first stage of the bootstrap process.  This approach is *NOT* recommended for any long-lived container images.
-
-
-## Under the hood
-
-
-
-++
-
-In order to do this, you will need to first install the 'rpm' and 'yum'  packages onto your host. Then, you will create a definition file that will describe how to build your Ubuntu image. Finally, you will build the image using the Singularity commands 'create' and `bootstrap`.
 
