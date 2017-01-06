@@ -51,15 +51,15 @@ Include: yum
 
 
     # bootstrap will terminate on first error, so be careful!
-    test -d /etc/singularity || mkdir /etc/singularity
-    touch                          /etc/singularity/singularity_bootstart.log
-    echo "start"                >> /etc/singularity/singularity_bootstart.log
-    date                        >> /etc/singularity/singularity_bootstart.log
+    test -d /var/singularity || mkdir /var/singularity
+    touch                          /var/singularity/singularity_bootstart.log
+    echo "start"                >> /var/singularity/singularity_bootstart.log
+    date                        >> /var/singularity/singularity_bootstart.log
 
-    #echo '*** env ***'          >> /etc/singularity/singularity_bootstart.log
-    #env                         >> /etc/singularity/singularity_bootstart.log
-    #echo '*** mount ***'          >> /etc/singularity/singularity_bootstart.log
-    #mount                         >> /etc/singularity/singularity_bootstart.log
+    #echo '*** env ***'          >> /var/singularity/singularity_bootstart.log
+    #env                         >> /var/singularity/singularity_bootstart.log
+    #echo '*** mount ***'          >> /var/singularity/singularity_bootstart.log
+    #mount                         >> /var/singularity/singularity_bootstart.log
 
     #cpan -i Carp                       # cpan first run ask lots of config questions :(
     #perl -MCPAN -e 'install Carp'
@@ -124,14 +124,14 @@ Include: yum
     #$CPANM GD
     $CPANM GD::Image
 
-    echo "hello world.  testing 0"                  >> /etc/singularity/singularity_bootstart.log
-    echo "hello world.  testing 1"                  >> /etc/singularity/singularity_bootstart.log
-    echo "hello world.  testing 2"                  >> /etc/singularity/singularity_bootstart.log
+    echo "hello world.  testing 0"                  >> /var/singularity/singularity_bootstart.log
+    echo "hello world.  testing 1"                  >> /var/singularity/singularity_bootstart.log
+    echo "hello world.  testing 2"                  >> /var/singularity/singularity_bootstart.log
     # stops around here.
-    echo "hello world.  testing 3"                  >> /etc/singularity/singularity_bootstart.log
-    echo "hello world.  testing 4"                  >> /etc/singularity/singularity_bootstart.log
-    echo "hello world.  testing 5"                  >> /etc/singularity/singularity_bootstart.log
-    echo "hello world.  testing 6"                  >> /etc/singularity/singularity_bootstart.log
+    echo "hello world.  testing 3"                  >> /var/singularity/singularity_bootstart.log
+    echo "hello world.  testing 4"                  >> /var/singularity/singularity_bootstart.log
+    echo "hello world.  testing 5"                  >> /var/singularity/singularity_bootstart.log
+    echo "hello world.  testing 6"                  >> /var/singularity/singularity_bootstart.log
 
 
     CIRCOS_SOURCE_FILE=circos-${CIRCOS_VER}.tgz
@@ -150,6 +150,6 @@ Include: yum
     #rm $CIRCOS_SOURCE_FILE
     #rm $CIRCOS_TOOLS_SOURCE_FILE
 
-    echo "end"                  >> /etc/singularity/singularity_bootstart.log
-    date                        >> /etc/singularity/singularity_bootstart.log
+    echo "end"                  >> /var/singularity/singularity_bootstart.log
+    date                        >> /var/singularity/singularity_bootstart.log
 
