@@ -119,19 +119,6 @@ something about using two periods, code and two colons and language to start cod
 
 ----
 
-.. code:: bash
-	echo "hello world"
-	for F in $( ls -1 /etc ); do
-		echo $F
-	done
-
-end of code block
-
-::
-	above was with 
-	..code:: bash
-
-	
 
 I wonder the stuff that SLACK use, how is it in .rst?
 
