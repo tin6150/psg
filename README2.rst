@@ -32,6 +32,15 @@ However, stackoverflow is essentially markdown.
 ## block 
 ## of text
 
+### the issue is that .rst does not treat newline in ascii 
+### as new line in rendered text
+### which is expected behavior for flowing text
+### only blank line that break paragraph becomes new line
+
+So, just like normal text <BR>
+Use html markdup of "br" <BR>
+to mean hard break of line?
+
 
 
 I wonder the stuff that SLACK use, how is it in .rst?
@@ -46,13 +55,13 @@ Example nested list with dash
 - "double quote"	# this was rendered in italic in github
     - a four-space indented list item
 - lets try with triples:
-  * ```triple backquotes```  yes this was highligted in reverse text and monospace font
-  * '''triple single quote'''
-  * """triple double quote"""
+    * ```triple backquotes```  yes this was highligted in reverse text and monospace font
+    * '''triple single quote'''
+    * """triple double quote"""
 * bulleted list same as dash list?
 * hope so
-    * yes, but sublist may need 4 spaces and not 2.
-    * like here
+  * yes, but sublist may need 4 spaces and not 2.
+  * like here
 
 Text highlight (and bullet list with indent but no blank lines)
   * single *asterist* around *word*or*words* is italic.  no, *asterisk text can have space*.  
@@ -80,20 +89,32 @@ bunch of ---- in a line by itself treated by .md as horizontal line, same in .rs
 ----------------------
 
 A. To start list, do not start with space
-B. Adding space in the beginning will be treated as quoted text and add email-style indent/quote vertical bar in front of it
+A. Adding space in the beginning will be treated as quoted text and add email-style indent/quote vertical bar in front of it
     1. Sublist need to be started with 4 space, or else this special block treated as quote text
     1. removed old README.md file 
-        a) maybe that was causing confusion
-        b) so now it would render by github?
-    #. TBA...
-    #. Tired of numbering list myself, using hash sign in this line.
+	a) maybe that was causing confusion
+	b) so now it would render by github?
+    1. TBA...
+    1. Tired of numbering list myself, using hash sign in this line.
         #) sub-sub line of hash
         #) another sub line of hash
-    2. Instead of hash, can repeat number?
-	    a) and use '''a)''' repeatedly too?
-	    a) and use '''a)''' repeatedly too?
-	    a) and use '''a)''' repeatedly too?
+    1. Instead of hash, can repeat number?
+	a) and use '''a)''' repeatedly too?
+	a) and use '''a)''' repeatedly too?
+	a) and use '''a)''' repeatedly too?
 
+
+Nested list is difficult, and there is diff b/w tab and spaces
+
+1. starting a list
+2. continue list
+    a. four spaces
+    a. four spaces
+3. continue list
+4. continue list
+	a. one tab
+	a. one tab
+5. continue list
 
 =======
 
