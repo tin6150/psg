@@ -21,14 +21,33 @@ However, stackoverflow is essentially markdown.
 
 I wonder the stuff that SLACK use, how is it in .rst?
 
-Example list with dash
+Example nested list with dash
 ----------------------
 
-- `backquote` 
+- `backquote`      
+- `backquote`       # don't seems to be rendered any differently, even though vim did highlight it
 - 'single quote'
+- 'single quote'	# again, everything is verbatim here
 - "double quote"
     - a four-space indented list item
+- lets try with triples:
+  - ```triple backquotes```
+  - '''triple single quote'''
+  - """triple double quote"""
+* bulleted list same as dash list?
+* hope so
 
+Text highlight (and bullet list with indent but no blank lines)
+  * _single underline_
+  * __double underlines works?__
+  * _need_underline_in_space_too
+  * single *asterist* around *word*or*words*.  no, *asterisk text can have space*
+  * what about **double asterisks** 
+  * squiqle ~squigle~
+  * nice thing is vim will highlight text specially from .rst syntax (mostly)
+
+
+List with hash
 
 #) a numbered list
 #) another entry
@@ -38,13 +57,13 @@ Example list with dash
 
 ------------------------------
 
-bunch of ---- in a line by itself treated by .md as horizontal line, same in .rst?
+bunch of ---- in a line by itself treated by .md as horizontal line, same in .rst?  --> Yes
 
-lines below are from the original README.md file
-they may render funny in .rst...
 
 ----------------------
 
+A. To start list, do not start with space
+B. Adding space in the beginning will be treated as quoted text and add email-style indent/quote vertical bar in front of it
   1. removed old README.md file 
     a) maybe that was causing confusion
     b) so now it would render by github?
@@ -52,7 +71,24 @@ they may render funny in .rst...
   #. Tired of numbering list myself, using hash sign in this line.
     #) sub line of hash
     #) another sub line of hash
+  2. Instead of hash, can repeat number?
+    a) and use '''a)''' repeatedly too?
+    a) and use '''a)''' repeatedly too?
+    a) and use '''a)''' repeatedly too?
 
 
+=======
+
+This number block below starts with indented space.
+
+  1. To start list, do not start with space
+  1. Adding space in the beginning will be treated as quoted text and add email-style indent/quote vertical bar in front of it
+  1. removed old README.md file 
+    a) maybe that was causing confusion
+    b) so now it would render by github?
+  2. TBA...
+  #. Tired of numbering list myself, using hash sign in this line.
+    #) sub line of hash
+    #) another sub line of hash
 
 
