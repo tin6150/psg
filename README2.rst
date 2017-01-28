@@ -20,6 +20,10 @@ As python, space matter.  But this is the case of nested list, which in this cas
 Given the tech nature of most doc, .rst probably better than markdown.
 However, stackoverflow is essentially markdown.
 
+
+Next should be a table of content.  the ``contents directive`` will read entries from the ``topic directive`` , as well as things that parsed are headers (those with underlines and stuff).  Thus, explicit ``topic`` or ``title`` directives are not really necessary.
+
+.. sidebar::
 .. contents::
 
 
@@ -279,8 +283,7 @@ now that there is no markdown format text, .rst renders well
 
 
 
-===========================
- preformatted code example
+Preformatted code example
 ===========================
 .. topic:: code block
 
@@ -318,6 +321,7 @@ end of code block
 
 
 
+trying raw, nothing displayed in github.
 .. raw::
 	these lines are in 
 	   raw text
