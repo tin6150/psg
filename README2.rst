@@ -81,18 +81,18 @@ bunch of ---- in a line by itself treated by .md as horizontal line, same in .rs
 
 A. To start list, do not start with space
 B. Adding space in the beginning will be treated as quoted text and add email-style indent/quote vertical bar in front of it
-    0. Sublist need to be started with 4 space, or else this special block treated as quote text
+    1. Sublist need to be started with 4 space, or else this special block treated as quote text
     1. removed old README.md file 
-    a) maybe that was causing confusion
-    b) so now it would render by github?
-    2. TBA...
+        a) maybe that was causing confusion
+        b) so now it would render by github?
+    #. TBA...
     #. Tired of numbering list myself, using hash sign in this line.
         #) sub-sub line of hash
         #) another sub line of hash
     2. Instead of hash, can repeat number?
-    a) and use '''a)''' repeatedly too?
-    a) and use '''a)''' repeatedly too?
-    a) and use '''a)''' repeatedly too?
+	    a) and use '''a)''' repeatedly too?
+	    a) and use '''a)''' repeatedly too?
+	    a) and use '''a)''' repeatedly too?
 
 
 =======
