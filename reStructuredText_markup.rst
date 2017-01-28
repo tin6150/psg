@@ -27,6 +27,18 @@ Next should be a table of content.  the ``contents directive`` will read entries
 .. contents::
 
 
+==========================================================
+
+References
+----------
+
+- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText#Examples_of_reST_markup
+- reStructuredText quick ref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
+- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
+- preformatting samples, but not necessarily code syntax highlight: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples 
+
+
+
 .. topic:: Examples that works
 Examples that works  
 -------------------
@@ -38,12 +50,6 @@ Note that single dash subline make this a subheader but no ruler line below it l
 - *single asterist* to delimited *italic text* 
 - **double asterisks** became **bold**
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
-
-References:
-- reStructuredText quick ref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
-- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
-- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText
-- preformatting code samples: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
 
 
 List with human numbers
