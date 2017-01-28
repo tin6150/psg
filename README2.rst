@@ -5,7 +5,7 @@ github support .rst just as well as .md
 Not sure if can have README.rst as default rather than README.md (yet).
 
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
-Thus, pay special attention to ``.. ::code blocks``
+Thus, pay special attention to ``code blocks``
 
 RST 
 ===
