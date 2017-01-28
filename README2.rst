@@ -1,8 +1,12 @@
 reStrcuturedText
-*****************
+****************
 
 github support .rst just as well as .md
 Not sure if can have README.rst as default rather than README.md (yet).
+Need to be a bit careful that the first couple of lines parse exactly as rst.
+The following paralized the rendering of .rst and reverted back to raw:
+- starting with a blank line
+- missing an asterisk under the title line so that it was shorter than the text above it
 
 
 RST 
