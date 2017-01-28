@@ -21,7 +21,7 @@ Given the tech nature of most doc, .rst probably better than markdown.
 However, stackoverflow is essentially markdown.
 
 
-Next should be a table of content.  the ``contents directive`` will read entries from the ``topic directive`` , as well as things that parsed are headers (those with underlines and stuff).  Thus, explicit ``topic`` or ``title`` directives are not really necessary.
+Next should be a table of content.  the ``contents directive`` will read entries from the ``topic directive`` , as well as things that parsed are headers (those with underlines and stuff).  Thus, explicit ``topic`` or ``title`` directives are not really necessary.   (``sidebar directive`` not supported by github rendered)
 
 .. sidebar::
 .. contents::
@@ -135,6 +135,8 @@ Example nested list with dash
 
 - `backquote`      
 - `backquote`       # don't seems to be rendered any differently, even though vim did highlight it
+- doc says single backquote would actually be executed, but not the case in github parser?
+  but that's prob why vim highlight single backquotes especially.
 - 'single quote'
 - 'single quote'	# again, everything is verbatim here
 - "double quote"
@@ -321,10 +323,20 @@ end of code block
 
 
 
-trying raw, nothing displayed in github.
+raw text
+********
+
+trying raw, it gets reverse text block in github.
 .. raw::
 	these lines are in 
 	   raw text
 	**double asterisks**  are displayed verbatim
+          funky stuff can go in the raw block
+	maybe put     code   in this raw section?
+	but it can simply be indented and be taken as verbatim text
+	except when don't want parser to treat it
+	what i want is parser to highlight it
+	but in documentation, prob not too important.	
+	
 
 back to normal
