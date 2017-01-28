@@ -1,5 +1,5 @@
-reStrcutured Text
-*****************
+reStrcuturedText
+****************
 
 github support .rst just as well as .md
 Not sure if can have README.rst as default rather than README.md (yet).
@@ -7,6 +7,7 @@ Not sure if can have README.rst as default rather than README.md (yet).
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
 Thus, pay special attention to ``code blocks``
 (actually, tailing underline after word seems to be the culprit)
+
 
 RST 
 ===
@@ -19,7 +20,10 @@ As python, space matter.  But this is the case of nested list, which in this cas
 Given the tech nature of most doc, .rst probably better than markdown.
 However, stackoverflow is essentially markdown.
 
+.. contents::
 
+
+.. topic:: Examples that works
 Examples that works  
 -------------------
 
@@ -32,11 +36,10 @@ Note that single dash subline make this a subheader but no ruler line below it l
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
 
 References:
+- reStructuredText quick ref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
 - reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
 - wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText
 - preformatting code samples: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
-- Hyperlinks with 
- _custom text word: http://docutils.sourceforge.net/docs/user/rst/quickref.html#hyperlink-targets
 
 
 List with human numbers
@@ -75,6 +78,7 @@ bunch of ---- in a line by itself treated by .md as horizontal line, same in .rs
 
 
 
+.. topic:: Examples and tests
 More examples, but many don't work correctly.  they were my learning experience.
 --------------------------------------------------------------------------------
 
@@ -254,9 +258,9 @@ B. Adding space in the beginning will be treated as quoted text and add email-st
 
 
 
-----------------------------------
- this is an example of boxed text
-----------------------------------
+---------------------------------------------------------------------------
+  this is an example of boxed text, but github don't render them as boxed 
+---------------------------------------------------------------------------
 
 ===============================
  another example of boxed text
@@ -273,14 +277,15 @@ now that there is no markdown format text, .rst renders well
 (though not which of markdown text threw off the parser)
 
 
-Thus, pay special attention to ``.. ::code blocks``
 
 
 ===========================
  preformatted code example
 ===========================
+.. topic:: code block
 
-ref: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+reference for preformatting: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+reference for directive: http://docutils.sourceforge.net/docs/user/rst/cheatsheet.txt
 
 
 ::
@@ -289,6 +294,12 @@ ref: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting
 	good for quoting
 
 	blank lines still continues the literal
+	.. directive:: 
+	see http://docutils.sourceforge.net/docs/user/rst/cheatsheet.txt
+	it seems that 
+	.. code:: bash
+	will actually tell parser to run the code in the language specified, 
+	not to display with language syntax...
 
 back to normal text
 something about using two periods, code and two colons and language to start code block
@@ -306,3 +317,10 @@ end of code block
 	..code:: bash
 
 
+
+.. raw::
+	these lines are in 
+	   raw text
+	**double asterisks**  are displayed verbatim
+
+back to normal
