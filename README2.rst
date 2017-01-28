@@ -1,3 +1,8 @@
+reStrcutured Text
+*****************
+
+Does github support this markup?  it did for NeRSC Shifter... 
+But I need to enable such support in my own repo for it to render?
 
 RST 
 ===
@@ -15,6 +20,9 @@ However, stackoverflow is essentially markdown.
 
 
 I wonder the stuff that SLACK use, how is it in .rst?
+
+Example list with dash
+----------------------
 
 - `backquote` 
 - 'single quote'
