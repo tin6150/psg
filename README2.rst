@@ -20,16 +20,16 @@ Given the tech nature of most doc, .rst probably better than markdown.
 However, stackoverflow is essentially markdown.
 
 
-Examples that works.  
+Examples that works  
 -------------------
 
 Note that single dash subline make this a subheader but no ruler line below it like the above does
 
 - use dash to start list
-- use underline_ at end_ to create list_  # but need more details 
-- ```triple backquotes```  highligt in reverse text and monospace font
-- single *asterist* around *word*or*words* is italic. *asterisk text can have space*.  
+- ``double backquotes``  highligt in reverse text and monospace font
+- single *asterist to delimited italic text* 
 - and **double asterisks** became bold
+- use underline_ at end_ to create list_  # but need more details 
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
 
 List with hash
@@ -39,7 +39,6 @@ List with hash
 #) third entry
 
 Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, letters, hash just confuses it.
-
 
 - starting a list
 - continue list 
@@ -58,8 +57,8 @@ Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, le
 		- two tabs here for sub-sub list
 
 
-Examples, but many don't work correctly.  they were my learning experience.
------------
+More examples, but many don't work correctly.  they were my learning experience.
+--------------------------------------------------------------------------------
 
 
 #   comment this should not be special emphasis in .rst, as did .md
@@ -96,10 +95,13 @@ Example nested list with dash
 - `backquote`       # don't seems to be rendered any differently, even though vim did highlight it
 - 'single quote'
 - 'single quote'	# again, everything is verbatim here
-- "double quote"	# this was rendered in italic in github
-    - a four-space indented list item
+- "double quote"
+- lets try with two quotes
+    * ``double backquotes``  yes this was highligted in reverse text and monospace font
+    * ''double single quotes''  
+    * ""double double quotes""
 - lets try with triples:
-    * ```triple backquotes```  yes this was highligted in reverse text and monospace font
+    * ```triple backquotes```  the extra backquote shows up in the final text
     * '''triple single quote'''
     * """triple double quote"""
 * bulleted list same as dash list?
