@@ -42,21 +42,23 @@ Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, le
 
 
 - starting a list
-- continue list
+- continue list 
+- continue list 
+- continue list 
+- continue list .... and when it is about to start a sub list, this line becomes bold italic
     - four spaces
     - four spaces
 - continue list
-- continue list
+- continue list 
+	- one tab here
 	- one tab here
 	- one tab here
 		- two tabs here for sub-sub list
 		- two tabs here for sub-sub list
+		- two tabs here for sub-sub list
 
 
------------
------------
 Examples, but many don't work correctly.  they were my learning experience.
------------
 -----------
 
 
@@ -123,7 +125,6 @@ List with hash
 #) third entry
 
 Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, letters, hash just confuses it.
-
 
 - starting a list
 - continue list
@@ -220,3 +221,11 @@ B. Adding space in the beginning will be treated as quoted text and add email-st
   2. TBA...
     #. Tired of numbering list myself, using hash sign in this line.
 
+
+
+
+--------------------------------
+--------------------------------
+this isn't example of boxed text
+--------------------------------
+--------------------------------
