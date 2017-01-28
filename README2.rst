@@ -5,7 +5,7 @@ github support .rst just as well as .md
 Not sure if can have README.rst as default rather than README.md (yet).
 
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
-Thus, pay special attention to ``code blocks``
+Thus, pay special attention to code blocks
 
 RST 
 ===
@@ -26,7 +26,7 @@ Note that single dash subline make this a subheader but no ruler line below it l
 
 - use dash to start list
 - ``double backquotes``  highligt in reverse text and monospace font
-- *single asterist* to delimited *italic text* 
+- *single asterisk* to delimited *italic text* 
 - **double asterisks** became **bold**
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
 
@@ -256,10 +256,12 @@ B. Adding space in the beginning will be treated as quoted text and add email-st
 
 
 ----------------------------------
+
  this is an example of boxed text
 ----------------------------------
 
 ===============================
+
  another example of boxed text
 ===============================
 
