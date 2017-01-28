@@ -32,11 +32,11 @@ Note that single dash subline make this a subheader but no ruler line below it l
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
 
 References:
-- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
-- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText
-- preformatting code samples: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+- reStructuredText primer: http: /docutils.sourceforge.net/docs/user/rst/quickstart.html
+- wikipedia on .rst: https: /en.wikipedia.org/wiki/ReStructuredText
+- preformatting code samples: http: /docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
 - Hyperlinks with 
- _custom text word: http://docutils.sourceforge.net/docs/user/rst/quickref.html#hyperlink-targets
+ _custom text word: http: /docutils.sourceforge.net/docs/user/rst/quickref.html#hyperlink-targets
 
 
 List with human numbers
@@ -104,7 +104,7 @@ Nope.  RTFM!
 
 ----
 
-ref: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+ref: http: /docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
 
 	two colons and next line with indent 
 	indicate literal text
