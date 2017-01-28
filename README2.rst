@@ -6,6 +6,7 @@ Not sure if can have README.rst as default rather than README.md (yet).
 
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
 Thus, pay special attention to ``code blocks``
+(actually, tailing underline after word seems to be the culprit)
 
 RST 
 ===
@@ -270,5 +271,38 @@ No, just needed to remove the .md text that was in the bottom
 it somehow confused the parser and so didn't render it at all.
 now that there is no markdown format text, .rst renders well
 (though not which of markdown text threw off the parser)
+
+
+Thus, pay special attention to ``.. ::code blocks``
+
+
+===========================
+ preformatted code example
+===========================
+
+ref: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+
+
+::
+	two colons and next line with indent 
+	indicate literal text
+	good for quoting
+
+	blank lines still continues the literal
+
+back to normal text
+something about using two periods, code and two colons and language to start code block
+
+
+.. code:: bash
+	echo "hello world"
+	for F in $( ls -1 /etc ); do
+		echo $F
+	done
+end of code block
+
+::
+	above was with 
+	..code:: bash
 
 
