@@ -20,9 +20,10 @@ Given the tech nature of most doc, .rst probably better than markdown.
 However, stackoverflow is essentially markdown.
 
 
-Examples that works
+Examples that works.  
 -------------------
 
+Note that single dash subline make this a subheader but no ruler line below it like the above does
 
 - use dash to start list
 - use underline_ at end_ to create list_  # but need more details 
@@ -30,7 +31,6 @@ Examples that works
 - single *asterist* around *word*or*words* is italic. *asterisk text can have space*.  
 - and **double asterisks** became bold
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
-
 
 List with hash
 
