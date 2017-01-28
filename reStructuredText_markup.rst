@@ -22,6 +22,7 @@ However, stackoverflow is essentially markdown.
 
 
 Next should be a table of content.  the ``contents directive`` will read entries from the ``topic directive`` , as well as things that parsed are headers (those with underlines and stuff).  Thus, explicit ``topic`` or ``title`` directives are not really necessary.   (``sidebar directive`` not supported by github rendered)
+(the topic wasn't listed in contents:: , but the heading line was listed instead.  so, may have no use for ``topic``)
 
 .. sidebar::
 .. contents::
@@ -39,7 +40,7 @@ References
 
 
 
-.. topic:: Examples that works
+.. topic:: Examples 1
 Examples that works  
 -------------------
 
@@ -294,6 +295,8 @@ now that there is no markdown format text, .rst renders well
 Preformatted code example
 ===========================
 .. topic:: code block
+
+(the topic wasn't listed in contents:: , but the heading line was listed instead.  so, may have no use for ``topic``)
 
 reference for preformatting: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
 reference for directive: http://docutils.sourceforge.net/docs/user/rst/cheatsheet.txt
