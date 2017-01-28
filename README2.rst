@@ -79,6 +79,23 @@ List with hash
 #) another entry
 #) third entry
 
+Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, letters, hash just confuses it.
+
+
+-. starting a list
+-. continue list
+    -. four spaces
+    -. four spaces
+-. continue list
+-. continue list
+	-. one tab
+	-. one tab
+-. continue list
+-. continue list
+	- tab vs space don't matter
+	- tab vs space has no diff
+		- sub-sub list
+		- sub-sub list
 
 
 ------------------------------
@@ -87,6 +104,23 @@ bunch of ---- in a line by itself treated by .md as horizontal line, same in .rs
 
 
 ----------------------
+
+- To start list, do not start with space
+- Adding space in the beginning will be treated as quoted text and add email-style indent/quote vertical bar in front of it
+    - Sublist need to be started with 4 space, or else this special block treated as quote text
+    - removed old README.md file 
+	- maybe that was causing confusion
+	- so now it would render by github?
+    - TBA...
+    - Tired of numbering list myself, using hash sign in this line.
+        - sub-sub line of hash
+        - another sub line of hash
+
+
+
+
+can't use numbers and letters for nested list.  below don't render correctly :(  
+probably nothing to do with space vs tab
 
 A. To start list, do not start with space
 A. Adding space in the beginning will be treated as quoted text and add email-style indent/quote vertical bar in front of it
@@ -104,7 +138,7 @@ A. Adding space in the beginning will be treated as quoted text and add email-st
 	a) and use '''a)''' repeatedly too?
 
 
-Nested list is difficult, and there is diff b/w tab and spaces
+Nested list is difficult, and there is diff b/w tab and spaces. nope!!
 
 1. starting a list
 2. continue list
