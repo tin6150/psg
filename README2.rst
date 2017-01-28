@@ -1,5 +1,5 @@
-reStrcuturedText rst
-********************
+reStrcutured Text
+*****************
 
 github support .rst just as well as .md
 Not sure if can have README.rst as default rather than README.md (yet).
