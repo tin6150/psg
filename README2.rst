@@ -5,6 +5,7 @@ github support .rst just as well as .md
 Not sure if can have README.rst as default rather than README.md (yet).
 
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
+Thus, pay special attention to ``code blocks``
 
 RST 
 ===
@@ -20,6 +21,22 @@ However, stackoverflow is essentially markdown.
 
 Examples that works  
 -------------------
+
+Note that single dash subline make this a subheader but no ruler line below it like the above does
+
+- use dash to start list
+- ``double backquotes``  highligt in reverse text and monospace font
+- *single asterist* to delimited *italic text* 
+- **double asterisks** became **bold**
+- nice thing is vim will highlight text specially from .rst syntax (mostly)
+
+References:
+- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
+- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText
+- preformatting code samples: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+- Hyperlinks with 
+ _custom text word: http://docutils.sourceforge.net/docs/user/rst/quickref.html#hyperlink-targets
+
 
 List with human numbers
 
@@ -49,6 +66,7 @@ Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, le
 		- two tabs here for sub-sub list
 		- two tabs here for sub-sub list
 		- two tabs here for sub-sub list
+
 
 ------------------------------
 
@@ -84,13 +102,21 @@ to mean hard break of line?
 Nope.  RTFM!
 
 
------------
+----
+
+ref: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+
+	two colons and next line with indent 
+	indicate literal text
+	good for quoting
+
+	blank lines still continues the literal
 
 end block with text back at the same original indent level
 back to normal text
 something about using two periods, code and two colons and language to start code block
 
---------------
+----
 
 
 I wonder the stuff that SLACK use, how is it in .rst?
@@ -105,6 +131,8 @@ Example nested list with dash
 - "double quote"
 - lets try with two quotes
     * ``double backquotes``  yes this was highligted in reverse text and monospace font
+    * ''double single quotes''  
+    * ""double double quotes""
 - lets try with triples:
     * ```triple backquotes```  the extra backquote shows up in the final text
     * '''triple single quote'''
@@ -118,7 +146,6 @@ Text highlight (and bullet list with indent but no blank lines)
   * single *asterist* around *word*or*words* is italic.  no, *asterisk text can have space*.  
   * what about **double asterisks** became bold
   * but ***triple asterisks*** means nothing special
-  * _need_underline_in_space_too
   * squiqle ~squigle~
   * nice thing is vim will highlight text specially from .rst syntax (mostly)
 
@@ -226,6 +253,13 @@ B. Adding space in the beginning will be treated as quoted text and add email-st
 
 
 
+----------------------------------
+ this is an example of boxed text
+----------------------------------
+
+===============================
+ another example of boxed text
+===============================
 
 (note the starting space in the text line vs the dash line)
 
