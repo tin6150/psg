@@ -3,12 +3,9 @@ reStrcutured Text
 
 github support .rst just as well as .md
 Not sure if can have README.rst as default rather than README.md (yet).
-Need to be a bit careful that the first couple of lines parse exactly as rst.
-The following paralized the rendering of .rst and reverted back to raw:
-- starting with a blank line
-- need at least two words in the first line?  and asterisks that span across the two words?
-- missing an asterisk under the title line so that it was shorter than the text above it
 
+Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
+Thus, pay special attention to ``.. ::code blocks``
 
 RST 
 ===
@@ -33,8 +30,14 @@ Note that single dash subline make this a subheader but no ruler line below it l
 - **double asterisks** became **bold**
 - use underline_ at end_ to create list_  # but need more details 
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
+
+References:
 - reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
 - wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText
+- preformatting code samples: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+- Hyperlinks with 
+.. _custom text word: http://docutils.sourceforge.net/docs/user/rst/quickref.html#hyperlink-targets
+
 
 List with human numbers
 
@@ -99,17 +102,22 @@ to mean hard break of line?
 Nope.  RTFM!
 
 
+----
+
+ref: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
+
 ::
 	two colons and next line with indent 
 	indicate literal text
 	good for quoting
 
 	blank lines still continues the literal
-::
 
+end block with text back at the same original indent level
 back to normal text
 something about using two periods, code and two colons and language to start code block
 
+----
 
 .. code:: bash
 	echo "hello world"
@@ -123,8 +131,7 @@ end of code block
 	above was with 
 	..code:: bash
 
-::
-
+	
 
 I wonder the stuff that SLACK use, how is it in .rst?
 
@@ -263,11 +270,15 @@ B. Adding space in the beginning will be treated as quoted text and add email-st
 
 
 
---------------------------------
---------------------------------
-this isn't example of boxed text
---------------------------------
---------------------------------
+----------------------------------
+ this is an example of boxed text
+----------------------------------
+
+===============================
+ another example of boxed text
+===============================
+
+(note the starting space in the text line vs the dash line)
 
 
 Does github support this markup?  it did for NeRSC Shifter... 
