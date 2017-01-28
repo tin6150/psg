@@ -1,4 +1,4 @@
-md2rst
+md to rst
 ******
 
 Below is the README.md file, just renamed to .rst, to see how github renders it :)
