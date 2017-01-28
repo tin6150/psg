@@ -1,12 +1,9 @@
-reStrcutured Text
+reStrcuturedText
 *****************
 
-Does github support this markup?  it did for NeRSC Shifter... 
-But I need to enable such support in my own repo for it to render?
-No, just needed to remove the .md text that was in the bottom
-it somehow confused the parser and so didn't render it at all.
-now that there is no markdown format text, .rst renders well
-(though not which of markdown text threw off the parser)
+github support .rst just as well as .md
+Not sure if can have README.rst as default rather than README.md (yet).
+
 
 RST 
 ===
@@ -27,12 +24,21 @@ Note that single dash subline make this a subheader but no ruler line below it l
 
 - use dash to start list
 - ``double backquotes``  highligt in reverse text and monospace font
-- single *asterist to delimited italic text* 
-- and **double asterisks** became bold
+- *single asterist* to delimited *italic text* 
+- **double asterisks** became **bold**
 - use underline_ at end_ to create list_  # but need more details 
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
+- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
+- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText
 
-List with hash
+List with human numbers
+
+1) a numbered list
+2) another entry
+3) third entry
+
+
+List with hash, and let rst parser generate the correct number
 
 #) a numbered list
 #) another entry
@@ -41,8 +47,6 @@ List with hash
 Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, letters, hash just confuses it.
 
 - starting a list
-- continue list 
-- continue list 
 - continue list 
 - continue list .... and when it is about to start a sub list, this line becomes bold italic
     - four spaces
@@ -55,6 +59,11 @@ Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, le
 		- two tabs here for sub-sub list
 		- two tabs here for sub-sub list
 		- two tabs here for sub-sub list
+
+
+------------------------------
+bunch of ---- in a line by itself treated by .md as horizontal line, same in .rst?  --> Yes
+
 
 
 More examples, but many don't work correctly.  they were my learning experience.
@@ -84,6 +93,32 @@ Use html markdup of "br" <BR>
 to mean hard break of line?
 Nope.  RTFM!
 
+
+::
+	two colons and next line with indent 
+	indicate literal text
+	good for quoting
+
+	blank lines still continues the literal
+::
+
+back to normal text
+something about using two periods, code and two colons and language to start code block
+
+
+.. code:: bash
+	echo "hello world"
+	for F in $( ls -1 /etc ); do
+		echo $F
+	done
+
+end of code block
+
+::
+	above was with 
+	..code:: bash
+
+::
 
 
 I wonder the stuff that SLACK use, how is it in .rst?
@@ -145,9 +180,6 @@ Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, le
 		- sub-sub list
 
 
-------------------------------
-
-bunch of ---- in a line by itself treated by .md as horizontal line, same in .rst?  --> Yes
 
 
 ----------------------
@@ -231,3 +263,13 @@ B. Adding space in the beginning will be treated as quoted text and add email-st
 this isn't example of boxed text
 --------------------------------
 --------------------------------
+
+
+Does github support this markup?  it did for NeRSC Shifter... 
+But I need to enable such support in my own repo for it to render?
+No, just needed to remove the .md text that was in the bottom
+it somehow confused the parser and so didn't render it at all.
+now that there is no markdown format text, .rst renders well
+(though not which of markdown text threw off the parser)
+
+
