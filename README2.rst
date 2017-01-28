@@ -5,7 +5,7 @@ github support .rst just as well as .md
 Not sure if can have README.rst as default rather than README.md (yet).
 
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
-Thus, pay special attention to code blocks
+Thus, pay special attention to ``code blocks``
 
 RST 
 ===
@@ -22,17 +22,23 @@ However, stackoverflow is essentially markdown.
 Examples that works  
 -------------------
 
+``
 Note that single dash subline make this a subheader but no ruler line below it like the above does
 
 - use dash to start list
 - ``double backquotes``  highligt in reverse text and monospace font
-- *single asterisk* to delimited *italic text* 
+- *single asterist* to delimited *italic text* 
 - **double asterisks** became **bold**
+- use underline_ at end_ to create list_  # but need more details 
 - nice thing is vim will highlight text specially from .rst syntax (mostly)
 
 References:
+- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
+- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText
+- preformatting code samples: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
 - Hyperlinks with 
-
+ _custom text word: http://docutils.sourceforge.net/docs/user/rst/quickref.html#hyperlink-targets
+``
 
 List with human numbers
 
@@ -62,7 +68,6 @@ Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, le
 		- two tabs here for sub-sub list
 		- two tabs here for sub-sub list
 		- two tabs here for sub-sub list
-
 
 ------------------------------
 bunch of ---- in a line by itself treated by .md as horizontal line, same in .rst?  --> Yes
@@ -99,6 +104,7 @@ Nope.  RTFM!
 
 ----
 
+ref: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
 
 	two colons and next line with indent 
 	indicate literal text
@@ -251,12 +257,10 @@ B. Adding space in the beginning will be treated as quoted text and add email-st
 
 
 ----------------------------------
-
  this is an example of boxed text
 ----------------------------------
 
 ===============================
-
  another example of boxed text
 ===============================
 
