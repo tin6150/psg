@@ -82,6 +82,11 @@ isi_gather_info		# collect status of cluster and send to support (usually auto u
 
 isi_gather_info --nologs --local-only -i isi_hw_status -f ... 	# selectively collect info
 
+# get a smaller gather log, particulartly remove /var/log/lastlog that are gianormous
+cp igi_nolastlog /usr/bin/	
+/usr/bin/igi_nolastlog --esrs --varlog_recent --no-dumps --no-cores -x ifsvar_modules,quotas,ifsvar_tmp,ifsvar_modules_jobengine_cp > /ifs/data/scripts/isi_gather_info.log 2>&1 
+
+
 shutdown -p now		# shutdown a single node (the one logged in to).  it will put in read-only mode and then power it off.
 
 uname -a		# At least from OneFS 7, tell Isilon version (and not the underlaying BSD info)
@@ -335,8 +340,15 @@ SmartConnect/Network
 </H3>
 
 Isilon SmartConnect is essentially DNS Round Robin.  Lot of address to each node, so that it can load balance, fail over, etc.
-NFS is stateless, this works well (with Dynamic IP allocation).
+NFS is stateless, this works well (with Dynamic IP allocation).  <BR>
 SMB is stateful.  One support guy recommended that a different SmartConnect pool of IP address be created for windows client to use.  And this pool to use STATIC IP mapping to the node, so that no IP change will take place in load balance, avoiding potential stateful protocol violation (but don't think ever experienced).  
+<BR>
+
+<PRE>
+isi network modify pool ten:ten --sc-rebalance
+# rebalance SmartConnect IP pool (redistribute them across isilon nodes).
+# ten:ten refers to the names of vlan the rebalance will work on
+</PRE>
 
 
 

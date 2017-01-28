@@ -431,6 +431,27 @@ udev			# some hw persisten naming thing
 
 <H2>Random Tidbits</H2>
 
+<A ID="timezone"></A>
+<A ID="tz"></A>
+<H5>Timezone</H5>
+
+<UL>
+<LI> While EST is Easter Standard Time, PST isn't always Pacific Standard Time.  See <A HREF="http://geekyap.blogspot.com/2014/03/pst-is-not-pacific-standard-time-bug-in.html">blogspot</A> post for detailed example.
+<LI> <TT>date +%Z</TT> gives timezone name as displayed by the date command, but it is not always the correct string to set for TZ.  See <A HREF="https://bugzilla.redhat.com/show_bug.cgi?id=1411150">bugzilla 1411150</A> at redhat.  
+<LI> Do NOT set <strike><TT>TZ=$(date +%Z)</TT></strike>.  PST does not have a corresponding file in /usr/share/zoneinfo (it is only listed as PST8PDT).
+<LI> Use <TT>TZ=$(tail -1 /etc/localtime)</TT> instead.  <TT>TZ</TT> will become something like <TT>PST8PDT,M3.2.0,M11.1.0</TT>, which would then produce the correct time when <TT>date</TT> is issued.
+<LI> PST, CST, AKST cannot be used for TZ.  It would not map to a known timezone.  <TT>date</TT> will think it is a custom defined timezone with 0 hours offset from GMT, and display the string but the time will be in GMT :(
+<LI> EST, MST, HST does work correctly.  Can use CST5CDT, PST8PDT, AKST9AKDT if just want to setting something manually.
+</UL>
+
+<H5>Changing Timezone</H5>
+
+<UL>
+<LI> <TT>cp /usr/share/zoneinfo/US/Pacific /etc/localtime</TT> 
+<LI> <TT>cp /usr/share/zoneinfo/PST8PDT    /etc/localtime</TT> 
+<LI> Ubuntu: <TT>dpkg-reconfigure tzdata</TT>
+</UL>
+
 <A NAME="xdmcp"></A>
 <H2>XDMCP</H2>
 
@@ -1980,6 +2001,7 @@ Linux Desktop Progies
 <PRE>
 sublime		text editor (not IDE, so light) good for python programming .  avail in Linux, Win, Mac.
 
+
 mtv  		mpegtv ($10 shareware req reg) for viewing mpeg video.   mpegtv.com
 mvtp		cli of mtv, free.  
 		-z = 2x2 zoom.  
@@ -2006,6 +2028,7 @@ irssi		a newer text based irc client, some cmd same as BitchX
 
 iEvince/GPdf 	GNOME pdf viewer
 Okular/KPDF	KDE pdf viewer
+evince		Document viewer, PDF, PS, XPS, TIFF
 xpdf		X Window pdf viewer
 PDFedit		GPL pdf internal structure editor
 CUPS-PDF	PDF generator extension to CUPS printing system, generate pdf file
@@ -2018,6 +2041,7 @@ fsview			# A GUI to see directory/file space usage, kinda interesting.
 redhat-logiviewer	# GUI tool to parse many diff logs
 
 gqview			# acdsee like image viewer
+eog			# eyes of genome, graphics file viewer
 eeyes			# electric eyes
 gimp			# "photoshop"
 
