@@ -19,6 +19,47 @@ As python, space matter.  But this is the case of nested list, which in this cas
 Given the tech nature of most doc, .rst probably better than markdown.
 However, stackoverflow is essentially markdown.
 
+
+Examples that works
+-------------------
+
+
+- use dash to start list
+- use underline_ at end_ to create list_  # but need more details 
+- ```triple backquotes```  highligt in reverse text and monospace font
+- single *asterist* around *word*or*words* is italic. *asterisk text can have space*.  
+- and **double asterisks** became bold
+- nice thing is vim will highlight text specially from .rst syntax (mostly)
+
+
+List with hash
+
+#) a numbered list
+#) another entry
+#) third entry
+
+Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, letters, hash just confuses it.
+
+
+- starting a list
+- continue list
+    - four spaces
+    - four spaces
+- continue list
+- continue list
+	- one tab here
+	- one tab here
+		- two tabs here for sub-sub list
+		- two tabs here for sub-sub list
+
+
+-----------
+-----------
+Examples, but many don't work correctly.  they were my learning experience.
+-----------
+-----------
+
+
 #   comment this should not be special emphasis in .rst, as did .md
 ##  double hash should also not be special.
 #   but this comment "block" was runned into continuous line rather than hard ended line
@@ -40,6 +81,7 @@ However, stackoverflow is essentially markdown.
 So, just like normal text <BR>
 Use html markdup of "br" <BR>
 to mean hard break of line?
+Nope.  RTFM!
 
 
 
@@ -66,6 +108,7 @@ Example nested list with dash
 Text highlight (and bullet list with indent but no blank lines)
   * single *asterist* around *word*or*words* is italic.  no, *asterisk text can have space*.  
   * what about **double asterisks** became bold
+  * but ***triple asterisks*** means nothing special
   * _single underline_ .  seems like word_ ending_ with_ underline_ becomes_ links_
   * __double underlines works?__
   * _need_underline_in_space_too
@@ -82,16 +125,17 @@ List with hash
 Nested list.  use dash.  Let .rst render deal with numbering.  using numbers, letters, hash just confuses it.
 
 
--. starting a list
--. continue list
-    -. four spaces
-    -. four spaces
--. continue list
--. continue list
-	-. one tab
-	-. one tab
--. continue list
--. continue list
+- starting a list
+- continue list
+    - four spaces
+    - four spaces
+- continue list
+- continue list
+- continue list
+	- one tab
+	- one tab
+- continue list
+- continue list
 	- tab vs space don't matter
 	- tab vs space has no diff
 		- sub-sub list
