@@ -1,5 +1,18 @@
 #!/bin/bash 
 
+
+# now that stuff are in git, no need to scp files from local computer.
+# have also setup a cronjob, so can likely just not worry about this
+ssh bofh@dallas180.arvixeshared.com /home/bofh/psg_git_pull.sh
+#cd /home/bofh/public_html/tin-gh/psg && git pull
+# # git clone https://github.com/tin6150/psg
+
+exit 0
+
+
+
+
+
 cp -p psg2.html psg.html
 cp -p psg2.html index.html
 ## linux dropbox tends to change file perm to 000 !! :(
