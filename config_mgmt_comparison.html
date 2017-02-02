@@ -180,31 +180,78 @@ Here is a comparison of various configuration management tool.  It is work in pr
   </tr>
 </tfoot>
 
+<!-- ################################################## -->
+<!--      Table body   -->
+<!-- ################################################## -->
+
 
 <tbody>
-
-	
-
   <tr>
       <td>Version</td>
-      <th>Ansible</th>
-      <th>Puppet</th>
-      <th>CFEngine</th>
-      <th>Chef</th>
-      <th>Comments</th>
+      <td>Ansible</td>
+      <td>Puppet</td>
+      <td>CFEngine 2</td>
+      <td>Chef</td>
+      <td>Comments</td>
+  </tr>
+
+  <tr>
+      <td>Agent</td>
+      <td>agentless, use ssh</td>
+      <td>daemon, run from cronjob</td>
+      <td>cronjob, no push mechanism </td>
+      <td>Chef</td>
+      <td>Ansible is different from the pack.  Being agentless maybe reason why loved by HPC admins</td>
   </tr>
 
 
 
 
   <tr>
-    <td>Guiding principle</td>
-    <td></td>
-    <td></td>
+      <td>Guiding principle</td>
+      <td>Idempotent (but not guaranteed)</td>
+      <td>Puppet</td>
+      <td>CFEngine</td>
+      <td>Chef</td>
+      <td>Comments</td>
   </tr>
 
   <tr>
-    <td>Adopters</td>
+      <td>Adopters</td>
+      <td>HPC?</td>
+      <td>DevOps</td>
+      <td>SysAdmins</td>
+      <td>Python lovers?</td>
+  </tr>
+
+
+  <tr>
+      <td>Config</td>
+      <td>YAML, Jinja template</td>
+      <td>YAML, </td>
+      <td>CFEngine's own syntax</td>
+      <td></td>
+      <td></td>
+  </tr>
+
+
+  <tr>
+      <td>Module/code sharing</td>
+      <td>Playbook, written in python, perl, bash, etc.  They are copied to nodes for execution.</td>
+      <td></td>
+      <td>CFEngine 2 felt pretty monolithic, don't remeber seeing plugin modules.  CFEngine 3 may have such support.</td>
+      <td>Knife, Recipe</td>
+      <td></td>
+  </tr>
+
+
+  <tr>
+      <td>Cloud support</td>
+      <td>AWS, OpenStack, many others</td>
+      <td>Yes</td>
+      <td>No special provision in CFEngine 2</td>
+      <td>Yes</td>
+      <td>YMMV? :)</td>
   </tr>
 
 
