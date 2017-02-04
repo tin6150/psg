@@ -841,7 +841,7 @@ __repr__ ...
 <BR>
 <BR>
 mylist.sort()  sorts in-place, so save space and slightly faster.  return None.
-sorted(mylist) returns a new sorted list, so a tad slower, but not said to be not too significant.
+sorted(mylist) returns a new sorted list, so a tad slower, but said to be not too significant.
 <BR>
 
 By default, Python use timsort, an optmized mergesort.  It is heavily optimized on sorted input and can return as fast as o(N-1).  Typical performance is lg(N!).  
@@ -1042,14 +1042,11 @@ xf()		# actually calls x.f()
 myClass.fn(x) 	# this is what is happeneing when calling x.fn(), which is why first param of fn is called self.
 </PRE>
 
-Data attributes override method attributes with the same name !! 
-Use some standard to avoid bugs, eg verbs for methods, nouns for data.  
-well, Java says data should be private and accessed via methods provided by the class...
+Data attributes override method attributes with the same name !!   <BR>
+Use some standard to avoid bugs, eg verbs for methods, nouns for data.    <BR>
+well, Java says data should be private and accessed via methods provided by the class...  <BR>
 
-
-
-
-
+<PRE class="code">
 
 class Pizza(object):
     shape = "round"					# ie, all pizzas will have the same shape.  
@@ -1062,7 +1059,6 @@ class Pizza(object):
     	return cls.favoriteIngredient
 
 
-
 p = Pizza( "pineapple" )
 print( p.ingredients )					# attributes in python are "public" in the C++/Java nomenclature
 							# nothing in python enfoce data hiding, it is all done by convention!!
@@ -1070,17 +1066,13 @@ print( p.ingredients )					# attributes in python are "public" in the C++/Java n
 print( Pizza.shape ) 
 
 # class is object too in python!
-# Exceptions are classes
-
-
+# Exceptions are ... ??
 
 @staticmethod
 
 @classmethod
 
 @abstractmethod
-
-
 
 nonlocal
 global
