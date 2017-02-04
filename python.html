@@ -383,16 +383,17 @@ https://docs.python.org/2/tutorial/modules.html#packages
 	L2 = [ 'ab' ['cde', 'fgh' ] ]		# nested list
 	len(L2)					# length of list, in this eg returns 2
 	L2[i][j]				# 2D array index for nested array.
-	for x in myList 			# items will be expanded for consecutyve x
+	for x in myList 			# items will be expanded for consecutive x
 
-( ) = tuple, set.  as in a math set, ordered, contain uniq elements.  *immutable*  
+( ) = tuple, contain ordered elements.  *immutable*  
+      Strings are implemented as tuples and are immutable.
 	point = (x, y)
-	t1 = ( 2, 4, 6, 8 )
-	t2 =   2, 4, 6, 8  			# () syntax is optional when there is no ambiguity
+	t1 = ( 2, 2 )
+	t2 =   2, 4, 2, 8  			# () syntax is optional when there is no ambiguity
 	t3 = ('xy', ('abc', 'def', 'ghi') )	# nested tuples
 	t3[i][j]				# 2D array syntax works on nested tuples as well
 	t2[1:3]					# slide syntax works on set/tuples too
-	for x in t2	 			# items will be expanded for consecutyve x
+	for x in t2	 			# items will be expanded for consecutive x
 	items = set( myList )			# dup 'c' will be removed
 
 { } = dictionary/hash.  key -> value list.   eg ENV[HOME]  = '/nfshome/tin'      # Perl: %ENV{HOME} = "/nfshome/tin"
@@ -472,7 +473,7 @@ def fn2( **kwargs ) :
 
 % is the new magic in python , but it is old magic.  new one is {}
 print( "most c-style string %s works" % stringvar )
-print( "num %d, fixed point $8.2f, exponent %12e"  % ( 123, 6.1234, 0.0000123 ) )
+print( "num %d, fixed point %8.2f, exponent %12e"  % ( 123, 6.1234, 0.0000123 ) )
 ref <A HREF="https://docs.python.org/2/library/string.html#format-specification-mini-language">https://docs.python.org/2/library/string.html#format-specification-mini-language</A>
 
 print( "Total rows processed: {:,}".format(rows )  )  # {:,} provides thousand separators$
@@ -507,7 +508,7 @@ source = [ 'topspin.%s.tgz' % version ]
 
 %s %s % (path,version)
 
-install_cmd = [ 'tar xfzp %s/%s' % (source_urls,sources) ]     ## file:/// screws up tra
+install_cmd = [ 'tar xfzp %s/%s' % (source_urls,sources) ]     ## file:/// screws up tar
 
 sanity_check_paths = {
     'files': ['bin/%s' % x for x in ['moe', 'moebatch', 'chemcompd', 'rism3d', 'sdwash']],
