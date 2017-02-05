@@ -1,0 +1,27 @@
+#!/bin/sh
+
+#$ -cwd
+## #$ -o /clscratch/ti1/rolling_upgrade/rundir/${JOB_NAME}.${JOB_ID}   ## no variable substitution here :(
+
+(
+logger -p local0.info "this is a test message.  logged at `date`"
+echo testing ... logger -p local0.info "this is a test message.  logged at `date`"
+id
+hostname
+date
+uptime
+echo "==========================="
+top -b -n1 -c
+echo "==========================="
+ps -ef | grep -v root
+echo "==========================="
+ps -ef | grep root
+echo "end of test."
+) > /clscratch/ti1/rolling_upgrade/rundir/${JOB_NAME}.${JOB_ID}
+
+#MACHINE=$(hostname -s)
+#id > /clscratch/ti1/rolling_upgrade/rundir/${MACHINE}.${JOB_ID}.txt
+#echo "root_was_here" > /clscratch/ti1/rolling_upgrade/rundir/root.test.$$.txt
+
+logger -p local0.alert "Rebooting via SGE at `date`"
+/boot/kickstart/cluster-kickstart-pxe
