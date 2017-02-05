@@ -161,6 +161,17 @@ A high performance file system that is guaranteed to make you buy Excedrin(TM) b
 </p>
 
 
+<H2>Overview</H2>
+
+<UL>
+<LI>	MDS: Meta Data Server:  manage file metadata, such as ower, attribute, lock, file pathname, file layout (how stripped, which OSS the file reside).    Many config has a single MDS, which could be SPOF.  Active/standby MDS can be implemented.  Scalability is a bit hindered by single MDS, but it is only for meta data, not actual file "block" data io.  Employment of multiple MDT helps with perf.
+<LI>	MDT: Meta Data Target.  New in Lustre 2.4, where a MDS can have multiple MDT to spread the load.
+<LI>	OSS: Object Store Server.  Handle file IO.  Client bulk access is directly with OSS without interaction with MDS.  Tend to have multiple OSS per cluster.  Each OSS manages 1-8 OST.
+<LI>	OST: Object Store Target.  OST maps to a single local FS. 
+<LI>	
+</UL>
+
+
 <H2>Client side</H2>
 
 <H3>Settings</H3>
