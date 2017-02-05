@@ -432,6 +432,24 @@ git push origin master 			# (same as?) `git push`
 
 </PRE>
 
+<H5>dealing with conflicts</H5>
+
+<TT>git config merge.conflictstyle diff3 </TT>
+will got a long way in automatically merging differences.
+And those that actually have conflicting lines will be marked clearly in the file, search for 
+<TT> <<<<  ||||  >>>> </TT>
+<BR><BR>
+
+There are also visual diff tools.
+command line method using branch can also be used.
+Refer to 
+<A HREF="http://stackoverflow.com/questions/161813/how-to-resolve-merge-conflicts-in-git">post in stackoverflow</A>
+for many other gory options.  <BR>
+
+<BR>
+
+
+
 <H5>git terminology</H5>
 
 <UL>
@@ -473,6 +491,10 @@ git push -u origin master
 
 <H5>git in windows</H5>
 
+There is a git client for windows, but the cli didn't suite my taste and need :( <BR>
+in the git-bash terminal, git push will prompt for username in the cli, and a pop up GUI window for password. <BR>
+<BR>
+
 Cygwin and MobaXterm has provided a quite usable unix-like bash environment for windoze.  However, getting git to work has been very tricky :(
 The following info from 
 <A HREF="http://stackoverflow.com/questions/14774159/git-warning-unable-to-access-p-gitconfig-invalid-argument#15498965">stack overflow</A> 
@@ -481,8 +503,11 @@ may help...
 unset HOMEPATH    <BR>
 export HOME=/c    # in MINGW64 from PortableGit bash terminal  <BR>
 <BR>
-in the git-bash terminal, git push will prompt for username in the cli, and a pop up GUI window for password. <BR>
 
+At the end, cygwin with the git that it ships with worked out okay for me, but it is not usable inside a mobaXterm tab. <BR>
+export HOMEPATH=\      <BR>
+export HOMEDRIVE=H:   <BR>
+<BR>
 
 <H5>git references</H5>
 
