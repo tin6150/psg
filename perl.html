@@ -24,7 +24,7 @@
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
       <td align="center"><a accesskey="s" href="python.html">Python</a></td>
       <td align="center"><a accesskey="p" href="php.html">PHP</a></td>
-      <td align="right"><a accesskey="a" href="shellScript.html">shellScript</a></td>
+      <td align="right"><a accesskey="a" href="shellScript.txt">shellScript</a></td>
     </tr>
   </tbody>
 </table>
@@ -437,11 +437,13 @@ BEGIN {
 
 
 open( FH-IN,  "< /path/to/inputfile" );
-open( FH-OUT, "< /path/to/outputfile" );
+open( FH-OUT, "> /path/to/outputfile" );
 while( <FH-IN> ) { print (FH-OUT $_); }
 close( FH-IN );
 
-Note that it seems that while the file handle is open, a self-recursive call will mangle up the FH internal db, thereby closing it when inner code returns.  One solution is read file into memory bugger and close FH before making recursive call.
+Note that it seems that while the file handle is open, a self-recursive call 
+will mangle up the FH internal db, thereby closing it when inner code returns.  
+One solution is read file into memory bugger and close FH before making recursive call.
 
 
 calling main will all input args:
@@ -676,46 +678,50 @@ invoked by calling perl with -d option:
 perl -d <program-to-debug>
 
 
-perl debugger is really just perl running with addional support (from DB module to store state info).  It is not totally seprated from the program as traditional debugger.
+perl debugger is really just perl running with addional support (from DB module to store state info).  
+It is not totally seprated from the program as traditional debugger.
 
-To execute any perl code w/in a debugging program, just enter the perl code.  Anything that is not understood by debugger is considered perl code and executed via eval, in the context at the debugging point of the program.
+To execute any perl code w/in a debugging program, just enter the perl code.  
+Anything that is not understood by debugger is considered perl code and executed via eval, 
+in the context at the debugging point of the program.
 
-Debugger uses csh-like cmd edit.  ! num, ! cmd, etc to excute cmd, H for history
+Debugger uses csh-like cmd edit.  
+! num, ! cmd, etc to excute cmd, H for history
 
 debugger cmd (commoner stuff):
 
 t				: toggle trace mode (on emulate sh -x, print all code as executed)
 R				: reload/restart the debugger
 
-b fn-name		: set breakpoint at fn
-b LINE			: set breakpoint at line num (breakable lines has colon after num)
-b sub-name		: set breakpoint at a subroutine name
-b load FILE		: set breakpint when FILE is first loaded (by use, require?)
-d LINE			: remove breakpoint at line
+b fn-name			: set breakpoint at fn
+b LINE				: set breakpoint at line num (breakable lines has colon after num)
+b sub-name			: set breakpoint at a subroutine name
+b load FILE			: set breakpint when FILE is first loaded (by use, require?)
+d LINE				: remove breakpoint at line
 D				: remove all breakpoint
 L				: list all breakpoint
 
 c				: continue 
 s				: step (will enter into subroutine)
 n				: next (execute subroutine completely and return, ie "step over")
-<ENTER>			: previous n or s cmd is repeated
+<ENTER>				: previous n or s cmd is repeated
 r				: return from current running subroutine
 
 T				: backTrace of fn call seq
-S pattern		: list all subroutines (with optional pattern for name)
-w lineNum		: look at "window" of source code around break point (or around lineNum)
+S pattern			: list all subroutines (with optional pattern for name)
+w lineNum			: look at "window" of source code around break point (or around lineNum)
 w w				: display more lines than single w by itself.
 -				: print previous few lines
-l LINE|SUB		: display Lines of code around LINE, SUB, (etc).
-/PATTERN		: search fwd in prog for PATTERN (think of vi search)
+l LINE|SUB			: display Lines of code around LINE, SUB, (etc).
+/PATTERN			: search fwd in prog for PATTERN (think of vi search)
 
-p $varname		: print value of $varname.
+p $varname			: print value of $varname.
 f				: something about switching file (to be read, set breakpoint?)
 o				: set lot of option stuff about the dbg
 
 
 h				: help.  Use h h for concise usage.
-h CMD			: help on the given command.
+h CMD				: help on the given command.
 H				: cmd line History
 
 use pipe preceding cmd will run cmd thru the pager.  eg |h to page thru help
@@ -729,11 +735,6 @@ $DB::trace  = 1		: t = trace on ?
 
 </PRE>
 
-<H2>TBD</H2>
-
-
-<BR>
-<BR>
 <BR>
 
 
