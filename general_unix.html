@@ -208,10 +208,16 @@ rsync -avl -e ssh  --rsync-path=/usr/local/bin/rsync remote-svr:/dir/* ./local/s
 screen
 work as usual
 
-screen -r = resume
-screen -w = list screens
+screen -r  = resume
+screen -rd = resume, detach all other sessions
+screen -w  = list screens
 screen -d -r <pid> reatach remote and retach here
 screen -x = allow for multiple attach to a screen (mirror!)
+
+Can use named screen sessions, so don't have to lookup pid using screen -ls
+screen -S scr1
+screen -r scr1  = resume the specified named session scr1
+
 
 ctrl-a,d  = detach
 crtl-a,x  = lock keyboard
