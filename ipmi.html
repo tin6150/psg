@@ -46,12 +46,19 @@ Dedicated NIC provides more functionality.
 
 when enabled, can ssh in (eg into the iDRAC port).
 
-For iDRAC, really want Enterprise version, or else won't get remote console.
-IPMI may be designed for low badnwidth, text mode stuff.  
+The standard iDRAC supports IPMI and basic web interface to look at temperature, fru status, reboot machine, etc.
+The Enterprise iDRAC adds remote (GUI) console, AD-based user auth.
+
+IPMI sol (serial over lan), isol, etc is avail from iDRAC, presumably even in standard version.
 
 </PRE>
 
 <PRE>
+
+For Dell, IPMI don't seems to have way to change hyperthreading settings, not even in the delloem commands.
+Disabling hyperthreading seems to req interactive BIOS changes.
+Linux kernel param noht doesn't work (or was it only supposed to work at install time?)
+
 ~~
 sky4-5 has decent config, bio2 don't.  
 There is likely an IPMI-only w/o iDRAC on the machine as well, eg the low end 1U box

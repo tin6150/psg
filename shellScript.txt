@@ -58,19 +58,19 @@ maybe hard and hard path prefered...
 sh/bash
 ********************************************************************************
 
----
-
 echo $PATH | tr ':' '\012'
 \012 is the octal value for linefeed, note that \015, CR, will not work in unix.
 
 ---
+
+arithmetic, numerical expressions
 
 NUM = `expr 10 + 10`
 NUM = `expr 10 \* 10`
 NUM = `expr 10 \/ 10`
 
 
-New bash4 
+New in bash4 
 
 NUM = $(( 10+10 ))
 echo $(( 10 * 2 )) 	# no escape needed for * 
@@ -96,6 +96,19 @@ for i in 0 1 2; do echo ${userlist[$i]}; done
 
 more examples, array slides ${userlist[1]:1:2}, etc in http://www.tldp.org/LDP/abs/html/arrays.html
 
+
+Integer comparision test
+INT1 -eq INT2
+INT1 -ne INT2
+INT1 -gt INT2
+INT1 -lt INT2
+
+String comparison test
+Str1 = Str2
+Str1 != Str2
+
+Since they are string, may as well use "Str" so account for undefined/empty string cases.
+
 --------
 
 LD_PRELOAD_OPTS=...
@@ -115,7 +128,17 @@ make LDFLAGS=-all-static
 
 -------
 
-emulating main:
+fucntion defintions examples:
+
+
+Size() { ls -l $* | awk '{sum+=$5} END {print sum}' ; }         # Size *.txt  # not /usr/bin/size!
+
+# SGE env, print summary num of nodes, cpu cores, memory in cluster
+qhostTot() { qhost | awk '{h+=1; c+=$3} END {print "host="h " core=" c}'  ; }
+qhostTot() { qhost | sed 's/G//g' | awk '/^sky/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
+
+
+emulating main fn with argument passing:
 
 have fn called
 main() 
@@ -135,7 +158,8 @@ The actual calling of the fn does not need () before args.
 fn really become mini shell scripts w/in the script.
 (fn implementation is really like a kludgy after-thought)
 
-define -F	# list all defined fn
+declare -F	# list all defined fn by name
+declare 	# complete details of all defined functions in current shell
 
 ----
 
@@ -279,6 +303,17 @@ ine cmd.
 ^B      = left arrow
 ^J      = enter
 ^M      = enter
+
+================================================================================
+bash version 4 (and not sh)
+================================================================================
+
+$( cmd )	# `cmd` : a more readable version of backtick execution
+
+echo $(( 5/2 ))	# echo `expr 5 / 2`
+		# $(( )) will perform integer arithmatics akin to expr 
+
+
 
 ================================================================================
 ksh
