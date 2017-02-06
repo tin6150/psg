@@ -5,26 +5,48 @@
 # script to reboot each node, which trigger a PXE boot and a reinstall.
 # run as root on fs w/ root write access
 # ./SGE_reinstall.s
+# wget https://tin6150.github.io/psg/script/hpc/SGE_reinstall.sh
 
+
+## fool trap
 echo "Be sure script what is desired before really running it!!"
 exit 007
+
+getCoreCount() {
+        RHOST=$1                        # there must be no space around the = sign
+        # looks for processor line, but it includes hyperthread.  line is easy to parse, looks like this:
+        # processors           48 
+        # numprocs=`qconf -se $RHOST | \
+        #                awk '/^processors/ {print $2}'`
+        # looks for m_core inside the load_value section, which is intermingled with many other definitions, like:
+        # this seems to exlude hyperthread count, and matches smp slots values
+        # m_core=24,m_mem_free=96766.000000M, 
+        numprocs=`qconf -se $RHOST | \
+                        sed -e 's/,/\n/g' -e 's/\ /\n/g' | awk -F= '/m_core/ {print $2}'`
+                        #sed 's/,/\n/g' | awk -F= '/m_core/ {print $2}'`
+        return $numprocs
+}
+
+
  
 ME=`hostname`
-#EXECHOSTS=`qconf -sel`
-EXECHOSTS=`qconf -sel | grep compute-3-1`
+EXECHOSTS=`qconf -sel`
+#EXECHOSTS=`qconf -sel | grep compute-3-1`
  
 for TARGETHOST in $EXECHOSTS; do
         if [ "$ME" == "$TARGETHOST" ]; then
                 echo "Skipping $ME. This is the submission host"
         else
-                numprocs=`qconf -se $TARGETHOST | \
-                        awk '/^processors/ {print $2}'`
-                        # the processors line isn't optimal, as it may include hyperthreading if it is not disabled.
-                        # m_core in the load_values section is more accurate, harder to parse out.
-                # need to get exclusive configured as COMPLEX in each host and use that to best ensure no other job on node:
-                echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST --exclusive=1
-                qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST \
-                        ./reboot.qsub
-                echo "Set $TARGETHOST for Reinstallation"
+                getCoreCount $TARGETHOST 
+                numprocs=$?
+                if [ $numprocs -lt 1 ]; then
+                        echo "skipping $TARGETHOST as numprocs ($numprocs) has unexpected value"
+                else
+                        # ideally exclusive COMPLEX if it has been added to  each and every host, then would be sure really no other job on node:
+                        #echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST --exclusive=true
+                        echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST \
+                                ./reboot.qsub
+                        echo "Set $TARGETHOST for Reinstallation"
+                fi
         fi
 done
