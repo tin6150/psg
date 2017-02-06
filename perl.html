@@ -124,7 +124,7 @@ command line options:
 	-n  = do not print/display input line
 	-p  = print input line
 	-a  = split array automatically (input line into @F field)
-	-F: = Use : as field separator (like AWK)
+	-F: = Use : as field separator (like AWK).  $F[0] is first column , like python.  unlike awk
 	-l  = add \n at the end of each array element...  may or may not be what is needed!!
 
 
@@ -133,13 +133,18 @@ ls -l | perl -lne  'if ($_ =~ pattern) {print $_}'	# like grep pattern
 
 
 ls -l | perl -lane 'print @F'				# split input into @F "field" array
-ypcat passwd | perl -F: -lane 'print "$F[0]  $F[2]";'	# print 1st and 3rd column only (ie username and uid)
+ypcat passwd | perl -F: -lane 'print "$F[0]  $F[2]";'	# print 1st and 3rd column only (ie username and uid) 
 
 ls -l | perl -lane 'if ($F[2] !~ $F[8]) { print $_ };'	# find out dir not owned by the user (eg run in /nfshome)
 							# $F[2] is owner column, $F[8] is last column with file/dir name
 
 ls -l | perl -lane 'if ($F[2] !~ $F[8]) { print "chown $F[8] $F[8]"};' &gt; fix.sh  
 							# edit fix.sh and run to fix ownership
+
+ls -l | perl -lane 'if ($F[4] == 0 )    { print $_ };'	# list file of size 0
+ls -l | perl -lane 'if ($F[4] != 0 )    { print $_ };'	# list file of size not 0
+
+
 
 
 cat /etc/passwd | perl -F: -lane 'print "$F[6] $F[0]"'
@@ -326,10 +331,11 @@ cat 9col.tsv | perl -F\\\t -ne 'chomp; print $_; for ( $c = 10; $c <= 34; $c++ )
 
 
 
-# print column 1 of a tab delimted file
-# perl column numbering starts with 0
-# awk  column numbering starts with 1
-# cut  column numbering starts with 1
+# print  column 1 of a tab delimted file
+# perl   column numbering starts with 0
+# python column numbering starts with 0
+# awk    column numbering starts with 1
+# cut    column numbering starts with 1
 
 cat file.tsv | perl -F\\\t -lane ' print "$F[0]"; '
 cat file.tsv | awk  -F\\\t       '{print    $1}   '
