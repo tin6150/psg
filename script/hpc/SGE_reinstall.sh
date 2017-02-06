@@ -10,6 +10,9 @@
 echo "Be sure script what is desired before really running it!!"
 exit 007
 
+
+
+# helper function that return number of cores for a given node
 getCoreCount() {
         RHOST=$1                        # there must be no space around the = sign
         # looks for processor line, but it includes hyperthread.  line is easy to parse, looks like this:
@@ -28,7 +31,8 @@ getCoreCount() {
 
  
 ME=`hostname`
-EXECHOSTS=`qconf -sel`
+#EXECHOSTS=`qconf -sel`
+EXECHOSTS=`qconf -sel | grep compute`
 #EXECHOSTS=`qconf -sel | grep compute-3-1`
  
 for TARGETHOST in $EXECHOSTS; do
@@ -42,7 +46,7 @@ for TARGETHOST in $EXECHOSTS; do
                 else
                         # ideally exclusive COMPLEX if it has been added to  each and every host, then would be sure really no other job on node:
                         #echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST --exclusive=true
-                        echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST -l h_rt=600,m_mem_free=2G\
+                        qsub -p 1024 -pe smp $numprocs -q default.q@$TARGETHOST -l h_rt=600,m_mem_free=2G\
                                 ./reboot.qsub
                         echo "Set $TARGETHOST for Reinstallation (numprocs=$numprocs)"
 
