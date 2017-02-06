@@ -1,7 +1,10 @@
 #!/bin/sh
 
 #$ -cwd
+#$ -l h_rt=480,m_mem_free=1G
 ## #$ -o /clscratch/ti1/rolling_upgrade/rundir/${JOB_NAME}.${JOB_ID}   ## no variable substitution here :(
+
+# wget https://tin6150.github.io/psg/script/hpc/reboot.qsub
 
 (
 logger -p local0.info "this is a test message.  logged at `date`"

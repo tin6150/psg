@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#$ -l=h+rt=600,m_mem_free=2G
-
 # script to reboot each node, which trigger a PXE boot and a reinstall.
 # run as root on fs w/ root write access
 # ./SGE_reinstall.s
@@ -44,9 +42,10 @@ for TARGETHOST in $EXECHOSTS; do
                 else
                         # ideally exclusive COMPLEX if it has been added to  each and every host, then would be sure really no other job on node:
                         #echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST --exclusive=true
-                        echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST \
+                        echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST -l h_rt=600,m_mem_free=2G\
                                 ./reboot.qsub
-                        echo "Set $TARGETHOST for Reinstallation"
+                        echo "Set $TARGETHOST for Reinstallation (numprocs=$numprocs)"
+
                 fi
         fi
 done
