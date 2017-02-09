@@ -145,12 +145,11 @@
 
 Here is a comparison of HPCS Singularity vs NeRSC Shifter.  They both bring the benefits of container to the HPC world.  As such, both provide very similar features.  The subtleties are in their implementation approach.  MPI maybe the place with the biggest difference.  <BR />
 
-This is work in progress and I update it frequently as I work with them and get better understanding.  Yes, THEM, because I can't make a decision which tool is better to my problem at hand from just reading docs.  
 Please comment on the 
 <A HREF="http://geekyap.blogspot.com/2016/11/docker-vs-singularity-vs-shifter-in-hpc.html#comment">blogger comment section</A> 
 to improve the doc.  Much thanks!
 <BR/>
-(Working version of this file in github is <A HREF="https://tin6150.github.io/psg/blogger_container_hpc.html">here</A>)
+(For large screen avoiding the mangling by blogger, view the working version of this file in <A HREF="https://tin6150.github.io/psg/blogger_container_hpc.html">github</A>.) 
 <BR />
 <BR />
 
@@ -234,7 +233,7 @@ to improve the doc.  Much thanks!
       <td>Portability</td>
       <td>Docker Hub<BR></td>
       <td>Single image file.  Container purpose build for singularity.  Can import docker images.  Working to accept docker file or Rocket definition syntax as Singularity definition.  <BR />
-      Hub of singular repository by utilizing google drive file share <BR />  
+      Singularity Hub host a repository of images and definition files<BR />  
       </td>
       <td>Image Gateway pulls from Docker Hub, automatically convert to shifter image.  </td>
     <td></td>
@@ -361,7 +360,8 @@ to improve the doc.  Much thanks!
       <td>By Default, share little. <BR>
 	  Process, Network, user space are isolated by default, but can be shared via cli arg <BR>
 	  PID 1 is not init, but the process started by docker.  <BR>
-	  User inside container cannot see hosts' processes.
+	  User inside container cannot see hosts' processes. <BR>
+	  Network typically NAT'ed <BR>
       </td>
       <td>HPC workflow doesn't benefit much from process isolation, thus by default share most everything, so process running inside container is largely the same as running on actual host.  But process namespace isolation can easily be enabled.<BR>
 	  Default share Process Namespace, username space (user inside container can kill process on host) <BR>
@@ -585,13 +585,17 @@ to improve the doc.  Much thanks!
 
 <tr>
     <td>Sample User Commands</td>
-    <td></td>
+    <td><TT>
+	sudo docker pull httpd:latest    <BR>
+	docker images -a <BR>
+	sudo docker run -p 8000:80 httpd <BR>
+	
+    </TT></td>
     <td><TT>
         sudo singularity create ubuntu.img <BR />
         sudo singularity bootstrap ubuntu.img ubuntu.def <BR />
         singularity exec  ubuntu.img bash <BR />
 	      ./ubuntu.img  </TT> # the %runscript section of the container will autoamtically be invoked <BR />
-        
     </td>
     <td>
       <TT>
