@@ -327,21 +327,21 @@ to improve the doc.  Much thanks!
     <td></td>
     <td>Make container as transparent as possible to user.  Run as much as possible as normal user process, change environment only enough to provide portability of the application
     </td>
-    <td></td>
+    <td>Status Quo with Docker.  Extract Image into squash-FS, run in chroot env</td>
     <td></td>
 </tr>
 
 <tr>
       <td>Scheduler</td>
       <td><A HREF="https://docs.docker.com/swarm/overview/">Docker Swarm</A></td>
-      <td>Agnostic, run singularity as a job</td>
+      <td>Agnostic, run singularity as a job.  Works well with Slurm, UGE, etc.</td>
       <td>Can work as stand alone container environment.  For scalability, scheduler integration currently exist for SLURM, via SPANK plugin.  (Should work with other scheduler) </td>
       <td><TT>qsub -l</TT> to request docker boolean resource.  UGE will be able to assign different priorities to diff containers</td>
 </tr>
 
 <tr>
-    <td>Run on multiple nodes?</td>
-    <td>Swarm tool provided by Docker</td>
+    <td>Resource Orchaestration</td>
+    <td>SwarmKit provided by Docker</td>
     <td>Scheduler's job to spin multiple instances on multiple nodes</td>
     <td>Yes.  <BR/>
   <TT>
@@ -349,22 +349,33 @@ to improve the doc.  Much thanks!
   <TT>
     </td> 
     <td></td>
+    <!--
+    <td>Rkt can use Kubernates, Nomad, SwarmKit</td>
+    -->
 </tr>
-
-
 
 
 
 <tr>
-      <td>Process isolation via Kernel Namespace?</td>
-      <td>Yes.  PID 1 is the process executed by the container.  Cannot see host's processes.</td>
-      <td>Yes, but PID namespace is disabled by default.  <BR />
-	        While inside a singularity shell, ps -ef shows all process of host.  kill on PID on host will work.  
-	  
+      <td>Namespace isolation paradigm</td>
+      <td>By Default, share little. <BR>
+	  Process, Network, user space are isolated by default, but can be shared via cli arg <BR>
+	  PID 1 is not init, but the process started by docker.  <BR>
+	  User inside container cannot see hosts' processes.
       </td>
-      <td>Yes</td>
+      <td>HPC workflow doesn't benefit much from process isolation, thus by default share most everything, so process running inside container is largely the same as running on actual host.  But process namespace isolation can easily be enabled.<BR>
+	  Default share Process Namespace, username space (user inside container can kill process on host) <BR>
+	  While inside a singularity shell, ps -ef shows all process of host, or those of other containers.  container user can kill PID of process on host.   <BR>
+	  User does not change ID inside container, cannot become root from inside the process.  <BR>
+	  Network is transparent to the process.  <BR>
+	  /home mount is made available in container, -B will add additional bind mounts easily.  <BR>
+      </td>
+      <td>Supported</td>
 	  <td></td>
 </tr>
+
+
+
 
 
 <tr>
@@ -857,6 +868,7 @@ debootstrap rpm is needed in a CentOS machine for this bootstrap to work <BR />
 <H3>Readings for Singularity</H3>
 <UL>
 
+<LI> <A HREF="http://insidehpc.com/2017/02/video-singularity-containers-science-reproducibility-hpc/">Intro to Singularity/Container for Science</A>.  Video of keynote session at HPC Advisory Council 2017 @ Stanford 
 <LI> <A HREF="https://github.com/singularityware/singularity/blob/master/README.md">Qucik, concise intro on latest Singularity (~2.2) </A>
 <LI> <A HREF="https://hpc.nih.gov/apps/singularity.html">NIH's singularity app page</A>, contains full info on how to use singularity in HPC, with GPU and docker hub.  
 <LI> <A HREF="http://singularity.lbl.gov/contributing-docs">Singularity documentation site</A>
