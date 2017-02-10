@@ -216,29 +216,46 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
     </td>
     <td>
         Shifter primary workflow is to pull and convert docker image into shifter image.<BR />
-        Docker pull is used minimally, in Image Gateway.
+        Image Gateway connects to Docker Hub using its build-in functions, docker does not need to be installed.
     </td>
-    <td></td>
-</tr>
-
-<tr>
-    <td>Possible Use Case</td>
-    <td>microservices.  Do one small thing alone but does it well.  Often daemon listening on TCP port 24/7</td>
-    <td>
-        <LI> A large-ish container with all dependencies build-in, but targetting only a very specific application (eg a custom python program needed a specific version of Anaconda and set of python libraries)  <BR />
-        <LI> A "gigantic" image containing the whole OS of a dying computer, running a mission critical legacy app <BR />
-        <LI> Potentially docker-like, with many small containers, and string them together via command chain (not sure if there are ways to configure dependencies/versions in definition file) <BR />
-    </td>
-    <td></td>
     <td></td>
 </tr>
 
 <tr>
     <td>User group of primary focus</td>
     <td>Developers/DevOps</td>
-    <td>Scientific Application Users</td>
-    <td>Slurm admins, docker users</td>
+    <td colspan=2>Scientific Application Users</td>
     <td>UGE users</td>
+</tr>
+
+
+
+    <td>Use Case Focus</td>
+    <td>microservices.  Do one small thing alone but does it well.  Often daemon listening on TCP port 24/7</td>
+    <td colspan=2>
+ 	Images that target a single application or workflow (often with very complicated stacks), software that has difficult dependencies (e.g. old or different library versions)
+    </td>
+    <td>
+    </td>
+
+
+
+<tr>
+    <td>Example Use Scenario</td>
+    <td>
+	One docker container running httpd listen to a mapped TCP port 80 <BR />
+	Another container running a MySql DB <BR />
+	Finally WordPress app running on top taking user request <BR />
+    </td>
+    <td>
+        <LI> A large-ish container with all dependencies build-in, but targetting only a very specific application (eg a custom python program needed a specific version of Anaconda and set of python libraries)  <BR />
+        <LI> A "gigantic" image containing the whole OS of a dying computer, running a mission critical legacy app <BR />
+        <LI> Potentially docker-like, with many small containers, and string them together via command chain (not sure if there are ways to configure dependencies/versions in definition file) <BR />
+    </td>
+    <td>
+	A validated image containing particle physics workflow.
+    </td>
+    <td></td>
 </tr>
 
 
@@ -311,7 +328,7 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
 		...<BR />
 	  </td>
     <td>
-		Cray OS<BR />
+		Cray Linux Environment<BR />
 		Linux with kernel 2.6.25+, eg <BR />
     RHEL 6. <BR /> 
         ...<BR />
@@ -339,7 +356,7 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
     <td></td>
     <td>Make container as transparent as possible to user.  Run as much as possible as normal user process, change environment only enough to provide portability of the application
     </td>
-    <td>Status Quo with Docker.  Extract Image into squash-FS, run in chroot env</td>
+    <td>Leverage Docker as it is well established.  Extract Docker image into squash-FS, run in chroot env</td>
     <td></td>
 </tr>
 
@@ -440,7 +457,7 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
 
 <tr>
       <td>Network access</td>
-      <td>NAT (default)</td>
+      <td>Utilize Network Namespace. NAT is default</td>
       <td>Transparent.  Access network like any user process would.</td>
       <td>Transparent?</td>
     <td></td>
@@ -470,7 +487,10 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
         Container writable if started with <TT>-w</TT>.  <BR />
         Root access possible if singularity is run by root <BR />
     </td>
-    <td>Start shifter with volume mapping, done using loop dev.
+    <td>Start shifter with volume mapping, done using loop dev. <BR />
+	User has access to all typical mounts from host. <BR />
+	Allows mounting a localized loop mounted file system on each node to act as a local cache, especially useful in diskless cluster. <BR />
+	<!-- from Lisa G comment -->
     </td>
     <td>qsub -xdv to map host's FS to container</td> 
 </tr>
@@ -539,7 +559,7 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
     <td>
         <OL>
         <LI>Import/convert docker container into shifter container
-        <LI> Not sure if there are any provision to build container from scratch, or to modify existing container.
+        <LI>Abilities to run image in other format (eg ext4), but not sure how such container image is provisioned.
         </OL>
     </td>
     <td></td>
@@ -566,6 +586,19 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
     <td></td>
 </tr>
 
+<tr>
+    <td> Root escalation</td>
+    <td> container starts with priviledged access
+    </td>
+    <td>
+	To obtain root in singularity container, it must have been started as root <BR />
+	Container started as normal user cannot use su or sudo to become root; singularity utilize kernel's NO_NEW_PRIV flag (Kernel 3.5 and above).
+    </td>
+    <td>
+    </td>
+    <td>
+    </td>
+</tr>
 
 
 <tr>
