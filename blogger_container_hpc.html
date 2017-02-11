@@ -241,11 +241,12 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
 
 
 <tr>
-    <td>Example Use Scenario</td>
+    <td>Examplifying Use Scenario</td>
     <td>
+	A trio of container to host a blogging site: <BR />
 	One docker container running httpd listen to a mapped TCP port 80 <BR />
-	Another container running a MySql DB <BR />
-	Finally WordPress app running on top taking user request <BR />
+	A second container running a MySql DB <BR />
+	Finally a WordPress container running on top taking user requests <BR />
     </td>
     <td>
         <LI> A large-ish container with all dependencies build-in, but targetting only a very specific application (eg a custom python program needed a specific version of Anaconda and set of python libraries)  <BR />
@@ -253,7 +254,7 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
         <LI> Potentially docker-like, with many small containers, and string them together via command chain (not sure if there are ways to configure dependencies/versions in definition file) <BR />
     </td>
     <td>
-	A validated image containing particle physics workflow.
+	A validated image containing high energy particle physics workflow.
     </td>
     <td></td>
 </tr>
@@ -426,7 +427,7 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
           MP-what? :-)<BR />
       </td>
       <td> 
-      Singularity has build-in support for MPI (OpenMPI, MPICH, IntelMPI, MVAPICH).  <BR />
+      Singularity has build-in support for MPI (OpenMPI, MPICH, IntelMPI).  <BR />
 		Once app is build with MPI libraries, execute mpirun as normal, replacing the usual binary with the single file singularity app.  <BR />
 		While the app is running inside the singularity container, Process Management Interface (PMI) calls will pass thru the singularity launcher onto ORTED. <BR />
 	  </td>
@@ -435,6 +436,28 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
       </td>
 	  <td></td>
 </tr>
+
+
+<tr>
+      <td>MPI eg</td>
+      <td> </td>
+      <td> 
+	<TT>mpirun singularity exec centos_ompi.img /usr/bin/mpi_ring</TT> <BR/>
+	The mpirun command is executed on the host.  <BR />
+	the mpi_ring command is from inside the container.  <BR />
+	The version of OpenMPI in the host needs to be the same or newer than the one in the container <BR />
+      </td>
+      <td></td>
+      <td></td>
+</tr>
+
+
+
+
+
+
+
+
 
 <tr>
     <td>IB</td>
@@ -494,6 +517,20 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
     </td>
     <td>qsub -xdv to map host's FS to container</td> 
 </tr>
+
+<tr>
+    <td>Data persistence in image</td>
+    <TD>
+        <LI>Container is writable at run time, but need to issue <TT>docker commit</TT> from outside the container for changes to persist.
+        <LI>No host FS mounted/mapped by default.  <BR />
+    </TD>
+    <td>
+        <LI>By default container's FS is mounted Read-only; the bind mounts to the host drive is always writable</td>
+	<LI>Can use <TT>-w</TT> flag of singularity to start container in read/write mode.  
+    <td>?</td>
+  <td></td>
+</tr>
+
 
 
 
@@ -592,9 +629,11 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
     </td>
     <td>
 	To obtain root in singularity container, it must have been started as root <BR />
-	Container started as normal user cannot use su or sudo to become root; singularity utilize kernel's NO_NEW_PRIV flag (Kernel 3.5 and above).
+        ie, root can be had via <TT>sudo singularity shell centos7.img</TT> <BR />
+	Container started as normal user cannot use su or sudo to become root; singularity utilize kernel's NO_NEW_PRIV flag (Kernel 3.5 and above).  <BR />
+        ie, <TT>/bin/su</TT> (and <TT>/bin/sudo</TT>), will have setuid flag, but it is blocked from the inside by singularity<BR />    
     </td>
-    <td>
+    <td> ?
     </td>
     <td>
     </td>
@@ -604,13 +643,9 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
 <tr>
     <td>Env</td>
     <td>
-        <LI>No host FS mounted/mapped by default.  <BR />
-        <LI>Container writable, but content not saved unless special <TT>docker save</TT> is invoked from outside the container.
     </td>
     <td>
         <LI> container inherit the env of user invoking the singularity cmd<BR />
-        <LI> /bin/sudo, if installed, will have setuid flag, but it is blocked inside a singularity container<BR />    
-        <LI> root can be had via "sudo singularity shell centos7.img" <BR />
         <LI> /home, /var/tmp, /tmp, /root are bind mount from host and fully writable <BR />
         <LI> / is read-only mount and container is typically inmutable (unless started with -w flag)<BR />
     </td>
@@ -724,7 +759,7 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
         Integrated into Qlustar, Bright <BR />
     </td>
     <td>NeRSC, VLSCI, CSCS, CERN, etc.  <BR />
-        Seems like the big physics number crunchers are gravitating toward shifter, cuz they use Cray? </td>
+        Seems like the big physics number crunchers are gravitating toward shifter, cuz they use Cray or IBM Blue Gene? </td>
   <td></td>
 </tr>
 
@@ -956,6 +991,7 @@ by Greg Kurtzer.   It also present the challenges of using Docker in the HPC wor
 <H3>Readings for Shifter</H3>
 
 <UL>
+<LI> <A HREF="https://indico.cern.ch/event/505613/contributions/2227429/attachments/1348101/2045014/oral-v2-293.pdf">Shifter presentation at CHEP 2016</A> by Lisa Gerhardt et al.
 <LI> <A HREF="https://www.nersc.gov/research-and-development/user-defined-images/">User defined images</A> NeRSC documentation.
 <LI> <A HREF="http://www.slideshare.net/insideHPC/shifter-containers-in-hpc-environments">Shifter use cases</A> slide share from CSCS/ETH Zurich
 <LI> <A HREF="http://www.slideshare.net/OlliPekkaLehto/containers-and-hpc">Container and HPC</A> slide share. 
