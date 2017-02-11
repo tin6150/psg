@@ -567,7 +567,7 @@ http://superuser.com/questions/218072/how-do-i-temporarily-take-a-node-out-from-
 qmod -d \*@worker-1-16 		# disable node compute-1-1 from accepting new jobs in the any/all queues.
 qmod -d all.q@worker-1-16 	# disable node compute-1-1 from accepting new jobs in the all.q queue.
 qmod -d       worker-1-16 	# disable node compute-1-1, current job finish, no new job can be assigned.
-qstat -j 			# can check if nodes is disabled from scheduler consideration
+qstat -j 			# can check if nodes is disabled or full from scheduler consideration
 qstat -f 			# show host status.  
 qstat -f | grep d$   		# look for disabled node (after reboot, even if crashed by memory, sge/uge disable node)
 qmod -e  all.q@worker-1-16	# re-enable node
@@ -851,6 +851,25 @@ http://gridengine.sunsource.net/project/gridengine/howto/tuning.html</A>
 </UL>
 
 
+
+<A NAME="assistant"></A>
+<H3>Assistant</H3>
+
+
+.bashrc functions and alias 
+
+<PRE class="code">
+# count host and cpu cores.   Note that core count from qstat -g c differs 
+qhostTot() { qhost | sed 's/G//g' | awk '/^compute/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
+
+qww() { qstat -u \* | perl -lane 'print $_ if $F[4] eq "qw"' ; }	# display jobs in qw state 
+qr()  { qstat -u \* | perl -lane 'print $_ if $F[4] eq "r"'  ; }	# display jobs in r  state
+
+alias qchk='qstat -f | awk '\''$6 ~ /[a-zA-Z]/  &&  $1 ~ /default.q@/  {print $0}'\'''	# show unhealthy hosts
+
+</PRE>
+
+
 <A NAME="pbs"></A>
 <H1>PBS / TORQUE</H1>
 
@@ -1045,22 +1064,6 @@ bacct -u all -C 3/1,3/31		# display aggregate job stats for all users for month 
 					# -C for completed (and exited) jobs.
 bacct -u all -S 2007/1/1,2007/3/31	# similar to above, but for Submitted jobs, with year explicityly defined.
 
-</PRE>
-
-
-<H1>Assistant</H1>
-
-
-.bashrc function, to count host and cpu cores.  
-<PRE class="code">
-qhostTot() { qhost | sed 's/G//g' | awk '/^compute/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
-</PRE>
-
-
-alias:
-
-<PRE>
-alias qchk='qstat -f | awk '\''$6 ~ /[a-zA-Z]/  &&  $1 ~ /default.q@/  {print $0}'\'''
 </PRE>
 
 
