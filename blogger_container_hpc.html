@@ -88,6 +88,10 @@
 
         TT, table.TT  {   color: green; }
 
+        /* reducing margin space of list, as little space in table */
+        table ol, table ol li {margin-left: 0.4em; padding-left: 0.1em; padding-right: 0.1em; margin-top: 0em; margin-bottom: 0em; list-style: decimal;}
+        table ul, table ul li {margin-left: 0.4em; padding-left: 0.1em; padding-right: 0.1em; margin-top: 0em; margin-bottom: 0em;}
+
         </STYLE>
 </HEAD>
 
@@ -133,6 +137,11 @@
     }
 
     TT, table.TT  {   color: green; }
+
+    /* reducing margin space of list, as little space in table */
+    table ol, table ol li {margin-left: 0.4em; padding-left: 0.1em; padding-right: 0.1em; margin-top: 0em; margin-bottom: 0em; list-style: decimal;}
+    table ul, table ul li {margin-left: 0.4em; padding-left: 0.1em; padding-right: 0.1em; margin-top: 0em; margin-bottom: 0em;}
+
 </style>
 -->
 
@@ -249,9 +258,11 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
 	Finally a WordPress container running on top taking user requests <BR />
     </td>
     <td>
+	<UL>
         <LI> A large-ish container with all dependencies build-in, but targetting only a very specific application (eg a custom python program needed a specific version of Anaconda and set of python libraries)  <BR />
         <LI> A "gigantic" image containing the whole OS of a dying computer, running a mission critical legacy app <BR />
         <LI> Potentially docker-like, with many small containers, and string them together via command chain (not sure if there are ways to configure dependencies/versions in definition file) <BR />
+	</UL>
     </td>
     <td>
 	A validated image containing high energy particle physics workflow.
@@ -521,12 +532,17 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
 <tr>
     <td>Data persistence in image</td>
     <TD>
+	<UL>
         <LI>Container is writable at run time, but need to issue <TT>docker commit</TT> from outside the container for changes to persist.
         <LI>No host FS mounted/mapped by default.  <BR />
+	</UL>
     </TD>
     <td>
-        <LI>By default container's FS is mounted Read-only; the bind mounts to the host drive is always writable</td>
+	<UL>
+        <LI>By default container's FS is mounted Read-only; the bind mounts to the host drive is always writable<BR />
 	<LI>Can use <TT>-w</TT> flag of singularity to start container in read/write mode.  
+	</UL>
+    </td>
     <td>?</td>
   <td></td>
 </tr>
@@ -645,9 +661,11 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
     <td>
     </td>
     <td>
+	<UL>
         <LI> container inherit the env of user invoking the singularity cmd<BR />
         <LI> /home, /var/tmp, /tmp, /root are bind mount from host and fully writable <BR />
         <LI> / is read-only mount and container is typically inmutable (unless started with -w flag)<BR />
+	</UL>
     </td>
     <td></td>
   <td></td>
@@ -720,6 +738,19 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
   <td>
     Shifter will capture standard input as well inside an sbatch script: <BR />
     <TT>echo 'cat("Hello world\n")' | shifter R --no-save</TT>
+  </td>
+  <td></td>
+</tr>
+
+<tr>
+  <td>Performance</td>
+  <td>Docker container startup time is much faster than traditional VM, as it does not need to emaulate hardware and is essentially just starting a new process. </td>
+  <td>
+	Container startup time a bit faster than docker, as it does away with much of the namespace settings. <BR />
+	On Lustre backed system, where metadata lookup span different server than data block lookup, single file container image significantly improve performance by reducing multitude of meta data lookup with the MDS.
+  </td>
+  <td>
+	On Lustre backed system, where metadata lookup span different server than data block lookup, single file container image significantly improve performance by reducing multitude of meta data lookup with the MDS.
   </td>
   <td></td>
 </tr>
@@ -962,9 +993,13 @@ debootstrap rpm is needed in a CentOS machine for this bootstrap to work <BR />
 
 <H3>Readings for Containers in HPC</H3>
 <UL>
+<LI> State of Linux Container (include comparison with VM) by Christian Kniep in 2017 HPC Advisory Council @ Stanford:
+     <A HREF="https://www.youtube.com/watch?v=9Ck0okEzRp4&feature=youtu.be">video</A> and 
+     <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop/pdf/Christian_Kniep_StateOfContainers__02082017.pdf">slides</A>.
 <LI> <A HREF="https://medium.com/@ople/containers-meet-hpc-2aab7aa2d54a#.b23izdadz">Container meets HPC</A> blog.
 <LI> <A HREF=""></A>
 </UL>
+
 
 <H3>Readings for Singularity</H3>
 <UL>
@@ -979,7 +1014,7 @@ Keynote HPC Advisory Council 2017 @ Stanford
 by Greg Kurtzer.   It also present the challenges of using Docker in the HPC world.
 
 
-<LI> <A HREF="https://github.com/singularityware/singularity/blob/master/README.md">Qucik, concise intro on latest Singularity (~2.2) </A>
+<LI> <A HREF="https://github.com/singularityware/singularity/blob/master/README.md">Qucik, concise intro on latest Singularity (ver 2.2 era) </A>
 <LI> <A HREF="https://hpc.nih.gov/apps/singularity.html">NIH's singularity app page</A>, contains full info on how to use singularity in HPC, with GPU and docker hub.  
 <LI> <A HREF="http://singularity.lbl.gov/contributing-docs">Singularity documentation site</A>
 <LI> <A HREF="https://www.hpcwire.com/2016/10/20/singularity-containers-easing-scientific-computing/">HPC Wire</A> Q+A with main Singularity author Greg Kurtzer
