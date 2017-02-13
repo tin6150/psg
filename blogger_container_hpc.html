@@ -440,7 +440,7 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
       <td> 
       Singularity has build-in support for MPI (OpenMPI, MPICH, IntelMPI).  <BR />
 		Once app is build with MPI libraries, execute mpirun as normal, replacing the usual binary with the single file singularity app.  <BR />
-		While the app is running inside the singularity container, Process Management Interface (PMI) calls will pass thru the singularity launcher onto ORTED. <BR />
+		While the app is running inside the singularity container, Process Management Interface (PMI/PMIx) calls will pass thru the singularity launcher onto ORTED.  This is what MPI is designed to do, no hacks, so works well.<BR />
 	  </td>
       <td>Shifter relies on MPICH Application Binary Interface (ABI).  <BR />
       Apps that use vanilla MPI that is compatibile with MPICH would work.  Site-specific MPI libraries need to be copied to the container at run time.  LD_LIBRARY_PATH need to include for example /opt/udiImage/...  
@@ -454,9 +454,13 @@ Source: <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop
       <td> </td>
       <td> 
 	<TT>mpirun singularity exec centos_ompi.img /usr/bin/mpi_ring</TT> <BR/>
-	The mpirun command is executed on the host.  <BR />
-	the mpi_ring command is from inside the container.  <BR />
-	The version of OpenMPI in the host needs to be the same or newer than the one in the container <BR />
+	<UL>
+	<LI> The mpirun command is executed on the host.  <BR />
+	<LI> The mpi_ring command is from inside the container.  <BR />
+	<LI> PMIx in OpenMPI perform a version handshake, and everything will work so long as the host's version is equal or newer than the one inside the container.  <BR />
+	<LI> MPI host list come from the host, the container don't need to worry about host discovery.  <BR />
+	<LI> See the <A HREF="#singularity_mpi">singularity mpi diagram</A> below for MPI call flow details.
+	</UL>
       </td>
       <td></td>
       <td></td>
@@ -844,6 +848,7 @@ As per <A HREF="http://www.hpcadvisorycouncil.com/events/2017/stanford-workshop/
 <IMG SRC="https://tin6150.github.io/psg/fig/singularity_hub_flow.png"></IMG></A><BR />
 
 
+<A NAME="singularity_mpi"></A>
 <A NAME="mpi_in_singularity"></A>
 <H3>MPI in Singularity</H3>
 
