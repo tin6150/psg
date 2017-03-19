@@ -2,24 +2,21 @@
 
 ### this script contain command to be executed by each node
 ### it is called by SGE_run_on_every_node.sh 
+### wget https://raw.githubusercontent.com/tin6150/psg/master/script/hpc/job4node.qsub
 
 #$ -cwd
-#$ -l h_rt=7200,m_mem_free=1G
+#$ -l h_rt=36001,m_mem_free=1G
 
-# wget https://tin6150.github.io/psg/script/hpc/job4node.qsub
 
 #OUTDIR=/clscratch/bofh1/uge_out/`date +%m%d_%H%M`
 OUTDIR=/clscratch/bofh1/uge_out/`date +%m%d_%H`
-MSG="this is a test message.  logged at `date`"
+MSG="cluster node sanity test.  logged at `date`"
 #CMD="ls -l /home /db"               # test various NFS mounts
 CMD="find /home /db  -maxdepth 2"    # seed the cache on file server
 
 
-#FECHA=`date +%Y%m%d`
 [[ ! -d $OUTDIR ]] && mkdir -p $OUTDIR
 
-# caller use qsub -o DIRNAME to capture qsub output as well, so no need for (cmd) > redirect below.
-#(
 echo "running logger -p local0.info $MSG"
 logger -p local0.info "$MSG"
 echo "============================"
@@ -32,6 +29,4 @@ echo "============================"
 $CMD
 echo "============================"
 echo "end of job."
-
-#) > ${OUTDIR}/${JOB_NAME}.${JOB_ID}.out
 

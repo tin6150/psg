@@ -7,7 +7,7 @@
 # 
 # (sudo) ./SGE_run_on_every_node.sh 
 # 
-# wget https://tin6150.github.io/psg/script/hpc/SGE_run_on_every_node.sh 
+# wget https://raw.githubusercontent.com/tin6150/psg/master/script/hpc/SGE_run_on_every_node.sh
 
 
 QSUB_OUT=/clscratch/bofh1/uge_out/`date +%m%d_%H`
