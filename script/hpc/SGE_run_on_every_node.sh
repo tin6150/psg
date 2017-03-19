@@ -15,9 +15,9 @@ QSUB_OUT=/clscratch/bofh1/uge_out/`date +%m%d_%H`
 
 
 
-#EXECHOSTS=`qconf -sel`
+EXECHOSTS=`qconf -sel`
 #EXECHOSTS=`qconf -sel | grep compute`
-EXECHOSTS=`qconf -sel | egrep "4-6|4-9"`
+#EXECHOSTS=`qconf -sel | egrep "4-6|4-9"`
  
 for TARGETHOST in $EXECHOSTS; do
         # TARGETHOST eg: compute-4-10.cm.cluster, want only node number for compact name
