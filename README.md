@@ -5,7 +5,7 @@ This is git repo for content in http://psg.skinforum.org/
 
 Also build to https://tin6150.github.io/psg 
 
-Scripts are placed in the scripts subdir, eg  https://github.com/tin6150/psg/tree/master/script
+Scripts are placed in the script subdir, eg  https://github.com/tin6150/psg/tree/master/script
 
 -------------------------------------------
 
