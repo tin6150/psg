@@ -5,6 +5,8 @@ This is git repo for content in http://psg.skinforum.org/
 
 Also build to https://tin6150.github.io/psg 
 
+Scripts are placed in the scripts subdir, eg  https://github.com/tin6150/psg/tree/master/script
+
 -------------------------------------------
 
 
@@ -33,9 +35,10 @@ git push -u origin master
 ------------------------------------------------------------
 # Playing with markdown...
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.md ext is for MarkDown format -- see wiki.html#markdown
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.md  ext is for MarkDown format -- see wiki.html#markdown
+.rst ext is for ReStructured Text, which I like more than .md
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 ~~~~
