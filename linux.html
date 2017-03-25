@@ -1986,10 +1986,35 @@ ethtool eno1		# set duplex, etc of an interface
 
 </PRE>
 
+<H3>authentication in rhel7</H3>
+
+<TT>authconfig</TT> is the tool to use to configure authentication services in RHEL7/CentOS7.  Manually changing nsswtich.conf isn't enough.  There are pam.d, selinux, firewall updates.  <BR>
+
+<TT>authconfig-tui</TT> is being deprecated, so for interactive config would need to rely on <TT>system-config-authentication</TT>  <BR>
+
+Ref: https://www.certdepot.net/sys-understand-authconfig/
+<BR> 
+
+
+<TT>sssd</TT> is the daemon for System Security Services.  It provides a unified interface to manage cache daamon, etc.  <TT>nsswitch.conf</TT> refer this as <TT>sss</TT>.  
+
+Ref: 
+<A HREF="https://fedorahosted.org/sssd/">https://fedorahosted.org/sssd/</A>
+
+
+<PRE>
+/etc/sysconfig/authconfig	# config file
+authconfig --test		# show/test current auth service
+authconfig ... --update		# for any changes, always end with --update!
+authconfig --enablenis --disableldap ... --update	# this thing may fail silently... run test a/o check the resulting config file to be sure.
+
+</PRE>
+
 <H3>firewall in rhel7</H3>
 
 <PRE>
 firewall-config		# GUI tool.  DONT use system-config-firewall
+			# shorewall
 </PRE>
 
 
