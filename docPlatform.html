@@ -118,7 +118,7 @@ Notably, .rst uses a dedicated line of ------ or =========
 under title text to mean header, which is more natural highlight even when reading file as ascii.  <BR>
 Given my gripe on markdown, I will make a switch to .rst and think I will like it better.
 <BR>
-A bit more details: <A HREF="https://en.wikipedia.org/wiki/ReStructuredText">in the wikipedia page</A>
+A bit more details: <A HREF="https://en.wikipedia.org/wiki/ReStructuredText#Literal_blocks">in the wikipedia page</A>
 <BR>
 <A HREF="https://github.com/NERSC/shifter/blob/master/doc/install/imagegw.rst">NeRSC Shifter as example .rst page</A>
 <BR>
@@ -126,6 +126,32 @@ A bit more details: <A HREF="https://en.wikipedia.org/wiki/ReStructuredText">in 
 <BR>
 
 
+
+<PRE>
+For pre-formatted text (literal block), essentially, use
+
+::
+    indented text
+    will be treated verbatim without parsing/modification
+      but indentation is required
+  have not been able to find way to do it without indenting the preformatted text
+
+back to normal text
+</PRE>
+
+<PRE>
+
+.. code:: bash
+
+	# wikipedia says this will be treated as pre-formatted literal block
+	# with the added benefits of code highlight
+	# but my experience seems to be that this become an execution directive
+	# does below just show command or execution of 'date' 'hostname' and 'uptime' ?
+	date
+	hostname
+	uptime
+
+</PRE>
 
 
 <H3>Documentum</H3>
