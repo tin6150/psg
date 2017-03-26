@@ -25,12 +25,30 @@ git init
 
 git add *
 git commit -m "first commit"
+# still need to pre-create the repo in github before push can take place 
 # git remote add origin https://github.com/tin6150/psg.git
 git push -u origin master
+
+
+----
+git clone https://tin6150@github.com/tin6150/psg
+git clone https://tin6150@github.com/tin6150/singularity
+git clone https://tin6150@github.com/tin6150/inet-dev-class
+
+git clone https://tin6150@github.com/tin6150/db4cpa
+git clone https://tin6150@github.com/tin6150/taxonomy_reporter
+git clone https://tin6150@github.com/tin6150/pyspark
+git clone https://tin6150@github.com/tin6150/taxo-spark
+git clone https://tin6150@github.com/tin6150/singhub
+git clone https://tin6150@github.com/tin6150/circos.git
+
 
 # above code block was delimited by ``` bash  (optional language for syntax highlight)
 # ends with ``` in a line by itself
 ```
+
+
+
 
 ------------------------------------------------------------
 # Playing with markdown...
@@ -38,6 +56,7 @@ git push -u origin master
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .md  ext is for MarkDown format -- see wiki.html#markdown
 .rst ext is for ReStructured Text, which I like more than .md
+for eg of .rst, see https://github.com/tin6150/psg/blob/master/reStructuredText_markup.rst
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 

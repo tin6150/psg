@@ -5,14 +5,15 @@
 ### wget https://raw.githubusercontent.com/tin6150/psg/master/script/hpc/job4node.qsub
 
 #$ -cwd
-#$ -l h_rt=36001,m_mem_free=1G
+#$ -l h_rt=180,m_mem_free=1G
+###$ -l h_rt=36001,m_mem_free=1G
 
 
 #OUTDIR=/clscratch/bofh1/uge_out/`date +%m%d_%H%M`
 OUTDIR=/clscratch/bofh1/uge_out/`date +%m%d_%H`
 MSG="cluster node sanity test.  logged at `date`"
-#CMD="ls -l /home /db"                            # test various NFS mounts
-CMD="find /db /home /clscratch  -maxdepth 3"      # seed the cache on file server
+CMD="ls -l /db /da"                                # test various NFS mounts
+#CMD="find /db /home /clscratch  -maxdepth 3"      # seed the cache on file server
 
 
 [[ ! -d $OUTDIR ]] && mkdir -p $OUTDIR

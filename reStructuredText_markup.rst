@@ -2,7 +2,7 @@ reStrcuturedText
 ****************
 
 github support .rst just as well as .md
-Not sure if can have README.rst as default rather than README.md (yet).
+Can use README.rst as default rather than README.md.
 
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
 Thus, pay special attention to ``code blocks``
@@ -24,8 +24,54 @@ However, stackoverflow is essentially markdown.
 Next should be a table of content.  the ``contents directive`` will read entries from the ``topic directive`` , as well as things that parsed are headers (those with underlines and stuff).  Thus, explicit ``topic`` or ``title`` directives are not really necessary.   (``sidebar directive`` not supported by github rendered)
 (the topic wasn't listed in contents:: , but the heading line was listed instead.  so, may have no use for ``topic``)
 
+
+
 .. sidebar::
 .. contents::
+
+==========================================================
+
+Pre-formatted code block (literal text)
+---------------------------------------
+
+::
+        indent after :: to start a pre-formatted text block
+        another line
+
+back to normal text here
+
+.. code:: bash
+
+        # use
+        #
+        # .. code:: bash
+        #     echo "Hello world"
+        #
+        # to create pre-formatted code block with syntax highlight.
+        # be careful though, as (typo?) or (some system?) may treat it as execution directive
+        # below should show command and not execution of 'date' 'hostname' and 'uptime' ?
+        date
+        hostname
+        uptime
+        # okay, github seems to render this as code block with highlight... more test:
+        FECHA=`date +%Y%m%d-%H%M`
+        LIST=$( seq 1 10 )
+        for ITEM in $LIST; do
+                echo $ITEM > /dev/null
+        done
+
+back to normal text here
+
+One thing that .md might be better than .rst is that 
+pre-formatted code block can be delimited with triple backticks (optionally followed by language name)
+``` bash
+echo "code here"
+echo "more code here"
+echo "there is no need for indent"
+```
+
+Not sure how .rst would render the above...
+
 
 
 ==========================================================

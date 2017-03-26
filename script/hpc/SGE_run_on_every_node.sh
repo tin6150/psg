@@ -10,7 +10,7 @@
 # wget https://raw.githubusercontent.com/tin6150/psg/master/script/hpc/SGE_run_on_every_node.sh
 
 
-QSUB_OUT=/clscratch/bofh1/uge_out/`date +%m%d_%H`
+QSUB_OUT=/clscratch/bofh1/uge_out/`date +%m%d__%H`
 [[ ! -d $QSUB_OUT ]] && mkdir -p $QSUB_OUT
 
 
@@ -24,5 +24,5 @@ for TARGETHOST in $EXECHOSTS; do
         NODENUM=$( echo $TARGETHOST | awk -F. '{print $1}' | awk -F'-' '{print $2 "-" $3}' )
         #echo qsub -p 1024 -pe mpi $numprocs -q default.q@$TARGETHOST --exclusive=true
         #qsub -p 1024 -q admin.q@$TARGETHOST -l h_rt=600,m_mem_free=2G job4node.qsub
-        qsub -N N-${NODENUM} -j y -o ${QSUB_OUT} -q default.q@${TARGETHOST}  job4node.qsub   # run time and memory req specified n qsub script
+        qsub -N N-${NODENUM} -j y -o ${QSUB_OUT} -q admin.q@${TARGETHOST}  job4node.qsub   # run time and memory req specified n qsub script
 done
