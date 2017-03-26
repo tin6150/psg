@@ -35,7 +35,8 @@ Pre-formatted code block (literal text)
 ---------------------------------------
 
 ::
-        indent after :: to start a pre-formatted text block
+
+        blank line and indent after :: to start a pre-formatted mono-space text block
         another line
 
 back to normal text here
@@ -70,7 +71,9 @@ echo "more code here"
 echo "there is no need for indent"
 ```
 
-Not sure how .rst would render the above...
+The above does not render as desired in .rst, but would work in .md.
+
+But I rather indent than deal with # as header which attract attention rather than as "low priority" comment
 
 
 
