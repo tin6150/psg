@@ -16,7 +16,7 @@ QSUB_OUT=/clscratch/bofh1/uge_out/`date +%m%d__%H`
 
 
 EXECHOSTS=`qconf -sel`
-#EXECHOSTS=`qconf -sel | grep compute`
+EXECHOSTS=`qconf -sel | grep node`
 #EXECHOSTS=`qconf -sel | egrep "4-6|4-9"`
  
 for TARGETHOST in $EXECHOSTS; do

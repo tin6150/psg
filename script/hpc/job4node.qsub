@@ -10,10 +10,11 @@
 
 
 #OUTDIR=/clscratch/bofh1/uge_out/`date +%m%d_%H%M`
-OUTDIR=/clscratch/bofh1/uge_out/`date +%m%d_%H`
+#OUTDIR=/clscratch/bofh1/uge_out/`date +%m%d_%H`   # no longer used
 MSG="cluster node sanity test.  logged at `date`"
 CMD="ls -l /db /da"                                # test various NFS mounts
 #CMD="find /db /home /clscratch  -maxdepth 3"      # seed the cache on file server
+CMD="cat /proc/mounts"                             
 
 
 [[ ! -d $OUTDIR ]] && mkdir -p $OUTDIR
