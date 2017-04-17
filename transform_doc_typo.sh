@@ -19,10 +19,15 @@
 # fgrep -l '"ting" <BR>' *html | awk '{print " sed -i \"s/\\\"ting\\\" <BR>/hoti1<BR>/\" " $0 }' > generated_fixtypo.sh
 
 
+## replace "ting"<BR>   with tin5050<BR>
+## no space after "ting"
+## get commmands like:
+# fgrep -l '"ting"<BR>' *html | awk '{print " sed -i \"s/\\\"ting\\\"<BR>/sn5050<BR>/\" " $0 }' > generated_fixtypo.sh
+
+
+
 ## replace "ting"</div>   with bofh</div>
 ## get commmands like:
 ##  sed -i "s/\"ting\"<\/div>/bofh1<\/div>/" vnc.html
-fgrep -l '"ting"</div>' *html | awk '{print " sed -i \"s/\\\"ting\\\"<\\/div>/bofh1<\\/div>/\" " $0 }' > generated_fixtypo.sh
-
-
+#fgrep -l '"ting"</div>' *html | awk '{print " sed -i \"s/\\\"ting\\\"<\\/div>/bofh1<\\/div>/\" " $0 }' > generated_fixtypo.sh
 
