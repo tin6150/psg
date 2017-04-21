@@ -22,7 +22,11 @@ SRC_B_LIST="${SRC_B_LIST} ${SRC_BASE_B}/rafa-doc-2015"
 DST_B=/run/media/sn/4D05-24E0
 
 for I in $SRC_B_LIST; do
-	rsync -aul $I $DST_B
+	#rsync -aul $I $DST_B
+	# -a =  -rlptgoD (no -H,-A,-X), not all of which avail for FAT
+	rsync -urltD $I $DST_B
+	
+
 done
 
 
