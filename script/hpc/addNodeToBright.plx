@@ -21,15 +21,19 @@ use strict;
 ##my ($name, $intMac);
 #my $nodesfile = "walk-nodes.csv";                  # generated from output of macs4cmsh.plx
 #my $nodesfile = "walk-nodes.new6.csv";             # generated from output of macs4cmsh.plx
-my $nodesfile = "walk4s-nodes.csv";                 # final migration wave.  2016.0526
-my $template  = "walk-4-1";                         # 4-4 and 4-5 use eth2 as bootif, eth3 as public.  no other node boot off eth3
+#my $nodesfile = "walk4s-nodes.csv";                # final migration wave.  2016.0526
+#my $template  = "walk-4-1";                         # 4-4 and 4-5 use eth2 as bootif, eth3 as public.  no other node boot off eth3
+my $nodesfile = "bb8-nodes.csv";                    # bb8 2017
+my $template  = "skywalker-3-9";                    # 
 
 # input file new req:
 # nodename,internal-mac,external-if,external-ip,ipmi-ip
 
 print "device\n";
-my $intNetPrefix = "10.100.38.";
-my $ibNetPrefix  = "10.100.39.";
+###my $intNetPrefix = "10.100.38.";
+###my $ibNetPrefix  = "10.100.39.";
+my $intNetPrefix = "192.168.3.";
+my $ibNetPrefix  = "192.168.6.";
 
 open(NODESFILE, $nodesfile) || die "could not open nodesfile\n";
 while(<NODESFILE>) {
@@ -60,18 +64,20 @@ while(<NODESFILE>) {
     print "set mac $intMac\n";
     #print "set category hadoop\n";    # no need to set as template already this category
     print "interfaces\n";
-    print "use ipmi0\n";
-    print "set ip $ipmiIp\n";
-    print "exit\n";
+    #- ipmi not configured in new bright setup for bb8 
+    #- print "use ipmi0\n";
+    #- print "set ip $ipmiIp\n";
+    #- print "exit\n";
     print "use bootif\n";
     print "set ip $intIp\n";
     print "exit\n";
-        if( $externalIf eq "eth1" ) {
-        print "use $externalIf\n";
+        #if( $externalIf eq "eth1" ) {
+        if( $externalIf eq "eno2" ) {
+                print "use $externalIf\n";
         } else {
                 # the base node for clone has eth1 for external interface.  change it if it is not using eth1 on this node.
-        print "remove eth1\n";
-        print "add physical $externalIf\n";
+                print "remove eno2\n";
+                print "add physical $externalIf\n";
                 print "set network externalnet\n";
         }
     print "set ip $extIp\n";

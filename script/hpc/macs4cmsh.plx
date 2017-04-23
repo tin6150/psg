@@ -5,6 +5,12 @@
 # output is a file that is easy to parse into cmsh commands
 # part 2 is call the addNodeToBright.plx script (which take this input, and need updating)
 # -Tin 2014.10.16
+#
+# run as ./macs4cmsh.plx > walk-nodes.csv
+# For RHEL7 machines, where NIC are eno1/eno2 instead of eth0/eth1, instead run as:
+# run as ./macs4cmsh.plx | sed 's/eth1/eno2/' > bb8-nodes.csv
+#
+# 
 
 # sample input:
 # obi/bak2014_0910]$ less rocks_list_host_if.txt
@@ -27,7 +33,7 @@ use strict;
 use Socket;
 
 # file below is a cache of "rocks host list" 
-my $nodesfile = "obi/bak2014_0910/rocks_list_host_if.txt";
+my $nodesfile = "./rocks_list_host_if.bb8.txt";
 ## these are output fields:
 my ($name, $intMac, $extIface, $extIp, $ipmiIp);
 
