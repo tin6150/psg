@@ -597,6 +597,8 @@ qmod -e default.q
 
 <H4>Admin howto</H4>
 
+<H5>Add Submit Host</H5>
+<A ID="uge_add_submit_host"></A>
 <PRE>
 
 See all exec node in cluster:
@@ -618,7 +620,12 @@ qconf -as hostname
 	# submit host need to know who the master is.  
 	# ie /etc/hosts need entry for the cluster head node external IP
 
+</PRE>
 
+<H5>Add Execution Host (ie compute node)</H5>
+<A ID="uge_add_exec_host"></A>
+
+<PRE>
 
 Add an execution host to the system, modeled after an existing node:
 qconf -ae TemplateHostName		
