@@ -114,19 +114,40 @@ service ipmi start
 
 <PRE>
 linux has ipmi cli tools installed, so can also do:
-ipmitool -H hostname -U username -P pass power 
 ipmitool -H hostname -U username -P pass power status
 credentials are IDRAC credentials
 *should* be blade specific when hostname is iDRAC of blade even when description say chassis.  Have not been able to get it to work.
 
 ipmitool -H 
-ipmitool -H hostname -U username -P pw sol
-# sol = serial over lan
 
+# using serial over lan (sol, ipmi 2.0)
 ipmitool -H hostname -U username -P pw sol activate
+ipmitool -I lan     -U $username -P $pass -H $nodename  sol activate		# activte serial over lan
+# should drop into console
+# type tilde (~) to exit
+ipmitool -I lan     -U $username -P $pass -H $nodename  sol deactivate		# disconnect prev sol, clean up measure 
+
+
+sol payload enable 1 2
+# these supposed to work, but haven't been able to get them to work :(
+# may need to configure grub level serial redirect
+# but realistically haven't been able to connect to serial, not just a blank screen...
 
 
 
+# sol is for when console has redirected output to serial
+# (?) is won't capture output to vga  (that isn't redirected to serial)
+
+# ref:
+# http://thenetworksherpa.com/using-ipmi-serial-lan-consoles/
+
+
+# ref:  (for windows, but mostly applicable to linux)
+#  https://www.symantec.com/connect/articles/how-do-sol-serial-over-lan-aka-console-redirection-dell-servers
+
+
+
+ipmitool -I lan     -U $username -P $pass -H $nodename  mc 	info		# ipmi ver info
 
 ipmitool -I lan     -U $username -P $pass -H $nodename  chassis power status
 ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power status
@@ -135,7 +156,10 @@ ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power on
 ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power cycle
 
 # nodename is the DNS name of the ipmi address of a host, eg ipmi-HOSTNAME 
+
 # most of time use lanplus interface
+# lan may work for some basic commands, but more sophisticated command req it to be run over lanplus
+# dell def username pass is root calvin
 
 </PRE>
 
