@@ -128,6 +128,14 @@ ipmitool -H hostname -U username -P pw sol activate
 
 
 
+ipmitool -I lan     -U $username -P $pass -H $nodename  chassis power status
+ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power status
+ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power down
+ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power on
+ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power cycle
+
+# nodename is the DNS name of the ipmi address of a host, eg ipmi-HOSTNAME 
+# most of time use lanplus interface
 
 </PRE>
 
