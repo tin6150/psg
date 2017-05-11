@@ -123,8 +123,13 @@ ipmitool -H
 # using serial over lan (sol, ipmi 2.0)
 ipmitool -H hostname -U username -P pw sol activate
 ipmitool -I lan     -U $username -P $pass -H $nodename  sol activate		# activte serial over lan
-# should drop into console
-# type tilde (~) to exit
+# should drop into console.  escape seq to control IPMI session:
+# ~. = exit
+# ~ ^Z = suspend
+# ~B = send break
+# ~? = help
+# Esc R Esc r Esc R = ctrl-alt-del
+# Esc 1 = F1
 ipmitool -I lan     -U $username -P $pass -H $nodename  sol deactivate		# disconnect prev sol, clean up measure 
 
 
@@ -144,6 +149,9 @@ sol payload enable 1 2
 
 # ref:  (for windows, but mostly applicable to linux)
 #  https://www.symantec.com/connect/articles/how-do-sol-serial-over-lan-aka-console-redirection-dell-servers
+
+# ref: (dell pdf, with BIOS config for SOL, escape seq keys, etc)
+# http://www.dell.com/downloads/global/power/ps4q07-20070387-Babu.pdf
 
 
 
