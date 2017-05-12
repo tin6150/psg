@@ -103,11 +103,25 @@ module load shared
 module load ipmitool
 service ipmi start
 
-
-
-
 </PRE>
 
+<H5>IPMI RAW</H5>
+
+<PRE>
+# see Dell "Using IMPITOOL RAW commands for remote management..." at 
+# http://www.dell.com/downloads/global/power/ps4q07-20070387-Babu.pdf
+# it is pdf from dell.  includes IPMI, BIOS config for SOL, escape seq keys, etc)
+
+# raw ipmi command can potentially set what temp server shutdown when overheat
+# raw may just mean IPMI commands not fully crafted with UI...
+
+ipmitool -I open sel list
+
+# list raw events... maybe plaform specific.
+# Over temperature raw 0x04 0x02 0x04 0x01 0x01 0x01 0x09 00 00
+# Over voltage     raw 0x04 0x02 0x04 0x02 0x11 0x01 0x09 00 00
+
+</PRE>
 
 
 <H5>TBA </H5>
@@ -149,10 +163,6 @@ sol payload enable 1 2
 
 # ref:  (for windows, but mostly applicable to linux)
 #  https://www.symantec.com/connect/articles/how-do-sol-serial-over-lan-aka-console-redirection-dell-servers
-
-# ref: (dell pdf, with BIOS config for SOL, escape seq keys, etc)
-# http://www.dell.com/downloads/global/power/ps4q07-20070387-Babu.pdf
-
 
 
 ipmitool -I lan     -U $username -P $pass -H $nodename  mc 	info		# ipmi ver info
