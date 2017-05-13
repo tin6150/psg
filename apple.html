@@ -66,18 +66,22 @@ Windows switch: <BR><BR>
 
 <PRE>
 
-Command-Tab			Switch apps: Switch to the next most recently used app among your open apps. 
-      command-`			Switch windows w/in app, within SAME WORKSPACE (works in Terminal and firefox)
-Shift-Command-Tilde (~)		Switch windows: Switch to the next most recently used window of the front app. 
-alt-command left/right		cycle thru tabs in chrome.  
-command     left/right          cycle thru windows in Terminal app, ACROSS workSpaces.  Chrome "BACK" and "FWD" on page (URL) navigation.
+Cmd-Tab				Switch apps: Switch to the next most recently used app among your open apps. 
+Cmd-`     			Switch windows w/in app, within SAME WORKSPACE (works in Terminal and firefox)
+Cmd-Sh ~ (Cmd-Tilde)		Switch windows: Switch to the next most recently used window of the front app. 
+Cmd-alt-Lf/Rg 			cycle thru tabs in chrome.  
+Cmd-    Lf/Rg 		        cycle thru windows in Terminal app, ACROSS workSpaces.  Chrome "BACK" and "FWD" on page (URL) navigation.
 
 Shift-Command-3	Screenshot: 	Take a screenshot of the entire screen. Learn more screenshot shortcuts.
 Shift-Command-4 Screenshot	cropping method
 Command-Comma (,)		Preferences: Open preferences for the front app.
 
-Command-W			close tab/window (ctrl-f4)
-Command-Q			quit app (alt-f4)
+
+Mac			Win/Linux,vi/bash?	Action
+-----------------	--------- --------	-----------------------------------------------
+Cmd-W			^W			close tab/window
+			   ^F4
+Cmd-Q			Alt-F4			quit app
 
 </PRE>
 
@@ -86,60 +90,59 @@ Text Editing/Document Navigation <BR><BR>
 
 <PRE>
 
-Command–Left  Arrow	Move the insertion point to the beginning of the current line.     (vi, linux bash shell HOME, but not osx bash shell!)
-Command–Right Arrow	Move the insertion point to the end of the current line.           (vi, linux bash shell END)
+Mac			Win/Linux,vi/bash?	Action
+-----------------	--------- --------	-----------------------------------------------
+Alt-Lf/Rg               ^Lf/Rg 			Word left/right, even in Terminal
 
-Command–Up   Arrow	Move the insertion point to the beginning of the document.         (mac HOME most of time)
-Command–Down Arrow	Move the insertion point to the end of the document.               (mac END  most of time)   
+Alt-Del/Bksp		^Del/Bksp		Delete word			
 
+Alt-Up/Dn		Hm/End    v,b		Begining/End of line
+Cmd-Lf/Rg		Hm/End			Begining/End of line	[official apple publish]
+^A/E			          ^A/E		Begining/End of line
 
-Option–Left Arrow	Move the insertion point to the beginning of the previous word.    (Win Ctrl-LEFT Arrow)
-Option–Right Arrow	Move the insertion point to the end of the next word.
+Cmd-Up/Dn		^Hm/End			Top/End of doc
+Hm/End 			^Hm/End			Top/End of doc
 
+^Lf/Rg 						SPACES (workspace) Left/Right
+3finger swipe Lf/Rg				SPACES (workspace) Left/Right
+						(Gnome3 use vertical stacked workspace and use mouse wheel to nagivate.  
 
-Ctrl-LEFT Arrow		SPACES (workspace) left    (Gnome3 use vertical workspace and use mouse wheel to nagivate.  OSX has no mouse control for this!)
+</PRE>
 
-HOME			top    of doc      (Win Ctrl-HOME)
-END			bottom of doc      (Win Ctrl-END)
+Editor keybind that will probably never use:
+
+<PRE>
+
+Control-L	Center the cursor or selection in the visible area.
+Control-O	Insert a new line after the insertion point.
+Control-T	Swap the character behind the insertion point with the character in front of the insertion point.
 
 </PRE>
 
 
-These looks similar to bash shell prompt binding:  <BR><BR>
+These looks similar to bash shell prompt binding:  <BR>
+But could just use arrow keys.  Maybe more useful in vi mode?  <BR><BR>
 
 <PRE>
-Control-A	Move to the beginning of the line or paragraph.
-Control-E	Move to the end of a line or paragraph.
 
 Control-F	Move one character forward.              LEFT ARROW
 Control-B	Move one character backward.
 Control-P	Move up one line.                        UP ARROW
 Control-N	Move down one line.
-
-</PRE>
-
-
-Editor keybind that will probably never use:
-
-<PRE>
-Control-L	Center the cursor or selection in the visible area.
-Control-O	Insert a new line after the insertion point.
-Control-T	Swap the character behind the insertion point with the character in front of the insertion point.
 </PRE>
 
 
 <H5>Slopy Mouse</H5>
 
-<PRE>
-
 From server fault, can get mouse follow focus for just the terminal app.
-better than nothing!
-
+only for Terminal app, not all app.  But better than nothing!
+<BR>
+<BR>
 run this cmd in terminal, then restart:
+<BR>
+<BR>
+<TT>defaults write com.apple.Terminal FocusFollowsMouse -boolean YES</TT>
 
-defaults write com.apple.Terminal FocusFollowsMouse -boolean YES
-
-</PRE>
 
 
 <H1>Package managers for Mac OS/X</H1>
