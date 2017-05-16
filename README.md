@@ -19,6 +19,9 @@ git config --global user.name tin6150
 git config --global credential.helper 'cache --timeout=3600'
 git config --global github.user   tin6150
 
+git config merge.conflictstyle diff3		# cmd diff tool, make file w/ <<<< |||| >>>>, bearable
+
+
 git clone https://github.com/tin6150/psg.git
 
 git init
