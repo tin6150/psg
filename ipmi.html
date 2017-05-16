@@ -179,6 +179,9 @@ ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power cycle
 # lan may work for some basic commands, but more sophisticated command req it to be run over lanplus
 # dell def username pass is root calvin
 
+
+ipmitool mc reset cold 	# reset the service processor on the node itself, cold? booting it?
+
 </PRE>
 
 
