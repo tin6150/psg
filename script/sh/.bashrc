@@ -4,15 +4,13 @@
 #set -o vi     # allow ESC, /string ENTER for searching command line history.
 # nah, new bash use ^R to search history
 
-if [[ -z $ENV_TRACE_DOT_PROFILE ]] ; then
-	#PS1='\u@\h \w \#\$ '
-	#PS1='____\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] \[\e[1;32m\]\$\[\e[m\] '
-	PS1='__rc__\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] viMode\[\e[1;32m\]>\[\e[m\] '
-	export PS1
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc__no_profile"
-else
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc__w_profile"
-fi
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
+
+#PS1='\u@\h \w \#\$ '
+#PS1='____\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] \[\e[1;32m\]\$\[\e[m\] '
+#PS1='__rc__\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] viMode\[\e[1;32m\]>\[\e[m\] '
+PS1='__ \[\e[0;32m\]\u \H\[\e[m\] \[\e[1;34m\]\W\[\e[m\] \[\e[1;32m\]>\[\e[m\] '
+export PS1
 
 
 [[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
@@ -34,11 +32,69 @@ export COMMON_ENV_TRACE
 ## actually, new man page says bash omit .profile if .bashrc exist.
 ## these days, bash_profile just seems to source bashrc, 
 ## so may as well just have everything in .bashrc !!
-
-##~~2015.1106 [[ -z $ENV_TRACE_DOT_PROFILE ]] && source $HOME/.bash_profile
-##[[ -z $ENV_TRACE_DOT_PROFILE ]] && source .profile
-
+##
 ## going forward, just put stuff in .bashrc and forget .bash_profile
 
 
 umask 0002      # i do want file default group writable
+
+
+
+
+## from from .alias, merging into here cuz want to be lazy and just link .bashrc for ~ to github
+
+alias ls0="ls  -l | perl -lane 'if ($F[4] == 0 )    { print \$_ };' "   # can use $_ in shell, but need \$_ for sourced script
+alias ls-0="ls -l | perl -lane 'if ($F[4] != 0 )    { print \$_ };' "
+#alias ls-0="/home/hoti1/applet/script/ls-0.pl"
+#alias ls0="/home/hoti1/applet/script/ls0.pl"
+
+alias listuid="ypcat passwd | awk -F: ' {print \$3 \" \" \$1} ' | sort -n"
+alias listgid="ypcat group  | awk -F: ' {print \$3 \" \" \$1} ' | sort -n"
+
+alias Dirs='dirs | sed "s/\ /\n/g"'
+alias printDbg='env | egrep DBG\|COMMON\|DOT\|SKEL\|SOFT'
+alias printPath='echo $PATH | sed "s/:/\n/g"'
+alias printLib='echo $LD_LIBRARY_PATH | sed "s/:/\n/g"'
+alias printPerl5Lib='echo $PERL5LIB | sed "s/:/\n/g"'
+alias chrome=chromium-browser 
+
+#alias vncsvr30='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
+#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
+
+
+alias rpmf="rpm -qa --qf '%{NAME} \t\t %{VERSION} \t %{RELEASE} \t %{ARCH}\n'"
+
+alias sin=/usr/local/bin/singularity
+alias Git=~/app/bin/git
+alias nxc=/usr/NX/bin/nxclient
+# lazy finger alias
+alias ef='ps -ef'
+alias lt="ls -latr"
+alias ltr="ls -latr"
+
+# overwrite default behaviour, keep command name
+alias grep='grep --color=auto'
+#alias ssh='ssh -o StrictHostKeyChecking=no'
+alias vi=vim
+alias lynx=elinks
+
+# sge alias, no longer useful
+#alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/ {print \$0}'"
+#alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/  &&  \$1 ~ /default.q@/  {print \$0}'"
+#alias qs="qstat"
+#qstat -f | grep au$                                                             # will get most of the nodes with alarm state, but misses adu, auE...
+#qstat -f | awk '$6 ~ /[a-zA-Z]/ {print $0}'                                     # some host have error state in column 6, display only such host
+#qstat -f | awk '$6 ~ /[a-zA-Z]/  &&  $1 ~ /default.q@compute/  {print $0}'      # add an additional test for nodes in a specific queue
+#alias qmon="/cm/shared/apps/sge/2011.11p1/bin/linux-x64/qmon"  #don't work anyway
+#alias qstate=/home/hoja2/bin/qstatstate.py
+#alias qstate2=/home/hoja2/bin/qstatstate_op.py
+#alias qtop=/home/hoti1/code/git/qtop/qtop.py
+#alias qtop.py=/home/hoti1/code/git/qtop/qtop.py
+
+# use declare -F to list defined functions
+# qhostTot() { qhost | sed 's/G//g' | awk '/^sky/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
+
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
+export COMMON_ENV_TRACE
+
+
