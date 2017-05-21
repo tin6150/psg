@@ -1,10 +1,29 @@
-
-
-
-#set -o vi     # allow ESC, /string ENTER for searching command line history.
-# nah, new bash use ^R to search history
+## .bashrc ##
 
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
+
+
+### hpcs stuff ###
+
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+# User specific aliases and functions
+# https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
+# export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
+
+ModDirList = "/global/software/sl-6.x86_64/modfiles/tools \
+/global/software/sl-6.x86_64/modfiles/langs \
+/global/software/sl-6.x86_64/modfiles/intel/2013_sp1.4.211"
+
+for ModDir in $ModDirList; do
+	[[ -d $ModDir ]] && MODULEPATH=${MODULEPATH}:$ModDir
+done
+export MODULEPATH
+
+
+### my old stuff, adapted to new work ###
 
 #PS1='\u@\h \w \#\$ '
 #PS1='____\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] \[\e[1;32m\]\$\[\e[m\] '
@@ -35,6 +54,8 @@ export COMMON_ENV_TRACE
 ##
 ## going forward, just put stuff in .bashrc and forget .bash_profile
 
+#set -o vi     # allow ESC, /string ENTER for searching command line history.
+# nah, new bash use ^R to search history
 
 umask 0002      # i do want file default group writable
 
