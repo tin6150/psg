@@ -13,7 +13,7 @@ fi
 # https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 # export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
 
-ModDirList = "/global/software/sl-6.x86_64/modfiles/tools \
+ModDirList="/global/software/sl-6.x86_64/modfiles/tools \
 /global/software/sl-6.x86_64/modfiles/langs \
 /global/software/sl-6.x86_64/modfiles/intel/2013_sp1.4.211"
 
@@ -22,6 +22,7 @@ for ModDir in $ModDirList; do
 done
 export MODULEPATH
 
+[[ -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
 
 ### my old stuff, adapted to new work ###
 
