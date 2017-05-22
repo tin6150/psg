@@ -182,6 +182,10 @@ ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power cycle
 
 ipmitool mc reset cold 	# reset the service processor on the node itself, cold? booting it?
 
+
+# dell C6320 need the following to configure IPMI:
+ipmitool delloem lan set shared with lom1
+
 </PRE>
 
 
