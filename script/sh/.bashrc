@@ -22,7 +22,11 @@ for ModDir in $ModDirList; do
 done
 export MODULEPATH
 
-[[ -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
+[[    -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
+if [[ -d /global/software/sl-7.x86_64/ ]]; then
+	module load vim
+fi
+
 
 ### my old stuff, adapted to new work ###
 
@@ -30,8 +34,8 @@ export MODULEPATH
 #PS1='____\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] \[\e[1;32m\]\$\[\e[m\] '
 #PS1='__rc__\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] viMode\[\e[1;32m\]>\[\e[m\] '
 PS1='__ \[\e[0;32m\]\u \H\[\e[m\] \[\e[1;34m\]\W\[\e[m\] \[\e[1;32m\]>\[\e[m\] '
+[[ -n "$SINGULARITY_CONTAINER" ]] && PS1=${SINGULARITY_CONTAINER}" "${PS1}
 export PS1
-
 
 [[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
 ##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
@@ -97,8 +101,12 @@ alias ltr="ls -latr"
 # overwrite default behaviour, keep command name
 alias grep='grep --color=auto'
 #alias ssh='ssh -o StrictHostKeyChecking=no'
-alias vi=vim
+#alias vi=vim	# vim not avail on sl7
 alias lynx=elinks
+
+# slurm alias, experimenting...
+Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
+# use declare -F to list defined functions.  fn must end with ; before closing with }
 
 # sge alias, no longer useful
 #alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/ {print \$0}'"

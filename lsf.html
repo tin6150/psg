@@ -40,6 +40,11 @@
 </div>
 
 
+<!-- --------------------------------------------------------- -->
+<!-- --------------------------------------------------------- -->
+<!-- --------------------------------------------------------- -->
+
+
 <H1>HPC Batching System</H1>
 
 Batch processing for "loosely coupled" compute cluster.  eg 
@@ -54,6 +59,8 @@ Note that instead of using a batch system, a number of tools exist to carry out 
 <LI>
 </UL>
 
+<!-- --------------------------------------------------------- -->
+<!-- --------------------------------------------------------- -->
 
 <H2>Batch System 101</H2>
 
@@ -73,6 +80,8 @@ HPC Batch system is increasingly adopting containers.  For a feature comparison 
 <BR>
 
 
+<!-- --------------------------------------------------------- -->
+<!-- --------------------------------------------------------- -->
 
 <H2>Command Summary</H2>
 
@@ -81,28 +90,35 @@ Below is a quick comparison of commands between a couple of popular batch/queue 
 <BR>
 
 <PRE>
-Task			LSF			PBS/Torque		SGE
---------------------	--------------------	--------------------	--------------------
-Job submission		bsub			qsub			qsub
-Job monitor		bjobs			qstat			qstat
-Job removal								qdel
+Task			LSF			PBS/Torque		SGE			SLURM
+--------------------	--------------------	--------------------	--------------------	------------
+Job submission		bsub			qsub			qsub			sbatch
+Job monitor		bjobs			qstat			qstat -j JOBID		squeue -j JOBID
+									qstat -u USERNAME	squeue -u USERNAME
+Job removal								qdel			scancel ?
 
-Job control		bstop						qhold
-			bresume						qrls
-			bpeek
+Job control		bstop						qhold			scontrol hold 
+			bresume						qrls			scontrol release
+			bpeek									sattach
+
+interactive/Real time							qrsh / qlogin		srun
 
 
-
-Check nodes		bhosts			pbsnodes -a		qhost / qstat -f
+Check nodes		bhosts			pbsnodes -a		qhost / qstat -f	sinfo -N / scontrol show nodes
 			lshosts						
 			lsload
 
-List avail queues 							qconf -sql
-Queue status		bqueues			qstat -q		qstat -g c
-Queue behaviour		bparams
+List avail queues 							qconf -sql		squeue 
+Queue status		bqueues			qstat -q		qstat -g c		sinfo / strigger
+Queue behaviour		bparams									scontrol show partition / smap
 
-User accounting		bacct
+	
 
+User accounting		bacct									sacct
+
+config									qconf			scontrol
+
+GUI									qmon			sview
 
 </PRE>
 
@@ -112,6 +128,22 @@ User accounting		bacct
 
 
 <BR><HR><BR>
+
+
+<!-- --------------------------------------------------------- -->
+<!-- --------------------------------------------------------- -->
+
+<A NAME="slurm"></A>
+<H1>SLURM</H1>
+
+<H4>User Howto</H4>
+
+<H4>Admin Config</H4>
+
+
+
+<!-- --------------------------------------------------------- -->
+<!-- --------------------------------------------------------- -->
 
 <A NAME="uge"></A>
 <A NAME="sge"></A>
@@ -1083,7 +1115,6 @@ See also:
 <UL>
 <LI> Cycle Computing SubmitOnce
 <LI> Globus
-<LI> SLURM
 <LI> Lustre
 <LI> GPFS
 <LI> <A HREF="bigdata.html">big data</A>
@@ -1094,6 +1125,7 @@ See also:
 Ref:
 
 <UL>
+<LI> <A HREF="https://slurm.schedmd.com/quickstart.html">SLURM Quick Start</A>
 <LI><A HREF="http://www.clustermonkey.net">Cluster Monkey</A>
     eg, see articles on <A HREF="http://www.clustermonkey.net//content/view/141/33/">Parallel Molecular Dynamics</A>.
 <LI><A HREF="http://www.linuxhpc.org/">LinuxHPC.org/</A>
