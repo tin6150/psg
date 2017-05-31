@@ -19,12 +19,14 @@ ModDirList="/global/software/sl-6.x86_64/modfiles/tools \
 
 for ModDir in $ModDirList; do
 	[[ -d $ModDir ]] && MODULEPATH=${MODULEPATH}:$ModDir
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
 done
 export MODULEPATH
 
 [[    -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
 if [[ -d /global/software/sl-7.x86_64/ ]]; then
-	module load vim
+	#module load vim		# seems like vim no longer avail as module
+	echo "" > /dev/null
 fi
 
 
@@ -33,7 +35,19 @@ fi
 #PS1='\u@\h \w \#\$ '
 #PS1='____\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] \[\e[1;32m\]\$\[\e[m\] '
 #PS1='__rc__\[\e[0;32m\]\h\[\e[m\] \[\e[1;34m\]\W\[\e[m\] viMode\[\e[1;32m\]>\[\e[m\] '
-PS1='__ \[\e[0;32m\]\u \H\[\e[m\] \[\e[1;34m\]\W\[\e[m\] \[\e[1;32m\]>\[\e[m\] '
+#PS1='__ \[\e[0;32m\]\u \H\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \[\e[1;32m\]>\[\e[m\] '
+#PS1='\[\e[1;37\]___ \[\e[1;33m\]\u \H\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \[\e[1;32m\]>\[\e[m\] '
+# http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
+CYAN="\[\033[0;36m\]"
+LIGHT_CYAN="\[\033[1;36m\]"
+YELLOW="\[\033[1;33m\]"
+WHITE="\[\033[1;37m\]"
+GRAY="\[\033[1;30m\]"
+LIGHT_GRAY="\[\033[0;37m\]"
+NO_COLOUR="\[\033[0m\]"
+#PS1="${CYAN}__ ${WHITE}\u ${CYAN}\H ${YELLOW}\w ${CYAN}> ${NO_COLOUR} "
+# the one below pretty good in Terminal app in mac with Homebrew and custom brown text on dark blue bg profile
+PS1="${LIGHT_CYAN}__ ${WHITE}\u ${CYAN}\H ${LIGHT_GRAY}\w ${LIGHT_CYAN}> ${NO_COLOUR} "
 [[ -n "$SINGULARITY_CONTAINER" ]] && PS1=${SINGULARITY_CONTAINER}" "${PS1}
 export PS1
 
