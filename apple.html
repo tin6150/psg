@@ -164,9 +164,9 @@ MacPort 	- formerly Darwin port
 		  contain lot of "unix style" software packages.
 		  install to /opt/local
 
-fink		= package manager like Ubuntu apt-get.
-		  need to be installed separately.
-		  more cutting edge that Mac OS Port.
+fink		= package manager like Ubuntu apt-get, oft used by users from Debian world.
+		  need to be installed separately, create resource tree independent of mac os x, more unixy...
+		  more cutting edge that Mac OS Port.  May have pre-compiled binaries.
 		  install to /sw
 
 rudix		= pre-compiled unix sw for OS X (Yosemite in progress, Maverick and older okay)
@@ -176,10 +176,20 @@ rudix		= pre-compiled unix sw for OS X (Yosemite in progress, Maverick and older
 homebrew	= http://brew.sh/
 		  install to /usr/local, which is said why it works!  changing path not recommended!
 		  have not been able to get it to install/work behind a proxy :( 
+		  Said to depends more on mac os x native packages, more integrated, uses less space.
+		  Intended audience = mac users.  
+		  <TT>brew install caskroom/cask/burn added a GUI Burn.app into Applications.</TT>
+
 
 nix		= from NixOS, meant to be a declarative (stateless) package management.  
 		  package are build from source, but cached to provide performance close to traditional binary-based package manager.
 
+</PRE>
+
+<A HREF="https://apple.stackexchange.com/questions/64690/macports-vs-fink-vs-homebrew">Comarison discussion in Stack Exchange :: Ask Different</A>
+
+
+<PRE>
 
 dmg are sw image that are &quot;mounted&quot;, accessible from /Volumes.  
 Firefox can run off inside such mount.  
@@ -193,10 +203,13 @@ installer -pkg Fink*pkg -target LocalSystem
 
 pkgutil --pkgs 		# list packages installed on system (.pkg, not stuff that Fink install, which are .deb packages).
 
+</PRE>
 
 
 
+<H5>Fink</H5>
 
+<PRE>
 fink install all software to /sw
 . /sw/bin/init.sh
 
