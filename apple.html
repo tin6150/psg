@@ -178,6 +178,7 @@ homebrew	= http://brew.sh/
 		  have not been able to get it to install/work behind a proxy :( 
 		  Said to depends more on mac os x native packages, more integrated, uses less space.
 		  Intended audience = mac users.  
+		  <TT>/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</TT>
 		  <TT>brew install caskroom/cask/burn added a GUI Burn.app into Applications.</TT>
 
 
@@ -191,32 +192,73 @@ nix		= from NixOS, meant to be a declarative (stateless) package management.
 
 <PRE>
 
-dmg are sw image that are &quot;mounted&quot;, accessible from /Volumes.  
-Firefox can run off inside such mount.  
-Other apps req copying the files there to /Applications folder.  
-Yet other require an install from there.
+</PRE>
 
+
+
+<H5>Fink Install</H5>
+
+<OL>
+<LI> Requirements: Java, Xcode 
+<LI> Download installer and follow instructions from 
+	<A HREF="http://www.finkproject.org/download/srcdist.php">http://www.finkproject.org/download/srcdist.php</A>
+</OL>
+
+<PRE>
+sudo xcode-select --install
+sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer/
+sudo xcodebuild -license
+tar -xvf fink-0.41.1.tar.gz 
+cd fink-*
+./bootstrap 
+# long build process...
+</PRE>
+
+<PRE class="quote">
+You should now have a working Fink installation in '/sw'. You still need package descriptions if you want to compile packages yourself. You can get them
+by installing the dists-10.12-0.16.0.tar.gz tarball, or by running either of the commands: 'fink selfupdate-rsync', to update via rsync (generally
+preferred); or 'fink selfupdate-cvs', to update via CVS (more likely to work through a firewall). You should also run 'sudo xcodebuild -license' and
+accept the Xcode license, since some packages will require this.
+
+Run '. /sw/bin/init.sh' to set up this terminal session environment to use Fink. To make the software installed by Fink available in all of your future
+terminal shells, add '. /sw/bin/init.sh' to the init script '.profile' or '.bash_profile' in your home directory. The program /sw/bin/pathsetup.sh can
+help with this. Enjoy.
+</PRE>
+
+
+
+<H5>Obsolete method to install Fink</H5>
+
+No longer works?  cuz fink group no longer building .dmg?
+
+<PRE>
 installer -pkg Fink*pkg -target LocalSystem
 	# similar to rpm -i sw.rpm 
   	# -target LocalSystem is the equiv of the GUI telling where to put the program.  Should be able to use / also.
 
 
 pkgutil --pkgs 		# list packages installed on system (.pkg, not stuff that Fink install, which are .deb packages).
+			# os x command?  but no longer avail in 10.12 ?
+
+dmg are sw image that are &quot;mounted&quot;, accessible from /Volumes.  
+Firefox can run off inside such mount.  
+Other apps req copying the files there to /Applications folder.  
+Yet other require an install from there.
 
 </PRE>
 
-
-
-<H5>Fink</H5>
+<H5>Fink Use</H5>
 
 <PRE>
-fink install all software to /sw
+
 . /sw/bin/init.sh
 
 
 fink selfupdate
  			# update fink db, support http_proxy env var if proxy need to be set.
-fink list 
+fink list 		# list avail packages.  no samba or smbclient.  
+			# don't see if it provides anything that homebrew don't
+			# fink is prob no longer worth the trouble
 fink install ...
 
 apt-get
