@@ -64,14 +64,17 @@ system-config-firewall          # GUI tool to set iptables firewall rules
 firewall-config                 # use this instead of above in RHEL7 (since it use shorewalls)
 
 
+<A ID="iptables"></A>
 <H2>iptables</H2>
 
-As a command that front end kernel 2.4 netfileter.  Comes standard in CentOS 6/7.  
+As a command that front end kernel 2.4 netfileter.  Comes standard in CentOS 6/7.  <BR>
+
+It is not a daemon, ps won't show anything.  It configure netfilter in the kernel.  <TT>lsmod</TT> will show a kernel modules. <BR>
 
 
 <PRE>
 systemctl enable iptables
-systemctl start iptables		# it run /etc/sysconfig/network/iptables, configure netfileter in the kernel, and done.
+systemctl start  iptables		# it run /etc/sysconfig/network/iptables, configure netfileter in the kernel, and done.
 					# there are no daemon left running.  don't look for iptables in 'ps'
 
 sudo iptables -L			# show summary of configured chain.  
@@ -110,6 +113,72 @@ COMMIT
 
 </PRE>
 
+
+Config file is really a series of arguments to the <TT>iptables</TT> command.  <BR>
+Commands are executed sequentially, as a chain.
+<BR>
+
+But feel like updating /etc/sysconfig/iptables and then running systemctl restart iptables is easier (and safer).
+If it drops ssh, at least the rule will run and re-enable inbound ssh to log back in...
+<BR>
+Maybe good for some temporary testing, especially those not involving ssh :)
+<BR>
+
+Ref: <A HREF="https://wiki.centos.org/HowTos/Network/IPTables">CentOS wiki ipTables</A> (basic overview/simple example)
+
+<PRE>
+
+
+iptables -P INPUT ACCEPT			# (temp) set policy to accept (or else connected ssh will drop)
+
+iptables -F					# flush out all existing rules.  if ssh in, that connection will be dropped (unless with above)
+
+-A INPUT					# add/append to the INPUT chain rule.
+-m state					# load the state-full inspection Module
+	 --state ESTABLISHED,RELATED		# state could be NEW, ESTABLISHED or RELATED 
+						# RELATED allow fw to see if it part of an already ongoing connection
+
+-m tcp			## ??
+
+-p tcp						# protocol tcp
+--dport 22					# destination port 
+--sport 6000-7000				# source ports range
+
+-j ACCEPT					# action is to allow the packet thru
+
+iptables -A INPUT -s 192.168.0.0/24 -j ACCEPT  			# using standard slash notation
+iptables -A INPUT -s 192.168.0.0/255.255.255.0 -j ACCEPT 	# using a subnet mask
+
+iptables -P FORWARD DROP					# ends with a DROP rule by default if not already allowed
+
+
+iptables -L -v					# list the rules
+
+
+/sbin/service iptables save			# calls /sbin/iptables-save (to /etc/sysconfig/iptables)
+						# if don't do this, iptables at cli will be lost after reboot
+
+</PRE>
+
+
+
+Port forward incoming traffic hitting on port 80, sending it to port 8000.
+<PRE>
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8000
+</PRE>
+<!-- that command came from gmail with ironman -->
+
+This works when i use a different machine to hit port 8000, then the PREROUTING will take place and forward to port 80. <BR>
+
+But, it will not work when I am connecting within the machine, even when IP address is used.
+this is relevant sometime when you the requestor come from the same machine (eg if you are doing development work and testing on the same machine)  <BR>
+[ommitting the -i eth0 may get it to forward traffic even when it is on the same host?]
+<BR>
+
+
+
+
+<A ID="ufw"></A>
 <H2>ufw</H2>
 Uncomplicated firewall.  <BR>
 
@@ -130,14 +199,14 @@ sudo ufw status
 </PRE>
 
 UFW writes into iptables-restore copatible text files.  Fine tuning can be done by editing:
-<LI>
-<OL> /etc/default/ufw # high level config
-<OL> /etc/ufw/before.rules   # these are very much like iptables command, except keyword is ufw-... ?
-<OL> /etc/ufw/after.rules
-<OL> /etc/ufw/sysctl.conf
-<OL> /var/lib/ufw/user.rules
-<OL> ...
-</LI>
+<OL>
+<LI> /etc/default/ufw # high level config
+<LI> /etc/ufw/before.rules   # these are very much like iptables command, except keyword is ufw-... ?
+<LI> /etc/ufw/after.rules
+<LI> /etc/ufw/sysctl.conf
+<LI> /var/lib/ufw/user.rules
+<LI> ...
+</OL>
 
 More details at <A HREF="https://wiki.ubuntu.com/UncomplicatedFirewall">Ubuntu UFW wiki</A>  <BR>
 
@@ -183,6 +252,7 @@ Ref:
 <A HREF="https://help.ubuntu.com/community/UFW">Ubuntu community UFW page</A> <BR>
 
 
+<A ID="shorewall"></A>
 <H2>Shorewall</H2>
 
 Shoreline Firewall.  
