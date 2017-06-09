@@ -121,6 +121,66 @@ Ref:
 <A HREF="https://help.ubuntu.com/community/UFW">Ubuntu UFW page</A>
 
 
+Sample Usage
+<PRE>
+sudo ufw allow ssh/tcp
+sudo ufw logging on
+sudo ufw enable
+sudo ufw status
+</PRE>
+
+UFW writes into iptables-restore copatible text files.  Fine tuning can be done by editing:
+<LI>
+<OL> /etc/default/ufw # high level config
+<OL> /etc/ufw/before.rules   # these are very much like iptables command, except keyword is ufw-... ?
+<OL> /etc/ufw/after.rules
+<OL> /etc/ufw/sysctl.conf
+<OL> /var/lib/ufw/user.rules
+<OL> ...
+</LI>
+
+More details at <A HREF="https://wiki.ubuntu.com/UncomplicatedFirewall">Ubuntu UFW wiki</A>  <BR>
+
+<BR>
+
+
+More complex usage:
+
+<PRE>
+sudo ufw status verbose
+
+sudo ufw show raw
+sudo ufw disable
+sudo ufw --dry-run enable
+sudo ufw --dry-run reload
+sudo ufw reset			# ??
+sudo ufw app list|info...	# ??
+
+sudo ufw allow 80		# assume incoming
+sudo ufw allow 53/tcp
+
+sudo ufw deny 53/udp		# deny rule
+sudo ufw delete deny 53/udp	# remove deny rule
+
+
+udo ufw allow from 10.11.12.0/24 			# allow subnet, all traffic
+udo ufw allow from 10.11.12.8 to any port 22		# outbound allow traffic (any refers to protocol)
+
+
+sudo ufw deny from 8.8.8.8				# explicity deny of a specific host (or subnet)
+
+</PRE>
+
+ufw, like iptables, have numbered rules (it is a netfilter thing)
+
+<PRE>
+sudo ufw status numbered
+sudo ufw delete 1
+sudo ufw insert 1 allow from 123.45.6.77
+</PRE>
+
+Ref: 
+<A HREF="https://help.ubuntu.com/community/UFW">Ubuntu community UFW page</A> <BR>
 
 
 <H2>Shorewall</H2>
