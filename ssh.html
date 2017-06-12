@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP, PSG101, sn50, tin6150"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - ssh</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://tin6150.github.io/psg/">Sys Admin Pocket Survival Guide - ssh</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg2.html">Home</a>                     </td>
+      <td align="center"><a accesskey="m" href="mrf.html">Modified RAID 5</a>           </td>
+      <td align="center"><a accesskey="d" href="docker.html">Docker</a>                 </td>
+      <td align="center"><a accesskey="a" href="aws.html">AWS</a>                       </td>
+      <td align="center"><a accesskey="l" href="lsf.html">HPC/Batch System</a>          </td>
+      <td align="center"><a accesskey="b" href="bigdata.html">BigData Engine</a>        </td>   
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a>                     </td>
+      <td align="center"><a accesskey="y" href="python.html">Python</a>                 </td>
+      <td align="right"> <a accesskey="c" href="blogger_container_hpc.html">Container</a>       </td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+
+<div align="CENTER">
+<A HREF="http://rustedreality.com/tag/networking/"><IMG SRC="fig/rustedrealty_tunnel.jpg"></A><BR>
+</div>
+
+<!-- ######################################################################### -->
+
+
+<H1>SSH, Tunnel, Port Forward</H1>
+
+<BR>
+<BR>
+
+<PRE>
+
+ssh tunneling  
+
+ssh -R 2023:raven:23 codadmin-1 
+
+-R report port 2023
+tunnel it to raven port 23
+remote machine is coadmin-1
+login, and the session will be in place
+
+in this eg, on coadmin-1, do telnet localhost 2023 will have a ssh tunnerl to raven, then connect to port 23 (telnet) on raven box.  This allow login to raven from coadmin-1 using telnet, but no clear text will be send across the network!
+
+connection last .... (after logoug of ssh, still reamins... at least for a while...)
+
+
+eg2:
+mis06$  ssh -R 30000:devapp01:21 -l tin raven.unixville.com
+then, in raven's prompt, a 'telnet localhost 30000' will connect to the ftp server on devapp01 (port 21)
+read as: Remote port 30000   send to devapp01:21  the rest is just login to the remote machine.
+once the ssh session is killed, the channel disapears (though just simple exit with preconnected channel will be forked to background).
+
+     -R port:host:hostport 	#R = remote
+     -L port:host:hostport 	#L = local
+
+floride# ssh -L 443:localhost:22 root@grads
+	localhost:443 will be LISTEN state, and tunnel to grads:22, which need root to work.
+	(if use tho01, ssh will complain that it is admin prohibited)
+	floride is linux laptop at home, 
+voivod$  ssh -L 2022:localhost:443 tho01@sn -p 23
+	voivod is at work, where it can connect to home linux on port 23, 
+	home router register IP as sn.is-a-geek.com, routing to floride
+	localhost:2022 tunnel to floride:443, it will ask for password thru ssh on port 23.
+
+Note that this double tunneling will connect, but need root access for port < 1024 :(
+each machine only open port in 127.0.0.1:* so can't remotely connect.
+
+
+
+
+--- 
+
+X11 forwarding...
+
+deepnds on configuration of both server and client to fwd X11
+ssh has an -X option to force it (but what if server refuse, then i guess it won't work then).
+
+ONce ssh into the remote machine, even thru several machines, will forward the X11 port correctly.  it set the display to some virtual display on the local machine, on :10.0 (port 6010) or something.  all the work will be behind the scene tthru the many virtual xserver that ssh setup on the way
+
+
+
+---
+
+copy file from remote place, though only 1 file at a time
+
+ssh tho01@grads "cat file" > file.txt
+ssh tho01@grads " cat binfile | uuencode - " | uudecode -p > binfile
+cat binfile | uuencode - | ssh +C mis02 " uudecode -p > binfile"
+
+(had addded - for uuencode to expect stdin (won't work w/o cat though), and -p for uudecode to output to stdout (or else it dump into a file named '-').  grads cshrc noisy output will affect this working!)
+
+-p is in solaris only, presummably linux use diff option to output to stdout
+
+
+tin-u10#  cd /mnt/na_data_vol1/depot/jumpstart/OS/OS.fromJUMPSTART
+ssh root@10.215.2.16 "(cd /jumpstart/OS.local; tar cf -  sol_9_sparc sol_8_202_ia) | uuencode - " | uudecode -p | tar xf -
+
+#-jumpstart# cd /jumpstart/OS.local
+#- tar cf - * | uuencode - | ssh +C 10.215.2.42
+
+-----
+
+ssh or scp to server w/o providing password.
+
+on client, do ssh-keygen
+get content of $HOME/.ssh/identity.pub
+drop it in server $HOME/.ssh/authorized_keys
+
+
+
+linux:
+ssh-keygen -t rsa1
+ssh-keygen -t dsa
+cd .ssh
+cat identity.pub id_dsa.pub >> authorized_keys
+
+
+>>> just really needed the dsa part for sshd v2
+
+linux ssh is very pick nicky now.
+If parent dir is world writable, it will not accept the private key and insist on password :(
+It doesn't display error, it just keep on assking for password even when everything seems fine!!!
+
+perms should be:
+[ussf-phpc-mn001:.ssh] 172) ls -la
+total 88
+drwx------   2 tinh ack1  4096 Jan 23 14:44 .
+drwxr-xr-x  46 tinh ack1 36864 Jan 23 16:42 ..
+-rw-r-----   1 tinh ack1   949 Nov  2 23:48 authorized_keys
+-rw-------   1 tinh ack1   672 Nov  2 23:47 id_dsa
+-rw-r-----   1 tinh ack1   610 Nov  2 23:47 id_dsa.pub
+-rw-------   1 tinh ack1   535 Nov  2 23:46 identity
+-rw-r-----   1 tinh ack1   339 Nov  2 23:46 identity.pub
+-rw-r--r--   1 tinh ack1 24689 Jan 23 14:31 known_hosts
+[ussf-phpc-mn001:.ssh] 173)
+
+
+
+
+
+---
+
+ssh1:
+
+something about not having to type in password when invoking ssh
+(presumably with password protecting the public/private key pair)
+
+ssh-agent $SHELL
+ssh-add
+
+
+
+
+</PRE>
+
+
+
+
+<!--  test area
+<EM>This is EM text</EM><BR>
+<STRONG>This is STRONG text</STRONG><BR>
+<BR>
+
+<font face=monospace>
+someple text here
+	line with tab indent	more tab		yet more tab.
+</font>
+<BR>
+<TT>
+Typewriter monospaced fonts in here.
+This is another line.
+</TT>
+-->
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/ssh.html">
+http://tin6150.github.io/psg/ssh.html
+</A>] <BR>
+Last Updated: 2017-06-08
+  <!--[Doc URL: <A HREF="http://psg.ask-margo.com/">http://psg.ask-margo.com/</A>] <BR>-->
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  hoti1<BR>
+  sn5050<BR>
+  psg101 sn50 tin6150</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

@@ -970,8 +970,13 @@ note that if tag does not match peer switch/router, then there will be no traffi
 <A ID="pix"></A>
 <H2>PIX</H2>
 <PRE>
-(TBD, mask, clean up and combine ~/ref/pix.ref cc*)
+enable
+config terminal
+conduit permit tcp host 64.41.188.93 eq 22 host 65.5.190.138
+write memory
+exit
 </PRE>
+(TBD, mask, clean up and combine ~/ref/pix.ref cc*)
 <BR>
 
 <A ID="checkPoint"></A>
