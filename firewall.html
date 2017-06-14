@@ -26,6 +26,8 @@
     <tr>
       <td align="left">  <a accesskey="h" href="psg2.html">Home</a>                     </td>
       <td align="center"><a accesskey="m" href="mrf.html">Modified RAID 5</a>           </td>
+      <td align="center"><a accesskey="i" href="ipmi.html">IPMI</a>           		</td>
+      <td align="center"><a accesskey="l" href="linux.html">Linux</a> 		        </td>
       <td align="center"><a accesskey="d" href="docker.html">Docker</a>                 </td>
       <td align="center"><a accesskey="a" href="aws.html">AWS</a>                       </td>
       <td align="center"><a accesskey="l" href="lsf.html">HPC/Batch System</a>          </td>
@@ -75,7 +77,7 @@ firewall-config                 # use this instead of above in RHEL7 (since it u
 </PRE>
 
 <A ID="iptables"></A>
-<H2>iptables</H2>
+<H2>IPTables</H2>
 
 As a command that front end kernel 2.4 netfileter.  Comes standard in CentOS 6/7.  <BR>
 
@@ -83,9 +85,11 @@ It is not a daemon, ps won't show anything.  It configure netfilter in the kerne
 
 
 <PRE>
-systemctl enable iptables
-systemctl start  iptables		# it run /etc/sysconfig/network/iptables, configure netfileter in the kernel, and done.
+systemctl enable  iptables
+systemctl start   iptables		# it run /etc/sysconfig/network/iptables, configure netfileter in the kernel, and done.
 					# there are no daemon left running.  don't look for iptables in 'ps'
+systemctl restart iptables		# reload firewall rule.  If there are error, system auto stop and don't change existing rule.
+journalct -xe				# see log message, esp if iptables config is wrong and can't be loaded.
 
 sudo iptables -L			# show summary of configured chain.  
 </PRE>
@@ -170,6 +174,59 @@ iptables -L -v					# list the rules
 
 </PRE>
 
+
+Core snipplet allowing SSH,NIS for a list of hosts.  <BR>
+Other packets are rejected with ICMP message, rather silently dropped.  Log goes to syslog, at kern.6 level.
+
+<PRE class="cf">
+
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+
+## log incoming traffic, for temporary debugging only.  will create massive logs!
+## -A INPUT -p tcp -j LOG --log-prefix "IPTables Packet IN: " --log-level 7
+## -A INPUT -p tcp -s 123.4.130.157 -j LOG --log-prefix "IPTables Packet IN: " --log-level 7
+
+-A INPUT -i lo -j ACCEPT
+
+#### Port 22 allows inbound ssh 
+#### NIS uses multiple ports: 111 (portmapper), 837-837 (/etc/sysconfig/network YP args).  
+#### seems like can live with just TCP version of these ports, may not need to allow udp for newer clients.
+#### https://help.ubuntu.com/community/SettingUpNISHowTo
+#### NFS uses multiple ports as well (in addition to portmapper 111):  1110, 2049, 4045
+#### though this config not currently exporting NFS (yet)
+#### https://superuser.com/questions/667690/iptables-rules-for-nfs
+#### Can use a comma separated of source IP, or just add one host IP per line for easy removal
+####
+-A INPUT -s 123.4.7.25          -p tcp -m multiport --dports 22,111,834,835,836,837  -j ACCEPT
+-A INPUT -s 123.4.7.25          -p udp -m multiport --dports    111,834,835,836,837  -j ACCEPT
+
+####
+####  log dropped/rejected packets
+####
+-A INPUT -j LOG -m limit --limit 2/min --log-prefix "IPTables reject/drop: " --log-level 6
+
+###
+### alt method to logging, chained rule, don't seems to be necessary
+###
+##?-N LOGGING
+##?-A INPUT -j LOGGING
+##?-A LOGGING -m limit --limit 2/min -j LOG --log-prefix "IPTables Packet Dropped: " --log-level 6
+##?-A LOGGING -j REJECT --reject-with icmp-host-prohibited
+##--A LOGGING -j DROP
+
+####
+####  default to drop/reject packet.  No Packet forwarding.
+####
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+COMMIT
+
+
+
+</PRE>
 
 
 Port forward incoming traffic hitting on port 80, sending it to port 8000.

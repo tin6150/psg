@@ -1,5 +1,9 @@
 ## .bashrc ##
 
+# the following will not save .bash_history when exit bash, so no xfer b/w sessions
+# very useful when putting pw in env var 
+export HISTFILESIZE=0
+
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
 
 
@@ -141,4 +145,9 @@ Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
 export COMMON_ENV_TRACE
 
+
+
+### mac stuff ###
+[[ -f /Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer ]] && alias vncviewer='/Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer' 
+[[ -f /Applications/x2goclient.app/Contents/MacOS/x2goclient ]] && alias x2go=/Applications/x2goclient.app/Contents/MacOS/x2goclient
 
