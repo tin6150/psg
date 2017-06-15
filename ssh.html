@@ -52,13 +52,32 @@
 <!-- ######################################################################### -->
 
 
-<H1>SSH, Tunnel, Port Forward</H1>
+Example Perl/Expect script to ssh to a host (eg iDRAC interface) with interactive password and issue command interactively: 
+<A HREF="https://github.com/tin6150/psg/blob/master/script/perl/sshExpect.pl">
+sshExpect.pl</A>
 
 <BR>
-<BR>
+
+<H1>SSH, Tunnel, Port Forward</H1>
+
+<H3>SSH Hostkey</H3>
+
+"Dealing" with it :)
 
 <PRE>
 
+ssh -o UserKnownHostsFile=/dev/null
+
+alias ssh='ssh -o StrictHostKeyChecking=no'
+
+</PRE>
+
+<BR>
+<BR>
+
+<H3>SSH Hostkey</H3>
+
+<PRE>
 ssh tunneling  
 
 ssh -R 2023:raven:23 codadmin-1 

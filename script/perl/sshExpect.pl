@@ -16,12 +16,13 @@ my $perltidx;
 my $sshkey_timeout = 4;
 my $timeout = 30;
 #my @match_patterns = ">";
+my $cmdAtHost = "uptime"
 
 my @hostlist;
 #push( @hostlist, "linux-tin2" );
-#push( @hostlist, "phusem-vml-pathach1" );
-#my @hostlist = ("linux-tin2", "phusem-vml-pathach1" );
-my @esx_hostlist = ("vmusca10sc" );
+#push( @hostlist, "usvm-bofh1" );
+#my @hostlist = ("linux-tin2", "usvm-bofh1" );
+my @esx_hostlist = ("usesx10sc" );
 
 @hostlist = @esx_hostlist;
 
@@ -57,6 +58,9 @@ foreach $host ( @hostlist ) {
 	##  expect can match multiple patterns, with diff actions, see
 	## http://search.cpan.org/~rgiersig/Expect-1.15/Expect.pod
 
+	# *** Commands to execute on remote host is hard coded below ***
+	# *** adjust acoordingly
+	# *** if just one command, consider using $cmdAtDst
 	$perltidx = $exp->expect($timeout, ">");
 	$exp->send("hostname\n" );
 	$perltidx = $exp->expect($timeout, ">");
