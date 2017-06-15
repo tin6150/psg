@@ -740,6 +740,7 @@ metainit         d20 1 1 c0t0d0s0	# initialize a new device for use w/ sds
 eg: d0 is the host mirror, with components:
    d10 = c0t0d0  which is bad in this eg
    d20 = c3t8d0 which is the good submirror
+	  * need to add s# to above to indicate actual slide where SDS vol is 
 
 metadetach -f d0 d10					# offline the disk
 metaclear        d10					# remove its usage reference from SDS
@@ -747,7 +748,7 @@ metadb     -f -d         c0t0d0s7			# remove meta data from disk
 # replace the drive
 prtvtoc       /dev/rdsk/c3t8d0s2  > vtoc.c3t8d0s2
 fmthard -s    vtoc.c3t8d0s2       /dev/rdsk/c0t2d0s2    # create partition/slide info
-metainit         d10  1 1 c0t0d0s0			# initialize the disk for SDS use
+metainit         d10  1 1 c0t0d0s0			# initialize the disk/slide? for SDS use
 metattach     d0 d10					# attach a submirror d10 to main disk d0
 metadb     -a        -c 1 c0t0d0s7			# add  meta data to the disk
 </PRE>
@@ -863,42 +864,50 @@ seperate partition on each disk.
 
 
 
+<A ID="svm_cf"></A>
 <H4>SVM/SDS Config files</H4>
-<PRE>
-
 
 Quick backup of config files for recovery use.
 (see separate config-backup.sh script for more info)
 
+<PRE class="cf">
+
+
+#!/bin/sh
+
 #BKDIR=/export/cfbk
 BKDIR=/var/adm/cfbk
 
-mkdir $BKDIR
+test -d $BKDIR || mkdir $BKDIR
 
-cp -p /etc/vfstab 	$BKDIR
-cp -p /etc/system	$BKDIR
+cp -p /etc/vfstab       $BKDIR
+cp -p /etc/system       $BKDIR
 
 cp -p /kernel/drv/md.conf $BKDIR
-cp -p /etc/lvm/md.cf 	$BKDIR
-cp -p /etc/lvm/mddb.cf	$BKDIR
-cp -p /etc/lvm/md.tab	$BKDIR		# really manual file, metastat -p
+cp -p /etc/lvm/md.cf    $BKDIR
+cp -p /etc/lvm/mddb.cf  $BKDIR
+cp -p /etc/lvm/md.tab   $BKDIR          # really manual file, metastat -p
 
 metastat -p > $BKDIR/`date +%Y%m%d`.metastat-p
 metastat    > $BKDIR/`date +%Y%m%d`.metastat
 
 DISKPATH=/dev/rdsk/
-DISKSET="c0t0d0s2 c0t8d0s2 c0t9d0s2 c0t10d0s2" 
+DISKSET=`cd $DISKPATH; ls *s2`
+#DISKSET="c0t0d0s2 c0t8d0s2 c0t9d0s2 c0t10d0s2"
 #DISKSET="c0t0d0s2 c0t8d0s2 c0t9d0s2 c0t10d0s2 c0t11d0s2 c0t12d0s2"
 for DISK in $DISKSET; do
-	prtvtoc $DISKPATH/$DISK > $BKDIR/`date +%Y%m%d`.vtoc."$DISK"
+        prtvtoc $DISKPATH/$DISK > $BKDIR/`date +%Y%m%d`.vtoc."$DISK"
 done
 
 #eepromp param (alias for booting, if setup)
-eeprom nvram 	> $BKDIR/`date +%Y%m%d`.eeprom.nvramrc.out
-eeprom 		> $BKDIR/`date +%Y%m%d`.eeprom.out
+eeprom nvram    > $BKDIR/`date +%Y%m%d`.eeprom.nvramrc.out
+eeprom          > $BKDIR/`date +%Y%m%d`.eeprom.out
+
+</PRE>
 
 ----
 
+<PRE>
 
 sol 8:
 /etc/system
@@ -2161,7 +2170,7 @@ Can probably only do RAID 1+0.
 
 </PRE>
 
-<A NAME=""sun_t3_disk_array></A>
+<A NAME="sun_t3_disk_array"></A>
 <A ID="t3"></A>
 <H2>Sun T3 Disk Array (T3b)</H2>
 <!--sun.t3.cmd-->
