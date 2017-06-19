@@ -184,20 +184,37 @@ drwxr-xr-x  46 tinh ack1 36864 Jan 23 16:42 ..
 [ussf-phpc-mn001:.ssh] 173)
 
 
+</PRE>
+
+<A ID="ssh-agent"></A>
+<H5>ssh-agent</H5>
+
+
+<PRE>
+
+ssh-agent reduces typing in password when using privatekey that is password protected.
+Since password remains in memory, and has socket in a path, 
+it is still possible to be abused by root...
+
+ssh-agent $SHELL	# agent terminates when SHELL exits
+
+ssh-agent 		# run in background forever, 
+			# but need to export SSH_AUTH_SOCK var manually in other shell session before agent work...
+			# eg:
+export SSH_AUTH_SOCK=/var/folders/wy/jztf8lmn08v4kry0vsxzskpw0000gn/T//ssh-oQzD1UBJO3AO/agent.12475
+export SSH_AGENT_PID=12476	# prob not really needed
+
+
+ssh-add			# by default, add private keys in ~/.ssh/ to agent's memory.
+
+
+ssh somehost		# private key, those with passphrase, will be automatically inoked by ssh-agent
 
 
 
----
-
-ssh1:
-
-something about not having to type in password when invoking ssh
-(presumably with password protecting the public/private key pair)
-
-ssh-agent $SHELL
-ssh-add
-
-
+# newer version of ssh will communicate automagically with ssh-agent ?
+# just that mac os x 10.12.5 has old ssh client that don't do this?
+# 
 
 
 </PRE>
