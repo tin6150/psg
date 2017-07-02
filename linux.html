@@ -1775,6 +1775,43 @@ modinfo mpt2sas			# could be from native os or dkms
 SELinux - Security Enhanced Linux
 </H1>
 
+<H5>SELinux for RHEL 7 </H5>
+
+<PRE>
+sestatus # check status
+</PRE>
+
+
+Can only be disabled by editing config file and reboot.  <BR>
+ping in rhel7 does not rely on setuid big, but on selinux context to gain elevated priv to do the ping.  <BR>
+Seems like RHEL7 has SELinux enable by default, and it is very usable, don't tend to run into problem/restrictions with most generic sys admin config as desktop machine.
+<BR><BR>
+
+<H5>SELinux for Ubuntu 14</H5>
+
+Ubuntu by and large don't talk about SELinux and is disabled by default.  Older distro don't even have it installed by default.  It is installed on Ubuntu 14.04/Mint 17.2.   <BR>
+Documentation is refered to the Debian page at:
+<A HREF="https://wiki.debian.org/SELinux/Setup">
+https://wiki.debian.org/SELinux/Setup</A>
+<BR>
+
+<PRE>
+
+apt-get install selinux-basics selinux-policy-default auditd 
+apt-get istall setools	# may have lots of dependencies in older debians
+
+download script from https://wiki.debian.org/SELinux/Setup?action=AttachFile&do=view&target=_load_selinux_policy
+
+cp -p ~/Downlaods/_load_selinux_policy   /usr/share/initramfs-tools/scripts/init-bottom/
+
+update-initramfs -u
+selinux-activate
+ls -la /.autorelabel
+
+</PRE>
+
+
+<H5> Old info for SELinux from RHEL 4 days </H5>
 
 Starting from Red Hat Enterprise Linux 4.0 ships with an implementation of Security Enhanced Linux. 
 They use "targeted policy" which only limits functionality to a pre-defined set of deamon processes.  The defined set will then have to obey the Mandatory Access Control (MAC) and become more secure even when exploited.  
