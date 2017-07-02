@@ -78,8 +78,12 @@ thereby rendering X forward inusable.
 Usual cavet: allowing X forward is a security problem, allows remote capture of
 screen, keystrokes, etc.
 
-
 </PRE>
+
+
+x-ref: <A HREF="linux.html#XDMCP">linux#XDMCP</A>
+
+
 <H1>Running X-based apps in Windows</H1>
 
 There are many ways of running Unix GUI application in the Microsoft World (and Apple OS X).  The most popular way is to create an X-Window server on top of Windows so that Unix GUI programs can display directly on the Windows machine.  This can be done by program such as Exceed, X Manager, and even Cygwin.
@@ -108,13 +112,14 @@ Advantages of X-Window Emulation Software:
 
 Where to get VNC
 <OL>
+<LI><A HREF="http://realvnc.com">Real VNC</A> - Commercial version, default wraps vnc in ssh to make it secure.
 <LI>RedHat Linux comes with VNC, binaries in /usr/bin
 <LI>Ubuntu may need to install, use "aptitude search vnc" and "apt-get install tightvnc" or something along those lines.
 <LI><A HREF="http://tightvnc.com"> 
 Tight VNC</A> - Open Source software model, my current favorite.
 <LI><A HREF="http://ultravnc.sourceforge.net/">
 Ultra VNC</A> - Has a nice auto-hide toolbar in full window mode, similar to Windows Remote Desktop client.
-<LI>Real VNC - Commercial support available.
+<LI>Turbo VNC - touted as faster VNC by using compression.  But NX maybe faster  as it compress and caches.
 
 </OL>
 
@@ -127,11 +132,18 @@ Cygwin</A>.  This open source tool add lot of unix commands to windows, as well 
 X Manager 2.0</A> - Shareware, basic functionality, "lighter weight" install, solid performer.
 <LI>Humingbird Exceed - Lot more bells and whishels that may not be useful, integration into Explorer neighborhood, etc.  Likely best 3D performance of all implementation.
 <LI>X-Win32 ...  This is probably very old stuff now...
-<LI>NX (No Machine)
+<LI>NoMachine NX
 </OL>
 
+<A NAME="x2go"></A>
+<A NAME="X2go"></A>
+<H1>X2go</H1>
 
-<BR><HR><BR>
+<A HREF="http://www.x2go.org">X2go</A> provides an easy way to gain graphical session with a remote linux server.  Think of Terminal Server.  <BR>
+Beats having to ssh in, run vncserver, and then start a vnc client.  Think it was automatically wrapper around ssh tunnel.  <BR>
+NX still provides a more seamless (and probably speedier) experience, but NX may not be free.  <BR>
+X2go does not work with GNOME 3 :( <BR>
+
 
 <A NAME="nx"></A>
 <A NAME="NX"></A>
@@ -785,15 +797,62 @@ full screen mode
 
 Display Manager governs the GUI login screen before a user login.  
 Window Manager is the GUI that gets loaded for a specific user once login is complete.
+<BR><BR>
 
 Historically, gdm is the display manager everyone used.  It can load Gnome Desktop Environment and its Window Manager, or it can load KDE.
+<BR><BR>
 Increasingly, different DM are used for different WM/Desktop Environment.  
+<BR>
+
 MDM is the default for Mint, which loads the Cinnamon environment.  To switch to use Gnome, have to install GDM, which required changes to /etc/X11/default-display-manager
+<BR>
+
+LightDM ... <BR>
+
+
+<A NAME="Desktop_Environment"></A>
+<H2>Desktop Environment</H2>
+
+<UL>
+
+<LI> GNOME 2 - Used by Red Hat till RHEL 6 days?  and many others.
+
+<LI> GNOME 3 - Quite a mess.  Many user didn't like the "new features".  X2go doesn't work with GNOME3.
+
+<LI> Gnome Shell - Replaces gnome-panel in GNOME3.
+
+<LI> MATE - Fork of GNOME2 to keep it going.  Linux Mint has a MATE version.  Started from Argentina.  Yerba mate!!  If long for the good old GNOME2 days, MATE is the way to go.  (Should work with X2go?)
+
+<LI> Cinnamon - Popularized with Linux Mint.  Fork of GNOME Shell, but without the gratuitous UI changes.  Cut-n-paste with mouse works like the good old days!  Quite pretty and very usable, I like it :)
+
+<LI> LXDE - Lightweight X11 Desktop Environment.  GTK+ 2 based.  Use Openbox as default Windows Manager; could be configured to use Fluxbox, IceWM, Xfwm.  Knoppix use LXDE.
+
+<LI> Xfce - Used by BlackBox Linux (penetration testing distro)
+
+<LI> KDE
+
+<LI> KDE Plasma.  Think here they f'up the mouse cut-n-paste.
+
+<LI> Unity.  This and Canonical data collection drove me away from Ubuntu.
+
+
+<LI> FVWM, FVWM95.  I am dating myself here aren't I?
+ 
+</UL> 
 
 
 
+
+<A NAME="emulation"></A>
 <A NAME="X"></A>
 <H1>X Window Emulation</H1>
+
+<A NAME="xquartz"></A>
+<H2>X Quartz</H2>
+
+<A HREF="http://www.xquartz.org">XQuartz</A>, aka X11.app.  Provides an X server in Mac OS X.  Used to ship by default, but starting with X 10.8 (Mountain Lion) onward, one has to use the open source version (ie, apple no longer provide support for it).
+
+<BR>
 
 <A NAME="xmanager"></A>
 <H2>X Manager 2.0</H2>

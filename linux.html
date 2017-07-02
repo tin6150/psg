@@ -170,11 +170,44 @@ Solaris or traditional Unix.
 
 <UL>
 <LI>xinetd 
-<LI>Gnome/KDE for Display Manager (see XDMCP).
+<LI>Gnome/KDE for Display Manager (see <A HREF="#XDMCP">XDMCP</A>).
 <LI>
 </UL>
 
 <BR/>
+
+<A NAME="centos_vs_ubuntu"></A>
+<A NAME="rhel_vs_ubuntu"></A>
+<A NAME="vs"></A>
+<H2>RHEL/CentOS/Scientific Linux vs Ubuntu</H2>
+
+Ubuntu is Debian-based.  Some of the more often run-into diff for sys admin:
+<BR><BR>
+
+<TABLE border="solid black">
+
+<TR>
+<TH></TH> <TH>RHEL</TH> <TH>Ubuntu</TH>
+</TR>
+
+<TR>
+<TD>nic</TD>
+<TD>/etc/sysconfig/network-scripts/ifcfg-NIC</TD>
+<TD>/etc/network/interfaces</TD>
+</TR>
+
+
+<TR>
+<TD>Firewall</TD>
+<TD>systemctl enable/start/status iptables</TD>
+<TD>ufw enable/start/status</TD>
+</TR>
+
+</TABLE>
+<BR>
+
+Most of this doc is CentOS centric.  
+
 
 <A NAME="64-bit"></A>
 <H2>64-bit Platforms</H2>
@@ -394,7 +427,7 @@ wget http://apache/conf/yp.conf -O /etc/yp.conf
 
 </PRE>
 
-<H2>Updating Machine</H2>
+<H2>Updating OS</H2>
 
 <PRE>
 RHEL 4.x  - Use up2date
@@ -1869,16 +1902,23 @@ For command usage, see http://gentoo-wiki.com/HOWTO_Use_Hpasm
 RHEL6 new stuff
 </H1>
 <PRE>
-upstart		# replaces /etc/inittab, allow specifying user, etc.
-		# but abandoned in rhel7 in favor of systemd (ditto in ubuntu land).
+upstart		# replaces /etc/inittab in rhel6/ubuntu 12, allow specifying user, etc.
+		# but abandoned in rhel7/ubuntu 14 in favor of systemd 
+
+initctl --system list			# similar to chkconfig --list, but with status
+initctl --system list | grep ufw	# (ubuntu) uncomplicated firewall
+initctl list-env
 </PRE>
+<BR><BR>
+
 Ref: 
 <A HREF="http://upstart.ubuntu.com/cookbook/#non-graphical-sessions-ubuntu-specific">upstart doc from Ubuntu</A>
 <BR><BR>
 
+
 /etc/init/couchdb.conf ::
 
-<PRE>
+<PRE class="cf">
 
 # couchdb - a RESTful document oriented database
 
@@ -2200,12 +2240,11 @@ Very good step by step procedure on how to do many things in Fedora Linux
 <BR><BR>
 
 <LI><A HREF="www.rpmfind.net">
-Linux RPM</A>, many linux flavors, but no more RHEL rpms.<BR>
+Linux RPM</A>, many linux flavors, but no more RHEL rpms.
 <BR><BR>
 
-
 <LI><A HREF="www.freshrpms.net">
-FreshRPMs</A>, mostly for Fedora, for those not avail thru YUM.<BR>
+FreshRPMs</A>, mostly for Fedora, for those not avail thru YUM.
 <BR><BR>
 
 <LI><A HREF="">
@@ -2286,31 +2325,17 @@ who -r			# RH 9 and AS 3.0 (cmd exist in Solaris)
 /etc/resolv.conf	# dns setup
 /etc/nsswitch.conf	# order of search for files/dns/nis
 
-/etc/fstab
 
 
-
-
-
-********************************************************************************
-linux:
-********************************************************************************
 printtool  (red hat print config)
 
 e-conf		enlightment configuration
 
-
 linux-conf	most essential config of linux in here
 control-panel	old red hat panel, configure network, printer, etc
 
-
-
-
-
-
 </PRE>
 
-**************************************************
 
 <BR><HR>
 <div align="CENTER">

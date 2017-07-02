@@ -246,32 +246,47 @@ this is relevant sometime when you the requestor come from the same machine (eg 
 
 
 <A ID="ufw"></A>
-<H2>ufw</H2>
+<A ID="gufw"></A>
+<H2>ufw/gufw</H2>
 Uncomplicated firewall.  <BR>
 
-This come std with Ubuntu (eg 16.04).  <BR>
-One of the easiest fw UI to use.  front end to iptables commands?  Has a GUI interface too.
+This come std with Ubuntu (eg 14.04, 16.04).  There are can rules in place, but the firewall service is not enabled by default.  <BR><BR>
+UFW is one of the easiest fw UI to use.  front end to iptables commands?  <BR><BR>
+gufw is a GUI front end.  Comes with default profile for Home, Office, Public, which (presumably) are progressively more stringent firewall <BR>
+gufw is reasonably easy to use, though it is a java thing, so kinda sluggish.  <BR>
+<PRE>
+sudo apt-get install gufw   # the gui isn't installed by default
+</PRE>
+
 <BR>
+
 
 Ref: 
 <A HREF="https://help.ubuntu.com/community/UFW">Ubuntu UFW page</A>
 
+<BR><BR>
 
-Sample Usage
+
+
+<H5>Sample Usage</H5>
+
 <PRE>
-sudo ufw allow ssh/tcp
+sudo ufw allow http/tcp
 sudo ufw logging on
 sudo ufw enable
 sudo ufw status
+sudo ufw status numbered
+sudo service ufw status
 </PRE>
 
 UFW writes into iptables-restore copatible text files.  Fine tuning can be done by editing:
 <OL>
-<LI> /etc/default/ufw # high level config
+<LI> /etc/default/ufw        # high level config, default rules, drop INVALID, incoming, etc.
 <LI> /etc/ufw/before.rules   # these are very much like iptables command, except keyword is ufw-... ?
 <LI> /etc/ufw/after.rules
 <LI> /etc/ufw/sysctl.conf
 <LI> /var/lib/ufw/user.rules
+<LI> /lib/ufw/user.rules
 <LI> ...
 </OL>
 
@@ -280,32 +295,71 @@ More details at <A HREF="https://wiki.ubuntu.com/UncomplicatedFirewall">Ubuntu U
 <BR>
 
 
-More complex usage:
+<H5>Random Examples of More Complex Usage</H5>
 
 <PRE>
 sudo ufw status verbose
+sudo ufw status numbered
 
-sudo ufw show raw
+sudo ufw show raw		#
 sudo ufw disable
 sudo ufw --dry-run enable
 sudo ufw --dry-run reload
 sudo ufw reset			# ??
 sudo ufw app list|info...	# ??
 
-sudo ufw allow 80		# assume incoming
-sudo ufw allow 53/tcp
+sudo ufw allow 80		# assume incoming, but allow both udp and tcp
+sudo ufw allow 53/tcp		# specify allow tcp only
 
 sudo ufw deny 53/udp		# deny rule
 sudo ufw delete deny 53/udp	# remove deny rule
 
 
-udo ufw allow from 10.11.12.0/24 			# allow subnet, all traffic
-udo ufw allow from 10.11.12.8 to any port 22		# outbound allow traffic (any refers to protocol)
+sudo ufw allow from 10.11.12.0/24 			# allow subnet, all traffic
+sudo ufw allow from 10.11.12.8 to any port 22		# outbound allow traffic (any refers to host's IP [and not protocol?])
+
+sudo ufw allow proto tcp from any to 10.11.12.8 port 22	
+sudo ufw rule comment 'ssh listen on 10.11.12.8:22, allow inbound from everywhere(any)'
+## comment clause don't seems to work, don't remember where i read it from
+
+sudo ufw allow 53 comment 'allow DNS on 53 (tcp and udp)'
+sudo ufw allow proto tcp from any to any port 80,443 comment 'http + https'
 
 
 sudo ufw deny from 8.8.8.8				# explicity deny of a specific host (or subnet)
 
 </PRE>
+
+
+<H5>Example Config</H5>
+
+<PRE class="code">
+
+# reset all firewall settings.  ufw auto creates backup
+# seems okay to do this when ssh in, won't be dropped.
+sudo ufw reset		
+# allow inbound ssh for select subnet, comma list NOT supported
+sudo ufw allow from 192.168.188.0/24 to any port 22 proto tcp
+sudo ufw allow from 127.3.0.0/16     to any port 22 proto tcp 
+sudo ufw enable
+# no explicit save command needed, rules auto update to /lib/ufw/user.rules
+
+
+iptables -L | grep ACCEPT 
+
+# CANNOT  vi /lib/usr/user.rules and hope to get ufw to re-read the update rules via
+# ufw reload 
+#
+# NOT even: 
+# ufw disable; vi users.rules; ufw enable
+# 
+# but vi /lib/usr/user.rules and reboot works??
+ 
+
+</PRE>
+
+
+<H5> Numbered Rules </H5>
 
 ufw, like iptables, have numbered rules (it is a netfilter thing)
 
@@ -313,7 +367,17 @@ ufw, like iptables, have numbered rules (it is a netfilter thing)
 sudo ufw status numbered
 sudo ufw delete 1
 sudo ufw insert 1 allow from 123.45.6.77
+
+# rules can be deleted by number or prefix "delete" in front of the rule
+sudo ufw        allow from 192.168.188.0/24 to any port 22 proto tcp
+sudo ufw delete allow from 192.168.188.0/24 to any port 22 proto tcp
+
 </PRE>
+
+IPSec is supported by using the 'esp' ('50') and 'ah' ('51') protocols.
+<BR>
+<BR>
+
 
 Ref: 
 <A HREF="https://help.ubuntu.com/community/UFW">Ubuntu community UFW page</A> <BR>
