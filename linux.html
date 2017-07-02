@@ -1402,6 +1402,7 @@ yast			# TUI far-style
 <PRE>
 chkconfig                       # Easiest way to manipulate rc services, 
                                 # bettter than ntsysv or mangling xinetd file manually!
+				# for up to rhel6
 chkconfig --list xinetd         # see if xinetd service is enabled
 chkconfig --list rsh            # see if specific xinetd service is running, eg rsh
 chkconfig --list telnet         # see if specific xinetd service is running, eg telnet
@@ -1897,13 +1898,25 @@ For command usage, see http://gentoo-wiki.com/HOWTO_Use_Hpasm
 
 <BR><BR>
 
-<A NAME="rhel6"></A>
+<A NAME="upstart"></A>
 <H1>
-RHEL6 new stuff
+Upstart
 </H1>
+upstart	replaces /etc/inittab in rhel6, ubuntu 14, allow specifying user, etc. <BR>
+but abandoned in rhel7, ubuntu 15 in favor of systemd <BR>
+<BR>
+For pure upstart process (and not just link to init/rc script), 
+To enable/disable a service, one have to vi the upstart config file, eg
+/etc/init/smbd.conf
+and comment out the "start on..." line
+
 <PRE>
-upstart		# replaces /etc/inittab in rhel6/ubuntu 12, allow specifying user, etc.
-		# but abandoned in rhel7/ubuntu 14 in favor of systemd 
+
+service smbd start
+service smbd stop
+
+
+initctl connects/controls init daemon using D-Bus (Ubuntu 14)
 
 initctl --system list			# similar to chkconfig --list, but with status
 initctl --system list | grep ufw	# (ubuntu) uncomplicated firewall

@@ -266,17 +266,41 @@ Ref:
 
 <BR><BR>
 
+<H5>Example Barebone Config</H5>
 
+<PRE class="code">
 
-<H5>Sample Usage</H5>
+# reset all firewall settings.  ufw auto creates backup
+# seems okay to do this when ssh in, won't be dropped.
+sudo ufw reset		
+# allow inbound ssh for select subnet, comma list NOT supported
+sudo ufw allow from 192.168.188.0/24 to any port 22 proto tcp
+sudo ufw allow from 127.3.0.0/16     to any port 22 proto tcp 
+# allow specific subnet inbound access to samba (ufw app in /etc/ufw/applications.d/)
+sudo ufw allow from 192.168.188.0/24  to any app samba
+# allow one specific remote host full access
+sudo ufw allow from 192.168.188.118  to any 
+sudo ufw enable
+# no explicit save command needed, rules auto update to /lib/ufw/user.rules
+
+</PRE>
 
 <PRE>
-sudo ufw allow http/tcp
-sudo ufw logging on
-sudo ufw enable
-sudo ufw status
-sudo ufw status numbered
-sudo service ufw status
+
+# get an idea of what ufw wrote
+# ufw has a set of pre-defined rules that it would apply automagically
+iptables -L | grep ACCEPT   
+
+# Note: CANNOT vi /lib/usr/user.rules and hope to get ufw to re-read the update rules via
+# ufw reload 
+#
+# NOT even: 
+# ufw disable; vi users.rules; ufw enable
+# 
+# NOT even vi /lib/usr/user.rules and reboot
+# in general, don't edit the users.rules file.  
+# Not sure how to restore from the backup it makes...
+
 </PRE>
 
 UFW writes into iptables-restore copatible text files.  Fine tuning can be done by editing:
@@ -293,6 +317,17 @@ UFW writes into iptables-restore copatible text files.  Fine tuning can be done 
 More details at <A HREF="https://wiki.ubuntu.com/UncomplicatedFirewall">Ubuntu UFW wiki</A>  <BR>
 
 <BR>
+
+<H5>Simple Usage</H5>
+
+<PRE>
+sudo ufw allow http/tcp
+sudo ufw logging on
+sudo ufw enable
+sudo ufw status
+sudo ufw status numbered
+sudo service ufw status
+</PRE>
 
 
 <H5>Random Examples of More Complex Usage</H5>
@@ -327,36 +362,6 @@ sudo ufw allow proto tcp from any to any port 80,443 comment 'http + https'
 
 
 sudo ufw deny from 8.8.8.8				# explicity deny of a specific host (or subnet)
-
-</PRE>
-
-
-<H5>Example Config</H5>
-
-<PRE class="code">
-
-# reset all firewall settings.  ufw auto creates backup
-# seems okay to do this when ssh in, won't be dropped.
-sudo ufw reset		
-# allow inbound ssh for select subnet, comma list NOT supported
-sudo ufw allow from 192.168.188.0/24 to any port 22 proto tcp
-sudo ufw allow from 127.3.0.0/16     to any port 22 proto tcp 
-sudo ufw enable
-# no explicit save command needed, rules auto update to /lib/ufw/user.rules
-
-
-iptables -L | grep ACCEPT 
-
-# CANNOT  vi /lib/usr/user.rules and hope to get ufw to re-read the update rules via
-# ufw reload 
-#
-# NOT even: 
-# ufw disable; vi users.rules; ufw enable
-# 
-# NOT even vi /lib/usr/user.rules and reboot
-# in general, don't edit the users.rules file.  
-# Not sure how to restore from the backup it makes...
- 
 
 </PRE>
 
