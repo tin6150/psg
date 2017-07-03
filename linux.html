@@ -2084,7 +2084,8 @@ WantedBy=multi-user.target
 <H3>Network stack</H3>
 
 <PRE>
-nic has new naming convention.  ref: http://blog.learningtree.com/rhel-7-changes-where-did-my-network-interface-go/
+nic has new naming convention (in rhel7 and ubuntu 15) 
+ref: http://blog.learningtree.com/rhel-7-changes-where-did-my-network-interface-go/
 
 eno1, eno2, ...	on-board ethernet nic.  index provided by firmware.
 ens1, ens2, ... PCIe hotplug nic
@@ -2092,16 +2093,25 @@ enp2s0       	eth nic on PCI bus address 02:0:0 , ie bus #2, slot #0, function 0
 wlp0s3f1u4	wifi. p0s3 is USB controller's PCI address.  f1u4 is USB addressing.
 enx112233445566	mac-based naming (but would need to change it when NIC is replaced).
 
+
+#nm* are NetworkManager commands (which tends to be GUI in laptop)
+
 nmtui					# Text UI
 nmtui-connect				# select wifi, or activate LAN port
 
 nmcli
-nmcli connection up ifname wlp3s0	# actiate a specific connection 	# replaces ifup ?
+nmcli nm				# list interfaces managed by network-manager
+nmcli c					# show connections
+nmcli connection up ifname wlp3s0	# actiate a specific connection	
+nm-connection-editor			# nm GUI app, not the dock panel thingy
+
+/etc/NetworkManager/system-connections  # location for Debian NM interfaces info (?)
 
 systemctl restart NetworkManager	# restart the network stack
 
+service network-manager restart		# ubuntu 14
 
-# http://blog.learningtree.com/rhel-7-new-features-linux-network-commands-with-iproute2/
+
 
 iproute2 (ip cmd)	# replaces net-tools (ifconfig, route, netstat, arp)
 			# for the subcommands of ip, can use a single or first two letters, so long as it is non ambiguous.
@@ -2137,6 +2147,13 @@ ethtool eno1		# set duplex, etc of an interface
 
 </PRE>
 
+Ref: <BR>
+
+<LI><A HREF="https://debian-handbook.info/browse/stable/sect.network-config.html">Debian Admin Handbook</A> (also as .epub in google book) 
+
+<LI><A HREF="http://blog.learningtree.com/rhel-7-new-features-linux-network-commands-with-iproute2/">
+http://blog.learningtree.com/rhel-7-new-features-linux-network-commands-with-iproute2/</A>
+
 <H3>authentication in rhel7</H3>
 
 <A HREF="#authconfig"><TT>authconfig</TT></A> is the tool to use to configure authentication services in RHEL7/CentOS7.  Manually changing nsswtich.conf isn't enough.  There are pam.d, selinux, firewall updates.  <BR>
@@ -2145,6 +2162,8 @@ See also <TT>ipa-client-install</TT> and <TT>realmd</TT> <BR>
 <H3>firewall in rhel7</H3>
 
 <PRE>
+iptables		# default, boot up executes /etc/sysconfig/iptables ...
+
 firewall-config		# GUI tool.  DONT use system-config-firewall
 			# shorewall
 </PRE>

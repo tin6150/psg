@@ -101,6 +101,7 @@ alias printPath='echo $PATH | sed "s/:/\n/g"'
 alias printLib='echo $LD_LIBRARY_PATH | sed "s/:/\n/g"'
 alias printPerl5Lib='echo $PERL5LIB | sed "s/:/\n/g"'
 alias chrome=chromium-browser 
+alias hilite="grep --color -C100000"   # eg ip a | hilite inet
 
 #alias vncsvr30='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
 #alias rdp1='rdesktop -N -a 16 -g 1840x1000'
