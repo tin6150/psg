@@ -993,9 +993,21 @@ They include ULP (upper layer protocol) such as IPoIB.  <BR>
 see:
 <A HREF="http://www.openfabrics.org/download_linux.htm">openfabrics.org</A>
 
+<A NAME="raid"></A>
+<A NAME="RAID"></A>
+<H1>RAID</H1>
 
+<PRE>
+
+mdadm 
+https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing
+
+</PRE>
+
+<A NAME="hd"></A>
 <A NAME="partitions"></A>
 <A NAME="HD_Partitions"></A>
+<A NAME="hd_partitions"></A>
 <H1>HD Partitions</H1>
 
 From DOS days, disks are typically partitioned.  Linux typically have up to 4 primary partions, and extended partitions if necessary.
@@ -1800,13 +1812,30 @@ ref:
 <A HREF="https://launchpad.net/~ubuntu-x-swat/+archive/ubuntu/updates">
 https://launchpad.net/~ubuntu-x-swat/+archive/ubuntu/updates</A>
 <BR>
-<BR>
-<BR>
 
-nvidia-settings
+<PRE>
 
-system-configure-display
+blacklist nouveau kernel driver...
 
+
+systemctl  enable multi-user.target --force	# not necessary?
+systemctl  set-default multi-user.target
+systemctl  start graphical.target
+systemctl  set-default graphical.target
+
+
+
+ligthadm stop
+
+cp /etc/X11/xorg.conf /etc/X11/xorg.conf.bak
+nvidia-xconfig    
+nvidia-settings    
+
+
+
+system-configure-display	# rhel6
+
+</PRE>
 
 <BR><BR>
 <A NAME="VendorSpecific"></A>
