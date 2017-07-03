@@ -170,11 +170,44 @@ Solaris or traditional Unix.
 
 <UL>
 <LI>xinetd 
-<LI>Gnome/KDE for Display Manager (see XDMCP).
+<LI>Gnome/KDE for Display Manager (see <A HREF="#XDMCP">XDMCP</A>).
 <LI>
 </UL>
 
 <BR/>
+
+<A NAME="centos_vs_ubuntu"></A>
+<A NAME="rhel_vs_ubuntu"></A>
+<A NAME="vs"></A>
+<H2>RHEL/CentOS/Scientific Linux vs Ubuntu</H2>
+
+Ubuntu is Debian-based.  Some of the more often run-into diff for sys admin:
+<BR><BR>
+
+<TABLE border="solid black">
+
+<TR>
+<TH></TH> <TH>RHEL</TH> <TH>Ubuntu</TH>
+</TR>
+
+<TR>
+<TD>nic</TD>
+<TD>/etc/sysconfig/network-scripts/ifcfg-NIC</TD>
+<TD>/etc/network/interfaces</TD>
+</TR>
+
+
+<TR>
+<TD>Firewall</TD>
+<TD>systemctl enable/start/status iptables</TD>
+<TD>ufw enable/start/status</TD>
+</TR>
+
+</TABLE>
+<BR>
+
+Most of this doc is CentOS centric.  
+
 
 <A NAME="64-bit"></A>
 <H2>64-bit Platforms</H2>
@@ -394,7 +427,7 @@ wget http://apache/conf/yp.conf -O /etc/yp.conf
 
 </PRE>
 
-<H2>Updating Machine</H2>
+<H2>Updating OS</H2>
 
 <PRE>
 RHEL 4.x  - Use up2date
@@ -1381,6 +1414,7 @@ yast			# TUI far-style
 <PRE>
 chkconfig                       # Easiest way to manipulate rc services, 
                                 # bettter than ntsysv or mangling xinetd file manually!
+				# for up to rhel6
 chkconfig --list xinetd         # see if xinetd service is enabled
 chkconfig --list rsh            # see if specific xinetd service is running, eg rsh
 chkconfig --list telnet         # see if specific xinetd service is running, eg telnet
@@ -1753,6 +1787,43 @@ modinfo mpt2sas			# could be from native os or dkms
 SELinux - Security Enhanced Linux
 </H1>
 
+<H5>SELinux for RHEL 7 </H5>
+
+<PRE>
+sestatus # check status
+</PRE>
+
+
+Can only be disabled by editing config file and reboot.  <BR>
+ping in rhel7 does not rely on setuid big, but on selinux context to gain elevated priv to do the ping.  <BR>
+Seems like RHEL7 has SELinux enable by default, and it is very usable, don't tend to run into problem/restrictions with most generic sys admin config as desktop machine.
+<BR><BR>
+
+<H5>SELinux for Ubuntu 14</H5>
+
+Ubuntu by and large don't talk about SELinux and is disabled by default.  Older distro don't even have it installed by default.  It is installed on Ubuntu 14.04/Mint 17.2.   <BR>
+Documentation is refered to the Debian page at:
+<A HREF="https://wiki.debian.org/SELinux/Setup">
+https://wiki.debian.org/SELinux/Setup</A>
+<BR>
+
+<PRE>
+
+apt-get install selinux-basics selinux-policy-default auditd 
+apt-get istall setools	# may have lots of dependencies in older debians
+
+download script from https://wiki.debian.org/SELinux/Setup?action=AttachFile&do=view&target=_load_selinux_policy
+
+cp -p ~/Downlaods/_load_selinux_policy   /usr/share/initramfs-tools/scripts/init-bottom/
+
+update-initramfs -u
+selinux-activate
+ls -la /.autorelabel
+
+</PRE>
+
+
+<H5> Old info for SELinux from RHEL 4 days </H5>
 
 Starting from Red Hat Enterprise Linux 4.0 ships with an implementation of Security Enhanced Linux. 
 They use "targeted policy" which only limits functionality to a pre-defined set of deamon processes.  The defined set will then have to obey the Mandatory Access Control (MAC) and become more secure even when exploited.  
@@ -1893,21 +1964,40 @@ For command usage, see http://gentoo-wiki.com/HOWTO_Use_Hpasm
 
 <BR><BR>
 
-<A NAME="rhel6"></A>
+<A NAME="upstart"></A>
 <H1>
-RHEL6 new stuff
+Upstart
 </H1>
+upstart	replaces /etc/inittab in rhel6, ubuntu 14, allow specifying user, etc. <BR>
+but abandoned in rhel7, ubuntu 15 in favor of systemd <BR>
+<BR>
+For pure upstart process (and not just link to init/rc script), 
+To enable/disable a service, one have to vi the upstart config file, eg
+/etc/init/smbd.conf
+and comment out the "start on..." line
+
 <PRE>
-upstart		# replaces /etc/inittab, allow specifying user, etc.
-		# but abandoned in rhel7 in favor of systemd (ditto in ubuntu land).
+
+service smbd start
+service smbd stop
+
+
+initctl connects/controls init daemon using D-Bus (Ubuntu 14)
+
+initctl --system list			# similar to chkconfig --list, but with status
+initctl --system list | grep ufw	# (ubuntu) uncomplicated firewall
+initctl list-env
 </PRE>
+<BR><BR>
+
 Ref: 
 <A HREF="http://upstart.ubuntu.com/cookbook/#non-graphical-sessions-ubuntu-specific">upstart doc from Ubuntu</A>
 <BR><BR>
 
+
 /etc/init/couchdb.conf ::
 
-<PRE>
+<PRE class="cf">
 
 # couchdb - a RESTful document oriented database
 
@@ -2023,7 +2113,8 @@ WantedBy=multi-user.target
 <H3>Network stack</H3>
 
 <PRE>
-nic has new naming convention.  ref: http://blog.learningtree.com/rhel-7-changes-where-did-my-network-interface-go/
+nic has new naming convention (in rhel7 and ubuntu 15) 
+ref: http://blog.learningtree.com/rhel-7-changes-where-did-my-network-interface-go/
 
 eno1, eno2, ...	on-board ethernet nic.  index provided by firmware.
 ens1, ens2, ... PCIe hotplug nic
@@ -2031,16 +2122,25 @@ enp2s0       	eth nic on PCI bus address 02:0:0 , ie bus #2, slot #0, function 0
 wlp0s3f1u4	wifi. p0s3 is USB controller's PCI address.  f1u4 is USB addressing.
 enx112233445566	mac-based naming (but would need to change it when NIC is replaced).
 
+
+#nm* are NetworkManager commands (which tends to be GUI in laptop)
+
 nmtui					# Text UI
 nmtui-connect				# select wifi, or activate LAN port
 
 nmcli
-nmcli connection up ifname wlp3s0	# actiate a specific connection 	# replaces ifup ?
+nmcli nm				# list interfaces managed by network-manager
+nmcli c					# show connections
+nmcli connection up ifname wlp3s0	# actiate a specific connection	
+nm-connection-editor			# nm GUI app, not the dock panel thingy
+
+/etc/NetworkManager/system-connections  # location for Debian NM interfaces info (?)
 
 systemctl restart NetworkManager	# restart the network stack
 
+service network-manager restart		# ubuntu 14
 
-# http://blog.learningtree.com/rhel-7-new-features-linux-network-commands-with-iproute2/
+
 
 iproute2 (ip cmd)	# replaces net-tools (ifconfig, route, netstat, arp)
 			# for the subcommands of ip, can use a single or first two letters, so long as it is non ambiguous.
@@ -2076,6 +2176,13 @@ ethtool eno1		# set duplex, etc of an interface
 
 </PRE>
 
+Ref: <BR>
+
+<LI><A HREF="https://debian-handbook.info/browse/stable/sect.network-config.html">Debian Admin Handbook</A> (also as .epub in google book) 
+
+<LI><A HREF="http://blog.learningtree.com/rhel-7-new-features-linux-network-commands-with-iproute2/">
+http://blog.learningtree.com/rhel-7-new-features-linux-network-commands-with-iproute2/</A>
+
 <H3>authentication in rhel7</H3>
 
 <A HREF="#authconfig"><TT>authconfig</TT></A> is the tool to use to configure authentication services in RHEL7/CentOS7.  Manually changing nsswtich.conf isn't enough.  There are pam.d, selinux, firewall updates.  <BR>
@@ -2084,6 +2191,8 @@ See also <TT>ipa-client-install</TT> and <TT>realmd</TT> <BR>
 <H3>firewall in rhel7</H3>
 
 <PRE>
+iptables		# default, boot up executes /etc/sysconfig/iptables ...
+
 firewall-config		# GUI tool.  DONT use system-config-firewall
 			# shorewall
 </PRE>
@@ -2160,6 +2269,8 @@ mpstat	- multiprocessor usage
 KSysGuard - kde system guard - real time reporting and graphing 
 	    similar one on Gnome
 
+gnome-system-monitor	# windows-style performance meter
+
 ntop 	- network top (need kernel tapping?)
 etherApe - bubble graphics of where traffic is going, but some bubbls become too big.
 Conky
@@ -2229,12 +2340,11 @@ Very good step by step procedure on how to do many things in Fedora Linux
 <BR><BR>
 
 <LI><A HREF="www.rpmfind.net">
-Linux RPM</A>, many linux flavors, but no more RHEL rpms.<BR>
+Linux RPM</A>, many linux flavors, but no more RHEL rpms.
 <BR><BR>
 
-
 <LI><A HREF="www.freshrpms.net">
-FreshRPMs</A>, mostly for Fedora, for those not avail thru YUM.<BR>
+FreshRPMs</A>, mostly for Fedora, for those not avail thru YUM.
 <BR><BR>
 
 <LI><A HREF="">
@@ -2315,31 +2425,17 @@ who -r			# RH 9 and AS 3.0 (cmd exist in Solaris)
 /etc/resolv.conf	# dns setup
 /etc/nsswitch.conf	# order of search for files/dns/nis
 
-/etc/fstab
 
 
-
-
-
-********************************************************************************
-linux:
-********************************************************************************
 printtool  (red hat print config)
 
 e-conf		enlightment configuration
 
-
 linux-conf	most essential config of linux in here
 control-panel	old red hat panel, configure network, printer, etc
 
-
-
-
-
-
 </PRE>
 
-**************************************************
 
 <BR><HR>
 <div align="CENTER">
