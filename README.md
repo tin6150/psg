@@ -18,6 +18,7 @@ git config --global user.name tin6150
 ## in bitbucket, need username to match what bitbucket.org has in record for it to prompt for pwd
 git config --global credential.helper 'cache --timeout=3600'
 git config --global github.user   tin6150
+git config --global alias.lol "log --oneline --graph --decorate"		# create alias "git lol"   # logd
 
 git config merge.conflictstyle diff3		# cmd diff tool, make file w/ <<<< |||| >>>>, bearable
 
