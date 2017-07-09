@@ -243,7 +243,19 @@ this is relevant sometime when you the requestor come from the same machine (eg 
 <BR>
 
 
+<A ID="firewalld"></A>
+<H2>firewalld</H2>
 
+RHEL7 also ship with <TT>firewalld</TT>.  It allows for programmatic way of configureing netfilter.  The config file is XML.  It does generate IPTABLES commands, but does not use the /etc/sysconfig/iptables file.    Those who likes the iptables cli would feel very foreign with firewalld and vice versa.  <BR>
+firewalld also run as a dynamic firewall service, and thus has a daemon.  The daemon works with NetworkManager, determining <TT>zones</TT> the network is and apply firewall rules accordingly (public WiFi would be in a zone with more restrictions than home network.  <BR>
+For a given system, either use the iptables (service) or firewalld.  Pick one and stick to it.
+<BR><BR>
+
+<PRE>
+system-config-firewall		# for static rule config of firewalld
+firewall-config			# ?? gui??
+systemctl status firewalld
+</PRE>
 
 <A ID="ufw"></A>
 <A ID="gufw"></A>
@@ -253,7 +265,7 @@ Uncomplicated firewall.  <BR>
 This come std with Ubuntu (eg 14.04, 16.04).  There are can rules in place, but the firewall service is not enabled by default.  <BR><BR>
 UFW is one of the easiest fw UI to use.  front end to iptables commands?  <BR><BR>
 gufw is a GUI front end.  Comes with default profile for Home, Office, Public, which (presumably) are progressively more stringent firewall <BR>
-gufw is reasonably easy to use, though it is a java thing, so kinda sluggish.  <BR>
+gufw is reasonably easy to use, though it is a java thing, so kinda sluggish.  It also generate lots of rules, so result not as easy to read/manage using the CLI.  So, if use GUFW, stick to it.<BR>
 <PRE>
 sudo apt-get install gufw   # the gui isn't installed by default
 </PRE>
