@@ -175,6 +175,9 @@ iptables -L -v					# list the rules
 </PRE>
 
 
+<A ID="nis"></A>
+<A ID="ssh"></A>
+<H5>Allowing SSH, NIS</H5>
 Core snipplet allowing SSH,NIS for a list of hosts.  <BR>
 Other packets are rejected with ICMP message, rather silently dropped.  Log goes to syslog, at kern.6 level.
 
@@ -224,10 +227,20 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 COMMIT
 
-
-
 </PRE>
 
+<A ID="samba"></A>
+<H5>Allowing Samba</H5>
+<PRE class="cf">
+## https://www.samba.org/~tpot/articles/firewall.html
+## ports to allow samba
+-A INPUT -s 192.168.1.0/24 -p tcp --dport 139 -j ACCEPT
+-A INPUT -s 192.168.1.0/24 -p tcp --dport 445 -j ACCEPT
+## these next 2 are needed for NETBIOS browsing of computer over the network.  
+## if can live without browsing, don't need to enable them
+##-A INPUT -s 192.168.1.0/24 -p udp --dport 137 -j ACCEPT
+##-A INPUT -s 192.168.1.0/24 -p udp --dport 138 -j ACCEPT
+</PRE>
 
 Port forward incoming traffic hitting on port 80, sending it to port 8000.
 <PRE>
