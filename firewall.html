@@ -175,6 +175,9 @@ iptables -L -v					# list the rules
 </PRE>
 
 
+<A ID="nis"></A>
+<A ID="ssh"></A>
+<H5>Allowing SSH, NIS</H5>
 Core snipplet allowing SSH,NIS for a list of hosts.  <BR>
 Other packets are rejected with ICMP message, rather silently dropped.  Log goes to syslog, at kern.6 level.
 
@@ -203,10 +206,15 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 -A INPUT -s 123.4.7.25          -p tcp -m multiport --dports 22,111,834,835,836,837  -j ACCEPT
 -A INPUT -s 123.4.7.25          -p udp -m multiport --dports    111,834,835,836,837  -j ACCEPT
 
+
 ####
-####  log dropped/rejected packets
+####  log dropped/rejected packets to kernel.6
+####  but broadcast packets are simply dropped
 ####
--A INPUT -j LOG -m limit --limit 2/min --log-prefix "IPTables reject/drop: " --log-level 6
+-A INPUT -d 255.255.255.255 -j DROP 
+-A INPUT -d 123.4.7.255     -j DROP 
+-A INPUT -d 224.0.0.0/24    -j DROP 
+-A INPUT -j LOG -m limit --limit 2/min --log-prefix "IPTables_reject/drop: " --log-level 6
 
 ###
 ### alt method to logging, chained rule, don't seems to be necessary
@@ -220,14 +228,24 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 ####
 ####  default to drop/reject packet.  No Packet forwarding.
 ####
--A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A INPUT   -j REJECT --reject-with icmp-host-prohibited
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 COMMIT
 
-
-
 </PRE>
 
+<A ID="samba"></A>
+<H5>Allowing Samba</H5>
+<PRE class="cf">
+## https://www.samba.org/~tpot/articles/firewall.html
+## ports to allow samba
+-A INPUT -s 192.168.1.0/24 -p tcp --dport 139 -j ACCEPT
+-A INPUT -s 192.168.1.0/24 -p tcp --dport 445 -j ACCEPT
+## these next 2 are needed for NETBIOS browsing of computer over the network.  
+## if can live without browsing, don't need to enable them
+##-A INPUT -s 192.168.1.0/24 -p udp --dport 137 -j ACCEPT
+##-A INPUT -s 192.168.1.0/24 -p udp --dport 138 -j ACCEPT
+</PRE>
 
 Port forward incoming traffic hitting on port 80, sending it to port 8000.
 <PRE>
@@ -243,7 +261,19 @@ this is relevant sometime when you the requestor come from the same machine (eg 
 <BR>
 
 
+<A ID="firewalld"></A>
+<H2>firewalld</H2>
 
+RHEL7 also ship with <TT>firewalld</TT>.  It allows for programmatic way of configureing netfilter.  The config file is XML.  It does generate IPTABLES commands, but does not use the /etc/sysconfig/iptables file.    Those who likes the iptables cli would feel very foreign with firewalld and vice versa.  <BR>
+firewalld also run as a dynamic firewall service, and thus has a daemon.  The daemon works with NetworkManager, determining <TT>zones</TT> the network is and apply firewall rules accordingly (public WiFi would be in a zone with more restrictions than home network.  <BR>
+For a given system, either use the iptables (service) or firewalld.  Pick one and stick to it.
+<BR><BR>
+
+<PRE>
+system-config-firewall		# for static rule config of firewalld
+firewall-config			# ?? gui??
+systemctl status firewalld
+</PRE>
 
 <A ID="ufw"></A>
 <A ID="gufw"></A>
@@ -253,7 +283,7 @@ Uncomplicated firewall.  <BR>
 This come std with Ubuntu (eg 14.04, 16.04).  There are can rules in place, but the firewall service is not enabled by default.  <BR><BR>
 UFW is one of the easiest fw UI to use.  front end to iptables commands?  <BR><BR>
 gufw is a GUI front end.  Comes with default profile for Home, Office, Public, which (presumably) are progressively more stringent firewall <BR>
-gufw is reasonably easy to use, though it is a java thing, so kinda sluggish.  <BR>
+gufw is reasonably easy to use, though it is a java thing, so kinda sluggish.  It also generate lots of rules, so result not as easy to read/manage using the CLI.  So, if use GUFW, stick to it.<BR>
 <PRE>
 sudo apt-get install gufw   # the gui isn't installed by default
 </PRE>
@@ -273,14 +303,21 @@ Ref:
 # reset all firewall settings.  ufw auto creates backup
 # seems okay to do this when ssh in, won't be dropped.
 sudo ufw reset		
+
 # allow inbound ssh for select subnet, comma list NOT supported
 sudo ufw allow from 192.168.188.0/24 to any port 22 proto tcp
 sudo ufw allow from 172.3.0.0/16     to any port 22 proto tcp 
+
+# allow inbound ssh for the whole internet, ip v4 only
+sudo ufw allow from 0.0.0.0/0        to any port 22 proto tcp 
+
 # allow specific subnet inbound access to samba (ufw app in /etc/ufw/applications.d/)
 sudo ufw allow from 192.168.188.0/24  to any app samba
+
 # allow one specific remote host full access
 sudo ufw allow from 192.168.188.118  to any 
 sudo ufw enable
+
 # no explicit save command needed, rules auto update to /lib/ufw/user.rules
 
 </PRE>
@@ -310,7 +347,7 @@ UFW writes into iptables-restore copatible text files.  Fine tuning can be done 
 <LI> /etc/ufw/after.rules
 <LI> /etc/ufw/sysctl.conf
 <LI> /var/lib/ufw/user.rules
-<LI> /lib/ufw/user.rules
+<LI> /lib/ufw/user.rules     # link to /etc/ufw/user.rules
 <LI> ...
 </OL>
 
@@ -321,7 +358,7 @@ More details at <A HREF="https://wiki.ubuntu.com/UncomplicatedFirewall">Ubuntu U
 <H5>Simple Usage</H5>
 
 <PRE>
-sudo ufw allow http/tcp
+sudo ufw allow http/tcp		# allow port 80/tcp for IPv4 and IPv6
 sudo ufw logging on
 sudo ufw enable
 sudo ufw status
@@ -407,6 +444,19 @@ eg.  <A HREF="http://www.shorewall.net/samba.htm">Firewall with Samba exception<
 
 
 
+<A ID="mac"></A>
+<A ID="bsd"></A>
+<H1>Firewall on Mac/BSD</H1>
+
+Mac 10.5 default to a port of OpenBSD's PF.  <BR>
+Older IPFW cli tool from FreeBSD is from 10.2 days.  <BR>
+See <A HREF="apple.html#firewall">apple.html#firewall</A>
+<BR>
+
+
+<!-- #################################################################### -->
+<!-- #################################################################### -->
+<!-- #################################################################### -->
 
 <!--  test area
 <EM>This is EM text</EM><BR>

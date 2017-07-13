@@ -462,6 +462,11 @@ log.smbd	= smbd server process/status log.  level determined by smb.conf
 
 [global]
 
+; Wcry-like exploit
+; security fix as per http://thehackernews.com/2017/05/samba-rce-exploit.html?m=1
+nt pipe support = no
+
+
 # log level = 3 passdb:5 auth:10 winbind:2
 # log level = 0 (default)
 log level = 2
