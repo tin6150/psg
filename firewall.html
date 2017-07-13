@@ -209,7 +209,7 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 
 ####
 ####  log dropped/rejected packets to kernel.6
-####  but broadcast packets are simply dropped
+####  but multicast/broadcast packets are simply dropped
 ####
 -A INPUT -d 255.255.255.255 -j DROP 
 -A INPUT -d 123.4.7.255     -j DROP 
