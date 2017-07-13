@@ -106,22 +106,22 @@ sudo iptables -L			# show summary of configured chain.
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
--A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A INPUT -p icmp -m icmp --icmp-type parameter-problem -j REJECT --reject-with icmp-host-prohibited
--A INPUT -p icmp -m icmp --icmp-type redirect -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -m state --state ESTABLISHED,RELATED             -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type parameter-problem    -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -p icmp -m icmp --icmp-type redirect             -j REJECT --reject-with icmp-host-prohibited
 -A INPUT -p icmp -m icmp --icmp-type router-advertisement -j REJECT --reject-with icmp-host-prohibited
--A INPUT -p icmp -m icmp --icmp-type router-solicitation -j REJECT --reject-with icmp-host-prohibited
--A INPUT -p icmp -m icmp --icmp-type source-quench -j REJECT --reject-with icmp-host-prohibited
--A INPUT -p icmp -m icmp --icmp-type time-exceeded -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -p icmp -m icmp --icmp-type router-solicitation  -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -p icmp -m icmp --icmp-type source-quench        -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -p icmp -m icmp --icmp-type time-exceeded        -j REJECT --reject-with icmp-host-prohibited
 -A INPUT -p icmp -j ACCEPT
--A INPUT -i lo -j ACCEPT
+-A INPUT -i lo   -j ACCEPT
 ## -i lo  is for input interface loopback  
 ##-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT	# this will allow ALL inbound ssh
--A INPUT -p tcp -s 10.11.12.88 --dport 22 -j ACCEPT			# this allow only a list of IP to ssh in
--A INPUT -p tcp -s 10.11.12.89 --dport 22 -j ACCEPT
+-A INPUT -s 10.11.12.88 -p tcp --dport 22 -j ACCEPT			# this allow only a list of IP to ssh in
+-A INPUT -s 10.11.12.89 -p tcp --dport 22 -j ACCEPT
 -A INPUT -p tcp --dport 22 -j DROP
-#
--A INPUT -j REJECT --reject-with icmp-host-prohibited
+## default is reject, and no pkt forwarding
+-A INPUT   -j REJECT --reject-with icmp-host-prohibited
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 COMMIT
 
@@ -275,7 +275,7 @@ Ref:
 sudo ufw reset		
 # allow inbound ssh for select subnet, comma list NOT supported
 sudo ufw allow from 192.168.188.0/24 to any port 22 proto tcp
-sudo ufw allow from 127.3.0.0/16     to any port 22 proto tcp 
+sudo ufw allow from 172.3.0.0/16     to any port 22 proto tcp 
 # allow specific subnet inbound access to samba (ufw app in /etc/ufw/applications.d/)
 sudo ufw allow from 192.168.188.0/24  to any app samba
 # allow one specific remote host full access
