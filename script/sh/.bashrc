@@ -4,6 +4,8 @@
 # very useful when putting pw in env var 
 export HISTFILESIZE=0
 
+export EDITOR=vi
+
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
 
 
@@ -51,7 +53,8 @@ LIGHT_GRAY="\[\033[0;37m\]"
 NO_COLOUR="\[\033[0m\]"
 #PS1="${CYAN}__ ${WHITE}\u ${CYAN}\H ${YELLOW}\w ${CYAN}> ${NO_COLOUR} "
 # the one below pretty good in Terminal app in mac with Homebrew and custom brown text on dark blue bg profile
-PS1="${LIGHT_CYAN}__ ${WHITE}\u ${CYAN}\H ${LIGHT_GRAY}\w ${LIGHT_CYAN}> ${NO_COLOUR} "
+##PS1="${LIGHT_CYAN}__ ${WHITE}\u ${CYAN}\H ${LIGHT_GRAY}\w ${LIGHT_CYAN}> ${NO_COLOUR} "       ## good prompt, but hacking it so .rst file highlight prompt :)
+PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR} "		## for .rst highlight
 [[ -n "$SINGULARITY_CONTAINER" ]] && PS1=${SINGULARITY_CONTAINER}" "${PS1}
 export PS1
 
@@ -102,6 +105,7 @@ alias printLib='echo $LD_LIBRARY_PATH | sed "s/:/\n/g"'
 alias printPerl5Lib='echo $PERL5LIB | sed "s/:/\n/g"'
 alias chrome=chromium-browser 
 alias hilite="grep --color -C100000"   # eg ip a | hilite inet
+alias xlock="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 
 #alias vncsvr30='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
 #alias rdp1='rdesktop -N -a 16 -g 1840x1000'

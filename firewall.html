@@ -106,22 +106,22 @@ sudo iptables -L			# show summary of configured chain.
 :INPUT ACCEPT [0:0]
 :FORWARD ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
--A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A INPUT -p icmp -m icmp --icmp-type parameter-problem -j REJECT --reject-with icmp-host-prohibited
--A INPUT -p icmp -m icmp --icmp-type redirect -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -m state --state ESTABLISHED,RELATED             -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type parameter-problem    -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -p icmp -m icmp --icmp-type redirect             -j REJECT --reject-with icmp-host-prohibited
 -A INPUT -p icmp -m icmp --icmp-type router-advertisement -j REJECT --reject-with icmp-host-prohibited
--A INPUT -p icmp -m icmp --icmp-type router-solicitation -j REJECT --reject-with icmp-host-prohibited
--A INPUT -p icmp -m icmp --icmp-type source-quench -j REJECT --reject-with icmp-host-prohibited
--A INPUT -p icmp -m icmp --icmp-type time-exceeded -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -p icmp -m icmp --icmp-type router-solicitation  -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -p icmp -m icmp --icmp-type source-quench        -j REJECT --reject-with icmp-host-prohibited
+-A INPUT -p icmp -m icmp --icmp-type time-exceeded        -j REJECT --reject-with icmp-host-prohibited
 -A INPUT -p icmp -j ACCEPT
--A INPUT -i lo -j ACCEPT
+-A INPUT -i lo   -j ACCEPT
 ## -i lo  is for input interface loopback  
 ##-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT	# this will allow ALL inbound ssh
--A INPUT -p tcp -s 10.11.12.88 --dport 22 -j ACCEPT			# this allow only a list of IP to ssh in
--A INPUT -p tcp -s 10.11.12.89 --dport 22 -j ACCEPT
+-A INPUT -s 10.11.12.88 -p tcp --dport 22 -j ACCEPT			# this allow only a list of IP to ssh in
+-A INPUT -s 10.11.12.89 -p tcp --dport 22 -j ACCEPT
 -A INPUT -p tcp --dport 22 -j DROP
-#
--A INPUT -j REJECT --reject-with icmp-host-prohibited
+## default is reject, and no pkt forwarding
+-A INPUT   -j REJECT --reject-with icmp-host-prohibited
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 COMMIT
 
@@ -175,6 +175,9 @@ iptables -L -v					# list the rules
 </PRE>
 
 
+<A ID="nis"></A>
+<A ID="ssh"></A>
+<H5>Allowing SSH, NIS</H5>
 Core snipplet allowing SSH,NIS for a list of hosts.  <BR>
 Other packets are rejected with ICMP message, rather silently dropped.  Log goes to syslog, at kern.6 level.
 
@@ -203,10 +206,15 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 -A INPUT -s 123.4.7.25          -p tcp -m multiport --dports 22,111,834,835,836,837  -j ACCEPT
 -A INPUT -s 123.4.7.25          -p udp -m multiport --dports    111,834,835,836,837  -j ACCEPT
 
+
 ####
-####  log dropped/rejected packets
+####  log dropped/rejected packets to kernel.6
+####  but multicast/broadcast packets are simply dropped
 ####
--A INPUT -j LOG -m limit --limit 2/min --log-prefix "IPTables reject/drop: " --log-level 6
+-A INPUT -d 255.255.255.255 -j DROP 
+-A INPUT -d 123.4.7.255     -j DROP 
+-A INPUT -d 224.0.0.0/24    -j DROP 
+-A INPUT -j LOG -m limit --limit 2/min --log-prefix "IPTables_reject/drop: " --log-level 6
 
 ###
 ### alt method to logging, chained rule, don't seems to be necessary
@@ -220,14 +228,24 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 ####
 ####  default to drop/reject packet.  No Packet forwarding.
 ####
--A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A INPUT   -j REJECT --reject-with icmp-host-prohibited
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 COMMIT
 
-
-
 </PRE>
 
+<A ID="samba"></A>
+<H5>Allowing Samba</H5>
+<PRE class="cf">
+## https://www.samba.org/~tpot/articles/firewall.html
+## ports to allow samba
+-A INPUT -s 192.168.1.0/24 -p tcp --dport 139 -j ACCEPT
+-A INPUT -s 192.168.1.0/24 -p tcp --dport 445 -j ACCEPT
+## these next 2 are needed for NETBIOS browsing of computer over the network.  
+## if can live without browsing, don't need to enable them
+##-A INPUT -s 192.168.1.0/24 -p udp --dport 137 -j ACCEPT
+##-A INPUT -s 192.168.1.0/24 -p udp --dport 138 -j ACCEPT
+</PRE>
 
 Port forward incoming traffic hitting on port 80, sending it to port 8000.
 <PRE>
@@ -288,7 +306,7 @@ sudo ufw reset
 
 # allow inbound ssh for select subnet, comma list NOT supported
 sudo ufw allow from 192.168.188.0/24 to any port 22 proto tcp
-sudo ufw allow from 127.3.0.0/16     to any port 22 proto tcp 
+sudo ufw allow from 172.3.0.0/16     to any port 22 proto tcp 
 
 # allow inbound ssh for the whole internet, ip v4 only
 sudo ufw allow from 0.0.0.0/0        to any port 22 proto tcp 
@@ -426,6 +444,19 @@ eg.  <A HREF="http://www.shorewall.net/samba.htm">Firewall with Samba exception<
 
 
 
+<A ID="mac"></A>
+<A ID="bsd"></A>
+<H1>Firewall on Mac/BSD</H1>
+
+Mac 10.5 default to a port of OpenBSD's PF.  <BR>
+Older IPFW cli tool from FreeBSD is from 10.2 days.  <BR>
+See <A HREF="apple.html#firewall">apple.html#firewall</A>
+<BR>
+
+
+<!-- #################################################################### -->
+<!-- #################################################################### -->
+<!-- #################################################################### -->
 
 <!--  test area
 <EM>This is EM text</EM><BR>
