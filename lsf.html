@@ -140,10 +140,10 @@ GUI									qmon			sview
 
 SLURM = Simple Linux Utility for Resrouce Manager.  No single point of failure.  <BR>
 Queues are called Partitions.   <BR>
-Job step refers to individual job of a task array ? <BR>
-About 500k lines of C.  API/Plug-ins in C, some have LUA interface <BR>
-Open source + commercial support.  All essentially from SchedMD ? <BR> 
-Couple of items are Hierarchical:  Node Daemons, User bank/account grouping <BR>
+Job step refers to individual job of a task array. <BR>
+About 500k lines of C.  API/Plug-ins in C, some have LUA interface. <BR>
+Open source + commercial support by SchedMD.  <BR> 
+Couple of items are Hierarchical:  Node Daemons, User bank/account grouping (see diagram below). <BR>
 
 
 <H4>Job Submission</H4>
@@ -531,7 +531,7 @@ qmod -e   default.q@HOSTNAME	# enable node, ie, remove the disabled state.  shou
 </PRE>
 <BR>
 
-here is quick way to list hosts in au and/or E state:
+Here is a quick way to list hosts in au and/or E state:
 
 <PRE>
 qstat -f | grep au$								# will get most of the nodes with alarm state, but misses adu, auE...
