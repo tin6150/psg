@@ -13,7 +13,8 @@ Scripts are placed in the script subdir, eg  https://github.com/tin6150/psg/tree
 ## Some basic git commands
 ``` bash
 
-git config --global user.email "tin6150@gmail.com"
+##git config --global user.email "tin6150@gmail.com"
+git config --global user.email "tin@cueball"		# change this to machine specific settings to get better idea of where commits, merges are done, but don't display well on bitbucket :(
 git config --global user.name tin6150
 ## in bitbucket, need username to match what bitbucket.org has in record for it to prompt for pwd
 git config --global credential.helper 'cache --timeout=3600'

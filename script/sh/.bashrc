@@ -106,6 +106,12 @@ alias printPerl5Lib='echo $PERL5LIB | sed "s/:/\n/g"'
 alias chrome=chromium-browser 
 alias hilite="grep --color -C100000"   # eg ip a | hilite inet
 alias xlock="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
+alias xlk="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
+#alias psh="ps H -H -eF -jl --context --headers --forest"
+alias PS="ps -eLFjlZ  --headers "
+alias axms="ps axms"	# threads view with lots of hex
+alias aux="ps auxf"	# f for ascii forest
+alias psr="ps -ALo pid,ppid,pcpu,wchan:16,psr,cmd:90,user --header | grep --color -C 200 PID.*USER"	# processor core number of ea pid
 
 #alias vncsvr30='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
 #alias rdp1='rdesktop -N -a 16 -g 1840x1000'
