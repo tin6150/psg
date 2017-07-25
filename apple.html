@@ -416,6 +416,27 @@ sample startup script in location which is now deemed archaic: <BR>
 <LI>http://oreilly.com/pub/a/mac/2002/10/22/macforunix.html  Mac tips for Unix geeks
 
 
+<A ID="serial"></A>
+<H3>Serial</H3>
+
+<PRE>
+screen /dev/tty.usbserial 9600
+	# ^A k 		: kill the connection (terminate screen and its use of /dev/tty...)
+	# ^A ^B b  	: send break (for sun's go prompt)
+
+minicom -o -D /dev/tty.usbserial 
+
+minicom -o -D /dev/tty.usbserial -8 -b 9600 
+	# ESC-z  (hold esc while pressing z) is the default META-Z for help!)
+	# ESC-X  (ESC + upper X at same time) = exit
+	# -o = don't init modem, since can't access /dev/modem 
+	# no need to run as sudo
+	# brew install minicom
+</PRE>
+
+See also <A HREF="linux.html#minicom">linux#minicom</A> <BR>
+
+
 <A ID="hate"></A>
 <H3>PS</H3>
 Why I hate Mac OS X ?

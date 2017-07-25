@@ -920,10 +920,10 @@ It is typically easiest to run tcpdump to capture to a file, then open it with
 the GUI ethereal running on Linux or Windows.
 
 <PRE>
-ethereal (GUI)
-tethereal (CLI)
+ethereal  / wireshark (GUI)
+tethereal / tshark    (CLI)
 
-most flags work for both.
+most flags work for both, but not for capture filters!.
 
 
 
@@ -931,27 +931,26 @@ snoop-like behaviour (mostly for ethereal):
 -l	: scroll capture 
 -S 	: update as capture is in progress.
 -k 	: start capture immediately  (disable interaction?)
-
---
+-f	: specify a capture Filter
 
 -i [IF] : specify interface, eg eth0, hme0
 -n 	: no dns resolution, use ip Number
 
-
 -V 	: more verbose output, captured data displayed in tree mode instead of 1 line per packet.
-
 
 -f 	: capture filter expression  (tcpdump notation needed), eg:
 
-	>	tcp port 23 and host 10.0.0.5
-	>   src net 10.0.15.0/24
-	>   dst net 10.0.15.0 mask 255.255.255.0
-	>> 	[src|dst] host <host>
-	>>	ether [src|dst] host 00:E0:2B:DE:0E:00
-	>> 	[tcp|udp] [src|dst] port <port>
+	 	tcp port 23 and host 10.0.0.5
+	    	src net 10.0.15.0/24
+	    	dst net 10.0.15.0 mask 255.255.255.0
+	   	[src|dst] host HOSTNAME
+	  	ether [src|dst] host 00:E0:2B:DE:0E:00
+	   	[tcp|udp] [src|dst] port PORTNUM
 
-	host 10.215.20.152 || host 10.215.2.21 || host 10.215.19.73
+		eg of multiple host:
+		host 10.215.20.152 || host 10.215.2.21 || host 10.215.19.73
 
+tshark -l -S -k -i eth0 -f "host 12.34.65.123" 		# human readable live capture against a remote host using console
 
 
 ------------------------------------------------------------

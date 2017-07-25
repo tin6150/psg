@@ -2284,11 +2284,19 @@ mtr	- ping and traceroute fused
 
 http://www.cyberciti.biz/tips/top-linux-monitoring-tools.html has good overview.
 
+</PRE>
 
 
 
----
+<A ID="minicom"></A>
+<H5>
+minicom
+</H5>
 
+See also <A HREF="apple.html#serial">apple#serial</A> <BR>
+
+
+<PRE>
 minicom		# telix like program in Linux (a bit thicker than Solaris tip)
 
 minicom -o -m	# -o = no modem init
@@ -2296,6 +2304,8 @@ minicom -o -m	# -o = no modem init
  		#      or ESC, key.  eg ALT-O for options)
 		#      useful when running minicom inside "screen", 
 		#      which also use ^A for escape, thus req ^a, a, key combo.
+minicom -o -m  -D /dev/tty.usbserial -8 
+
 
 
 one anoying thing seems that minicom param change in ALT-O is not fully
@@ -2304,7 +2314,6 @@ eg as default .dlf, then restart minicom for it to become effective!
 
 Solaris, use 9600, 8n1, no flow control (hardware of software).
 Acopia seems to have required Flow Control DTS/DTR.
-
 
 </PRE>
 
