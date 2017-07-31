@@ -14,10 +14,15 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
 if [ -f /etc/bashrc ]; then
         . /etc/bashrc
 fi
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 
 # User specific aliases and functions
 # https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 # export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
+
+## some modules are avail after the language pack is loaded.  eg:
+## module load python/2.7.5
+## module load scikit-image
 
 ModDirList="/global/software/sl-6.x86_64/modfiles/tools \
 /global/software/sl-6.x86_64/modfiles/langs \
@@ -25,11 +30,12 @@ ModDirList="/global/software/sl-6.x86_64/modfiles/tools \
 
 for ModDir in $ModDirList; do
 	[[ -d $ModDir ]] && MODULEPATH=${MODULEPATH}:$ModDir
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
 done
 export MODULEPATH
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
 
 [[    -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
+
 if [[ -d /global/software/sl-7.x86_64/ ]]; then
 	#module load vim		# seems like vim no longer avail as module
 	echo "" > /dev/null
@@ -121,8 +127,8 @@ alias psr="ps -ALo pid,ppid,pcpu,wchan:16,psr,cmd:90,user --header | grep --colo
 
 alias rpmf="rpm -qa --qf '%{NAME} \t\t %{VERSION} \t %{RELEASE} \t %{ARCH}\n'"
 
-alias sin=/usr/local/bin/singularity
-alias Git=~/app/bin/git
+#alias sin=/usr/local/bin/singularity
+#alias Git=~/app/bin/git
 alias nxc=/usr/NX/bin/nxclient
 # lazy finger alias
 alias ef='ps -ef'
@@ -155,12 +161,37 @@ Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
 # use declare -F to list defined functions
 # qhostTot() { qhost | sed 's/G//g' | awk '/^sky/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
 
-COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
-export COMMON_ENV_TRACE
+
+## cluster specific stuff
+if [[ -d /global/groups/cosmic ]]; then
+	# hope /global/groups/cosmic is only avail on cosmic.  if not, need something else...
+
+	# troubleshooting David Shapiro's problem
+	##module unload python
+	module load gcc/4.4.7
+	module load atlas/3.10.1-gcc
+	module load fftw/3.3.3-gcc
+	module load hdf5
+	module load openmpi/1.8.4-gcc
+	module load cuda
+	module load gsl
+	module load zeromq
+	module load cmake
+	module load boost
+	module load sharp
+
+	alias mpi='mpirun --hostfile /global/groups/cosmic/host_file'
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE cosmic_loaded"
+fi
 
 
 
 ### mac stuff ###
 [[ -f /Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer ]] && alias vncviewer='/Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer' 
 [[ -f /Applications/x2goclient.app/Contents/MacOS/x2goclient ]] && alias x2go=/Applications/x2goclient.app/Contents/MacOS/x2goclient
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE macStuff"
+
+
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
+export COMMON_ENV_TRACE
 
