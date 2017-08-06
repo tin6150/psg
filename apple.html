@@ -159,14 +159,6 @@ Run this cmd in terminal, then restart:
 <BR>
 <BR>
 
-<H1>cli in Mac OS/X</H1>
-
-<PRE>
-
-smbutil  view  //samba-server		# ~ smbclient -N -L //samba-server
-
-</PRE>
-
 <H1>Package managers for Mac OS/X</H1>
 
 <PRE>
@@ -292,6 +284,26 @@ Ref:
 <LI><A HREF="http://blog.scottlowe.org/2012/04/05/setting-up-ipfw-on-mac-os-x/">guide on setting up ipfw</A>
 
 <BR>
+
+<H1>cli in Mac OS/X</H1>
+
+<PRE>
+
+smbutil  view  //samba-server			# ~ smbclient -N -L //samba-server
+
+
+launchctl list					# list services, think of systemctl list-unit-files
+launchctl stop com.nomachine.localnxserver	# like systemctl stop, should be a one time stop the nx service (but this one starts right back up)
+launchctl remove				# permanently remove service
+launchctl load					# said to load it back,  but  removed, 
+launchctl unload com.nomachine.localnxserver	# did not work
+
+# so, not sure what's the equiv of systemctl disable 
+
+
+
+</PRE>
+
 
 
 <H1></H1>
