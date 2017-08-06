@@ -292,6 +292,9 @@ Ref:
 smbutil  view  //samba-server			# ~ smbclient -N -L //samba-server
 
 
+
+# launchd is pid 1 for mac, so think of it as init/systemd of linux.
+
 launchctl list					# list services, think of systemctl list-unit-files
 launchctl stop com.nomachine.localnxserver	# like systemctl stop, should be a one time stop the nx service (but this one starts right back up)
 launchctl remove				# permanently remove service
