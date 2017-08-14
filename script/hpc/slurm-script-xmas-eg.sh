@@ -8,11 +8,11 @@
 # to test every node of xmas, run on login node as:
 # cd /global/scratch/tin/tmp/xmas
 # for T in $(seq -w 0000 0019); do
-#         #sbatch  --partition=xmas --account=xmas  -w n${T}.xmas0 --job-name=N_${T} /global/home/users/tin/sn-gh/psg/script/hpc/slurm-script-xmas-eg.sh
+#         sbatch  --partition=xmas --account=xmas  -w n${T}.xmas0 --job-name=N_${T} /global/home/users/tin/sn-gh/psg/script/hpc/slurm-script-xmas-eg.sh
 # done
 
 
-#SBATCH 	--job-name=xmas_test	# CLI arg will overwrite this, no 
+#SBATCH 	--job-name=xmas_test	# CLI arg will overwrite this, no easy way to embed node name or job number her
 # 		CPU time: 
 #SBATCH 	--time=65
 # 		Wall clock limit:
