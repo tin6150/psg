@@ -311,7 +311,8 @@ git log --graph			#
 git log --oneline --graph --decorate	# can alias to "lol" for this oft use combo
 git log -p 			# patch: show diff introduced by each change (instead of just commit msg for the log)
 
-git log -p [-1] PATH/FILE	# find how PATH/FILE differ from current state with last commit in git
+git log -p [-1] PATH/FILE	# list last -N COMMITED changes.  Current edit against git repo is NOT shown!
+git diff ??			# find how PATH/FILE differ from current state with last commit in git
 gitk FILE			# GUI tool to see diff, lots of features...
 
 git log issue123 ^master	# branch diff, changes in branch issue123 but NOT in master
