@@ -1,0 +1,84 @@
+
+## easyrsa is the private version of verisign
+
+## easyrsa commands to generate .pem certificates and .key files
+## for use with OpenVPN / TunnelBlink
+
+## ref:
+## https://mensfeld.pl/2014/07/setting-up-a-vpn-server-on-a-tomato-router-wrt54gl/
+## https://www.howtogeek.com/60774/connect-to-your-home-network-from-anywhere-with-openvpn-and-tomato/
+
+
+
+
+## 2017.0820
+
+joses-macbook-pro:
+~/code/easy-rsa-3.0.1/easyrsa3/
+moved to 
+/home/openvpn/easy-rsa-3.0.1 
+cuz config.ovpn need path to the pem and key files.
+
+
+vars
+
+./easyrsa init-pki 
+# so that my personal certs will go to ~/code/easy-rsa-3.0.1/easyrsa3/pki
+
+
+./easyrsa build-ca		# generate master cert authority (site-wide) keys
+
+## ca.crt  is public certificate 
+## ca.key  is private key 
+
+
+./easyrsa build-server-full tomato-e3k		# generate a key for a specific server operating w/in the site's CA jurisdiction
+
+# prob entered wrong pwd above, so:
+./easyrsa sign-req server tomato-e3k
+# file in /Users/joseramirez/code/easy-rsa-3.0.1/easyrsa3/pki/reqs/tomato-e3k.req
+# cert saved to pki/issued/tomato-e3k.crt
+
+
+
+##removing password:
+cd pki/private
+opnssl rsa -in tomato-e3k.req -out tomato-e3k_nopass.key
+
+
+
+cd ../..
+./easyrsa gen-dh
+# generate dieffel-hoffman parameters... 
+# file in pki/dh.pem
+
+
+
+~~~~~~~~
+
+## generate client certs and keys
+## need one per client machine
+
+./easyrsa build-client-full jose-macbook-pro
+./easyrsa build-client-full rafa-mac
+
+
+
+# client.crt is public certificate of the client  (pki/issued)
+# client.key is private keyfile of the client	  (pki/private)
+# client also need a copy of server.cert (public)
+
+## the vpn server don't need the client.* files?
+## or is the vpn client connection time going to send the client.pem file to the server to store
+## which is why need the pem to be signed with the site's CA.pem + password ?
+
+## easyrsa is the private version of verisign
+
+
+
+
+## some notes in OneNotes so that it is encrypted 
+## password, private keys content, etc.
+
+
+

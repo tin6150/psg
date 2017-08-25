@@ -1789,6 +1789,54 @@ modinfo mpt2sas			# could be from native os or dkms
 SELinux - Security Enhanced Linux
 </H1>
 
+<PRE>
+
+useradd -Z user_u 	# when adding new user, also give it a default context. 
+
+
+sudo semanage login -l 	# list defined context for all users 
+			# (but not for user not added with useradd?)
+
+sudo semanage login -a -s user_u tin	
+			# hopefully will rid "Unable to get valid context for [USER]" in Mint when Gnome starts.
+
+
+id -Z	# context of current user
+	# but not getting the info from $( semanage login -l ) ??!!
+	# user need to be in sysadm_t to be able to run sudo, su
+
+by default, unconfined_u user run in the unconfined_t domain
+
+
+seinfo			# summary info of context
+seinfo -t		# list all context types
+semanage fcontext -l 	# list all file path and context applied to them
+ls -Z file		# show context of a specific file
+
+cp --preserve=context foo bar	# copy file, preserving its context
+
+
+sesearch ...
+
+chcon --type var_t /var/www/html/index.html
+findcon ...
+restorecon ...
+matchpathcon  path
+sesearch ...
+
+
+sudo semanage fcontext -a -t git_user_content_t  "/export/tin/context_managed_dir(/.*)?"
+	
+(?) add file entry to context db , but context is not applied to file, not visible in ls -Z 
+
+/etc/selinux/targeted/contexts/files/file_contexts.local	local context db
+
+</PRE>
+
+
+
+<A HREF="https://wiki.gentoo.org/wiki/SELinux/Tutorials/Controlling_file_contexts_yourself">Controlling file contexts yourself</A>
+
 <H5>SELinux for RHEL 7 </H5>
 
 <PRE>
