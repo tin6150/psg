@@ -346,6 +346,8 @@ May not be trivial to migrate data from an old mac to a new one...
 <H5>Backup and Prep</H5>
 
 <OL>
+<LI> Avoid upgrading OS when planning to migrate soonish down the road.  (Direct machine restore tends to complain OS in destination host is older, not sure if build numbers are different or some bugs).
+
 <LI> Partition a new disk with GUID (Linux parted and mkfs.hfsplus didn't work).  Use the mac disk utility.
 <LI> Install an OS on this external disk.  Boot with Cmd-R, select external disk, install the OS on it.
 <LI> Run time machine backup to this disk (which is now bootable).
