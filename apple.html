@@ -384,8 +384,23 @@ May not be trivial to migrate data from an old mac to a new one...
 <LI> iTunes need new authorization as new computer
 </OL>
 
+<H5>Hostname</H5>
+
+How many places are hostname set in the mac?? !@#!$%
+
 <PRE>
+sudo scutil --get Hostname 		# may not be set
+sudo scutil --set Hostname jr12pro	# affect cli "hostname"
+
+
+sudo scutil --set LocalHostName jr12.local		# bonjour hostname  (GUI Settings, Sharing, hostname)
+sudo scutil --set ComputerName "descriptive name" 	# optional
+
+dscacheutil -flushcache					# flush dns
+
 </PRE>
+ref: https://knowledge.autodesk.com/support/smoke/learn-explore/caas/sfdcarticles/sfdcarticles/Setting-the-Mac-hostname-or-computer-name-from-the-terminal.html
+
 
 <!--mac.ref-->
 <H2>Older mac stuff</H2>
