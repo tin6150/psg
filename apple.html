@@ -59,7 +59,7 @@
 Some less intuitive keyboard binding from a windoze/linux user perspective: <BR>
 <BR>
 <PRE>
-Cmd/Command = Windows key 
+Cmd/Command = Windows key = Apple key
 Option      = Alt
 Control     = ^
 </PRE>
@@ -311,7 +311,7 @@ launchctl unload com.nomachine.localnxserver	# did not work
 
 <H1></H1>
 
-<H2>intel-based mac stuff</H2>
+<H2>"BIOS" stuff</H2>
 
 <PRE>
 
@@ -320,6 +320,9 @@ option	= select OS to boot with (when bootcamp is configured)
 apple+t = target firewire disk mode  (or just press T key?)
 apple+v = verbose mode (this time only)
 apple+s = single user mode (but don't run fsck from here! boot from DVD for such action!)  (or just s ?)
+apple+r = reinstall
+alt-cmd-r = 
+sh-alt-cmd-r = 
 
 shift   = Safe Boot mode - https://support.apple.com/en-us/HT201262
 
@@ -333,7 +336,22 @@ go to terminal, run
 To see current settings:
 	nvram -p   			
 
+</PRE>
 
+<H2>Migration/Cloning</H2>
+
+
+May not be trivial to migrate data from an old mac to a new one... 
+
+<OL>
+<LI> Partition a new disk with GUID (Linux parted and mkfs.hfsplus didn't work).  Use the mac disk utility.
+<LI> Install an OS on this external disk.  Boot with Cmd-R, select external disk, install the OS on it.
+<LI> Run time machine backup on this disk that is now bootable.
+<LI> Run Migratin assistant (under App, Utilities).  migrate data from time machine backup disk.
+<LI>
+</OL>
+
+<PRE>
 
 
 </PRE>
