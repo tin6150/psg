@@ -166,7 +166,7 @@ iptables -A INPUT -s 192.168.0.0/255.255.255.0 -j ACCEPT 	# using a subnet mask
 iptables -P FORWARD DROP					# ends with a DROP rule by default if not already allowed
 
 
-iptables -L -v					# list the rules
+iptables -L -v -n				# List the rules -n: numeric, -v:
 
 
 /sbin/service iptables save			# calls /sbin/iptables-save (to /etc/sysconfig/iptables)
@@ -273,7 +273,43 @@ For a given system, either use the iptables (service) or firewalld.  Pick one an
 system-config-firewall		# for static rule config of firewalld
 firewall-config			# ?? gui??
 systemctl status firewalld
+
+
+
+cf in 
+/usr/lib/firewallD	hold zone config, rules, etc.
+/etc/firewalld/... 	system config.  bunch of xml files.
+
+
+firewall-cmd --list-all-zones					# like UFW, can support zones like public, private, etc.
+
+firewall-cmd --get-active-zones
+firewall-cmd --get-default-zone
+
+firewall-cmd --zone=public --list-all				# list all rules that is applicable to the "public" zone
+
+
+
+firewall-cmd --get-services					# list canned service like httpd
+
+firewall-cmd --zone=public --add-port=4000/tcp            	# allow port 4000 from anywhere, runtime
+firewall-cmd --zone=public --add-port=4000/tcp --permanent	# allow port 4000 from anywhere, config
+
+firewall-cmd --zone=public --remove-port=4000/tcp            	# undo the add above
+
+firewall-cmd --reload						# read from config, presumably drop anything that is runtime and not in --permanent
+								
+
+firewall-cmd --direct --get-all-chains				# direct interaction with iptables
+firewall-cmd --direct --get-all-rules
+
+
 </PRE>
+
+ref:
+<A HREF="https://www.linode.com/docs/security/firewalls/introduction-to-firewalld-on-centos">
+Linode intro to firewallD on CentOS</A>
+
 
 <A ID="ufw"></A>
 <A ID="gufw"></A>
