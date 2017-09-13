@@ -330,8 +330,75 @@ WINS	M$ refer this as the NetBIOS name server implementation.
 </PRE>
 
 
+<H4>Linux fstab eg</H4>
+<PRE>
+/dev/VolGroup00/LogVol00 /                       ext3    defaults        1 1
+LABEL=/boot             /boot                   ext3    defaults        1 2
+none                    /dev/pts                devpts  gid=5,mode=620  0 0
+none                    /dev/shm                tmpfs   defaults        0 0
+none                    /proc                   proc    defaults        0 0
+none                    /sys                    sysfs   defaults        0 0
+/dev/VolGroup00/LogVol01 swap                    swap    defaults        0 0
+
+/dev/emcpowerc          /mnt/emcpowerc          ext3    defaults        0 0
+	
+	
+	
+nfsserver:/unixhome       /nfshome              nfs    rw,soft,intr,tcp,rsize=32768,wsize=32768,vers=3,timeo=4,retrans=9 0 0	# cambridge eg
+nfsserver:/unixhome       /nfshome              nfs bg,rw,hard,intr,udp,rsize=32768,wsize=32768,vers=3,timeo=4,retrans=9 0 0
+agami01:/export/agami  /nfsbackup/agami         nfs    rw,nfsvers=3,rsize=32768,wsize=32768,tcp,intr,soft			# RHEL 4.5
+
+/net/pollo/local/LINUX/SUSE/SUSE-10.0-CD-i386-GM-CD1.iso       /mnt/loopback/SUSE-10.0-CD-i386-GM-CD1   iso9660 loop,ro,noauto
+/export/repo/iso/RHEL4-U5-i386-WS-disc1.iso     /mnt/loopback/RHEL4-U5-i386-WS-disc1    iso9660 loop,ro,noauto
+</PRE>
+
+<H4>Solaris vfstab eg</H4>
+<PRE>
+
+
+#device         device          mount           FS      fsck    mount   mount
+#to mount       to fsck         point           type    pass    at boot options
+#
+fd      -       /dev/fd fd      -       no      -
+/proc   -       /proc   proc    -       no      -
+/dev/md/dsk/d10 /dev/md/rdsk/d10        /       ufs     1       no      logging
+/dev/md/dsk/d20 -       	-       swap    -       no      logging
+swap    -       /tmp    tmpfs   -       yes     -
+##
+##
+nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,rsize=32768,wsize=32768,proto=tcp,intr,soft
+
+
+	
+</PRE>
+
+
+<H1>NFSv4</H1>
+
+<UL>
+<A HREF="https://help.ubuntu.com/community/NFSv4Howto">https://help.ubuntu.com/community/NFSv4Howto</A>:
+<LI>Can operate without a Domain/Kerberos server.  set NEED_SVCGSSD=no, and NFSv4 can rely on client side authentication as in NFSv3, albeit this isn't all that secure.
+<LI>Use with Kerberos (MIT or Heimdal) + KDC (Key Distribution Center) provides much better security.
+<LI>
+<LI>NFS exports works differently.  On the server side, it has a root export where everything else falls under.
+<LI>Typically default to proto=tcp,port=2049
+<LI>
+</UL>
+
+<UL>
+<LI><A HREF="http://www.enterprisenetworkingplanet.com/netos/article.php/3644471/Implement-NFSv4-Domains-and-Authentication.htm">http://www.enterprisenetworkingplanet.com/netos/article.php/3644471/Implement-NFSv4-Domains-and-Authentication.htm</A> (from 2006!):
+<LI>NFSv4 introduce concept of Domain.  Many would rely on DNS domain for client and server to match.  Solaris allow for setting an explicit NFS domain.
+<LI>In addition to UID/GID needing to batch b/w client and server, Domain must match as well.
+<LI>Could use DNS RR or TXT record to specify domain.
+</UL>
+
+<UL>
+<LI><A HREF="http://nfsworld.blogspot.com/2005/06/using-active-directory-as-your-kdc-for.html">Eisler's NFS blog</A> describe how to use Active Directory with NFSv4.  From 2005!
+</UL>
+
+
 <A ID="samba"></A>
-<H2>Samba</H2>
+<H1>Samba</H1>
 <!--smb.ref-->
 <PRE>
 
@@ -526,73 +593,6 @@ log level = 2
 
 
 </PRE>
-
-
-<H4>Linux fstab eg</H4>
-<PRE>
-/dev/VolGroup00/LogVol00 /                       ext3    defaults        1 1
-LABEL=/boot             /boot                   ext3    defaults        1 2
-none                    /dev/pts                devpts  gid=5,mode=620  0 0
-none                    /dev/shm                tmpfs   defaults        0 0
-none                    /proc                   proc    defaults        0 0
-none                    /sys                    sysfs   defaults        0 0
-/dev/VolGroup00/LogVol01 swap                    swap    defaults        0 0
-
-/dev/emcpowerc          /mnt/emcpowerc          ext3    defaults        0 0
-	
-	
-	
-nfsserver:/unixhome       /nfshome              nfs    rw,soft,intr,tcp,rsize=32768,wsize=32768,vers=3,timeo=4,retrans=9 0 0	# cambridge eg
-nfsserver:/unixhome       /nfshome              nfs bg,rw,hard,intr,udp,rsize=32768,wsize=32768,vers=3,timeo=4,retrans=9 0 0
-agami01:/export/agami  /nfsbackup/agami         nfs    rw,nfsvers=3,rsize=32768,wsize=32768,tcp,intr,soft			# RHEL 4.5
-
-/net/pollo/local/LINUX/SUSE/SUSE-10.0-CD-i386-GM-CD1.iso       /mnt/loopback/SUSE-10.0-CD-i386-GM-CD1   iso9660 loop,ro,noauto
-/export/repo/iso/RHEL4-U5-i386-WS-disc1.iso     /mnt/loopback/RHEL4-U5-i386-WS-disc1    iso9660 loop,ro,noauto
-</PRE>
-
-<H4>Solaris vfstab eg</H4>
-<PRE>
-
-
-#device         device          mount           FS      fsck    mount   mount
-#to mount       to fsck         point           type    pass    at boot options
-#
-fd      -       /dev/fd fd      -       no      -
-/proc   -       /proc   proc    -       no      -
-/dev/md/dsk/d10 /dev/md/rdsk/d10        /       ufs     1       no      logging
-/dev/md/dsk/d20 -       	-       swap    -       no      logging
-swap    -       /tmp    tmpfs   -       yes     -
-##
-##
-nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,rsize=32768,wsize=32768,proto=tcp,intr,soft
-
-
-	
-</PRE>
-
-
-<H1>NFSv4</H1>
-
-<UL>
-<A HREF="https://help.ubuntu.com/community/NFSv4Howto">https://help.ubuntu.com/community/NFSv4Howto</A>:
-<LI>Can operate without a Domain/Kerberos server.  set NEED_SVCGSSD=no, and NFSv4 can rely on client side authentication as in NFSv3, albeit this isn't all that secure.
-<LI>Use with Kerberos (MIT or Heimdal) + KDC (Key Distribution Center) provides much better security.
-<LI>
-<LI>NFS exports works differently.  On the server side, it has a root export where everything else falls under.
-<LI>Typically default to proto=tcp,port=2049
-<LI>
-</UL>
-
-<UL>
-<LI><A HREF="http://www.enterprisenetworkingplanet.com/netos/article.php/3644471/Implement-NFSv4-Domains-and-Authentication.htm">http://www.enterprisenetworkingplanet.com/netos/article.php/3644471/Implement-NFSv4-Domains-and-Authentication.htm</A> (from 2006!):
-<LI>NFSv4 introduce concept of Domain.  Many would rely on DNS domain for client and server to match.  Solaris allow for setting an explicit NFS domain.
-<LI>In addition to UID/GID needing to batch b/w client and server, Domain must match as well.
-<LI>Could use DNS RR or TXT record to specify domain.
-</UL>
-
-<UL>
-<LI><A HREF="http://nfsworld.blogspot.com/2005/06/using-active-directory-as-your-kdc-for.html">Eisler's NFS blog</A> describe how to use Active Directory with NFSv4.  From 2005!
-</UL>
 
 <BR><HR><BR>
 <BR>
