@@ -85,7 +85,7 @@ setfacl -m d:g:admin:rw  dir1
 <H1></H1>
 <!-- cmd.admin.ref.tr -->
 
-<H4>cron</H4>
+<H5>cron</H5>
 
 <PRE>
 crontab         show cron jobs
@@ -311,27 +311,6 @@ FECHA=$(date "+%Y.%m%d")
 </PRE>
 
 
-<H2>Source Control</H2>
-
-<A name="rcs"></A>
-<H5>RCS</H5>
-
-<PRE>
-co -l {filename} check out file (with lock) from rcs sys
-co -r {filename} check out revision <N> or the latest verstion, 
-                 will prompt to overwrite co -l files (at least then when you do ci, it will say file not changed 
-                 and effectively reversed to original content)
-ci    {filename} put file back into rcs  
-ci -u {filename} (the -u leave a read only copy of the file, as if run co immediately after ci, always use it:))
-
-rlog {file}	display rcs edit log 
-rcsdiff {file}	display diff b/w current file content and its previous version
-rcsdiff -r1.1	display diff b/w current file and version 1.1 of the file
-rcs -u {file}	forces an unlock a file locked by some other user.
-rcs -aUID FILE	add access for user UID to the FILE (but didn't work, maybe file need to be group writable).
-
-</PRE>
-<BR><HR><BR>
 <H1>Encryption</H1>
 
 <H2>GPG</H2>
