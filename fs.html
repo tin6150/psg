@@ -398,29 +398,27 @@ nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,
 
 
 <A ID="samba"></A>
+<A ID="smb"></A>
 <H1>Samba</H1>
+
+samba 3 uses NT domain logins to serve account information, and  <BR>
+samba 4 is compatible with active directory.  <BR>
+<BR>
+samba 2 use smbpasswd.  samba 3 use pdbedit (and no more smbpasswd?)  <BR>
+
+
 <!--smb.ref-->
 <PRE>
 
-
-samba.ref
-
-also see fs.ref, smb.conf
-
-
-getent
-nmblookup -U <winsSvrIp> -R <NbNameToLookup>
-
---
 
 samba 2.x
 smbpasswd -j <NTDOM> -r <WinsSvr or '*'> -Uuser%password
 run winbindd
 then start samba.
 
-wbinfo -t 
-determine if secret used to join ntdomain is still good (security=server)
 
+getent
+nmblookup -U <winsSvrIp> -R <NbNameToLookup>
 
 ---
 
@@ -522,10 +520,10 @@ log.smbd	= smbd server process/status log.  level determined by smb.conf
 </PRE>
 
 
+<A ID="smb.conf"></A>
 <H3>smb.conf</H3>
 <!--smb.conf-->
 <PRE class="cf">
-
 
 [global]
 
@@ -589,10 +587,154 @@ log level = 2
    browseable = no
    writable = yes
 
+</PRE>
+
+<A ID="username_mapping"></A>
+<H2>username mapping</H2>
+
+in smb.conf, there is a clause like
+<PRE class=cf>
+        username map = /etc/samba/smbusers
+</PRE>
+which by default is
+<PRE class=cf>
+root=administrator admin
+nobody=guest pcguest smbg
+</PRE>
+
+This file can be updated to map user whose login name differ between unix and windows.
 
 
+<A ID="sid2uid"></A>
+<A ID="uid2sid"></A>
+<H2>SID to UID/GID mapping</H2>
+
+the ID numbers is what the computer use.
+winbind has to provide unix UID/GID numbers.  If a username is not resolvable to unix UID number, it will generate a number and use it.
+The number generated is in a range defined in smb.conf.
+This number is stored in "idmap" and there is a "net idmap" command to do dump and restore (edit is by hand edit this file and reimport?).
+<BR>
+
+pdbedit is the samba user database.  User of samba need to have account added here.
+The UID number assigned here may differ from what winbind (wbinfo) may return.  
+OS calls such as getent and id would honor the UID# assigned in pdbedit (when winbind is used in nsswitch.conf).
+<BR>
+
+
+Not sure what order of precedence wbinfo works on.
+It does "do the right thing" in that id would look at places where one can manipulate UID# using pdbedit (?)
+<BR>
+
+
+<!-- ~/NOTE/samba.rst -->
+<PRE>
+
+
+pdbedit — manage the SAM database (Database of Samba Users)
+        pdbedit entry can overwrite UID# winbindd returns
+        getent passwd USERNAME  will return UID# specified in pdbedit (nsswitch.conf passwd use "files winbind")
+
+pdbedit -L -w -d0       # -L = list all entries (ie a dump).
+                        # -w = smbpasswd format
+                        # -d0= debug level 0 (may still get warning messages in output)
+
+pdbedit --modify
+
+pdbedit -a sn           # add user sn.  user must exist as unix (passwd) or windows (AD) user.
+
+pdbedit -x -u sn        # deleting a user that has a uid randomly assigned
+                        # and readding it after it exist in passwd
+                        # may set it to have the right UID#
+
+wbinfo  # query winbind for info
+
+wbinfo -u | wc          # list all --domain-users
+
+wbinfo -n ateran                                        # --name-to-sid
+wbinfo --user-sidinfo SID                               # return passwd-like string with UID# for a given SID
+wbinfo -S S-1-5-21-1224182940-43089146-691797619-2275   # --sid-to-uid    eg: 781 
+wbinfo -s S-1-5-21-1224182940-43089146-691797619-4805   # --sid-to-name
+wbinfo --sid-to-fullname SID    			# conver to DOMAIN\username
+wbinfo --user-sids SID          			# list group SID   a given SID belongs to
+wbinfo --user-domgroups  SID    			# list domaingroup a given SID belongs to
+wbinfo --sid-aliases S-1-5-21-1224182940-43089146-691797619-2275  # sid has aliases!!
+
+wbinfo -i bofh          # login to uid#
+wbinfo -r bofh          # get unix secondary gid for named user
+
+wbinfo --uid-info 781   # return passwd-like string for given uid#
 
 </PRE>
+
+
+ref:
+<A HREF="https://www.samba.org/samba/docs/man/manpages-3/wbinfo.1.html">
+samba doc on wbinfo</A>
+
+
+
+
+
+
+
+<A ID="winbind"></A>
+<H2>winbind</H2>
+
+winbindd perform SID to UID# mapping.
+info stored in a db.
+<BR>
+
+ref:
+<A HREF="https://www.samba.org/samba/docs/man/manpages-3/winbindd.8.html">
+NAME AND ID RESOLUTION section of winbindd samba doc</A>
+<BR>
+
+UID# are often generated for user w/o unix passwd entry.  Thus, if have multiple machine running winbindd, would be good to 
+setup cronjob to keep the winbid db in sync (idmap)
+<BR>
+
+<PRE>
+net cache flush
+</PRE>
+
+idmap does mapping between SID and UID#/GID#.
+When the file is dumped, it can be (carefully) edited and (re)-imported (by different hosts).
+<BR>
+
+<PRE>
+# syncing IDs between different winbind machines
+net idmap dump    /var/lib/samba/winbindd_idmap.tdb > dumpfile.txt
+net idmap restore /var/lib/samba/winbindd_idmap.tdb < dumpfile.txt
+
+net idmap dump winbindd_idmap.tdb > /dev/null 2>&1 | ssh slave.samba.net 'net idmap restore' > /dev/null 2>&1
+</PRE>
+
+ref:
+<A HREF="http://web.mit.edu/samba/swat/help/Samba3-HOWTO/NetCommand.html">
+Samba3 :: Chapter 12. Remote and Local Management: The Net Command</A> :: Managing IDMAP UID/SID Mappings (at the end)
+
+
+<PRE>
+
+wbinfo -m               # list --trusted-domains
+wbinfo --own-domain     # what domain this smb server is on
+wbinfo -p               # --ping winbindd to ensure connection still good
+wbinfo -P               # --ping-dc       to ensure connection still good
+wbinfo -t               # --check-secret  of workstation to AD still good
+			# ie determine if secret used to join ntdomain is still good (security=server)
+
+</PRE>
+
+
+<A ID="net_cmd"></A>
+<H2>net cmd</H2>
+<PRE>
+To interact with AD, the DOS net commands are available.
+net rpc info
+
+the net idmap command operates locally and is covered in the UID to SID mapping section above
+</PRE>
+
 
 <BR><HR><BR>
 <BR>
