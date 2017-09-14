@@ -169,7 +169,8 @@ setenv http_proxy "http://proxy.nova.org:8080"
 export ftp_proxy="http://proxy.nova.org:8080"
 If auth is req, wget has parameters to submit these also.  
 
-
+wget --no-verbose https://www.knime.com/knime_downloads/linux/${KNIME_VER}-${KNIME_PLAT}.tar.gz -O $KNIME_GZ 
+	-O will force output to a specified filename, overwrite if exist.
 
 </PRE>
 <!-- 
@@ -183,6 +184,12 @@ alias wwget='wget -r -c --no-parent -l5'
 end of old wget internal notes
 ---------- 
 -->
+
+<A ID="curl"></A>
+<H5>curl </H5>
+
+curl does many similar thing than wget...
+
 
 <A name="rsync"></A>
 <H5>rsync</H5>
