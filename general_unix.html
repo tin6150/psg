@@ -111,7 +111,18 @@ entries stored in /var/spool/cron
 /etc/crontab : good for sys admin, single file for all jobs, has extra column defining user to run job as.
 
 <PRE class="cf">
-*/5 * * * * root /usr/local/bin/pbs_check
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+### Monitoring
+*/5 * *	* * root /usr/local/bin/pbs_check
+
+### can change MAILTO for rest of "script"
+MAILTO=storage@bofh.net
+*/5 * * * * root /usr/local/bin/lustre_monitor
+
 </PRE>
 
 
