@@ -63,6 +63,11 @@ chmod 2755 /tmp/dir  ~= chmod g+s /tmp/dir   = setgid on dir,  content will alwa
 chmod 2755 /tmp/file ~= chmod g+s /tmp/file  = setgid on file, execute with group priv
 
 chmod 6755 /tmp/file ~= chmod ug+s /tmp/file
+
+newgrp	groupname	# change the default group user will create file as 
+			# only last for current session
+			# Can prompt for password if group is password protected?
+
 </PRE>
 
 <H4>setfacl/getfacl</H4>
@@ -88,25 +93,36 @@ setfacl -m d:g:admin:rw  dir1
 <H5>cron</H5>
 
 <PRE>
-crontab         show cron jobs
-        -l = list
+crontab -l = list
         -e = edit
         -r = remove  (no confirmation, everything gone for the user!!)
-        # file format: 
-        # minute hour day-of-month month day-of-week0=sun cmdline 
-        # 0-59   0-23 1-31         1-12  0-6              echo "Hello World!"
+
+entries stored in /var/spool/cron
+</PRE>
+
+<PRE class="cf">
+# crontab file format 
+# minute hour day-of-month month day-of-week0=sun cmdline 
+0-59   0-23 1-31         1-12  0-6              echo "Hello World!"
+*/5    *    *            *     *                echo "Linux can easily define job for every 5 min"
+</PRE>
 
 
-newgrp	groupname	# change the default group user will create file as 
-			# only last for current session
-			# Can prompt for password if group is password protected?
+/etc/crontab : good for sys admin, single file for all jobs, has extra column defining user to run job as.
+
+<PRE class="cf">
+*/5 * * * * root /usr/local/bin/pbs_check
+</PRE>
 
 
-od -c filename		# octal dump -C for ASCII or escaped char, to see \r \n of DOS textfile
-dos2unix
-unix2dos
+<PRE>
+
+anacron
+	/var/spool/anacron/cron.*
 
 </PRE>
+
+
 
 <A ID="wget"></A>
 <H5>wget </H5>
@@ -435,11 +451,14 @@ gpg --verify txtfile.asc
 <!--cmd.ref-->
 <PRE>
 
+od -c filename		# octal dump -C for ASCII or escaped char, to see \r \n of DOS textfile
+dos2unix
+unix2dos
 
 
 cd - (cd to previous dir)
 
-!$   (last param of previous command)
+!$   (last param of previous command)  keyboard shortcut in bash is alt+.
 
 netstat
 memstat
