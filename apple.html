@@ -59,7 +59,7 @@
 Some less intuitive keyboard binding from a windoze/linux user perspective: <BR>
 <BR>
 <PRE>
-Cmd/Command = Windows key 
+Cmd/Command = Windows key = Apple key
 Option      = Alt
 Control     = ^
 </PRE>
@@ -311,7 +311,7 @@ launchctl unload com.nomachine.localnxserver	# did not work
 
 <H1></H1>
 
-<H2>intel-based mac stuff</H2>
+<H2>"BIOS" stuff</H2>
 
 <PRE>
 
@@ -320,6 +320,9 @@ option	= select OS to boot with (when bootcamp is configured)
 apple+t = target firewire disk mode  (or just press T key?)
 apple+v = verbose mode (this time only)
 apple+s = single user mode (but don't run fsck from here! boot from DVD for such action!)  (or just s ?)
+apple+r = reinstall
+alt-cmd-r = 
+sh-alt-cmd-r = 
 
 shift   = Safe Boot mode - https://support.apple.com/en-us/HT201262
 
@@ -333,10 +336,71 @@ go to terminal, run
 To see current settings:
 	nvram -p   			
 
+</PRE>
+
+<H2>Migration/Cloning</H2>
 
 
+May not be trivial to migrate data from an old mac to a new one... 
+
+<H5>Backup and Prep</H5>
+
+<OL>
+<LI> Avoid upgrading OS when planning to migrate soonish down the road.  (Direct machine restore tends to complain OS in destination host is older, not sure if build numbers are different or some bugs).
+
+<LI> Partition a new disk with GUID (Linux parted and mkfs.hfsplus didn't work).  Use the mac disk utility.
+<LI> Install an OS on this external disk.  Boot with Cmd-R, select external disk, install the OS on it.
+<LI> Run time machine backup to this disk (which is now bootable).
+</OL>
+
+<H5>Restore Using Migration Assistant</H5>
+
+<EM>NOT RECOMMENDED</EM>
+
+<OL>
+<LI> Start OS, login as normal.
+<LI> Run Migratin assistant (under App, Utilities).  migrate data from time machine backup disk.
+<LI> The ugly part:
+<UL>
+	<LI> Migrate only document data matching the user that is logged in and started the Migration assistant.
+	<LI> if username doesn't match old computer, then nothing is transfered.
+	<LI> Even if username match, didn't copy much.  May need apple id match.
+	<LI> But how to create such account?  It is not like MS where you login directly using MS ID.  *sigh* :(
+	<LI> It reboot the machine, can't do anything while it migrates
+	<LI> 
+</UL>
+</OL>
+
+<H5>Restore Using Migration Assistant</H5>
+<OL>
+<LI> Boot machine while holding Cmd-R
+<LI> Run Utility of Restore machine from time machine backup
+<LI> It will erase the destination computer hd.
+<LI> Did feel like it is a clone.  Everything that was left in old computer now login and looks the same in new.
+<LI> One Notes and notebook open just fine.  Hope it sync to web directly using a new sync id.
+<LI> git repos seems fine
+<LI> Did not migrate:  Dropbox.  Google drive
+<LI> Apple iCloud need to login, hanging.
+<LI> iTunes need new authorization as new computer
+</OL>
+
+<H5>Hostname</H5>
+
+How many places are hostname set in the mac?? !@#!$%
+
+<PRE>
+sudo scutil --get Hostname 		# may not be set
+sudo scutil --set Hostname jr12pro	# affect cli "hostname"
+
+
+sudo scutil --set LocalHostName jr12.local		# bonjour hostname  (GUI Settings, Sharing, hostname)
+sudo scutil --set ComputerName "descriptive name" 	# optional
+
+dscacheutil -flushcache					# flush dns
 
 </PRE>
+ref: https://knowledge.autodesk.com/support/smoke/learn-explore/caas/sfdcarticles/sfdcarticles/Setting-the-Mac-hostname-or-computer-name-from-the-terminal.html
+
 
 <!--mac.ref-->
 <H2>Older mac stuff</H2>

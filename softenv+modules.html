@@ -132,6 +132,7 @@ and seems like .bash_profile just source .bashrc, decided that going forward wil
 
 <H5>.bashrc</H5>
 
+
 <PRE class="code">
 if [[ $- =~ "i" ]]; then
 	# $- will have i for interactive shell when run by bash.  
@@ -189,8 +190,15 @@ These days, most folks have all their customization in their .bashrc, and .bash_
 [[ -f ~/.bashrc ]] && source ~/.bashrc
 </PRE>
 
+<!--
 I was afraid this would create a loop.  But so long as .bashrc doesn't also source .bash_profile, this setup should be fine.
 .bashrc is probably sourced by the shell each time a command returns.  
+-->
+
+Overall:
+<LI> ssh session would source .bashrc
+<LI> new xterm (terminal tab) does NOT source .bash_profile, unless it is set to act as "login shell"  <BR>
+     Not sure if making .bashrc source /etc/profile (and thus all the /etc/profile.d/*sh env settings) is a wise idea (may cause loop or shell latency?).  Thus, change xterm to act as "login shell" and setting up a barebone .bash_profile was the approach taken.
 
 
 <BR>

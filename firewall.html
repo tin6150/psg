@@ -166,7 +166,7 @@ iptables -A INPUT -s 192.168.0.0/255.255.255.0 -j ACCEPT 	# using a subnet mask
 iptables -P FORWARD DROP					# ends with a DROP rule by default if not already allowed
 
 
-iptables -L -v					# list the rules
+iptables -L -v -n				# List the rules -n: numeric, -v:
 
 
 /sbin/service iptables save			# calls /sbin/iptables-save (to /etc/sysconfig/iptables)
@@ -273,7 +273,43 @@ For a given system, either use the iptables (service) or firewalld.  Pick one an
 system-config-firewall		# for static rule config of firewalld
 firewall-config			# ?? gui??
 systemctl status firewalld
+
+
+
+cf in 
+/usr/lib/firewallD	hold zone config, rules, etc.
+/etc/firewalld/... 	system config.  bunch of xml files.
+
+
+firewall-cmd --list-all-zones					# like UFW, can support zones like public, private, etc.
+
+firewall-cmd --get-active-zones
+firewall-cmd --get-default-zone
+
+firewall-cmd --zone=public --list-all				# list all rules that is applicable to the "public" zone
+
+
+
+firewall-cmd --get-services					# list canned service like httpd
+
+firewall-cmd --zone=public --add-port=4000/tcp            	# allow port 4000 from anywhere, runtime
+firewall-cmd --zone=public --add-port=4000/tcp --permanent	# allow port 4000 from anywhere, config
+
+firewall-cmd --zone=public --remove-port=4000/tcp            	# undo the add above
+
+firewall-cmd --reload						# read from config, presumably drop anything that is runtime and not in --permanent
+								
+
+firewall-cmd --direct --get-all-chains				# direct interaction with iptables
+firewall-cmd --direct --get-all-rules
+
+
 </PRE>
+
+ref:
+<A HREF="https://www.linode.com/docs/security/firewalls/introduction-to-firewalld-on-centos">
+Linode intro to firewallD on CentOS</A>
+
 
 <A ID="ufw"></A>
 <A ID="gufw"></A>
@@ -452,6 +488,119 @@ Mac 10.5 default to a port of OpenBSD's PF.  <BR>
 Older IPFW cli tool from FreeBSD is from 10.2 days.  <BR>
 See <A HREF="apple.html#firewall">apple.html#firewall</A>
 <BR>
+
+<A ID="pam.d"></A>
+<A ID="pamd"></A>
+<A ID="pam"></A>
+<H1>pam.d</H1>
+
+Check to allow user login is really a convoluted matrix of many different combinations. 
+All the different "if ssh, if user is foo, login in from bar, etc etc" is now coded in pam.d.
+<BR>
+Very often, new authentication source is configured via nsswitch.conf
+<BR>
+Whether ssh keys are allowed as authentication source is set in:   		<BR>
+- sshd.conf (if certain users are allowed to use ssh key, others are not)		<BR>
+- pam sshd config (forcing interactive login?) (if config is same for all users) ??	<BR>
+<BR>
+
+
+<H2>Files</H2>
+
+Each file correspond to configuration used for that specific service.
+
+<PRE>
+sshd	# used when ssh in to the machine
+login	# used to /bin/login (eg, login in the terminal?  Also in local X11?)
+
+
+su	# when running su command
+sudo 	# when running sudo command
+
+system-auth	# often refered by other config file to use it.  think of this as C's #include.
+config-util	# refered by many system config tools, such as system-config-network
+</PRE>
+
+
+<H2>AAA</H2>
+
+??
+
+<PRE>
+auth
+account
+password
+session 
+</PRE>
+
+
+
+<H2>Levels</H2>
+
+In increasing mandatory necessity:
+
+
+<PRE>
+
+optional ?
+
+sufficient ??
+
+
+include
+	use content of another config file (eg system-auth, config-util)
+	think of #include of C
+
+
+required
+	Failure also results in denial of authentication, 
+	although PAM will still call all the other modules listed for this service 
+	before denying authentication. 
+	*** think of it as mandatory but keep checking anyway ??!! ***
+
+requisite
+	Failure to authenticate via this module results in immediate denial of authentication. 
+	*** think of as mandatory, waste no more time, fail right away ***
+
+</PRE>
+
+<H2>modules</H2>
+
+<PRE>
+# Use a radius authentication server listed in a config file
+auth       required     pam_radius_auth.so conf=/etc/raddb/server	
+	
+
+# When SELinux operates in Permissive mode, 
+# disable linux user login for users listed in /etc/security/sepermit.conf
+# If user not listed, would still be allowed to login when selinux is disabled or in permissive mode
+auth       required     pam_sepermit.so
+	
+
+
+
+# if file /etc/nologin exist, user not allowed to login
+account    required     pam_nologin.so
+
+
+# use/allow for system password auth  ??
+account    include      password-auth
+
+
+# traditional unix auth, usually /etc/passwd, /etc/shadow
+pam_unix.so
+
+
+</PRE>
+
+
+Ref:
+<UL>
+<LI><A HREF="https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file">
+https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file</A>
+<LI>
+</UL>
+
 
 
 <!-- #################################################################### -->
