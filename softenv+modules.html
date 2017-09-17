@@ -129,8 +129,27 @@ and seems like .bash_profile just source .bashrc, decided that going forward wil
 
 <BR><BR>
 
+Module file defintion, see 
+<A HREF="https://github.com/tin6150/psg/tree/master/modulefiles/">github</A>
 
-<H5>.bashrc</H5>
+<BR><BR>
+
+
+<H5>simplified .bashrc</H5>
+
+<PRE class="code">
+[[ -f /etc/profile.d/modules.sh ]] && source /etc/profile.d/modules.sh
+export MODULEPATH=$MODULEPATH:/opt/modulefiles/
+</PRE>
+
+
+<H5>old school .bashrc</H5>
+
+There were some strange instances where module loading in non-interactive shell could break things.  <BR>
+scp?  jenkin builds?  <BR>
+thus, a test of interactive shell evaluating $i was done.  <BR>
+But this seems to cause problem for sge job script not automatically loading user's modules.  Thus, not favoring it anymore.  <BR>
+<BR>
 
 
 <PRE class="code">
@@ -151,8 +170,6 @@ if [[ $- =~ "i" ]]; then
         fi
 fi
 </PRE>
-
-
 
 <H2>commands</H2>
 
