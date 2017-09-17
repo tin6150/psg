@@ -1,0 +1,32 @@
+#%Module1.0#####################################################################
+##
+## modules container/singularity/2.3.2
+##
+## modulefiles/container/singularity/2.3.2.  Tin6150
+
+# see http://www.admin-magazine.com/HPC/Articles/Environment-Modules
+# Building Your Own Module File section
+#
+# yum install environment-modules
+# source /etc/profile.d/modules.sh
+# export MODULEPATH=$MODULEPATH:/opt/modulefiles/
+# module load container/singularity/2.3.2
+#
+# setup in c7_casa
+# ln -s ln -s ~/PSG/modulefiles/ /opt 
+
+proc ModulesHelp { } {
+	global version modroot
+
+	puts stderr "container/singularity-2.3.2 - sets the Environment for Singulaity 2.3.2
+}
+
+module-whatis "sets the Environment for Singulaity 2.3.2"
+
+# for Tcl script (internal) use only
+set 	topdir		/opt/singularity/2.3.2
+set 	version		2.3.2
+#set 	sys		linux64
+
+prepend-path	PATH	$topdir/bin
+prepend-path	MANPATH	$topdir/share/man
