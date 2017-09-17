@@ -214,7 +214,8 @@ I was afraid this would create a loop.  But so long as .bashrc doesn't also sour
 
 Overall:
 <LI> ssh session would source .bashrc
-<LI> new xterm (terminal tab) does NOT source .bash_profile, unless it is set to act as "login shell"  <BR>
+<LI> new xterm (terminal tab) does NOT source .bashrc or .bash_profile. <BR>
+     IF it is set to act as "login shell", then it sources .bash_profile.  Thus, having .bash_profile source .bashrc would make things more convinient :)  <BR>
      Not sure if making .bashrc source /etc/profile (and thus all the /etc/profile.d/*sh env settings) is a wise idea (may cause loop or shell latency?).  Thus, change xterm to act as "login shell" and setting up a barebone .bash_profile was the approach taken.
 
 
