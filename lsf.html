@@ -155,6 +155,7 @@ srun			# Typically for MPI job, create job allocation, launch job step.
 srun hostname		# run the hostname command in cluster using srun
 
 sattach			# connect to the stdin, stdout and stderr of a job or job step
+
 </PRE>
 <BR>
 
@@ -162,8 +163,9 @@ Options commont to most/all job submission commands:
 
 <PRE>
 sbatch/salloc/srun
-	-ntasks=100	# number of tasks to 100 (ie array job)
-	--time=10	# time limit in minutes (actual cpu run time?) , per task??
+	--ntasks=100	# number of tasks to 100 (ie array job)
+	--nodes=x --ntasks-per-node=y	# less recommended way to run large MPI job
+	--time=10	# time limit in minutes (actual cpu run time?) , per task?? (help scheduler do backfill)
 	--depend=JOBID	# job dependency, like qhold until a parent job has finished before starting this.
 
 	--label		# prepend output with task number
@@ -186,6 +188,10 @@ scancel				# send signal to cancel job or job steps (individual task array job)
 sbcast				# "broadcast": xfer file to compute nodes running the job, using hierarchical communication
 				# may or may not be faster than a shared FS.
 
+sqeueue --start -j JobID	# scheduler return estimate of when job would start running 
+				# may return N/A when --time not specified for other jobs
+
+
 srun_cr				# run with BSD checkpoint/restart 
 strigger			# run arbitrary script in response to system events, eg node dies, daemon stops, job reaches time limit, etc
 				# persistent triggers will remain after event occurs
@@ -200,7 +206,7 @@ strigger			# run arbitrary script in response to system events, eg node dies, da
 <PRE>
 sinfo			# status of node, queue, etc
 	--Node		# output info in node-centric view (group similar nodes together)
-	-p debug	# info on specific partition (queue) called debug
+	-p PARTITION 	# info on specific partition (queue) 
 squeue			# status of job and job steps
 	-s		# info about job steps
 	-u USERNAME	# job info of specified user
@@ -212,8 +218,9 @@ sview			# new GUI:   view + update on sys, job, step, partition, reservation, to
 
 scontrol		# admin cli: view + update on sys, job,       partition, reservation
 			# dump all info out, not partituclarly user friendly
-scontrol show partition	# view partition/queue info
-scontrol show config	# view config of whole system (eg when asking mailing list for help)
+scontrol show reservations	# see job/resource reservations
+scontrol show partition		# view partition/queue info
+scontrol show config		# view config of whole system (eg when asking mailing list for help)
 scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 min for the queue named "debug"
 
 sacct			# accounting by individual job and job steps

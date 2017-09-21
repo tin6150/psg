@@ -17,12 +17,17 @@ if [ -f /etc/bashrc ]; then
 fi
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 
+[[ -f /etc/profile.d/modules.sh ]] && source /etc/profile.d/modules.sh
 ### not sre what's going on, but insist on SL6 MODULEPATH, so seeding it to null to start for now.
 ### 2017.0919
 MODULEPATH=""
 ###Some stuff are in Yong's home dir, so sourcing them to be able to run staging test
 MODULEPATH=$MODULEPATH:~yqin/applications/modfiles
 
+
+export MODULEPATH=$MODULEPATH:/opt/modulefiles/
+export MODULEPATH=$MODULEPATH:/opt2
+#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
 
 # User specific aliases and functions
 # https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
