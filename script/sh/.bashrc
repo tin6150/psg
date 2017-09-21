@@ -19,9 +19,9 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 
 ### not sre what's going on, but insist on SL6 MODULEPATH, so seeding it to null to start for now.
 ### 2017.0919
-MODULEPATH=""
+#MODULEPATH=""
 ###Some stuff are in Yong's home dir, so sourcing them to be able to run staging test
-MODULEPATH=$MODULEPATH:~yqin/applications/modfiles
+#MODULEPATH=$MODULEPATH:~yqin/applications/modfiles
 
 
 # User specific aliases and functions
@@ -41,20 +41,20 @@ ModDirList_sl7="/global/software/sl-7.x86_64/modfiles/tools \
 /global/software/sl-7.x86_64/modfiles/intel/2013_sp1.4.211"
 
 ## need a better way to be able to detect sl6...
-ModDirList=$ModDirList_sl7
+#ModDirList=$ModDirList_sl7
 
-for ModDir in $ModDirList; do
-	[[ -d $ModDir ]] && MODULEPATH=${MODULEPATH}:$ModDir
-done
-export MODULEPATH
+#for ModDir in $ModDirList; do
+#	[[ -d $ModDir ]] && MODULEPATH=${MODULEPATH}:$ModDir
+#done
+#export MODULEPATH
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
 
-[[    -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
+#[[    -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
 
-if [[ -d /global/software/sl-7.x86_64/ ]]; then
+#if [[ -d /global/software/sl-7.x86_64/ ]]; then
 	#module load vim		# seems like vim no longer avail as module
-	echo "" > /dev/null
-fi
+#	echo "" > /dev/null
+#fi
 
 
 ### my old stuff, adapted to new work ###
