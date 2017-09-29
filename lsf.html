@@ -357,6 +357,44 @@ State with * (eg idle*, draining*) means node is not reachable.
 </UL>
 
 
+<!-- yong slurm scheduler Q&A -->
+<PRE>
+
+sacctmgr show associations	# list all associations.  think of them as acl.  
+				# it is the union of all entities in each association entry that govern if user X has access to resource Y (nodes operating under certain qos)
+sacctmgr show associations -p user=sn	# association for specified user
+					# -p use | to separate columns, reduce space usage.
+
+
+sacctmgr show qos		# show all avail Quality of Service entitites 
+
+
+squeue				# full detail of current job queue (all user, all jobs, on all partitions/queues)
+
+squeue -p stanium 		# queue for names partition
+				# State: (R)unning, PenDing.
+				# Reason: Resource = waiting for resource eg free node
+				# 	  Priority = other higher priority job are scheduled ahead of this job
+
+sinfo -t I 			# list staTe Idle nodes 
+sinfo -t I -p stanium		# Idle nodes in stanium partition
+
+squeue --start			# estimated start time of each queued job 
+				# N/A if time cannot be estimated (eg non time bound jobs exist)
+
+
+scontrol show reservation 	# show reservations
+				# reservation are typically maintenance window placed by admins
+				# but sys admin can also reserve to let user then run certain jobs in the reservation window.
+				# jobs will not start in such reservation window
+				# running job will NOT be killed by slurm if run into the reservation
+				# listed user of the reservation can submit job that is flagged to use the reservation
+				
+				 
+
+</PRE>
+
+
 
 <H4>SLURM Ref</H4>
 <UL>
