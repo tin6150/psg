@@ -14,7 +14,8 @@ Scripts are placed in the script subdir, eg  https://github.com/tin6150/psg/tree
 ``` bash
 
 ##git config --global user.email "tin6150@gmail.com"
-git config --global user.email "tin@cueball"		# change this to machine specific settings to get better idea of where commits, merges are done, but don't display well on bitbucket :(
+git config --global user.email "tin@cueball"		# change this to machine specific settings to get better idea of where commits, 
+							# merges are done, but don't display well on bitbucket :(
 git config --global user.name tin6150
 ## in bitbucket, need username to match what bitbucket.org has in record for it to prompt for pwd
 git config --global credential.helper 'cache --timeout=3600'
@@ -33,19 +34,6 @@ git commit -m "first commit"
 # still need to pre-create the repo in github before push can take place 
 # git remote add origin https://github.com/tin6150/psg.git
 git push -u origin master
-
-
-----
-git clone https://tin6150@github.com/tin6150/psg
-git clone https://tin6150@github.com/tin6150/singularity
-git clone https://tin6150@github.com/tin6150/inet-dev-class
-
-git clone https://tin6150@github.com/tin6150/db4cpa
-git clone https://tin6150@github.com/tin6150/taxonomy_reporter
-git clone https://tin6150@github.com/tin6150/pyspark
-git clone https://tin6150@github.com/tin6150/taxo-spark
-git clone https://tin6150@github.com/tin6150/singhub
-git clone https://tin6150@github.com/tin6150/circos.git
 
 
 # above code block was delimited by ``` bash  (optional language for syntax highlight)
