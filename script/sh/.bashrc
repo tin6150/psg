@@ -25,9 +25,16 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 #MODULEPATH=$MODULEPATH:~yqin/applications/modfiles
 
 
-export MODULEPATH=$MODULEPATH:/opt/modulefiles/
-export MODULEPATH=$MODULEPATH:/opt2
-#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
+# for the staging test, till build my own or something... 2017.0922
+PATH=/global/home/groups/scs/yqin:$PATH
+PATH=/global/home/groups/scs/yqin/ibcheck:$PATH
+
+# perceus has no SMF at all, thus still need to test.  but SL6 vs SL7 are handled by other scg script
+if [[    -d /global/software/ ]] ; then 
+	module load vim
+	module load git
+	module load intel openmpi mkl
+fi
 
 # User specific aliases and functions
 # https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
@@ -45,6 +52,9 @@ ModDirList_sl7="/global/software/sl-7.x86_64/modfiles/tools \
 /global/software/sl-7.x86_64/modfiles/langs \
 /global/software/sl-7.x86_64/modfiles/intel/2013_sp1.4.211"
 
+# till /global/home/groups-sw/allhands/.bashrc  is fixed to include lr5:
+# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
+
 ## need a better way to be able to detect sl6...
 #ModDirList=$ModDirList_sl7
 
@@ -53,6 +63,12 @@ ModDirList_sl7="/global/software/sl-7.x86_64/modfiles/tools \
 #done
 #export MODULEPATH
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
+
+
+
+export MODULEPATH=$MODULEPATH:/opt/modulefiles/
+export MODULEPATH=$MODULEPATH:/opt2
+export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
 
 #[[    -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
 
@@ -179,6 +195,7 @@ Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
 #alias qtop.py=/home/hoti1/code/git/qtop/qtop.py
 
 # use declare -F to list defined functions
+# use declare -f to see all gory details
 # qhostTot() { qhost | sed 's/G//g' | awk '/^sky/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
 
 
