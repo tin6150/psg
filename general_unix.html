@@ -103,8 +103,8 @@ entries stored in /var/spool/cron
 <PRE class="cf">
 # crontab file format 
 # minute hour day-of-month month day-of-week0=sun cmdline 
-0-59   0-23 1-31         1-12  0-6              echo "Hello World!"
-*/5    *    *            *     *                echo "Linux can easily define job for every 5 min"
+# 0-59   0-23 1-31         1-12  0-6              echo "Hello World!"
+*/5      *    *            *     *                echo "Linux can easily define job for every 5 min" > /dev/null
 </PRE>
 
 
@@ -116,12 +116,20 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=root
 HOME=/
 
-### Monitoring
-*/5 * *	* * root /usr/local/bin/pbs_check
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name 	command to be executed
+
+*/5  *  *  *  * root 		/usr/local/bin/pbs_check
 
 ### can change MAILTO for rest of "script"
 MAILTO=storage@bofh.net
-*/5 * * * * root /usr/local/bin/lustre_monitor
+*/5  *  *  *  * root 		/usr/local/bin/lustre_monitor
 
 </PRE>
 
