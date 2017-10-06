@@ -375,6 +375,9 @@ git revert			# abandone changes in a checkout ?
 git reset head			# undo "git add"
 
 
+git log --diff-filter=D --summary | grep delete		# list all deleted files in github
+git checkout SHA^ -- ./filename				# restore a file.  ^ means right before the commit
+
 </PRE>
 
 <H5>git against "origin" </H5>
@@ -546,6 +549,8 @@ export HOMEDRIVE=H:   <BR>
 <LI><A HREF="https://www.youtube.com/watch?v=ZDR433b0HJY">Comprehensive git workshop video</A> by Scott Chacon.
 <LI><A HREF="https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell">git branching</A> philosophy well explained (part of online book)
 <LI><A HREF="https://progit.org">pro git</A>.  Book title "Pro Git" from A-press.  avail online.  GIT reference, (?) also has lobby/reasons to move to git.
+<LI><A HREF="https://stackoverflow.com/questions/7203515/git-how-to-search-for-a-deleted-file-in-the-project-commit-history">recover deleted file</A> from Stack Overflow. <BR>
+
 
 </UL>
 
