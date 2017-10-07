@@ -1401,6 +1401,7 @@ http://www.netcordia.com/network-services.html
 </PRE>
 
 
+<A NAME="iperf"></A>
 <A NAME="iperf3"></A>
 <H5>iperf3</H5>
 
@@ -1419,6 +1420,22 @@ iperf3 -c SERVER -t 30 -i 1	# start as client, connect to SERVER
 
 iperf3 -c SVR -t 10 -i 1 -P 2		# -P 2 = parallel 4 streams
 iperf3 -c SVR -t 10 -i 1 -P 2 w 32M 	# -w 16M = use 32M TCP buffer
+
+</PRE>
+
+Installation
+
+<PRE>
+BASEDIR=/global/scratch/tin/
+SWDIR=$BASEDIR/sw
+cd $BASEDIR/pub-gh
+git clone https://github.com/esnet/iperf.git
+cd iperf
+./configure --prefix=${SWDIR}
+make
+make install
+
+export PATH=${SWDIR}:$PATH
 
 </PRE>
 
