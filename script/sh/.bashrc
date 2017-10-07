@@ -1,5 +1,23 @@
 ## .bashrc ##
 
+
+### PSG/.bashrc -> PSG/sh/script/.bashrc
+### making this so that it can be sourced as ADDITION rather than replace a machine or account specific .bashrc
+### since diff acc/host will likely have diff config that I don't want to add too many test in here
+### but then again, dir test before setup is likely enough... maybe keep going.
+### worse case, fork off the alias into .alias 
+### 2017-10-07
+
+
+### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
+
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
+
+
 # the following will not save .bash_history when exit bash, so no xfer b/w sessions
 # very useful when putting pw in env var 
 export HISTFILESIZE=0
@@ -7,15 +25,53 @@ export HISTTIMEFORMAT="%d/%m/%y %T "	# once enabled, .bash_history get timestamp
 
 export EDITOR=vi
 
-COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
+
+
+###
+###
+### declaring some functions
+###
+###
+
+add_local_module () {
+	LOCAL_MODULE_DIR=/opt/modulefiles
+	if [[ -d ${LOCAL_MODULE_DIR} ]] ; then
+		export MODULEPATH=$MODULEPATH:${LOCAL_MODULE_DIR}
+		[[ -d ${LOCAL_MODULE_DIR}/container/singularity ]] && module load container/singularity/2.4.alpha
+	fi
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_local_module_ends"
+} # end add_local_module
+
+add_group_bin () {
+	# should dig out the AddToPath() or AddToString that automatically check if dir exist before adding...
+	GroupBinList="/global/home/groups/scs/IB-tools \
+			/global/home/groups/scs/yqin"
+	for GroupBinEntry in ${GroupBinList} ; do
+		[[ -d $GroupBinEntry ]] && PATH=${GroupBinEntry}:$PATH
+	done
+	#PATH=/global/home/groups/scs/yqin:$PATH
+	#PATH=/global/home/groups/scs/yqin/ibcheck:$PATH
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
+}
+
+###
+###
+### "main" - script start point
+###
+###
+
+### some check for possibly host specific stuff
+
+MAQUINA=$(hostname)
+
+if [[ x${MAQUINA} -eq x"c7" ]]; then
+	add_local_module
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
+fi	
 
 
 ### hpcs stuff ###
 
-if [ -f /etc/bashrc ]; then
-        . /etc/bashrc
-fi
-COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 
 [[ -f /etc/profile.d/modules.sh ]] && source /etc/profile.d/modules.sh
 ### not sre what's going on, but insist on SL6 MODULEPATH, so seeding it to null to start for now.
@@ -25,9 +81,10 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 #MODULEPATH=$MODULEPATH:~yqin/applications/modfiles
 
 
+
 # for the staging test, till build my own or something... 2017.0922
-PATH=/global/home/groups/scs/yqin:$PATH
-PATH=/global/home/groups/scs/yqin/ibcheck:$PATH
+add_group_bin
+
 
 # perceus has no SMF at all, thus still need to test.  but SL6 vs SL7 are handled by other scg script
 if [[    -d /global/software/ ]] ; then 
