@@ -29,30 +29,102 @@ export EDITOR=vi
 
 ###
 ###
-### declaring some functions
+###  function declaration section
 ###
 ###
+
+# Function to avoid repetitive environment variable entries
+# eg use after declaration:
+# AddtoString PATH /usr/local/bin
+# source: .profile from db2profile for setting up path
+AddtoString()
+{
+  var=$1
+  addme=$2
+  if [ -d $2 ]; then
+    awkval='$1 != "'${addme?}'"{print $0}'
+    newval=`eval /usr/bin/echo \\${$var} | /usr/bin/awk "${awkval?}" RS=:`
+    eval ${var?}=`/usr/bin/echo $newval | /usr/bin/sed 's/ /:/g'`:${addme?}
+    unset var addme awkval newval
+  else
+    return 1	# return false if dir ($2) does not exist  # Tin 2017.1007
+  fi
+}
+
 
 add_local_module () {
 	LOCAL_MODULE_DIR=/opt/modulefiles
-	if [[ -d ${LOCAL_MODULE_DIR} ]] ; then
-		export MODULEPATH=$MODULEPATH:${LOCAL_MODULE_DIR}
-		[[ -d ${LOCAL_MODULE_DIR}/container/singularity ]] && module load container/singularity/2.4.alpha
-	fi
+	AddtoString MODULEPATH ${LOCAL_MODULE_DIR} && module load container/singularity/2.4.alpha
+	AddtoString MODULEPATH /opt/modulefiles/
+	AddtoString MODULEPATH /opt2
+	AddtoString MODULEPATH /opt2/singularity-2.4.alpha/modulefiles
+	#export MODULEPATH=$MODULEPATH:/opt/modulefiles/
+	#export MODULEPATH=$MODULEPATH:/opt2
+	#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_local_module_ends"
 } # end add_local_module
 
-add_group_bin () {
-	# should dig out the AddToPath() or AddToString that automatically check if dir exist before adding...
-	GroupBinList="/global/home/groups/scs/IB-tools \
-			/global/home/groups/scs/yqin"
-	for GroupBinEntry in ${GroupBinList} ; do
-		[[ -d $GroupBinEntry ]] && PATH=${GroupBinEntry}:$PATH
-	done
-	#PATH=/global/home/groups/scs/yqin:$PATH
-	#PATH=/global/home/groups/scs/yqin/ibcheck:$PATH
+
+add_hpcs_module () {
+	# perceus has no SMF at all, thus still need to test.  but SL6 vs SL7 are handled by other scg script
+	if [[ -d /global/software/ ]] ; then 
+		module load vim
+		module load git
+		module load intel openmpi mkl
+	fi
+	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
+	## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
+	## some modules are avail after the language pack is loaded.  eg:
+	## module load python/2.7.5
+	## module load scikit-image
+	## module load gcc openmpi
+	# till /global/home/groups-sw/allhands/.bashrc  is fixed to include lr5:
+	# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
+} # end add_hpcs_module 
+
+add_hpcs_bin () {
+	AddtoString PATH /global/home/groups/scs/IB-tools 
+	AddtoString PATH /global/home/groups/scs/yqin
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
-}
+} # end add_hpcs_bin 
+
+add_cosmic_module () {
+	## cluster specific stuff
+	if [[ -d /global/groups/cosmic ]]; then
+		# hope /global/groups/cosmic is only avail on cosmic.  if not, need something else...
+
+		# troubleshooting David Shapiro's problem
+		##module unload python
+		module load gcc/4.4.7
+		module load atlas/3.10.1-gcc
+		module load fftw/3.3.3-gcc
+		module load hdf5
+		module load openmpi/1.8.4-gcc
+		module load cuda
+		module load gsl
+		module load zeromq
+		module load cmake
+		module load boost
+		module load sharp
+
+		alias mpi='mpirun --hostfile /global/groups/cosmic/host_file'
+		COMMON_ENV_TRACE="$COMMON_ENV_TRACE cosmic_loaded"
+	fi
+} # end add_cosmic_module 
+
+###
+###
+### Alias that need to be defined as function
+### use declare -F to list defined functions.  
+### NOTE: fn must end with ; before closing with }
+###
+
+Size() { ls -l $* | awk '{sum+=$5} END {print sum}' ; }         # Size *.txt  # not /usr/bin/size!
+
+# slurm alias, experimenting...
+Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
+
 
 ###
 ###
@@ -60,79 +132,22 @@ add_group_bin () {
 ###
 ###
 
+[[ -f /etc/profile.d/modules.sh ]] && source /etc/profile.d/modules.sh
+
 ### some check for possibly host specific stuff
 
 MAQUINA=$(hostname)
 
 if [[ x${MAQUINA} -eq x"c7" ]]; then
-	add_local_module
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
+	add_local_module
 fi	
 
 
-### hpcs stuff ###
-
-
-[[ -f /etc/profile.d/modules.sh ]] && source /etc/profile.d/modules.sh
-### not sre what's going on, but insist on SL6 MODULEPATH, so seeding it to null to start for now.
-### 2017.0919
-#MODULEPATH=""
-###Some stuff are in Yong's home dir, so sourcing them to be able to run staging test
-#MODULEPATH=$MODULEPATH:~yqin/applications/modfiles
-
-
-
-# for the staging test, till build my own or something... 2017.0922
-add_group_bin
-
-
-# perceus has no SMF at all, thus still need to test.  but SL6 vs SL7 are handled by other scg script
-if [[    -d /global/software/ ]] ; then 
-	module load vim
-	module load git
-	module load intel openmpi mkl
-fi
-
-# User specific aliases and functions
-# https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
-# export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
-
-## some modules are avail after the language pack is loaded.  eg:
-## module load python/2.7.5
-## module load scikit-image
-
-ModDirList_sl6="/global/software/sl-6.x86_64/modfiles/tools \
-/global/software/sl-6.x86_64/modfiles/langs \
-/global/software/sl-6.x86_64/modfiles/intel/2013_sp1.4.211"
-
-ModDirList_sl7="/global/software/sl-7.x86_64/modfiles/tools \
-/global/software/sl-7.x86_64/modfiles/langs \
-/global/software/sl-7.x86_64/modfiles/intel/2013_sp1.4.211"
-
-# till /global/home/groups-sw/allhands/.bashrc  is fixed to include lr5:
-# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
-
-## need a better way to be able to detect sl6...
-#ModDirList=$ModDirList_sl7
-
-#for ModDir in $ModDirList; do
-#	[[ -d $ModDir ]] && MODULEPATH=${MODULEPATH}:$ModDir
-#done
-#export MODULEPATH
-COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
-
-
-
-export MODULEPATH=$MODULEPATH:/opt/modulefiles/
-export MODULEPATH=$MODULEPATH:/opt2
-export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
-
-#[[    -d /global/software/sl-6.x86_64/modules/tools/git/ ]] && module load git
-
-#if [[ -d /global/software/sl-7.x86_64/ ]]; then
-	#module load vim		# seems like vim no longer avail as module
-#	echo "" > /dev/null
-#fi
+### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
+add_hpcs_bin
+add_hpcs_module
+add_cosmic_module 
 
 
 ### my old stuff, adapted to new work ###
@@ -201,6 +216,7 @@ alias Dirs='dirs | sed "s/\ /\n/g"'
 alias printDbg='env | egrep DBG\|COMMON\|DOT\|SKEL\|SOFT'
 alias printPath='echo $PATH | sed "s/:/\n/g"'
 alias printLib='echo $LD_LIBRARY_PATH | sed "s/:/\n/g"'
+alias printMod='echo $MODULEPATH | sed "s/:/\n/g"'
 alias printPerl5Lib='echo $PERL5LIB | sed "s/:/\n/g"'
 alias chrome=chromium-browser 
 alias hilite="grep --color -C100000"   # eg ip a | hilite inet
@@ -234,9 +250,6 @@ alias grep='grep --color=auto'
 #alias vi=vim	# vim not avail on sl7
 alias lynx=elinks
 
-# slurm alias, experimenting...
-Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
-# use declare -F to list defined functions.  fn must end with ; before closing with }
 
 # sge alias, no longer useful
 #alias qchk="qstat -f | awk '\$6 ~ /[a-zA-Z]/ {print \$0}'"
@@ -254,30 +267,6 @@ Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
 # use declare -F to list defined functions
 # use declare -f to see all gory details
 # qhostTot() { qhost | sed 's/G//g' | awk '/^sky/ {h+=1; c+=$3; m+=$8} END {print "host="h " core=" c " RAM=" m "G"}' ; }
-
-
-## cluster specific stuff
-if [[ -d /global/groups/cosmic ]]; then
-	# hope /global/groups/cosmic is only avail on cosmic.  if not, need something else...
-
-	# troubleshooting David Shapiro's problem
-	##module unload python
-	module load gcc/4.4.7
-	module load atlas/3.10.1-gcc
-	module load fftw/3.3.3-gcc
-	module load hdf5
-	module load openmpi/1.8.4-gcc
-	module load cuda
-	module load gsl
-	module load zeromq
-	module load cmake
-	module load boost
-	module load sharp
-
-	alias mpi='mpirun --hostfile /global/groups/cosmic/host_file'
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE cosmic_loaded"
-fi
-
 
 
 ### mac stuff ###
