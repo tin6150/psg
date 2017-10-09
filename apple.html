@@ -303,14 +303,36 @@ launchctl unload com.nomachine.localnxserver	# did not work
 
 # so, not sure what's the equiv of systemctl disable 
 
+</PRE>
 
 
-# installing .dmg, eg is for vagrant
+<H1>Getting new Mac to be useful </H1>
 
+Below are example commands to use cli to install .dmg.
+Run <BR>
+<TT>
+wget 
+installFavApp.sh 
+</TT>
+
+<BR>
+
+<PRE class="cf">
+
+cd ~/Downloads
+# install Vagrant .dmg
 wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
 sudo hdiutil attach vagrant_2.0.0_x86_64.dmg
 sudo installer -package /Volumes/Vagrant/vagrant.pkg -target /
 # in this case, the app was installed to /opt/vagrant with link in /usr/local
+sudo hdiutil detach /Volumes/Vagrant
+
+# install Oracle VirtualBox
+wget http://download.virtualbox.org/virtualbox/5.1.28/VirtualBox-5.1.28-117968-OSX.dmg
+sudo hdiutil attach VirtualBox-5.1.28-117968-OSX.dmg 
+sudo installer -package /Volumes/VirtualBox/VirtualBox.pkg -target /
+# installed to /Applications/VirtualBox.app
+sudo hdiutil detach /Volumes/VirtualBox/
 
 </PRE>
 
