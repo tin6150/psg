@@ -46,27 +46,11 @@
 
 <H1>Vagrant</H1>
 
-
-<BR><HR><BR>
-
-<H1>TBD</H1>
-
-
 <PRE>
 
-
-Mint:    sudo apt-get install vagrant virtualbox
-
-Centos7: yum -y install https://releases.hashicorp.com/vagrant/1.9.6/vagrant_1.9.6_x86_64.rpm
-# https://www.tecmint.com/how-to-install-vagrant-on-centos-7/ says vagrant can use docker too...
-# but not so sure.  vagrant ask for VirtualBox, VMware, hyperV.  
-
-# yum -y install virt-what              # inside VM, tell/guess what env is in.
-
-~~~~
-
 vagrant init 
-vi Vagrantfile
+vi Vagrantfile			# eg singhub/Vagrantfile
+
 vagrant up
 vagrant provision		# (re)run provision section of Vagrantfile 
 vagrant provision --debug 	# add debug output to above
@@ -97,13 +81,37 @@ vagrant box remove foobar/7 virtualbox
 vagrant push 			# push code with vagrant...
 vagrant ssh 			# ssh to vagrant vm.  it has password?  ssh key??
 
-~~~~
+</PRE>
+
+<H5>Vagrantfile</H5>
+
+<BR>
+<A HREF="https://github.com/tin6150/singhub/blob/master/Vagrantfile"
+Example Vagrantfile</A>.
+<BR>
 
 
+
+<H2>Installation</H2>
+
+<PRE>
+Mint:    sudo apt-get install vagrant virtualbox
+
+Centos7: yum -y install https://releases.hashicorp.com/vagrant/1.9.6/vagrant_1.9.6_x86_64.rpm
+# https://www.tecmint.com/how-to-install-vagrant-on-centos-7/ says vagrant can use docker too...
+# but not so sure.  vagrant ask for VirtualBox, VMware, hyperV.  
+
+# yum -y install virt-what              # inside VM, tell/guess what env is in.
+</PRE>
+
+
+
+<H2>Virtual Box</H2>
+
+<PRE>
 /usr/bin/vboxmanage 
 vboxmanage list vms
 vboxmanage showvminfo
-
 
 </PRE>
 
