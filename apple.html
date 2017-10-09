@@ -305,6 +305,13 @@ launchctl unload com.nomachine.localnxserver	# did not work
 
 
 
+# installing .dmg, eg is for vagrant
+
+wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
+sudo hdiutil attach vagrant_2.0.0_x86_64.dmg
+sudo installer -package /Volumes/Vagrant/vagrant.pkg -target /
+# in this case, the app was installed to /opt/vagrant with link in /usr/local
+
 </PRE>
 
 

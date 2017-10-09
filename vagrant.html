@@ -102,7 +102,14 @@ Centos7: yum -y install https://releases.hashicorp.com/vagrant/1.9.6/vagrant_1.9
 # but not so sure.  vagrant ask for VirtualBox, VMware, hyperV.  
 
 # yum -y install virt-what              # inside VM, tell/guess what env is in.
+
+Mac:
+wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
+sudo hdiutil attach vagrant_2.0.0_x86_64.dmg
+sudo installer -package /Volumes/Vagrant/vagrant.pkg -target /
+# installed to /opt/vagrant with link in /usr/local
 </PRE>
+
 
 
 
