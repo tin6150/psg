@@ -174,6 +174,7 @@ defineAlias () {
 	alias aux="ps auxf"	# f for ascii forest
 	alias psr="ps -ALo pid,ppid,pcpu,wchan:16,psr,cmd:90,user --header | grep --color -C 200 PID.*USER"	# processor core number of ea pid
 
+	alias vncsvr14='vncserver -geometry 1280x800 -depth 24'   #  macbook full screen, not really 1400 x 900
 	#alias vncsvr30='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
@@ -270,7 +271,7 @@ export EDITOR=vi
 
 MAQUINA=$(hostname)
 
-if [[ x${MAQUINA} -eq x"c7" ]]; then
+if [[ x${MAQUINA} == x"c7" ]]; then
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
 	add_local_module
 	### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh

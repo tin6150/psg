@@ -1,5 +1,10 @@
 # Xorg configuration created by system-config-display
 
+# didn't work for virtualbox on macbook.  
+# think don't have proper driver for virtualbox
+# so screen only do 4:3 which leave lots of side space.  
+# using vncserver instead 
+
 # tried to make this for macbook 1440x900.
 # but probably better use https://gist.github.com/bhcopeland/8539897
 # so this file not tested.  special concern for video card section, which isn't likely going to match
@@ -81,8 +86,9 @@ Section "Monitor"
 	Identifier   "Monitor0"
 	VendorName   "Monitor Vendor"
 	# https://www.apple.com/macbook/specs/ 
-	# native: 2304x1440 scaled: 1440x900 1200x800 1024x640
-	ModelName    "LCD Panel 1440x900"
+	# native: 2304x1440 scaled: 1440x900 1200x800 1024x640.  
+	# but seems to be running 1280x800
+	ModelName    "LCD Panel 1280x800"
 	#ModelName    "LCD Panel 1024x768"
 	HorizSync    31.5 - 48.5
 	VertRefresh  40.0 - 70.0
@@ -104,7 +110,7 @@ Section "Screen"
 	SubSection "Display"
 		Viewport   0 0
 		Depth     24
-		Modes    "1440x900" "1024x768" "800x600" "640x480"
+		Modes    "1280x800" "1024x768" "800x600" "640x480"
 	EndSubSection
 EndSection
 
