@@ -174,7 +174,7 @@ defineAlias () {
 	alias aux="ps auxf"	# f for ascii forest
 	alias psr="ps -ALo pid,ppid,pcpu,wchan:16,psr,cmd:90,user --header | grep --color -C 200 PID.*USER"	# processor core number of ea pid
 
-	alias vncsvr14='vncserver -geometry 1280x800 -depth 24'   #  macbook full screen, not really 1400 x 900
+	alias vncsvr12='vncserver -geometry 1280x800 -depth 24'   #  macbook full screen, not really 1400 x 900
 	#alias vncsvr30='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
