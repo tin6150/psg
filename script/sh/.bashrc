@@ -287,10 +287,11 @@ MAQUINA=$(hostname)
 
 if [[ x${MAQUINA} == x"c7" ]]; then
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
-	add_local_module
+	#add_local_module
 	### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
 fi	
 
+add_local_module	# runnable in c7, cueball, likely other, without presenting much problem hopefully
 
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
