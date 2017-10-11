@@ -26,6 +26,16 @@
 # %n is node number relative to current job, 0 for first node.  task spanning multiple node will get multiple file created
 # -J is --job-name for CLI arg
 
+################################################################################
+##### print some header info into the log
+################################################################################
+
+echo ----uptime-----------------------------------
+uptime
+echo ----date-----------------------------------
+date
+echo ---------------------------------------
+echo ---------------------------------------
 
 
 ################################################################################
@@ -58,9 +68,14 @@ time -p ../iozone -i 0 -c -e    -r 1024k -s 512m -t $THREAD -+n -b $DIR/result.x
 echo ---------------------------------------
 echo ---------------------------------------
 echo ----hostname-----------------------------------
+echo -n "hostname: "
 hostname
 echo ----pwd-----------------------------------
+echo -n "pwd: "
 pwd
+echo ----uname-r----------------------------------
+echo -n "uname -r: " 
+uname -r
 echo ----os-release----------------------------------
 cat /etc/os-release
 echo ----df-hl------------------------------
