@@ -51,11 +51,12 @@ DIR=$BASEDIR/scratch_$HNAME
 
 cd $DIR
 
-THREAD=1
-# time now avail in slurm... it is not a binary... some shell thing??
+#THREAD=1
+THREAD=2
+# time now avail in slurm... it is not a binary... some shell thing??   not for lr5 (sl7)
 #time -p ../iozone -i 0 -c -e -w -r 1024k -s  16g -t $THREAD -+n -b $DIR/result.xls
 
-time -p ../iozone -i 0 -c -e    -r 1024k -s 512m -t $THREAD -+n -b $DIR/result.xls	# 1x 512m file takes about 10s
+../iozone -i 0 -c -e    -r 1024k -s 512m -t $THREAD -+n -b $DIR/result.xls	# 1x 512m file takes about 10s
 
 # -w preserve test data, useful for read/rewrite test?...
 
