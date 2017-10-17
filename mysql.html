@@ -260,6 +260,9 @@ mysql -e "show columns from mydb.test01"
 	# which doesn't work if /tmp is mounted from a samba share (prob cuz "mysql" user can't write to it).
 	# such problem won't appear in a one-liner unix shell command!
 
+mysql -e 'show status like "qcache%"'
+	# show Qcache performance stats
+
 </PRE>
 
 <H2>MySQL Backup, Migration</H2>

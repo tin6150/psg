@@ -1,4 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- vi : set tabstop=8 -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -168,7 +169,6 @@ sattach			# connect to the stdin, stdout and stderr of a job or job step
 
 Options commont to most/all job submission commands:
 
-<PRE>
 sbatch/salloc/srun
 	--ntasks=100	# number of tasks to 100 (ie array job)
 	--nodes=x --ntasks-per-node=y	# less recommended way to run large MPI job
@@ -198,8 +198,8 @@ what account I am in?  what partitions are there?  What QoS are there?
 <PRE>
 
 sacctmgr show assoc user=USERNAME format=acc,part,qos	# list account, partition, QoS for the specified USERNAME
-sacctmgr show associations -p user=USERNAME		# see what associations a specified user has been granted, -p = "parsable"
-sacctmgr show qos format=name				# list QoS
+sacctmgr show associations -p user=USERNAME	 	# see what associations a specified user has been granted, -p = "parsable"
+sacctmgr show qos format=name			    	# list QoS
 scontrol show partition					# list "queues"
 
 
@@ -209,8 +209,9 @@ scontrol show partition					# list "queues"
 
 <BR>
 <H4>Job Control</H4>
+<!-- vi : set tabstop=8 -->
 <PRE>
-scancel				# send signal to cancel job or job steps (individual task array job)
+scancel						# send signal to cancel job or job steps (individual task array job)
 	JOBID					# cancel a job (if task array, ??all job steps)
 	JOBID.TASKID				# cancel only specific job step
 	--user=USERNAME --state=pending		# kill all pending jobs for named user
@@ -288,6 +289,7 @@ State with * (eg idle*, draining*) means node is not reachable.
 
 
 <!-- yong slurm scheduler Q&A -->
+<!-- vi : set tabstop=8 -->
 <PRE>
 
 sacctmgr show associations	# list all associations.  think of them as acl.  
@@ -322,18 +324,35 @@ scontrol show reservation 	# show reservations
 
 </PRE>
 
-<H4>Sys Admin stuff</H4>
+<H4>Slurm Admin stuff</H4>
+<!-- vi : set tabstop=8 -->
+
+Managing node state
 
 <PRE>
-sinfo -R			# see what nodes are down
+sinfo -R									# see what nodes are down
 scontrol update nodename=n0001.savio1,n0002.savio2 state=down reason="bad ib" 	# manually down a node 
 scontrol update nodename=n0001.savio1,n0002.savio2 state=resume 		# revive a node
 
 </PRE>
 
+Managing user association
+
+<PRE>
+
+sacctmgr add  = sacctmgr create
+sacctmgr list = sacctmgr show
+
+# "create association" is
+# really updating user entry, adding parition it can use, qos, etc
+sacctmgr add user tin Account=scs  Partition=alice0
+
+</PRE>
+<!-- modify ENTITY set ...  -->
+
 <H4>MPI job in slurm </H4>
 See 
-http://www.schedmd.com/slurmdocs/mpi_guide.html
+<A HREF="http://www.schedmd.com/slurmdocs/mpi_guide.html">schedmd mpi_guide.html</A>
 <BR>
 Some use mpirun, other use SLURM env var to see what resource are allocated to the job.
 <BR>
@@ -435,10 +454,15 @@ slurmdUser 			# slurmd    user.
 
 <H4>SLURM Ref</H4>
 <UL>
-<LI><A HREF="https://slurm.schedmd.com/tutorials.html"> SchedMD Slurm Admin Tutorial list </A>
-<LI><A HREF="https://www.youtube.com/watch?v=LJrY0AthLB8&feature=relmfu"> Slurm Admin Tutorial videos in YouTube</A> (8 parts total)
+<LI><A HREF="http://www.linuxclustersinstitute.org/workshops/archive/20th/files/12-Slurm/Slurm.pdf">LCI workshop on Slurm</A>. slides in pdf, by Ryan Cox, BYU.
+<LI><A HREF="https://hpc.llnl.gov/banks-jobs/running-jobs/slurm-user-manual">LLNL Slurm User Guide</A>
+<LI> <A HREF="https://slurm.schedmd.com/quickstart.html">SLURM Quick Start</A>
+<LI><A HREF="http://www.brightcomputing.com/blog/bid/174099/slurm-101-basic-slurm-usage-for-linux-clusters">Bright Computing Slurm 101</A>.  Include some root-only commands.
+<LI><A HREF=""></A>
+<LI><A HREF="https://slurm.schedmd.com/tutorials.html">SchedMD Slurm Admin Tutorial list</A>
+<LI><A HREF="https://www.youtube.com/watch?v=LJrY0AthLB8&feature=relmfu">Slurm Admin Tutorial videos in YouTube</A> (8 parts total)
 <LI> Help via email: slurm-dev@lists.llnl.gov .  Include <TT>scontrol show config</TT> a/o slurm.conf, slurm version, logs, etc.
-<LI>
+<LI><A HREF=""></A>
 </UL>
 
 
@@ -449,8 +473,8 @@ slurmdUser 			# slurmd    user.
 <A NAME="sge"></A>
 <H1>SGE/UGE</H1>
 
-SGE = Sun Grid Engine.  <BR>
-OGE = Open Grid Engine.  And NOT Oracle GE !!<BR>
+SGE = Sun Grid Engine.  Son of a Grid Engine <BR>
+OGE = Open Grid Engine.  And NOT Oracle GE !!  They eventually sold all GE stuff to Univa anyway.<BR>
 UGE = Univa Grid Engine.<BR>
 GE  =       Grid Engine.<BR>
 
@@ -1425,7 +1449,6 @@ See also:
 Ref:
 
 <UL>
-<LI> <A HREF="https://slurm.schedmd.com/quickstart.html">SLURM Quick Start</A>
 <LI><A HREF="http://www.clustermonkey.net">Cluster Monkey</A>
     eg, see articles on <A HREF="http://www.clustermonkey.net//content/view/141/33/">Parallel Molecular Dynamics</A>.
 <LI><A HREF="http://www.linuxhpc.org/">LinuxHPC.org/</A>

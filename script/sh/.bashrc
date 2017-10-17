@@ -31,7 +31,7 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
 ## global /etc/bashrc need to be sourced before fn declarations so that PATH is seeded properly...  
 ## still didn't work in SL6, so seed it manually
 ##--echo "Path before anything.  $PATH"
-PATH=/bin:/usr/bin:/usr/local/bin
+PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
 [[ -f /etc/bashrc ]] && source /etc/bashrc
 ##--echo "Path after /etc/bashrc.  $PATH"
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
@@ -208,6 +208,7 @@ defineAlias () {
 	alias grep='grep --color=auto'
 	#alias ssh='ssh -o StrictHostKeyChecking=no'
 	#alias vi=vim	# vim not avail on sl7
+	alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
 	alias lynx=elinks
 
 	###
