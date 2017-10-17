@@ -1,7 +1,7 @@
 #!/bin/sh 
 
 
-#SBATCH         	--job-name=lr5_liteIozone    # CLI arg will overwrite this
+#SBATCH         	--job-name=lr5_allNodeTest    # CLI arg will overwrite this
 #               	CPU time:
 #SBATCH         	--time=605
 #      		      	Wall clock limit in HH:MM:ss
@@ -46,7 +46,7 @@ echo ---------------------------------------
 
 ##BASEDIR=/clusterfs/xmas/perf_test_tin/iozone3/
 ##BASEDIR=/global/scratch/tin/Junk/lr5/perf_test_tin/iozone3/
-BASEDIR=/global/scratch/tin/Junk/lr5/allNodeTest_tin/lr5/
+BASEDIR=/global/scratch/tin/Junk/lr5/allNodeTest_tin/
 
 
 HNAME=$(hostname)
@@ -65,7 +65,7 @@ THREAD=1
 ## don't run iozone test on prod FS, so just do a light dd test
 ## maybe switch to run 1 node hpl in this space in future
 
-dd if=/dev/zero of=./dd.${HNAME}.out bs=1024 count=2 
+time -p dd if=/dev/zero of=./dd.${HNAME}.out bs=1024 count=2 
 
 ################################################################################
 ##### adding some stuff to make job do a few things and gather some info
@@ -121,8 +121,8 @@ date
 
 
 ## example run 4, from lrc-sl7:
-#for T in $(seq -w 0010 0014); do
-#        sbatch -w n${T}.lr5 /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+#for T in $(seq -w 0095 0099); do
+#        sbatch -w n${T}.lr5 --job-name=N${T}_lr5_allNodeTest /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
 #done
 
 
