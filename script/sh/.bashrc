@@ -105,6 +105,7 @@ add_hpcs_module () {
 	#--if [[ -d /global/software/sl-7.x86_64/modfiles/tools ]]; then   # mounted in sl6 as well :(
 		#module load vim  # only in sl7 module, throws err in sl6 :(
 	##fi
+	## the following don't load on perceus, but pretty much everywhere else...
 	if [[ -d /global/software/ ]] ; then 
 		module load git
 		module load intel openmpi mkl
