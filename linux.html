@@ -56,6 +56,25 @@ Ubuntu is conquering the world now, so there are some Debian things here and the
 
 <H1>HOW-TO</H1>
 <p>&nbsp; </p>
+
+<H2>RHEL vs CentOS vs Scientific Linux</H2>
+
+<UL>
+<LI> RedHat you have to pay.  CentOS is free.  Beyond that, both are largely identical.  Except...
+<LI> RedHat provides commercial tech support
+<LI> RedHat provides a yum-security plugin that allows machine to be patched with only security update via yum (and keep the OS at the same level).   See 
+<A HREF="https://access.redhat.com/solutions/10021">Solution 10021</A>.
+<LI> CentOS does not provide this info.  updateinfo.xml.gz is empty, thus commands like <BR>
+<TT> yum updateinfo list security all</TT> <BR>
+<TT> yum updateinfo RHSA-2014:0159</TT> <BR>
+does <EM>NOT</EM> work in CentOS.  They 
+results in a noop on CentOS machines.  Silent output does NOT mean no security patches is needed!  See <A HREF="https://www.centos.org/forums/viewtopic.php?t=59369">CentOS forum</A>
+<LI> Oracle Linux (is it still around?) is essentially RHEL, but support is provided from Oracle directly.  Oracle DBAs probably like it.
+<LI> Scientific Linux has 'fastbugs' and 'security' updates.   Security updates are enabled by default.  
+See <A HREF="https://www.scientificlinux.org/documentation/faq/faq-updates/">SL FAQ from Fermilab</A> and 
+<A HREF="https://serverfault.com/questions/369833/automatically-check-for-security-updates-on-centos-or-scientific-linux">serverfault</A>
+</UL>
+
 <H2>Linux Admin 101</H2>
 
 Linux init mode are not "cumulative".  So, if default init is 5, script in run level 3 would not be run.  If adding a Start script, may want to add them in both in rc3.d and rc5.d, unless it is really only wished to be available at one of the run level and not the other.  
