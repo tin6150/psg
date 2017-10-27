@@ -238,6 +238,7 @@ strigger			# run arbitrary script in response to system events, eg node dies, da
 sinfo			# status of node, queue, etc
 	--Node		# output info in node-centric view (group similar nodes together)
 	-p PARTITION 	# info on specific partition (queue) 
+	--long		# add info on memory, tmp, reason, etc
 squeue			# status of job and job steps
 	-s		# info about job steps
 	-u USERNAME	# job info of specified user
@@ -254,8 +255,18 @@ scontrol show partition		# view partition/queue info
 scontrol show config		# view config of whole system (eg when asking mailing list for help)
 scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 min for the queue named "debug"
 
-sacct			# accounting by individual job and job steps
-sstat			# on currently running job/job step (more info avail than sacct which is historical)
+sacct				# view accounting by individual job and job steps
+sacct -j 11200077 		# info about specific job
+sacct -j 11200077 --long -p 	# long view, pipe seprated columns
+				# --long ignores --format
+sacct --helpformat		# list fields that can be displayed
+sacct -s running  -r QNAME          --format jobid,timelimit,start,elapsed,state,user,acc,jobname				# timelimit will give idea how long job will run
+sacct -u USERNAME --partition QNAME --format jobid,jobname,acc,qos,state,DerivedExitCode,Eligible,Start,Elapsed,Timelimit
+sacct -u USERNAME -r QNAME -p       --format jobid,jobname,acc,qos,state,AllocNodes,AllocTRES,Elapsed,Timelimit,NNodes
+sacct --partition=QNAME --format jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask   # no data on these max ...
+
+
+sstat -j		# on currently running job/job step (more info avail than sacct which is historical)
 sreport			# usabe by cluster, partition, user, account
 			# present info in more condensed fashion
 	-u USERNAME
