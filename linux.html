@@ -1047,16 +1047,35 @@ They include ULP (upper layer protocol) such as IPoIB.  <BR>
 see:
 <A HREF="http://www.openfabrics.org/download_linux.htm">openfabrics.org</A>
 
+<A NAME="mdadm"></A>
+<A NAME="mdraid"></A>
 <A NAME="raid"></A>
 <A NAME="RAID"></A>
-<H1>RAID</H1>
+<H1>mdRAID</H1>
 
 <PRE>
 
 mdadm 
-https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing
+
+cat /proc/mdstat 
+mdadm --detail /dev/mdNNN
+
+mdadm --detail --scan 			# could redirect output to like /etc/mdadm.conf to save config
+
+mdadm --create --verbose /dev/md127 --level=linear --raid-devices=3  /dev/sda1 /dev/sdb1 /dev/sdc1 
+
+
+have to assemble the device each time when running:
+mdadm --assemble /dev/md127 /dev/sda1 /dev/sdb1 /dev/sdc1 
+mdadm --assemble --scan
+
+mdadm --stop /dev/md127
 
 </PRE>
+
+Ref:
+<A HREF="https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing">Linux RAID</A>
+<BR>
 
 <A NAME="hd"></A>
 <A NAME="partitions"></A>
