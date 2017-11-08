@@ -1419,11 +1419,19 @@ iperf3 -c SERVER -t 30 -i 1	# start as client, connect to SERVER
 				# run test for 30 sec, report progress every 1 sec
 
 iperf3 -c SVR -t 10 -i 1 -P 2		# -P 2 = parallel 4 streams
-iperf3 -c SVR -t 10 -i 1 -P 2 w 32M 	# -w 16M = use 32M TCP buffer
+iperf3 -c SVR -t 10 -i 1 -P 2 -w 32M 	# -w 16M = use 32M TCP buffer
 
 </PRE>
 
-Installation
+
+iperf3 is single threaded, for 40G and above network, may become CPU bound.  
+Refer to (ESnet) 
+<A HREF="https://fasterdata.es.net/performance-testing/network-troubleshooting-tools/iperf/multi-stream-iperf3/">iperf3 at 40 Gbps and above</A>
+for info in running multiple streams on multiple cores. <BR>
+Using -Z for zero copy mode will also reduce cpu load. <BR>
+
+
+<H6>Installation</H6>
 
 <PRE>
 BASEDIR=/global/scratch/tin/
@@ -1435,17 +1443,10 @@ cd iperf
 make
 make install
 
-export PATH=${SWDIR}:$PATH
+export PATH=${SWDIR}/bin:$PATH
+export MANPATH=${SWDIR}/share/man:$MANPATH
 
 </PRE>
-
-
-iperf3 is single threaded, for 40G and above network, may become CPU bound.  
-Refer to 
-<A HREF="https://fasterdata.es.net/performance-testing/network-troubleshooting-tools/iperf-and-iperf3/">Performance testing using iperf3</A> 
-for info in running multiple streams on multiple cores. <BR>
-Using -Z for zero copy mode will also reduce cpu load. <BR>
-
 <BR>
 <BR>
 

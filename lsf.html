@@ -1,4 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- vi : set tabstop=8 -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -108,8 +109,8 @@ Check nodes		bhosts			pbsnodes -a		qhost / qstat -f	sinfo -N / scontrol show nod
 			lshosts						
 			lsload
 
-List avail queues 							qconf -sql		squeue 
-Queue status		bqueues			qstat -q		qstat -g c		sinfo / strigger
+List avail queues 							qconf -sql		scontrol show partition
+Queue status		bqueues			qstat -q		qstat -g c		sinfo 
 Queue behaviour		bparams									scontrol show partition / smap
 
 	
@@ -135,13 +136,21 @@ GUI									qmon			sview
 
 <H4>Slurm 101</H4>
 
-SLURM = Simple Linux Utility for Resrouce Management.  No single point of failure.  <BR>
-Queues are called Partitions.   <BR>
-Job step refers to individual job of a task array. <BR>
-About 500k lines of C.  API/Plug-ins in C, some have LUA interface. <BR>
-Open source + commercial support by SchedMD.  <BR> 
-Couple of items are Hierarchical:  Node Daemons, User bank/account grouping (see diagram below). <BR>
+SLURM = Simple Linux Utility for Resrouce Management.  But it isn't so simple anymore and it is rebranded as "Slurm", like the drink in the simpsons :)  <BR>
 
+<UL>
+<LI> No single point of failure.  But redundant control daemon brings a lot of headaches.  <BR>
+<LI> About 500k lines of C.  API/Plug-ins in C, some have LUA interface. <BR>
+<LI> Open source + commercial support by SchedMD.  <BR> 
+<LI> Couple of items are Hierarchical:  Node Daemons, User bank/account grouping (see diagram below). <BR>
+<BR>
+<LI> Associations are the basic roles that govern who can run jobs where.  <BR>
+<LI> Nodes are grouped into Partitions (essentially queues in other schedulers).  <BR>
+<LI> User belongs to one (or more) accounts. <BR>
+<LI> QoS (Quality of Service) govern how much of a given resource an account can use at a time. <BR>
+<LI> Job step refers to individual job of a task array. <BR>
+
+</UL>
 
 <H4>Job Submission</H4>
 
@@ -152,22 +161,23 @@ salloc			# run interactive job, asking scheduler to allocate certain resources t
 salloc bash		# get a bash shell in intertive mode with req resource
 
 srun			# Typically for MPI job, create job allocation, launch job step.
-srun hostname		# run the hostname command in cluster using srun
+srun uname		# run the uname command in a cluster using srun
 
 sattach			# connect to the stdin, stdout and stderr of a job or job step
 
-</PRE>
-<BR>
+
 
 Options commont to most/all job submission commands:
 
-<PRE>
 sbatch/salloc/srun
 	--ntasks=100	# number of tasks to 100 (ie array job)
 	--nodes=x --ntasks-per-node=y	# less recommended way to run large MPI job
 	--time=10	# time limit in minutes (actual cpu run time?) , per task?? (help scheduler do backfill)
 	--depend=JOBID	# job dependency, like qhold until a parent job has finished before starting this.
 
+
+	--account NAME	# which account to use for the job
+	--qos NAME	# what QoS to run (may affect cost, preemption, etc)
 	--label		# prepend output with task number
 	--nnodes=2	# req 2 nodes for this job
 	--exclusive	# have exclusive use of node when running 
@@ -177,10 +187,31 @@ sbatch/salloc/srun
 					# %t = task ID
 					# %o = offset within task ID range
 </PRE>
+
+<H4>What/Where</H4>
+
+Often time, a number of parameters are required to submit jobs. 
+eg, 
+what account I am in?  what partitions are there?  What QoS are there?  
+<BR>
+
+<PRE>
+
+sacctmgr show assoc user=USERNAME format=acc,part,qos	# list account, partition, QoS for the specified USERNAME
+sacctmgr show associations -p user=USERNAME	 	# see what associations a specified user has been granted, -p = "parsable"
+sacctmgr show qos format=name			    	# list QoS
+scontrol show partition					# list "queues"
+
+
+</PRE>
+
+
+
 <BR>
 <H4>Job Control</H4>
+<!-- vi : set tabstop=8 -->
 <PRE>
-scancel				# send signal to cancel job or job steps (individual task array job)
+scancel						# send signal to cancel job or job steps (individual task array job)
 	JOBID					# cancel a job (if task array, ??all job steps)
 	JOBID.TASKID				# cancel only specific job step
 	--user=USERNAME --state=pending		# kill all pending jobs for named user
@@ -207,6 +238,7 @@ strigger			# run arbitrary script in response to system events, eg node dies, da
 sinfo			# status of node, queue, etc
 	--Node		# output info in node-centric view (group similar nodes together)
 	-p PARTITION 	# info on specific partition (queue) 
+	--long		# add info on memory, tmp, reason, etc
 squeue			# status of job and job steps
 	-s		# info about job steps
 	-u USERNAME	# job info of specified user
@@ -223,8 +255,20 @@ scontrol show partition		# view partition/queue info
 scontrol show config		# view config of whole system (eg when asking mailing list for help)
 scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 min for the queue named "debug"
 
-sacct			# accounting by individual job and job steps
-sstat			# on currently running job/job step (more info avail than sacct which is historical)
+sacct				# view accounting by individual job and job steps
+sacct -j 11200077 		# info about specific job
+sacct -j 11200077 --long -p 	# long view, pipe seprated columns
+				# --long ignores --format
+sacct --helpformat		# list fields that can be displayed
+
+sacct -u USERNAME --format  -s PD   --format jobid,jobname,acc,qos,state,Timelimit,ReqCPUS,ReqNodes,ReqMem,ReqGRES,ReqTres 	# PD = PENDING, see what resources has been requested
+sacct -s running  -r QNAME          --format jobid,timelimit,start,elapsed,state,user,acc,jobname				# timelimit will give idea how long job will run
+sacct -u USERNAME --partition QNAME --format jobid,jobname,acc,qos,state,DerivedExitCode,Eligible,Start,Elapsed,Timelimit
+sacct -u USERNAME -r QNAME -p       --format jobid,jobname,acc,qos,state,AllocNodes,AllocTRES,Elapsed,Timelimit,NNodes		# NNodes = Allocated or Requested Nodes, depending on job state
+sacct --partition=QNAME --format jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask   # no data on these max ...
+
+
+sstat -j		# on currently running job/job step (more info avail than sacct which is historical)
 sreport			# usabe by cluster, partition, user, account
 			# present info in more condensed fashion
 	-u USERNAME
@@ -247,9 +291,81 @@ SQUEUE_STATE=all		# tell squeue cmd to display job in all state (incl COMPLETED,
 SBATCH_PARTITION=default_q	# specify the given partition as the default queue
 </PRE>
 
+<H4>SLURM Troubleshooting</H4>
+
+State with * (eg idle*, draining*) means node is not reachable.
+
+<UL>
+<LI> /var/log/slurm/slurmctld.log 	# master scheduler log
+<LI> /var/log/slurm/slurmd.log		# per node local daemon log
+</UL>
+
+
+<!-- yong slurm scheduler Q&A -->
+<!-- vi : set tabstop=8 -->
+<PRE>
+
+sacctmgr show associations	# list all associations.  think of them as acl.  
+				# it is the union of all entities in each association entry that govern if user X has access to resource Y (nodes operating under certain qos)
+sacctmgr show associations -p user=sn	# association for specified user
+					# -p use | to separate columns, reduce space usage.
+
+
+sacctmgr show qos		# show all avail Quality of Service entitites 
+
+
+squeue				# full detail of current job queue (all user, all jobs, on all partitions/queues)
+
+squeue -p stanium 		# queue for names partition
+				# State: (R)unning, PenDing.
+				# Reason: Resource = waiting for resource eg free node
+				# 	  Priority = other higher priority job are scheduled ahead of this job
+
+sinfo -t I 			# list staTe Idle nodes 
+sinfo -t I -p stanium		# Idle nodes in stanium partition
+
+squeue --start			# estimated start time of each queued job 
+				# N/A if time cannot be estimated (eg non time bound jobs exist)
+
+
+scontrol show reservation 	# show reservations
+				# reservation are typically maintenance window placed by admins
+				# but sys admin can also reserve to let user then run certain jobs in the reservation window.
+				# jobs will not start in such reservation window
+				# running job will NOT be killed by slurm if run into the reservation
+				# listed user of the reservation can submit job that is flagged to use the reservation
+
+</PRE>
+
+<H4>Slurm Admin stuff</H4>
+<!-- vi : set tabstop=8 -->
+
+Managing node state
+
+<PRE>
+sinfo -R									# see what nodes are down
+scontrol update nodename=n0001.savio1,n0002.savio2 state=down reason="bad ib" 	# manually down a node 
+scontrol update nodename=n0001.savio1,n0002.savio2 state=resume 		# revive a node
+
+</PRE>
+
+Managing user association
+
+<PRE>
+
+sacctmgr add  = sacctmgr create
+sacctmgr list = sacctmgr show
+
+# "create association" is
+# really updating user entry, adding parition it can use, qos, etc
+sacctmgr add user tin Account=scs  Partition=alice0
+
+</PRE>
+<!-- modify ENTITY set ...  -->
+
 <H4>MPI job in slurm </H4>
 See 
-http://www.schedmd.com/slurmdocs/mpi_guide.html
+<A HREF="http://www.schedmd.com/slurmdocs/mpi_guide.html">schedmd mpi_guide.html</A>
 <BR>
 Some use mpirun, other use SLURM env var to see what resource are allocated to the job.
 <BR>
@@ -347,61 +463,20 @@ slurmdUser 			# slurmd    user.
 ...
 
 </PRE>
-<H4>SLURM Troubleshooting</H4>
-
-State with * (eg idle*, draining*) means node is not reachable.
-
-<UL>
-<LI> /var/log/slurm/slurmctld.log 	# master scheduler log
-<LI> /var/log/slurm/slurmd.log		# per node local daemon log
-</UL>
-
-
-<!-- yong slurm scheduler Q&A -->
-<PRE>
-
-sacctmgr show associations	# list all associations.  think of them as acl.  
-				# it is the union of all entities in each association entry that govern if user X has access to resource Y (nodes operating under certain qos)
-sacctmgr show associations -p user=sn	# association for specified user
-					# -p use | to separate columns, reduce space usage.
-
-
-sacctmgr show qos		# show all avail Quality of Service entitites 
-
-
-squeue				# full detail of current job queue (all user, all jobs, on all partitions/queues)
-
-squeue -p stanium 		# queue for names partition
-				# State: (R)unning, PenDing.
-				# Reason: Resource = waiting for resource eg free node
-				# 	  Priority = other higher priority job are scheduled ahead of this job
-
-sinfo -t I 			# list staTe Idle nodes 
-sinfo -t I -p stanium		# Idle nodes in stanium partition
-
-squeue --start			# estimated start time of each queued job 
-				# N/A if time cannot be estimated (eg non time bound jobs exist)
-
-
-scontrol show reservation 	# show reservations
-				# reservation are typically maintenance window placed by admins
-				# but sys admin can also reserve to let user then run certain jobs in the reservation window.
-				# jobs will not start in such reservation window
-				# running job will NOT be killed by slurm if run into the reservation
-				# listed user of the reservation can submit job that is flagged to use the reservation
-				
-				 
-
-</PRE>
-
 
 
 <H4>SLURM Ref</H4>
 <UL>
-<LI><A HREF="https://slurm.schedmd.com/tutorials.html"> SchedMD Slurm Admin Tutorial list </A>
-<LI><A HREF="https://www.youtube.com/watch?v=LJrY0AthLB8&feature=relmfu"> Slurm Admin Tutorial videos in YouTube</A> (8 parts total)
+<LI><A HREF="http://www.linuxclustersinstitute.org/workshops/archive/20th/files/12-Slurm/Slurm.pdf">LCI workshop on Slurm</A>. slides in pdf, by Ryan Cox, BYU.
+<LI><A HREF="https://hpc.llnl.gov/banks-jobs/running-jobs/slurm-user-manual">LLNL Slurm User Guide</A>
+<LI> <A HREF="https://slurm.schedmd.com/quickstart.html">SLURM Quick Start</A>
+<LI><A HREF="https://slurm.schedmd.com/slurm_ug_2011/Basic_Configuration_Usage.pdf">Slurm config slides</A> including scheduling policy explana
+<LI><A HREF="http://www.brightcomputing.com/blog/bid/174099/slurm-101-basic-slurm-usage-for-linux-clusters">Bright Computing Slurm 101</A>.  Include some root-only commands.
+<LI><A HREF=""></A>
+<LI><A HREF="https://slurm.schedmd.com/tutorials.html">SchedMD Slurm Admin Tutorial list</A>
+<LI><A HREF="https://www.youtube.com/watch?v=LJrY0AthLB8&feature=relmfu">Slurm Admin Tutorial videos in YouTube</A> (8 parts total)
 <LI> Help via email: slurm-dev@lists.llnl.gov .  Include <TT>scontrol show config</TT> a/o slurm.conf, slurm version, logs, etc.
-<LI>
+<LI><A HREF=""></A>
 </UL>
 
 
@@ -412,8 +487,8 @@ scontrol show reservation 	# show reservations
 <A NAME="sge"></A>
 <H1>SGE/UGE</H1>
 
-SGE = Sun Grid Engine.  <BR>
-OGE = Open Grid Engine.  And NOT Oracle GE !!<BR>
+SGE = Sun Grid Engine.  Son of a Grid Engine <BR>
+OGE = Open Grid Engine.  And NOT Oracle GE !!  They eventually sold all GE stuff to Univa anyway.<BR>
 UGE = Univa Grid Engine.<BR>
 GE  =       Grid Engine.<BR>
 
@@ -1388,7 +1463,6 @@ See also:
 Ref:
 
 <UL>
-<LI> <A HREF="https://slurm.schedmd.com/quickstart.html">SLURM Quick Start</A>
 <LI><A HREF="http://www.clustermonkey.net">Cluster Monkey</A>
     eg, see articles on <A HREF="http://www.clustermonkey.net//content/view/141/33/">Parallel Molecular Dynamics</A>.
 <LI><A HREF="http://www.linuxhpc.org/">LinuxHPC.org/</A>

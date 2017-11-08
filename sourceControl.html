@@ -320,6 +320,7 @@ git status			# show commit staatus within the local copy of repo only.
 				# only another git fetch would get these changes.
 
 
+
 ## think these are still acting on local copy.  in fact, it is likely that 
 ## git act on local copy, except for few commands to interact with master repo...
 
@@ -377,6 +378,10 @@ git reset head			# undo "git add"
 
 git log --diff-filter=D --summary | grep delete		# list all deleted files in github
 git checkout SHA^ -- ./filename				# restore a file.  ^ means right before the commit
+
+
+git ls-files -d | xargs git checkout -- 					# undelete all unstaged deletion (those not commited yet)
+git status | grep 'deleted:' | awk '{print $2}' | xargs git checkout --		# recover  all staged delete (after commit)	
 
 </PRE>
 

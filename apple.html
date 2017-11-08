@@ -197,6 +197,9 @@ nix		= from NixOS, meant to be a declarative (stateless) package management.
 
 </PRE>
 
+<H5>Homebrew Install</H5>
+
+	Homebrew is what I use in 2017 
 
 
 <H5>Fink Install</H5>
@@ -207,26 +210,29 @@ nix		= from NixOS, meant to be a declarative (stateless) package management.
 	<A HREF="http://www.finkproject.org/download/srcdist.php">http://www.finkproject.org/download/srcdist.php</A>
 </OL>
 
-<PRE>
-sudo xcode-select --install
-sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer/
-sudo xcodebuild -license
-tar -xvf fink-0.41.1.tar.gz 
-cd fink-*
-./bootstrap 
-# long build process...
-</PRE>
+	<PRE>
+	sudo xcode-select --install
+	sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer/
+	sudo xcodebuild -license
+	tar -xvf fink-0.41.1.tar.gz 
+	cd fink-*
+	./bootstrap 
+	# long build process...
+	</PRE>
 
-<PRE class="quote">
-You should now have a working Fink installation in '/sw'. You still need package descriptions if you want to compile packages yourself. You can get them
-by installing the dists-10.12-0.16.0.tar.gz tarball, or by running either of the commands: 'fink selfupdate-rsync', to update via rsync (generally
-preferred); or 'fink selfupdate-cvs', to update via CVS (more likely to work through a firewall). You should also run 'sudo xcodebuild -license' and
-accept the Xcode license, since some packages will require this.
+	
+	<PRE>
+	You should now have a working Fink installation in '/sw'. You still need package descriptions if you want to compile packages yourself. You can get them
+	by installing the dists-10.12-0.16.0.tar.gz tarball, or by running either of the commands: 'fink selfupdate-rsync', to update via rsync (generally
+	preferred); or 'fink selfupdate-cvs', to update via CVS (more likely to work through a firewall). You should also run 'sudo xcodebuild -license' and
+	accept the Xcode license, since some packages will require this.
 
-Run '. /sw/bin/init.sh' to set up this terminal session environment to use Fink. To make the software installed by Fink available in all of your future
-terminal shells, add '. /sw/bin/init.sh' to the init script '.profile' or '.bash_profile' in your home directory. The program /sw/bin/pathsetup.sh can
-help with this. Enjoy.
-</PRE>
+	Run '. /sw/bin/init.sh' to set up this terminal session environment to use Fink. To make the software installed by Fink available in all of your future
+	terminal shells, add '. /sw/bin/init.sh' to the init script '.profile' or '.bash_profile' in your home directory. The program /sw/bin/pathsetup.sh can
+	help with this. Enjoy.
+
+	(info from finkproject)
+	</PRE>
 
 
 
@@ -303,21 +309,34 @@ launchctl unload com.nomachine.localnxserver	# did not work
 
 # so, not sure what's the equiv of systemctl disable 
 
+sudo launchctl limit maxfiles unlimited		# fix number of open file handles to unlimited (def is very low)
 </PRE>
+
+<H1>Python</H1>
+
+<OL>
+<LI> The python that comes with OS X is quite old :(   Sierra 10.12.6 comes with Python 2.7 which does not have PIP :(
+<LI> <TT>easy_install pip </TT>.  Script comes with os x in /usr/bin, will try this first
+<LI> (Trying to install Ansible)
+<LI> <TT>brew install python/pip </TT> is possible, but then install a second python on system, and different way of calling things may end up using diff python 
+</OL>
+
 
 
 <H1>Getting new Mac to be useful </H1>
 
-Below are example commands to use cli to install .dmg.
+Below are example commands to make os x more hacker friendly, use cli to install .dmg., etc
 Run <BR>
-<TT>
-wget  -nc https://raw.githubusercontent.com/tin6150/psg/master/script/mac/installFavApp.sh -O installFavApp.sh
-</TT> <BR>
-<TT>
-bash installFavApp.sh 
-</TT>
+<PRE>
+wget -nc https://raw.githubusercontent.com/tin6150/psg/master/script/mac/installFavApp.sh -O installFavApp.sh
+# should check that downloaded the right thing before running it.  also, script use sudo.
+bash -x installFavApp.sh
+</PRE>
+<BR>
+
 
 <BR>
+
 
 <PRE class="cf">
 

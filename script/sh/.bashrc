@@ -28,7 +28,13 @@
 
 
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
-
+## global /etc/bashrc need to be sourced before fn declarations so that PATH is seeded properly...  
+## still didn't work in SL6, so seed it manually
+##--echo "Path before anything.  $PATH"
+PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
+[[ -f /etc/bashrc ]] && source /etc/bashrc
+##--echo "Path after /etc/bashrc.  $PATH"
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 
 ###
 ###
@@ -40,14 +46,17 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
 # eg use after declaration:
 # AddtoString PATH /usr/local/bin
 # source: .profile from db2profile for setting up path
+# originally hard coded, but linux don't have echo in  /usr/bin, 
+# so just need to be sure echo, sed and awk are in PATH before calling this fn
+# /etc/bashrc seems to define pathmunge , maybe use that instead...
 AddtoString()
 {
   var=$1
   addme=$2
   if [ -d $2 ]; then
     awkval='$1 != "'${addme?}'"{print $0}'
-    newval=`eval /usr/bin/echo \\${$var} | /usr/bin/awk "${awkval?}" RS=:`
-    eval ${var?}=`/usr/bin/echo $newval | /usr/bin/sed 's/ /:/g'`:${addme?}
+    newval=`eval echo \\${$var} | awk "${awkval?}" RS=:`
+    eval ${var?}=`echo $newval | sed 's/ /:/g'`:${addme?}
     unset var addme awkval newval
   else
     return 1	# return false if dir ($2) does not exist  # Tin 2017.1007
@@ -93,8 +102,11 @@ add_local_module () {
 
 add_hpcs_module () {
 	# perceus has no SMF at all, thus still need to test.  but SL6 vs SL7 are handled by other scg script
+	#--if [[ -d /global/software/sl-7.x86_64/modfiles/tools ]]; then   # mounted in sl6 as well :(
+		#module load vim  # only in sl7 module, throws err in sl6 :(
+	##fi
+	## the following don't load on perceus, but pretty much everywhere else...
 	if [[ -d /global/software/ ]] ; then 
-		module load vim
 		module load git
 		module load intel openmpi mkl
 	fi
@@ -110,8 +122,10 @@ add_hpcs_module () {
 } # end add_hpcs_module 
 
 add_hpcs_bin () {
+	##--echo "Path before mocking: $PATH"
 	AddtoString PATH /global/home/groups/scs/IB-tools 
 	AddtoString PATH /global/home/groups/scs/yqin
+	##--echo "Path after mocking: $PATH"
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
 } # end add_hpcs_bin 
 
@@ -157,7 +171,8 @@ defineAlias () {
 	alias listgid="ypcat group  | awk -F: ' {print \$3 \" \" \$1} ' | sort -n"
 
 	alias Dirs='dirs | sed "s/\ /\n/g"'
-	alias printDbg='env | egrep DBG\|COMMON\|DOT\|SKEL\|SOFT'
+	alias printDbg='env | egrep DBG\|ENV_TRACE\|DOT\|SKEL\|SOFT'
+	alias printTrace='env | fgrep ENV_TRACE | sed "s/ /\n/g"'
 	alias printPath='echo $PATH | sed "s/:/\n/g"'
 	alias printLib='echo $LD_LIBRARY_PATH | sed "s/:/\n/g"'
 	alias printMod='echo $MODULEPATH | sed "s/:/\n/g"'
@@ -195,6 +210,10 @@ defineAlias () {
 	alias grep='grep --color=auto'
 	#alias ssh='ssh -o StrictHostKeyChecking=no'
 	#alias vi=vim	# vim not avail on sl7
+	alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		# hopefully tab remains as tab for normal file edit
+	alias vis="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"    # for python coding.  ansible yaml may need tabstop=2
+	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
+	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
 
 	###
@@ -208,6 +227,7 @@ defineAlias () {
 
 	# slurm alias, experimenting...
 	Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE defineAlias_end"
 
 } # end defineAlias
 
@@ -251,8 +271,6 @@ defineAliasSge () {
 ###
 ###
 
-[[ -f /etc/bashrc ]] && source /etc/bashrc
-COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 umask 0002      # i do want file default group writable
 
 
@@ -261,8 +279,9 @@ umask 0002      # i do want file default group writable
 export HISTFILESIZE=0
 export HISTTIMEFORMAT="%d/%m/%y %T "	# once enabled, .bash_history get timestamp data as comment before each cmd.  eg #1504106987
 
-
+#echo "DBG Path before source modules.sh.  $PATH"
 [[ -f /etc/profile.d/modules.sh ]] && source /etc/profile.d/modules.sh
+#echo "DBG Path after source modules.sh.  $PATH"
 export EDITOR=vi
 #set -o vi     # allow ESC, /string ENTER for searching command line history.
 # nah, better to use ^R to search bash history
@@ -275,14 +294,15 @@ MAQUINA=$(hostname)
 
 if [[ x${MAQUINA} == x"c7" ]]; then
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
-	add_local_module
+	#add_local_module
 	### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
 fi	
 
+add_local_module	# runnable in c7, cueball, likely other, without presenting much problem hopefully
 
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
-add_hpcs_module
+add_hpcs_module	# overwrite PATH and don't export it back correctly??  only in SL6... ??
 add_cosmic_module 
 
 setPrompt 
