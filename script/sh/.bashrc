@@ -208,7 +208,10 @@ defineAlias () {
 	alias grep='grep --color=auto'
 	#alias ssh='ssh -o StrictHostKeyChecking=no'
 	#alias vi=vim	# vim not avail on sl7
-	alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
+	alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		# hopefully tab remains as tab for normal file edit
+	alias vis="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"    # for python coding.  ansible yaml may need tabstop=2
+	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
+	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
 
 	###
