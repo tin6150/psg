@@ -12,6 +12,13 @@
 ###
 
 
+## brew
+
+brew install gtk-vnc
+# /usr/local/opt/gtk-vnc/bin/gvncviewer
+# may have vncserver there too?
+
+
 cd ~/Downloads
 
 wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
