@@ -106,6 +106,15 @@ ipmitool -l lan -U root -P calvin -H 10.8.1.76 chassis bootdev pxe options=persi
 		# issue the ipmi command remotely to a remote host using the remote iDRAC interface
 
 
+ipmitool fru		# list all fru (eg 4 node in 2U chassis would list service tag and board serial of each node)
+
+ipmitool dcmi set_asset_tag	# set asset tag, presumably for the whole chassis ...
+ipmitool dcmi asset_tag 	# retrieve asset tag info 
+
+ipmitool dcmi get_temp_reading	# cpu temperature
+ipmitool sensor			# many sensor info, may include inlet temperature
+
+
 # if IPMI isn't working, in RHEL 6, it is a kernel module that need to be started
 # for machines with module:
 module load shared
