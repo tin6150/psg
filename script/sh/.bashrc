@@ -170,7 +170,8 @@ defineAlias () {
 	alias listuid="ypcat passwd | awk -F: ' {print \$3 \" \" \$1} ' | sort -n"
 	alias listgid="ypcat group  | awk -F: ' {print \$3 \" \" \$1} ' | sort -n"
 
-	alias Dirs='dirs | sed "s/\ /\n/g"'
+	#alias Dirs='dirs | sed "s/\ /\n/g"'  	# don't work in bash 3.2.57 x86_64-apple-darwin17
+	alias Dirs="dirs | tr ' ' '\n'"		# work in macos
 	alias printDbg='env | egrep DBG\|ENV_TRACE\|DOT\|SKEL\|SOFT'
 	alias printTrace='env | fgrep ENV_TRACE | sed "s/ /\n/g"'
 	alias printPath='echo $PATH | sed "s/:/\n/g"'
