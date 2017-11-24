@@ -189,8 +189,10 @@ defineAlias () {
 	alias aux="ps auxf"	# f for ascii forest
 	alias psr="ps -ALo pid,ppid,pcpu,wchan:16,psr,cmd:90,user --header | grep --color -C 200 PID.*USER"	# processor core number of ea pid
 
-	alias vncsvr12='vncserver -geometry 1280x800 -depth 24'   #  macbook full screen, not really 1400 x 900
-	#alias vncsvr30='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
+	alias vncsvr12='vncserver -geometry 1280x800 -depth 32'   #  macbook full screen, native 2304x1440. said should scale to 1400 x 900 but did not find it to be doing that.
+        alias vncsvr14='vncserver -geometry 1440x840 -depth 24'   #  macbook pro window, native 2880x1800 Retina.  y=860 causes gvncviewer to scroll, so not using
+
+	#alias vncsvr30='vncserver -geometry 2400x1400 -depth 32'   # actual 2560x1600
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
 
@@ -208,7 +210,10 @@ defineAlias () {
 	alias grep='grep --color=auto'
 	#alias ssh='ssh -o StrictHostKeyChecking=no'
 	#alias vi=vim	# vim not avail on sl7
-	alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
+	alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		# hopefully tab remains as tab for normal file edit
+	alias vis="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"    # for python coding.  ansible yaml may need tabstop=2
+	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
+	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
 
 	###
