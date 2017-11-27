@@ -1,8 +1,8 @@
 #%Module1.0#####################################################################
 ##
-## modules container/singularity/2.3.2
+## modules container/singularity/2.4.1
 ##
-## modulefiles/container/singularity/2.3.2.  Tin6150
+## modulefiles/container/singularity/2.4.1.  Tin6150
 
 # see http://www.admin-magazine.com/HPC/Articles/Environment-Modules
 # Building Your Own Module File section
@@ -11,7 +11,7 @@
 # apt-get install environment-modules
 # source /etc/profile.d/modules.sh
 # export MODULEPATH=$MODULEPATH:/opt/modulefiles/
-# module load container/singularity/2.3.2
+# module load container/singularity/2.4.1
 #
 #
 # setup in c7_casa, mint182_vm
@@ -20,14 +20,14 @@
 proc ModulesHelp { } {
 	global version modroot
 
-	puts stderr "container/singularity-2.4.alpha - sets the Environment for Singulaity 2.4.alpha
+	puts stderr "container/singularity-2.4.1 - sets the Environment for Singulaity 2.4.1
 }
 
-module-whatis "sets the Environment for Singulaity 2.4.alpha"
+module-whatis "sets the Environment for Singulaity 2.4.1"
 
 # for Tcl script (internal) use only
-set 	topdir		/opt/singularity-2.4.alpha
-set 	version		2.4.alpha
+set 	topdir		/opt/singularity-2.4.1
+set 	version		2.4.1
 #set 	sys		linux64
 
 prepend-path	PATH	$topdir/bin

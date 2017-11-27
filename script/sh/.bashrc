@@ -89,6 +89,7 @@ setPrompt () {
 
 add_local_module () {
 	LOCAL_MODULE_DIR=/opt/modulefiles
+	# ln -s ~/PSG/modulefiles/ /opt 
 	AddtoString MODULEPATH ${LOCAL_MODULE_DIR} && module load container/singularity/2.4.alpha
 	AddtoString MODULEPATH /opt/modulefiles/
 	AddtoString MODULEPATH /opt2
