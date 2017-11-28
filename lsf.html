@@ -335,6 +335,12 @@ scontrol show reservation 	# show reservations
 				# running job will NOT be killed by slurm if run into the reservation
 				# listed user of the reservation can submit job that is flagged to use the reservation
 
+
+scontrol create reservation starttim=2017-11-27T16:15 duration=12960 user=tin flags=maint nodes=n0142.lr5,n0143.lr5
+# create reservation, admin priv may be req
+
+sbatch --reservation=tin_585 ...	# submit a job run under reservation
+
 </PRE>
 
 <H4>Slurm Admin stuff</H4>

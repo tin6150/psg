@@ -281,7 +281,8 @@ umask 0002      # i do want file default group writable
 
 # the following will not save .bash_history when exit bash, so no xfer b/w sessions
 # very useful when putting pw in env var 
-export HISTFILESIZE=0
+export ANSIBLE_NOCOWS=1
+export HISTFILESIZE=100
 export HISTTIMEFORMAT="%d/%m/%y %T "	# once enabled, .bash_history get timestamp data as comment before each cmd.  eg #1504106987
 
 #echo "DBG Path before source modules.sh.  $PATH"
