@@ -207,6 +207,8 @@ defineAlias () {
 	alias ef='ps -ef'
 	alias lt="ls -latr"
 	alias ltr="ls -latr"
+	alias sq="squeue"
+	alias sqt="squeue -u tin"
 
 	# overwrite default behaviour, keep command name
 	alias grep='grep --color=auto'
