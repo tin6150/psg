@@ -91,10 +91,11 @@ add_local_module () {
 	LOCAL_MODULE_DIR=/opt/modulefiles
 	# ln -s ~/PSG/modulefiles/ /opt 
 	AddtoString MODULEPATH ${LOCAL_MODULE_DIR} 
-	[[ -x /opt/singularity-2.4.1/bin/singularity ]] && module load container/singularity/2.4.1
+	SING_VER=2.4.2
+	[[ -x /opt/singularity-${SING_VER}/bin/singularity ]] && module load container/singularity/${SING_VER}
 	AddtoString MODULEPATH /opt/modulefiles/
 	AddtoString MODULEPATH /opt2
-	AddtoString MODULEPATH /opt2/singularity-2.4.alpha/modulefiles
+	#AddtoString MODULEPATH /opt2/singularity-2.4.alpha/modulefiles
 	#export MODULEPATH=$MODULEPATH:/opt/modulefiles/
 	#export MODULEPATH=$MODULEPATH:/opt2
 	#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
