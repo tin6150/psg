@@ -308,6 +308,31 @@ if [[ x${MAQUINA} == x"c7" ]]; then
 	### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
 fi	
 
+if [[ x${MAQUINA} == x"c7" ]]; then
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_backbay"
+
+	# custom config in .bashrc of sn@backbay 
+	# before adopting .bashrc from github PSG
+	export SCALA_HOME=/opt/scala/scala-2.11.1
+	export PATH=$SCALA_HOME/bin:$PATH
+
+	export NVM_DIR="/home/sn/.nvm"
+	[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
+	alias xt=/usr/bin/xfce4-terminal
+	#export ANDROID_HOME=/home/sn/app/android-studio
+	export ANDROID_HOME=/home/sn/app/android-sdk
+	export JAVA_HOME=/home/sn/app/jdk1.8.0_101
+	export PATH=/home/sn/app/node-v4.5.0-linux-x64/bin:$PATH
+	export PATH=/home/sn/app/jdk1.8.0_101/bin:$PATH
+	export PATH=$PATH:/home/sn/app/android-studio/bin
+	export EDITOR=vi
+
+
+
+fi	
+
+
 add_local_module	# runnable in c7, cueball, likely other, without presenting much problem hopefully
 
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check

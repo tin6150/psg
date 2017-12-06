@@ -1556,8 +1556,57 @@ kernel.exec-shield=0
 vm.panic_on_oom=1
 vm.swappiness = 0
 
+</PRE>
+
+<A NAME="sensors"></A>
+<H2>sensors</H2>
+
+<EM>lm-sensors</EM>
+<BR>
+
+<PRE class="code">
+$ sensors
+acpitz-virtual-0						[1]
+Adapter: Virtual device						[2]
+temp1:        +42.0°C  (crit = +104.0°C)			[3]
+
+thinkpad-isa-0000						[4]
+Adapter: ISA adapter						[5]
+fan1:        3773 RPM						[6]
+
+coretemp-isa-0000						[7]
+Adapter: ISA adapter						[8]
+Physical id 0:  +42.0°C  (high = +87.0°C, crit = +105.0°C)	[ 9l  9i  9m  9c]
+Core 0:         +42.0°C  (high = +87.0°C, crit = +105.0°C)	[10l 10i 10m 10c]
+Core 1:         +33.0°C  (high = +87.0°C, crit = +105.0°C)	[11l 11i 11m 11c]
+
+# ubuntu cpu temperature (readable by user)
+
+ 9l 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_label
+ 9i	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_input   #  42000
+ 9m	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_max	#  87000
+ 9c	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_crit	# 105000
+   	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_crit_alarm #   0 (times reached alarm level?)
+
+
+10l 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp2_label	# Core 0
+10i	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp2_input	#  42000
+
+11i	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp3_input	#  31000
+
+# sl7 cpu temperature 
+
+/sys/bus/platform/devices/coretemp.0/temp2_label
+/sys/bus/platform/devices/coretemp.0/temp2_input
+/sys/bus/platform/devices/coretemp.1/temp5_input
+
+grep [0-9] /sys/bus/platform/devices/coretemp.*/temp*_input
+
+/sys/class/thermal
 
 </PRE>
+
+
 
 <A NAME="kernel"></A>
 <H1>Kernel</H1>
