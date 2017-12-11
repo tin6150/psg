@@ -9,6 +9,18 @@ Thus, pay special attention to ``code blocks``
 (actually, tailing underline after word seems to be the culprit)
 
 
+GitHub warning
+--------------
+
+Look at 
+https://github.com/tin6150/inet-dev-class/tree/7fd93429644bebc3c7a5ab059c1bea8d7a3c372a/ansible
+the use of == as underline for section heading broke the github parser
+and it just turned the doc as ascii text.
+There is no "compile error" to find out what could have broken it :(
+
+RST header example probably breaks github rst parser/rendered...
+
+
 RST 
 ===
 
