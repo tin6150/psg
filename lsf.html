@@ -336,10 +336,15 @@ scontrol show reservation 	# show reservations
 				# listed user of the reservation can submit job that is flagged to use the reservation
 
 
-scontrol create reservation starttim=2017-11-27T16:15 duration=12960 user=tin flags=maint nodes=n0142.lr5,n0143.lr5
+scontrol create reservation starttim=2017-12-27T16:15 duration=60 user=tin flags=maint nodes=n0142.lr5,n0143.lr5 reservation=rn_666
 # create reservation, admin priv may be req
+# duration is number of minutes
+# reservation=rn_666 is optional param to give reservation a name, 
+# if not specified, slurm will generate a name for it
 
-sbatch --reservation=tin_585 ...	# submit a job run under reservation
+scontrol delete reservation=rn_666
+
+sbatch --reservation=rn_666 ...	# submit a job run under reservation
 
 </PRE>
 
