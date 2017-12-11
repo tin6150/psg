@@ -91,10 +91,11 @@ add_local_module () {
 	LOCAL_MODULE_DIR=/opt/modulefiles
 	# ln -s ~/PSG/modulefiles/ /opt 
 	AddtoString MODULEPATH ${LOCAL_MODULE_DIR} 
-	[[ -x /opt/singularity-2.4.1/bin/singularity ]] && module load container/singularity/2.4.1
+	SING_VER=2.4.2
+	[[ -x /opt/singularity-${SING_VER}/bin/singularity ]] && module load container/singularity/${SING_VER}
 	AddtoString MODULEPATH /opt/modulefiles/
 	AddtoString MODULEPATH /opt2
-	AddtoString MODULEPATH /opt2/singularity-2.4.alpha/modulefiles
+	#AddtoString MODULEPATH /opt2/singularity-2.4.alpha/modulefiles
 	#export MODULEPATH=$MODULEPATH:/opt/modulefiles/
 	#export MODULEPATH=$MODULEPATH:/opt2
 	#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
@@ -306,6 +307,31 @@ if [[ x${MAQUINA} == x"c7" ]]; then
 	#add_local_module
 	### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
 fi	
+
+if [[ x${MAQUINA} == x"c7" ]]; then
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_backbay"
+
+	# custom config in .bashrc of sn@backbay 
+	# before adopting .bashrc from github PSG
+	export SCALA_HOME=/opt/scala/scala-2.11.1
+	export PATH=$SCALA_HOME/bin:$PATH
+
+	export NVM_DIR="/home/sn/.nvm"
+	[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
+	alias xt=/usr/bin/xfce4-terminal
+	#export ANDROID_HOME=/home/sn/app/android-studio
+	export ANDROID_HOME=/home/sn/app/android-sdk
+	export JAVA_HOME=/home/sn/app/jdk1.8.0_101
+	export PATH=/home/sn/app/node-v4.5.0-linux-x64/bin:$PATH
+	export PATH=/home/sn/app/jdk1.8.0_101/bin:$PATH
+	export PATH=$PATH:/home/sn/app/android-studio/bin
+	export EDITOR=vi
+
+
+
+fi	
+
 
 add_local_module	# runnable in c7, cueball, likely other, without presenting much problem hopefully
 
