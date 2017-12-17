@@ -48,7 +48,7 @@ It is like reverse of WINE.
 Linux ELF binary is run directly on windows.  WSL handles what would normally be linux kernel API calls.
 It allows for userland process like bash.
 Graphics mode stuff is not stable at this time.
-(DBUS-X11 is interprocess messaging system in X11)
+DBUS-X11, the interprocess messaging system in X11, is not avail in WSL at this time.
 
 c:\windows\system32\bash.exe is a PE32+ executable.  source code compiled to work on windows.
 /bin/bash is ELF LSB executable.
@@ -74,12 +74,31 @@ The bads:
 <LI>No way to access linux subsystem files from Windows.  I am putting all files on the windows side in /mnt/c/Users.
 </UL>
 
-The bearable:
+The decent:
 <UL>
 <LI>git works for files written to the windows side.  file downloaded with Unix LF format remains so.  vim will preserve this.  Did not invoke UNIX2DOS conversion.  Did not need git-for-windows :)
 <!-- this was edited/saved into /mnt/c/Users/tin/tin-gh/psg/dos.html using vim and git in WSL.  git diff showed expected edits.  did not mangle any with CR.  -->
 </UL>
 
+The good:
+<UL>
+<LI> MS seems to have the heart in a good place (did i really think this??!! :P).  
+<LI>if the comptability layer keeps up, WSL would actually provide the closest Linux environment short of running a VM.   Better than Cygwin, probably better than macOS.  
+</UL>
+
+<H2>Xserver</H2>
+WSL doesn't provide an X-server.  So, like the old days, a windows based X server software is needed.  <BR>
+Have not tried to run vncserver, but DBUS isn't avail, gnome-session has been reported not to work.  Maybe some old school Desktop Env that does not use DBUS may work.  Not sure if LXDE uses DBUS.  twm should not :)
+
+<UL>
+
+<LI>vcXsrv    - small package
+<LI>Xming     - said to be decent, but maybe a tad slower than vcXsrv.
+<LI>Cygwin X  - may come with the full Cygwin env, which maybe big for system using WSL or Git-for-windows.
+<LI>
+<LI>Exceed (moneyware) 
+
+</UL>
 
 <H2>Unixfying Windows/DOS from Windows 7 days</H2>
 
