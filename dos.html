@@ -38,6 +38,7 @@
 <H1>Living with the Evil Empire :)</H1>
 
 
+<A NAME="wsl"></A>
 <H2>Windows Services for Linux aka Ubuntu on Win10</H2>
 
 <PRE>
@@ -63,7 +64,7 @@ old beta:
 Ubuntu root "visible" on windows under c:\users\$USERNAME\AppData\Local\lxss\
 But changing open files with windows tool would cause permanent data corruption, get file in locked state, and may require reinstall.
 This maybe why in fall creator edition, this folder path isn't even there (even after unhiding system files).
-I
+
 </PRE>
 
 The bads:
@@ -85,6 +86,28 @@ The good:
 <LI> MS seems to have the heart in a good place (did i really think this??!! :P).  
 <LI>if the comptability layer keeps up, WSL would actually provide the closest Linux environment short of running a VM.   Better than Cygwin, probably better than macOS.  
 </UL>
+
+<H3>"Single User" recovery mode for WSL</H3>
+
+<PRE>
+stop all user level instance of wsl (ie, stop all bash process).
+
+Preview/Beta C:\> lxrun /setdefaultuser root
+Fall Creator C:\> ubuntu.exe config --default-user root
+
+bash		# this will get into elevated mode, but only after all user-level process have stoped
+ubuntu run vi /etc/passwd
+ubuntu run id
+
+ubuntu /?
+
+To return back to normal user mode:
+ubuntu config --default-user jane
+
+</PRE>
+
+ref: <A HREF="https://msdn.microsoft.com/en-us/commandline/wsl/user_support">ms doc</A>.
+
 
 <H2>Xserver</H2>
 WSL doesn't provide an X-server.  So, like the old days, a windows based X server software is needed.  <BR>
