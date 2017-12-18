@@ -261,11 +261,11 @@ sacct -j 11200077 --long -p 	# long view, pipe seprated columns
 				# --long ignores --format
 sacct --helpformat		# list fields that can be displayed
 
-sacct -u USERNAME --format  -s PD   --format jobid,jobname,acc,qos,state,Timelimit,ReqCPUS,ReqNodes,ReqMem,ReqGRES,ReqTres 	# PD = PENDING, see what resources has been requested
+sacct -u USERNAME -s PD  -p         --format jobid,jobname,acc,qos,state,Timelimit,ReqCPUS,ReqNodes,ReqMem,ReqGRES,ReqTres 	# PD = PENDING, see what resources has been requested
 sacct -s running  -r QNAME          --format jobid,timelimit,start,elapsed,state,user,acc,jobname				# timelimit will give idea how long job will run
 sacct -u USERNAME --partition QNAME --format jobid,jobname,acc,qos,state,DerivedExitCode,Eligible,Start,Elapsed,Timelimit
 sacct -u USERNAME -r QNAME -p       --format jobid,jobname,acc,qos,state,AllocNodes,AllocTRES,Elapsed,Timelimit,NNodes		# NNodes = Allocated or Requested Nodes, depending on job state
-sacct --partition=QNAME --format jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask   # no data on these max ...
+sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask   # no data on these max ...
 
 
 sstat -j		# on currently running job/job step (more info avail than sacct which is historical)
