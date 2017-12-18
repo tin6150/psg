@@ -34,6 +34,135 @@
 
 <CENTER><IMG SRC="fig/win-error.gif"><BR><I>Ok?  Do I have a choice??</I></CENTER>
 <BR><BR>
+
+<H1>Living with the Evil Empire :)</H1>
+
+
+<A NAME="wsl"></A>
+<H2>Windows Services for Linux aka Ubuntu on Win10</H2>
+
+<PRE>
+
+WSL is official in Fall Creator Edition of Windows 10, avail in Windoze App Store.  
+It is a Comptatibility Layer, no VM (hardware emulation), no recompilation.
+It is like reverse of WINE.  
+Linux ELF binary is run directly on windows.  WSL handles what would normally be linux kernel API calls.
+It allows for userland process like bash.
+Graphics mode stuff is not stable at this time.
+DBUS-X11, the interprocess messaging system in X11, is not avail in WSL at this time.
+
+c:\windows\system32\bash.exe is a PE32+ executable.  source code compiled to work on windows.
+/bin/bash is ELF LSB executable.
+
+VM is Hardware emulation.
+ParaVirtualization is Hardware Emulation, but has extra API calls that allows for Guest OS to interact with paravirtual
+layer to run hard-to-execute code directly on host domain env.
+Can be better in performance, less translation, but require guest to be ported to utilize the ParaVirtualization API cal
+ls (drivers from the ParaVM).  eg: Xen hypervisor for Winwdows VM.  pv-ops.
+
+old beta:
+Ubuntu root "visible" on windows under c:\users\$USERNAME\AppData\Local\lxss\
+But changing open files with windows tool would cause permanent data corruption, get file in locked state, and may require reinstall.
+This maybe why in fall creator edition, this folder path isn't even there (even after unhiding system files).
+
+</PRE>
+
+The bads:
+
+<UL>
+<LI>Terminal is based on the DOS prompt window, cut and paste is tedious.
+<LI>No tab support in terminal.  Maybe look into ConEMU... 
+<LI>No way to access linux subsystem files from Windows.  I am putting all files on the windows side in /mnt/c/Users.
+</UL>
+
+The decent:
+<UL>
+<LI>git works for files written to the windows side.  file downloaded with Unix LF format remains so.  vim will preserve this.  Did not invoke UNIX2DOS conversion.  Did not need git-for-windows :)
+<!-- this was edited/saved into /mnt/c/Users/tin/tin-gh/psg/dos.html using vim and git in WSL.  git diff showed expected edits.  did not mangle any with CR.  -->
+<LI> Ansible can be installed and it will work as ansible client/target.  Well, for now, I am using it with "localhost", so it is not ssh in from some central server.  But the Ubuntu is similar enough to say a VM running inside VirtualBox that largely the same playbook can be used in WSL instance.
+</UL>
+
+The good:
+<UL>
+<LI> MS seems to have the heart in a good place (did i really think this??!! :P).  
+<LI>if the comptability layer keeps up, WSL would actually provide the closest Linux environment short of running a VM.   Better than Cygwin, probably better than macOS.  
+</UL>
+
+<H3>"Single User" recovery mode for WSL</H3>
+
+<PRE>
+stop all user level instance of wsl (ie, stop all bash process).
+
+Preview/Beta C:\> lxrun /setdefaultuser root
+Fall Creator C:\> ubuntu.exe config --default-user root
+
+bash		# this will get into elevated mode, but only after all user-level process have stoped
+ubuntu run vi /etc/passwd
+ubuntu run id
+
+ubuntu /?
+
+To return back to normal user mode:
+ubuntu config --default-user jane
+
+</PRE>
+
+ref: <A HREF="https://msdn.microsoft.com/en-us/commandline/wsl/user_support">ms doc</A>.
+
+
+<H2>Xserver</H2>
+WSL doesn't provide an X-server.  So, like the old days, a windows based X server software is needed.  <BR>
+Have not tried to run vncserver, but DBUS isn't avail, gnome-session has been reported not to work.  Maybe some old school Desktop Env that does not use DBUS may work.  Not sure if LXDE uses DBUS.  twm should not :)  <BR>
+
+<A HREF="https://github.com/QMonkey/wsl-tutorial">QMonkey at github</A> has instructions to use xfce, even have way to fix DBUS error.  Will also need to fix fonts (including unicode and chinese), but implies it has gotten to work.
+
+<UL>
+
+<LI>vcXsrv    - small package.  Compiled by VC++.  Referred by QMonkey and other.
+<LI>Xming     - Latest version is not entirely free anymore.  maybe a tad slower than vcXsrv.
+<LI>Cygwin X  - may come with the full Cygwin env, which maybe big for system using WSL or Git-for-windows.
+<LI>
+<LI>Exceed (moneyware) 
+
+</UL>
+
+
+<H2>Unix-fying Windows/DOS, from Windows 7 days</H2>
+
+<OL>
+<LI><A HREF="http://www.cygwin.com/">Cygwin</A> add a lot of standard unix tools, libraries, etc.  Includes a bash shell and X Window Manager for running X-based (GUI) apps.  It even has GNOME, KDE, keepassx (Qt), tetris!<BR>
+<PRE>
+  add this to PATH system variable  
+  c:\cygwin\bin;c:\cygwin\sbin;c:\cygwin\usr\bin;c:\cygwin\usr\sbin;
+  modern cygwin creates .bashrc in user's home dir and source that, so PATH can be setup there.
+
+  A somewhat yum-like feature to add new packages, eg python:
+  setup-x86_64.exe -P python
+  	it still run the GUI, but then the python package is selected, 
+	so can just click next/next/next to complete.
+  setup-x86_64.exe -M -P wget,curl,dog,openssh,ctorrent,openldap,nc,rsync
+	-M will skip many GUI prompt and go right into the package selection window.
+	openssh is for both client and server?
+	openldap is for the client portion only
+
+  apt-cyg (not fully stable) may provide an apt-get like command interface to install packages, one at a time.
+
+	wget http://raw.github.com/transcode-open/apt-cyg/master/apt-cyg
+	chmod +x apt-cyg
+	mv apt-cyg /usr/local/bin
+
+	apt-cyg install nano
+	apt-cyg install git
+	apt-cyg install ca-certificates
+
+	
+</PRE>
+
+<LI><A HREF="http://www.mkssoftware.com/">MKS Toolkit</A>.  This actually pre-date cygwin, but this is moneyware.
+<LI><A HREF="http://www.microsoft.com/technet/interopmigration/unix/sfu/default.mspx">SFU</A> Microsoft Services for Unix.  Add NFS client and server, telnet server, and other tools to bridge Unix and Windows machines.  In the same manner that Samba teaches Unix to talk Windows, SFU teaches Windows to talk Unix.
+</OL>
+
+
 <H1>Windows/DOS commands</H1>
 
 <!-- content of cmd.dos.ref -->
@@ -386,42 +515,6 @@ keep track of subfolder disk usage, and also give aggregate of files type usage
 <A HREF="http://pdfforge.org">PDF Forge</A>  A freeware to generate PDF for windows (freeware version of Acrobat Writer).<BR>
 
 <BR><BR>
-
-
-<H2>Unixfying Windows/DOS</H2>
-
-<OL>
-<LI><A HREF="http://www.cygwin.com/">Cygwin</A> add a lot of standard unix tools, libraries, etc.  Includes a bash shell and X Window Manager for running X-based (GUI) apps.  It even has GNOME, KDE, keepassx (Qt), tetris!<BR>
-<PRE>
-  add this to PATH system variable  
-  c:\cygwin\bin;c:\cygwin\sbin;c:\cygwin\usr\bin;c:\cygwin\usr\sbin;
-  modern cygwin creates .bashrc in user's home dir and source that, so PATH can be setup there.
-
-  A somewhat yum-like feature to add new packages, eg python:
-  setup-x86_64.exe -P python
-  	it still run the GUI, but then the python package is selected, 
-	so can just click next/next/next to complete.
-  setup-x86_64.exe -M -P wget,curl,dog,openssh,ctorrent,openldap,nc,rsync
-	-M will skip many GUI prompt and go right into the package selection window.
-	openssh is for both client and server?
-	openldap is for the client portion only
-
-  apt-cyg (not fully stable) may provide an apt-get like command interface to install packages, one at a time.
-
-	wget http://raw.github.com/transcode-open/apt-cyg/master/apt-cyg
-	chmod +x apt-cyg
-	mv apt-cyg /usr/local/bin
-
-	apt-cyg install nano
-	apt-cyg install git
-	apt-cyg install ca-certificates
-
-	
-</PRE>
-
-<LI><A HREF="http://www.mkssoftware.com/">MKS Toolkit</A>.  This actually pre-date cygwin, but this is moneyware.
-<LI><A HREF="http://www.microsoft.com/technet/interopmigration/unix/sfu/default.mspx">SFU</A> Microsoft Services for Unix.  Add NFS client and server, telnet server, and other tools to bridge Unix and Windows machines.  In the same manner that Samba teaches Unix to talk Windows, SFU teaches Windows to talk Unix.
-</OL>
 
 
 
