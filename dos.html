@@ -79,6 +79,7 @@ The decent:
 <UL>
 <LI>git works for files written to the windows side.  file downloaded with Unix LF format remains so.  vim will preserve this.  Did not invoke UNIX2DOS conversion.  Did not need git-for-windows :)
 <!-- this was edited/saved into /mnt/c/Users/tin/tin-gh/psg/dos.html using vim and git in WSL.  git diff showed expected edits.  did not mangle any with CR.  -->
+<LI> Ansible can be installed and it will work as ansible client/target.  Well, for now, I am using it with "localhost", so it is not ssh in from some central server.  But the Ubuntu is similar enough to say a VM running inside VirtualBox that largely the same playbook can be used in WSL instance.
 </UL>
 
 The good:
@@ -111,19 +112,22 @@ ref: <A HREF="https://msdn.microsoft.com/en-us/commandline/wsl/user_support">ms 
 
 <H2>Xserver</H2>
 WSL doesn't provide an X-server.  So, like the old days, a windows based X server software is needed.  <BR>
-Have not tried to run vncserver, but DBUS isn't avail, gnome-session has been reported not to work.  Maybe some old school Desktop Env that does not use DBUS may work.  Not sure if LXDE uses DBUS.  twm should not :)
+Have not tried to run vncserver, but DBUS isn't avail, gnome-session has been reported not to work.  Maybe some old school Desktop Env that does not use DBUS may work.  Not sure if LXDE uses DBUS.  twm should not :)  <BR>
+
+<A HREF="https://github.com/QMonkey/wsl-tutorial">QMonkey at github</A> has instructions to use xfce, even have way to fix DBUS error.  Will also need to fix fonts (including unicode and chinese), but implies it has gotten to work.
 
 <UL>
 
-<LI>vcXsrv    - small package
-<LI>Xming     - said to be decent, but maybe a tad slower than vcXsrv.
+<LI>vcXsrv    - small package.  Compiled by VC++.  Referred by QMonkey and other.
+<LI>Xming     - Latest version is not entirely free anymore.  maybe a tad slower than vcXsrv.
 <LI>Cygwin X  - may come with the full Cygwin env, which maybe big for system using WSL or Git-for-windows.
 <LI>
 <LI>Exceed (moneyware) 
 
 </UL>
 
-<H2>Unixfying Windows/DOS from Windows 7 days</H2>
+
+<H2>Unix-fying Windows/DOS, from Windows 7 days</H2>
 
 <OL>
 <LI><A HREF="http://www.cygwin.com/">Cygwin</A> add a lot of standard unix tools, libraries, etc.  Includes a bash shell and X Window Manager for running X-based (GUI) apps.  It even has GNOME, KDE, keepassx (Qt), tetris!<BR>
