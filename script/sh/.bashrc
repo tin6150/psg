@@ -312,7 +312,7 @@ if [[ x${MAQUINA} == x"c7" ]]; then
 	### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
 fi	
 
-if [[ x${MAQUINA} == x"c7" ]]; then
+if [[ x${MAQUINA} == x"backbay" ]]; then
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_backbay"
 
 	# custom config in .bashrc of sn@backbay 
@@ -331,9 +331,6 @@ if [[ x${MAQUINA} == x"c7" ]]; then
 	export PATH=/home/sn/app/jdk1.8.0_101/bin:$PATH
 	export PATH=$PATH:/home/sn/app/android-studio/bin
 	export EDITOR=vi
-
-
-
 fi	
 
 
