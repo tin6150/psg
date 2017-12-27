@@ -27,3 +27,4 @@ git clone https://tin6150@github.com/tin6150/circos.git
 git clone https://tin6150@github.com/tin6150/biolab-orange/
 git clone https://tin6150@github.com/tin6150/perf_tools
 git clone https://tin6150@github.com/tin6150/cuda
+git clone https://tin6150@github.com/tin6150/boinc-client.git
