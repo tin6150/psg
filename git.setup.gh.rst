@@ -28,3 +28,13 @@ git clone https://tin6150@github.com/tin6150/biolab-orange/
 git clone https://tin6150@github.com/tin6150/perf_tools
 git clone https://tin6150@github.com/tin6150/cuda
 git clone https://tin6150@github.com/tin6150/boinc-client.git
+
+
+#### formerly in tin-bb ####
+# run from a parent dir eg ~/tin-bb ::
+git clone https://tin6150@bitbucket.org/tin6150/blpriv
+git clone https://tin6150@bitbucket.org/tin6150/spark
+
+#### tin@lbl bitbucket
+git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
+
