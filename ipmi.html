@@ -123,6 +123,16 @@ service ipmi start
 
 </PRE>
 
+<H5>Finding Dell Chassis ServiceTag from a node</H5>
+<PRE>
+
+# Dell C6320 vintage 2017
+ipmitool raw 0x30 0xc8 0x01 0x00 0x0b 0x00 0x00 0x00 | xxd -r
+
+# xxd -r is reverse hex conversion to ascii, avail from vim-common rpm
+
+</PRE>
+
 <H5>IPMI RAW</H5>
 
 <PRE>

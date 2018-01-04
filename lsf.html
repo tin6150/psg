@@ -255,50 +255,18 @@ scontrol show partition		# view partition/queue info
 scontrol show config		# view config of whole system (eg when asking mailing list for help)
 scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 min for the queue named "debug"
 
-sacct				# view accounting by individual job and job steps
-sacct -j 11200077 		# info about specific job
-sacct -j 11200077 --long -p 	# long view, pipe seprated columns
-				# --long ignores --format
-sacct --helpformat		# list fields that can be displayed
-
-# PD = PENDING, see what resources has been requested
-sacct -u USERNAME -s PD  -p         --format jobid,jobname,acc,qos,state,Timelimit,ReqCPUS,ReqNodes,ReqMem,ReqGRES,ReqTres 	
-
-# timelimit will give idea how long job will run
-sacct -s running  -r QNAME          --format jobid,timelimit,start,elapsed,state,user,acc,jobname				
-
-# when will a job start
-sacct -u USERNAME --partition QNAME --format jobid,jobname,acc,qos,state,DerivedExitCode,Eligible,Start,Elapsed,Timelimit
-
-# NNodes = Allocated or Requested Nodes, depending on job state
-sacct -u USERNAME -r QNAME -p       --format jobid,jobname,acc,qos,state,AllocNodes,AllocTRES,Elapsed,Timelimit,NNodes		
-
-# no data on these max ...
-sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask   
-
-
-# example of querying jobs ran in a certain time frame:
-sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2017-12-20T00:00:00 --end=2018-01-01T23:59:59
-
-# all users, failure states, in a certain time frame (hung job not listed here):
-sacct -a -X -s F,NF -r lr5  -S 2017-12-16  -E 2017-12-18
-
-# many problem states (but may not be comprehensive)
-sacct -a  -X -s F,NF,CA,S,PR,TO,BF -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,NNodes,DerivedExitCode,state -S 2017-12-25  -E 2017-12-31
-
-# Node Failure, job would have died:
-sacct -a  -X -s NF -r lr5  -o job,start,end,partition,user,jobname,AllocNode,AllocTRES,DerivedExitCode,state,CPUTime,Elapsed -S 2017-12-20  -E 2018-01-01
-
+sacct				# view accounting by individual job and job steps (more in troubleshooting below)
 
 sstat -j		# on currently running job/job step (more info avail than sacct which is historical)
-sreport			# usabe by cluster, partition, user, account
-			# present info in more condensed fashion
 	-u USERNAME
 	-p PARTITIONNAME	
 
 sprio			# view job PRIOrity and how factors were weighted
 sshare			# view fair-SHARE info in hierarchical order
 sdiag			# stat and scheduling info (exec time, queue length).  SLURM 2.4+
+
+sreport			# usabe by cluster, partition, user, account
+			# present info in more condensed fashion
 
 </PRE>
 
@@ -313,6 +281,7 @@ SQUEUE_STATE=all		# tell squeue cmd to display job in all state (incl COMPLETED,
 SBATCH_PARTITION=default_q	# specify the given partition as the default queue
 </PRE>
 
+<A NAME="slurm_troubleshooting"></A>
 <H4>SLURM Troubleshooting</H4>
 
 State with * (eg idle*, draining*) means node is not reachable.
@@ -320,7 +289,9 @@ State with * (eg idle*, draining*) means node is not reachable.
 <UL>
 <LI> /var/log/slurm/slurmctld.log 	# master scheduler log
 <LI> /var/log/slurm/slurmd.log		# per node local daemon log
+<LI> <TT>munge -s "test message" | ssh computenode unmunge</TT>  test if munge.key works correctly
 </UL>
+
 
 
 <!-- yong slurm scheduler Q&A -->
@@ -369,6 +340,48 @@ scontrol delete reservation=rn_666
 sbatch --reservation=rn_666 ...	# submit a job run under reservation
 
 </PRE>
+
+<H5>Job & Scheduling</H5>
+
+<PRE>
+
+sacct				# view accounting by individual job and job steps 
+sacct -j 11200077 		# info about specific job
+sacct -j 11200077 --long -p 	# long view, pipe seprated columns
+
+sacct --helpformat		# list fields that can be displayed
+				# --long ignores --format
+
+# PD = PENDING, see what resources has been requested
+sacct -u USERNAME -s PD  -p         --format jobid,jobname,acc,qos,state,Timelimit,ReqCPUS,ReqNodes,ReqMem,ReqGRES,ReqTres 	
+
+# timelimit will give idea how long job will run
+sacct -s running  -r QNAME          --format jobid,timelimit,start,elapsed,state,user,acc,jobname				
+
+# when will a job start
+sacct -u USERNAME --partition QNAME --format jobid,jobname,acc,qos,state,DerivedExitCode,Eligible,Start,Elapsed,Timelimit
+
+# NNodes = Allocated or Requested Nodes, depending on job state
+sacct -u USERNAME -r QNAME -p       --format jobid,jobname,acc,qos,state,AllocNodes,AllocTRES,Elapsed,Timelimit,NNodes		
+
+# no data on these max ...
+sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask   
+
+
+# example of querying jobs ran in a certain time frame:
+sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2017-12-20T00:00:00 --end=2018-01-01T23:59:59
+
+# all users, failure states, in a certain time frame (hung job not listed here):
+sacct -a -X -s F,NF -r lr5  -S 2017-12-16  -E 2017-12-18
+
+# many problem states (but may not be comprehensive)
+sacct -a  -X -s F,NF,CA,S,PR,TO,BF -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,NNodes,DerivedExitCode,state -S 2017-12-25  -E 2017-12-31
+
+# Node Failure, job would have died:
+sacct -a  -X -s NF -r lr5  -o job,start,end,partition,user,jobname,AllocNode,AllocTRES,DerivedExitCode,state,CPUTime,Elapsed -S 2017-12-20  -E 2018-01-01
+
+</PRE>
+
 
 <H4>Slurm Admin stuff</H4>
 <!-- vi : set tabstop=8 -->
