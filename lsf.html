@@ -1327,6 +1327,29 @@ bacct -u all -S 2007/1/1,2007/3/31	# similar to above, but for Submitted jobs, w
 <BR><HR><BR>
 
 
+<H1>HPC Provisioning System</H1>
+
+
+<UL>
+<LI> ROCKS.  Developers seems to have left the building.  No support for RHEL7.
+<LI> Stacki (forked from ROCKS)
+<LI> Warewulf.  Mostly stateless Compute nodes.  Can support stateful roll out?  Included by Intel OpenHPC initiative.  Warewulf has some lightweight file provisioning, but a config management tool is less contientious on the long term (especially for larger deployment).
+<LI> xCAT.  IBM product.  Mostly targetted to IBM/Lenovo machines?  OpenHPC has option to use xCAT now.
+<LI> Cobbler.  Build on top of kickstart.  Probably enough if use things like Ansible to configure the nodes.
+<LI> Platform HPC.  Tool from the folks at Platform LSF.   $$$
+<LI> Bright Cluster Manager.  Moneyware.
+<LI> <A HREF="https://openhpc.community/downloads/">OpenHPC</A> vs Intel HPC Orchaestrator.
+<LI> 
+<LI> AWS, would use their VM provisioning system.  eg StarCluster, clusterCNF use awscli to provision nodes.
+<LI> 
+<LI> See also <A HREF="https://blog.ajdecon.org/the-hpc-cluster-software-stack/">Adam blog on hpc stack</A>
+<LI> 
+</UL>
+
+
+
+
+
 <H1>Links</H1>
 
 See also:
