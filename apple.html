@@ -49,6 +49,27 @@
 <A HREF="http://www.explainxkcd.com/wiki/index.php/18"><IMG SRC="fig/xkcd_snapple.png"></A><BR>
 </div>
 
+<H1>Laptop Keyboard missing keys </H1>
+
+<PRE>
+Mac laptop		Win/Linux full size keyboard	
+Fn UpArrow		PgUp
+Fn DownArrow		PdDw
+Fn LeftArrow		Home
+Fn RightArrow		End
+Fn backspace		Del     (works in vi)  
+^D			Del	(but not in vi!)
+
+</PRE>
+
+<H1>Keyboard shortcuts when running Mint</H1>
+
+<PRE>
+Mac			Win/Linux	Action
+^ Fn+UpArrow 		^PgUp		previous tab in mate-terminal
+</PRE>
+
+
 
 <H1>Keyboard shortcuts</H1>
 
@@ -59,7 +80,7 @@
 Some less intuitive keyboard binding from a windoze/linux user perspective: <BR>
 <BR>
 <PRE>
-Cmd/Command = Windows key 
+Cmd/Command = Windows key = Apple key
 Option      = Alt
 Control     = ^
 </PRE>
@@ -85,7 +106,8 @@ Ctrl-Cmd-Sh-3	(^cmd-#)	# screenshot of the entire screen, send to clipboard (no 
 
 Cmd-,				# Preferences: Open preferences for the front app.
 
-^-Sh-Power/Eject		# Lock screen (Windows-L)
+^-Sh-Power/Eject		# blank screen (lock after additional preset num of min)
+Fn   Power/Eject		# bring up lock/sleep/power off menu (closest thing to Windows-L)
 
 
 Mac			Win/Linux,vi/bash?	Action
@@ -183,6 +205,7 @@ homebrew	= http://brew.sh/
 		  Intended audience = mac users.  
 		  <TT>/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</TT>
 		  <TT>brew install caskroom/cask/burn added a GUI Burn.app into Applications.</TT>
+		  <TT>brew cask</TT> can manage and install mac native apps.  (used by geerlingguy Ansible for DevOps).
 
 
 nix		= from NixOS, meant to be a declarative (stateless) package management.  
@@ -197,6 +220,9 @@ nix		= from NixOS, meant to be a declarative (stateless) package management.
 
 </PRE>
 
+<H5>Homebrew Install</H5>
+
+	Homebrew is what I use in 2017 
 
 
 <H5>Fink Install</H5>
@@ -207,26 +233,29 @@ nix		= from NixOS, meant to be a declarative (stateless) package management.
 	<A HREF="http://www.finkproject.org/download/srcdist.php">http://www.finkproject.org/download/srcdist.php</A>
 </OL>
 
-<PRE>
-sudo xcode-select --install
-sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer/
-sudo xcodebuild -license
-tar -xvf fink-0.41.1.tar.gz 
-cd fink-*
-./bootstrap 
-# long build process...
-</PRE>
+	<PRE>
+	sudo xcode-select --install
+	sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer/
+	sudo xcodebuild -license
+	tar -xvf fink-0.41.1.tar.gz 
+	cd fink-*
+	./bootstrap 
+	# long build process...
+	</PRE>
 
-<PRE class="quote">
-You should now have a working Fink installation in '/sw'. You still need package descriptions if you want to compile packages yourself. You can get them
-by installing the dists-10.12-0.16.0.tar.gz tarball, or by running either of the commands: 'fink selfupdate-rsync', to update via rsync (generally
-preferred); or 'fink selfupdate-cvs', to update via CVS (more likely to work through a firewall). You should also run 'sudo xcodebuild -license' and
-accept the Xcode license, since some packages will require this.
+	
+	<PRE>
+	You should now have a working Fink installation in '/sw'. You still need package descriptions if you want to compile packages yourself. You can get them
+	by installing the dists-10.12-0.16.0.tar.gz tarball, or by running either of the commands: 'fink selfupdate-rsync', to update via rsync (generally
+	preferred); or 'fink selfupdate-cvs', to update via CVS (more likely to work through a firewall). You should also run 'sudo xcodebuild -license' and
+	accept the Xcode license, since some packages will require this.
 
-Run '. /sw/bin/init.sh' to set up this terminal session environment to use Fink. To make the software installed by Fink available in all of your future
-terminal shells, add '. /sw/bin/init.sh' to the init script '.profile' or '.bash_profile' in your home directory. The program /sw/bin/pathsetup.sh can
-help with this. Enjoy.
-</PRE>
+	Run '. /sw/bin/init.sh' to set up this terminal session environment to use Fink. To make the software installed by Fink available in all of your future
+	terminal shells, add '. /sw/bin/init.sh' to the init script '.profile' or '.bash_profile' in your home directory. The program /sw/bin/pathsetup.sh can
+	help with this. Enjoy.
+
+	(info from finkproject)
+	</PRE>
 
 
 
@@ -303,7 +332,51 @@ launchctl unload com.nomachine.localnxserver	# did not work
 
 # so, not sure what's the equiv of systemctl disable 
 
+sudo launchctl limit maxfiles unlimited		# fix number of open file handles to unlimited (def is very low)
+</PRE>
 
+<H1>Python</H1>
+
+<OL>
+<LI> The python that comes with OS X is quite old :(   Sierra 10.12.6 comes with Python 2.7 which does not have PIP :(
+<LI> <TT>easy_install pip </TT>.  Script comes with os x in /usr/bin, will try this first
+<LI> (Trying to install Ansible)
+<LI> <TT>brew install python/pip </TT> is possible, but then install a second python on system, and different way of calling things may end up using diff python 
+</OL>
+
+
+
+<H1>Getting new Mac to be useful </H1>
+
+Below are example commands to make os x more hacker friendly, use cli to install .dmg., etc
+Run <BR>
+<PRE>
+wget -nc https://raw.githubusercontent.com/tin6150/psg/master/script/mac/installFavApp.sh -O installFavApp.sh
+# should check that downloaded the right thing before running it.  also, script use sudo.
+bash -x installFavApp.sh
+</PRE>
+<BR>
+
+
+<BR>
+
+
+<PRE class="cf">
+
+cd ~/Downloads
+# install Vagrant .dmg
+wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
+sudo hdiutil attach vagrant_2.0.0_x86_64.dmg
+sudo installer -package /Volumes/Vagrant/vagrant.pkg -target /
+# in this case, the app was installed to /opt/vagrant with link in /usr/local
+sudo hdiutil detach /Volumes/Vagrant
+
+# install Oracle VirtualBox
+wget http://download.virtualbox.org/virtualbox/5.1.28/VirtualBox-5.1.28-117968-OSX.dmg
+sudo hdiutil attach VirtualBox-5.1.28-117968-OSX.dmg 
+sudo installer -package /Volumes/VirtualBox/VirtualBox.pkg -target /
+# installed to /Applications/VirtualBox.app
+sudo hdiutil detach /Volumes/VirtualBox/
 
 </PRE>
 
@@ -311,7 +384,7 @@ launchctl unload com.nomachine.localnxserver	# did not work
 
 <H1></H1>
 
-<H2>intel-based mac stuff</H2>
+<H2>"BIOS" stuff</H2>
 
 <PRE>
 
@@ -320,6 +393,9 @@ option	= select OS to boot with (when bootcamp is configured)
 apple+t = target firewire disk mode  (or just press T key?)
 apple+v = verbose mode (this time only)
 apple+s = single user mode (but don't run fsck from here! boot from DVD for such action!)  (or just s ?)
+apple+r = reinstall
+alt-cmd-r = 
+sh-alt-cmd-r = 
 
 shift   = Safe Boot mode - https://support.apple.com/en-us/HT201262
 
@@ -333,10 +409,85 @@ go to terminal, run
 To see current settings:
 	nvram -p   			
 
+</PRE>
+
+<A NAME="sip"></A>
+<H5>System Integrity Protection</H5>
+
+csrutil status  <BR>
+<BR>
+csrutil disable		# this can only be run in Recovery Mode's terminal  <BR>
+<BR>
+
+ref: 
+<A HREF="https://developer.apple.com/library/content/documentation/Security/Conceptual/System_Integrity_Protection_Guide/ConfiguringSystemIntegrityProtection/ConfiguringSystemIntegrityProtection.html">
+https://developer.apple.com/library/content/documentation/Security/Conceptual/System_Integrity_Protection_Guide/ConfiguringSystemIntegrityProtection/ConfiguringSystemIntegrityProtection.html</A>
 
 
+
+<H2>Migration/Cloning</H2>
+
+
+May not be trivial to migrate data from an old mac to a new one... 
+
+<H5>Backup and Prep</H5>
+
+<OL>
+<LI> Avoid upgrading OS when planning to migrate soonish down the road.  (Direct machine restore tends to complain OS in destination host is older, not sure if build numbers are different or some bugs).
+
+<LI> Partition a new disk with GUID (Linux parted and mkfs.hfsplus didn't work).  Use the mac disk utility.
+<LI> Install an OS on this external disk.  Boot with Cmd-R, select external disk, install the OS on it.
+<LI> Run time machine backup to this disk (which is now bootable).
+</OL>
+
+<H5>Restore Using Migration Assistant</H5>
+
+<EM>NOT RECOMMENDED</EM>
+
+<OL>
+<LI> Start OS, login as normal.
+<LI> Run Migratin assistant (under App, Utilities).  migrate data from time machine backup disk.
+<LI> The ugly part:
+<UL>
+	<LI> Migrate only document data matching the user that is logged in and started the Migration assistant.
+	<LI> if username doesn't match old computer, then nothing is transfered.
+	<LI> Even if username match, didn't copy much.  May need apple id match.
+	<LI> But how to create such account?  It is not like MS where you login directly using MS ID.  *sigh* :(
+	<LI> It reboot the machine, can't do anything while it migrates
+	<LI> 
+</UL>
+</OL>
+
+<H5>Restore Using Migration Assistant</H5>
+<OL>
+<LI> Boot machine while holding Cmd-R
+<LI> Run Utility of Restore machine from time machine backup
+<LI> It will erase the destination computer hd.
+<LI> Did feel like it is a clone.  Everything that was left in old computer now login and looks the same in new.
+<LI> One Notes and notebook open just fine.  Hope it sync to web directly using a new sync id.
+<LI> git repos seems fine
+<LI> Did not migrate:  Dropbox.  Google drive
+<LI> Apple iCloud need to login, hanging.
+<LI> iTunes need new authorization as new computer
+</OL>
+
+<H5>Hostname</H5>
+
+How many places are hostname set in the mac?? !@#!$%
+
+<PRE>
+sudo scutil --get Hostname 		# may not be set
+sudo scutil --set Hostname jr12pro	# affect cli "hostname"
+
+
+sudo scutil --set LocalHostName jr12.local		# bonjour hostname  (GUI Settings, Sharing, hostname)
+sudo scutil --set ComputerName "descriptive name" 	# optional
+
+dscacheutil -flushcache					# flush dns
 
 </PRE>
+ref: https://knowledge.autodesk.com/support/smoke/learn-explore/caas/sfdcarticles/sfdcarticles/Setting-the-Mac-hostname-or-computer-name-from-the-terminal.html
+
 
 <!--mac.ref-->
 <H2>Older mac stuff</H2>
@@ -451,8 +602,44 @@ minicom -o -D /dev/tty.usbserial -8 -b 9600
 
 See also <A HREF="linux.html#minicom">linux#minicom</A> <BR>
 
+<H1>Antigravity</H1>
+
+<A ID="linux"></A>
+<H3>Linux</H3>
+
+Trying to install Mint 18.2 on a MacBook 12" mid-2017 (A1534) failed :(  <BR>
+
+<UL>
+<LI> Does not recognize hard drive (MVMe flash drive)
+<LI> Perhaps can run it off usb...
+<LI> UEFI boot from USB Thumbdrive
+<LI> Need usb mouse and often keyboard.
+<LI> fonts are tiny cuz of the native resolution is very high, on a pretty small screen.  graphics works (at the installer screen)
+<LI> mac cdrom drive don't really work.  At boot loader, it doesn't seems to have driver for the cdrom drive.  The drive will not inject/ingest a cdrom.  So, it never became a boot option.  
+<LI> Trying a Lenovo CDRom drive may give a slightly better mileage, at least it recognized the media... 
+<LI> WiFi.  works.  even from Ubuntu 14.04 Life boot!!
+<LI> <A HREF="https://github.com/Dunedan/mbp-2016-linux">Dunedan</A> has posted many relevant info.  
+</UL>
+
+So much about getting rid of macos :-(
+
+
+<A ID="windows"></A>
+<A ID="windoze"></A>
+<H3>windoze</H3>
+
+<UL>
+<LI> This may work, since it is actually supported by apple.  
+<LI> They require Windows 10 ISO image, use the bootcamp assistant to get drivers.
+<LI> Probably can't get it to work with Windows 7, cuz bootcamp assistant on Mac High Sierra will not accept a windows 7 iso, insist on windows 10.
+
+<LI> Windows is closed source.  Apple keep everything as secret.  Don't expect them to leak out to the open source (albeit their servers certainly are running linux!!).  Oh well, no one said this world was perfect right?  hahaha
+
+</UL>
+
 
 <A ID="hate"></A>
+<A ID="ps"></A>
 <H3>PS</H3>
 Why I hate Mac OS X ?
 <UL>
@@ -479,6 +666,14 @@ Why I hate Mac OS X ?
 
 <LI> If I am on the mouse (not touchpad), how do i switch workspace?  I got to click on where and where and where and where??  *sigh*
 
+<LI> Where is the Insert key?  Cuz when I run a Linux VM (to get away from MacOS), I could really use that Insert key.  A true Delete key would be quite useful too damn it!
+
+</UL>
+
+Update from High Sierra (2017.11)
+<UL>
+* There is finally a lock screen option under the apple menu (^Cmd-Q).  (I don't suppose this was added cuz linked an apple watch).
+* There is finally a sleep option.  while "closing the lid" is not explicity listed in the power setting, just don't let the computer go to sleep when the screen blanks.  push out the screen saver.  
 </UL>
 
 <BR>

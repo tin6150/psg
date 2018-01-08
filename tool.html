@@ -133,6 +133,17 @@ Brendan Gregg on Linux Performance</A>
 <LI> Ganglia
 </UL>
 
+<PRE class=code>
+vmstat 1 5
+procs   -----------memory---------- ---swap-- -----io----   -system--  ------cpu-----
+ r  b   swpd   free   buff  cache     si   so    bi    bo    in     cs us sy id wa st
+15  0      0 7207116  31284 1328320    0    0     0     0    24     12  0  0 99  0  0
+12  0      0 7207084  31284 1328320    0    0     0     0 88618 152257 44  1 55  0  0
+12  0      0 8030280  31284 1328224    0    0     0    12 88673 152364 44  1 55  0  0
+13  0      0 7210160  31284 1328224    0    0     0     0 88686 152315 43  1 55  0  0
+12  0      0 7210284  31284 1328224    0    0     0     0 88683 152378 44  1 55  0  0
+</PRE>
+
 
 <H5> Advanced tools, eg to perform full software stack analysis </H5>
 <UL>
@@ -1401,6 +1412,7 @@ http://www.netcordia.com/network-services.html
 </PRE>
 
 
+<A NAME="iperf"></A>
 <A NAME="iperf3"></A>
 <H5>iperf3</H5>
 
@@ -1418,17 +1430,34 @@ iperf3 -c SERVER -t 30 -i 1	# start as client, connect to SERVER
 				# run test for 30 sec, report progress every 1 sec
 
 iperf3 -c SVR -t 10 -i 1 -P 2		# -P 2 = parallel 4 streams
-iperf3 -c SVR -t 10 -i 1 -P 2 w 32M 	# -w 16M = use 32M TCP buffer
+iperf3 -c SVR -t 10 -i 1 -P 2 -w 32M 	# -w 16M = use 32M TCP buffer
 
 </PRE>
 
 
 iperf3 is single threaded, for 40G and above network, may become CPU bound.  
-Refer to 
-<A HREF="https://fasterdata.es.net/performance-testing/network-troubleshooting-tools/iperf-and-iperf3/">Performance testing using iperf3</A> 
+Refer to (ESnet) 
+<A HREF="https://fasterdata.es.net/performance-testing/network-troubleshooting-tools/iperf/multi-stream-iperf3/">iperf3 at 40 Gbps and above</A>
 for info in running multiple streams on multiple cores. <BR>
 Using -Z for zero copy mode will also reduce cpu load. <BR>
 
+
+<H6>Installation</H6>
+
+<PRE>
+BASEDIR=/global/scratch/tin/
+SWDIR=$BASEDIR/sw
+cd $BASEDIR/pub-gh
+git clone https://github.com/esnet/iperf.git
+cd iperf
+./configure --prefix=${SWDIR}
+make
+make install
+
+export PATH=${SWDIR}/bin:$PATH
+export MANPATH=${SWDIR}/share/man:$MANPATH
+
+</PRE>
 <BR>
 <BR>
 

@@ -56,6 +56,25 @@ Ubuntu is conquering the world now, so there are some Debian things here and the
 
 <H1>HOW-TO</H1>
 <p>&nbsp; </p>
+
+<H2>RHEL vs CentOS vs Scientific Linux</H2>
+
+<UL>
+<LI> RedHat you have to pay.  CentOS is free.  Beyond that, both are largely identical.  Except...
+<LI> RedHat provides commercial tech support
+<LI> RedHat provides a yum-security plugin that allows machine to be patched with only security update via yum (and keep the OS at the same level).   See 
+<A HREF="https://access.redhat.com/solutions/10021">Solution 10021</A>.
+<LI> CentOS does not provide this info.  updateinfo.xml.gz is empty, thus commands like <BR>
+<TT> yum updateinfo list security all</TT> <BR>
+<TT> yum updateinfo RHSA-2014:0159</TT> <BR>
+does <EM>NOT</EM> work in CentOS.  They 
+results in a noop on CentOS machines.  Lack of action in output does NOT mean security patches aren't needed!  See <A HREF="https://www.centos.org/forums/viewtopic.php?t=59369">CentOS forum</A>
+<LI> Oracle Linux (is it still around?) is essentially RHEL, but support is provided from Oracle directly.  Oracle DBAs probably like it.
+<LI> Scientific Linux has 'fastbugs' and 'security' updates.   Security updates are enabled by default.  
+See <A HREF="https://www.scientificlinux.org/documentation/faq/faq-updates/">SL FAQ from Fermilab</A> and 
+<A HREF="https://serverfault.com/questions/369833/automatically-check-for-security-updates-on-centos-or-scientific-linux">serverfault</A>
+</UL>
+
 <H2>Linux Admin 101</H2>
 
 Linux init mode are not "cumulative".  So, if default init is 5, script in run level 3 would not be run.  If adding a Start script, may want to add them in both in rc3.d and rc5.d, unless it is really only wished to be available at one of the run level and not the other.  
@@ -1030,14 +1049,50 @@ see:
 
 <A NAME="raid"></A>
 <A NAME="RAID"></A>
-<H1>RAID</H1>
+
+
+<A NAME="mdadm"></A>
+<A NAME="mdraid"></A>
+<H1>mdRAID</H1>
 
 <PRE>
 
 mdadm 
-https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing
+
+cat /proc/mdstat 
+mdadm --detail /dev/mdNNN
+
+mdadm --detail --scan 			# could redirect output to like /etc/mdadm.conf to save config
+
+mdadm --create --verbose /dev/md127 --level=linear --raid-devices=3  /dev/sda1 /dev/sdb1 /dev/sdc1 
+
+
+have to assemble the device each time when running:
+mdadm --assemble /dev/md127 /dev/sda1 /dev/sdb1 /dev/sdc1 
+mdadm --assemble --scan
+
+mdadm --stop /dev/md127
 
 </PRE>
+
+Ref:
+<A HREF="https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing">Linux RAID</A>
+<BR>
+
+<A NAME="megacli"></A>
+<A NAME="megaraid"></A>
+<H1>megaRAID</H1>
+
+<!-- see CF_BK/ spot832, watershedfx, wall-e -->
+
+megaRAID controller is often used in white box low cost "home made" storage arrays. <BR>
+megacli is the main command to manipulate such raid. <BR>
+there is a gui called raid manager. <BR>
+
+<PRE>
+MegaCli64 ?
+</PRE>
+
 
 <A NAME="hd"></A>
 <A NAME="partitions"></A>
@@ -1315,6 +1370,10 @@ yum search wireshark	# search for package... give more info than list | grep...
 yum --enablerepo=epel --enablerepo=dag ...	# tmp enable named repos for this run (they have to be in /etc/yum.repos.d but disabled)
 
 repoquery --whatprovides '*bin/yes'   # coreutils
+yum       --whatprovides '*bin/yes'   # coreutils
+
+yum --setopt=tsflags=noscripts -y install boinc-client  # pass --noscripts to rpm when installing the boinc-client*rpm
+# it is like setting yum.conf tsflags option that make rpm install package without triggering execution of install script"
 
 </PRE>
 
@@ -1518,8 +1577,57 @@ kernel.exec-shield=0
 vm.panic_on_oom=1
 vm.swappiness = 0
 
+</PRE>
+
+<A NAME="sensors"></A>
+<H2>sensors</H2>
+
+<EM>lm-sensors</EM>
+<BR>
+
+<PRE class="code">
+$ sensors
+acpitz-virtual-0						[1]
+Adapter: Virtual device						[2]
+temp1:        +42.0°C  (crit = +104.0°C)			[3]
+
+thinkpad-isa-0000						[4]
+Adapter: ISA adapter						[5]
+fan1:        3773 RPM						[6]
+
+coretemp-isa-0000						[7]
+Adapter: ISA adapter						[8]
+Physical id 0:  +42.0°C  (high = +87.0°C, crit = +105.0°C)	[ 9l  9i  9m  9c]
+Core 0:         +42.0°C  (high = +87.0°C, crit = +105.0°C)	[10l 10i 10m 10c]
+Core 1:         +33.0°C  (high = +87.0°C, crit = +105.0°C)	[11l 11i 11m 11c]
+
+# ubuntu cpu temperature (readable by user)
+
+ 9l 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_label
+ 9i	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_input   #  42000
+ 9m	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_max	#  87000
+ 9c	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_crit	# 105000
+   	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp1_crit_alarm #   0 (times reached alarm level?)
+
+
+10l 	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp2_label	# Core 0
+10i	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp2_input	#  42000
+
+11i	/sys/bus/platform/devices/coretemp.0/hwmon/hwmon2/temp3_input	#  31000
+
+# sl7 cpu temperature 
+
+/sys/bus/platform/devices/coretemp.0/temp2_label
+/sys/bus/platform/devices/coretemp.0/temp2_input
+/sys/bus/platform/devices/coretemp.1/temp5_input
+
+grep [0-9] /sys/bus/platform/devices/coretemp.*/temp*_input
+
+/sys/class/thermal
 
 </PRE>
+
+
 
 <A NAME="kernel"></A>
 <H1>Kernel</H1>
@@ -2315,6 +2423,11 @@ older ethereal comes with a gtk+, gnome, kde package.
 But those are somehow no longer shipped (by up2date, rpmfind).
 
 
+xxd -r 			# reverse hex to ascii conversion, from vim-common rpm
+			# xxd /etc/passwd | xxd -r 
+od			# octal dump
+hexdump			# hex dump
+
 xterm, use rxvt color scheme, grey on black. MiscFixed font, 8pt.
 gnome-terminal
 kterm ??
@@ -2503,10 +2616,17 @@ control-panel	old red hat panel, configure network, printer, etc
 
 </PRE>
 
+<HR>
+
+<div align="CENTER">
+<A HREF="https://twitter.com/Linux/status/822544617761603584"><IMG SRC="fig/knowYourPenguins_@Linux.jpg" ALT="Know Your Penguins - From @Linux Tweeter feed" WIDTH="96%"></A><BR>
+</div>
+
+
 
 <BR><HR>
 <div align="CENTER">
-  [Doc URL: <A HREF=http://psg.ask-margo.com/linux.html">psg/linux.html</A>] 
+  [Doc URL: <A HREF=http://tin6150.github.io/psg/linux.html">http://tin6150.github.io/psg/linux.html</A>] 
 
 <BR>
 (cc) Tin Ho. See 

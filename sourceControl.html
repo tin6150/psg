@@ -159,6 +159,28 @@ cvs commit              make changes permanenet
 
 </PRE>
 
+<A name="rcs"></A>
+<H4>RCS</H4>
+
+RCS is pretty old school.  It does work out of a simple directory on the file system, no external server needed.
+
+<PRE>
+co -l {filename} check out file (with lock) from rcs sys
+co -r {filename} check out revision <N> or the latest verstion,
+                 will prompt to overwrite co -l files (at least then when you do ci, it will say file not changed
+                 and effectively reversed to original content)
+ci    {filename} put file back into rcs
+ci -u {filename} (the -u leave a read only copy of the file, as if run co immediately after ci, always use it:))
+
+rlog {file}     display rcs edit log
+rcsdiff {file}  display diff b/w current file content and its previous version
+rcsdiff -r1.1   display diff b/w current file and version 1.1 of the file
+rcs -u {file}   forces an unlock a file locked by some other user.
+rcs -aUID FILE  add access for user UID to the FILE (but didn't work, maybe file need to be group writable).
+</PRE>
+
+
+
 <A NAME="perforce"></A>
 <A NAME="p4"></A>
 <H4>perforce</H4>
@@ -298,6 +320,7 @@ git status			# show commit staatus within the local copy of repo only.
 				# only another git fetch would get these changes.
 
 
+
 ## think these are still acting on local copy.  in fact, it is likely that 
 ## git act on local copy, except for few commands to interact with master repo...
 
@@ -324,8 +347,9 @@ git branch			# list branches.  * indicate the current branch working on.
 git branch -r			# list all branches avail in (r)emote server
 git branch issue123		# create a branch called "issue123" (eg after a bug#)
 git branch --edit-description issue123	# modify a description for the named branch.  it brings up a text editor
+git checkout -b issue123	# create a branch and switch to it at the same time (?)
+git push -u origin issue123	# push the local branch "issue123" to origin (github) [can push branch tag up upstream even when there are 0 commits]
 
-git checkout -b issue123	# 
 git checkout master		# swich to the master branch (master is trunk branch created by default)
 
 
@@ -344,9 +368,20 @@ git remote set-url repoName url	# use this if need to change remote github/bitbu
 git push --set-upstream repoName master	# the first push to a new repo need to specify the repository and branch name 
 
 
+git reset			# abandone current uncommited changes.  ie revert files to state in the git repo
+git clean -nd			# clean is to remove all untracked files in the current dir.   -nd = preview/dry run
+git clean -id			# -i for interactive.  -f for force.
+
 git revert			# abandone changes in a checkout ?
 git reset head			# undo "git add"
-git reset			# undo "git commit" ?
+
+
+git log --diff-filter=D --summary | grep delete		# list all deleted files in github
+git checkout SHA^ -- ./filename				# restore a file.  ^ means right before the commit
+
+
+git ls-files -d | xargs git checkout -- 					# undelete all unstaged deletion (those not commited yet)
+git status | grep 'deleted:' | awk '{print $2}' | xargs git checkout --		# recover  all staged delete (after commit)	
 
 </PRE>
 
@@ -373,7 +408,7 @@ git pull --rebase		# may want to do this before commit... so conflicts are local
 				# rebase is typically the most desirable option
 				# BUT...
 				# in corp env, almost always better to use fetch and merge than pull --rebase
-				# 
+				# Hmm...
 
 
 git fetch 			# get changes on master repo and sync them to local copy of the repo.  
@@ -519,6 +554,8 @@ export HOMEDRIVE=H:   <BR>
 <LI><A HREF="https://www.youtube.com/watch?v=ZDR433b0HJY">Comprehensive git workshop video</A> by Scott Chacon.
 <LI><A HREF="https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell">git branching</A> philosophy well explained (part of online book)
 <LI><A HREF="https://progit.org">pro git</A>.  Book title "Pro Git" from A-press.  avail online.  GIT reference, (?) also has lobby/reasons to move to git.
+<LI><A HREF="https://stackoverflow.com/questions/7203515/git-how-to-search-for-a-deleted-file-in-the-project-commit-history">recover deleted file</A> from Stack Overflow. <BR>
+
 
 </UL>
 

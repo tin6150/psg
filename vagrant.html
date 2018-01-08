@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP, PSG101, sn50, tin6150"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - Vagrant</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://tin6150.github.io/psg/">Sys Admin Pocket Survival Guide - OS</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="d" href="docker.html">Docker</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
+      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
+      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/686"><IMG SRC="fig/xkcd_admin_mourning.png"></A><BR>
+</div>
+
+
+<H1>Vagrant</H1>
+
+<PRE>
+
+vagrant init 			# will create a new Vagrantfile in current dir
+--or--
+vi Vagrantfile			# skip init and use a customized file. eg singhub/Vagrantfile
+
+vagrant up
+vagrant provision		# (re)run provision section of Vagrantfile 
+vagrant provision --debug 	# add debug output to above
+
+vagrant up --provision | tee provision.log	# run vagrant up and forces provision to run
+
+# works on osx sierra, but not on mint rafaela, which needed:
+vagrant box add centos/7 https://vagrantcloud.com/centos/boxes/7/versions/1708.01/providers/virtualbox.box   ## this one works!
+# see https://github.com/hashicorp/vagrant/issues/5016
+# but in mint, still can't do vagrant up, something crashes , but that maybe virtualbox bug... oh, my linux box had been acting up...
+
+vagrant status
+vagrant global-status		# if have some global farm thing setup
+vagrant suspend			# hibernate vm
+vagrant resume			# resume vm after hibernation
+vagrant halt			# power off vm
+vagrant reload 			# restarts vagrant machine, loads new Vagrantfile configuration
+vagrant reload --provision 	# Same as above, but also force provisioning
+
+
+vagrant box list -i		# -i give extra info.  but container name with /n doesn't show up!  bug??
+vagrant box remove -h 		# -h for help on specific subcommand
+vagrant box remove foobar/7 virtualbox
+
+
+#--vagrant destroy		# this will DELETE the box and ...
+
+vagrant push 			# push code with vagrant...
+vagrant ssh 			# ssh to vagrant vm.  it has password?  ssh key??
+
+</PRE>
+
+<H5>Vagrantfile</H5>
+
+<BR>
+<A HREF="https://github.com/tin6150/singhub/blob/master/Vagrantfile">
+Example Vagrantfile</A>.
+<BR>
+
+
+
+<H2>Installation</H2>
+
+<PRE>
+Mint:    sudo apt-get install vagrant virtualbox
+
+Centos7: yum -y install https://releases.hashicorp.com/vagrant/1.9.6/vagrant_1.9.6_x86_64.rpm
+# https://www.tecmint.com/how-to-install-vagrant-on-centos-7/ says vagrant can use docker too...
+# but not so sure.  vagrant ask for VirtualBox, VMware, hyperV.  
+
+# yum -y install virt-what              # inside VM, tell/guess what env is in.
+
+Mac:
+cd ~/Downloads
+wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
+sudo hdiutil attach vagrant_2.0.0_x86_64.dmg
+sudo installer -package /Volumes/Vagrant/vagrant.pkg -target /
+# installed to /opt/vagrant with link in /usr/local
+sudo hdiutil detach /Volumes/Vagrant
+
+wget http://download.virtualbox.org/virtualbox/5.1.28/VirtualBox-5.1.28-117968-OSX.dmg
+sudo hdiutil attach VirtualBox-5.1.28-117968-OSX.dmg 
+sudo installer -package /Volumes/VirtualBox/VirtualBox.pkg -target /
+# installed to /Applications/VirtualBox.app
+sudo hdiutil detach /Volumes/VirtualBox/
+</PRE>
+
+
+
+
+<H2>Virtual Box</H2>
+
+<PRE>
+/usr/bin/vboxmanage 
+vboxmanage list vms
+vboxmanage showvminfo
+
+</PRE>
+
+
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/">
+http://tin6150.github.io/psg/vagrant.html
+</A>] <BR>
+Last Updated: 2017-10-09
+  <!--[Doc URL: <A HREF="http://psg.ask-margo.com/">http://psg.ask-margo.com/</A>] <BR>-->
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  hoti1<BR>
+  sn5050<BR>
+  psg101 sn50 tin6150</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

@@ -106,11 +106,30 @@ ipmitool -l lan -U root -P calvin -H 10.8.1.76 chassis bootdev pxe options=persi
 		# issue the ipmi command remotely to a remote host using the remote iDRAC interface
 
 
+ipmitool fru		# list all fru (eg 4 node in 2U chassis would list service tag and board serial of each node)
+
+ipmitool dcmi set_asset_tag	# set asset tag, presumably for the whole chassis ...
+ipmitool dcmi asset_tag 	# retrieve asset tag info 
+
+ipmitool dcmi get_temp_reading	# cpu temperature
+ipmitool sensor			# many sensor info, may include inlet temperature
+
+
 # if IPMI isn't working, in RHEL 6, it is a kernel module that need to be started
 # for machines with module:
 module load shared
 module load ipmitool
 service ipmi start
+
+</PRE>
+
+<H5>Finding Dell Chassis ServiceTag from a node</H5>
+<PRE>
+
+# Dell C6320 vintage 2017
+ipmitool raw 0x30 0xc8 0x01 0x00 0x0b 0x00 0x00 0x00 | xxd -r
+
+# xxd -r is reverse hex conversion to ascii, avail from vim-common rpm
 
 </PRE>
 
