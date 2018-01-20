@@ -1049,11 +1049,12 @@ see:
 
 <A NAME="raid"></A>
 <A NAME="RAID"></A>
+<H1>RAID</H1>
 
 
 <A NAME="mdadm"></A>
 <A NAME="mdraid"></A>
-<H1>mdRAID</H1>
+<H2>mdRAID</H2>
 
 <PRE>
 
@@ -1081,17 +1082,46 @@ Ref:
 
 <A NAME="megacli"></A>
 <A NAME="megaraid"></A>
-<H1>megaRAID</H1>
+<H2>megaRAID</H2>
 
-<!-- see CF_BK/ spot832, watershedfx, wall-e -->
+<!-- see CF_BK/ spot832, watershedfx, wall-e, bearbin-->
 
 megaRAID controller is often used in white box low cost "home made" storage arrays. <BR>
 megacli is the main command to manipulate such raid. <BR>
 there is a gui called raid manager. <BR>
 
 <PRE>
-MegaCli64 ?
+/usr/local/MegaRAID\ Storage\ Manager/./startupui.sh    # GUI
+
+/opt/MegaRAID/MegaCli/MegaCli64
+
+MegaCli64 -LDInfo -lall -aall	# array info and state
+MegaCli64 -LDInfo -lall -aall | egrep --color "Adapter|^Virtual Drive|Name|^RAID Level|^Size|State|Number Of Drives"
+
+MegaCli64 -AdpAllInfo -aALL	# HW info, whether BBU (Battery Backup Unit) is present, error counters 
+MegaCli64 -AdpAllInfo -aALL	| egrep --color "^Adapter|Product Name|Serial No|FW Version|Mfg. Date"  # controller hw info
+MegaCli64 -AdpAllInfo -aALL     | egrep --color "^Adapter|Virtual Drives|Degraded|  Offline"		# virtual  drive state
+MegaCli64 -AdpAllInfo -aALL	| egrep --color "^Adapter|Physical Devices|Disks|Critical|  Failed"	# physical drive stte
+
+
+MegaCli64 -LDInfo -Lall -aALL | egrep  --color -i "virtual|state|adapter"
+
+
+./MegaCli64 -PDInfo -PhysDrv [1:2] -aALL | more
+./MegaCli64 -Pdgetmissing -a2		# see if there are missing drive in adapter 2
+
+
+./MegaCli64 -PdList -aall | grep --color -i firmware	# get firmware info
+
+
+lsblk
+
 </PRE>
+
+
+Additional info at 
+<LI><A HREF="megaraid.html">megaraid.html</A>
+<LI><A HREF="#hp">#hp</A>
 
 
 <A NAME="hd"></A>
@@ -2072,6 +2102,7 @@ system-configure-display	# rhel6
 Vendor Specific Tools/Packages
 </H1>
 
+<A NAME="hp"></A>
 <H2>HP (Intel Hardware)</H2>
 
 <PRE>

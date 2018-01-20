@@ -329,11 +329,15 @@ scontrol show reservation 	# show reservations
 				# listed user of the reservation can submit job that is flagged to use the reservation
 
 
-scontrol create reservation starttim=2017-12-27T16:15 duration=60 user=tin flags=maint nodes=n0142.lr5,n0143.lr5 reservation=rn_666
+scontrol create reservation starttim=2018-01-02T16:15 duration=60 user=tin flags=maint nodes=n0142.cf1,n0143.cf1 reservation=rn_666
+scontrol create reservation starttim=2018-01-02T16:15 duration=10-0:0:0 user=tin flags=maint nodes=n0142.cf1,n0143.cf1 reservation=rn_66r76
+scontrol create reservation start=2018-01-10T12:25 end=2018-01-13 user=tin,meli flags=maint nodes=n0018.cf1,n0019.cf1 reservation=resv777
 # create reservation, admin priv may be req
 # duration is number of minutes
+# duration number of 10-0:0 is 10 days, 0 hours, 0 min.  can be abbreviated to 10-0 or even 10-
 # reservation=rn_666 is optional param to give reservation a name, 
 # if not specified, slurm will generate a name for it
+# nodes=lx[00-19] to specify a range should be doable, but so far have not been able to n00[00-19].cf1.  slurm too old?
 
 scontrol delete reservation=rn_666
 

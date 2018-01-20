@@ -171,12 +171,68 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 ^H 		WebBIOS
 ^Y		preboot CLI
 
+</PRE>
 
 
+<H2>Dell</H2>
+
+<H3>HT Hyperthreading/Logical Processor</H3>
+<PRE>
+/opt/dell/srvadmin/sbin/racadm get BIOS.ProcSettings.LogicalProc		# query HT status
+
+/opt/dell/srvadmin/sbin/racadm set BIOS.ProcSettings.LogicalProc Disabled	# disable HT
+/opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1			# create job to change BIOS setting
+/opt/dell/srvadmin/sbin/racadm serveraction powercycle				# power cycle to effect change
+</PRE>
+
+
+<H3>SNC Sub NUMA Cluster on Skylake</H3>
+
+Leave SNC disabled (default).
+<BR>
+
+See Fig 2 of: 
+http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor
+
+<PRE>
+Skylake... 14th gen PowerEdge...
+"introduce a clustering mode called Sub NUMA clustering (SNC). On CPU models that support SNC, enabling SNC is akin to splitting the single socket into two NUMA domains, each with half the physical cores and half the memory of the socket."
+
+Query Sub NUMA Cluster (SNC) modes 
+	- numactl -H 
+	- /opt/dell/srvadmin/sbin/racadm get BIOS.ProcSettings.SubNumaCluster
+
+- SNC=Disabled (default).  ie, two socket show up as two NUMA domains.  
+- SNC=Enabled.  within socket has split NUMA domains. two socket system would then have FOUR NUMA domains.  application who does not optimize for memory locality would be worse off.  Thus, not recommended unless benchmark and tuning has been done that benefit from this setting. 
+
+SNC disabled is baseline.  If enable SNC: 
+- STREAM, WRF, Fluent, which are highly localized memory optimized, have slight gain of 1-2%
+- HPL was ~1% worse off.
 
 </PRE>
 
-<H3></H3>
+<H3>DAPC & GFLOPS/watt</H3>
+
+DAPC profile consume less power than Performance profile, yet produce essentially same chrunching power.
+<BR>
+See Fig 3 + 4 of: 
+http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor
+
+<PRE>
+Skylake... 14th gen PowerEdge...
+- In idle state, Performance Profile consumes ~28% more power than DAPC.
+- Peak power consumption in DAPC Profile is ~16% less than in Performance Profile. 
+- STREAM, WRF have essentialy same performance in either Performance or DAPC mode.
+- HPL is 1.05% better in Performance than DAPC mode.  
+- Fluent is ~1.01% better.
+
+/opt/dell/srvadmin/sbin/racadm get BIOS.SysProfileSettings.SysProfile
+	SysProfile=PerfOptimized	(default)
+
+/opt/dell/srvadmin/sbin/racadm set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs
+
+
+</PRE>
 
 <div class="quote">
 </div>
