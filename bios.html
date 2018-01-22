@@ -213,7 +213,7 @@ SNC disabled is baseline.  If enable SNC:
 
 <H3>DAPC & GFLOPS/watt</H3>
 
-DAPC profile consume less power than Performance profile, yet produce essentially same chrunching power.
+DAPC profile consume less power than Performance profile, yet said to produce essentially same chrunching power.  [my actual HPL test lost 7% performance]
 <BR>
 See Fig 3 + 4 of: 
 http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor
@@ -230,6 +230,10 @@ Skylake... 14th gen PowerEdge...
 	SysProfile=PerfOptimized	(default)
 
 /opt/dell/srvadmin/sbin/racadm set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs
+
+	Using PerfPerWattOptimizedOs:
+	- Reduce HPL performance by ~7% on Skylake 6130 2.1 GHz 32cores 96G on Dell C6420
+	- Exposes HPL clock calculation bug in random manner (cuz it messes with CPU clock?)
 
 </PRE>
 
