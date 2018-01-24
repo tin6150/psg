@@ -209,7 +209,37 @@ SNC disabled is baseline.  If enable SNC:
 - STREAM, WRF, Fluent, which are highly localized memory optimized, have slight gain of 1-2%
 - HPL was ~1% worse off.
 
+	- /opt/dell/srvadmin/sbin/racadm get BIOS.MemSettings.NodeInterleave
+
+- Disabled (default) = system support NUMA (asymmetric) mem config
+- Enabled = memory interleave is supported IF symetric memory config is installed.  (SNC will not work when memory configured this way?)
+	
+
 </PRE>
+
+<H3>Memory Operating Mode</H3>
+
+<PRE>
+racadm help BIOS.MemSettings.MemOpMode
+	OptimizerMode - Optimizer Mode (default)
+	SingleRankSpareMode - Single Rank Spare Mode;
+	MirrorMode - Mirror Mode;
+	FaultResilientMode - Fault Resilient Mode;
+</PRE>
+
+<!-- 
+singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+  set BIOS.ProcSettings.LogicalProc      Disabled                 # non default, but HPC don't want HT on	
+  set BIOS.MemSettings.MemOpMode         OptimizerMode		# default, should not need to change this for HPC
+  set BIOS.MemSettings.NodeInterleave    Enabled			# non default, may not be compatible with SubNumaCluster
+  set BIOS.ProcSettings.SubNumaCluster   Enabled			# non default
+  set BIOS.SysProfileSettings.SysProfile PerfOptimized		# default
+  set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedDapc
+
+singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
+
+singularity exec      /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
+-->
 
 <H3>DAPC & GFLOPS/watt</H3>
 
@@ -235,14 +265,23 @@ Skylake... 14th gen PowerEdge...
 	- Reduce HPL performance by ~7% on Skylake 6130 2.1 GHz 32cores 96G on Dell C6420
 	- Exposes HPL clock calculation bug in random manner (cuz it messes with CPU clock?)
 
-</PRE>
 
+racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and dependencies):
+	- PerfPerWattOptimizedDapc - Performance Per Watt (DAPC)
+	- PerfPerWattOptimizedOs - Performance Per Watt (OS)
+	- PerfOptimized - Performance
+	- PerfWorkStationOptimized - Workstation Performance;Custom - Custom;
+
+
+</PRE>
     
 <H3>Ref</H3>
 
 Ref:
 <UL>
 <LI><A HREF="http://www.dell.com/support/manuals/us/en/19/dell-opnmang-dplymnt-toolkit-v4.4/dtk_cli-v3/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">List of many racadm settable params</A>
+<LI><A HREF="http://topics-cdn.dell.com/pdf/poweredge-c6420_owner%27s%20manual_en-us.pdf">C6420 Spec and Config</A>BIOS/Memory settings in page 40</A>
+<LI>
 </UL>
 
 <div class="quote">
