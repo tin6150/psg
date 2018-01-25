@@ -40,11 +40,11 @@ $LVMROOT/pvcreate $SD_NAME
 echo running vgcreate
 $LVMROOT/vgcreate $VG_NAME $SD_NAME
 echo running lvcreate for swap
-$LVMROOT/lvcreate -n swap -L $SWAP_SIZE $VG_NAME
+$LVMROOT/lvcreate -y -n swap -L $SWAP_SIZE $VG_NAME    # -y for yes, even more dangerous now! 
 echo running lvcreate for tmp
-$LVMROOT/lvcreate -n tmp -L $TMP_SIZE $VG_NAME
+$LVMROOT/lvcreate -y -n tmp -L $TMP_SIZE $VG_NAME
 echo running lvcreate for local
-$LVMROOT/lvcreate -n local -l $LOCAL_SIZE $VG_NAME
+$LVMROOT/lvcreate -y -n local -l $LOCAL_SIZE $VG_NAME
 
 umount /tmp
 /sbin/mkswap -L swap /dev/$VG_NAME/swap
@@ -58,5 +58,6 @@ mount /tmp
 chmod 1777 /tmp
 swapon -a
 swapon -s
+df -h /tmp
 echo "Should reboot after fdisk partition disk..."
 
