@@ -176,7 +176,7 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 
 <H2>Dell</H2>
 
-<H3>HT Hyperthreading/Logical Processor</H3>
+<H3>HT - Hyperthreading/Logical Processor</H3>
 <PRE>
 /opt/dell/srvadmin/sbin/racadm get BIOS.ProcSettings.LogicalProc		# query HT status
 
@@ -186,7 +186,7 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 </PRE>
 
 
-<H3>SNC Sub NUMA Cluster on Skylake</H3>
+<H3>SNC - Sub NUMA Cluster on Skylake</H3>
 
 Leave SNC disabled (default).
 <BR>
@@ -247,6 +247,9 @@ Skylake... 14th gen PowerEdge...
 
 /opt/dell/srvadmin/sbin/racadm set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs
 
+	Using PerfPerWattOptimizedDapc:
+	- TBA 
+
 	Using PerfPerWattOptimizedOs:
 	- Reduce HPL performance by ~7% on Skylake 6130 2.1 GHz 32cores 96G on Dell C6420
 	- Exposes HPL clock calculation bug in random manner (cuz it messes with CPU clock?)
@@ -266,7 +269,7 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
 -->
 
-When CPU doesn't perform, check these params:
+When CPU doesn't perform, check these params (racadm):
 
 <PRE>
   set BIOS.ProcSettings.LogicalProc      Disabled       # non default, but HPC don't want HT on	
