@@ -35,19 +35,28 @@ MKFS="/sbin/mkfs.ext4"
 #wipe the partition table (and then some)
 /bin/dd if=/dev/zero of=$SD_NAME bs=1024k count=10
 
+echo running pvcreate
 $LVMROOT/pvcreate $SD_NAME
+echo running vgcreate
 $LVMROOT/vgcreate $VG_NAME $SD_NAME
+echo running lvcreate for swap
 $LVMROOT/lvcreate -n swap -L $SWAP_SIZE $VG_NAME
+echo running lvcreate for tmp
 $LVMROOT/lvcreate -n tmp -L $TMP_SIZE $VG_NAME
+echo running lvcreate for local
 $LVMROOT/lvcreate -n local -l $LOCAL_SIZE $VG_NAME
 
+umount /tmp
 /sbin/mkswap -L swap /dev/$VG_NAME/swap
 $MKFS -L tmp /dev/$VG_NAME/tmp
 $MKFS -L local /dev/$VG_NAME/local
 
 
-## tin addition 2017.0718
+## tin addition 2017.0718,2018.0125
+umount /tmp
 mount /tmp
 chmod 1777 /tmp
-echo "reboot after fdisk partition disk"
+swapon -a
+swapon -s
+echo "Should reboot after fdisk partition disk..."
 
