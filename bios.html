@@ -294,6 +294,7 @@ When CPU doesn't perform, check these params (racadm):
   set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs		# may save energy, seems to introduce clock/timing bug
   set BIOS.ProcSettings.ControlledTurbo  Enabled 	# allow for external control of when to engage turbo?  Def: Disabled.
   get BIOS.ProcSettings.ProcTurboMode			# read-only, probably always Enabled.
+  get BIOS.SysInformation.SystemBiosVersion             # BIOS version
 </PRE>
 
 <!--
@@ -302,6 +303,20 @@ singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.im
 singularity exec      /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
 -->
     
+<H3>Retrieve Serial stored in BIOS</H3>
+
+<PRE>
+  racadm  get System.ChassisInfo	# service tag of chassis, eg Dell C6420 chassis
+  racadm  get System...			# service tag of blade/sledge
+
+
+  ipmitool fru | grep Serial   						# list all fru and filter for serial of sledge/blade
+  ipmitool raw 0x30 0xc8 0x01 0x00 0x0b 0x00 0x00 0x00 | xxd -r 	# get Dell C6320 chassis service tag vintage 2017
+</PRE>
+
+More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hexcode">ipmi</A>
+
+
 <H3>Ref</H3>
 
 Ref:
