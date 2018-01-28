@@ -150,7 +150,18 @@ HTML validator: http://validator.w3.org/
   <div id="content">
 
       <p>
+
+<div align="CENTER">
+<A HREF="http://www.commitstrip.com/en/2016/06/21/childhood-of-a-coder-booting-to-bios/">
+<IMG SRC="fig/bios.Strip-Enfance-du-codeur-Le-bios-650-finalenglish-1.jpg"></A>
+</div>
   
+<H1>BIOS</H1>
+Do you prefer UEFI?   Really??  <BR>
+Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <BR>
+
+
+
 <H2>SuperMicro</H2>
 <p>
 During Post, keys:
@@ -176,7 +187,20 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 
 <H2>Dell</H2>
 
-<H3>HT Hyperthreading/Logical Processor</H3>
+PowerEdge
+
+<PRE>
+F2  = System Setup 
+F10 = Lifecycle Controller (BIOS setup)
+F11 = Boot Manager
+F12 = PXE boot
+
+^A = Avago raid controller
+
+</PRE>
+
+
+<H3>HT - Hyperthreading/Logical Processor</H3>
 <PRE>
 /opt/dell/srvadmin/sbin/racadm get BIOS.ProcSettings.LogicalProc		# query HT status
 
@@ -186,7 +210,7 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 </PRE>
 
 
-<H3>SNC Sub NUMA Cluster on Skylake</H3>
+<H3>SNC - Sub NUMA Cluster on Skylake</H3>
 
 Leave SNC disabled (default).
 <BR>
@@ -209,6 +233,22 @@ SNC disabled is baseline.  If enable SNC:
 - STREAM, WRF, Fluent, which are highly localized memory optimized, have slight gain of 1-2%
 - HPL was ~1% worse off.
 
+	- /opt/dell/srvadmin/sbin/racadm get BIOS.MemSettings.NodeInterleave
+
+- Disabled (default) = system support NUMA (asymmetric) mem config
+- Enabled = memory interleave is supported IF symetric memory config is installed.  (SNC will not work when memory configured this way?)
+	
+
+</PRE>
+
+<H3>Memory Operating Mode</H3>
+
+<PRE>
+racadm help BIOS.MemSettings.MemOpMode
+	OptimizerMode - Optimizer Mode (default)
+	SingleRankSpareMode - Single Rank Spare Mode;
+	MirrorMode - Mirror Mode;
+	FaultResilientMode - Fault Resilient Mode;
 </PRE>
 
 <H3>DAPC & GFLOPS/watt</H3>
@@ -231,20 +271,82 @@ Skylake... 14th gen PowerEdge...
 
 /opt/dell/srvadmin/sbin/racadm set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs
 
+	Using PerfPerWattOptimizedDapc:
+	- TBA 
+
 	Using PerfPerWattOptimizedOs:
 	- Reduce HPL performance by ~7% on Skylake 6130 2.1 GHz 32cores 96G on Dell C6420
 	- Exposes HPL clock calculation bug in random manner (cuz it messes with CPU clock?)
 
+
+racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and dependencies):
+	- PerfPerWattOptimizedDapc - Performance Per Watt (DAPC)
+	- PerfPerWattOptimizedOs - Performance Per Watt (OS)
+	- PerfOptimized - Performance
+	- PerfWorkStationOptimized - Workstation Performance;Custom - Custom;
+
+
 </PRE>
 
+<H3>Other BIOS param</H3>
+<!-- 
+singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+-->
+
+When CPU doesn't perform, check these params (racadm):
+
+<PRE>
+  set BIOS.ProcSettings.LogicalProc      Disabled       # non default, but HPC don't want HT on	
+  set BIOS.MemSettings.MemOpMode         OptimizerMode	# default, should not need to change this for HPC
+  set BIOS.MemSettings.NodeInterleave    Enabled	# non default, not compatible with SubNumaCluster, not typically recommended
+  set BIOS.ProcSettings.SubNumaCluster   Enabled	# non default, only useful if app can better utlize localized mem
+  set BIOS.SysProfileSettings.SysProfile PerfOptimized	# default
+  set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedDapc	# said to save energy
+  set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs		# may save energy, seems to introduce clock/timing bug
+  set BIOS.ProcSettings.ControlledTurbo  Enabled 	# allow for external control of when to engage turbo?  Def: Disabled.
+  get BIOS.ProcSettings.ProcTurboMode			# read-only, probably always Enabled.
+  get BIOS.SysInformation.SystemBiosVersion             # BIOS version
+</PRE>
+
+<!--
+singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
+
+singularity exec      /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
+-->
     
+<H3>Retrieve Serial stored in BIOS</H3>
+
+<PRE>
+  racadm  get System.ChassisInfo	# service tag of chassis, eg Dell C6420 chassis
+  racadm  get System...			# service tag of blade/sledge
+
+
+  ipmitool fru | grep Serial   						# list all fru and filter for serial of sledge/blade
+  ipmitool raw 0x30 0xc8 0x01 0x00 0x0b 0x00 0x00 0x00 | xxd -r 	# get Dell C6320 chassis service tag vintage 2017
+</PRE>
+
+More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hexcode">ipmi</A>
+
+
 <H3>Ref</H3>
 
 Ref:
 <UL>
 <LI><A HREF="http://www.dell.com/support/manuals/us/en/19/dell-opnmang-dplymnt-toolkit-v4.4/dtk_cli-v3/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">List of many racadm settable params</A>
+<LI><A HREF="http://topics-cdn.dell.com/pdf/poweredge-c6420_owner%27s%20manual_en-us.pdf">C6420 Spec and Config</A>BIOS/Memory settings in page 40</A>
+<LI><A HREF="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0ahUKEwinlpT0wvHYAhUI0mMKHRpJAlkQFggpMAA&url=http%3A%2F%2Fen.community.dell.com%2Fcfs-file%2F__key%2Ftelligent-evolution-components-attachments%2F13-4491-00-00-20-44-05-27%2FBIOS-Setup-User-Guide.pdf%3Fforcedownload%3Dtrue&usg=AOvVaw0ZWFfEd1FlvrKGCYkXhXtS">Dell 14th Gen server (skylake) BIOS settings</A>
+<LI><A HREF="http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor">Dell skylake Performance Benchmark results</A> (HPL, Stream, SpecInt, Ansys, etc)
+<LI><A HREF=""></A>
+<LI>
 </UL>
 
+<BR>
+
+<div align="CENTER">
+<A HREF="http://comic.browserling.com/tag/bios">
+<IMG SRC="fig/keyboard.png"></A>
+</div>
+  
 <div class="quote">
 </div>
 

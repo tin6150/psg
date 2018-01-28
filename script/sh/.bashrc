@@ -112,6 +112,7 @@ add_hpcs_module () {
 	##fi
 	## the following don't load on perceus, but pretty much everywhere else...
 	if [[ -d /global/software/ ]] ; then 
+		echo "noop" > /dev/null
 		module load git
 		module load intel openmpi mkl
 	fi
@@ -129,7 +130,7 @@ add_hpcs_module () {
 add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
 	AddtoString PATH /global/home/groups/scs/IB-tools 
-	AddtoString PATH /global/home/groups/scs/yqin
+	#AddtoString PATH /global/home/groups/scs/yqin
 	##--echo "Path after mocking: $PATH"
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
 } # end add_hpcs_bin 
