@@ -104,6 +104,17 @@ add_local_module () {
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_local_module_ends"
 } # end add_local_module
 
+add_personal_module () {
+	# SMF dev aka personal module farm
+	if [[ -d ~tin/CF_BK/SMFdev/modfiles ]] ; then 
+		AddtoString MODULEPATH ~tin/CF_BK/SMFdev/modfiles/
+		module load /global/home/users/tin/CF_BK/SMFdev/modfiles/langs/intel/2018.1.163_eval
+		module load /global/home/users/tin/CF_BK/SMFdev/modfiles/intel/2018.1.163/mkl/2018.1.163_eval
+		#AddtoString MODULEPATH ~tin/CF_BK/SMFdev/modfiles/intel
+		#AddtoString MODULEPATH ~tin/CF_BK/SMFdev/modfiles/langs/intel
+		#module load intel/2018.1.163_eval mkl/2018.1.163_eval
+	fi
+} # end add_personal_module
 
 add_hpcs_module () {
 	# perceus has no SMF at all, thus still need to test.  but SL6 vs SL7 are handled by other scg script
@@ -114,7 +125,7 @@ add_hpcs_module () {
 	if [[ -d /global/software/ ]] ; then 
 		echo "noop" > /dev/null
 		module load git
-		module load intel openmpi mkl
+		#module load intel openmpi mkl
 	fi
 	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 	## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
@@ -340,6 +351,7 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
 add_hpcs_module	# overwrite PATH and don't export it back correctly??  only in SL6... ??
+add_personal_module 
 add_cosmic_module 
 
 setPrompt 
