@@ -23,9 +23,6 @@ sttrict xhtml:
 
 
 <!--  
-CSS Class - UCSCX - 2012.07 - Final Project 
-Also making it as part of my PSG page remake.
-
 CSS validator: http://jigsaw.w3.org/css-validator/#validate_by_uri
 HTML validator: http://validator.w3.org/
 -->    
@@ -143,8 +140,6 @@ HTML validator: http://validator.w3.org/
         <li><a href=""></a></li>
         <li> &nbsp; </li>
 	</ul>
-
-        <div class="azul"><a href="psg1.html">Full TOC on main page</A></div>
             
   </div> <!-- closes #navigation -->
 
@@ -154,230 +149,211 @@ HTML validator: http://validator.w3.org/
   
   <div id="content">
 
-<div align="CENTER">
-<!--
-<A HREF="http://www.explainxkcd.com/wiki/index.php/1425"><IMG SRC="fig/xkcd_tasks.png"></A>
-<!- -  xkcd_tasks.png used in bigdata.html -->
-<A HREF="https://twitter.com/Linux/status/936877536780283905"><IMG SRC="fig/cloud_@Linux.jpg" ALT="What is the cloud made up of? From @Linux Tweeter feed" WIDTH="96%"></A><BR>
-</div>
-
       <p>
+
+<div align="CENTER">
+<A HREF="http://www.commitstrip.com/en/2016/06/21/childhood-of-a-coder-booting-to-bios/">
+<IMG SRC="fig/bios.Strip-Enfance-du-codeur-Le-bios-650-finalenglish-1.jpg"></A>
+</div>
   
-  <H1>OpenStack</H1>
+<H1>BIOS</H1>
+Do you prefer UEFI?   Really??  <BR>
+Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <BR>
 
-  <UL>
-  <LI> OpenStack can be thought of running your own AWS cloud instrustructure.  It leverages many open source projects, and as such it is more complex than just running a VMware farm.
-  <LI> Unlike VMware, many of the main components are individual install and config.  eg.  Authorization, Netowrking (Neuron), Compute, Admin nodes, etc.
-  <LI> Compute virtualization is handled by Xen, QEMU/KVM or even VMware (several API exist from these products which OpenStack API interface with.
-  <LI> OpenStack provides both GUI, CLI and RESTful API
-  <LI>
-  </UL>
 
-  <BR>
 
-  <H2>DevStack</H2>
-
-  For kicking the tire, the devstack will install a usable demo on a linux machine that is decicated for this purpose.  Not for production use, bug help get started pretty quickly.  See 
-<A HREF="http://docs.openstack.org/developer/devstack/">
-http://docs.openstack.org/developer/devstack/</A>
-<BR>
-Once the stack.sh setup script completes, the Web GUI is accessible at the machine's IP under /dashboard  eg http://localhost/dashboard 
-<BR>
-There are two default users, admin and demo.
-The password is defined in the local.conf file in the beginning of the setup, which by default is "secret". 
-<BR>
-One thing that likely need some tweaking is Networking, even in a simple demo env.  See 
-<A HREF="http://docs.openstack.org/developer/devstack/networking.html">devstack network</A> page for a conside overview of things that need to be setup.
-<BR>
-
+<H2>SuperMicro</H2>
+<p>
+During Post, keys:
 <PRE>
-./stack			# start
-screen -x stack		# rejoin session
-./unstack.sh		# destroy session
+tab		Display BIOS POST message
+
+del 		run setup
+F11		boot menu
+F12		Network boot
+
+
+RAID controller
+AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
+
+^P		pause		(disk scanning?)
+^V		skip
+
+^H 		WebBIOS
+^Y		preboot CLI
+
 </PRE>
 
 
-<A ID="statoscale"></A>
-<H2>StratoScale</H2>
-This one is very close to being a drop in replacement for VMware, but for a lot less money.  <BR>
-<LI><A HREF="http://www.openstack.org/foundation/companies/profile/stratoscale">StratoScale company profile</A>
+<H2>Dell</H2>
+
+PowerEdge
 
 <PRE>
+F2  = System Setup 
+F10 = Lifecycle Controller (BIOS setup)
+F11 = Boot Manager
+F12 = PXE boot
+
+^A = Avago raid controller
+
 </PRE>
 
-<A ID="core"></A>
-<H1>Core Services</H1>
 
-<A NAME="Neuron"></A>
-<H5>Neuron</H5>
+<H3>HT - Hyperthreading/Logical Processor</H3>
+<PRE>
+/opt/dell/srvadmin/sbin/racadm get BIOS.ProcSettings.LogicalProc		# query HT status
+
+/opt/dell/srvadmin/sbin/racadm set BIOS.ProcSettings.LogicalProc Disabled	# disable HT
+/opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1			# create job to change BIOS setting
+/opt/dell/srvadmin/sbin/racadm serveraction powercycle				# power cycle to effect change
+</PRE>
+
+
+<H3>SNC - Sub NUMA Cluster on Skylake</H3>
+
+Leave SNC disabled (default).
+<BR>
+
+See Fig 2 of: 
+http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor
+
+<PRE>
+Skylake... 14th gen PowerEdge...
+"introduce a clustering mode called Sub NUMA clustering (SNC). On CPU models that support SNC, enabling SNC is akin to splitting the single socket into two NUMA domains, each with half the physical cores and half the memory of the socket."
+
+Query Sub NUMA Cluster (SNC) modes 
+	- numactl -H 
+	- /opt/dell/srvadmin/sbin/racadm get BIOS.ProcSettings.SubNumaCluster
+
+- SNC=Disabled (default).  ie, two socket show up as two NUMA domains.  
+- SNC=Enabled.  within socket has split NUMA domains. two socket system would then have FOUR NUMA domains.  application who does not optimize for memory locality would be worse off.  Thus, not recommended unless benchmark and tuning has been done that benefit from this setting. 
+
+SNC disabled is baseline.  If enable SNC: 
+- STREAM, WRF, Fluent, which are highly localized memory optimized, have slight gain of 1-2%
+- HPL was ~1% worse off.
+
+	- /opt/dell/srvadmin/sbin/racadm get BIOS.MemSettings.NodeInterleave
+
+- Disabled (default) = system support NUMA (asymmetric) mem config
+- Enabled = memory interleave is supported IF symetric memory config is installed.  (SNC will not work when memory configured this way?)
+	
+
+</PRE>
+
+<H3>Memory Operating Mode</H3>
+
+<PRE>
+racadm help BIOS.MemSettings.MemOpMode
+	OptimizerMode - Optimizer Mode (default)
+	SingleRankSpareMode - Single Rank Spare Mode;
+	MirrorMode - Mirror Mode;
+	FaultResilientMode - Fault Resilient Mode;
+</PRE>
+
+<H3>DAPC & GFLOPS/watt</H3>
+
+DAPC profile consume less power than Performance profile, yet said to produce essentially same chrunching power.  [my actual HPL test lost 7% performance]
+<BR>
+See Fig 3 + 4 of: 
+http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor
+
+<PRE>
+Skylake... 14th gen PowerEdge...
+- In idle state, Performance Profile consumes ~28% more power than DAPC.
+- Peak power consumption in DAPC Profile is ~16% less than in Performance Profile. 
+- STREAM, WRF have essentialy same performance in either Performance or DAPC mode.
+- HPL is 1.05% better in Performance than DAPC mode.  
+- Fluent is ~1.01% better.
+
+/opt/dell/srvadmin/sbin/racadm get BIOS.SysProfileSettings.SysProfile
+	SysProfile=PerfOptimized	(default)
+
+/opt/dell/srvadmin/sbin/racadm set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs
+
+	Using PerfPerWattOptimizedDapc:
+	- TBA 
+
+	Using PerfPerWattOptimizedOs:
+	- Reduce HPL performance by ~7% on Skylake 6130 2.1 GHz 32cores 96G on Dell C6420
+	- Exposes HPL clock calculation bug in random manner (cuz it messes with CPU clock?)
+
+
+racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and dependencies):
+	- PerfPerWattOptimizedDapc - Performance Per Watt (DAPC)
+	- PerfPerWattOptimizedOs - Performance Per Watt (OS)
+	- PerfOptimized - Performance
+	- PerfWorkStationOptimized - Workstation Performance;Custom - Custom;
+
+
+</PRE>
+
+<H3>Other BIOS param</H3>
+<!-- 
+singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+-->
+
+When CPU doesn't perform, check these params (racadm):
+
+<PRE>
+  set BIOS.ProcSettings.LogicalProc      Disabled       # non default, but HPC don't want HT on	
+  set BIOS.MemSettings.MemOpMode         OptimizerMode	# default, should not need to change this for HPC
+  set BIOS.MemSettings.NodeInterleave    Enabled	# non default, not compatible with SubNumaCluster, not typically recommended
+  set BIOS.ProcSettings.SubNumaCluster   Enabled	# non default, only useful if app can better utlize localized mem
+  set BIOS.SysProfileSettings.SysProfile PerfOptimized	# default
+  set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedDapc	# said to save energy
+  set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs		# may save energy, seems to introduce clock/timing bug
+  set BIOS.ProcSettings.ControlledTurbo  Enabled 	# allow for external control of when to engage turbo?  Def: Disabled.
+  get BIOS.ProcSettings.ProcTurboMode			# read-only, probably always Enabled.
+  get BIOS.SysInformation.SystemBiosVersion             # BIOS version
+</PRE>
+
+<!--
+singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
+
+singularity exec      /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
+-->
+    
+<H3>Retrieve Serial stored in BIOS</H3>
+
+<PRE>
+  racadm  get System.ChassisInfo	# service tag of chassis, eg Dell C6420 chassis
+  racadm  get System...			# service tag of blade/sledge
+
+
+  ipmitool fru | grep Serial   						# list all fru and filter for serial of sledge/blade
+  ipmitool raw 0x30 0xc8 0x01 0x00 0x0b 0x00 0x00 0x00 | xxd -r 	# get Dell C6320 chassis service tag vintage 2017
+</PRE>
+
+More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hexcode">ipmi</A>
+
+
+<H3>Ref</H3>
+
+Ref:
 <UL>
-<LI> The NETWORK component, from the brain's network of neurons
-<LI> The network is the brain!!
-<LI> Think a bridge network is the default for the VM/Compute instance to connect to network that the host is physically connected to.
-<LI> Neuron has abilities to perform NAT, L3 forward, load balancing, firewall, IPsec VPN, etc as a services.  LBassS, FaaS, VPNaaS, pick any service and turn it into an adult service to your heart's desire :)
-<LI> <TT>neuron</TT> network service differe from the compute <TT>nova-network</TT> service, do not run both of them at the same time.
-<LI> 
-</UL>
-
-
-<A NAME="Nova"></A>
-<H5>Nova</H5>
-<UL>
-<LI> The compute component, VM runs on NOVA
-<LI> Responsible for the scheduling, spawning and decom of compute instance.
-<LI> KVM, Xen, QEMU are typical hypervisors.
-<LI> VMware, Docker, LXC, Hyper-V, and other are suppoerted.
-<LI> An EC2 compatible API is available so AWS workflow can be deployed on OpenStack
-<LI>
-<LI> <TT>nova flavor-list</TT> will provide a list of canned VM size, like tiny, small, xlarge, a la AWS style!
-</UL>
-
-<A NAME="Glance"></A>
-<H5>Glance</H5>
-<UL>
-<LI> Provides for the imaging service of the compute instances, 
-<LI> eg: VM provisioning utilize Glace to store and retrieve the VM image.
-<LI> <TT>nova image-list</TT> to list available images
-<LI> 
-</UL>
-
-
-<A NAME="Cinder"></A>
-<H5>Cinder</H5>
-<UL>
-<LI> Provides persistent block storage to back the compute instance (VM)
-<LI> Like AWS, has concept of ephemeral vs persistent volume.
-<LI> 
-</UL>
-
-<A NAME="Swift"></A>
-<H5>Swift</H5>
-<UL>
-<LI> Object Store, provides a RESTful HTTP API for storing and retrieving data objects
-<LI> NOT a file server, not mountabled
-<LI> Think of AWS S3
-<LI>
-</UL>
-
-<A NAME="Keystone"></A>
-<H5>Keystone</H5>
-<UL>
-<LI> The identity management piece.  Think of AWS IAM.
-<LI> Provides for authentication (authN) and authorization (authZ) services.
-<LI> Will have taps for openID, SAML, etc.
-<LI> Currently implemented in LDAP??  Or just an internal MySQL/Postgress DB?
-<LI>
-</UL>
-
-<A ID="optional_services"></A>
-<H1>Optional Services</H1>
-
-
-<A NAME="Horizon"></A>
-<H5>Horizon</H5>
-<UL>
-<LI> This provides a dahboard service.  Think about the Web GUI of AWS.
-<LI>
-</UL>
-
-<A NAME="Magnum"></A>
-<H5>Magnum</H5>
-<UL>
-<LI> Container service
-<LI> Docker and Kurbernetes are treated as first class resources 
-<LI> Reported as low maturity (1/8) and low adoption (10%).
-</UL>
-
-<A NAME="Manila"></A>
-<H5>Manila</H5>
-<UL>
-<LI> Shared file system.  Think of the Manila file folder, not the city in Asia :)
-<LI> Reported as med maturity (5/8) and low adoption (10%).
-<LI>
-</UL>
-
-
-
-
-<A ID="terminology"></A>
-<A ID="vocab"></A>
-
-
-<A ID="tech"></A>
-<H1>Supporting Technology</H1>
-
-
-<A NAME="kvm"></A>
-<H5>KVM</H5>
-<UL>
-<LI> Linux Kernel module for virtualization
-<LI> Run virtualization as a thread in Guest mode of CPU (need VT support in CPU hw), thus avoiding context switch in protected mode (as done by Qemu).
-<LI> Most efficient of the virtualization tech for running x86 code on x86
-<LI> KVM is now integrated into linux kernel and thus avail "out of the box"
-<LI>
-</UL>
-
-
-<A NAME="qemu"></A>
-<H5>Qemu</H5>
-<UL>
-<LI> Full feature virtualization/hypervisor application. 
-<LI> There is a GUI, runnable by users in libvirt group as: python /usr/share/virt-manager/virt-manager.py
-<LI> Qemu translates VM calls runnable by native hardware
-<LI> Qemu has extensive emulations, supporting many hardware platform, eg run SPARC vm on PPC, ARM on x86.   It can handle CPU and memory virtualization, but it is slow.
-<LI> KQemu optimizes case of x86 VM on x86 CPU, but still not as efficient as KVM.  This is largely not used, unless CPU does not support VT extensions)
-<LI> For Linux VM on Linux host, often run as combination of Qemu on KVM.  KVM will deal with all CPU/kernel protected mode access.  Qemu will deal with the rest of the hardware such as video, disk, network IO (running in user space).
-<LI> ref: <A HREF="http://serverfault.com/questions/208693/difference-between-kvm-and-qemu#208788">serverfault post</A>
-<LI>
-</UL>
-
-
-<A NAME="xen"></A>
-<H5>Xen</H5>
-<UL>
-<LI> A virtualization product from Citrix to compete with VMware.
-</UL>
-
-<A NAME=""></A>
-<H5></H5>
-<UL>
-<LI>
-</UL>
-
-
-
-<H1>Links</H1>
-<UL>
-<LI><A HREF="http://www.openstack.org/foundation/companies/profile/stratoscale">StratoScale company profile</A>
+<LI><A HREF="http://www.dell.com/support/manuals/us/en/19/dell-opnmang-dplymnt-toolkit-v4.4/dtk_cli-v3/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">List of many racadm settable params</A>
+<LI><A HREF="http://topics-cdn.dell.com/pdf/poweredge-c6420_owner%27s%20manual_en-us.pdf">C6420 Spec and Config</A>BIOS/Memory settings in page 40</A>
+<LI><A HREF="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0ahUKEwinlpT0wvHYAhUI0mMKHRpJAlkQFggpMAA&url=http%3A%2F%2Fen.community.dell.com%2Fcfs-file%2F__key%2Ftelligent-evolution-components-attachments%2F13-4491-00-00-20-44-05-27%2FBIOS-Setup-User-Guide.pdf%3Fforcedownload%3Dtrue&usg=AOvVaw0ZWFfEd1FlvrKGCYkXhXtS">Dell 14th Gen server (skylake) BIOS settings</A>
+<LI><A HREF="http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor">Dell skylake Performance Benchmark results</A> (HPL, Stream, SpecInt, Ansys, etc)
+<LI><A HREF=""></A>
 <LI>
 </UL>
 
+<BR>
+
+<div align="CENTER">
+<A HREF="http://comic.browserling.com/tag/bios">
+<IMG SRC="fig/keyboard.png"></A>
+</div>
+  
 <div class="quote">
 </div>
 
-<PRE>
-</PRE>
 
 <BR><BR>
-
 <HR>
-<!-- google custom search. site-specific set to psg.skinforum.org, cuz may not be able to search dropbox -->
-<!-- need configuration at https://cse.google.com/cse/create/getcode?cx=009863428534768709666%3Amqjt3pr91t4 -->
-Search within the PSG pages:
-<script>
-  (function() {
-    var cx = '009863428534768709666:mqjt3pr91t4';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
-  })();
-</script>
-<gcse:searchbox-only></gcse:searchbox-only>
-<!-- end google custom search -->
-
+<BR><BR>
 
 <A NAME="cc"></A>
 <A NAME="CreativeCommon"></A>
@@ -422,7 +398,6 @@ are obviously those of the vendor and original authors.  I am merely caching the
 
 <h3>Where is PSG hosted these days?</h3>
   <div id="psg-url">
-  <a href="http://tiny.cc/Sn"</a>tiny.cc/Sn</a><br>
   <a href="http://tin6150.github.io/psg/psg2.html">http://tin6150.github.io/psg/psg2.html</a> 
   This new home page at github<br>
   

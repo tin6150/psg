@@ -565,18 +565,36 @@ starcluster start -x   mycluster	# restart stopped cluster, all nodes will come 
 starcluster sshmaster  mycluster		# login to master node as root
 starcluster sshmaster  mycluster -u sgeadmin	# login to master node as sgeadmin, can issue typical qconf commands from there.
 
-
-
-
 </PRE>
 
 <BR>
 Info:
 <OL>
+<LI><A HREF="http://www.admin-magazine.com/HPC/Articles/StarCluster-Toolkit-Virtualization-Meets-HPC">Admin mag article</A>
 <LI><A HREF="https://aws.amazon.com/customerapps/2824">AWS Marketplace page</A> 
 <LI>
-<LI><A HREF="http://www.admin-magazine.com/HPC/Articles/StarCluster-Toolkit-Virtualization-Meets-HPC">Admin mag article</A>
 </OL>
+
+<H2>AWS Batch</H2>
+
+<UL>
+<LI>AWS Batch is modeled after the HPC batch job running.  Perhaps more like HTC than HPC.  <BR>
+<LI>No additional cost or special pricing, just need to pay for the EC2 instance needed to run the job.
+<LI> Does not need to setup server to run the batch scheduler (so don't need to pay for an extra EC2 server to host such management (?))
+<LI> Jobs that it run are docker container job.  So, maybe a kubernetes thing...
+<LI> Batch has a manager to help bid for spot instances.
+<LI> Could scale job wide for fewer hours rather than in-house HPC that is static size and run for days.
+<LI> Resources are scaled up automatically to satisfy jobs, and scaled down when runnable jobs decreases.  One still have to manage min,desired,max vCPU.
+<LI> ECS Agent is used to run containerized jobs.
+<LI> 
+</UL>
+
+Ref: 
+<UL>
+<LI> <A HREF="https://aws.amazon.com/batch/faqs/">AWS Batch FAQ</A>
+<LI> <A HREF="https://docs.aws.amazon.com/batch/latest/userguide/Batch_GetStarted.html">AWS Batch Getting Started</A>
+<LI> 
+</UL>
 
 <H2>Virtualization Tech</H2>
 

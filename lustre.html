@@ -216,12 +216,14 @@ for i in /proc/fs/lustre/osc/*/max_rpc*; do echo 32 > $i; done
 <H3>Commands</H3>
 
 <pre>
-lfs df -h
+lfs df -h		# df 
+lfs osts		# list object stores
+lfs mdts		# list metadata stores
 lctl
 lctl ping  10.46.8.50 
 lctl lustre_build_version
 lctl device_list
-lctl list_nids
+lctl list_nids			# see if using tcp or ib
 lctl --net tcp peer_list
 lctl --net tcp interface_list
 

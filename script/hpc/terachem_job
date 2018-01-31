@@ -1,0 +1,36 @@
+#!/bin/bash
+# Job name:
+#SBATCH --job-name=TeraChemSingularityTest
+#
+# Partition:
+#SBATCH --partition=vulcan_gpu
+#
+# Processors:
+#SBATCH --nodes=1
+#
+# Wall clock limit:
+#SBATCH --time=30:30:00
+#
+# QoS:
+#SBATCH --qos=vulcan_gpu
+#
+# Account:
+#SBATCH --account=vulcan
+#
+
+## example slurm job script to launch TeraChem in a SL6/CentOS6 enviroment.
+## Utilizes Modules from a centralized location
+## --nv option of singularity will load nvidia driver from the host (expected to be running SL7)
+## submit job as:
+## sbatch terachem_job
+
+#cd $SLURM_SUBMIT_DIR
+
+TeraChemCmd='singularity exec --nv -B /global/home/groups-sw,/global/software/sl-6.x86_64,/global/scratch /global/scratch/tin/singularity-repo/sl6_lbl.envMod+ipmi.simg /global/scratch/tin/singularity-repo/terachem.helper.sh'
+
+$TeraChemCmd ./H3Oplus.opt
+
+#cd /global/home/groups-sw/nano/software/sl-6.x86_64/TeraChem/tcv1.91-stable/tests/benzene
+#$TeraChemCmd /global/home/groups-sw/nano/software/sl-6.x86_64/TeraChem/tcv1.91-stable/tests/benzene/start_tin.sp 
+#benzene eg didn't quite work.  was looking for ./scr/C6H6.basis, probably in the same folder where this script is rather than in the test dir...
+
