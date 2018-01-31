@@ -64,3 +64,5 @@ git clone https://tin6150@bitbucket.org/tin6150/spark
 git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 
 >>>>>>> 7f50a274875c4e407cabf0947dbc4f501bce02ef
+
+# cuda is dup, can be ignored
