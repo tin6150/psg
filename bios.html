@@ -249,6 +249,10 @@ racadm help BIOS.MemSettings.MemOpMode
 	SingleRankSpareMode - Single Rank Spare Mode;
 	MirrorMode - Mirror Mode;
 	FaultResilientMode - Fault Resilient Mode;
+
+	OppSrefEn=Disabled (default)
+
+
 </PRE>
 
 <H3>DAPC & GFLOPS/watt</H3>
@@ -284,8 +288,6 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 	- PerfPerWattOptimizedOs - Performance Per Watt (OS)
 	- PerfOptimized - Performance
 	- PerfWorkStationOptimized - Workstation Performance;Custom - Custom;
-
-
 </PRE>
 
 <H3>Other BIOS param</H3>
@@ -313,6 +315,37 @@ singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.im
 
 singularity exec      /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
 -->
+
+<H3>KNL BIOS settings</H3>
+
+KNL specific cpu/memory config:
+
+<PRE>
+racadm help BIOS.MemSettings...
+MemThrottlingMode
+	Cltt  (def)
+	Oltt
+
+
+ProcEmbMemMode	-- this should be the KNL memory mode...  n00[12-19].cf1 using cache mode
+	Cache (def)
+	Memory
+	Hybrid
+
+SystemMemoryModel
+	All2All
+	SNC-2
+	SNC-4
+	Hemisphere
+	Quadrant (def)
+
+BIOS.ProcSettings
+DynamicCoreAllocation=Disabled 	-- This field enables or disables the OS capability to put logical processors in the idling state in order to reduce power consumption.
+ProcConfigTdp=Nominal 		-- This field allows reconfiguration of TDP (Thermal Design Power) to lower levels.
+
+</PRE>
+
+
     
 <H3>Retrieve Serial stored in BIOS</H3>
 
