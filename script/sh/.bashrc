@@ -105,15 +105,14 @@ add_local_module () {
 } # end add_local_module
 
 add_personal_module () {
-	# SMF dev aka personal module farm
+	# SMFdev aka personal module farm
+	SMFdev_MODULE_DIR=~tin/CF_BK/SMFdev/modfiles/
 	if [[ -d ~tin/CF_BK/SMFdev/modfiles ]] ; then 
-		AddtoString MODULEPATH ~tin/CF_BK/SMFdev/modfiles/
-		module load /global/home/users/tin/CF_BK/SMFdev/modfiles/langs/intel/2018.1.163_eval
-		module load /global/home/users/tin/CF_BK/SMFdev/modfiles/intel/2018.1.163/mkl/2018.1.163_eval
-		#AddtoString MODULEPATH ~tin/CF_BK/SMFdev/modfiles/intel
-		#AddtoString MODULEPATH ~tin/CF_BK/SMFdev/modfiles/langs/intel
-		#module load intel/2018.1.163_eval mkl/2018.1.163_eval
+		AddtoString MODULEPATH ${SMFdev_MODULE_DIR}
+		module load langs/intel/2018.1.163_eval 
+		module load intel/2018.1.163/mkl/2018.1.163_eval
 	fi
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
 } # end add_personal_module
 
 add_hpcs_module () {
