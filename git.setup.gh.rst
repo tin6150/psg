@@ -38,9 +38,6 @@ git clone https://tin6150@github.com/tin6150/circos.git
 git clone https://tin6150@github.com/tin6150/knime
 git clone https://tin6150@github.com/tin6150/dell_idracadm
 git clone https://tin6150@github.com/tin6150/biolab-orange/
-<<<<<<< HEAD
-git clone https://tin6150@github.com/tin6150/cuda
-=======
 git clone https://tin6150@github.com/tin6150/perf_tools
 git clone https://tin6150@github.com/tin6150/cuda
 git clone https://tin6150@github.com/tin6150/boinc-client.git
@@ -63,6 +60,5 @@ git clone https://tin6150@bitbucket.org/tin6150/spark
 # cd ..
 git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 
->>>>>>> 7f50a274875c4e407cabf0947dbc4f501bce02ef
 
 # cuda is dup, can be ignored
