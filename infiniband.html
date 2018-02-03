@@ -65,9 +65,6 @@ GUID - Global Uniq ID ?
 
 
 <PRE>
-rds-ping
-rds-info
-
 opensm 	# open fabric subnet manager.  run on one of the host.  
 	# additional standy manager on other hosts can be setup.  
 	# the daemon process will only bind to first IB port.  
@@ -114,6 +111,13 @@ ibportstate  2        11         disable	# turn off IB switch port a specific ho
 ibportstate  6        11         disable
      # can also use enable, status.  Other form allow for changing speed, etc.
 
+rds-ping
+rds-info
+
+
+ompi_info --all
+ompi-top
+ompi-ps
 
 
 
@@ -331,11 +335,14 @@ as its private network, so some sort of automatic HCA fail over would be needed.
 
 <H2>RDMA and InfiniBand</H2>
 
-RDMA = Remote DMA , ie Remote Direct Memory Access.
+RDMA = Remote DMA , ie Remote Direct Memory Access. <BR>
+
 It would allow data transfer between two hosts with IB HCA to copy data from one host directly into the other, bypassing the many copy needed of traditional NIC.  Combined with low latency of IB, it would give very high transfer speed.
+<BR>
 However, RDMA is not implemented by RDS as of OFED 1.4.
 (it is for TCP? but that would be at the IPoIB layer?  Or maybe
 for things that use IB directly like MPICH...  don't know....).
+<BR>
 
 
 
@@ -344,7 +351,7 @@ for things that use IB directly like MPICH...  don't know....).
   [Doc URL: <A HREF="http://tin6150.github.io/psg/">
 http://tin6150.github.io/psg/
 </A>] <BR>
-Last Updated: 2009-12-29
+Last Updated: 2018-02-03
   <!--[Doc URL: <A HREF="http://psg.ask-margo.com/">http://psg.ask-margo.com/</A>] <BR>-->
 <BR>
 (cc) Tin Ho. See 
