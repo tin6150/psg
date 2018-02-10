@@ -292,7 +292,7 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 
 <H3>Other BIOS param</H3>
 <!-- 
-singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
 -->
 
 When CPU doesn't perform, check these params (racadm):
@@ -311,9 +311,9 @@ When CPU doesn't perform, check these params (racadm):
 </PRE>
 
 <!--
-singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
+singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
 
-singularity exec      /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
+singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
 -->
 
 <H3>KNL BIOS settings</H3>
