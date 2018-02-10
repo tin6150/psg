@@ -473,6 +473,7 @@ See <A HREF="#compatibility">compatibility</A> section for more details.
 <PRE>
 
 lspci			# list pci info
+lscpu
 
 modprobe -l		# display all kernel loaded modules
 
@@ -1554,6 +1555,31 @@ chkconfig --level 345 SuSEfirewall2_setup  off	# turn off firewall
 <H1>Perforamnce</H1>
 
 <PRE>
+
+numactl -H
+
+lscpu
+
+turbostat 	# cpu current speed in Bzy_MHz column
+		# https://github.com/torvalds/linux/blob/master/tools/power/x86/turbostat/turbostat.c
+		
+
+cat /proc/cpuinfo | grep MHz		# current core speed in ubuntu, max core speed for rhel7.2 (7.4 may work better)
+
+sudo cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_cur_freq  # ubuntu, rhel 7.4+ 
+sudo cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq	# ubuntu, fedora?
+
+RHEL7 may need CPUfreq driver to be installed 
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/power_management_guide/cpufreq_governors
+or cpupower from kernel-tools
+https://access.redhat.com/solutions/1287663
+
+sudo dmidecode -t processor | grep Speed	# but "Current Speed" is from ACPI and maybe stale
+						# Max Speed 
+						# don't seems good on ubuntu laptop
+						# show max speed for SL7 (ie match /proc/cpuinfo MHz info) 
+
+
 ulimit
 
 /etc/security/limits.conf ::

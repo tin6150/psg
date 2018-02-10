@@ -306,8 +306,23 @@ When CPU doesn't perform, check these params (racadm):
   set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedDapc	# said to save energy
   set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs		# may save energy, seems to introduce clock/timing bug
   set BIOS.ProcSettings.ControlledTurbo  Enabled 	# allow for external control of when to engage turbo?  Def: Disabled.
-  get BIOS.ProcSettings.ProcTurboMode			# read-only, probably always Enabled.
+  get BIOS.ProcSettings.ProcTurboMode			# def Enabled, changeable only in Custom SysProfile 
   get BIOS.SysInformation.SystemBiosVersion             # BIOS version
+
+  set BIOS.SysProfileSettings.SysProfile Custom		# need custom mode to set the next two option:
+  set BIOS.SysProfileSettings.ProcCStates Autonomous 	# def: Disabled. alt: Enabled # to allow proc to operate in all avail power state
+  set BIOS.SysProfileSettings.UncoreFrequency DynamicUFS	# def: MaxUFS
+      # https://software.intel.com/en-us/forums/software-tuning-performance-optimization-platform-monitoring/topic/543513
+
+  # Perhaps also check:
+
+  get BIOS.ProcSettings.UpiPrefetch			# def: Enabled
+  get BIOS.MemSettings.OppSrefEn			# def: Disabled 
+  get BIOS.SysProfileSettings.MemFrequency		# def: MaxPerf.  Could choose diff speed such as 2666 MHz, 2400, 1866.
+  get BIOS.SysProfileSettings.ProcC1E			# def: Disabled  # but enabled when switch to Custom SysProfile !!
+							# Enable = processor is allowed to switch to minimum performance state when idle.
+  get BIOS.SysProfileSettings.EnergyPerformanceBias	# def: MaxPower (ie Performance).  
+							# alt: BalancedPerformance, BalancedEfficiency, LowPower
 </PRE>
 
 <!--
@@ -315,6 +330,15 @@ singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_id
 
 singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
 -->
+
+<H5>Undocumented HPL parameter</H5>
+
+<PRE>
+# set env var for HPL to properly use AVX
+export HPL_HOST_ARCH=3 # AVX2,  eg Hashwell
+export HPL_HOST_ARCH=9 # AVX512 eg Skylake
+</PRE>
+
 
 <H3>KNL BIOS settings</H3>
 
@@ -365,10 +389,17 @@ More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hex
 
 Ref:
 <UL>
-<LI><A HREF="http://www.dell.com/support/manuals/us/en/19/dell-opnmang-dplymnt-toolkit-v4.4/dtk_cli-v3/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">List of many racadm settable params</A>
+
+<LI><A HREF="http://www.dell.com/support/manuals/us/en/19/dell-opnmang-dplymnt-toolkit-v4.4/dtk_cli-v3/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">List of many racadm settable params (vs syscfg)</A>
+<LI><A HREF="http://www.dell.com/support/manuals/vi/en/vidhs1/dell-opnmang-dplymnt-toolkit-v5.0.1/dtk_cli-v5/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">v5.0.1 of above</A>
+
 <LI><A HREF="http://topics-cdn.dell.com/pdf/poweredge-c6420_owner%27s%20manual_en-us.pdf">C6420 Spec and Config</A>BIOS/Memory settings in page 40</A>
+
 <LI><A HREF="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0ahUKEwinlpT0wvHYAhUI0mMKHRpJAlkQFggpMAA&url=http%3A%2F%2Fen.community.dell.com%2Fcfs-file%2F__key%2Ftelligent-evolution-components-attachments%2F13-4491-00-00-20-44-05-27%2FBIOS-Setup-User-Guide.pdf%3Fforcedownload%3Dtrue&usg=AOvVaw0ZWFfEd1FlvrKGCYkXhXtS">Dell 14th Gen server (skylake) BIOS settings</A>
+
 <LI><A HREF="http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor">Dell skylake Performance Benchmark results</A> (HPL, Stream, SpecInt, Ansys, etc)
+
+<LI><A HREF="http://www.dell.com/support/manuals/vi/en/vidhs1/dell-opnmang-dplymnt-toolkit-v5.0.1/dtk_cli-v5/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us"></A>
 <LI><A HREF=""></A>
 <LI>
 </UL>
