@@ -10,14 +10,14 @@ RacAdmCmd='singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idrac
 $RacAdmCmd set BIOS.ProcSettings.LogicalProc      Disabled
 $RacAdmCmd set BIOS.MemSettings.MemOpMode         OptimizerMode  # default, should not need to change this for HPC
 $RacAdmCmd set BIOS.MemSettings.NodeInterleave    Disabled 	 # default, not compatible with SubNumaCluster, not typically recommended
-$RacAdmCmd set BIOS.ProcSettings.SubNumaCluster   Disabled       # default, only useful if app can better utlize localized mem
+$RacAdmCmd set BIOS.ProcSettings.SubNumaCluster   Enabled        # Disabled is default, only useful if app can better utlize localized mem
 #$RacAdmCmd set BIOS.SysProfileSettings.SysProfile PerfOptimized  # default
 #$RacAdmCmd set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedDapc       # said to save energy
 #$RacAdmCmd set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs         # may save energy, seems to introduce clock/timing bug
 $RacAdmCmd set BIOS.SysProfileSettings.SysProfile Custom
 ## >> tweak >>
 $RacAdmCmd set BIOS.ProcSettings.ControlledTurbo  Enabled        # allow for external control of when to engage turbo?  Def: Disabled.
-$RacAdmCmd set BIOS.ProcSettings.ProcTurboMode    Enabled        # read-only unless in custom profile. 
+$RacAdmCmd set BIOS.SysProfileSettings.ProcTurboMode  Enabled    # read-only unless in custom profile, def=Enabled. 
 $RacAdmCmd set BIOS.SysProfileSettings.ProcCStates Autonomous    # def: Disabled. alt: Enabled # to allow proc to operate in all avail power state
 $RacAdmCmd set BIOS.SysProfileSettings.UncoreFrequency DynamicUFS        # def: MaxUFS
       # https://software.intel.com/en-us/forums/software-tuning-performance-optimization-platform-monitoring/topic/543513
