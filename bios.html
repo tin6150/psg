@@ -291,7 +291,11 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 
 <H3>Other BIOS param</H3>
 <!-- 
-singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+##singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+
+singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+
+# singularity-hub build probably won't work cuz build machine don't have an iDRAC :(
 -->
 
 When CPU doesn't perform, check these params (racadm):
