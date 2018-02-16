@@ -353,14 +353,14 @@ MemThrottlingMode
 	Cltt  (def)
 	Oltt
 
-SystemMemoryModel	# KNL Cluster Mode.  affect "numactl -H"
-	All2All		# 1x1
+SystemMemoryModel	
+	All2All	
 	SNC-2
 	SNC-4
 	Hemisphere
 	Quadrant (def)	# 2x2
 
-ProcEmbMemMode		# KNL Memory Mode.  affect "free -h"
+ProcEmbMemMode		# KNL Memory Mode.  affect "free -h", "numactl -H" 
 	Cache (def)
 	Memory		# ie flat mode, memory seen in "free -h" and malloc-able.
 	Hybrid
@@ -419,6 +419,10 @@ Ref:
 
 <BR>
 
+<A NAME="sum"></A>
+<A NAME="SUM"></A>
+<A NAME="sm"></A>
+<A NAME="SM"></A>
 <H3>SuperMicro SUM</H3>
 
 <PRE>
@@ -432,7 +436,13 @@ sum -h -c GetBIOSInfo
 sum -i 10.10.... -u ADMIN -p ADMIN -c GetBIOSInfo	# use IPMI interface to get info
 sum -c GetBIOSInfo					# run on local machine
 
-sum -c GetCurrentBiosCfg  >  smBiosInfo.out		# lots of info here
+sum -c GetCurrentBiosCfg  --file  smBiosCf.txt	# write output to file
+sum -c GetCurrentBiosCfg     >    smBiosCf.txt	# should be same, but couple of places have * (default) next to diff entries.
+
+vi smBiosCf.txt		# make desired changes to BIOS
+
+sum -c ChangeBiosCfg --file smBiosCf.txt --reboot	# update bios config, rebooting host 
+							# --reboot would actually be an soft reboot telling OS to shutdown (via ACPI?)
 
 </PRE>
 
@@ -483,7 +493,6 @@ Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
 
 <PRE>
 
-sum -c ChangeBiosCfg ...
 
 </PRE>
 
