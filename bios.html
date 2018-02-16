@@ -353,19 +353,17 @@ MemThrottlingMode
 	Cltt  (def)
 	Oltt
 
-
-ProcEmbMemMode	-- this should be the KNL memory mode...  n00[12-19].cf1 using cache mode
-	Cache (def)
-	Memory
-	Hybrid
-
-SystemMemoryModel
-	All2All
+SystemMemoryModel	# KNL Cluster Mode.  affect "numactl -H"
+	All2All		# 1x1
 	SNC-2
 	SNC-4
 	Hemisphere
-	Quadrant (def)
+	Quadrant (def)	# 2x2
 
+ProcEmbMemMode		# KNL Memory Mode.  affect "free -h"
+	Cache (def)
+	Memory		# ie flat mode, memory seen in "free -h" and malloc-able.
+	Hybrid
 BIOS.ProcSettings
 DynamicCoreAllocation=Disabled 	-- This field enables or disables the OS capability to put logical processors in the idling state in order to reduce power consumption.
 ProcConfigTdp=Nominal 		-- This field allows reconfiguration of TDP (Thermal Design Power) to lower levels.
@@ -387,8 +385,20 @@ ProcConfigTdp=Nominal 		-- This field allows reconfiguration of TDP (Thermal Des
 
 More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hexcode">ipmi</A>
 
+<H3>Misc</H3>
 
-<H3>Ref</H3>
+<PRE>
+racadm techsupreport collect 	# start a support collection 
+racadm jobqueue view
+racadm techsupreport export -f tsr_report.zip 
+
+racadm racreset		# restart rac, but not the wipe config and restore to factory default kind of reset
+</PRE>
+
+
+<H3>SuperMicro SUM</H3>
+
+<H3>Dell Ref</H3>
 
 Ref:
 <UL>
@@ -408,6 +418,84 @@ Ref:
 </UL>
 
 <BR>
+
+<H3>SuperMicro SUM</H3>
+
+<PRE>
+
+untar gz, no real need to install
+licensing??
+
+./sum -h				# not the checksum command in linux default path... 
+sum -h -c GetBIOSInfo
+
+sum -i 10.10.... -u ADMIN -p ADMIN -c GetBIOSInfo	# use IPMI interface to get info
+sum -c GetBIOSInfo					# run on local machine
+
+sum -c GetCurrentBiosCfg  >  smBiosInfo.out		# lots of info here
+
+</PRE>
+
+Select GetCurrentBiosCfg entries 
+
+<PRE class="cf">
+[Advanced|Boot Feature]
+Quiet Boot=01                           // Please enter the value in 2 hexadecimal digits. Default value is <<<01>>>
+
+[Advanced|Processor Configuration]
+Intel(R) Hyper-Threading Technology=01  // 01 (Disable), *00 (Enable)
+
+[Advanced|Processor Configuration|Advanced Power Management Configuration|CPU P State Control]
+Energy efficient P-state=01             // 00 (Disable), *01 (Enable)
+Turbo Mode=01                           // 00 (Disable), *01 (Enable)
+
+[Advanced|Processor Configuration|Advanced Power Management Configuration|CPU C State Control]
+CPU C State=01                          // 00 (Disable), *01 (Enable)
+
+
+[Advanced|Chipset Configuration|North Bridge|Uncore Configuration]
+Cluster Mode=00                         // *00 (All2All), 01 (SNC-2), 02 (SNC-4), 03 (Hemisphere), 04 (Quadrant), 05 (Auto)
+Memory Mode=01                          // *01 (Flat), 00 (Cache), 02 (Hybrid), 03 (Auto)
+MCDRAM Cache Size=02                    // 01 (25% of MCDRAM size), *02 (50% of MCDRAM size)        Memory Mode = "Flat" or Memory Mode = "Cache" or Memory Mode = "Hybrid" and Memory Mode = "Cache" or Memory Mode = "Hybrid" or Memory Mode = "Auto" and Memory Mode = "Flat" or Memory Mode = "Hybrid" or Memory Mode = "Auto"
+Treat MCDRAM as Hot-Pluggable Memory=00 // *00 (no), 01 (yes)        Memory Mode = "Flat" or Memory Mode = "Cache" or Memory Mode = "Hybrid" and Memory Mode = "Flat" or Memory Mode = "Hybrid" or Memory Mode = "Auto"
+OPIO Parallel Training=01               // *01 (Enable), 00 (Disable)
+OPIO Parallel Training Channel Count=08 // Please enter the value in 2 hexadecimal digits. Default value is <<<08>>>        OPIO Parallel Training = "Enable"
+MCDRAM Repair=01                        // 00 (Disable), *01 (Enable)
+MCDRAM Diagnostics=01                   // 00 (Disable), *01 (Enable)        MCDRAM Repair = "Disable"
+MCDRAM Data in NVRAM=01                 // 00 (Disable), *01 (Store), 02 (Use), 03 (UseStore)
+EDC Demand Scrub=01                     // *01 (Enable), 00 (Disable)
+EDC Patrol Scrub=01                     // 00 (Disable), *01 (Enable)
+
+
+[Advanced|Serial Port Console Redirection|COM1 Console Redirection Settings]
+Terminal Type=01                        // 00 (VT100), *01 (VT100+), 02 (VT-UTF8), 03 (ANSI)
+Bits per second=07                      // 03 (9600), 04 (19200), 05 (38400), 06 (57600), *07 (115200)
+Data Bits=08                            // 07 (7), *08 (8)
+Parity=01                               // *01 (None), 02 (Even), 03 (Odd), 04 (Mark), 05 (Space)
+Stop Bits=01                            // *01 (1), 03 (2)
+Flow Control=00                         // *00 (None), 01 (Hardware RTS/CTS)
+Legacy OS Redirection Resolution=01     // 00 (80x24), *01 (80x25)
+Putty KeyPad=01                         // *01 (VT100), 02 (LINUX), 04 (XTERMR6), 08 (SCO), 10 (ESCN), 20 (VT400)
+Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
+
+</PRE>
+
+
+<PRE>
+
+sum -c ChangeBiosCfg ...
+
+</PRE>
+
+
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+
 
 <div align="CENTER">
 <A HREF="http://comic.browserling.com/tag/bios">
