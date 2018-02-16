@@ -19,7 +19,12 @@ record_bios_settings_supermicro () {
 
 	SUM=/global/scratch/tin/sw/sum/sum_2.0.0_Linux_x86_64/sum
 
-	$SUM -c GetCurrentBiosCfg  --file $BIOSOUT --overwrite
+	##$SUM -c GetCurrentBiosCfg  --file $BIOSOUT --overwrite
+	## there is (probably a bug) a small different in output using --file vs > redirect of std out
+	## * indicating default are different for a handful of entries.  
+	## but actual query result reflect correct current bios settings
+	$SUM -c GetCurrentBiosCfg  >> $BIOSOUT  
+
 	cat $BIOSOUT | egrep --color '^n0|2018|Hyper-Threading|Turbo|CPU\ C\ State=|Cluster\ Mode=|Memory\ Mode=' | tee $BIOSHIGHLIGHT
 } # end record_bios_settings_supermicro
 
