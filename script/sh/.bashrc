@@ -109,8 +109,9 @@ add_personal_module () {
 	SMFdev_MODULE_DIR=~tin/CF_BK/SMFdev/modfiles/
 	if [[ -d ~tin/CF_BK/SMFdev/modfiles ]] ; then 
 		AddtoString MODULEPATH ${SMFdev_MODULE_DIR}
-		module load langs/intel/2018.1.163_eval 
-		module load intel/2018.1.163/mkl/2018.1.163_eval
+		#module load langs/intel/2018.1.163_eval 
+		#module load intel/2018.1.163/mkl/2018.1.163_eval
+		#module load intel/2018.1.163/openmpi/2.0.4-intel_eval
 	fi
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
 } # end add_personal_module
@@ -224,6 +225,7 @@ defineAlias () {
 	alias ltr="ls -latr"
 	alias sq="squeue"
 	alias sqt="squeue -u tin"
+	alias assoc="sacctmgr show associations -p"
 
 	# overwrite default behaviour, keep command name
 	alias grep='grep --color=auto'

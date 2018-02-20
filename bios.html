@@ -238,8 +238,9 @@ SNC disabled is baseline.  If enable SNC:
 - Disabled (default) = system support NUMA (asymmetric) mem config
 - Enabled = memory interleave is supported IF symetric memory config is installed.  (SNC will not work when memory configured this way?)
 	
-
 </PRE>
+
+See <A HREF="script/hpc/racadmSetBios.sh">racadmSetBios.sh</A> script that set this and many below values. <BR>
 
 <H3>Memory Operating Mode</H3>
 
@@ -251,8 +252,6 @@ racadm help BIOS.MemSettings.MemOpMode
 	FaultResilientMode - Fault Resilient Mode;
 
 	OppSrefEn=Disabled (default)
-
-
 </PRE>
 
 <H3>DAPC & GFLOPS/watt</H3>
@@ -292,7 +291,11 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 
 <H3>Other BIOS param</H3>
 <!-- 
-singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+##singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+
+singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+
+# singularity-hub build probably won't work cuz build machine don't have an iDRAC :(
 -->
 
 When CPU doesn't perform, check these params (racadm):
@@ -306,15 +309,39 @@ When CPU doesn't perform, check these params (racadm):
   set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedDapc	# said to save energy
   set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs		# may save energy, seems to introduce clock/timing bug
   set BIOS.ProcSettings.ControlledTurbo  Enabled 	# allow for external control of when to engage turbo?  Def: Disabled.
-  get BIOS.ProcSettings.ProcTurboMode			# read-only, probably always Enabled.
+  get BIOS.ProcSettings.ProcTurboMode			# def Enabled, changeable only in Custom SysProfile 
   get BIOS.SysInformation.SystemBiosVersion             # BIOS version
+
+  set BIOS.SysProfileSettings.SysProfile Custom		# need custom mode to set the next two option:
+  set BIOS.SysProfileSettings.ProcCStates Autonomous 	# def: Disabled. alt: Enabled # to allow proc to operate in all avail power state
+  set BIOS.SysProfileSettings.UncoreFrequency DynamicUFS	# def: MaxUFS
+      # https://software.intel.com/en-us/forums/software-tuning-performance-optimization-platform-monitoring/topic/543513
+
+  # Perhaps also check:
+
+  get BIOS.ProcSettings.UpiPrefetch			# def: Enabled
+  get BIOS.MemSettings.OppSrefEn			# def: Disabled 
+  get BIOS.SysProfileSettings.MemFrequency		# def: MaxPerf.  Could choose diff speed such as 2666 MHz, 2400, 1866.
+  get BIOS.SysProfileSettings.ProcC1E			# def: Disabled  # but enabled when switch to Custom SysProfile !!
+							# Enable = processor is allowed to switch to minimum performance state when idle.
+  get BIOS.SysProfileSettings.EnergyPerformanceBias	# def: MaxPower (ie Performance).  
+							# alt: BalancedPerformance, BalancedEfficiency, LowPower
 </PRE>
 
 <!--
-singularity exec     /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
+singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
 
-singularity exec      /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
+singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
 -->
+
+<H5>Undocumented HPL parameter</H5>
+
+<PRE>
+# set env var for HPL to properly use AVX
+export HPL_HOST_ARCH=3 # AVX2,  eg Hashwell
+export HPL_HOST_ARCH=9 # AVX512 eg Skylake
+</PRE>
+
 
 <H3>KNL BIOS settings</H3>
 
@@ -326,19 +353,17 @@ MemThrottlingMode
 	Cltt  (def)
 	Oltt
 
-
-ProcEmbMemMode	-- this should be the KNL memory mode...  n00[12-19].cf1 using cache mode
-	Cache (def)
-	Memory
-	Hybrid
-
-SystemMemoryModel
-	All2All
+SystemMemoryModel	
+	All2All	
 	SNC-2
 	SNC-4
 	Hemisphere
-	Quadrant (def)
+	Quadrant (def)	# 2x2
 
+ProcEmbMemMode		# KNL Memory Mode.  affect "free -h", "numactl -H" 
+	Cache (def)
+	Memory		# ie flat mode, memory seen in "free -h" and malloc-able.
+	Hybrid
 BIOS.ProcSettings
 DynamicCoreAllocation=Disabled 	-- This field enables or disables the OS capability to put logical processors in the idling state in order to reduce power consumption.
 ProcConfigTdp=Nominal 		-- This field allows reconfiguration of TDP (Thermal Design Power) to lower levels.
@@ -360,20 +385,126 @@ ProcConfigTdp=Nominal 		-- This field allows reconfiguration of TDP (Thermal Des
 
 More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hexcode">ipmi</A>
 
+<H3>Misc</H3>
 
-<H3>Ref</H3>
+<PRE>
+racadm techsupreport collect 	# start a support collection 
+racadm jobqueue view
+racadm techsupreport export -f tsr_report.zip 
+
+racadm racreset		# restart rac, but not the wipe config and restore to factory default kind of reset
+</PRE>
+
+
+<H3>SuperMicro SUM</H3>
+
+<H3>Dell Ref</H3>
 
 Ref:
 <UL>
-<LI><A HREF="http://www.dell.com/support/manuals/us/en/19/dell-opnmang-dplymnt-toolkit-v4.4/dtk_cli-v3/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">List of many racadm settable params</A>
+
+<LI><A HREF="http://www.dell.com/support/manuals/us/en/19/dell-opnmang-dplymnt-toolkit-v4.4/dtk_cli-v3/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">List of many racadm settable params (vs syscfg)</A>
+<LI><A HREF="http://www.dell.com/support/manuals/vi/en/vidhs1/dell-opnmang-dplymnt-toolkit-v5.0.1/dtk_cli-v5/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us">v5.0.1 of above</A>
+
 <LI><A HREF="http://topics-cdn.dell.com/pdf/poweredge-c6420_owner%27s%20manual_en-us.pdf">C6420 Spec and Config</A>BIOS/Memory settings in page 40</A>
+
 <LI><A HREF="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0ahUKEwinlpT0wvHYAhUI0mMKHRpJAlkQFggpMAA&url=http%3A%2F%2Fen.community.dell.com%2Fcfs-file%2F__key%2Ftelligent-evolution-components-attachments%2F13-4491-00-00-20-44-05-27%2FBIOS-Setup-User-Guide.pdf%3Fforcedownload%3Dtrue&usg=AOvVaw0ZWFfEd1FlvrKGCYkXhXtS">Dell 14th Gen server (skylake) BIOS settings</A>
+
 <LI><A HREF="http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor">Dell skylake Performance Benchmark results</A> (HPL, Stream, SpecInt, Ansys, etc)
+
+<LI><A HREF="http://www.dell.com/support/manuals/vi/en/vidhs1/dell-opnmang-dplymnt-toolkit-v5.0.1/dtk_cli-v5/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us"></A>
 <LI><A HREF=""></A>
 <LI>
 </UL>
 
 <BR>
+
+<A NAME="sum"></A>
+<A NAME="SUM"></A>
+<A NAME="sm"></A>
+<A NAME="SM"></A>
+<H3>SuperMicro SUM</H3>
+
+<PRE>
+
+untar gz, no real need to install
+licensing??
+
+./sum -h				# not the checksum command in linux default path... 
+sum -h -c GetBIOSInfo
+
+sum -i 10.10.... -u ADMIN -p ADMIN -c GetBIOSInfo	# use IPMI interface to get info
+sum -c GetBIOSInfo					# run on local machine
+
+sum -c GetCurrentBiosCfg  --file  smBiosCf.txt	# write output to file
+sum -c GetCurrentBiosCfg     >    smBiosCf.txt	# should be same, but couple of places have * (default) next to diff entries.
+
+vi smBiosCf.txt		# make desired changes to BIOS
+
+sum -c ChangeBiosCfg --file smBiosCf.txt --reboot	# update bios config, rebooting host 
+							# --reboot would actually be an soft reboot telling OS to shutdown (via ACPI?)
+
+</PRE>
+
+Select GetCurrentBiosCfg entries 
+
+<PRE class="cf">
+[Advanced|Boot Feature]
+Quiet Boot=01                           // Please enter the value in 2 hexadecimal digits. Default value is <<<01>>>
+
+[Advanced|Processor Configuration]
+Intel(R) Hyper-Threading Technology=01  // 01 (Disable), *00 (Enable)
+
+[Advanced|Processor Configuration|Advanced Power Management Configuration|CPU P State Control]
+Energy efficient P-state=01             // 00 (Disable), *01 (Enable)
+Turbo Mode=01                           // 00 (Disable), *01 (Enable)
+
+[Advanced|Processor Configuration|Advanced Power Management Configuration|CPU C State Control]
+CPU C State=01                          // 00 (Disable), *01 (Enable)
+
+
+[Advanced|Chipset Configuration|North Bridge|Uncore Configuration]
+Cluster Mode=00                         // *00 (All2All), 01 (SNC-2), 02 (SNC-4), 03 (Hemisphere), 04 (Quadrant), 05 (Auto)
+Memory Mode=01                          // *01 (Flat), 00 (Cache), 02 (Hybrid), 03 (Auto)
+MCDRAM Cache Size=02                    // 01 (25% of MCDRAM size), *02 (50% of MCDRAM size)        Memory Mode = "Flat" or Memory Mode = "Cache" or Memory Mode = "Hybrid" and Memory Mode = "Cache" or Memory Mode = "Hybrid" or Memory Mode = "Auto" and Memory Mode = "Flat" or Memory Mode = "Hybrid" or Memory Mode = "Auto"
+Treat MCDRAM as Hot-Pluggable Memory=00 // *00 (no), 01 (yes)        Memory Mode = "Flat" or Memory Mode = "Cache" or Memory Mode = "Hybrid" and Memory Mode = "Flat" or Memory Mode = "Hybrid" or Memory Mode = "Auto"
+OPIO Parallel Training=01               // *01 (Enable), 00 (Disable)
+OPIO Parallel Training Channel Count=08 // Please enter the value in 2 hexadecimal digits. Default value is <<<08>>>        OPIO Parallel Training = "Enable"
+MCDRAM Repair=01                        // 00 (Disable), *01 (Enable)
+MCDRAM Diagnostics=01                   // 00 (Disable), *01 (Enable)        MCDRAM Repair = "Disable"
+MCDRAM Data in NVRAM=01                 // 00 (Disable), *01 (Store), 02 (Use), 03 (UseStore)
+EDC Demand Scrub=01                     // *01 (Enable), 00 (Disable)
+EDC Patrol Scrub=01                     // 00 (Disable), *01 (Enable)
+
+
+[Advanced|Serial Port Console Redirection|COM1 Console Redirection Settings]
+Terminal Type=01                        // 00 (VT100), *01 (VT100+), 02 (VT-UTF8), 03 (ANSI)
+Bits per second=07                      // 03 (9600), 04 (19200), 05 (38400), 06 (57600), *07 (115200)
+Data Bits=08                            // 07 (7), *08 (8)
+Parity=01                               // *01 (None), 02 (Even), 03 (Odd), 04 (Mark), 05 (Space)
+Stop Bits=01                            // *01 (1), 03 (2)
+Flow Control=00                         // *00 (None), 01 (Hardware RTS/CTS)
+Legacy OS Redirection Resolution=01     // 00 (80x24), *01 (80x25)
+Putty KeyPad=01                         // *01 (VT100), 02 (LINUX), 04 (XTERMR6), 08 (SCO), 10 (ESCN), 20 (VT400)
+Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
+
+</PRE>
+
+
+<PRE>
+
+
+</PRE>
+
+
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+<!-- ################################################################## -->
+
 
 <div align="CENTER">
 <A HREF="http://comic.browserling.com/tag/bios">

@@ -10,11 +10,33 @@
 
 cd ..
 
+
+########################
+### config settings ####
+########################
+
+## create fn, and eval a param, don't always want to run this...  but it is essentially idempotent...
+#git clone https://tin6150@github.com/tin6150/psg
+
+cd psg
+## config need to write to some .git...   create a fn for this?
+
+# git config --global user.email "tin@newbox"             # change this to machine specific settings to get better idea of where commits, 
+                                                        # merges are done, but don't display well on bitbucket :(
+git config --global user.name tin6150
+## in bitbucket, need username to match what bitbucket.org has in record for it to prompt for pwd
+git config --global credential.helper 'cache --timeout=36000'
+git config --global github.user   tin6150
+git config --global alias.lol "log --oneline --graph --decorate"                # create alias "git lol"   # logd
+git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
+
+
+cd ..
+
 ########################
 #### tin6150 github ####
 ########################
 
-git clone https://tin6150@github.com/tin6150/psg
 git clone https://tin6150@github.com/tin6150/singularity
 ### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 git clone https://tin6150@github.com/tin6150/inet-dev-class
@@ -51,6 +73,8 @@ git clone https://tin6150@github.com/tin6150/boinc-client.git
 # cd ..
 git clone https://tin6150@bitbucket.org/tin6150/blpriv
 git clone https://tin6150@bitbucket.org/tin6150/spark
+git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
+
 
 ###########################
 #### tin@lbl bitbucket ####
