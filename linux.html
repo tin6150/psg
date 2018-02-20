@@ -2148,6 +2148,21 @@ For command usage, see http://gentoo-wiki.com/HOWTO_Use_Hpasm
 
 <H2>Dell</H2>
 
+Collect log for support using <BR>
+racadm
+<!--
+singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+-->
+<PRE>
+
+techsupreport   collect
+jobqueue view
+techsupreport   export -f tsr_report.zip
+
+
+jobqueue delete --all
+</PRE>
+
 <H2>VMware ESX</H2>
 
 
