@@ -468,19 +468,27 @@ See <A HREF="#compatibility">compatibility</A> section for more details.
 
 
 
+<A ID="hwcmd"></A>
+<A ID="hw"></A>
 <H2>Hardware related command</H2>
 
+see also 
+<LI> <A HREF="#perf">performance</A> section
+<LI> <A HREF="bios.html">bios.html</A>
 <PRE>
 
 lspci			# list pci info
 lscpu
 
+
 modprobe -l		# display all kernel loaded modules
 
 hwbrowser		# GUI hardware browser, in /usr/bin  (RH9, RHEL 4)
 
+/dev/mic*		# many integrated core, for Phi cpu when setup as co-processor, accelerator (NOT the Dell C6320p which has Phi as main cpu)
+			# https://portal.tacc.utexas.edu/documents/13601/1041435/23-Intel_Xeon_Phi_Intro_Part_1.pdf/eeaf5f85-93d3-4de3-b523-b5f9ec906299
 
-udev			# some hw persisten naming thing
+udev			# some hw persisten naming thing, eg for hd that may change name due to san multipath, etc.
 
 </PRE>
 
@@ -1554,14 +1562,21 @@ chkconfig --level 345 SuSEfirewall2_setup  off	# turn off firewall
 <A NAME="perf"></A>
 <H1>Perforamnce</H1>
 
+see also <A HREF="#hwcmd">hw cmd</A>
 <PRE>
 
 numactl -H
+numactl ... cmd  # run command with specific memory config info (eg, restrict malloc to Phi MCDRAM?) 
+
 
 lscpu
 
 turbostat 	# cpu current speed in Bzy_MHz column
 		# https://github.com/torvalds/linux/blob/master/tools/power/x86/turbostat/turbostat.c
+
+
+cpupower frequency-info
+cpupower frequency-set -d 1000000
 		
 
 cat /proc/cpuinfo | grep MHz		# current core speed in ubuntu, max core speed for rhel7.2 (7.4 may work better)
@@ -2349,6 +2364,12 @@ WantedBy=multi-user.target
 
 <H3>Network stack</H3>
 
+CentOS7 install and use Network Manager if it is adds a Desktop or Developer sw group. <BR>
+Server incidentally would still use the traditional network stack. <BR>
+
+If not changing location and don't need DHCP, really better off disabling network manager!  <BR>
+
+
 <PRE>
 nic has new naming convention (in rhel7 and ubuntu 15) 
 ref: http://blog.learningtree.com/rhel-7-changes-where-did-my-network-interface-go/
@@ -2360,23 +2381,25 @@ wlp0s3f1u4	wifi. p0s3 is USB controller's PCI address.  f1u4 is USB addressing.
 enx112233445566	mac-based naming (but would need to change it when NIC is replaced).
 
 
+
 #nm* are NetworkManager commands (which tends to be GUI in laptop)
 
 nmtui					# Text UI
 nmtui-connect				# select wifi, or activate LAN port
 
-nmcli
-nmcli nm				# list interfaces managed by network-manager
+nmcli h					# cmd help
+nmcli n					# whether nm is enabled
+nmcli nm ?				# list interfaces managed by network-manager
+nmcli d					# show devices
 nmcli c					# show connections
 nmcli connection up ifname wlp3s0	# actiate a specific connection	
 nm-connection-editor			# nm GUI app, not the dock panel thingy
 
 /etc/NetworkManager/system-connections  # location for Debian NM interfaces info (?)
 
-systemctl restart NetworkManager	# restart the network stack
-
+systemctl restart NetworkManager	# restart the network stack, rhel7
+systemctl restart network		# restart the network stack, even if running NM
 service network-manager restart		# ubuntu 14
-
 
 
 iproute2 (ip cmd)	# replaces net-tools (ifconfig, route, netstat, arp)
@@ -2412,6 +2435,24 @@ ss -at4			# tcp only, IPv4 only
 ethtool eno1		# set duplex, etc of an interface
 
 </PRE>
+
+<H5>DNS settings under evil watch of Network Manager</H5>
+
+<PRE>
+
+/etc/NetworkManager/NetworkManager.conf		# NM config
+	dns=none				# tell it not to mangle /etc/resolv.conf
+
+-or-
+
+/etc/sysconfig/network-scripts/ifcfg-eno1
+DNS1=8.8.8.8
+DOMAIN="lbl.gov als.lbl.gov berkeley.edu"
+ONBOOT=yes
+
+
+</PRE>
+
 
 Ref: <BR>
 
