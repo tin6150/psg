@@ -1089,9 +1089,54 @@ Ref:
 <A HREF="https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing">Linux RAID</A>
 <BR>
 
+<A NAME="storcli"></A>
+<A NAME="StorCLI"></A>
+<H2>StorCLI</H2>
+
+storcli is the replacement for megacli, should be easier to use and script. <BR>
+eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
+
+Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
+
+
+/c0 	is controller 0
+/c0/v0	is controller 0, virtual disk 0, eg RAID 1 for OS
+/c0/v1	is controller 0, virtual disk 1, eg RAID 6 for data
+
+
+<!-- PREDpriv/storage/raid/2018-0225-setupFinal/MegaCli.rst -->
+
+<PRE>
+
+storcli64 /c0 add vd raid6 drives=8:0-3		# create a LUN with disk 8:0 thru 8:3 (SID:Slt)
+storcli64 /c0/v1 show all			# display VD/LUN info
+storcli64 /c0 show				# constroller info, new disks show as UGood.
+storcli64 /c0/v1 start migrate type=raid6 option=add drives=8:4-7	# add disks 8:4 thru 8:7 to existing /c0/v1 VD (via migrate process)
+storcli64 /c0/v1 show migrate			# show add progress (eg take 3 days)
+storcli64 /c0/v1 show init			# init is not always req.  will be done automatically in big for VD with ~5+ disks
+						# but before creating LVM/FS, may want to force it to start on small VD, just to be sure
+storcli64 /c0/v1 show cc			# consistency check, seems to req that init have been done.  recommend 1+/month
+
+storcli64 /c0/v1 start cc			# cc (or init) can run in bg or fg, pause, resumed, etc.
+storcli64 /c0/v1 pause cc
+storcli64 /c0/v1 resume cc
+storcli64 /c0/v1 stop cc
+
+after migration is finished (ie VD expansion is complete), may have to reboot linux for LVM PV to see it).
+
+</PRE>
+
+Ref:
+<UL>
+<LI> <A HREF="https://docs.broadcom.com/docs/pub-005110">StorCLI</A> cli guide pdf
+<LI> <A HREF="https://www.thomas-krenn.com/en/download.html">Download</A>
+<LI> <A HREF="https://www.thomas-krenn.com/en/wiki/StorCLI#Initializing_a_VD">StorCLI overview</A>
+<LI> <A HREF="https://serverfault.com/questions/823514/how-do-i-extend-a-raid5-array-with-storcli">Add disk to expand existing VD</A>
+</UL>
+
 <A NAME="megacli"></A>
 <A NAME="megaraid"></A>
-<H2>megaRAID</H2>
+<H2>MegaRAID</H2>
 
 <!-- see CF_BK/ spot832, watershedfx, wall-e, bearbin-->
 
@@ -1211,6 +1256,8 @@ pvdisplay				# display info such as PV size, PE size, avail PE.
 pvcreate /dev/sda2			# create pv on partition, def RHEL 4 setup
 pvcreate /dev/sde
 
+pvresize				# change block device , while LVM is live
+
 vgdisplay				# display vol grp info such as lvm/lvm2.
            -v				# list all LV on the vol group, which PV it uses.
 vgcreate VolGroup00 /dev/sda2		# create a new VG, this is the def in RHEL 4 setup.
@@ -1246,6 +1293,8 @@ resize2fs /dev/VolGroup00/LogVol00 	# RH 5, extend the FS to max space that the 
 resize2fs /dev/VolGroup00/lv101 1000000	# reduce ext2/ext3 FS to size to exactly 1,000,000 bytes. 
 					# UMOUNT+FSCK FIRST
 
+xfs_growfs /mount/point 		# expand xfs, to max space of eg LV
+xfs_growfs /mount/point -D size
 
 lvreduce -L1G /dev/VolGroup00/LogVol00	# reduce the LV the FS is on 
 					# (Don't make it smaller than FS size!)
