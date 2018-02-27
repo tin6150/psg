@@ -24,7 +24,7 @@ $RacAdmCmd set BIOS.ProcSettings.ControlledTurbo  Disabled # was Enabled        
 $RacAdmCmd set BIOS.SysProfileSettings.ProcTurboMode  Disabled     # read-only unless in custom profile, def=Enabled. 
 
 $RacAdmCmd set BIOS.SysProfileSettings.ProcCStates Autonomous    # def: Disabled. alt: Enabled # to allow proc to operate in all avail power state
-$RacAdmCmd set BIOS.SysProfileSettings.UncoreFrequency DynamicUFS        # def: MaxUFS
+$RacAdmCmd set BIOS.SysProfileSettings.UncoreFrequency DynamicUFS        # def: MaxUFS	# did not find setting for SM/KNL 
       # https://software.intel.com/en-us/forums/software-tuning-performance-optimization-platform-monitoring/topic/543513
 
 # things that got changed when switched to Custom SysProfile and thus need setting again:

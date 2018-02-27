@@ -225,6 +225,7 @@ defineAlias () {
 	alias ltr="ls -latr"
 	alias sq="squeue"
 	alias sqt="squeue -u tin"
+	alias assoc="sacctmgr show associations -p"
 
 	# overwrite default behaviour, keep command name
 	alias grep='grep --color=auto'

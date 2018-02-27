@@ -468,19 +468,27 @@ See <A HREF="#compatibility">compatibility</A> section for more details.
 
 
 
+<A ID="hwcmd"></A>
+<A ID="hw"></A>
 <H2>Hardware related command</H2>
 
+see also 
+<LI> <A HREF="#perf">performance</A> section
+<LI> <A HREF="bios.html">bios.html</A>
 <PRE>
 
 lspci			# list pci info
 lscpu
 
+
 modprobe -l		# display all kernel loaded modules
 
 hwbrowser		# GUI hardware browser, in /usr/bin  (RH9, RHEL 4)
 
+/dev/mic*		# many integrated core, for Phi cpu when setup as co-processor, accelerator (NOT the Dell C6320p which has Phi as main cpu)
+			# https://portal.tacc.utexas.edu/documents/13601/1041435/23-Intel_Xeon_Phi_Intro_Part_1.pdf/eeaf5f85-93d3-4de3-b523-b5f9ec906299
 
-udev			# some hw persisten naming thing
+udev			# some hw persisten naming thing, eg for hd that may change name due to san multipath, etc.
 
 </PRE>
 
@@ -1081,9 +1089,54 @@ Ref:
 <A HREF="https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing">Linux RAID</A>
 <BR>
 
+<A NAME="storcli"></A>
+<A NAME="StorCLI"></A>
+<H2>StorCLI</H2>
+
+storcli is the replacement for megacli, should be easier to use and script. <BR>
+eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
+
+Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
+
+
+/c0 	is controller 0
+/c0/v0	is controller 0, virtual disk 0, eg RAID 1 for OS
+/c0/v1	is controller 0, virtual disk 1, eg RAID 6 for data
+
+
+<!-- PREDpriv/storage/raid/2018-0225-setupFinal/MegaCli.rst -->
+
+<PRE>
+
+storcli64 /c0 add vd raid6 drives=8:0-3		# create a LUN with disk 8:0 thru 8:3 (SID:Slt)
+storcli64 /c0/v1 show all			# display VD/LUN info
+storcli64 /c0 show				# constroller info, new disks show as UGood.
+storcli64 /c0/v1 start migrate type=raid6 option=add drives=8:4-7	# add disks 8:4 thru 8:7 to existing /c0/v1 VD (via migrate process)
+storcli64 /c0/v1 show migrate			# show add progress (eg take 3 days)
+storcli64 /c0/v1 show init			# init is not always req.  will be done automatically in big for VD with ~5+ disks
+						# but before creating LVM/FS, may want to force it to start on small VD, just to be sure
+storcli64 /c0/v1 show cc			# consistency check, seems to req that init have been done.  recommend 1+/month
+
+storcli64 /c0/v1 start cc			# cc (or init) can run in bg or fg, pause, resumed, etc.
+storcli64 /c0/v1 pause cc
+storcli64 /c0/v1 resume cc
+storcli64 /c0/v1 stop cc
+
+after migration is finished (ie VD expansion is complete), may have to reboot linux for LVM PV to see it).
+
+</PRE>
+
+Ref:
+<UL>
+<LI> <A HREF="https://docs.broadcom.com/docs/pub-005110">StorCLI</A> cli guide pdf
+<LI> <A HREF="https://www.thomas-krenn.com/en/download.html">Download</A>
+<LI> <A HREF="https://www.thomas-krenn.com/en/wiki/StorCLI#Initializing_a_VD">StorCLI overview</A>
+<LI> <A HREF="https://serverfault.com/questions/823514/how-do-i-extend-a-raid5-array-with-storcli">Add disk to expand existing VD</A>
+</UL>
+
 <A NAME="megacli"></A>
 <A NAME="megaraid"></A>
-<H2>megaRAID</H2>
+<H2>MegaRAID</H2>
 
 <!-- see CF_BK/ spot832, watershedfx, wall-e, bearbin-->
 
@@ -1203,6 +1256,8 @@ pvdisplay				# display info such as PV size, PE size, avail PE.
 pvcreate /dev/sda2			# create pv on partition, def RHEL 4 setup
 pvcreate /dev/sde
 
+pvresize				# change block device , while LVM is live
+
 vgdisplay				# display vol grp info such as lvm/lvm2.
            -v				# list all LV on the vol group, which PV it uses.
 vgcreate VolGroup00 /dev/sda2		# create a new VG, this is the def in RHEL 4 setup.
@@ -1238,6 +1293,8 @@ resize2fs /dev/VolGroup00/LogVol00 	# RH 5, extend the FS to max space that the 
 resize2fs /dev/VolGroup00/lv101 1000000	# reduce ext2/ext3 FS to size to exactly 1,000,000 bytes. 
 					# UMOUNT+FSCK FIRST
 
+xfs_growfs /mount/point 		# expand xfs, to max space of eg LV
+xfs_growfs /mount/point -D size
 
 lvreduce -L1G /dev/VolGroup00/LogVol00	# reduce the LV the FS is on 
 					# (Don't make it smaller than FS size!)
@@ -1554,14 +1611,21 @@ chkconfig --level 345 SuSEfirewall2_setup  off	# turn off firewall
 <A NAME="perf"></A>
 <H1>Perforamnce</H1>
 
+see also <A HREF="#hwcmd">hw cmd</A>
 <PRE>
 
 numactl -H
+numactl ... cmd  # run command with specific memory config info (eg, restrict malloc to Phi MCDRAM?) 
+
 
 lscpu
 
 turbostat 	# cpu current speed in Bzy_MHz column
 		# https://github.com/torvalds/linux/blob/master/tools/power/x86/turbostat/turbostat.c
+
+
+cpupower frequency-info
+cpupower frequency-set -d 1000000
 		
 
 cat /proc/cpuinfo | grep MHz		# current core speed in ubuntu, max core speed for rhel7.2 (7.4 may work better)
@@ -2174,6 +2238,21 @@ For command usage, see http://gentoo-wiki.com/HOWTO_Use_Hpasm
 
 <H2>Dell</H2>
 
+Collect log for support using <BR>
+racadm
+<!--
+singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+-->
+<PRE>
+
+techsupreport   collect
+jobqueue view
+techsupreport   export -f tsr_report.zip
+
+
+jobqueue delete --all
+</PRE>
+
 <H2>VMware ESX</H2>
 
 
@@ -2334,6 +2413,12 @@ WantedBy=multi-user.target
 
 <H3>Network stack</H3>
 
+CentOS7 install and use Network Manager if it is adds a Desktop or Developer sw group. <BR>
+Server incidentally would still use the traditional network stack. <BR>
+
+If not changing location and don't need DHCP, really better off disabling network manager!  <BR>
+
+
 <PRE>
 nic has new naming convention (in rhel7 and ubuntu 15) 
 ref: http://blog.learningtree.com/rhel-7-changes-where-did-my-network-interface-go/
@@ -2345,23 +2430,25 @@ wlp0s3f1u4	wifi. p0s3 is USB controller's PCI address.  f1u4 is USB addressing.
 enx112233445566	mac-based naming (but would need to change it when NIC is replaced).
 
 
+
 #nm* are NetworkManager commands (which tends to be GUI in laptop)
 
 nmtui					# Text UI
 nmtui-connect				# select wifi, or activate LAN port
 
-nmcli
-nmcli nm				# list interfaces managed by network-manager
+nmcli h					# cmd help
+nmcli n					# whether nm is enabled
+nmcli nm ?				# list interfaces managed by network-manager
+nmcli d					# show devices
 nmcli c					# show connections
 nmcli connection up ifname wlp3s0	# actiate a specific connection	
 nm-connection-editor			# nm GUI app, not the dock panel thingy
 
 /etc/NetworkManager/system-connections  # location for Debian NM interfaces info (?)
 
-systemctl restart NetworkManager	# restart the network stack
-
+systemctl restart NetworkManager	# restart the network stack, rhel7
+systemctl restart network		# restart the network stack, even if running NM
 service network-manager restart		# ubuntu 14
-
 
 
 iproute2 (ip cmd)	# replaces net-tools (ifconfig, route, netstat, arp)
@@ -2397,6 +2484,25 @@ ss -at4			# tcp only, IPv4 only
 ethtool eno1		# set duplex, etc of an interface
 
 </PRE>
+
+<H5>DNS settings under evil watch of Network Manager</H5>
+
+<PRE>
+
+/etc/NetworkManager/NetworkManager.conf		# NM config
+	dns=none				# tell it not to mangle /etc/resolv.conf
+
+-or-
+
+/etc/sysconfig/network-scripts/ifcfg-eno1
+DNS1=8.8.8.8
+DOMAIN="lbl.gov als.lbl.gov berkeley.edu"
+ONBOOT=yes
+NM_CONTROLLED=yes				# set to no and the ifcfg will be on traditional "networking" but not NetworkManager will not change it IP, do dhcp with it, etc.
+
+
+</PRE>
+
 
 Ref: <BR>
 
