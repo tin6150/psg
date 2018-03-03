@@ -395,6 +395,48 @@ racadm techsupreport export -f tsr_report.zip
 racadm racreset		# restart rac, like power cycling the service processor, but not the wipe config and restore to factory default kind of reset, which does have a separate cmd for
 </PRE>
 
+<!--
+# singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm+idracFw.img /opt/dell/srvadmin/sbin/racadm \
+
+
+# update iDRAC firmware
+
+not worked out yet.
+
+iDRAC: *Extract the firmimg.d7 file*
+iDRAC update: https://downloads.dell.com/FOLDER04457642M/1/iDRAC8_2.50.50.50_A00.exe
+
+unzip iDRAC8_2.50.50.50_A00.exe   # produce firmimg.d7 etc
+ 
+
+
+racadm fwupdate -p -u -d ./firmimg.d7	# upload firmware, start update
+
+### error
+### sh: bmcfwu.so: command not found
+### maybe looking for  /opt/dell/toolkit/bin/bmcfwu.so
+### and so may have to install the .BIN in the singularity container...
+### *sigh*  building new container to try this...
+
+racadm fwupdate -r   # rollback to standby fw
+racadm fwupdate -s   # query update process
+
+# http://www.dell.com/support/home/vi/en/vibsdt1/drivers/driversdetails?driverId=278FC
+wget https://downloads.dell.com/FOLDER04457684M/1/iDRAC-with-Lifecycle-Controller_Firmware_278FC_LN_2.50.50.50_A00.BIN
+
+-->
+
+<!-- 
+install dell OMSA programatically?
+
+wget -q -O - http://linux.dell.com/repo/hardware/latest/bootstrap.cgi | bash
+yum install srvadmin-all
+
+ref https://serverfault.com/questions/716467/cant-get-omsa-installed-on-dell-r610-w-centos-6
+
+-->
+
+
 
 <H3>SuperMicro SUM</H3>
 
