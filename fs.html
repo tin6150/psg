@@ -263,7 +263,8 @@ none                    /dev/pts                devpts  gid=5,mode=620  0 0
 linux sample /etc/exports:
 # Either use 
 # (1) space delimit multiple machines of the same export dir
-# each machine options must be given immediately, colon (or comma) CANNOT be used 
+# each machine options must be given immediately, 
+# colon (or comma) CANNOT be used 
 # to group multiple machines with same option as in Solaris 
 # (2) each machine has its own line, with mount point repeated.
 # Then run exportfs -a to export everything 
@@ -275,6 +276,18 @@ linux sample /etc/exports:
 /export  chong-sun(rw,no_root_squash,sync)
 /export2 *.sn50.com(ro,async)
 /export2 172.27.0.0/16(ro,async)
+
+# be very careful about NOT to have a space after hostname.
+# tin-sun (rw) 
+# would mean tin-sun has default option
+# and all hosts (*) would have (rw) !!
+
+# other export options
+# https://serverfault.com/questions/539267/nfs-share-with-root-for-anonuid-anongid
+# eg
+# all_squash means everyone will get remapped, in this case to UID=0, GID=0.  but could be mapped to other UID...
+/STORAGE 10.0.5.10(rw,sync,no_subtree_check,all_squash,anonuid=0,anongid=0)
+
 
 
 
