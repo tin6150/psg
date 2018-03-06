@@ -264,8 +264,7 @@ linux sample /etc/exports:
 # Either use 
 # (1) space delimit multiple machines of the same export dir
 # each machine options must be given immediately, 
-# colon (or comma) CANNOT be used 
-# to group multiple machines with same option as in Solaris 
+# colon (or comma) CANNOT be used to group multiple machines with same option as in Solaris 
 # (2) each machine has its own line, with mount point repeated.
 # Then run exportfs -a to export everything 
 #
@@ -396,6 +395,7 @@ nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,
 <LI>NFS exports works differently.  On the server side, it has a root export where everything else falls under.
 <LI>Typically default to proto=tcp,port=2049
 <LI>
+<LI>/etc/idmapd.cfg, nfsidmap, map user with different UID b/w NFSv4 server and client.
 </UL>
 
 <UL>
@@ -406,7 +406,7 @@ nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,
 </UL>
 
 <UL>
-<LI><A HREF="http://nfsworld.blogspot.com/2005/06/using-active-directory-as-your-kdc-for.html">Eisler's NFS blog</A> describe how to use Active Directory with NFSv4.  From 2005!
+<LI><A HREF="http://nfsworld.blogspot.com/2005/06/using-active-directory-as-your-kdc-for.html">Eisler's NFS blog</A> describe how to use Active Directory with NFSv4.  From 2005!  Long solved problem, how many use it?
 </UL>
 
 
