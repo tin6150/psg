@@ -975,7 +975,8 @@ new LUN from SAN to a physical host, hba card can scan for new FC disk:
       /usr/sbin/lpfc/lun_scan all
 
 ESX direct raw lun mapping provides good old fashion scsi disk, not FC.  Command to use for scanning scsi bus is:
-      echo "- - -" > /sys/class/scsi_host/host0/scan
+	  echo "- - -" > /sys/class/scsi_host/host0/scan			# scan for new device, change host0 to appropriate controller
+      echo 1 > /sys/block/sda/device/rescan					    # rescan for changed size, change sda to appropriate drive
 
 
 the hostX dir has to do with scsi id, but not necessarily assigned in same numbring.
@@ -1099,9 +1100,10 @@ eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
 Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
 
 
-/c0 	is controller 0
-/c0/v0	is controller 0, virtual disk 0, eg RAID 1 for OS
-/c0/v1	is controller 0, virtual disk 1, eg RAID 6 for data
+/c0 		is controller 0
+/c0/v0		is controller 0, virtual disk 0, eg RAID 1 for OS
+/c0/v1		is controller 0, virtual disk 1, eg RAID 6 for data
+/c0/vall	is controller 0, virtual all disks
 
 
 <!-- PREDpriv/storage/raid/2018-0225-setupFinal/MegaCli.rst -->
@@ -1109,22 +1111,79 @@ Virtual Disk should be the center of gravity for work to present a "LUN" from th
 <PRE>
 
 storcli64 /c0 add vd raid6 drives=8:0-3		# create a LUN with disk 8:0 thru 8:3 (SID:Slt)
-storcli64 /c0/v1 show all			# display VD/LUN info
-storcli64 /c0 show				# constroller info, new disks show as UGood.
+
 storcli64 /c0/v1 start migrate type=raid6 option=add drives=8:4-7	# add disks 8:4 thru 8:7 to existing /c0/v1 VD (via migrate process)
-storcli64 /c0/v1 show migrate			# show add progress (eg take 3 days)
-storcli64 /c0/v1 show init			# init is not always req.  will be done automatically in big for VD with ~5+ disks
+									# raid type remains the same
+
+storcli64 /c0/v1 start migrate type=raid5	# change from prev raid6 to raid5.  no disk addition needed.
+
+storcli64 /c0/vall show migrate			# show add progress (eg take 3 days to add 4 disks, 18 days to restripe from raid6 to raid5)
+
+
+storcli64 /c0 show				# constroller info, new disks show as UGood.
+storcli64 /c0/v1 show all			# display VD/LUN info
+storcli64 /c0/vall show init			# init is not always req.  will be done automatically in big for VD with ~5+ disks
 						# but before creating LVM/FS, may want to force it to start on small VD, just to be sure
-storcli64 /c0/v1 show cc			# consistency check, seems to req that init have been done.  recommend 1+/month
+storcli64 /c0/vall show cc			# consistency check, seems to req that init have been done.  recommend 1+/month
 
 storcli64 /c0/v1 start cc			# cc (or init) can run in bg or fg, pause, resumed, etc.
 storcli64 /c0/v1 pause cc
 storcli64 /c0/v1 resume cc
 storcli64 /c0/v1 stop cc
 
-after migration is finished (ie VD expansion is complete), may have to reboot linux for LVM PV to see it).
+storcli64 /c0/v2 set name=dev_sdc		# set name of VD, best to put linux path on it for easy mapping.
+						# hopefully os don't remap it after reboot...
+
+lsblk
+
+# lsscsi: 								# storcli64: 
+[0:0:8:0]    enclosu SMC      SC846P           0c1f  -        
+[0:2:0:0]    disk    AVAGO    MR9361-8i        4.68  /dev/sda 		# /c0/v0
+[0:2:1:0]    disk    AVAGO    MR9361-8i        4.68  /dev/sdb 		# /c0/v1
+[0:2:2:0]    disk    AVAGO    MR9361-8i        4.68  /dev/sdc 		# /c0/v2
+ c:  vd 
+
+    scsi id/path map to raid controller path ::
+ie, first number in lsscsi is likely the LSI/Avago controller number c0
+    third number in lsscsi is likely the LSI/Avago controller Virtual Disk number eg VD1
 
 </PRE>
+
+
+<H5>Bluemoon settings</H5>
+<PRE>
+
+/opt/storcli64 /call show bootdrive	# see which VD is used to boot the machine (OS drive)
+
+
+/opt/storcli64 /c0 show migraterate      # check migration rebuild %, default is 30
+/opt/storcli64 /c0 set  migraterate=90   # upping to 90% on idle drive doesn't improve progress speed.
+
+/opt/storcli64 /c0/e8/sall show rebuild
+
+/opt/storcli64 /c0/v1 set wrcache=wt    # set write cache ## p221 of pdf has cmd for other settings
+
+
+### p190 has controller properties.
+/opt/storcli64 /c0 show alarm # whether controller alarm is enabled
+
+
+p210 drive locate command
+/opt/storcli64 /c0/e8/s1 start locate
+/opt/storcli64 /c0/e8/s1 stop  locate
+
+
+storcli64 /c0/cv show all   		# check battery backup
+storcli64 /call/dall show all 		# get disk detail
+
+
+## example commands and output in
+## http://fibrevillage.com/storage/700-storcli-useful-commands-with-examples
+
+
+</PRE>
+
+
 
 Ref:
 <UL>
@@ -1177,7 +1236,8 @@ lsblk
 
 # eg of converting from RAID6 to RAID5 to get more space! 
 /usr/local/sbin/MegaCli64 -LDRecon -Start -r5 -L0 -a0
-echo 1 > /sys/block/sda/device/rescan
+echo "- - -" > /sys/class/scsi_host/host0/scan			# scan for new device, change host0 to appropriate controller
+echo 1 > /sys/block/sda/device/rescan					# rescan for changed size, change sda to appropriate drive
 
 
 MegaCli64 -CfgLdAdd -r5'[252:5,252:6,252:7]' -a0		# create new raid5 LUN
@@ -2457,8 +2517,16 @@ WantedBy=multi-user.target
 
 CentOS7 install and use Network Manager if it is adds a Desktop or Developer sw group. <BR>
 Server incidentally would still use the traditional network stack. <BR>
-
+<BR>
 If not changing location and don't need DHCP, really better off disabling network manager!  <BR>
+ypbind would NOT bind if NetworkManager is running (even when ifcfg-* has NM_CONTROLLED=no)!!  
+NetworkManager is really evil in the server world!
+But if so much as include some developer or gui package in SL7, NM will be installed and enabled!!
+<BR>
+<BR>
+Ref: 
+https://superuser.com/questions/397588/nis-failing-on-centos-6
+<BR>
 
 
 <PRE>
