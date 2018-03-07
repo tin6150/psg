@@ -1203,6 +1203,19 @@ be an extended partition, but after fdisk creation of volume, reboot needed
 before pvcreate can mark the partition for use with vgextend)
 
 
+PV on whole disk or partition?
+I used to like partition, just so that fdisk -l give more useful info.
+But in a RAID controller environment (and lesser extend SAN), 
+the VirtualDisk (LUN) could grow (cuz added disks to the Raid Group).
+pvresize can then handle expanding the PV, but:
+- if no partition, then pvresize can cut it.
+- if PV on partition, then have to use fdisk/gparted to extend the partiton first?  
+or create new partition out of the existing space? it add an layer of complication.
+After that, then the regular vgextend, lvresize, xfs_grow, etc.
+
+Info is not too readily available.  search on ServerFault for "lvm pvresize".  eg:
+https://serverfault.com/questions/812116/how-do-i-resize-an-lvm-physical-volume
+
 
 system-config-lvm			# GUI for LVM.  Pretty neat.
 lvm					# interactive shell for LVM, all cmd avail as stand alone.
@@ -2362,13 +2375,53 @@ PIDFile=/home/sn/.vnc/%H%i.pid
 WantedBy=multi-user.target
 </PRE>
 
-<H3>Network stack</H3>
+<A NAME="NM"></A>
+<A NAME="nm"></A>
+<A NAME="NetworkManager"></A>
+<A NAME="Network Manager"></A>
+<H3>Network Manager</H3>
 
 CentOS7 install and use Network Manager if it is adds a Desktop or Developer sw group. <BR>
 Server incidentally would still use the traditional network stack. <BR>
 
 If not changing location and don't need DHCP, really better off disabling network manager!  <BR>
 
+<H5>Mostly Disabling Network Manager in centos7 </H5>
+
+<PRE>
+vi /etc/NetworkManager/NetworkManager.conf 
+	plugins=ifcfg-rh
+
+vi /etc/sysconfig/network-scripts/ifcfg-WhatEver
+	NM_CONTROLLED=no
+	ONBOOT=yes
+	BOOTPROTO=none
+	IPADDR=...
+
+nmcli device 			# should show the interface no longer managed by Network Manager
+
+#systemctl enable network ??	# not enabled on system that use Network Manager exclusively?
+systemctl start  network 
+
+</PRE>
+
+<H5>Completelyt Disabling Network Manager in centos7 </H5>
+
+<PRE>
+
+systemctl disable NetworkManager.service;
+systemctl stop NetworkManager.service;
+
+systemctl enable network 
+##systemctl start  network 
+
+/usr/sbin/service   network start 
+/usr/sbin/chkconfig network on			# still present in rhel7 !
+
+</PRE>
+
+
+<H5>Network Devices</H5>
 
 <PRE>
 nic has new naming convention (in rhel7 and ubuntu 15) 
@@ -2449,7 +2502,6 @@ ethtool eno1		# set duplex, etc of an interface
 DNS1=8.8.8.8
 DOMAIN="lbl.gov als.lbl.gov berkeley.edu"
 ONBOOT=yes
-
 
 </PRE>
 
