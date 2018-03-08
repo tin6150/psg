@@ -1096,14 +1096,15 @@ Ref:
 
 storcli is the replacement for megacli, should be easier to use and script. <BR>
 eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
+<BR>
 
 Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
-
-
+<PRE>
 /c0 		is controller 0
 /c0/v0		is controller 0, virtual disk 0, eg RAID 1 for OS
 /c0/v1		is controller 0, virtual disk 1, eg RAID 6 for data
 /c0/vall	is controller 0, virtual all disks
+</PRE>
 
 
 <!-- PREDpriv/storage/raid/2018-0225-setupFinal/MegaCli.rst -->
@@ -1134,7 +1135,7 @@ storcli64 /c0/v1 stop cc
 storcli64 /c0/v2 set name=dev_sdc		# set name of VD, best to put linux path on it for easy mapping.
 						# hopefully os don't remap it after reboot...
 
-lsblk
+# lsblk
 
 # lsscsi: 								# storcli64: 
 [0:0:8:0]    enclosu SMC      SC846P           0c1f  -        
@@ -1338,21 +1339,34 @@ fdisk /dev/sda		# modify a specific drive
 File System:	FS: one ext3 fs on top of a given LV.
 Logical:	LV: many virtual/logical partitioins on top of a single VG.
 Aggregation:	VG: volume group, encapsulate many PVs. 
-Physical:	PV: whole disk or partition
+Physical:	PV: place extends "markings" on a partition or whole disk 
+partition	sda1 or sdd
+kernel
+device		/dev/sda
+
 
 In VM environment, best to add a separate virtual disk, 
 and add the new disk to LVM using pvcreate+vgextend.
 Can use VM's feature to extend the existing LUN, 
 but would still need to use fdisk to create a new partition and then
 add this partition to LVM using pvcreate+vgextend.  
+
 (RHEL 5.4 need reboot to see expanded LUN, LVM partition can
 be an extended partition, but after fdisk creation of volume, reboot needed
-before pvcreate can mark the partition for use with vgextend)
+before pvcreate can mark the partition for use with vgextend.
+Newer Linux kernel can scan for new space without reboot, 
+
+echo "- - -" > /sys/class/scsi_host/host0/scan		# scan for new device, change host0 to appropriate controller
+echo 1       > /sys/block/sda/device/rescan		# rescan for changed size, change sda to appropriate drive
+</PRE>
 
 
-PV on whole disk or partition?
+<H5>PV on whole disk or partition?</H5>
+
+<PRE>
 I used to like partition, just so that fdisk -l give more useful info.
-But in a RAID controller environment (and lesser extend SAN), 
+Now I am all for LVM using the whole disk without partition markings.
+This is because in a RAID controller environment (and lesser extend SAN), 
 the VirtualDisk (LUN) could grow (cuz added disks to the Raid Group).
 pvresize can then handle expanding the PV (it adds Extends), but:
 - if no partition, then pvresize will just expand to the new end.  not too painful.
@@ -1366,15 +1380,21 @@ https://www.linuxquestions.org/questions/linux-software-2/adding-disk-space-to-r
 has a thread where pvresize on partitioned raid disk was done on LVM2 back in 2009 
 for more info, search on ServerFault for "lvm pvresize"...
 
+</PRE>
+
+
+<H5>LVM ccommand</H5>
+
+<PRE>
 
 system-config-lvm			# GUI for LVM.  Pretty neat.
 lvm					# interactive shell for LVM, all cmd avail as stand alone.
 
 pvdisplay				# display info such as PV size, PE size, avail PE.
-pvcreate /dev/sda1		# create pv on partition, def RHEL 4 setup  
-pvcreate /dev/sdd		# whole disk allocated to LVM, can't hold swap or /boot, but typically ok for data volume
+pvcreate /dev/sda1			# create pv on partition, def RHEL 4 setup  
+pvcreate /dev/sdd			# whole disk allocated to LVM, can't hold swap or /boot, but typically ok for data volume
 
-pvresize /dev/sdd		# change block device , while LVM is live
+pvresize /dev/sdd			# change block device , while LVM is live
 
 vgdisplay				# display vol grp info such as lvm/lvm2.
            -v				# list all LV on the vol group, which PV it uses.
@@ -1425,6 +1445,8 @@ lvreduce -L1G /dev/VolGroup00/LogVol00	# reduce the LV the FS is on
 /etc/fstab				# typically list which LV dev used by which FS
 ??					# no cmd to display what LV is being used by which FS :(
 
+xfs_repair			    	# fs must be unmounted, or resulting fs maybe inconsistent (per RHEL7.4 man page)
+
 
 
 Importing a new hard drive that has LVM:
@@ -1446,8 +1468,6 @@ sudo lvremove /dev/mapper/VolGroup02-LV_data
 
 sudo vgremove VolGroup02
 sudo pvremove /dev/sdb1
-
-
 
 </PRE>
 
