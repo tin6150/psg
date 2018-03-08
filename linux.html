@@ -1354,24 +1354,27 @@ PV on whole disk or partition?
 I used to like partition, just so that fdisk -l give more useful info.
 But in a RAID controller environment (and lesser extend SAN), 
 the VirtualDisk (LUN) could grow (cuz added disks to the Raid Group).
-pvresize can then handle expanding the PV, but:
-- if no partition, then pvresize can cut it.
-- if PV on partition, then have to use fdisk/gparted to extend the partiton first?  
-or create new partition out of the existing space? it add an layer of complication.
-After that, then the regular vgextend, lvresize, xfs_grow, etc.
+pvresize can then handle expanding the PV (it adds Extends), but:
+- if no partition, then pvresize will just expand to the new end.  not too painful.
+- if PV on partition, fdisk will see more space.  but partition is static.  
+  Probably just add a new partition, then pvcreate on the new partition.
+  (not sure if there are any way to enlarge existing partition via fdisk, maybe via gparted)
+  Overall, having partition for LVM that wants to grow add an layer of complication.
+After pvexnted (or pvcreate), use the regular vgextend, lvresize, xfs_grow, etc to get more space.
 
-Info is not too readily available.  search on ServerFault for "lvm pvresize".  eg:
-https://serverfault.com/questions/812116/how-do-i-resize-an-lvm-physical-volume
+https://www.linuxquestions.org/questions/linux-software-2/adding-disk-space-to-root-logical-volume-with-pvresize-and-lvextend-762333/
+has a thread where pvresize on partitioned raid disk was done on LVM2 back in 2009 
+for more info, search on ServerFault for "lvm pvresize"...
 
 
 system-config-lvm			# GUI for LVM.  Pretty neat.
 lvm					# interactive shell for LVM, all cmd avail as stand alone.
 
 pvdisplay				# display info such as PV size, PE size, avail PE.
-pvcreate /dev/sda2			# create pv on partition, def RHEL 4 setup
-pvcreate /dev/sde
+pvcreate /dev/sda1		# create pv on partition, def RHEL 4 setup  
+pvcreate /dev/sdd		# whole disk allocated to LVM, can't hold swap or /boot, but typically ok for data volume
 
-pvresize				# change block device , while LVM is live
+pvresize /dev/sdd		# change block device , while LVM is live
 
 vgdisplay				# display vol grp info such as lvm/lvm2.
            -v				# list all LV on the vol group, which PV it uses.
