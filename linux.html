@@ -1238,7 +1238,7 @@ lsblk
 # eg of converting from RAID6 to RAID5 to get more space! 
 /usr/local/sbin/MegaCli64 -LDRecon -Start -r5 -L0 -a0
 echo "- - -" > /sys/class/scsi_host/host0/scan			# scan for new device, change host0 to appropriate controller
-echo 1 > /sys/block/sda/device/rescan					# rescan for changed size, change sda to appropriate drive
+echo 1 > /sys/block/sda/device/rescan				# rescan for changed size, change sda to appropriate drive
 
 
 MegaCli64 -CfgLdAdd -r5'[252:5,252:6,252:7]' -a0		# create new raid5 LUN
