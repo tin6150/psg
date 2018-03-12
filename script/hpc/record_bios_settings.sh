@@ -43,8 +43,8 @@ record_bios_settings_dell () {
 } # end record_bios_settings_dell fn
 
 
-#record_bios_settings_dell
-record_bios_settings_supermicro
+record_bios_settings_dell
+#record_bios_settings_supermicro
 
 chown tin $BIOSOUT $BIOSHIGHLIGHT
 
