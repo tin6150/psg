@@ -94,8 +94,11 @@ systemctl restart iptables		# reload firewall rule.  If there are error, system 
 journalct -xe				# see log message, esp if iptables config is wrong and can't be loaded.
 
 sudo iptables -L			# show summary of configured chain.  
+
+echo "service iptables restart" | at now + 5 minutes	# schedule a restart of firewall via atq
 </PRE>
 
+<!-- cf_bk/bofh/sl7_2018/sysconfig/iptables -->
 
 <PRE class="cf">
 # example /etc/sysconfig/iptables that get loaded at boot (CentOS 7)
@@ -120,7 +123,7 @@ sudo iptables -L			# show summary of configured chain.
 ## -i lo  is for input interface loopback  
 ##-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT	# this will allow ALL inbound ssh
 -A INPUT -s 10.11.12.88 -p tcp --dport 22 -j ACCEPT			# this allow only a list of IP to ssh in
--A INPUT -s 10.11.12.89 -p tcp --dport 22 -j ACCEPT
+-A INPUT -s 10.11.12.89 -p tcp --dport 22 -j ACCEPT -m comment --comment "comment that show up in iptables -L" 
 -A INPUT -p tcp --dport 22 -j DROP
 ## default is reject, and no pkt forwarding
 -A INPUT   -j REJECT --reject-with icmp-host-prohibited
@@ -186,8 +189,8 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 <PRE class="cf">
 
 *filter
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
+:INPUT DROP [0:0]	## seems like can start with DROP and still works fine (when read from file, cut-n-paste may not)
+:FORWARD DROP [0:0]	## if use DROP instead of ACCEPT, the icmp msg may not happen.
 :OUTPUT ACCEPT [0:0]
 
 ## log incoming traffic, for temporary debugging only.  will create massive logs!

@@ -876,6 +876,9 @@ vfiler  run vfiler1 exportfs -p sec=sys,rw=adminhost,root=adminhost,anon=0  /etc
 
 exportfs -v /path/of/fs # permanently remove the entry from etc/exports (but live still have export live?)
 
+# potentially can export to specific client mapping rootsquash to a specific uid number rather than nfsnobody
+-anon=uid -clientmatch 
+
 
 don't really ssh to vfiler, but ssh to physical filer and run command under a vfiler context.
 ssh netapp

@@ -73,6 +73,8 @@ git clone https://tin6150@github.com/tin6150/boinc-client.git
 # cd ..
 git clone https://tin6150@bitbucket.org/tin6150/blpriv
 git clone https://tin6150@bitbucket.org/tin6150/spark
+git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
+
 
 ###########################
 #### tin@lbl bitbucket ####

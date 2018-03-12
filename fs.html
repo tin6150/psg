@@ -263,8 +263,8 @@ none                    /dev/pts                devpts  gid=5,mode=620  0 0
 linux sample /etc/exports:
 # Either use 
 # (1) space delimit multiple machines of the same export dir
-# each machine options must be given immediately, colon (or comma) CANNOT be used 
-# to group multiple machines with same option as in Solaris 
+# each machine options must be given immediately, 
+# colon (or comma) CANNOT be used to group multiple machines with same option as in Solaris 
 # (2) each machine has its own line, with mount point repeated.
 # Then run exportfs -a to export everything 
 #
@@ -275,6 +275,18 @@ linux sample /etc/exports:
 /export  chong-sun(rw,no_root_squash,sync)
 /export2 *.sn50.com(ro,async)
 /export2 172.27.0.0/16(ro,async)
+
+# be very careful about NOT to have a space after hostname.
+# tin-sun (rw) 
+# would mean tin-sun has default option
+# and all hosts (*) would have (rw) !!
+
+# other export options
+# https://serverfault.com/questions/539267/nfs-share-with-root-for-anonuid-anongid
+# eg
+# all_squash means everyone will get remapped, in this case to UID=0, GID=0.  but could be mapped to other UID...
+/STORAGE 10.0.5.10(rw,sync,no_subtree_check,all_squash,anonuid=0,anongid=0)
+
 
 
 
@@ -383,6 +395,7 @@ nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,
 <LI>NFS exports works differently.  On the server side, it has a root export where everything else falls under.
 <LI>Typically default to proto=tcp,port=2049
 <LI>
+<LI>/etc/idmapd.cfg, nfsidmap, map user with different UID b/w NFSv4 server and client.
 </UL>
 
 <UL>
@@ -393,7 +406,7 @@ nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,
 </UL>
 
 <UL>
-<LI><A HREF="http://nfsworld.blogspot.com/2005/06/using-active-directory-as-your-kdc-for.html">Eisler's NFS blog</A> describe how to use Active Directory with NFSv4.  From 2005!
+<LI><A HREF="http://nfsworld.blogspot.com/2005/06/using-active-directory-as-your-kdc-for.html">Eisler's NFS blog</A> describe how to use Active Directory with NFSv4.  From 2005!  Long solved problem, how many use it?
 </UL>
 
 
