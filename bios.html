@@ -438,7 +438,37 @@ ref https://serverfault.com/questions/716467/cant-get-omsa-installed-on-dell-r61
 
 
 
-<H3>SuperMicro SUM</H3>
+<H3>SuperMicro (bios) update manager</H3>
+
+SUM = supermicro update manager 
+
+<PRE>
+
+simple binary to extract out of tgz file, then it just run.
+write to current dir for a log file.
+root access required
+
+sum -c GetCurrentBiosCfg >  mymachine.cfg
+sum -c GetCurrentBiosCfg --file mymachine.cfg --overwrite	
+
+        ## there is (probably a bug) a small different in output using --file vs > redirect of std out
+        ## * indicating default are different for a handful of entries.  
+        ## but actual query result reflect correct current bios settings
+
+sum -c GetCurrentBiosCfg | egrep --color 'Hyper-Threading|Turbo|CPU\ C\ State=|Cluster\ Mode=|Memory\ Mode=' 
+
+
+sum -h -c ChangeBiosCfg				# get help on how to make changes to bios
+sum -c ChangeBiosCfg --file mymachine.cfg
+sum -c ChangeBiosCfg --file mymachine.cfg --reboot	# could reboot automatically after new settings, but don't usually want this.
+
+sum -c LoadDefaultBiosCfg		
+sum -c GetDmiInfo
+sum -c UpdateBios --file BIOS.rom 	# this update bios, not change config
+
+
+</PRE>
+
 
 <H3>Dell Ref</H3>
 
