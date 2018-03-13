@@ -141,6 +141,7 @@ add_hpcs_module () {
 add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
 	AddtoString PATH /global/home/groups/scs/IB-tools 
+	AddtoString PATH /global/home/groups/scs/tin
 	#AddtoString PATH /global/home/groups/scs/yqin
 	##--echo "Path after mocking: $PATH"
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
