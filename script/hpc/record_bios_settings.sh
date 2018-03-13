@@ -28,6 +28,17 @@ record_bios_settings_supermicro () {
 	$SUM -c GetCurrentBiosCfg  >> $BIOSOUT  
 
 	cat $BIOSOUT | egrep --color '^n0|2018|Hyper-Threading|Turbo|CPU\ C\ State=|Cluster\ Mode=|Memory\ Mode=' | tee $BIOSHIGHLIGHT
+
+	# create a backup of sm bios file before turnning off HY for new cf1 nodes.
+	MAQ=$(hostname)
+	CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
+	#FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
+	FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
+	BiosBkDir=${CentralLogRepo}/bak${FECHA}
+	test -d ${BiosBkDir} || mkdir ${BiosBkDir}
+	cp -p $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
+	ls -l           ${BiosBkDir}/${MAQ}.bios.settings.out
+
 } # end record_bios_settings_supermicro
 
 
@@ -42,17 +53,6 @@ record_bios_settings_dell () {
 	#echo "----knl----" | tee -a $BIOSHIGHLIGHT
 	echo this is new file...
 	cat $BIOSOUT | egrep 'ProcEmbMemMode|SystemMemoryModel|DynamicCoreAllocation|ProcConfigTdp' | tee -a $BIOSHIGHLIGHT
-
-	# create a backup of sm bios file before turnning off HY for new cf1 nodes.
-	MAQ=$(hostname)
-	CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
-	#FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
-	FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
-	BiosBkDir=${CentralLogRepo}/bak${FECHA}
-	test -d ${BiosBkDir} || mkdir ${BiosBkDir}
-	cp -p $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
-	ls -l           ${BiosBkDir}/${MAQ}.bios.settings.out
-
 } # end record_bios_settings_dell fn
 
 
