@@ -5,11 +5,9 @@
 BIOSOUT=/tmp/bios.settings.out
 BIOSHIGHLIGHT=/tmp/bios.settings.highlight
 
-
 hostname > $BIOSOUT
 date 	>> $BIOSOUT
 echo "" >> $BIOSOUT
-
 
 ## create test whether dell or supermicro, maybe from ipmitool fru list | grep ... 
 
@@ -39,6 +37,15 @@ record_bios_settings_dell () {
 	cat $BIOSOUT | egrep '^n0|2018$|MemOpMode|SubNumaCluster|SysProfile|Turbo|NodeInterleave|LogicalProc|Virtual|CStates|Uncore|EnergyPerf|ProcC1E' | tee $BIOSHIGHLIGHT
 	#echo "----knl----" | tee -a $BIOSHIGHLIGHT
 	cat $BIOSOUT | egrep 'ProcEmbMemMode|SystemMemoryModel|DynamicCoreAllocation|ProcConfigTdp' | tee -a $BIOSHIGHLIGHT
+
+	# create a backup of sm bios file before turnning off HY for new cf1 nodes.
+	MAQ=$(hostname)
+	CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
+	#FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
+	FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
+	BiosBkDir=${CentralLogRepo}/bak${FECHA}
+	mkdir ${BiosBkDir}
+	cp -p $BIOSOUT  ${BioBkDir}/${MAQ}.bios.settings.out
 
 } # end record_bios_settings_dell fn
 
