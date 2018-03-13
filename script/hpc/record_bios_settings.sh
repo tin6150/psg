@@ -40,6 +40,7 @@ record_bios_settings_dell () {
 
 	cat $BIOSOUT | egrep '^n0|2018$|MemOpMode|SubNumaCluster|SysProfile|Turbo|NodeInterleave|LogicalProc|Virtual|CStates|Uncore|EnergyPerf|ProcC1E' | tee $BIOSHIGHLIGHT
 	#echo "----knl----" | tee -a $BIOSHIGHLIGHT
+	echo this is new file...
 	cat $BIOSOUT | egrep 'ProcEmbMemMode|SystemMemoryModel|DynamicCoreAllocation|ProcConfigTdp' | tee -a $BIOSHIGHLIGHT
 
 	# create a backup of sm bios file before turnning off HY for new cf1 nodes.
