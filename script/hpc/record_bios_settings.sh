@@ -4,7 +4,7 @@
 
 # to make backup for all new sm knl nodes:
 # run as root on perceus:
-# pdsh -w n00[00-19].cf1 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh
+# pdsh -w n00[00-11].cf1 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh
 
 BIOSOUT=/tmp/bios.settings.out
 BIOSHIGHLIGHT=/tmp/bios.settings.highlight
@@ -37,7 +37,6 @@ record_bios_settings_supermicro () {
 	BiosBkDir=${CentralLogRepo}/bak${FECHA}
 	test -d ${BiosBkDir} || mkdir ${BiosBkDir}
 	cp -p $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
-	ls -l           ${BiosBkDir}/${MAQ}.bios.settings.out
 
 } # end record_bios_settings_supermicro
 
