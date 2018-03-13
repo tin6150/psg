@@ -44,8 +44,8 @@ record_bios_settings_dell () {
 	#FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
 	FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
 	BiosBkDir=${CentralLogRepo}/bak${FECHA}
-	mkdir ${BiosBkDir}
-	cp -p $BIOSOUT  ${BioBkDir}/${MAQ}.bios.settings.out
+	test -d ${BiosBkDir} || mkdir ${BiosBkDir}
+	cp -p $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
 
 } # end record_bios_settings_dell fn
 
