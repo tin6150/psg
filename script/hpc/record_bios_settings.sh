@@ -4,7 +4,16 @@
 
 # to make backup for all new sm knl nodes:
 # run as root on perceus:
-# pdsh -w n00[00-19].cf1 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh
+# pdsh -w n00[00-11,20-71].cf1 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh
+
+
+CentralLogRepo=/global/home/users/tin/CF_BK/cf1/sm_bios_cf
+#CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
+#FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
+FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
+BiosBkDir=${CentralLogRepo}/bak${FECHA}
+test -d ${BiosBkDir} || mkdir ${BiosBkDir}
+
 
 BIOSOUT=/tmp/bios.settings.out
 BIOSHIGHLIGHT=/tmp/bios.settings.highlight
@@ -20,6 +29,7 @@ echo "" >> $BIOSOUT
 record_bios_settings_supermicro () {
 
 	SUM=/global/scratch/tin/sw/sum/sum_2.0.0_Linux_x86_64/sum
+	SUM=/global/home/users/tin/sw/sum/sum_2.0.0_Linux_x86_64/sum
 
 	##$SUM -c GetCurrentBiosCfg  --file $BIOSOUT --overwrite
 	## there is (probably a bug) a small different in output using --file vs > redirect of std out
@@ -27,17 +37,12 @@ record_bios_settings_supermicro () {
 	## but actual query result reflect correct current bios settings
 	$SUM -c GetCurrentBiosCfg  >> $BIOSOUT  
 
-	cat $BIOSOUT | egrep --color '^n0|2018|Hyper-Threading|Turbo|CPU\ C\ State=|Cluster\ Mode=|Memory\ Mode=' | tee $BIOSHIGHLIGHT
+	#cat $BIOSOUT | egrep --color '^n0|2018|Hyper-Threading|Turbo|CPU\ C\ State=|Cluster\ Mode=|Memory\ Mode=' | tee $BIOSHIGHLIGHT
 
 	# create a backup of sm bios file before turnning off HY for new cf1 nodes.
 	MAQ=$(hostname)
-	CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
-	#FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
-	FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
-	BiosBkDir=${CentralLogRepo}/bak${FECHA}
-	test -d ${BiosBkDir} || mkdir ${BiosBkDir}
-	cp -p $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
-	ls -l           ${BiosBkDir}/${MAQ}.bios.settings.out
+	cp  $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
+	#ls -l           ${BiosBkDir}/${MAQ}.bios.settings.out
 
 } # end record_bios_settings_supermicro
 
