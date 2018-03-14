@@ -41,8 +41,8 @@ record_bios_settings_supermicro () {
 
 	# create a backup of sm bios file before turnning off HY for new cf1 nodes.
 	MAQ=$(hostname)
-	cp  $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
-	#ls -l           ${BiosBkDir}/${MAQ}.bios.settings.out
+	cp $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
+	#ls -l       ${BiosBkDir}/${MAQ}.bios.settings.out
 
 } # end record_bios_settings_supermicro
 
