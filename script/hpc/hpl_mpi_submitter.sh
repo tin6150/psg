@@ -19,11 +19,16 @@
 
 #perceus-00|scs|tin|cf1-hp|1||||||||||||condo_mp|||
 #perceus-00|scs|tin|cf1|1||||||||||||cf_debug,cf_normal|||
+#brc|scs|tin|savio2_knl|1||||||||||||normal,savio_debug,savio_lowprio,savio_normal|||
 
 
 #Flag="-N 8"
+Flag="-N 16 --partition=cf1-hp     --qos=condo_mp"
+Flag="-N  4 --partition=savio2_knl --qos=savio_normal               --reservation=Maint031218 "
+Flag="-N  2 --partition=savio2     --qos=savio_normal -J Sn_mpiTest --reservation=tin66 "
 Flag="-N 1"
-Flag="-N 16 --partition=cf1-hp --qos=condo_mp"
+Flag=""
+
 
 
 sbatch $Flag hpl_mpi.job
