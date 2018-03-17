@@ -2197,6 +2197,10 @@ sudo semanage fcontext -a -t git_user_content_t  "/export/tin/context_managed_di
 
 /etc/selinux/targeted/contexts/files/file_contexts.local	local context db
 
+
+getsebool -a
+setsebool -P use_nfs_home_dirs		# allow sshd to read authorizedkeys in NFS mounted home dir 
+
 </PRE>
 
 
