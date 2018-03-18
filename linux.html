@@ -2155,6 +2155,11 @@ modinfo mpt2sas			# could be from native os or dkms
 SELinux - Security Enhanced Linux
 </H1>
 
+Ref:
+<A HREF="https://wiki.gentoo.org/wiki/SELinux/Tutorials/How_SELinux_controls_file_and_directory_accesses">
+https://wiki.gentoo.org/wiki/SELinux/Tutorials/How_SELinux_controls_file_and_directory_accesses</A>
+<BR>
+
 <PRE>
 
 useradd -Z user_u 	# when adding new user, also give it a default context. 
@@ -2199,7 +2204,7 @@ sudo semanage fcontext -a -t git_user_content_t  "/export/tin/context_managed_di
 
 
 getsebool -a
-setsebool -P use_nfs_home_dirs		# allow sshd to read authorizedkeys in NFS mounted home dir 
+setsebool -P use_nfs_home_dirs=1	# allow sshd to read authorizedkeys in NFS mounted home dir 
 
 </PRE>
 
