@@ -96,6 +96,7 @@ journalct -xe				# see log message, esp if iptables config is wrong and can't be
 sudo iptables -L			# show summary of configured chain.  
 
 echo "service iptables restart" | at now + 5 minutes	# schedule a restart of firewall via atq
+echo "systemctl stop iptables"  | at 18:30		# atq; atrm ... and remove it once iptables works
 </PRE>
 
 <!-- cf_bk/bofh/sl7_2018/sysconfig/iptables -->
@@ -519,6 +520,12 @@ This is a condensed version of NAT tutorial by
    # Disabled by default!
    $ echo "1" > /proc/sys/net/ipv4/ip_forward
 
+   vi /etc/sysctl.conf 
+   net.ipv4.ip_forward=1
+   sysctl -p /etc/sysctl.conf           # reread conf file and activate changes
+
+   sysctl -w net.ipv4.ip_forward=1	# RHEL4 stuff?  no longer work?
+
    # Load various modules. Usually they are already loaded
    # (especially for newer kernels), in that case
    # the following commands are not needed.
@@ -536,9 +543,100 @@ This is a condensed version of NAT tutorial by
 
 Connect a LAN to the internet  (ie, outbound traffic)
 
+
+eg1: 
 <PRE>
-    iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+    	iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
 </PRE>
+
+eg2: (ref: https://www.revsys.com/writings/quicktips/nat.html )
+
+<PRE>
+	# enp1s0f0 = private internal network, inbound traffic to be forwarded
+	# eno1     = public network, outbound traffic
+
+	# remove any drop forward rules in /etc/sysconfig/iptables
+	systemctl restart iptables
+	iptables-save > iptables.save.beforeNat
+    	iptables -t nat -A POSTROUTING  -o eno1                                          -j MASQUERADE
+    	iptables -A FORWARD -i eno1     -o enp1s0f0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    	iptables -A FORWARD -i enp1s0f0 -o eno1                                          -j ACCEPT
+        iptables-save > iptables.save.afterNat 
+	cp iptables-afterNat /etc/sysconfig/iptables	# save for next reboot 
+
+	# or update /etc/syconfig/iptablesconfig and have it save changes on stop or restart...
+	# i don't like that method.
+</PRE>
+
+eg2 as direct edit to /etc/sysconfig/iptables. <BR>
+can ignore numbers such as :PREROUTING ACCEPT [1204:124820] <BR>
+at boot, they seems to be state info. <BR>
+Some packet may get dropped during a restart... ?   <BR>
+but works :) <BR>
+
+<PRE class="cf">
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0] 
+-A POSTROUTING -o eno1 -j MASQUERADE
+COMMIT
+
+####
+#### Regular firewall settings except for some forward rule at the end
+####
+
+*filter
+:INPUT DROP [0:0]  
+:FORWARD DROP [0:0] 
+:OUTPUT ACCEPT [0:0]
+
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -i lo   -j ACCEPT
+-A INPUT -s 10.0.0.0/8    -p tcp              --dport  22 -j ACCEPT   -m comment --comment "ALLOW ssh for internal network"
+# add more rules here as desired
+
+
+####
+####  default to drop/reject packet.  
+####
+-A INPUT   -j REJECT --reject-with icmp-host-prohibited
+####
+####  Headnode does packet forward ie NAT router
+####
+##-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -i eno1 -o enp1s0f0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i enp1s0f0 -o eno1 -j ACCEPT
+
+COMMIT
+
+
+
+</PRE>
+
+
+<!-- diff from above , probably can have iptables use [0:0] at boot since no state prior to boot??
+
+# diff iptables.save.beforeNat iptables.save.afterNat
+1c1,10
+> *nat
+> :PREROUTING ACCEPT [1204:124820]
+> :INPUT ACCEPT [61:15783]
+> :OUTPUT ACCEPT [37:2692]
+> :POSTROUTING ACCEPT [34:2274]
+> -A POSTROUTING -o eno1 -j MASQUERADE
+> COMMIT
+5c14
+< :OUTPUT ACCEPT [1254:170293]
+- - -
+> :OUTPUT ACCEPT [263:21324]
+44a54,55
+> -A FORWARD -i eno1 -o enp1s0f0 -m state - - state RELATED,ESTABLISHED -j ACCEPT
+> -A FORWARD -i enp1s0f0 -o eno1 -j ACCEPT
+46c57
+-->
+
 
 <H5>Inbound </H5>
 
