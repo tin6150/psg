@@ -1,24 +1,26 @@
 #!/bin/sh 
 
 
-#SBATCH         	--job-name=lr5_allNodeTest    # CLI arg will overwrite this
+#SBATCH         	--job-name=cf1_allNodeTest    # CLI arg will overwrite this
 #               	CPU time:
 #SBATCH         	--time=605
 #      		      	Wall clock limit in HH:MM:ss
 # 	#SBATCH       	--time=00:10:00
-#SBATCH         	--partition=lr5
+#SBATCH         	--partition=cf1
 # 	#SBATCH       	-n 4
-# 	#SBATCH        	--qos=lr_normal
-#SBATCH       		--qos=lr_lowprio
+#SBATCH        		--qos=cf_normal
+#	#SBATCH       		--qos=lr_lowprio
 #SBATCH         	--account=scs
 # 	#SBATCH       	--ntasks=2
 # 	#SBATCH       	--mail-type=all
 # 	#SBATCH       	--mail-type=END,FAIL
-#SBATCH         	--mail-type=FAIL
+#	#SBATCH         	--mail-type=FAIL
+#SBATCH         	--mail-type=NONE
 #SBATCH         	--mail-user=tin@lbl.gov
 # 	#SBATCH       	-N 3
-#SBATCH         	-o  slurm_testnode_%N_%j.txt
-# 	#SBATCH       	-o  junkable_slurm_out_lr5.txt
+#	#SBATCH        	-o  slurm_testnode_%N_%j.txt
+#SBATCH         	-o  sn_%N_%j.txt
+# 	#SBATCH       	-o  junkable_slurm_out_cf1.txt
 
 # %j is for jobid (eg 128)
 # %J is for jobid.stepid (eg 128.0)
@@ -31,6 +33,12 @@
 ################################################################################
 ##### print some header info into the log
 ################################################################################
+
+LOGDIR=/global/scratch/tin/JUNK/
+MAQ=$(hostname)
+hostname > $LOGDIR/$MAQ
+exit 0
+
 
 echo ----uptime-----------------------------------
 uptime
@@ -121,8 +129,8 @@ date
 
 
 ## example run 4, from lrc-sl7:
-#for T in $(seq -w 0095 0099); do
-#        sbatch -w n${T}.lr5 --job-name=N${T}_lr5_allNodeTest /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
-#done
+# for T in $(seq -w 0000 0071); do
+#        sbatch -w n${T}.cf1 --job-name=N${T}_cf1_allNodeTest /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+# done
 
 
