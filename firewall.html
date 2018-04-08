@@ -201,14 +201,16 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 -A INPUT -i lo -j ACCEPT
 
 #### Port 22 allows inbound ssh 
-#### NIS uses multiple ports: 111 (portmapper), 837-837 (/etc/sysconfig/network YP args).  
+#### NIS uses multiple ports: 111 (portmapper), 837-837 (set YP* args in /etc/default/nis for ubuntu.  /etc/sysconfig/network for centos)
 #### seems like can live with just TCP version of these ports, may not need to allow udp for newer clients.
 #### https://help.ubuntu.com/community/SettingUpNISHowTo
-#### NFS uses multiple ports as well (in addition to portmapper 111):  1110, 2049, 4045
+#### NFS uses multiple ports as well (in addition to portmapper 111):  1110, 2049, 4045.  
+#### /etc/sysconfig/nfs for centos5 https://www.centos.org/docs/5/html/5.2/Deployment_Guide/s2-sysconfig-nfs.html
 #### though this config not currently exporting NFS (yet)
 #### https://superuser.com/questions/667690/iptables-rules-for-nfs
 #### Can use a comma separated of source IP, or just add one host IP per line for easy removal
-####
+#### /var/yp/securenets need to list nis client ip if securenet is configured.  restart ypserv.
+#### netstat -tulpn
 -A INPUT -s 123.4.7.25          -p tcp -m multiport --dports 22,111,834,835,836,837  -j ACCEPT
 -A INPUT -s 123.4.7.25          -p udp -m multiport --dports    111,834,835,836,837  -j ACCEPT
 

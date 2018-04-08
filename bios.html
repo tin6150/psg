@@ -413,7 +413,8 @@ unzip iDRAC8_2.50.50.50_A00.exe   # produce firmimg.d7 etc
  
 
 
-racadm fwupdate -p -u -d ./firmimg.d7	# upload firmware, start update
+racadm fwupdate -p -u -d ./firmimg.d7	# upload firmware, start update.  this didn't work.  
+racadm update -f ./firmimg.d7	# upload firmware, start update.  this works.
 
 ### error
 ### sh: bmcfwu.so: command not found

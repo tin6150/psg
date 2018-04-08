@@ -170,7 +170,7 @@ sattach			# connect to the stdin, stdout and stderr of a job or job step
 Options commont to most/all job submission commands:
 
 sbatch/salloc/srun
-	--ntasks=100	# number of tasks to 100 (ie array job)
+	--ntasks=100	# number of tasks to 100 (ie array job) (-n 100)
 	--nodes=x --ntasks-per-node=y	# less recommended way to run large MPI job
 	--time=10	# time limit in minutes (actual cpu run time?) , per task?? (help scheduler do backfill)
 	--depend=JOBID	# job dependency, like qhold until a parent job has finished before starting this.
@@ -179,13 +179,17 @@ sbatch/salloc/srun
 	--account NAME	# which account to use for the job
 	--qos NAME	# what QoS to run (may affect cost, preemption, etc)
 	--label		# prepend output with task number
-	--nnodes=2	# req 2 nodes for this job
+	--nnodes=2	# req 2 nodes for this job (-N 2)
 	--exclusive	# have exclusive use of node when running 
 
 	--multi-prog slurmjob.conf	# run a job where diff task run diff prog, as specified in a config file given in the arg
 					# taskID starts with 0
 					# %t = task ID
 					# %o = offset within task ID range
+
+	--licenses=foo:2,bar:4		# allocate license with the job.
+	-J jobname
+
 </PRE>
 
 <H4>What/Where</H4>

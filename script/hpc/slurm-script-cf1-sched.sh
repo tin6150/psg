@@ -1,21 +1,48 @@
 #!/bin/sh
 
-# scratch, not all that useful at this point.
-
 # submit jobs to cf1 to test max job limit
 # sivonxay
 
-STIME=600   # sleep time
-JOBS=2
+STIME=300   # sleep time
+JOBS=20  
+JOBS_P=5
+
+
+for N in $(seq 1 $JOBS); do
+	srun -J 1sn${N} --partition=cf1 --account=scs --qos=cf_normal --time 00:07:00   sleep ${STIME} &
+done
+
+sleep 10
+
+for N in $(seq 1 $JOBS_P); do
+	srun -J 2snHP${N} --partition=cf1-hp --account=scs --qos=condo_mp --time 00:07:00   sleep ${STIME} &
+done
+
+sleep 10
+
+for N in $(seq 1 24); do
+	srun -J 3sn${N}   --partition=cf1 --account=scs --qos=cf_normal --time 00:07:00   sleep ${STIME} &
+	srun -J 3snHP${N} --partition=cf1-hp --account=scs --qos=condo_mp --time 00:07:00   sleep ${STIME} &
+done
 
 
 
-#for N in $(seq 1 $JOBS); do
+exit 0
+
+
+
+# sprio to see priority of pending job
+# perceus-00|scs|tin|cf1-hp|1||||||||||||condo_mp|||
+# perceus-00|scs|tin|cf1|1||||||||||||cf_debug,cf_normal|||
+
+
+for N in $(seq 1 $JOBS); do
 	##sbatch --partition=cf1 --account=lr_mp --qos=condo_mp --name J$N sleep $STIME  --time 00:10:00 
 	#sbatch --partition=cf1 --account=lr_mp --qos=condo_mp  sleep $STIME  --time 00:10:00 
-	sbatch --partition=cf1 --account=lr_mp --qos=condo_mp  $STIME  --time 00:10:00  /tmp/script
-	sbatch -w n0000.cf1 -n 64 /tmp/script
-#done
+	#sbatch --partition=cf1 --account=scs --qos=condo_mp  $STIME  --time 00:10:00  /tmp/script
+	srun -J sn${N} --partition=cf1 --account=scs --qos=cf_normal --time 00:15:00   sleep ${STIME} &
+	#sbatch -w n0000.cf1 -n 64 /tmp/script
+done
 
 
 #n0003.scs00
