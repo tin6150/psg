@@ -1443,10 +1443,7 @@ lvreduce -L1G /dev/VolGroup00/LogVol00	# reduce the LV the FS is on
 	
 
 /etc/fstab				# typically list which LV dev used by which FS
-??					# no cmd to display what LV is being used by which FS :(
-
-xfs_repair			    	# fs must be unmounted, or resulting fs maybe inconsistent (per RHEL7.4 man page)
-
+??	 				# no cmd to display what LV is being used by which FS :(
 
 
 Importing a new hard drive that has LVM:
@@ -1512,6 +1509,47 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 
 </PRE>
 
+
+<H5>XFS</H5>
+
+<PRE>
+
+system boot up doesn't do any of the check.
+only do mount...
+only run the below if have suspect of fs consistency problem.
+
+
+mount and umount the system cleanly before running the check, 
+so that xfs log is in proper state
+
+
+xfs_check			# check for fs consisency
+
+xfs_repair			    	# fs must be unmounted, or resulting fs maybe inconsistent (per RHEL7.4 man page)
+xfs_repair -n /dev/datavg/datavol	# dry run method, but (skip?) extended attributes
+
+</PRE>
+
+xfs_metadump  <BR>
+xfs_mdrestore <BR>
+these commands can be used to make copy of the xfs metadta (which is also journaled)
+and then can then use xfs_repair -L on such backup image to see effect
+and decide whether to proceed with the repair.  <BR>
+<A HREF=https://serverfault.com/questions/777299/proper-way-to-deal-with-corrupt-xfs-filesystems">serverfault</A>
+
+
+Ref:
+
+<UL>
+<LI><A HREF="http://docs.cray.com/books/S-2377-22/html-S-2377-22/z1029470303.html">
+xfs_check and dry-run method of xfs_repair</A> (craydoc)
+<LI><A HREF="http://www.electronicdesign.com/industrial/what-s-difference-between-linux-ext-xfs-and-btrfs-file-systems">ext4 vs xfs vs btrfs</A>
+(ext3 is very mature, but ext4 not so much?  xfs maybe more stable than ext4?)
+
+</UL>
+<!--
+<LI><A HREF="
+-->
 
 <BR>
 <BR>
@@ -2204,7 +2242,15 @@ sudo semanage fcontext -a -t git_user_content_t  "/export/tin/context_managed_di
 
 
 getsebool -a
+getsebool    use_nfs_home_dirs=1	# get specific setting
 setsebool -P use_nfs_home_dirs=1	# allow sshd to read authorizedkeys in NFS mounted home dir 
+
+Ansible module:
+
+- seboolean:
+    name: use_nfs_home_dirs
+    state: yes
+    persistent: yes
 
 </PRE>
 

@@ -252,6 +252,7 @@ scontrol		# admin cli: view + update on sys, job,       partition, reservation
 			# dump all info out, not partituclarly user friendly
 scontrol show reservations	# see job/resource reservations
 scontrol show partition		# view partition/queue info
+scontrol show nodes		# view nodes info (as specified to slurm.conf)
 scontrol show config		# view config of whole system (eg when asking mailing list for help)
 scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 min for the queue named "debug"
 
@@ -281,10 +282,45 @@ SQUEUE_STATE=all		# tell squeue cmd to display job in all state (incl COMPLETED,
 SBATCH_PARTITION=default_q	# specify the given partition as the default queue
 </PRE>
 
+
+<A NAME="slurm_state"></A>
+<H4>SLURM Job / Queue State</H4>
+
+<A HREF="https://slurm.schedmd.com/squeue.html">squeue</A> 
+
+<PRE>
+
+State with asterisk (*) (eg idle*, draining*) means node is not reachable.
+
+?? - reported by sinfo
+down*	Down, * = unreachable
+comp	??
+idle	online, waiting for action
+
+JOB REASON CODES
+Cleaning
+NodeDown 
+
+
+JOB STATE CODES - reported by squeue
+PD	PENDING
+CG	Completing
+CD	Completed
+TO	timeout
+F	Failed
+NF	Node_FAIL
+OOM	OUT_OF_MEMORY
+R	RUNNING
+ST	STOPPED
+TO	TIMEOUT
+
+
+</PRE>
+
+
 <A NAME="slurm_troubleshooting"></A>
 <H4>SLURM Troubleshooting</H4>
 
-State with * (eg idle*, draining*) means node is not reachable.
 
 <UL>
 <LI> /var/log/slurm/slurmctld.log 	# master scheduler log
