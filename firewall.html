@@ -94,6 +94,9 @@ systemctl restart iptables		# reload firewall rule.  If there are error, system 
 journalct -xe				# see log message, esp if iptables config is wrong and can't be loaded.
 
 sudo iptables -L			# show summary of configured chain.  
+
+echo "service iptables restart" | at now + 5 minutes	# schedule a restart of firewall via atq
+echo "systemctl stop iptables"  | at 18:30		# atq; atrm ... and remove it once iptables works
 </PRE>
 
 <!-- cf_bk/bofh/sl7_2018/sysconfig/iptables -->
@@ -187,8 +190,8 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 <PRE class="cf">
 
 *filter
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
+:INPUT DROP [0:0]	## seems like can start with DROP and still works fine (when read from file, cut-n-paste may not)
+:FORWARD DROP [0:0]	## if use DROP instead of ACCEPT, the icmp msg may not happen.
 :OUTPUT ACCEPT [0:0]
 
 ## log incoming traffic, for temporary debugging only.  will create massive logs!
@@ -198,14 +201,16 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 -A INPUT -i lo -j ACCEPT
 
 #### Port 22 allows inbound ssh 
-#### NIS uses multiple ports: 111 (portmapper), 837-837 (/etc/sysconfig/network YP args).  
+#### NIS uses multiple ports: 111 (portmapper), 837-837 (set YP* args in /etc/default/nis for ubuntu.  /etc/sysconfig/network for centos)
 #### seems like can live with just TCP version of these ports, may not need to allow udp for newer clients.
 #### https://help.ubuntu.com/community/SettingUpNISHowTo
-#### NFS uses multiple ports as well (in addition to portmapper 111):  1110, 2049, 4045
+#### NFS uses multiple ports as well (in addition to portmapper 111):  1110, 2049, 4045.  
+#### /etc/sysconfig/nfs for centos5 https://www.centos.org/docs/5/html/5.2/Deployment_Guide/s2-sysconfig-nfs.html
 #### though this config not currently exporting NFS (yet)
 #### https://superuser.com/questions/667690/iptables-rules-for-nfs
 #### Can use a comma separated of source IP, or just add one host IP per line for easy removal
-####
+#### /var/yp/securenets need to list nis client ip if securenet is configured.  restart ypserv.
+#### netstat -tulpn
 -A INPUT -s 123.4.7.25          -p tcp -m multiport --dports 22,111,834,835,836,837  -j ACCEPT
 -A INPUT -s 123.4.7.25          -p udp -m multiport --dports    111,834,835,836,837  -j ACCEPT
 
@@ -491,6 +496,85 @@ eg.  <A HREF="http://www.shorewall.net/samba.htm">Firewall with Samba exception<
 
 <A HREF="http://www.shorewall.net/Introduction.html">Shorewall Intro</A>, explaining zones, interfaces/ip tuple, etc essentially to understand shorewall.  It is not anything like iptables command.
 
+
+
+<A ID="router"></A>
+<A ID="nat_router"></A>
+<A ID="router_nat"></A>
+<H2>Router with NAT using IPTables</H2>
+
+To make the linux box act as a router using iptables NAT (eg HPC head node routing for compute nodes)  <BR>
+First enable kernel forward:  <BR>
+vi /etc/sysctl.conf  <BR>
+   net.ipv4.ip_forward=1 <BR>
+
+Then update iptables.  <BR>
+eg: (ref: https://www.revsys.com/writings/quicktips/nat.html )  <BR>
+
+<PRE>
+	# enp1s0f0 = private internal network, inbound traffic to be forwarded
+	# eno1     = public network, outbound traffic
+
+	# remove any drop forward rules in /etc/sysconfig/iptables
+	systemctl restart iptables
+	iptables-save > iptables.save.beforeNat
+    	iptables -t nat -A POSTROUTING  -o eno1                                          -j MASQUERADE
+    	iptables -A FORWARD -i eno1     -o enp1s0f0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    	iptables -A FORWARD -i enp1s0f0 -o eno1                                          -j ACCEPT
+        iptables-save > iptables.save.afterNat 
+	cp iptables-afterNat /etc/sysconfig/iptables	# save for next reboot 
+
+	# or update /etc/syconfig/iptablesconfig and have it save changes on stop or restart...
+	# i don't like that method.
+</PRE>
+
+eg as direct edit to /etc/sysconfig/iptables. <BR>
+can ignore numbers such as :PREROUTING ACCEPT [1204:124820] <BR>
+at boot, they seems to be state info. <BR>
+Some packet may get dropped during a restart... ?   <BR>
+but works :) <BR>
+
+<PRE class="cf">
+## /etc/sysconfig/iptables direct edit so that it survive reboot ## <BR>
+
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0] 
+-A POSTROUTING -o eno1 -j MASQUERADE
+COMMIT
+
+####
+#### Regular firewall settings except for some forward rule at the end
+####
+
+*filter
+:INPUT DROP [0:0]  
+:FORWARD DROP [0:0] 
+:OUTPUT ACCEPT [0:0]
+
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -i lo   -j ACCEPT
+-A INPUT -s 10.0.0.0/8    -p tcp              --dport  22 -j ACCEPT   -m comment --comment "ALLOW ssh for internal network"
+# add more rules here as desired
+
+
+####
+####  default to drop/reject packet.  
+####
+-A INPUT   -j REJECT --reject-with icmp-host-prohibited
+####
+####  Headnode does packet forward ie NAT router
+####
+##-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -i eno1 -o enp1s0f0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i enp1s0f0 -o eno1 -j ACCEPT
+
+COMMIT
+</PRE>
+
+
 <A ID="nat"></A>
 <A ID="nat_iptables"></A>
 <H2>NAT with IPTables</H2>
@@ -517,6 +601,12 @@ This is a condensed version of NAT tutorial by
    # Disabled by default!
    $ echo "1" > /proc/sys/net/ipv4/ip_forward
 
+   vi /etc/sysctl.conf 
+   net.ipv4.ip_forward=1
+   sysctl -p /etc/sysctl.conf           # reread conf file and activate changes
+
+   sysctl -w net.ipv4.ip_forward=1	# RHEL4 stuff?  no longer work?
+
    # Load various modules. Usually they are already loaded
    # (especially for newer kernels), in that case
    # the following commands are not needed.
@@ -534,9 +624,12 @@ This is a condensed version of NAT tutorial by
 
 Connect a LAN to the internet  (ie, outbound traffic)
 
+
+eg1: 
 <PRE>
-    iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+    	iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
 </PRE>
+
 
 <H5>Inbound </H5>
 

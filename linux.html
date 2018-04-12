@@ -975,7 +975,8 @@ new LUN from SAN to a physical host, hba card can scan for new FC disk:
       /usr/sbin/lpfc/lun_scan all
 
 ESX direct raw lun mapping provides good old fashion scsi disk, not FC.  Command to use for scanning scsi bus is:
-      echo "- - -" > /sys/class/scsi_host/host0/scan
+	  echo "- - -" > /sys/class/scsi_host/host0/scan			# scan for new device, change host0 to appropriate controller
+      echo 1 > /sys/block/sda/device/rescan					    # rescan for changed size, change sda to appropriate drive
 
 
 the hostX dir has to do with scsi id, but not necessarily assigned in same numbring.
@@ -1095,12 +1096,18 @@ Ref:
 
 storcli is the replacement for megacli, should be easier to use and script. <BR>
 eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
+<BR>
 
 Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
 
 <!-- PREDpriv/storage/raid/2018-0225-setupFinal/MegaCli.rst -->
 
 <PRE>
+/c0 		is controller 0
+/c0/v0		is controller 0, virtual disk 0, eg RAID 1 for OS
+/c0/v1		is controller 0, virtual disk 1, eg RAID 6 for data
+/c0/vall	is controller 0, virtual all disks
+</PRE>
 
 /c0 		# is controller 0
 /c0/v0		# is controller 0, virtual disk 0, eg RAID 1 for OS
@@ -1114,22 +1121,79 @@ Virtual Disk should be the center of gravity for work to present a "LUN" from th
 storcli64 /c0/eall/sall | grep Model\ Num	# get all hard drives model on controller 0
 
 storcli64 /c0 add vd raid6 drives=8:0-3		# create a LUN with disk 8:0 thru 8:3 (SID:Slt)
-storcli64 /c0/v1 show all			# display VD/LUN info
-storcli64 /c0 show				# constroller info, new disks show as UGood.
+
 storcli64 /c0/v1 start migrate type=raid6 option=add drives=8:4-7	# add disks 8:4 thru 8:7 to existing /c0/v1 VD (via migrate process)
-storcli64 /c0/v1 show migrate			# show add progress (eg take 3 days)
-storcli64 /c0/v1 show init			# init is not always req.  will be done automatically in big for VD with ~5+ disks
+									# raid type remains the same
+
+storcli64 /c0/v1 start migrate type=raid5	# change from prev raid6 to raid5.  no disk addition needed.
+
+storcli64 /c0/vall show migrate			# show add progress (eg take 3 days to add 4 disks, 18 days to restripe from raid6 to raid5)
+
+
+storcli64 /c0 show				# constroller info, new disks show as UGood.
+storcli64 /c0/v1 show all			# display VD/LUN info
+storcli64 /c0/vall show init			# init is not always req.  will be done automatically in big for VD with ~5+ disks
 						# but before creating LVM/FS, may want to force it to start on small VD, just to be sure
-storcli64 /c0/v1 show cc			# consistency check, seems to req that init have been done.  recommend 1+/month
+storcli64 /c0/vall show cc			# consistency check, seems to req that init have been done.  recommend 1+/month
 
 storcli64 /c0/v1 start cc			# cc (or init) can run in bg or fg, pause, resumed, etc.
 storcli64 /c0/v1 pause cc
 storcli64 /c0/v1 resume cc
 storcli64 /c0/v1 stop cc
 
-after migration is finished (ie VD expansion is complete), may have to reboot linux for LVM PV to see it).
+storcli64 /c0/v2 set name=dev_sdc		# set name of VD, best to put linux path on it for easy mapping.
+						# hopefully os don't remap it after reboot...
+
+# lsblk
+
+# lsscsi: 								# storcli64: 
+[0:0:8:0]    enclosu SMC      SC846P           0c1f  -        
+[0:2:0:0]    disk    AVAGO    MR9361-8i        4.68  /dev/sda 		# /c0/v0
+[0:2:1:0]    disk    AVAGO    MR9361-8i        4.68  /dev/sdb 		# /c0/v1
+[0:2:2:0]    disk    AVAGO    MR9361-8i        4.68  /dev/sdc 		# /c0/v2
+ c:  vd 
+
+    scsi id/path map to raid controller path ::
+ie, first number in lsscsi is likely the LSI/Avago controller number c0
+    third number in lsscsi is likely the LSI/Avago controller Virtual Disk number eg VD1
 
 </PRE>
+
+
+<H5>Bluemoon settings</H5>
+<PRE>
+
+/opt/storcli64 /call show bootdrive	# see which VD is used to boot the machine (OS drive)
+
+
+/opt/storcli64 /c0 show migraterate      # check migration rebuild %, default is 30
+/opt/storcli64 /c0 set  migraterate=90   # upping to 90% on idle drive doesn't improve progress speed.
+
+/opt/storcli64 /c0/e8/sall show rebuild
+
+/opt/storcli64 /c0/v1 set wrcache=wt    # set write cache ## p221 of pdf has cmd for other settings
+
+
+### p190 has controller properties.
+/opt/storcli64 /c0 show alarm # whether controller alarm is enabled
+
+
+p210 drive locate command
+/opt/storcli64 /c0/e8/s1 start locate
+/opt/storcli64 /c0/e8/s1 stop  locate
+
+
+storcli64 /c0/cv show all   		# check battery backup
+storcli64 /call/dall show all 		# get disk detail
+
+
+## example commands and output in
+## http://fibrevillage.com/storage/700-storcli-useful-commands-with-examples
+
+
+</PRE>
+
+
 
 Ref:
 <UL>
@@ -1166,20 +1230,63 @@ MegaCli64 -AdpAllInfo -aALL	| egrep --color "^Adapter|Physical Devices|Disks|Cri
 MegaCli64 -LDInfo -Lall -aALL | egrep  --color -i "virtual|state|adapter"
 
 
-./MegaCli64 -PDInfo -PhysDrv [1:2] -aALL | more
-./MegaCli64 -Pdgetmissing -a2		# see if there are missing drive in adapter 2
+MegaCli64 -PDInfo -PhysDrv [1:2] -aALL | more
+MegaCli64 -Pdgetmissing -a2		# see if there are missing drive in adapter 2
 
-
-./MegaCli64 -PdList -aall | grep --color -i firmware	# get firmware info
-
+MegaCli64 -PdList -aall | grep --color -i firmware	# get firmware info
 
 lsblk
 
+## how to find out which linux /dev/sdX maps to which VirtualDisk (LUN) on the RAID controller ??
+
 </PRE>
 
+<A HREF="https://blog.frehi.be/2011/09/12/megacli-useful-commands/">useful megacli cmd</A> blog by Frederik :
+<PRE class="quote">
+
+# eg of converting from RAID6 to RAID5 to get more space! 
+/usr/local/sbin/MegaCli64 -LDRecon -Start -r5 -L0 -a0
+echo "- - -" > /sys/class/scsi_host/host0/scan			# scan for new device, change host0 to appropriate controller
+echo 1 > /sys/block/sda/device/rescan				# rescan for changed size, change sda to appropriate drive
+
+
+MegaCli64 -CfgLdAdd -r5'[252:5,252:6,252:7]' -a0		# create new raid5 LUN
+MegaCli64 -LDRecon -Start -r5 -Add -PhysDrv[32:3] -L0 -a0	# extend existing LUN with 1 new Physical Drive
+MegaCli64 -LDRecon ShowProg L0 -a0				# view reconstruction progress (when replacing bad drive?, or extending VD?)
+MegaCli -LDGetProp -DskCache -LAll -aALL			# check physical HD cache, recommend enable iff have UPS
+MegaCli64 -PDList -aALL  					# find out about physical HD info
+
+MegaCli64 -PDList -aALL | egrep --color "Adapter|Enclosure|^Coerced Size|Device Id"
+MegaCli64 -PDList -aALL | egrep --color "Adapter|Enclosure|^Coerced Size|WWN|Inquiry Data|Device Id"
+
+# SAS Addresses are subsequent to WWN, eg:
+#            WWN:  5000C500631B3D3C
+# SAS Address(0): 0x5000c500631b3d3d
+# SAS Address(1): 0x5000c500631b3d3e
+#                                  ^
+
+</PRE>
+
+<A HREF="https://serverfault.com/questions/385796/how-to-interpret-this-output-from-megacli">MegaRAID level explanation"</A> server fault:
+<PRE class="quote">
+
+/opt/MegaRAID/MegaCli/MegaCli64 -LDInfo -Lall -aALL | grep RAID
+
+['Primary-0, Secondary-0, RAID Level Qualifier-0'] = RAID-0
+['Primary-1, Secondary-0, RAID Level Qualifier-0'] = RAID-1
+['Primary-5, Secondary-0, RAID Level Qualifier-3'] = RAID-5
+['Primary-6, Secondary-0, RAID Level Qualifier-3'] = RAID-6
+['Primary-1, Secondary-3, RAID Level Qualifier-0'] = RAID-10
+
+Primary-1   = "Mirrored array"
+Secondary-3 = "Spanned 0x03 A combination of stripping and concatenations involving Basic VDs of different sizes."
+RAID Level Qualifier-0 = "Mirroring across two extents"
+
+</PRE>
 
 Additional info at 
 <LI><A HREF="megaraid.html">megaraid.html</A>
+<LI><A HREF="https://things.maths.cam.ac.uk/computing/docs/public/megacli_raid_lsi.html">MegaCLI cheetsheet</A>
 <LI><A HREF="#hp">#hp</A>
 
 
@@ -1241,27 +1348,62 @@ fdisk /dev/sda		# modify a specific drive
 File System:	FS: one ext3 fs on top of a given LV.
 Logical:	LV: many virtual/logical partitioins on top of a single VG.
 Aggregation:	VG: volume group, encapsulate many PVs. 
-Physical:	PV: whole disk or partition
+Physical:	PV: place extends "markings" on a partition or whole disk 
+partition	sda1 or sdd
+kernel
+device		/dev/sda
+
 
 In VM environment, best to add a separate virtual disk, 
 and add the new disk to LVM using pvcreate+vgextend.
 Can use VM's feature to extend the existing LUN, 
 but would still need to use fdisk to create a new partition and then
 add this partition to LVM using pvcreate+vgextend.  
+
 (RHEL 5.4 need reboot to see expanded LUN, LVM partition can
 be an extended partition, but after fdisk creation of volume, reboot needed
-before pvcreate can mark the partition for use with vgextend)
+before pvcreate can mark the partition for use with vgextend.
+Newer Linux kernel can scan for new space without reboot, 
+
+echo "- - -" > /sys/class/scsi_host/host0/scan		# scan for new device, change host0 to appropriate controller
+echo 1       > /sys/block/sda/device/rescan		# rescan for changed size, change sda to appropriate drive
+</PRE>
 
 
+<H5>PV on whole disk or partition?</H5>
+
+<PRE>
+I used to like partition, just so that fdisk -l give more useful info.
+Now I am all for LVM using the whole disk without partition markings.
+This is because in a RAID controller environment (and lesser extend SAN), 
+the VirtualDisk (LUN) could grow (cuz added disks to the Raid Group).
+pvresize can then handle expanding the PV (it adds Extends), but:
+- if no partition, then pvresize will just expand to the new end.  not too painful.
+- if PV on partition, fdisk will see more space.  but partition is static.  
+  Probably just add a new partition, then pvcreate on the new partition.
+  (not sure if there are any way to enlarge existing partition via fdisk, maybe via gparted)
+  Overall, having partition for LVM that wants to grow add an layer of complication.
+After pvexnted (or pvcreate), use the regular vgextend, lvresize, xfs_grow, etc to get more space.
+
+https://www.linuxquestions.org/questions/linux-software-2/adding-disk-space-to-root-logical-volume-with-pvresize-and-lvextend-762333/
+has a thread where pvresize on partitioned raid disk was done on LVM2 back in 2009 
+for more info, search on ServerFault for "lvm pvresize"...
+
+</PRE>
+
+
+<H5>LVM ccommand</H5>
+
+<PRE>
 
 system-config-lvm			# GUI for LVM.  Pretty neat.
 lvm					# interactive shell for LVM, all cmd avail as stand alone.
 
 pvdisplay				# display info such as PV size, PE size, avail PE.
-pvcreate /dev/sda2			# create pv on partition, def RHEL 4 setup
-pvcreate /dev/sde
+pvcreate /dev/sda1			# create pv on partition, def RHEL 4 setup  
+pvcreate /dev/sdd			# whole disk allocated to LVM, can't hold swap or /boot, but typically ok for data volume
 
-pvresize				# change block device , while LVM is live
+pvresize /dev/sdd			# change block device , while LVM is live
 
 vgdisplay				# display vol grp info such as lvm/lvm2.
            -v				# list all LV on the vol group, which PV it uses.
@@ -1310,8 +1452,7 @@ lvreduce -L1G /dev/VolGroup00/LogVol00	# reduce the LV the FS is on
 	
 
 /etc/fstab				# typically list which LV dev used by which FS
-??					# no cmd to display what LV is being used by which FS :(
-
+??	 				# no cmd to display what LV is being used by which FS :(
 
 
 Importing a new hard drive that has LVM:
@@ -1333,8 +1474,6 @@ sudo lvremove /dev/mapper/VolGroup02-LV_data
 
 sudo vgremove VolGroup02
 sudo pvremove /dev/sdb1
-
-
 
 </PRE>
 
@@ -1379,6 +1518,50 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 
 </PRE>
 
+
+<H5>XFS</H5>
+
+<PRE>
+
+system boot up doesn't do any of the check.
+only do mount...
+only run the below if have suspect of fs consistency problem.
+
+
+mount and umount the system cleanly before running the check, 
+so that xfs log is in proper state
+
+
+xfs_check			# check for fs consisency
+
+xfs_repair			    	# fs must be unmounted, or resulting fs maybe inconsistent (per RHEL7.4 man page)
+xfs_repair -n /dev/datavg/datavol	# dry run method, but (skip?) extended attributes
+
+</PRE>
+
+xfs_metadump  <BR>
+xfs_mdrestore <BR>
+these commands can be used to make copy of the xfs metadta (which is also journaled)
+and then can then use xfs_repair -L on such backup image to see effect
+and decide whether to proceed with the repair.  <BR>
+<A HREF=https://serverfault.com/questions/777299/proper-way-to-deal-with-corrupt-xfs-filesystems">serverfault</A>
+
+
+Ref:
+
+<UL>
+<LI><A HREF="http://docs.cray.com/books/S-2377-22/html-S-2377-22/z1029470303.html">
+xfs_check and dry-run method of xfs_repair</A> (craydoc)
+<LI><A HREF="http://www.electronicdesign.com/industrial/what-s-difference-between-linux-ext-xfs-and-btrfs-file-systems">ext4 vs xfs vs btrfs</A>
+(ext3 is very mature, but ext4 not so much?  xfs maybe more stable than ext4?)
+<LI><A HREF="http://xfs.org/index.php/XFS_FAQ">xfs FAQ</A> (mount and umount can take hours!)
+<LI><A HREF="http://xfs.org/docs/xfsdocs-xml-dev/XFS_User_Guide/tmp/en-US/html/ch11s14.html">XFS User Guide - mount fails</A>
+
+
+</UL>
+<!--
+<LI><A HREF="
+-->
 
 <BR>
 <BR>
@@ -2022,6 +2205,11 @@ modinfo mpt2sas			# could be from native os or dkms
 SELinux - Security Enhanced Linux
 </H1>
 
+Ref:
+<A HREF="https://wiki.gentoo.org/wiki/SELinux/Tutorials/How_SELinux_controls_file_and_directory_accesses">
+https://wiki.gentoo.org/wiki/SELinux/Tutorials/How_SELinux_controls_file_and_directory_accesses</A>
+<BR>
+
 <PRE>
 
 useradd -Z user_u 	# when adding new user, also give it a default context. 
@@ -2063,6 +2251,18 @@ sudo semanage fcontext -a -t git_user_content_t  "/export/tin/context_managed_di
 (?) add file entry to context db , but context is not applied to file, not visible in ls -Z 
 
 /etc/selinux/targeted/contexts/files/file_contexts.local	local context db
+
+
+getsebool -a
+getsebool    use_nfs_home_dirs=1	# get specific setting
+setsebool -P use_nfs_home_dirs=1	# allow sshd to read authorizedkeys in NFS mounted home dir 
+
+Ansible module:
+
+- seboolean:
+    name: use_nfs_home_dirs
+    state: yes
+    persistent: yes
 
 </PRE>
 
@@ -2416,13 +2616,61 @@ PIDFile=/home/sn/.vnc/%H%i.pid
 WantedBy=multi-user.target
 </PRE>
 
-<H3>Network stack</H3>
+<A NAME="NM"></A>
+<A NAME="nm"></A>
+<A NAME="NetworkManager"></A>
+<A NAME="Network Manager"></A>
+<H3>Network Manager</H3>
 
 CentOS7 install and use Network Manager if it is adds a Desktop or Developer sw group. <BR>
 Server incidentally would still use the traditional network stack. <BR>
-
+<BR>
 If not changing location and don't need DHCP, really better off disabling network manager!  <BR>
+ypbind would NOT bind if NetworkManager is running (even when ifcfg-* has NM_CONTROLLED=no)!!  
+NetworkManager is really evil in the server world!
+But if so much as include some developer or gui package in SL7, NM will be installed and enabled!!
+<BR>
+<BR>
+Ref: 
+https://superuser.com/questions/397588/nis-failing-on-centos-6
+<BR>
 
+<H5>Mostly Disabling Network Manager in centos7 </H5>
+
+<PRE>
+vi /etc/NetworkManager/NetworkManager.conf 
+	plugins=ifcfg-rh
+
+vi /etc/sysconfig/network-scripts/ifcfg-WhatEver
+	NM_CONTROLLED=no
+	ONBOOT=yes
+	BOOTPROTO=none
+	IPADDR=...
+
+nmcli device 			# should show the interface no longer managed by Network Manager
+
+#systemctl enable network ??	# not enabled on system that use Network Manager exclusively?
+systemctl start  network 
+
+</PRE>
+
+<H5>Completelyt Disabling Network Manager in centos7 </H5>
+
+<PRE>
+
+systemctl disable NetworkManager.service;
+systemctl stop NetworkManager.service;
+
+systemctl enable network 
+##systemctl start  network 
+
+/usr/sbin/service   network start 
+/usr/sbin/chkconfig network on			# still present in rhel7 !
+
+</PRE>
+
+
+<H5>Network Devices</H5>
 
 <PRE>
 nic has new naming convention (in rhel7 and ubuntu 15) 
@@ -2504,7 +2752,6 @@ DNS1=8.8.8.8
 DOMAIN="lbl.gov als.lbl.gov berkeley.edu"
 ONBOOT=yes
 NM_CONTROLLED=yes				# set to no and the ifcfg will be on traditional "networking" but not NetworkManager will not change it IP, do dhcp with it, etc.
-
 
 </PRE>
 

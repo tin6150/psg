@@ -165,17 +165,60 @@ ipmitool -I open sel list
 </PRE>
 
 
-<H5>TBA </H5>
+<H5>Serial over IPMI SoL </H5>
+
+This doesn't quite redirect grub login to serial yet.
+But don't really want to redirect VGA to serial.
+Only want to spawn a serial login session so that <TT>ipmi sol</TT>
+can gain a login.
+<BR>
+inittab and getty no longer works in RHEL7, below config is for systemd.
+<BR>
+
+<PRE class="cf">
+## /etc/systemd/system/mgetty.service ::
+
+[Unit]
+Description=Smart Modem Getty(mgetty)
+Documentation=man:mgetty(8)
+Requires=systemd-udev-settle.service
+After=systemd-udev-settle.service
+
+[Service]
+Type=simple
+ExecStart=/sbin/mgetty -r -s 115200 /dev/ttyS1
+# -r is for direct connection (ie null modem)
+Restart=always
+PIDFile=/var/run/mgetty.pid.ttyS1
+
+[Install]
+WantedBy=basic.target multi-user.target
+</PRE>
 
 <PRE>
-linux has ipmi cli tools installed, so can also do:
-ipmitool -H hostname -U username -P pass power status
-credentials are IDRAC credentials
-*should* be blade specific when hostname is iDRAC of blade even when description say chassis.  Have not been able to get it to work.
 
-ipmitool -H 
+ls -Z /usr/sbin/mgetty
+ls -Z /var/log/mgetty.*
+chcon --type getty_exec_t /var/log/mgetty.*.log
+### still need more tweaking, but don't really prevent mgetty from creating a login session.
 
+systemctl start  mgetty.service
+systemctl enable mgetty.service
+# enable will create sym links in /etc/systemd/system/basic.target.wants and multi-user.target.wants
+
+# create ipmi user #3 to have access
+ipmitool user list
+ipmitool user set password 3 NewIpmiPwForUserNum3	# if need to change password
+ipmitool user enable 3
+ipmitool channel setaccess 1 3 ipmi=on privilege=4
+ipmitool user priv 3 4 1
+</PRE>
+
+Generic usage:
+
+<PRE>
 # using serial over lan (sol, ipmi 2.0)
+ipmitool -H hostname -U username -P pw list 				# see list of user
 ipmitool -H hostname -U username -P pw sol activate
 ipmitool -I lan     -U $username -P $pass -H $nodename  sol activate		# activte serial over lan
 # should drop into console.  escape seq to control IPMI session:
@@ -186,25 +229,44 @@ ipmitool -I lan     -U $username -P $pass -H $nodename  sol activate		# activte 
 # Esc R Esc r Esc R = ctrl-alt-del
 # Esc 1 = F1
 ipmitool -I lan     -U $username -P $pass -H $nodename  sol deactivate		# disconnect prev sol, clean up measure 
+</PRE>
+
+Specific usage example:
+<PRE>
+csh
+ipmitool -I lanplus -U root -P ipmipw -H 172.10.0.128 sol info			# 115.2 should be default speed
+ipmitool -I lanplus -U root -P ipmipw -H 172.10.0.128 sol activate instance=1	# maps to /dev/ttyS1
+# ~? = help (but note that ssh also use ~ as escape, so may need ~~?
+# ~. = terminate session
+
+ipmitool -I lanplus -U root -P ipmipw -H 172.10.0.128 sol deactivate # if some old session was left running
+exit
+rm ~/.history
+</PRE>
 
 
-sol payload enable 1 2
-# these supposed to work, but haven't been able to get them to work :(
-# may need to configure grub level serial redirect
-# but realistically haven't been able to connect to serial, not just a blank screen...
+ref: 
+<A HREF="http://snarkybrill.blogspot.com/2015/08/mgetty-in-systemd-for-modem-dial-in.html">
+http://snarkybrill.blogspot.com/2015/08/mgetty-in-systemd-for-modem-dial-in.html</A>
+<BR>
 
-
-
-# sol is for when console has redirected output to serial
-# (?) is won't capture output to vga  (that isn't redirected to serial)
-
-# ref:
 # http://thenetworksherpa.com/using-ipmi-serial-lan-consoles/
-
+<BR>
 
 # ref:  (for windows, but mostly applicable to linux)
+<BR>
 #  https://www.symantec.com/connect/articles/how-do-sol-serial-over-lan-aka-console-redirection-dell-servers
+<BR>
 
+
+
+<H5>Remote Power Cycle using IPMI</H5>
+
+<PRE>
+linux machine with ipmitool (provides ipmi cli) installed, so can also do:
+ipmitool -H hostname -U username -P pass power status
+credentials are IDRAC credentials
+*should* be blade specific when hostname is iDRAC of blade even when description say chassis.  Have not been able to get it to work.
 
 ipmitool -I lan     -U $username -P $pass -H $nodename  mc 	info		# ipmi ver info
 
@@ -220,23 +282,26 @@ ipmitool -I lanplus -U $username -P $pass -H $nodename  chassis power cycle
 # lan may work for some basic commands, but more sophisticated command req it to be run over lanplus
 # dell def username pass is root calvin
 
-
 ipmitool mc reset cold 	# reset the service processor on the node itself, cold? booting it?
-
 
 # dell C6320 need the following to configure IPMI:
 ipmitool delloem lan set shared with lom1
 
-</PRE>
 
+ipmitool -H 
 
-<PRE>
+sol payload enable 1 2
+# these supposed to work, but haven't been able to get them to work :(
+# may need to configure grub level serial redirect
+# but realistically haven't been able to connect to serial, not just a blank screen...
 
 </PRE>
 
 
 <H5>Verify status</H5>
 <PRE>
+ipmitool lan print 1
+ipmitool lan print | grep 'IP Address'
 </PRE>
 
 

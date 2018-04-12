@@ -154,6 +154,9 @@ HTML validator: http://validator.w3.org/
 <div align="CENTER">
 <A HREF="http://www.commitstrip.com/en/2016/06/21/childhood-of-a-coder-booting-to-bios/">
 <IMG SRC="fig/bios.Strip-Enfance-du-codeur-Le-bios-650-finalenglish-1.jpg"></A>
+<BR>
+Answer: DEL-F10-F1-DEL-DEL-DEL-F8-F10-F8-F1-DEL-F10-F12-DEL-DEL-F11.  <BR>
+In that sequence, to be completed within 3 seconds.
 </div>
   
 <H1>BIOS</H1>
@@ -401,8 +404,53 @@ racadm techsupreport export -f tsr_report.zip
 racadm racreset		# restart rac, like power cycling the service processor, but not the wipe config and restore to factory default kind of reset, which does have a separate cmd for
 </PRE>
 
+<!--
+# singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm+idracFw.img /opt/dell/srvadmin/sbin/racadm \
 
-<H3>SuperMicro SUM</H3>
+
+# update iDRAC firmware
+
+not worked out yet.
+
+iDRAC: *Extract the firmimg.d7 file*
+iDRAC update: https://downloads.dell.com/FOLDER04457642M/1/iDRAC8_2.50.50.50_A00.exe
+
+unzip iDRAC8_2.50.50.50_A00.exe   # produce firmimg.d7 etc
+ 
+
+
+racadm fwupdate -p -u -d ./firmimg.d7	# upload firmware, start update.  this didn't work.  
+racadm update -f ./firmimg.d7	# upload firmware, start update.  this works.
+
+### error
+### sh: bmcfwu.so: command not found
+### maybe looking for  /opt/dell/toolkit/bin/bmcfwu.so
+### and so may have to install the .BIN in the singularity container...
+### *sigh*  building new container to try this...
+
+racadm fwupdate -r   # rollback to standby fw
+racadm fwupdate -s   # query update process
+
+# http://www.dell.com/support/home/vi/en/vibsdt1/drivers/driversdetails?driverId=278FC
+wget https://downloads.dell.com/FOLDER04457684M/1/iDRAC-with-Lifecycle-Controller_Firmware_278FC_LN_2.50.50.50_A00.BIN
+
+-->
+
+<!-- 
+install dell OMSA programatically?
+
+wget -q -O - http://linux.dell.com/repo/hardware/latest/bootstrap.cgi | bash
+yum install srvadmin-all
+
+ref https://serverfault.com/questions/716467/cant-get-omsa-installed-on-dell-r610-w-centos-6
+
+-->
+
+
+
+
+
+
 
 <H3>Dell Ref</H3>
 
@@ -429,12 +477,21 @@ Ref:
 <A NAME="SUM"></A>
 <A NAME="sm"></A>
 <A NAME="SM"></A>
-<H3>SuperMicro SUM</H3>
+<H3>SuperMicro (bios) update manager</H3>
+
+SUM = supermicro update manager, not the checksum command from the OS!
+<BR>
+<BR>
+
+simple binary to extract out of tgz file, then it just run.
+write to current dir for a log file.
+root access required
+<BR>
+
 
 <PRE>
 
 untar gz, no real need to install
-licensing??
 
 ./sum -h				# not the checksum command in linux default path... 
 sum -h -c GetBIOSInfo
@@ -445,14 +502,26 @@ sum -c GetBIOSInfo					# run on local machine
 sum -c GetCurrentBiosCfg  --file  smBiosCf.txt	# write output to file
 sum -c GetCurrentBiosCfg     >    smBiosCf.txt	# should be same, but couple of places have * (default) next to diff entries.
 
-vi smBiosCf.txt		# make desired changes to BIOS
+vi smBiosCf.txt		# make desired changes to BIOS use hex code for values.
+			# remove the first two lines of cfg that had the SM copyright info 
 
 sum -c ChangeBiosCfg --file smBiosCf.txt --reboot	# update bios config, rebooting host 
 							# --reboot would actually be an soft reboot telling OS to shutdown (via ACPI?)
 
+sum -h -c ChangeBiosCfg				# get help on how to make changes to bios
+
+sum -c LoadDefaultBiosCfg		
+sum -c GetDmiInfo
+sum -c UpdateBios --file BIOS.rom 	# this update bios, not change config
+
 </PRE>
 
 Select GetCurrentBiosCfg entries 
+
+
+<PRE>
+sum -c GetCurrentBiosCfg | egrep --color 'Hyper-Threading|Turbo|CPU\ C\ State=|Cluster\ Mode=|Memory\ Mode=' 
+</PRE>
 
 <PRE class="cf">
 [Advanced|Boot Feature]
@@ -493,12 +562,6 @@ Flow Control=00                         // *00 (None), 01 (Hardware RTS/CTS)
 Legacy OS Redirection Resolution=01     // 00 (80x24), *01 (80x25)
 Putty KeyPad=01                         // *01 (VT100), 02 (LINUX), 04 (XTERMR6), 08 (SCO), 10 (ESCN), 20 (VT400)
 Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
-
-</PRE>
-
-
-<PRE>
-
 
 </PRE>
 
