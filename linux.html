@@ -1098,15 +1098,20 @@ eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
 
 Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
 
-
-/c0 	is controller 0
-/c0/v0	is controller 0, virtual disk 0, eg RAID 1 for OS
-/c0/v1	is controller 0, virtual disk 1, eg RAID 6 for data
-
-
 <!-- PREDpriv/storage/raid/2018-0225-setupFinal/MegaCli.rst -->
 
 <PRE>
+
+/c0 		# is controller 0
+/c0/v0		# is controller 0, virtual disk 0, eg RAID 1 for OS
+/c0/v1		# is controller 0, virtual disk 1, eg RAID 6 for data
+/c0/eall	# eall = all enclosure.  e252, e8
+/c0/eall/sall	# sall = all slot.  
+/c0/e252/s1	# is controller 0, enclosure 252 (really just channel number), slot 1 (really hd on the channel).  ie hd 252:1 EID:Slot
+/c0/e8/s7	# is controller 0, hd at EID:Slt of 8:7 (eg RAID 6 volume for data)
+
+
+storcli64 /c0/eall/sall | grep Model\ Num	# get all hard drives model on controller 0
 
 storcli64 /c0 add vd raid6 drives=8:0-3		# create a LUN with disk 8:0 thru 8:3 (SID:Slt)
 storcli64 /c0/v1 show all			# display VD/LUN info
