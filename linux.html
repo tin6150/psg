@@ -1103,11 +1103,6 @@ Virtual Disk should be the center of gravity for work to present a "LUN" from th
 <!-- PREDpriv/storage/raid/2018-0225-setupFinal/MegaCli.rst -->
 
 <PRE>
-/c0 		is controller 0
-/c0/v0		is controller 0, virtual disk 0, eg RAID 1 for OS
-/c0/v1		is controller 0, virtual disk 1, eg RAID 6 for data
-/c0/vall	is controller 0, virtual all disks
-</PRE>
 
 /c0 		# is controller 0
 /c0/v0		# is controller 0, virtual disk 0, eg RAID 1 for OS
@@ -1156,6 +1151,10 @@ storcli64 /c0/v2 set name=dev_sdc		# set name of VD, best to put linux path on i
     scsi id/path map to raid controller path ::
 ie, first number in lsscsi is likely the LSI/Avago controller number c0
     third number in lsscsi is likely the LSI/Avago controller Virtual Disk number eg VD1
+
+
+lsscsi -d	# device major and minor number
+lsscsi -w	# wwn
 
 </PRE>
 
@@ -1519,6 +1518,7 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 </PRE>
 
 
+<A NAME="xfs"></A>
 <H5>XFS</H5>
 
 <PRE>
@@ -1576,6 +1576,150 @@ xfs_check and dry-run method of xfs_repair</A> (craydoc)
 
 <BR>
 <BR>
+
+
+
+<A NAME="zfs"></A>
+<H2>ZFS</H2>
+
+
+<H5>ZFS pool creation</H5>
+
+
+Many example from 
+<A HREF="https://calomel.org/zfs_raid_speed_capacity.html">https://calomel.org/zfs_raid_speed_capacity.html</A> <BR>
+
+<PRE>
+
+zpool create POOLNAME drive		# single drive, so raid0 :)
+zpool create storage  /dev/sdc
+
+
+zpool create POOLNAME drives		# multiple drives, raid0 (no redundancy)
+zpool create storage  da0 da1 da2
+
+
+zpool create POOLNAME raidz drives... 	# raidz (raid5) with 3 drives (loose 1 drive for redundancy)
+zpool create storage  raidz da0 da1 da2
+
+zpool create POOLNAME raidz2 drives...	# raidz2  (raid6, loose 2 drives for redundancy)
+zpool create storage  raidz2 da0 da1 da2 da3 da4 da5 da6 da7 da8 da9 da10 da11 da12 da13 da14 da15 da16 da17 da18 da19 da20 da21 da22 da23
+
+
+zpool create POOLNAME raidz3 drives...	# raidz3  (raid7, loose 3 drives for redundancy, min 5 drives)
+zpool create storage  raidz3 da0 da1 da2 da3 da4
+
+
+# 3 mirror-pair, concatenated together.  use 6 drives, loose space of 3
+zpool create POOLNAME VVVVVV   ...    VVVVVV  ...     VVVVVV ...
+zpool create storage  mirror da0 da1  mirror da2 da3  mirror da4 da5
+
+        NAME        STATE     READ WRITE CKSUM
+        storage     ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            da0     ONLINE       0     0     0
+            da1     ONLINE       0     0     0
+          mirror-1  ONLINE       0     0     0
+            da2     ONLINE       0     0     0
+            da3     ONLINE       0     0     0
+          mirror-2  ONLINE       0     0     0
+            da4     ONLINE       0     0     0
+            da5     ONLINE       0     0     0
+
+
+
+
+# 2 raid6 stripes concatenated together.  each strip loose 2 drives to redundancy, total 4 drives overhead
+# 4TB drives, 12 of them.  each stripe has 16TB usable, totalling ~30 TB.
+zpool create POOLNAME VVVVV ...		             VVVVV ... 
+zpool create storage  raidz2 da0 da1 da2 da3 da4 da5 raidz2 da6 da7 da8 da9 da10 da11
+
+        NAME        STATE     READ WRITE CKSUM
+        storage     ONLINE       0     0     0
+          raidz2-0  ONLINE       0     0     0
+            da0     ONLINE       0     0     0
+            da1     ONLINE       0     0     0
+            da2     ONLINE       0     0     0
+            da3     ONLINE       0     0     0
+            da4     ONLINE       0     0     0
+            da5     ONLINE       0     0     0
+          raidz2-1  ONLINE       0     0     0
+            da6     ONLINE       0     0     0
+            da7     ONLINE       0     0     0
+            da8     ONLINE       0     0     0
+            da9     ONLINE       0     0     0
+            da10    ONLINE       0     0     0
+            da11    ONLINE       0     0     0
+
+
+# once a pool is created, a FS is automatically created with the same name??
+
+zpool add -f geek1 raidz /dev/sde /dev/sdf 	# add new drives to existing zpool caked "geek1"
+
+zpool get mountpoint
+zpool set mountoint ...
+
+
+zpool offline POOLANEM drive			# offline a drive
+zpool replace POOLNAME ...			# replace drive (when there are unused disks from a different slot)
+
+zfs get quota
+zfs set quota=...
+
+zfs snapshot ...				# take snapshot.  avail in .zfs/snapshot of top of FS
+
+zfs sharenfs ...				# build-in nfs export if desired to use it
+
+
+</PRE>
+
+<H5>ZFS Alignment, Performance</H5>
+Automatic alignment may not work, cuz HD lies about their geometry.
+see 
+<A HREF="http://open-zfs.org/wiki/Performance_tuning#Alignment_Shift_.28ashift.29">ZFS Perf Tuning</A>
+
+
+<PRE>
+zfs iostat -v
+zpool status
+
+</PRE>
+
+
+
+<H5>ZFS fs, dataset</H5>
+
+<PRE>
+zfs create POOLNAME/volname1		# create a file system called "volume1" under the zpool POOLNAME  ??
+zfs create 
+</PRE>
+
+
+
+There is a concept of dataset (like qtree in netapp) below the file system, and itseems like it can be nested.
+see 
+<A HREF="https://www.unixarena.com/2012/07/zfs-quick-command-reference-with.html">Unix Area</A> for example.
+
+
+
+<H5>ZFS other</H5>
+
+
+/usr/sbin/smcwebserver start		# start a admin web portal, at “https://system-name:6789/zfs”
+
+
+
+<H5>ZFS Ref</H5>
+<UL>
+<LI> <A HREF="https://github.com/zfsonlinux/zfs/wiki/RHEL-and-CentOS">Install ZFS packages</A>
+<LI> <A HREF="http://open-zfs.org/wiki/System_Administration">ZFS guide for Sys Admin</A>
+<LI>
+<LI> <A HREF="https://calomel.org/zfs_raid_speed_capacity.html">ZFS performance</A> raidz vs raidz2 vs raidz3 etc (many example of zfs pool are from this page).
+<LI>
+<LI> <A HREF="http://www.freenas.org/freenas-certified-servers/">FreeNAS ZFS-based storage</A> Not an endorsement, but maybe worthwhile to check them out.
+<LI>
+<LI> <A HREF="https://www.howtogeek.com/175159/an-introduction-to-the-z-file-system-zfs-for-linux/">howto geek</A> install, pool creation and extension.
+</UL>
 
 
 <H1>Package/Software management</H1>
