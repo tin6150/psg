@@ -1154,7 +1154,14 @@ ie, first number in lsscsi is likely the LSI/Avago controller number c0
 
 
 lsscsi -d	# device major and minor number
-lsscsi -w	# wwn
+lsscsi -w -s	# wwn, size
+lsscsi -i 	# -i = udev derived scsi_id, probably picked by zfs
+lsscsi -w -i -d	# 
+
+                     -w                                   -d        -i                                 -s
+[0:0:11:0]   disk    0x5000c5009443358f          /dev/sda [8:0]     35000c5009443358f                  10.0TB
+[0:2:0:0]    disk    AVAGO    MR9361-8i    4.68  /dev/sdy [65:128]  3600605b00cd891a021fd7ddc04f32b71   1.02TB
+
 
 </PRE>
 
@@ -1519,7 +1526,7 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 
 
 <A NAME="xfs"></A>
-<H5>XFS</H5>
+<H2>XFS</H2>
 
 <PRE>
 
@@ -1580,7 +1587,24 @@ xfs_check and dry-run method of xfs_repair</A> (craydoc)
 
 
 <A NAME="zfs"></A>
-<H2>ZFS</H2>
+<H1>ZFS</H1>
+
+ZFS is a combination of LVM and file system into single fused storage function.  <BR>
+At the same time, it also bring many enterprise storage system features to the open source world.
+
+<UL>
+<LI> RAID that rebuild only the data rather than whole disk when disk fail
+<LI> CRC check against silent data failure (debatable usefulness)
+<LI> raidz3 that use 3 parity disks
+<LI> snapshot
+<LI> quota
+<LI> cloning volume (meh?)
+<LI>
+</UL>
+
+Originally developed by Sun for Solaris, Oracle can't backtrack it.  CDDL stopping many distribution from including it in their .ISO.
+Cannonical still ship it with Ubuntu and provide support for it.  Has yet to be sued by Oracle :)
+Centos can get a zfs.repo and get it.  May still need some kernel modif (DMKS? no need to manually compile kernel?).
 
 
 <H5>ZFS pool creation</H5>
@@ -1675,8 +1699,14 @@ zfs sharenfs ...				# build-in nfs export if desired to use it
 
 <H5>ZFS Alignment, Performance</H5>
 Automatic alignment may not work, cuz HD lies about their geometry.
+Linux may need <TT>-o ashift</TT>.  
 see 
 <A HREF="http://open-zfs.org/wiki/Performance_tuning#Alignment_Shift_.28ashift.29">ZFS Perf Tuning</A>
+
+<div class="quote">
+Top-level vdevs contain an internal property called ashift, which stands for alignment shift. It is set at vdev creation and it is immutable. It can be read using the zdb command.
+
+</div>
 
 
 <PRE>
@@ -1713,12 +1743,16 @@ see
 <UL>
 <LI> <A HREF="https://github.com/zfsonlinux/zfs/wiki/RHEL-and-CentOS">Install ZFS packages</A>
 <LI> <A HREF="http://open-zfs.org/wiki/System_Administration">ZFS guide for Sys Admin</A>
+<LI> <A HREF="https://github.com/zfsonlinux/zfs/wiki/faq">ZFS for Linux doc</A> Discuss what device name to use, supposed to have -o ashift alignment performance info
 <LI>
 <LI> <A HREF="https://calomel.org/zfs_raid_speed_capacity.html">ZFS performance</A> raidz vs raidz2 vs raidz3 etc (many example of zfs pool are from this page).
 <LI>
 <LI> <A HREF="http://www.freenas.org/freenas-certified-servers/">FreeNAS ZFS-based storage</A> Not an endorsement, but maybe worthwhile to check them out.
 <LI>
 <LI> <A HREF="https://www.howtogeek.com/175159/an-introduction-to-the-z-file-system-zfs-for-linux/">howto geek</A> install, pool creation and extension.
+<!-- 
+<LI> <A HREF=" 
+-->
 </UL>
 
 
