@@ -1539,15 +1539,15 @@ mount and umount the system cleanly before running the check,
 so that xfs log is in proper state
 
 
-xfs_check				# check for fs consisency, use diff code base that xfs_repair.  (diff rpm?) or was this for irix only?
 
 xfs_repair			    	# fs must be unmounted, or resulting fs maybe inconsistent (per RHEL7.4 man page)
 xfs_repair -n /dev/datavg/datavol	# dry run method, but (skip?) extended attributes
 
+xfs_check				# deprecated and not avail in rhel7
 both of these commands use xfs_db to do its work.
 
 
-xfsmisc/xfsstats.pl -f			# stats
+xfsmisc/xfsstats.pl -f			# stats, not avail for rhel7
 
 
 # http://xfs.org/docs/xfsdocs-xml-dev/XFS_User_Guide//tmp/en-US/html/ch02s07.html
