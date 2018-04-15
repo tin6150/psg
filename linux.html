@@ -1373,7 +1373,26 @@ Newer Linux kernel can scan for new space without reboot,
 
 echo "- - -" > /sys/class/scsi_host/host0/scan		# scan for new device, change host0 to appropriate controller
 echo 1       > /sys/block/sda/device/rescan		# rescan for changed size, change sda to appropriate drive
+
+pvs
+pvs -o +pe_start		# show offset, new lvm default to 1m and usually good enough to get correct alignment
+
+lvs --segment
+lvdisplay -vm 			# show segemts and write policy (linear vs stripped)
+
+iotop
+iostat 5 
+iostat -x -k 1
+
+
 </PRE>
+
+<LI><A HREF="https://www.percona.com/blog/2011/06/09/aligning-io-on-a-hard-disk-raid-the-theory/">Percona alignment theory</A>
+<LI><A HREF="https://sysadmincasts.com/episodes/27-lvm-linear-vs-striped-logical-volumes">SysAdmin Cast linear vs stripped LVM</A> (but not sure if it is necessary or modern lvm takes care of it automatically?)
+<LI><A HREF="http://www.beowulf.org/pipermail/beowulf/2010-January/027256.html">hardware RAID versus mdadm versus LVM-striping</A> (summary: sw raid tends to be more flexible and easier for most sys admin to manage.  hw raid offload load and let cpu do other work.  hybrid hw + sw may give convinient large fs, but then painful in recovery situations.
+<BR>
+More and more, driving me to like ZFS so that there is a single pane of config, management and recovery....
+
 
 
 <H5>PV on whole disk or partition?</H5>
@@ -1394,6 +1413,11 @@ After pvexnted (or pvcreate), use the regular vgextend, lvresize, xfs_grow, etc 
 https://www.linuxquestions.org/questions/linux-software-2/adding-disk-space-to-root-logical-volume-with-pvresize-and-lvextend-762333/
 has a thread where pvresize on partitioned raid disk was done on LVM2 back in 2009 
 for more info, search on ServerFault for "lvm pvresize"...
+
+Separately, whole disk without partition does not create possible alignment problem.
+Modern fdisk would create partition that is correctly alignment with disk sector/block size (not so with older fdisk).
+Not using partition avoid this problem.
+ZFS does create partitions, and ZFS require a database of disks actual geometry (instead of "lie" it reports to windows-minded stack).  Lack of such correct definition could/would result in misalignment and reduces performance.
 
 </PRE>
 
@@ -1537,6 +1561,12 @@ only run the below if have suspect of fs consistency problem.
 
 mount and umount the system cleanly before running the check, 
 so that xfs log is in proper state
+
+
+xfs_info				# see agcount.  if FS grew from GB to TB, it may have too many ag for efficient work.
+					# when too many ag (eg agcount=5295839, agsize=6336 blks), kworker spends many minutes scanning thru them before actual file operation can take place.
+					# recreate the fs  with eg agcount=125, agsize=268435328 blks and things will be much faster
+					# xfs_repair is equally faster and more "responsive" with a more normal agcount (hundres to thousands).
 
 
 
