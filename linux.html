@@ -1099,17 +1099,21 @@ eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
 <BR>
 
 Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
-<PRE>
-/c0 		is controller 0
-/c0/v0		is controller 0, virtual disk 0, eg RAID 1 for OS
-/c0/v1		is controller 0, virtual disk 1, eg RAID 6 for data
-/c0/vall	is controller 0, virtual all disks
-</PRE>
-
 
 <!-- PREDpriv/storage/raid/2018-0225-setupFinal/MegaCli.rst -->
 
 <PRE>
+
+/c0 		# is controller 0
+/c0/v0		# is controller 0, virtual disk 0, eg RAID 1 for OS
+/c0/v1		# is controller 0, virtual disk 1, eg RAID 6 for data
+/c0/eall	# eall = all enclosure.  e252, e8
+/c0/eall/sall	# sall = all slot.  
+/c0/e252/s1	# is controller 0, enclosure 252 (really just channel number), slot 1 (really hd on the channel).  ie hd 252:1 EID:Slot
+/c0/e8/s7	# is controller 0, hd at EID:Slt of 8:7 (eg RAID 6 volume for data)
+
+
+storcli64 /c0/eall/sall | grep Model\ Num	# get all hard drives model on controller 0
 
 storcli64 /c0 add vd raid6 drives=8:0-3		# create a LUN with disk 8:0 thru 8:3 (SID:Slt)
 
@@ -1147,6 +1151,17 @@ storcli64 /c0/v2 set name=dev_sdc		# set name of VD, best to put linux path on i
     scsi id/path map to raid controller path ::
 ie, first number in lsscsi is likely the LSI/Avago controller number c0
     third number in lsscsi is likely the LSI/Avago controller Virtual Disk number eg VD1
+
+
+lsscsi -d	# device major and minor number
+lsscsi -w -s	# wwn, size
+lsscsi -i 	# -i = udev derived scsi_id, probably picked by zfs
+lsscsi -w -i -d	# 
+
+                     -w                                   -d        -i                                 -s
+[0:0:11:0]   disk    0x5000c5009443358f          /dev/sda [8:0]     35000c5009443358f                  10.0TB
+[0:2:0:0]    disk    AVAGO    MR9361-8i    4.68  /dev/sdy [65:128]  3600605b00cd891a021fd7ddc04f32b71   1.02TB
+
 
 </PRE>
 
@@ -1358,7 +1373,26 @@ Newer Linux kernel can scan for new space without reboot,
 
 echo "- - -" > /sys/class/scsi_host/host0/scan		# scan for new device, change host0 to appropriate controller
 echo 1       > /sys/block/sda/device/rescan		# rescan for changed size, change sda to appropriate drive
+
+pvs
+pvs -o +pe_start		# show offset, new lvm default to 1m and usually good enough to get correct alignment
+
+lvs --segment
+lvdisplay -vm 			# show segemts and write policy (linear vs stripped)
+
+iotop
+iostat 5 
+iostat -x -k 1
+
+
 </PRE>
+
+<LI><A HREF="https://www.percona.com/blog/2011/06/09/aligning-io-on-a-hard-disk-raid-the-theory/">Percona alignment theory</A>
+<LI><A HREF="https://sysadmincasts.com/episodes/27-lvm-linear-vs-striped-logical-volumes">SysAdmin Cast linear vs stripped LVM</A> (but not sure if it is necessary or modern lvm takes care of it automatically?)
+<LI><A HREF="http://www.beowulf.org/pipermail/beowulf/2010-January/027256.html">hardware RAID versus mdadm versus LVM-striping</A> (summary: sw raid tends to be more flexible and easier for most sys admin to manage.  hw raid offload load and let cpu do other work.  hybrid hw + sw may give convinient large fs, but then painful in recovery situations.
+<BR>
+More and more, driving me to like ZFS so that there is a single pane of config, management and recovery....
+
 
 
 <H5>PV on whole disk or partition?</H5>
@@ -1379,6 +1413,11 @@ After pvexnted (or pvcreate), use the regular vgextend, lvresize, xfs_grow, etc 
 https://www.linuxquestions.org/questions/linux-software-2/adding-disk-space-to-root-logical-volume-with-pvresize-and-lvextend-762333/
 has a thread where pvresize on partitioned raid disk was done on LVM2 back in 2009 
 for more info, search on ServerFault for "lvm pvresize"...
+
+Separately, whole disk without partition does not create possible alignment problem.
+Modern fdisk would create partition that is correctly alignment with disk sector/block size (not so with older fdisk).
+Not using partition avoid this problem.
+ZFS does create partitions, and ZFS require a database of disks actual geometry (instead of "lie" it reports to windows-minded stack).  Lack of such correct definition could/would result in misalignment and reduces performance.
 
 </PRE>
 
@@ -1510,7 +1549,8 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 </PRE>
 
 
-<H5>XFS</H5>
+<A NAME="xfs"></A>
+<H2>XFS</H2>
 
 <PRE>
 
@@ -1523,10 +1563,27 @@ mount and umount the system cleanly before running the check,
 so that xfs log is in proper state
 
 
-xfs_check			# check for fs consisency
+xfs_info				# see agcount.  if FS grew from GB to TB, it may have too many ag for efficient work.
+					# when too many ag (eg agcount=5295839, agsize=6336 blks), kworker spends many minutes scanning thru them before actual file operation can take place.
+					# recreate the fs  with eg agcount=125, agsize=268435328 blks and things will be much faster
+					# xfs_repair is equally faster and more "responsive" with a more normal agcount (hundres to thousands).
+
+
 
 xfs_repair			    	# fs must be unmounted, or resulting fs maybe inconsistent (per RHEL7.4 man page)
 xfs_repair -n /dev/datavg/datavol	# dry run method, but (skip?) extended attributes
+
+xfs_check				# deprecated and not avail in rhel7
+both of these commands use xfs_db to do its work.
+
+
+xfsmisc/xfsstats.pl -f			# stats, not avail for rhel7
+
+
+# http://xfs.org/docs/xfsdocs-xml-dev/XFS_User_Guide//tmp/en-US/html/ch02s07.html
+Use the -p option to xfs_bmap to view unwritten extents.
+# xfs_io -f -c 'resvsp 0 10m' -c 'bmap -vp' /tmp/foo
+
 
 </PRE>
 
@@ -1564,6 +1621,177 @@ xfs_check and dry-run method of xfs_repair</A> (craydoc)
 
 <BR>
 <BR>
+
+
+
+<A NAME="zfs"></A>
+<H1>ZFS</H1>
+
+ZFS is a combination of LVM and file system into single fused storage function.  <BR>
+At the same time, it also bring many enterprise storage system features to the open source world.
+
+<UL>
+<LI> RAID that rebuild only the data rather than whole disk when disk fail
+<LI> CRC check against silent data failure (debatable usefulness)
+<LI> raidz3 that use 3 parity disks
+<LI> snapshot
+<LI> quota
+<LI> cloning volume (meh?)
+<LI>
+</UL>
+
+Originally developed by Sun for Solaris, Oracle can't backtrack it.  CDDL stopping many distribution from including it in their .ISO.
+Cannonical still ship it with Ubuntu and provide support for it.  Has yet to be sued by Oracle :)
+Centos can get a zfs.repo and get it.  May still need some kernel modif (DMKS? no need to manually compile kernel?).
+
+
+<H5>ZFS pool creation</H5>
+
+
+Many example from 
+<A HREF="https://calomel.org/zfs_raid_speed_capacity.html">https://calomel.org/zfs_raid_speed_capacity.html</A> <BR>
+
+<PRE>
+
+zpool create POOLNAME drive		# single drive, so raid0 :)
+zpool create storage  /dev/sdc
+
+
+zpool create POOLNAME drives		# multiple drives, raid0 (no redundancy)
+zpool create storage  da0 da1 da2
+
+
+zpool create POOLNAME raidz drives... 	# raidz (raid5) with 3 drives (loose 1 drive for redundancy)
+zpool create storage  raidz da0 da1 da2
+
+zpool create POOLNAME raidz2 drives...	# raidz2  (raid6, loose 2 drives for redundancy)
+zpool create storage  raidz2 da0 da1 da2 da3 da4 da5 da6 da7 da8 da9 da10 da11 da12 da13 da14 da15 da16 da17 da18 da19 da20 da21 da22 da23
+
+
+zpool create POOLNAME raidz3 drives...	# raidz3  (raid7, loose 3 drives for redundancy, min 5 drives)
+zpool create storage  raidz3 da0 da1 da2 da3 da4
+
+
+# 3 mirror-pair, concatenated together.  use 6 drives, loose space of 3
+zpool create POOLNAME VVVVVV   ...    VVVVVV  ...     VVVVVV ...
+zpool create storage  mirror da0 da1  mirror da2 da3  mirror da4 da5
+
+        NAME        STATE     READ WRITE CKSUM
+        storage     ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            da0     ONLINE       0     0     0
+            da1     ONLINE       0     0     0
+          mirror-1  ONLINE       0     0     0
+            da2     ONLINE       0     0     0
+            da3     ONLINE       0     0     0
+          mirror-2  ONLINE       0     0     0
+            da4     ONLINE       0     0     0
+            da5     ONLINE       0     0     0
+
+
+
+
+# 2 raid6 stripes concatenated together.  each strip loose 2 drives to redundancy, total 4 drives overhead
+# 4TB drives, 12 of them.  each stripe has 16TB usable, totalling ~30 TB.
+zpool create POOLNAME VVVVV ...		             VVVVV ... 
+zpool create storage  raidz2 da0 da1 da2 da3 da4 da5 raidz2 da6 da7 da8 da9 da10 da11
+
+        NAME        STATE     READ WRITE CKSUM
+        storage     ONLINE       0     0     0
+          raidz2-0  ONLINE       0     0     0
+            da0     ONLINE       0     0     0
+            da1     ONLINE       0     0     0
+            da2     ONLINE       0     0     0
+            da3     ONLINE       0     0     0
+            da4     ONLINE       0     0     0
+            da5     ONLINE       0     0     0
+          raidz2-1  ONLINE       0     0     0
+            da6     ONLINE       0     0     0
+            da7     ONLINE       0     0     0
+            da8     ONLINE       0     0     0
+            da9     ONLINE       0     0     0
+            da10    ONLINE       0     0     0
+            da11    ONLINE       0     0     0
+
+
+# once a pool is created, a FS is automatically created with the same name??
+
+zpool add -f geek1 raidz /dev/sde /dev/sdf 	# add new drives to existing zpool caked "geek1"
+
+zpool get mountpoint
+zpool set mountoint ...
+
+
+zpool offline POOLANEM drive			# offline a drive
+zpool replace POOLNAME ...			# replace drive (when there are unused disks from a different slot)
+
+zfs get quota
+zfs set quota=...
+
+zfs snapshot ...				# take snapshot.  avail in .zfs/snapshot of top of FS
+
+zfs sharenfs ...				# build-in nfs export if desired to use it
+
+
+</PRE>
+
+<H5>ZFS Alignment, Performance</H5>
+Automatic alignment may not work, cuz HD lies about their geometry.
+Linux may need <TT>-o ashift</TT>.  
+see 
+<A HREF="http://open-zfs.org/wiki/Performance_tuning#Alignment_Shift_.28ashift.29">ZFS Perf Tuning</A>
+
+<div class="quote">
+Top-level vdevs contain an internal property called ashift, which stands for alignment shift. It is set at vdev creation and it is immutable. It can be read using the zdb command.
+
+</div>
+
+
+<PRE>
+zfs iostat -v
+zpool status
+
+</PRE>
+
+
+
+<H5>ZFS fs, dataset</H5>
+
+<PRE>
+zfs create POOLNAME/volname1		# create a file system called "volume1" under the zpool POOLNAME  ??
+zfs create 
+</PRE>
+
+
+
+There is a concept of dataset (like qtree in netapp) below the file system, and itseems like it can be nested.
+see 
+<A HREF="https://www.unixarena.com/2012/07/zfs-quick-command-reference-with.html">Unix Area</A> for example.
+
+
+
+<H5>ZFS other</H5>
+
+
+/usr/sbin/smcwebserver start		# start a admin web portal, at “https://system-name:6789/zfs”
+
+
+
+<H5>ZFS Ref</H5>
+<UL>
+<LI> <A HREF="https://github.com/zfsonlinux/zfs/wiki/RHEL-and-CentOS">Install ZFS packages</A>
+<LI> <A HREF="http://open-zfs.org/wiki/System_Administration">ZFS guide for Sys Admin</A>
+<LI> <A HREF="https://github.com/zfsonlinux/zfs/wiki/faq">ZFS for Linux doc</A> Discuss what device name to use, supposed to have -o ashift alignment performance info
+<LI>
+<LI> <A HREF="https://calomel.org/zfs_raid_speed_capacity.html">ZFS performance</A> raidz vs raidz2 vs raidz3 etc (many example of zfs pool are from this page).
+<LI>
+<LI> <A HREF="http://www.freenas.org/freenas-certified-servers/">FreeNAS ZFS-based storage</A> Not an endorsement, but maybe worthwhile to check them out.
+<LI>
+<LI> <A HREF="https://www.howtogeek.com/175159/an-introduction-to-the-z-file-system-zfs-for-linux/">howto geek</A> install, pool creation and extension.
+<!-- 
+<LI> <A HREF=" 
+-->
+</UL>
 
 
 <H1>Package/Software management</H1>
