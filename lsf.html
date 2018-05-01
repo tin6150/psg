@@ -262,6 +262,9 @@ scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 
 
 sacct				# view accounting by individual job and job steps (more in troubleshooting below)
 
+sacctmgr show events start=2018-01-01 node=n0270.mako0          # history of sinfo events (added by scontrol)
+
+
 sstat -j		# on currently running job/job step (more info avail than sacct which is historical)
 	-u USERNAME
 	-p PARTITIONNAME	
@@ -555,6 +558,19 @@ slurmdUser 			# slurmd    user.
 ...
 
 </PRE>
+
+
+
+<A NAME="slurm_assistant"></A>
+<H3>slurm Assistant</H3>
+
+.bashrc functions and alias
+
+<PRE class="code">
+        alias sevents="sacctmgr show events start=2018-01-01T00:00"  # node=n0270.mako0 # history of sinfo events (added by scontrol)
+        alias assoc="sacctmgr show associations -p"
+</PRE>
+
 
 
 <H4>SLURM Ref</H4>
