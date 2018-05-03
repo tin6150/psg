@@ -163,7 +163,13 @@ In that sequence, to be completed within 3 seconds.
 Do you prefer UEFI?   Really??  <BR>
 Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <BR>
 
+<H2>Lenovo</H2>
 
+<PRE>
+F1 		Setup
+F2		Diagnostics
+F12		Select Boot Device	# Need legacy mode to do PXE boot
+</PRE>
 
 <H2>SuperMicro</H2>
 <p>
@@ -413,7 +419,8 @@ unzip iDRAC8_2.50.50.50_A00.exe   # produce firmimg.d7 etc
  
 
 
-racadm fwupdate -p -u -d ./firmimg.d7	# upload firmware, start update
+racadm fwupdate -p -u -d ./firmimg.d7	# upload firmware, start update.  this didn't work.  
+racadm update -f ./firmimg.d7	# upload firmware, start update.  this works.
 
 ### error
 ### sh: bmcfwu.so: command not found

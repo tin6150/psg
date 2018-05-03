@@ -3,7 +3,7 @@
 #SBATCH --time=1
 #SBATCH --partition=cf0 --account=test --qos=test
 ###SBATCH -n 4
-#SBATCH -N 3
+#SBATCH -N 1
 ###SBATCH -o  junkable_slurm_out.txt
 ##SBATCH -o  junkable_slurm_out2.txt
 
@@ -12,7 +12,8 @@
 
 # submit job as  
 #    sbatch   ./slurm-script-eg.sh                                          
-#    sbatch --partition savio1   ./slurm-script-eg.sh                                          
+#    sbatch   --partition savio1   ./slurm-script-eg.sh                                          
+#    sbatch   --partition=savio2 -w n0293.savio2 -N 1 --account=scs --qos=savio_debug ./slurm-script-eg.sh                                          
 
 
 hostname
