@@ -33,7 +33,7 @@
 #SBATCH                 --qos=cf_normal
 #SBATCH         	--partition=cf1
 #	#SBATCH         	-n 128		# did not work for 64 last time.  128 => 3 nodes.  just can't get 64c per node for xhpl when requested like this.
-#SBATCH         	-N 2			# adjust as needed   # tested up to -N 16
+###SBATCH         	-N 2			# adjust as needed   # tested up to -N 16
 #SBATCH                 -o  J%j_%N.out
 #	#SBATCH                 -o  slr_%j_%N.out
 #			http://geco.mines.edu/prototype/How_do_I_manage_jobs/sbatch.html , see --input=
@@ -78,11 +78,6 @@ echo -n "SLURM_JOB_QOS:"
 echo    $SLURM_JOB_QOS
 echo ""
 echo ""
-
-# https://slurm.schedmd.com/mc_support.html
-# https://slurm.schedmd.com/cpu_management.html
-echo '$SLURM_JOB_CPUS_PER_NODE $SLURM_CPUS_PER_TASK $SLURM_CPU_BIND $SLURM_DISTRIBUTION $SLURM_STEP_NODELIST $SLURM_STEP_NUM_NODES $SLURM_STEP_NUM_TASKS $SLURM_STEP_TASKS_PER_NODE $SLURM_JOB_NODES $SLURM_NTASKS $SLURM_NPROCS $SLURM_NODEID ==>'
-echo $SLURM_JOB_CPUS_PER_NODE $SLURM_CPUS_PER_TASK $SLURM_CPU_BIND $SLURM_DISTRIBUTION $SLURM_STEP_NODELIST $SLURM_STEP_NUM_NODES $SLURM_STEP_NUM_TASKS $SLURM_STEP_TASKS_PER_NODE $SLURM_JOB_NODES $SLURM_NTASKS $SLURM_NPROCS $SLURM_NODEID
 
 ################################################################################
 
@@ -146,7 +141,6 @@ export HPL_HOST_ARCH=9 # AVX512
 
 #export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_phi_7210/:$PATH	# intel 2016 compiler stack
 export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_phi_7210:$PATH	# intel 2018 compiler stack
-#export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_nehalem:$PATH	# lr4/savio are hashwell, but can't find binary for it...
 
 #export PATH=$PATH:~tin/gsHPCS_toolkit/benchmark/staging_sl7					# mpi_nxnlatbw
 #export PATH=$PATH:/global/home/groups/scs/meli/					# osu_*
@@ -159,18 +153,17 @@ export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_phi_7210:$PA
 test -d hpl || mkdir hpl
 cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/64core_192gb_90_nb192/HPL.MPI*dat hpl   # 64 core knl , thus req are in inc of 64cores
 #cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/64core_192gb_90_nb336/HPL.MPI*dat hpl    # 64 core knl , fewer .dat than nb192 version for now
-#cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/24cores_64gb_90_nb192/HPL.MPI*dat hpl   # 24 core lr4/savio2
 
 
 module purge
 #module load gcc openmpi
-#module load intel openmpi
+module load intel openmpi
 # new intel compiler and lib in personal SMF for now
 #module load langs/intel/2018.1.163_eval 
 #module load intel/2018.1.163/mkl/2018.1.163_eval
 #module load intel/2018.1.163/openmpi/2.0.4-intel_eval
 # new module from kai
-module load intel/2018.1.163 openmpi/2.0.2-intel
+#module load intel/2018.1.163 openmpi/2.0.2-intel        # not avail in brc yet
 module list
 
 numactl -H > numactl-H.out
@@ -182,7 +175,7 @@ ompi_info -a > ompi_info-a.out
 
 echo "----------- which hpl --------------"
 which xhpl
-
+which mpirun
 
 echo "----- mpirun hpl hostname and location  -----"
 hostname
@@ -190,8 +183,7 @@ pwd
 date
 
 
-## somehow if below line is messed up, screw up PATH!
-echo ----HPL.dat--is--hpl/HPL.MPI.${HplDatNum}.dat----
+echo MPL.dat to copy is hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
 cp -p hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
 ##cp -p hpl/HPL.MPI.0002.dat ./HPL.dat		# tmp forcing a 2 node run even when slurm assigned 3 nodes  ## FIXME
 

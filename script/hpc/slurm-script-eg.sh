@@ -12,6 +12,7 @@
 
 # submit job as  
 #    sbatch   ./slurm-script-eg.sh                                          
+#    sbatch --partition savio1   ./slurm-script-eg.sh                                          
 
 
 hostname
