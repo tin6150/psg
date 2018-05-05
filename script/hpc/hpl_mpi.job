@@ -8,7 +8,7 @@
 # or just simply 
 # sbatch hpl_mpi.job
 # sbatch -N 8 hpl_mpi.job
-# sbatch -N 2 -w n0282.savio2,n0283.savio2 --partition=savio2_bigmem --account=scs --qos=savio_debug --time=00:05:00 hpl_mpi.job
+# sbatch -N 2 -w n0282.savio2,n0283.savio2 --partition=savio2_bigmem --account=scs --qos=savio_normal --time=00:05:00 hpl_mpi.job
 
 
 ###  it is not pretty, but don't spend too much time on this, as new node acceptance test cannot run via slurm
@@ -87,7 +87,8 @@ echo ""
 ##JobBaseDir=/global/home/users/tin/gsCF_BK/cf1/staging_test
 JobBaseDir=/global/scratch/tin/benchmark_hpl/ 
 
-CorePerNode=64	# knl has 64 cores per node 		# potentially from $SLURM_CPUS_ON_NODE, but not sure if it ever become 63
+#CorePerNode=64	# knl has 64 cores per node 		# potentially from $SLURM_CPUS_ON_NODE, but not sure if it ever become 63
+CorePerNode=24	# n0282.savio2: 2x12
 #NNode=1	# Number of Node to run HPL test on
 NNode=${SLURM_JOB_NUM_NODES}
 Ncore=$(( $NNode * $CorePerNode ))
@@ -127,7 +128,7 @@ cp -p $BIOSHIGHLIGHT .         2> /dev/null
 # undocumented env var for HPL to properly use AVX
 # but Josh said they don't do anything  they maybe intel's version of xhpl binary, or some select release?
 #export HPL_HOST_ARCH=3 # AVX2
-export HPL_HOST_ARCH=9 # AVX512
+#export HPL_HOST_ARCH=9 # AVX512 # skylake only, and not really sure if neaningful 
 # KNL has AVX512, may need to dig into these as well...
 
 ####
