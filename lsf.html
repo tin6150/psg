@@ -301,8 +301,11 @@ State with asterisk (*) (eg idle*, draining*) means node is not reachable.
 
 ?? - reported by sinfo
 down*	Down, * = unreachable
+drng	draining? 
 comp	??
 idle	online, waiting for action
+alloc	allocated, ie running job
+mix	runnign mix of jobs? 
 
 JOB REASON CODES
 Cleaning
@@ -335,6 +338,11 @@ TO	TIMEOUT
 <LI> <TT>munge -s "test message" | ssh computenode unmunge</TT>  test if munge.key works correctly
 </UL>
 
+
+<PRE>
+sinfo  | grep n0033.savio2	# what's a node state
+squeue | grep n0164.savio2	# whether the node running any job
+</PRE>
 
 
 <!-- yong slurm scheduler Q&A -->
