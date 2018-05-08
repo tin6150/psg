@@ -9,6 +9,7 @@
 # sbatch hpl_mpi.job
 # sbatch -N 8 hpl_mpi.job
 # sbatch -N 2 -w n0282.savio2,n0283.savio2 --partition=savio2_bigmem --account=scs --qos=savio_normal --time=00:05:00 hpl_mpi.job
+# sbatch -N 4 -w  n0026.savio1,n0027.savio1,n0038.savio1,n0040.savio1 --partition=savio --account=scs --qos=savio_debug --time=00:02:00 hpl_mpi.job  # mpi starts, but xhpl can't run, not enough core, need diff hpl.dat file...
 
 
 ###  it is not pretty, but don't spend too much time on this, as new node acceptance test cannot run via slurm
