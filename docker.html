@@ -242,13 +242,43 @@ Under the hood</A>: <BR>
 
 <BR>
 
+<H3>Container Orchaestration</H3>
+
+<A NAME="kubernetes"></A>
+<A ID="k8s"></A>
+<H4>Kubernetes</H4>
+
+<PRE>
+minikube start			# single node for very simple dev, http://localhost:8080 
+
+kubectl version
+kubectl cluster-info
+kubectl cluster-info dump
+source <(kubectl completion bash)  	# enable bash autocompletion  #>#  maybe add to .bashrc
+
+
+kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.4 --port=8080
+kubectl expose deployment hello-minikube --type=NodePort
+
+kubectl get pod
+curl $(minikube service hello-minikube --url)
+
+
+# see docker process/container that is running inside the pod (eg VirtualBox)
+eval $(minikube docker-env)
+docker ps
+
+
+
+</PRE>
+
 
 
 <H3>Ecosystem, Competitor</H3>
 
 
 <UL>
-	<LI> Kubernetes
+	<LI> <A HREF="#k8s">Kubernetes</A>
 	<LI> <A HREF="bigdata.html#mesos">Mesos</A>
 	<LI>Vagrant 
 	<LI>ClusterHQ
