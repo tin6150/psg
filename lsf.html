@@ -243,6 +243,14 @@ sinfo			# status of node, queue, etc
 	--Node		# output info in node-centric view (group similar nodes together)
 	-p PARTITION 	# info on specific partition (queue) 
 	--long		# add info on memory, tmp, reason, etc
+
+sinfo -R -S %E		# output sorted/grouped by Reason 
+sinfo -R -S %H		# output sorted by timestamp 
+sinfo -R -S %n		# output sorted by nodelist
+
+
+
+
 squeue			# status of job and job steps
 	-s		# info about job steps
 	-u USERNAME	# job info of specified user
