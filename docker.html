@@ -242,40 +242,9 @@ Under the hood</A>: <BR>
 
 <BR>
 
-<H3>Container Orchaestration</H3>
-
-<A NAME="kubernetes"></A>
-<A ID="k8s"></A>
-<H4>Kubernetes</H4>
-
-<PRE>
-minikube start			# single node for very simple dev, http://localhost:8080 
-
-kubectl version
-kubectl cluster-info
-kubectl cluster-info dump
-source <(kubectl completion bash)  	# enable bash autocompletion  #>#  maybe add to .bashrc
-
-
-kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.4 --port=8080
-kubectl expose deployment hello-minikube --type=NodePort
-
-kubectl get pod
-curl $(minikube service hello-minikube --url)
-
-
-# see docker process/container that is running inside the pod (eg VirtualBox)
-eval $(minikube docker-env)
-docker ps
-
-
-
-</PRE>
-
 
 
 <H3>Ecosystem, Competitor</H3>
-
 
 <UL>
 	<LI> <A HREF="#k8s">Kubernetes</A>
@@ -862,16 +831,44 @@ http://tiny.cc/DOCKER</A>
 (I am still waiting for docker to actually name my container Uranus_Hertz, but maybe it is just a matter of time?) <BR>
 <BR><BR>
 
+<H1>Container Orchaestration</H1>
 
-<H1>The Container Ecosystem</H1>
+<A NAME="kubernetes"></A>
+<A ID="k8s"></A>
+<H2>Kubernetes</H2>
 
-<A HREF="http://www.slideshare.net/lilumb/docker-101-61428727/9"><A IMG SRC="fig/univa-container-landscape.png" alt="container landscape stack diagram"></A>
+<PRE>
+minikube start			# single node for very simple dev, http://localhost:8080 
+
+kubectl version
+kubectl cluster-info
+kubectl cluster-info dump
+source <(kubectl completion bash)  	# enable bash autocompletion  #>#  maybe add to .bashrc
+
+
+kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.4 --port=8080
+kubectl expose deployment hello-minikube --type=NodePort
+
+kubectl get pod
+curl $(minikube service hello-minikube --url)
+
+
+# see docker process/container that is running inside the pod (eg VirtualBox)
+eval $(minikube docker-env)
+docker ps
+
+</PRE>
+
+
+
+<H1>Container Landscape in HPC</H1>
+
+<A HREF="http://www.slideshare.net/lilumb/docker-101-61428727/9"><IMG SRC="fig/univa-container-landscape.png" alt="container landscape stack diagram"></A>
 <BR>
 
 
 
 <A ID="hpc"></A>
-
 <H3>Container in HPC</H3>
 
 Container in HPC is a quite a large topic.  For a feature comparison table of Shifter vs Singularity, and a list of relevant articles, see my blogger article 
