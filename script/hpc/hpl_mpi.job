@@ -141,7 +141,6 @@ export HPL_HOST_ARCH=9 # AVX512
 
 #export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_phi_7210/:$PATH	# intel 2016 compiler stack
 export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_phi_7210:$PATH	# intel 2018 compiler stack
-#export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_nehalem:$PATH	# lr4/savio are hashwell, but can't find binary for it...
 
 #export PATH=$PATH:~tin/gsHPCS_toolkit/benchmark/staging_sl7					# mpi_nxnlatbw
 #export PATH=$PATH:/global/home/groups/scs/meli/					# osu_*
@@ -154,7 +153,6 @@ export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_phi_7210:$PA
 test -d hpl || mkdir hpl
 cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/64core_192gb_90_nb192/HPL.MPI*dat hpl   # 64 core knl , thus req are in inc of 64cores
 #cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/64core_192gb_90_nb336/HPL.MPI*dat hpl    # 64 core knl , fewer .dat than nb192 version for now
-#cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/24cores_64gb_90_nb192/HPL.MPI*dat hpl   # 24 core lr4/savio2
 
 
 module purge
@@ -185,8 +183,7 @@ pwd
 date
 
 
-## somehow if below line is messed up, screw up PATH!
-echo ----HPL.dat--is--hpl/HPL.MPI.${HplDatNum}.dat----
+echo ----MPL.dat to copy is hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
 cp -p hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
 ##cp -p hpl/HPL.MPI.0002.dat ./HPL.dat		# tmp forcing a 2 node run even when slurm assigned 3 nodes  ## FIXME
 
