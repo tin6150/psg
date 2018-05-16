@@ -8,6 +8,8 @@
 # or just simply 
 # sbatch hpl_mpi.job
 # sbatch -N 8 hpl_mpi.job
+# sbatch -N 2 -w n0282.savio2,n0283.savio2 --partition=savio2_bigmem --account=scs --qos=savio_normal --time=00:05:00 hpl_mpi.job
+# sbatch -N 4 -w  n0026.savio1,n0027.savio1,n0038.savio1,n0040.savio1 --partition=savio --account=scs --qos=savio_debug --time=00:02:00 hpl_mpi.job  # mpi starts, but xhpl can't run, not enough core, need diff hpl.dat file...
 
 
 ###  it is not pretty, but don't spend too much time on this, as new node acceptance test cannot run via slurm
@@ -22,7 +24,7 @@
 
 # cannot have any shell script command before #SBATCH clause, not even vars declaration
 
-#SBATCH                 --job-name=hpl_cf1    # CLI arg will overwrite this
+#SBATCH                 --job-name=hpl_mpi_test    # CLI arg will overwrite this
 #                       CPU time:
 #       #SBATCH         --time=605
 #                       Wall clock limit in HH:MM:ss
@@ -33,7 +35,7 @@
 #SBATCH                 --qos=cf_normal
 #SBATCH         	--partition=cf1
 #	#SBATCH         	-n 128		# did not work for 64 last time.  128 => 3 nodes.  just can't get 64c per node for xhpl when requested like this.
-#SBATCH         	-N 2			# adjust as needed   # tested up to -N 16
+###SBATCH         	-N 2			# adjust as needed   # tested up to -N 16
 #SBATCH                 -o  J%j_%N.out
 #	#SBATCH                 -o  slr_%j_%N.out
 #			http://geco.mines.edu/prototype/How_do_I_manage_jobs/sbatch.html , see --input=
@@ -86,7 +88,8 @@ echo ""
 ##JobBaseDir=/global/home/users/tin/gsCF_BK/cf1/staging_test
 JobBaseDir=/global/scratch/tin/benchmark_hpl/ 
 
-CorePerNode=64	# knl has 64 cores per node 		# potentially from $SLURM_CPUS_ON_NODE, but not sure if it ever become 63
+#CorePerNode=64	# knl has 64 cores per node 		# potentially from $SLURM_CPUS_ON_NODE, but not sure if it ever become 63
+CorePerNode=24	# n0282.savio2: 2x12
 #NNode=1	# Number of Node to run HPL test on
 NNode=${SLURM_JOB_NUM_NODES}
 Ncore=$(( $NNode * $CorePerNode ))
@@ -126,7 +129,7 @@ cp -p $BIOSHIGHLIGHT .         2> /dev/null
 # undocumented env var for HPL to properly use AVX
 # but Josh said they don't do anything  they maybe intel's version of xhpl binary, or some select release?
 #export HPL_HOST_ARCH=3 # AVX2
-export HPL_HOST_ARCH=9 # AVX512
+#export HPL_HOST_ARCH=9 # AVX512 # skylake only, and not really sure if neaningful 
 # KNL has AVX512, may need to dig into these as well...
 
 ####
@@ -141,6 +144,7 @@ export HPL_HOST_ARCH=9 # AVX512
 
 #export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_phi_7210/:$PATH	# intel 2016 compiler stack
 export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_phi_7210:$PATH	# intel 2018 compiler stack
+export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_nehalem:$PATH	# lr4/savio are hashwell, but can't find binary for it...
 
 #export PATH=$PATH:~tin/gsHPCS_toolkit/benchmark/staging_sl7					# mpi_nxnlatbw
 #export PATH=$PATH:/global/home/groups/scs/meli/					# osu_*
@@ -151,19 +155,21 @@ export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_phi_7210:$PA
 ####    specify what hpl.dat version to use #
 ####
 test -d hpl || mkdir hpl
-cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/64core_192gb_90_nb192/HPL.MPI*dat hpl   # 64 core knl , thus req are in inc of 64cores
+#cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/64core_192gb_90_nb192/HPL.MPI*dat hpl   # 64 core knl , thus req are in inc of 64cores
 #cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/64core_192gb_90_nb336/HPL.MPI*dat hpl    # 64 core knl , fewer .dat than nb192 version for now
+#cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/24cores_64gb_90_nb192/HPL.MPI*dat hpl   # 24 core lr4/savio2
+cp -p  ~/gsHPCS_toolkit/benchmark/hpl/hpl_cf/24cores_64gb_90_nb192/HPL.MPI*dat hpl   # 24 core lr4/savio2
 
 
 module purge
 #module load gcc openmpi
-#module load intel openmpi
+module load intel openmpi				# lr4/savio2 nehalem hpl
 # new intel compiler and lib in personal SMF for now
 #module load langs/intel/2018.1.163_eval 
 #module load intel/2018.1.163/mkl/2018.1.163_eval
 #module load intel/2018.1.163/openmpi/2.0.4-intel_eval
 # new module from kai
-module load intel/2018.1.163 openmpi/2.0.2-intel
+#module load intel/2018.1.163 openmpi/2.0.2-intel        # not avail in brc yet
 module list
 
 numactl -H > numactl-H.out
@@ -175,7 +181,7 @@ ompi_info -a > ompi_info-a.out
 
 echo "----------- which hpl --------------"
 which xhpl
-
+which mpirun
 
 echo "----- mpirun hpl hostname and location  -----"
 hostname
@@ -184,6 +190,8 @@ date
 
 
 echo ----MPL.dat to copy is hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
+## somehow if below line is messed up, screw up PATH!
+echo ----HPL.dat--is--hpl/HPL.MPI.${HplDatNum}.dat----
 cp -p hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
 ##cp -p hpl/HPL.MPI.0002.dat ./HPL.dat		# tmp forcing a 2 node run even when slurm assigned 3 nodes  ## FIXME
 

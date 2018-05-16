@@ -84,7 +84,7 @@ esac
 
 start()
 {
-  $ECHO -n $"Starting $PROG: "
+  $ECHO -n "Starting $PROG: "
   $TOUCH $SUBSYSFILE
   # touching this file is very very important
   # else, rhel service daemon don't think the service is running and will

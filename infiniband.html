@@ -19,7 +19,7 @@
     <tr>
       <th colspan="9" align="center">
 	  
-<A HREF="http://tin6150.github.io/psg/">Sys Admin Pocket Survival Guide - InfiniBand</A>
+<A HREF="http://tin6150.github.io/psg/infiniband.html">Sys Admin Pocket Survival Guide - InfiniBand</A>
 
       </th>
     </tr>
@@ -60,8 +60,12 @@ HCA - Host CA  (like how FibreChannel has HBA)  <BR>
 LID - Local ID, uniq id of IB end points.  <BR>
 port - a port on the HCA, like NIC ports in ethernet quad card.  <BR>
 
-GUID - Global Uniq ID ?
-	sminfo give the GUID of the subnet manager, can be used to determine if two nodes are on same fabric or in two separate islands.
+GUID - Global Uniq ID <BR>
+	sminfo give the GUID of the subnet manager, can be used to determine if two nodes are on same fabric or in two separate islands.  <BR>
+<BR>
+
+Symbol Error - Think of this as packet error in the ethernet world.  it is the rate of error accumulation that should be of concern. <BR>
+<BR>
 
 
 <PRE>
@@ -80,16 +84,37 @@ ibstat
   - node guid
   - port guid
 
-
-
 ibv_devinfo - similar info to ibstat
 
-/usr/bin/hca_self_test.ofed  
+rds-ping
+rds-info
 
-ibdiagnet
+ompi_info --all
+ompi-top
+ompi-ps
 
-ibnetdiscover - find ib network topology and LID.
+</PRE>
+
+
+<H5>Troubleshooting commands</H5>
+
+<!-- 
+cat fabrics.conf | grep -v ^$ | tr '[]' '#' | awk -F\= '{print $1 " \"" $2 "\""}' > fabrics.node-name-map
+-->
+
+<PRE>
+
+iblinkinfo 
+iblinkinfo --node-name-map fabrics.node-name-map
+	# iblinkinfo provides link info for whole fabric, very quick 
+	# node-name-map converts GUID to human name
+	# 0xe41d2d03004f1b40 "ib000.cf0 (Mellanox SX6025, S54-21)"
+
+ibnetdiscover 
+ibnetdiscover --node-name-map fabrics.node-name-map > ibnet.topo
+	# generate a topology file 
 	# switch LID would be listed above all the port, see comment field 
+
 </PRE>
 
 <PRE class="code">
@@ -106,22 +131,65 @@ Switch  24 "S-0002c90200410d02"   # "MT47396 Infiniscale-III Mellanox Technologi
 
 
 <PRE>
+ibclearerrors		# reboot will induce errors, this is normal.
+ibclearcounters		
+
+
+hca_self_test.ofed  	# sanity check. ofed-scripts rpm.  /usr/bin
+pdsh -g etna0 TERM=vt52 /usr/bin/hca_self_test.ofed | grep -i fail
+# the script use tput and eed to force TERM when used with pdsh
+
+
+perfquery		# simple to read ib counters.  pay special attention to:
+			# SymbolErrorCounter
+			# LinkErrorRecover
+
+ibqueryerrors -c -s XmWait
+
+
+ibcheckerrors -b	# very noisy, from infiniband-diags rpm by Mellanox, /sbin
+
+
+
+ibdiagnet		# scan fabric, takes a long time
+
+wwibcheck by Yong Qin:
+ibcheck -f fabrics.conf -C etna -E  -dd -a -b -O 20 > now.out
+ibcheck -f fabrics.conf -C etna -E  -dd -a -b -O 20 > 2hrsLater.out
+but can't simple diff to see errors, need to awk out the RcvPkgs columns...
+
+per-node errors listed in bottom section.
+This is the header of avail counters:
+
+   NodeDesc Port               Guid ExcBufOverrunErrors LinkDowned LinkIntegrityErrors LinkRecovers RcvConstraintErrors    RcvData RcvErrors    RcvPkts RcvRemotePhysErrors RcvSwRelayErrors SymbolErrors VL15Dropped XmtConstraintErrors    XmtData XmtDiscards    XmtPkts
+
+
+
+
+</PRE>
+
+<H5>IB port on switch side</H5>
+
+<PRE>
+
+ibportstate - manage specific port on the IB switch, eg turn it on/off, etc.
+
 ibportstate [swlid] [swPortNum] [command]	
 ibportstate  2        11         disable	# turn off IB switch port a specific host is connected to
 ibportstate  6        11         disable
      # can also use enable, status.  Other form allow for changing speed, etc.
 
-rds-ping
-rds-info
-
-
-ompi_info --all
-ompi-top
-ompi-ps
-
-
-
 </PRE>
+
+
+<H5>Ref</H5>
+
+<OL>
+<LI> <A HREF="https://drive.google.com/file/d/1n59lb-IkWjIgUJBPSuXtA_fi2qYtbAHX/view?usp=sharing">Yong Qin's IB Diag & Troubleshooting</A>
+<LI> <A HREF="https://wiki.uiowa.edu/display/hpcadmin/Basic+Infiniband+troubleshooting">ulowa basic ib troubleshooting</A>
+</OL>
+
+
 
 
 <BR><HR><BR>
