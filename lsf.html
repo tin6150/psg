@@ -576,6 +576,48 @@ slurmdUser 			# slurmd    user.
 </PRE>
 
 
+<A NAME="cgroup_and_slurm"></A>
+<A NAME="cgroup_&_slurm"></A>
+<H3>cgroup & slurm</H3>
+
+<PRE>
+
+grep -r [0-9] /cgroup/cpuset/slurm
+
+/cgroup/cpuset/slurm/uid_43143/job_13272521/step_batch/cpuset.mem_hardwall:0
+/cgroup/cpuset/slurm/uid_43143/job_13272521/cpuset.mem_hardwall:0
+/cgroup/cpuset/slurm/uid_43143/cpuset.mem_hardwall:0
+/cgroup/cpuset/slurm/cpuset.mem_hardwall:0
+
+grep  [0-9] /cgroup/memory/slurm/*
+/cgroup/memory/slurm/memory.limit_in_bytes:9223372036854771712
+/cgroup/memory/slurm/memory.max_usage_in_bytes:2097704960             # 2G
+
+/cgroup/memory/slurm/uid_43143/memory.max_usage_in_bytes:1216872448   # 1.1G
+/cgroup/memory/slurm/uid_43143/job_13272521/memory.max_usage_in_bytes:1216872448
+
+
+# very often
+# mount -t /cgroup ... /sys/fs/cgroup
+
+slurm process are echo into cgroup task file.  eg:
+tin      15537     1  0 15:05 ?        00:00:07 /global/software/sl-7.x86_64/modules/langs/java/1.8.0_121/bin/java -cp /global/scratch/tin/spark/spark-test.13272521/conf/:/global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/jars/* -Xmx1g org.apache.spark.deploy.master.Master --host n0093.lr3 --port 7077 --webui-port 8080
+
+grep -r 15537  *
+
+cpuset/slurm/uid_43143/job_13272521/step_batch/cgroup.procs:15537
+cpuset/slurm/uid_43143/job_13272521/step_batch/tasks:15537
+
+memory/slurm/uid_43143/job_13272521/step_batch/cgroup.procs:15537
+memory/slurm/uid_43143/job_13272521/step_batch/tasks:15537
+
+freezer/slurm/uid_43143/job_13272521/step_batch/cgroup.procs:15537
+freezer/slurm/uid_43143/job_13272521/step_batch/tasks:15537
+
+
+
+
+</PRE>
 
 <A NAME="slurm_assistant"></A>
 <H3>slurm Assistant</H3>
@@ -589,7 +631,7 @@ slurmdUser 			# slurmd    user.
 
 
 
-<H4>SLURM Ref</H4>
+<H3>SLURM Ref</H3>
 <UL>
 <LI><A HREF="http://www.linuxclustersinstitute.org/workshops/archive/20th/files/12-Slurm/Slurm.pdf">LCI workshop on Slurm</A>. slides in pdf, by Ryan Cox, BYU.
 <LI><A HREF="https://hpc.llnl.gov/banks-jobs/running-jobs/slurm-user-manual">LLNL Slurm User Guide</A>
