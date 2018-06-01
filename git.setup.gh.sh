@@ -85,4 +85,20 @@ git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
 git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 
 
-# cuda is dup, can be ignored
+#  cuda is dup, can be ignored
+
+
+
+############################################################
+#### create sym links that I have in most places now
+############################################################
+
+GIT_DIR=$(pwd)
+cd ~
+ln -s ${GIT_DIR}/blpriv/cf_bk 		~/CF_BK
+ln -s ${GIT_DIR}/blpriv/note 		~/NOTE
+ln -s ${GIT_DIR}/blpriv/hpcs_toolkit	~/HPCS_toolkit
+ln -s ${GIT_DIR}/psg		 	~/PSG
+
+cd $GIT_DIR	# ie cd back
+
