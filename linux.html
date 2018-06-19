@@ -87,7 +87,7 @@ RHEL3 - binary compatible with FC2  (but FC2 is EOL)
 RHEL4 - binary compatible with FC3  (and maybe FC4)
 <BR>
 
-<H4>Single User Mode</H4>
+<H4>Single User Mode RHEL 6</H4>
 
 <PRE>
 To boot into single user mode for maintenance,
@@ -102,6 +102,10 @@ If using GRUB, then, at the menu for choosing kernel, do:
  hit 'b' to boot
  lather, rinse, repeat
 </PRE>
+
+<H4>Single User Mode RHEL 7 with pxe boot with chrooted env</H4>
+
+ln -sf /lib/systemd/system/rescue.target /etc/systemd/system/default.target
 
 <H4>Old days Core dump</H4>
 
@@ -181,6 +185,11 @@ lsdump () {
 </PRE>
 
 
+<H4>console in serial port</H4>
+
+<PRE>
+--kargs="nopti console=tty0 console=ttyS1,115200n8"
+</PRE>
 
 <H2>Linux "deviation" from Solaris</H2>
 

@@ -43,6 +43,10 @@ git clone https://tin6150@github.com/tin6150/inet-dev-class
 ### boston housing price ML 
 git clone https://tin6150@github.com/tin6150/machine-learning-nanodegree.git
 
+### VMware tools as ansible role fork (so as not get updte unless manually checked)
+### actually trying to do subtree merging under CF_BK/Ansible/roles
+### git clone https://github.com/tin6150/ansible-role-vmwaretools
+
 ### old projects
 git clone https://tin6150@github.com/tin6150/db4cpa
 git clone https://tin6150@github.com/tin6150/taxonomy_reporter
