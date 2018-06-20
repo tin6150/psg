@@ -86,6 +86,27 @@ Libraries
 
 </PRE>
 
+<H5>fork bomb</H5>
+
+<PRE>
+:(){ :|: & }; :
+</PRE>
+
+fork bomb in bash.  If really trying it, best if the shell process is in a cgroup that restrict max of process <BR>
+( <TT>echo 20 > /sys/fs/cgroup/.../pids.max </TT>)
+
+breaking it down:
+<PRE>
+:(){ :|: & }; :
+
+:() 			# define a fn called ":" 
+   {       };    	# what the function does
+     :|: &  		# call itself, pipe to itself, and run in background
+              : 	# finally, invoke the function
+</PRE>
+
+ref:  
+<A HREF="https://youtu.be/MHv6cWjvQjM?t=28m43s">Liz Rice</A>  <BR>
 
 <BR>
 <BR>
