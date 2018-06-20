@@ -94,7 +94,7 @@ ipmitool delloem lan 	# dell specific command.  lan section set whether to use d
 			# but seems like iDRAC is configured yet this info can still be not set.
 			# so iDRAC can probably speak IPMI and interfaces with it, but it is not an instance of IPMI.  
 			# if work, just tell whether dedicated or shared nic
-ipmitool delloem lan set dedicated	# disable use of shared IMPI.  set once iDRAC enterprise module is installed.
+ipmitool delloem lan set dedicated	# disable use of shared IPMI.  set once iDRAC enterprise module is installed.
 
 ipmitool delloem powermonitor	# display power usage info
 
@@ -124,13 +124,18 @@ service ipmi start
 </PRE>
 
 <A ID="hexcode"></A>
-<H5>Finding Dell Chassis ServiceTag from a node</H5>
+<H5>Finding Dell Chassis ServiceTag from a node using hexcode</H5>
+
+
+For dell C6320 and the like, the chassis has its own service tag. <BR>
+hex code via ipmi "raw" command can retrieve them. <BR>
+
+conversion would be needed.  eg <BR>
+xxd -r reverse hex conversion to ascii, avail from vim-common rpm  <BR>
+
 <PRE>
-
 # Dell C6320 vintage 2017
-# xxd -r is reverse hex conversion to ascii, avail from vim-common rpm
 ipmitool raw 0x30 0xc8 0x01 0x00 0x0b 0x00 0x00 0x00 | xxd -r
-
 
 # additional ipmi raw command to try to get chassis code 
 # The C6220II should use the same commands as the C6320, but if the system is too old the original version of this unit won’t work.
@@ -146,15 +151,34 @@ ipmitool raw 0x30 0xC8 0x01 0x00 0x0c 0x00 0x02 0x00 0x00 0x00 | xxd -r
 
 </PRE>
 
-<H5>IPMI RAW</H5>
+<H5>Programming Dell Chassis from a node using IPMI RAW commands</H5>
+
+While some chassis have svc tag programmed out of factory, others are not.
+For inventory purpose, if one wish to program in the service tag so that they can be queried.  
+Here is an example of steps to program svc tag of "bjhkqd2" to the chassis via one of its node.  <BR>
+<TT>bjhkqd2 in hex is 62 6a 68 6b 71 64 32</TT> <BR>
 
 <PRE>
-# see Dell "Using IMPITOOL RAW commands for remote management..." at 
-# http://www.dell.com/downloads/global/power/ps4q07-20070387-Babu.pdf
-# it is pdf from dell.  includes IPMI, BIOS config for SOL, escape seq keys, etc)
+                                                                           b    j  ...
+                                                                         vvvv vvvv
+ipmitool raw 0x30 0xC8 0x00 0x00 0x0B 0x00 0x00 0x00 0x0B 0x00 0x11 0x0A 0x62 0x6a 0x68 0x6b 0x71 0x64 0x32
 
+## commit
+ipmitool raw 0x30 0xC8 0x01 0x00 0x02 0x00 0x00 0x00
+
+</PRE>
+
+
+
+<H5>IPMI RAW</H5>
+
+<A HREF="http://www.dell.com/downloads/global/power/ps4q07-20070387-Babu.pdf">
+Dell "Using IPMITOOL RAW commands for remote management"</A>.  
+It is pdf from dell.  includes IPMI, BIOS config for SOL, escape seq keys, etc.
+
+<PRE>
 # raw ipmi command can potentially set what temp server shutdown when overheat
-# raw may just mean IPMI commands not fully crafted with UI...
+# raw cuz it is hex code being fed to the service processor.
 
 ipmitool -I open sel list
 
@@ -303,19 +327,7 @@ sol payload enable 1 2
 ipmitool lan print 1
 ipmitool lan print | grep 'IP Address'
 </PRE>
-
-
 <BR>
-<BR>
-
-<BR>
-<BR>
-
-<BR>
-<BR>
-<BR>
-<BR>
-
 
 
 <BR><HR><BR>
@@ -323,22 +335,13 @@ ipmitool lan print | grep 'IP Address'
 <H5>Ref</H5>
 <A HREF=sol.html#ipmi>Solaris#IPMI</A>
 <BR>
-<BR>
 
 
 <BR>
-<BR>
-
-
-<BR>
-<BR>
-<BR>
-
-
 <BR><HR>
 <div align="CENTER">
-	[Doc URL: <A HREF="http://tin6150.github.io/psg/psg/postgres.html">
-http://tin6150.github.io/psg/psg/postgres.html</A>] 
+	[Doc URL: <A HREF="http://tin6150.github.io/psg/psg/ipmi.html">
+http://tin6150.github.io/psg/psg/ipmi.html</A>] 
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>

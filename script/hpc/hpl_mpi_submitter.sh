@@ -22,12 +22,18 @@
 #brc|scs|tin|savio2_knl|1||||||||||||normal,savio_debug,savio_lowprio,savio_normal|||
 
 
+
 #Flag="-N 8"
 Flag="-N 16 --partition=cf1-hp     --qos=condo_mp"
-Flag="-N  4 --partition=savio2_knl --qos=savio_normal               --reservation=Maint031218 "
-Flag="-N  2 --partition=savio2     --qos=savio_normal -J Sn_mpiTest --reservation=tin66 "
-Flag="-N 1"
-Flag=""
+Flag="-N  1 --partition=savio2_knl --qos=savio_normal" #               --reservation=Maint031218 "
+Flag="-n 64 --partition=savio2_knl --qos=savio_normal" 
+Flag="-n 64 --ntasks-per-node 64 --partition=savio2_knl --qos=savio_normal"   # still get dispatched to two nodes
+Flag="-n 64 --ntasks-per-socket 64 --partition=savio2_knl --qos=savio_normal"   # still get dispatched to two nodes
+Flag="-n 64 --ntasks-per-socket 64 --core-spec=1 --partition=savio2_knl --qos=savio_normal"   # still get dispatched to two nodes
+Flag="-n 64 --ntasks-per-socket 64 --core-spec=2 --partition=savio2_knl --qos=savio_normal"   # still get dispatched to two nodes
+#Flag="-N  2 --partition=savio2     --qos=savio_normal -J Sn_mpiTest --reservation=tin66 "
+#Flag="-N 1"
+#Flag=""
 
 
 
