@@ -43,6 +43,10 @@ git clone https://tin6150@github.com/tin6150/inet-dev-class
 ### boston housing price ML 
 git clone https://tin6150@github.com/tin6150/machine-learning-nanodegree.git
 
+### VMware tools as ansible role fork (so as not get updte unless manually checked)
+### actually trying to do subtree merging under CF_BK/Ansible/roles
+### git clone https://github.com/tin6150/ansible-role-vmwaretools
+
 ### old projects
 git clone https://tin6150@github.com/tin6150/db4cpa
 git clone https://tin6150@github.com/tin6150/taxonomy_reporter
@@ -85,4 +89,20 @@ git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
 git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 
 
-# cuda is dup, can be ignored
+#  cuda is dup, can be ignored
+
+
+
+############################################################
+#### create sym links that I have in most places now
+############################################################
+
+GIT_DIR=$(pwd)
+cd ~
+ln -s ${GIT_DIR}/blpriv/cf_bk 		~/CF_BK
+ln -s ${GIT_DIR}/blpriv/note 		~/NOTE
+ln -s ${GIT_DIR}/blpriv/hpcs_toolkit	~/HPCS_toolkit
+ln -s ${GIT_DIR}/psg		 	~/PSG
+
+cd $GIT_DIR	# ie cd back
+

@@ -1,6 +1,7 @@
-#!/usr/prog/perl/5.14.1/bin/perl
+#!/usr/bin/perl
 
-## #!/usr/bin/perl
+## #!/usr/prog/perl/5.14.1/bin/perl
+
 
 my( $en );
 #$en = crypt( "welcome1", "wl");
