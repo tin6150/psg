@@ -1557,6 +1557,35 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 
 </PRE>
 
+<A NAME="ext"></A>
+<H2>ext</H2>
+
+<PRE>
+ext4 is journaled 
+
+extundelete will scan the journal, inode, and retrieve files.
+But FS should be unmounted ASAP so that data are preserved as much as possible.
+eg run:
+mount /dev/sdb1 /RESTORE	# eg new external hd to store restored files
+cd /RESTORE
+extundelete /dev/sda3 --restore-all 	
+would retrieve all files it can undelete, and save in current dir, 
+under a dir called RESTORED_FILES
+it will preserve original directory structure and filename.
+
+
+
+EPEL should have this package for CentOS7:
+extundelete-0.2.4-6.el7.x86_64
+
+if compiling from source, ensure these packages are installed:
+
+e2fsprogs-libs-1.42.9-10.el7.x86_64
+e2fsprogs-devel-1.42.9-10.el7.x86_64
+e2fsprogs-1.42.9-10.el7.x86_64
+
+</PRE>
+
 
 <A NAME="xfs"></A>
 <H2>XFS</H2>
