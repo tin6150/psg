@@ -1557,6 +1557,11 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 
 </PRE>
 
+<BR>
+<A HREF="https://www.cgsecurity.org/wiki/TestDisk">TestDisk</A>
+can recover parition table.
+<BR>
+
 <A NAME="ext"></A>
 <H2>ext</H2>
 
@@ -1650,6 +1655,73 @@ xfs_check and dry-run method of xfs_repair</A> (craydoc)
 <!--
 <LI><A HREF="
 -->
+
+<H5>Undelete in XFS</H5>
+
+From XFS FAQ:
+
+<PRE>
+There is no undelete in XFS.
+However, if an inode is unlinked but neither it nor its associated data blocks get immediately re-used and overwritten, there is some small chance to recover the file from the disk.
+<BR>
+<BR>
+<OL>
+
+<LI> <A HREF="https://www.cgsecurity.org/wiki/PhotoRec">photorec</A>
+Think tried this, does not recover filename.
+was it supposed to be for ext and used on xfs??
+I suppose if recovering pictures from SD card then filename don't matter .
+<BR>
+
+<LI><A HRE"https://access.redhat.com/solutions/894963">
+xfs_irecover</A>
+ <BR>
+It may be able to recover inode not overwritten yet.  <BR>
+But does NOT recover the filename!!
+ <BR>
+
+<LI>xfsr<BR>
+restore partition, not undelete files? <BR>
+Alpha quality tool, search for it in github.
+<BR>
+<BR>
+
+
+<LI><A HREF="https://www.ufsexplorer.com/rdr_xfs.php">
+Raise Data Recovery for XFS</A>
+<BR>
+Commercial, claims to recover data, has not been tested by the XFS developers.
+<BR>
+
+<LI>
+<HREF="http://www.sleuthkit.org/">sleuth kit</A>
+<BR>
+library?  may need to do some real work to actually do data recovery...
+
+</OL>
+
+
+
+<p><strong>Recovery Tools - Gui :</strong></p>
+
+<ul>
+<li><a href="https://www.r-studio.com/free-linux-recovery/Download.shtml" rel="nofollow noreferrer">R-Linux</a> (2)(5)</li>
+<li><a href="https://www.r-studio.com/data_recovery_linux/Download.shtml" rel="nofollow noreferrer">R-Studio</a> (1)(5)(4)</li>
+<li><a href="https://www.ufsexplorer.com/download.php" rel="nofollow noreferrer">UFS Explorer</a> (1)(5)(4)</li>
+<li><a href="http://www.r-explorer.com/" rel="nofollow noreferrer">Recovery Explorer</a> (1)(5)(4)</li>
+</ul>
+
+<p><strong>Infos :</strong></p>
+<p>(1) = Not open source, not free</p>
+<p>(2) = Not open source, free</p>
+<p>(3) = Open source and free</p>
+<p>(4) = Have ntfs support </p>
+<p>(5) = Have directory structure feature  </p>
+
+Ref: 
+<A HREF="https://unix.stackexchange.com/questions/80270/unix-linux-undelete-recover-deleted-files">stack exchange</A>
+
+
 
 <H5>XFS vs ext3</H5>
 
