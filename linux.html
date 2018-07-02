@@ -1565,6 +1565,8 @@ can recover parition table.
 <A NAME="ext"></A>
 <H2>ext</H2>
 
+<A NAME="undelete_xfs"></A>
+<H5>undelete in ext</H5>
 <PRE>
 ext4 is journaled 
 
@@ -1588,6 +1590,11 @@ if compiling from source, ensure these packages are installed:
 e2fsprogs-libs-1.42.9-10.el7.x86_64
 e2fsprogs-devel-1.42.9-10.el7.x86_64
 e2fsprogs-1.42.9-10.el7.x86_64
+
+
+There maybe a couple other tools:
+- extgrep
+- extmagic
 
 </PRE>
 
@@ -1656,9 +1663,8 @@ xfs_check and dry-run method of xfs_repair</A> (craydoc)
 <LI><A HREF="
 -->
 
+<A NAME="undelete_xfs"></A>
 <H5>Undelete in XFS</H5>
-
-From XFS FAQ: <BR>
 
 There is no undelete in XFS. <BR>
 However, if an inode is unlinked but neither it nor its associated data blocks get immediately re-used and overwritten, there is some small chance to recover the file from the disk.
@@ -1682,42 +1688,32 @@ But does NOT recover the filename!!
 restore partition, not undelete files? <BR>
 Alpha quality tool, search for it in github.
 <BR>
-<BR>
-
-
-<LI><A HREF="https://www.ufsexplorer.com/rdr_xfs.php">Raise Data Recovery for XFS</A>
-<BR>
-Commercial, claims to recover data, has not been tested by the XFS developers.
-<BR>
 
 <LI>
 <HREF="http://www.sleuthkit.org/">sleuth kit</A>
 <BR>
 this is just a library?  may need to do some real work to actually do data recovery...
 
+
+<LI><A HREF="https://www.sysdevlabs.com/store.php">SysDev lab</A> sale two product lines.  I wonder if they are really just different in the UI skin and menus.  Neither of them too successful in simple XFS recovery in Linux.  It use a GUI, and recover XFS, EXT2/3/4, and other.  <BR>
+The base version likely suffice for recovery from accidental rm on files.  RAID version could be used if destroyed raid volume?  and the Pro version has (maybe) gimmicky viewer tools or on-the-fly edit of FS?   Trial version works, but restrict recovery size to 700K per file.
+	<UL>
+	<LI>UFS Explorer - seems a tad better with recovering directory structure
+	<LI>Recovery Explorer
+	</UL>
+
+<LI><A HREF="https://www.r-studio.com/free-linux-recovery/Download.shtml">R-Linux</A> Free undelete tool for ext2/3/4.    (GUI?)
+
+<LI><A HREF="https://www.r-studio.com/data_recovery_linux/Download.shtml">R-studio</A> Data Recovery.  Hopefully cover XFS.  Demo version limit to 256KB per file.  
+
 </OL>
 
-
-
-<H6>Recovery Tools - Gui</H6>
-
-<ul>
-<li><a href="https://www.r-studio.com/free-linux-recovery/Download.shtml" rel="nofollow noreferrer">R-Linux</a> (2)(5)</li>
-<li><a href="https://www.r-studio.com/data_recovery_linux/Download.shtml" rel="nofollow noreferrer">R-Studio</a> (1)(5)(4)</li>
-<li><a href="https://www.ufsexplorer.com/download.php" rel="nofollow noreferrer">UFS Explorer</a> (1)(5)(4)</li>
-<li><a href="http://www.r-explorer.com/" rel="nofollow noreferrer">Recovery Explorer</a> (1)(5)(4)</li>
-</ul>
-
-<PRE>
-(1) = Not open source, not free
-(2) = Not open source, free
-(3) = Open source and free
-(4) = Have ntfs support 
-(5) = Have directory structure feature  
-</PRE>
-
 Ref: 
-<A HREF="https://unix.stackexchange.com/questions/80270/unix-linux-undelete-recover-deleted-files">stack exchange</A>
+XFS FAQ<BR>
+<A HREF="https://unix.stackexchange.com/questions/80270/unix-linux-undelete-recover-deleted-files">stack exchange</A> <BR>
+
+<BR>
+<BR>
 
 
 
