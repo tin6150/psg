@@ -156,6 +156,7 @@ procs   -----------memory---------- ---swap-- -----io----   -system--  ------cpu
 <LI> Gcov
 <LI> strace
 <LI> ltt (linux trace facility)
+<LI>perf        (linux-tools-common rpm)
 <LI> DProbes
 <LI>
 <LI>
@@ -189,11 +190,11 @@ procs   -----------memory---------- ---swap-- -----io----   -system--  ------cpu
 <BR>
 <BR>
 
-<H5> advanced tools to perform full software stack analysis </H5>
+<H5> binaries, dependencies </H5>
 <UL>
-<LI>systemtap 
-<LI>perf        (linux-tools-common rpm)
-<LI>sysdig
+<LI> ldd
+<LI> readelf -l /bin/ls | grep itnerpreter
+<LI> dumpelf  /bin/ls    			# pax-utils.deb
 </UL>
 
 
