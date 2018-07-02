@@ -1557,16 +1557,13 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 
 </PRE>
 
-<BR>
-<A HREF="https://www.cgsecurity.org/wiki/TestDisk">TestDisk</A>
-can recover parition table.
-<BR>
-
-<A NAME="ext"></A>
-<H2>ext</H2>
-
+<A NAME="undelete"></A>
 <A NAME="undelete_xfs"></A>
-<H5>undelete in ext</H5>
+<H5>Undelete and data recovery tools</H5>
+
+<A NAME="extundelete"></A>
+<H6>extundelete</H6>
+
 <PRE>
 ext4 is journaled 
 
@@ -1597,6 +1594,64 @@ There maybe a couple other tools:
 - extmagic
 
 </PRE>
+
+
+There is no undelete in XFS (or Ext or most unix FS). <BR>
+However, if an inode is unlinked but neither it nor its associated data blocks get immediately re-used and overwritten, there is some small chance to recover the file from the disk.
+<BR>
+
+<OL>
+
+<LI> <A HREF="https://www.cgsecurity.org/wiki/PhotoRec">photorec</A>
+Think tried this, does not recover filename.
+was it supposed to be for ext and used on xfs??
+I suppose if recovering pictures from SD card then filename don't matter .
+<BR>
+
+<LI><A HRE"https://access.redhat.com/solutions/894963">xfs_irecover</A>
+ <BR>
+It may be able to recover inode not overwritten yet.  <BR>
+But does NOT recover the filename!!
+ <BR>
+
+<LI>xfsr<BR>
+restore partition, not undelete files? <BR>
+Alpha quality tool, search for it in github.
+<BR>
+
+<LI>
+<HREF="http://www.sleuthkit.org/">sleuth kit</A>
+<BR>
+this is just a library?  may need to do some real work to actually do data recovery...
+
+
+<LI><A HREF="https://www.sysdevlabs.com/store.php">SysDev lab</A> sale two product lines.  I wonder if they are really just different in the UI skin and menus.  Neither of them too successful in simple XFS recovery in Linux.  It use a GUI, and recover XFS, EXT2/3/4, and other.  <BR>
+The base version likely suffice for recovery from accidental rm on files.  RAID version could be used if destroyed raid volume?  and the Pro version has (maybe) gimmicky viewer tools or on-the-fly edit of FS?   Trial version works, but restrict recovery size to 700K per file.
+	<UL>
+	<LI>UFS Explorer - seems a tad better with recovering directory structure
+	<LI>Recovery Explorer
+	</UL>
+
+<LI><A HREF="https://www.r-studio.com/free-linux-recovery/Download.shtml">R-Linux</A> Free undelete tool for ext2/3/4.    (GUI?)
+
+<LI><A HREF="https://www.r-studio.com/data_recovery_linux/Download.shtml">R-studio</A> Data Recovery.  GUI tool.  Ext2/3/4, HFS, UFS, NTFS, exFAT, but NO XFS!!.  Demo version limit to 256KB per file.   <BR>
+Fedora rpm worked in centos7.  run: 
+/usr/bin/rstudio 
+
+
+<LI><A HREF="https://www.cgsecurity.org/wiki/TestDisk">TestDisk</A><BR>
+can recover parition table.
+
+
+</OL>
+
+Ref: 
+XFS FAQ<BR>
+<A HREF="https://unix.stackexchange.com/questions/80270/unix-linux-undelete-recover-deleted-files">stack exchange</A> <BR>
+
+<BR>
+<BR>
+
 
 
 <A NAME="xfs"></A>
@@ -1662,62 +1717,6 @@ xfs_check and dry-run method of xfs_repair</A> (craydoc)
 <!--
 <LI><A HREF="
 -->
-
-<A NAME="undelete"></A>
-<A NAME="undelete_xfs"></A>
-<H5>Undelete in XFS</H5>
-
-There is no undelete in XFS. <BR>
-However, if an inode is unlinked but neither it nor its associated data blocks get immediately re-used and overwritten, there is some small chance to recover the file from the disk.
-<BR>
-<BR>
-<OL>
-
-<LI> <A HREF="https://www.cgsecurity.org/wiki/PhotoRec">photorec</A>
-Think tried this, does not recover filename.
-was it supposed to be for ext and used on xfs??
-I suppose if recovering pictures from SD card then filename don't matter .
-<BR>
-
-<LI><A HRE"https://access.redhat.com/solutions/894963">xfs_irecover</A>
- <BR>
-It may be able to recover inode not overwritten yet.  <BR>
-But does NOT recover the filename!!
- <BR>
-
-<LI>xfsr<BR>
-restore partition, not undelete files? <BR>
-Alpha quality tool, search for it in github.
-<BR>
-
-<LI>
-<HREF="http://www.sleuthkit.org/">sleuth kit</A>
-<BR>
-this is just a library?  may need to do some real work to actually do data recovery...
-
-
-<LI><A HREF="https://www.sysdevlabs.com/store.php">SysDev lab</A> sale two product lines.  I wonder if they are really just different in the UI skin and menus.  Neither of them too successful in simple XFS recovery in Linux.  It use a GUI, and recover XFS, EXT2/3/4, and other.  <BR>
-The base version likely suffice for recovery from accidental rm on files.  RAID version could be used if destroyed raid volume?  and the Pro version has (maybe) gimmicky viewer tools or on-the-fly edit of FS?   Trial version works, but restrict recovery size to 700K per file.
-	<UL>
-	<LI>UFS Explorer - seems a tad better with recovering directory structure
-	<LI>Recovery Explorer
-	</UL>
-
-<LI><A HREF="https://www.r-studio.com/free-linux-recovery/Download.shtml">R-Linux</A> Free undelete tool for ext2/3/4.    (GUI?)
-
-<LI><A HREF="https://www.r-studio.com/data_recovery_linux/Download.shtml">R-studio</A> Data Recovery.  GUI tool.  Ext2/3/4, HFS, UFS, NTFS, exFAT, but NO XFS!!.  Demo version limit to 256KB per file.   <BR>
-Fedora rpm worked in centos7.  run: 
-/usr/bin/rstudio 
-
-</OL>
-
-Ref: 
-XFS FAQ<BR>
-<A HREF="https://unix.stackexchange.com/questions/80270/unix-linux-undelete-recover-deleted-files">stack exchange</A> <BR>
-
-<BR>
-<BR>
-
 
 
 <H5>XFS vs EXT3</H5>
