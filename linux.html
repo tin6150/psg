@@ -1600,8 +1600,16 @@ However, if an inode is unlinked but neither it nor its associated data blocks g
 
 <OL>
 
-<LI> <A HREF="https://sourceforge.net/projects/ext4magic/">ext4magic</A>
-<LI> extgrep
+<LI> <A HREF="https://sourceforge.net/projects/ext4magic/">ext4magic</A><BR>
+	apt install ext4magic # avail in ubuntu<BR>
+	ext4magic /dev/sda3  -L  # list recoverable files<BR>
+	ext4magic /dev/sda3  -r  <BR>
+	ext4magic /dev/sda3  -m  # works when FS still mounted RO, find more files than shown by -L<BR>
+        recovered data in ./RECOVERDIR <BR>
+	Was not successful in defining syntax to undelete only one specific file <BR>
+
+<LI> extgrep <BR>
+     run text grep against blocks on FS for recovery.  
 
 <LI> <A HREF="https://www.cgsecurity.org/wiki/PhotoRec">photorec</A>
 Think tried this, does not recover filename.
