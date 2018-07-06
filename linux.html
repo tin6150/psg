@@ -1612,10 +1612,23 @@ However, if an inode is unlinked but neither it nor its associated data blocks g
      run text grep against blocks on FS for recovery.  
 
 <LI> <A HREF="https://www.cgsecurity.org/wiki/PhotoRec">photorec</A>
-Think tried this, does not recover filename.
-was it supposed to be for ext and used on xfs??
-I suppose if recovering pictures from SD card then filename don't matter .
+is a signature based recovery tool that work largely independent of FS (thus work for FAT, NTFS, ext2, etc, but not RaiserFS because it store small amount of data in the  b-tree itself for better performance).  <BR>
+It does more than AV datas.  Can recover zip, txt, mathlab mdl, CAD, pdf, ps, etc.  It
+<A HREF="https://www.cgsecurity.org/wiki/File_Formats_Recovered_By_PhotoRec">handles some 300 file families</A>
 <BR>
+It does *NOT* recover file name or directory structure.  it will determine extension from the file magic/signature.  Script exist that help sort files by type into directories, recover filename from EXIF, MP3 tags, etc. 
+<BR>
+qPhotoRec is a GUI.<BR>
+Static link binary of TUI for both PhotoRec and TestDisk avail from single tar.bz2 at
+<A HREF="https://www.cgsecurity.org/wiki/TestDisk_Download">cgsecurity download</A>. <BR>
+
+<LI><A HREF="https://www.cgsecurity.org/wiki/TestDisk">TestDisk</A><BR>
+TUI to recover recover parition table and undelete file.  <BR>
+It also undelete files, presumably scanning FS table to recover deleted file, can provide name and directory structure. <BR>
+For Ext, may work similarly to extundelete, ext4magic. <BR>
+Handles other FS type like FAT, NTFS, HFS+. <BR>
+Note that EXT is listed under "MS DATA" partition type. <BR>
+It recommends using PhotoRec if desired file is not undeleted.  <BR>
 
 <LI><A HREF="https://access.redhat.com/solutions/894963">xfs_irecover</A>
  <BR>
@@ -1650,8 +1663,6 @@ Fedora rpm worked in centos7.  run:
 /usr/bin/rstudio 
 
 
-<LI><A HREF="https://www.cgsecurity.org/wiki/TestDisk">TestDisk</A><BR>
-can recover parition table.
 
 
 </OL>
