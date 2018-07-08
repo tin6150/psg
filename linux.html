@@ -1562,6 +1562,34 @@ df -kl 		= report fs space usage of local fs, solaris and linux
 <A NAME="undelete_xfs"></A>
 <H3>Undelete and data recovery tools</H3>
 
+
+There is no undelete in XFS or Ext or most unix FS. <BR>
+However, if an inode is unlinked but neither it nor its associated data blocks get immediately re-used and overwritten, there is some small chance to recover the file from the disk.
+<BR>
+
+Umount the file system as soon as realize needing to do data recovery. 
+This help preserve as many inodes and data blocks before they get overwritten by new files.
+<BR>
+If hardware is failing, dd the disk/partition image to a new device and recover from that.
+<BR>
+If accidentally deleted lot of files from rm -r, proceed carefully, keeping the FS mounted as RO is okay by most tool.  Restore to new location so as not to overwrite any block.
+
+
+<A NAME="ext4magic"></A>
+<H6>ext4magic</H6>
+
+<A HREF="https://sourceforge.net/projects/ext4magic/">ext4magic</A>
+is the best undelete tool for ext I have used so far (had more success undeleting files from ext4 fs than extundelete).  
+<BR>
+	apt install ext4magic # avail in ubuntu<BR>
+	ext4magic /dev/sda3  -L  # list recoverable files<BR>
+	ext4magic /dev/sda3  -r  <BR>
+	ext4magic /dev/sda3  -m  # works when FS still mounted RO, find more files than shown by -L<BR>
+        recovered data in ./RECOVERDIR <BR>
+	Was not successful in defining syntax to undelete only one specific file <BR>
+
+
+
 <A NAME="extundelete"></A>
 <H6>extundelete</H6>
 
@@ -1591,49 +1619,71 @@ e2fsprogs-1.42.9-10.el7.x86_64
 </PRE>
 
 
-<H6>Beyond extundelete</H6>
+<A NAME="photorec"></A>
+<H6>photorec</H6>
 
-
-There is no undelete in XFS (or Ext or most unix FS). <BR>
-However, if an inode is unlinked but neither it nor its associated data blocks get immediately re-used and overwritten, there is some small chance to recover the file from the disk.
-<BR>
-
-<OL>
-
-<LI> <A HREF="https://sourceforge.net/projects/ext4magic/">ext4magic</A><BR>
-	apt install ext4magic # avail in ubuntu<BR>
-	ext4magic /dev/sda3  -L  # list recoverable files<BR>
-	ext4magic /dev/sda3  -r  <BR>
-	ext4magic /dev/sda3  -m  # works when FS still mounted RO, find more files than shown by -L<BR>
-        recovered data in ./RECOVERDIR <BR>
-	Was not successful in defining syntax to undelete only one specific file <BR>
-
-<LI> extgrep <BR>
-     run text grep against blocks on FS for recovery.  
-
-<LI> <A HREF="https://www.cgsecurity.org/wiki/PhotoRec">photorec</A>
+<A HREF="https://www.cgsecurity.org/wiki/PhotoRec">photorec</A>
 is a signature based recovery tool that work largely independent of FS (thus work for FAT, NTFS, ext2, etc, but not RaiserFS because it store small amount of data in the  b-tree itself for better performance).  <BR>
 It does more than AV datas.  Can recover zip, txt, mathlab mdl, CAD, pdf, ps, etc.  It
 <A HREF="https://www.cgsecurity.org/wiki/File_Formats_Recovered_By_PhotoRec">handles some 300 file families</A>
 <BR>
-It does *NOT* recover file name or directory structure.  it will determine extension from the file magic/signature.  Script exist that help sort files by type into directories, recover filename from EXIF, MP3 tags, etc. 
+
+Unfortunately it does *NOT* recover file name or directory structure.  it will determine extension from the file magic/signature.  Script exist that help sort files by type into directories, recover filename from EXIF, MP3 tags, etc. 
 <BR>
+
 qPhotoRec is a GUI.<BR>
 Static link binary of TUI for both PhotoRec and TestDisk avail from single tar.bz2 at
 <A HREF="https://www.cgsecurity.org/wiki/TestDisk_Download">cgsecurity download</A>. <BR>
 
-<LI><A HREF="https://www.cgsecurity.org/wiki/TestDisk">TestDisk</A><BR>
-TUI to recover recover parition table and undelete file.  <BR>
-It also undelete files, presumably scanning FS table to recover deleted file, can provide name and directory structure. <BR>
+
+<A NAME="testdisk"></A>
+<H6>TestDisk</H6>
+
+<A HREF="https://www.cgsecurity.org/wiki/TestDisk">TestDisk</A>
+use a TUI to recover recover parition table and undelete file.  <BR>
+It also undelete files, presumably scanning FS table to recover deleted file, can provide name and directory structure. 
+<BR>
 For Ext, may work similarly to extundelete, ext4magic. <BR>
 Handles other FS type like FAT, NTFS, HFS+. <BR>
 Note that EXT is listed under "MS DATA" partition type. <BR>
 It recommends using PhotoRec if desired file is not undeleted.  <BR>
 
+
+<H6>Commercial tools</H6>
+
+
+<LI><A HREF="https://www.sysdevlabs.com/store.php">SysDev lab</A> sale two product lines.  I wonder if they are really just different in the UI skin and menus.  Both use a GUI, and recover XFS, EXT2/3/4, and other.  <BR>
+They were the only tool I found (July 2018) that preserve filename and directory structure for XFS. <BR>
+The base version likely suffice for recovery from accidental rm on files.  RAID version could be used if destroyed raid volume?  and the Pro version has (maybe) gimmicky viewer tools or on-the-fly edit of FS?   Trial version works, but restrict recovery size to 700K per file.  <BR>
+	<UL>
+	<LI>UFS Explorer - seems a tad better with recovering directory structure.  Recovered 13k+ files...
+	<LI>Recovery Explorer 
+	</UL>
+There is a IntelliRAW feature, that just scan for say picture or video, file will have no name and could be truncated.  Useful only if it portion recovery of content is useful.  For structured data file this won't be all that useful.
+<BR>
+On retrospect, maybe similar to PhotoRec, but need to define rules, so not played with.
+<BR>
+<BR>
+
+<LI><A HREF="https://www.r-studio.com/free-linux-recovery/Download.shtml">R-Linux</A> Free undelete tool for ext2/3/4.   /usr/bin/rlinux.  GUI.  Has ability to create an image of the partition needing data recovery.  For my ext4 thumbdrive test this tool worked horribly.  scanned and found old FAT files and recovered none of ext4 files.  Didn't produce any filename or directory structure.
+
+<LI><A HREF="https://www.r-studio.com/data_recovery_linux/Download.shtml">R-studio</A> Data Recovery.  Same GUI as r-linux, with support for additional FS types:  Ext2/3/4, HFS, UFS, NTFS, exFAT, but NO XFS!!.  Demo version limit to 256KB per file.   <BR>
+Fedora rpm worked in centos7.  run: 
+/usr/bin/rstudio 
+
+
+
+<H6>Probably less useful tools</H6>
+
+<OL>
+<LI> extgrep <BR>
+     run text grep against blocks on FS for recovery.  
+
 <LI><A HREF="https://access.redhat.com/solutions/894963">xfs_irecover</A>
  <BR>
 For XFS only.  It may be able to recover inode not overwritten yet.  <BR>
-But does NOT recover the filename!!
+But does NOT recover the filename!!  <BR>
+Not sure if better than PhotoRec...
  <BR>
 
 <LI>xfsr<BR>
@@ -1646,21 +1696,6 @@ Alpha quality tool, search for it in github.
 <BR>
 this is just a library?  may need to do some real work to actually do data recovery...
 
-
-<LI><A HREF="https://www.sysdevlabs.com/store.php">SysDev lab</A> sale two product lines.  I wonder if they are really just different in the UI skin and menus.  Neither of them too successful in simple XFS recovery in Linux.  It use a GUI, and recover XFS, EXT2/3/4, and other.  <BR>
-The base version likely suffice for recovery from accidental rm on files.  RAID version could be used if destroyed raid volume?  and the Pro version has (maybe) gimmicky viewer tools or on-the-fly edit of FS?   Trial version works, but restrict recovery size to 700K per file.  <BR>
-	<UL>
-	<LI>UFS Explorer - seems a tad better with recovering directory structure
-	<LI>Recovery Explorer 
-	</UL>
-There is a IntelliRAW feature, that just scan for say picture or video, file will have no name and could be truncated.  Useful only if it portion recovery of content is useful.  For structured data file this won't be all that useful.
-<BR>
-
-<LI><A HREF="https://www.r-studio.com/free-linux-recovery/Download.shtml">R-Linux</A> Free undelete tool for ext2/3/4.   /usr/bin/rlinux.  GUI.  Has ability to create an image of the partition needing data recovery.  For my ext4 thumbdrive test this tool worked horribly.  scanned and found old FAT files and recovered none of ext4 files.  Didn't produce any filename or directory structure.
-
-<LI><A HREF="https://www.r-studio.com/data_recovery_linux/Download.shtml">R-studio</A> Data Recovery.  Same GUI as r-linux, with support for additional FS types:  Ext2/3/4, HFS, UFS, NTFS, exFAT, but NO XFS!!.  Demo version limit to 256KB per file.   <BR>
-Fedora rpm worked in centos7.  run: 
-/usr/bin/rstudio 
 
 
 
