@@ -26,14 +26,15 @@
     <tr>
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
       <td align="center"><a accesskey="d" href="docker.html">Docker</a>	</td>
+      <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>	</td>  <!--TBA-->
       <td align="center"><a accesskey="r" href="coreos.html">CoreOS</a>	</td>
       <td align="center"><a accesskey="w" href="aws.html">AWS</a>	</td>
       <td align="center"><a accesskey="b" href="bigdata.html">BigData</a>	</td>
-      <td align="center"><a accesskey="s" href="devops.html">DevOps</a>	</td>
+      <td align="center"><a accesskey="s" href="devops.html">DevOps</a>		</td>
       <td align="center"><a accesskey="o" href="openstack.html">OpenStack</a>	</td>
-      <td align="right"> <a accesskey="v" href="vagrant.html">Vagrant</a>	</td>
-      <td align="right"> <a accesskey="c" href="blogger_container_hpc.html">Container in HPC</a>	</td>
-      <td align="right"> <a accesskey="l" href="lsf.html">lsf/slurm/uge</a>	</td>
+      <td align="center"><a accesskey="v" href="vagrant.html">Vagrant</a>	</td>
+      <td align="center"><a accesskey="c" href="blogger_container_hpc.html">Container in HPC</a>	</td>
+      <td align="center"><a accesskey="l" href="lsf.html">lsf/slurm/uge</a>				</td>
       <td align="right"> <a accesskey="a" href="https://github.com/tin6150/inet-dev-class/tree/master/ansible">ansible</a>	</td>
     </tr>
   </tbody>
@@ -57,6 +58,31 @@
 </UL>
 
 
+<H2>Container/pod operations in Docker, Kubernetes, Rancher</H2>
+
+
+<UL>
+
+<LI> Kubernetes largerly use kubectl, kubeadm.
+<LI> Docker also have Swarm and Enterprise Edition that does Orchaestration
+<LI> Rancher 1.0 use its own system, 2.x can use kubernetes.
+<LI> <A HREF="singularity.html">Singularity</A> is not included at this time as it does not have build-in orchaestration.
+</UL>
+
+
+<PRE>
+			Docker/EE		k8s			Rancher
+			====================	======================	===================
+version						kubectl version		
+
+Running containers	docker ps		kubectl get pod		
+Start a conainer	docker run 		kubectl run		cattle... ?
+
+cluster info					kubectl cluster-info		
+
+
+
+</PRE>
 
 <A NAME="kubernetes"></A>
 <A ID="k8s"></A>
@@ -119,6 +145,7 @@ kubeadm
 
 <BR><HR>
 <div align="CENTER">
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/k8s.html">http://tin6150.github.io/psg/k8s.html</A>] 
   [Doc URL: <A HREF="http://psg.ask-margo.com/k8s.html">http://psg.ask-margo.com/k8s.html</A>] 
 <BR>
 (cc) Tin Ho. See 
