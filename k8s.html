@@ -58,13 +58,13 @@
 </UL>
 
 
-<H2>Container/pod operations in Docker, Kubernetes, Rancher</H2>
+<H2>Container/pod operations: Docker vs Kubernetes vs Rancher</H2>
 
 
 <UL>
 
 <LI> Kubernetes largerly use kubectl, kubeadm.
-<LI> Docker also have Swarm and Enterprise Edition that does Orchaestration
+<LI> <A HREF="docker.html">Docker</A> also have Swarm and Enterprise Edition that does Orchaestration
 <LI> Rancher 1.0 use its own system, 2.x can use kubernetes.
 <LI> <A HREF="singularity.html">Singularity</A> is not included at this time as it does not have build-in orchaestration.
 </UL>
@@ -74,15 +74,29 @@
 			Docker/EE		k8s			Rancher
 			====================	======================	===================
 version						kubectl version		
+env info		docker info		kubectl cluster-info	rancher environment
 
-Running containers	docker ps		kubectl get pod		
-Start a conainer	docker run 		kubectl run		cattle... ?
+Get image from registry	docker pull
+List images		docker images -a				
+Remove images		docker rmi IMG		
+Build image		docker image build
+Push img to registry	docker image push 
 
-cluster info					kubectl cluster-info		
+Start a container/pod	docker run 		kubectl run		rancher stack create 
+Restart/Upgrade a pod 	docker start					rancher up 
+List running pods	docker ps		kubectl get pod		rancher ps
+Stop container		docker stop
+Clear container		docker rm NAME
 
+Get container's logs	docker logs					rancher logs
+Shell into container	docker exec -it 				rancher exec -it 
 
 
 </PRE>
+
+<!--
+			docker compose
+-->
 
 <A NAME="kubernetes"></A>
 <A ID="k8s"></A>
@@ -138,15 +152,44 @@ kubeadm
 <LI>
 </OL>
 
+<H2>Rancher</H2>
 
+<PRE>
+
+# create an app stack (list of containers) to be run together 
+# StackName is a directory containing docker compose yaml definition file listing all necessary containers
+rancher stack create  StackName				
+
+# redeploy a running application as per new spec (eg version upgrade)
+rancher up --force-upgrade -d --stack  StackName 
+
+# confirm upgrade (why was this needed?)
+rancher up --confirm-upgrade -d --stack StackName
+
+# look at logs of serverice.  web is the name of a service in the demo stack
+rancher logs StackName/web
+
+# scale the service "web" to have 2 instances:
+rancher scale StackName/web=2
+
+# get shell into container (will ask when when there are 1+ instance)
+# largely same as docker exec
+rancher exec -it StackName/web /bin/bash
+
+</PRE>
+
+<H2>Container Landscape</H2>
+
+<A HREF="https://photos.app.goo.gl/AZ1vghsQAwgi8Rtr6">cncf.io lanscape chat</A>
+(They have "interactive" view online, but that's mostly a dynamic list of links, don't give big picture view).
 
 <BR><HR><BR>
 
 
 <BR><HR>
 <div align="CENTER">
-  [Doc URL: <A HREF="http://tin6150.github.io/psg/k8s.html">http://tin6150.github.io/psg/k8s.html</A>] 
-  [Doc URL: <A HREF="http://psg.ask-margo.com/k8s.html">http://psg.ask-margo.com/k8s.html</A>] 
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/k8s.html">http://tin6150.github.io/psg/k8s.html</A>]  <BR>
+  [Doc URL: <A HREF="http://psg.ask-margo.com/k8s.html">http://psg.ask-margo.com/k8s.html</A>]          <BR>
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>
