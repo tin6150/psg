@@ -568,14 +568,29 @@ Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
 
 <H1>Service Processor</H1>
 
+<A NAME="dsa"></A>
 <H2>Lenovo DSA</H2>
 
 Lenovo Dynamic System Analyst (DSA).
-Portable version.
-Download self extracting elf .bin and right away run the program.  
-Need write access to /var/log/Lenovo_Support
+<BR>
+Portable version for rhel7 worked for vNFS n0096.s2
+<BR>
 
-wget ...
+Download self extracting elf .bin and right away run the program.  don't seems to leave any binary behind when finsih.
+When finished, leave collected log in /var/log/Lenovo_Support
+Probably same thing that is invoked by "bios" collect tool, which save result to usb.
+<BR>
+
+Preliminary okay to give sudo to intern to run... 
+
+
+
+<PRE>
+wget https://download.lenovo.com/servers/mig/2017/05/17/6836/lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bi
+# run as root, maybe sudo ok...:
+./lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bin
+</PRE>
+
 
 
 
