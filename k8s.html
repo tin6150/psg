@@ -84,12 +84,12 @@ Push img to registry	docker image push
 
 Start a container/pod	docker run 		kubectl run		rancher stack create 
 Restart/Upgrade a pod 	docker start		kubectl apply -f yml	rancher up 
-List running pods	docker ps		kubectl get pod		rancher ps
+List running pods	docker ps		kubectl get pods	rancher ps
 Stop container		docker stop
-Clear container		docker rm NAME
+Clear container		docker rm NAME		kubectl delete deployments --all (?)
 
-Get container's logs	docker logs					rancher logs
-Shell into container	docker exec -it 				rancher exec -it 
+Get container's logs	docker logs		kubectl logs		rancher logs
+Shell into container	docker exec -it 	kubectl exec -it	rancher exec -it 	# all docker stuff, -it for interactive terminal
 
 
 </PRE>
@@ -180,7 +180,7 @@ rancher exec -it StackName/web /bin/bash
 
 <H2>Container Landscape</H2>
 
-<A HREF="https://photos.app.goo.gl/AZ1vghsQAwgi8Rtr6">cncf.io lanscape chat</A>
+<A HREF="https://photos.app.goo.gl/AZ1vghsQAwgi8Rtr6">cncf.io lanscape chat</A> circa 2018.
 (They have "interactive" view online, but that's mostly a dynamic list of links, don't give big picture view).
 
 <BR><HR><BR>
