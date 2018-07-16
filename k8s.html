@@ -83,7 +83,7 @@ Build image		docker image build
 Push img to registry	docker image push 
 
 Start a container/pod	docker run 		kubectl run		rancher stack create 
-Restart/Upgrade a pod 	docker start					rancher up 
+Restart/Upgrade a pod 	docker start		kubectl apply -f yml	rancher up 
 List running pods	docker ps		kubectl get pod		rancher ps
 Stop container		docker stop
 Clear container		docker rm NAME
