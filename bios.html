@@ -168,6 +168,12 @@ Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <
 F2 = Setup
 F10 = Display Boot Menu
 F12 = Force Network Boot
+
+For BMC/IPMI to share eth0 with host os, go to BIOS, Server Management, BMC... Use 
+"Mode 2 NCSI"
+This hopefully also means that if there is eth connected to the management port, it will use that automatically.
+
+(default, at least for the batch I am workihg on, is set to "mode 1 dedicated").
 </PRE>
 
 
