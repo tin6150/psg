@@ -169,15 +169,25 @@ F2 = Setup
 F10 = Display Boot Menu
 F12 = Force Network Boot
 
-For BMC/IPMI to share eth0 with host os, go to BIOS, Server Management, BMC... Use 
+For BMC/IPMI was said to default to share eth0 with host os when service RJ45 isn't connected.  
+However, my systems wasn't setup that way.  
+To make IPMI share eth0 with the host os, set it with:
+ipmitool raw 0x2e 0xcc 0x5e 0x2b 0 0x0C 0x01 0x02 
+
+Note that ipmi already have a default admin/admin account as user 2.
+If setting new admin acc, try to rename the existing one first:
+ipmitool user set name 2 oper
+ipmitool user list 1
+</PRE>
+
+
+<!-- did not work:
+go to BIOS, Server Management, BMC... Use 
 "Mode 2 NCSI"
 This hopefully also means that if there is eth connected to the management port, it will use that automatically.
 
 (default, at least for the batch I am workihg on, is set to "mode 1 dedicated").
-
-ipmitool raw 0x2e 0xcc 0x5e 0x2b 0 0x0C 0x01 0x02 >> Shared NIC 
-## from support, still fuzzy...
-</PRE>
+-->
 
 
 
