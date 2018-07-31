@@ -4,6 +4,9 @@
 ################################################################################
 
 #### over time will put all my github (and bitbucket) repos cloning here
+#### for now, run as:
+#### cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
+#### and cut-n-paste output, pausing in places that may ask for password...
 
 
 # assume script is in the psg/ dir 
@@ -46,6 +49,9 @@ git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<
 
 cd $MyGitDir
 
+git clone https://tin6150@github.com/tin6150/psg
+echo "may need password..."
+
 git clone https://tin6150@github.com/tin6150/singularity
 ### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 git clone https://tin6150@github.com/tin6150/inet-dev-class
@@ -85,6 +91,7 @@ git clone https://tin6150@github.com/tin6150/boinc-client.git
 # run from a parent dir eg ~/tin-bb 
 # cd ..
 git clone https://tin6150@bitbucket.org/tin6150/blpriv
+echo "may ask for password..."
 git clone https://tin6150@bitbucket.org/tin6150/spark
 git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
 
@@ -106,13 +113,14 @@ git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 #### create sym links that I have in most places now
 ############################################################
 
+# don't use tab below or cut-n-paste may engage tab completion.
 #GIT_DIR=$(pwd)
 GIT_DIR=$MyGitDir
 cd ~
-ln -s ${GIT_DIR}/blpriv/cf_bk 		~/CF_BK
-ln -s ${GIT_DIR}/blpriv/note 		~/NOTE
-ln -s ${GIT_DIR}/blpriv/hpcs_toolkit	~/HPCS_toolkit
-ln -s ${GIT_DIR}/psg		 	~/PSG
+ln -s ${GIT_DIR}/blpriv/cf_bk              ~/CF_BK
+ln -s ${GIT_DIR}/blpriv/note               ~/NOTE
+ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ~/HPCS_toolkit
+ln -s ${GIT_DIR}/psg                       ~/PSG
 
 cd $GIT_DIR	# ie cd back
 
