@@ -7,8 +7,14 @@
 
 
 # assume script is in the psg/ dir 
+#cd ..
 
-cd ..
+# nah, going forward, always setup a new dir :)
+MyGitDir=~/tin-gh
+[[ -d $MyGitDir ]] || mkdir $MyGitDir
+cd $MyGitDir
+
+
 
 
 ########################
@@ -18,10 +24,11 @@ cd ..
 ## create fn, and eval a param, don't always want to run this...  but it is essentially idempotent...
 #git clone https://tin6150@github.com/tin6150/psg
 
-cd psg
+[[ -d $MyGitDir/psg ]] || mkdir $MyGitDir/psg
+cd $MyGitDir/psg
 ## config need to write to some .git...   create a fn for this?
 
-# git config --global user.email "tin@newbox"             # change this to machine specific settings to get better idea of where commits, 
+git config --global user.email "tin@newbox"             # FIXME++ change this to machine specific settings to get better idea of where commits, 
                                                         # merges are done, but don't display well on bitbucket :(
 git config --global user.name tin6150
 ## in bitbucket, need username to match what bitbucket.org has in record for it to prompt for pwd
@@ -31,11 +38,13 @@ git config --global alias.lol "log --oneline --graph --decorate"                
 git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
 
 
-cd ..
+#cd ..
 
 ########################
 #### tin6150 github ####
 ########################
+
+cd $MyGitDir
 
 git clone https://tin6150@github.com/tin6150/singularity
 ### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
@@ -97,7 +106,8 @@ git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 #### create sym links that I have in most places now
 ############################################################
 
-GIT_DIR=$(pwd)
+#GIT_DIR=$(pwd)
+GIT_DIR=$MyGitDir
 cd ~
 ln -s ${GIT_DIR}/blpriv/cf_bk 		~/CF_BK
 ln -s ${GIT_DIR}/blpriv/note 		~/NOTE
