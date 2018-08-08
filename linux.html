@@ -2661,6 +2661,16 @@ Ansible module:
 
 
 <A HREF="https://wiki.gentoo.org/wiki/SELinux/Tutorials/Controlling_file_contexts_yourself">Controlling file contexts yourself</A>
+<BR>
+<BR>
+
+<H5>Allow binary to open tcp port</H5>
+
+eg: change ssh to use port 2222 in rhel7
+denials noted in /varlog/audit/audit.log
+
+semanage port -a -t ssh_portt -p tcp 2222
+
 
 <H5>SELinux for RHEL 7 </H5>
 
