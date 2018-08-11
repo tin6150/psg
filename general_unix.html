@@ -415,7 +415,7 @@ gpg
 eg:
 gpg -c area51
         produces simple password encrypted file area51.gpg
-        original file remails!
+        original file remains!
 
 gpg --decrypt area51.gpg
         decrypt file and write it to std out
@@ -467,6 +467,15 @@ gpg --clearsign txtfile         #it will generate txtfile.asc:
 verify signature in signed file:
 gpg --verify txtfile.asc
 
+
+$ gpg --import keyname.asc
+$ gpg -v --verify [.asc file]
+
+
+openvpn
+
+gpg --import ovpn-security-key-2018.asc.txt
+gpg -v --verify openvpn-install-2.4.6-I602.exe.asc
 
 </PRE>
 
