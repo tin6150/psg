@@ -163,6 +163,34 @@ In that sequence, to be completed within 3 seconds.
 Do you prefer UEFI?   Really??  <BR>
 Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <BR>
 
+<H2>Penguin Computing</H2>
+<PRE>
+F2 = Setup
+F10 = Display Boot Menu
+F12 = Force Network Boot
+
+For BMC/IPMI was said to default to share eth0 with host os when service RJ45 isn't connected.  
+However, my systems wasn't setup that way.  
+To make IPMI share eth0 with the host os, set it with:
+ipmitool raw 0x2e 0xcc 0x5e 0x2b 0 0x0C 0x01 0x02 
+
+Note that ipmi already have a default admin/admin account as user 2.
+If setting new admin acc, try to rename the existing one first:
+ipmitool user set name 2 oper
+ipmitool user list 1
+</PRE>
+
+
+<!-- did not work:
+go to BIOS, Server Management, BMC... Use 
+"Mode 2 NCSI"
+This hopefully also means that if there is eth connected to the management port, it will use that automatically.
+
+(default, at least for the batch I am workihg on, is set to "mode 1 dedicated").
+-->
+
+
+
 <H2>Lenovo</H2>
 
 <PRE>
@@ -565,6 +593,155 @@ Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
 
 </PRE>
 
+
+<H1>Service Processor</H1>
+
+<H2>??</H2>
+tool to manipulate BIOS using cli tool...
+TBA
+
+
+<A NAME="dsa"></A>
+<H2>Lenovo DSA</H2>
+
+Lenovo Dynamic System Analyst (DSA).  
+<BR>
+Collect system state/log for support to review.
+Portable version for rhel7 worked for vNFS n0096.s2
+<BR>
+
+Download 
+( <A HREF="https://support.lenovo.com/us/en/downloads/ds121924">https://support.lenovo.com/us/en/downloads/ds121924</A> )
+self extracting elf .bin and right away run the program.  don't seems to leave any binary behind when finsih.
+When finished, leave collected log in /var/log/Lenovo_Support
+Probably same thing that is invoked by "bios" collect tool, which save result to usb.
+<BR>
+
+Preliminary okay to give sudo to intern to run... 
+keep a stable binary version in a non-writable place...
+
+
+<PRE>
+wget https://download.lenovo.com/servers/mig/2017/05/17/6836/lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bi
+sudo ./lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bin
+</PRE>
+
+<!--
+
+**^ tin n0096.savio2 /global/home/groups/scs/tin/lenovo_dsa ^**>  sudo ./lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bin 
+Lenovo Dynamic System Analysis
+(C) Copyright Lenovo Corp. 2014-2017.(C) Copyright IBM Corp. 2004-2014.  All Rights Reserved.
+This Program is licensed under the terms of the agreement available by invoking
+this utility with the -l option.  By extracting, copying, accessing, or using
+the Program, you agree to the terms of this agreement.  If you do not agree to
+the terms, please remove the software and return it to Lenovo or the reseller
+from whom you acquired the software for a refund, if any.
+
+Extracting...
+Executing...
+
+
+Logging level set to Status
+Copying Schema...
+cp: cannot stat '/etc/sysconfig/network/*-usb*': Not a directory
+cp: cannot stat '/etc/sysconfig/network-scripts/*-usb*': No such file or directory
+Dynamic System Analysis Version 10.3.A7D
+
+(C) Copyright Lenovo Corp. 2014-2017. All Rights Reserved. (C) Copyright IBM Corp. 2004-2014. All Rights Reserved.
+
+Running DSA IMM plug-ins pass 1.
+   IMM: Integrated Management Module Collector 
+Running DSA IMM plug-ins pass 2.
+   IMM: Integrated Management Module Collector 
+Running DSA IPMI plug-ins pass 1.
+Running DSA IPMI plug-ins pass 2.
+Running DSA collector plug-ins pass 1.
+   libasuprovider: Advanced Setting Utility(ASU) Setting Collector 
+   libbist: BIST 
+   libdiskmgt: Disk Management Information Collector 
+sh: xdpyinfo: command not found
+   libdisplayinfo: Display Information Collector 
+   libeventlog: Eventlog Collector 
+   libfileloader: File Loader 
+   libhardwareinfo: Hardware Information Collector 
+   libinstalledapps: Installed Application Collector 
+   libipmisel: IPMISEL
+   liblightpath: LightPath
+   libmodinfo: Linux module information collector
+   libnetworkinfo: Network Information Collector
+   libnuma: NumaLib
+   libnvsmilog: NVIDIA SMI Log Collector
+   libpciinfo: PCI Information Collector
+   libprocess: Process
+   libqlogic: QLogic HBA(s) Collector
+   libscsidev: SCSI/IDE Device Collector
+   libspddata: SPDData
+   libspfirmwarevpd: SPFirmwareVPD
+   libspintreg: Engineering Information Collector
+   libsysconfig: SysConfig
+   libsystem: System
+   libtapehdd: Tape/HDD Collector
+   libusbinfo: USB Information Collector
+Running DSA collector plug-ins pass 2.
+   libbist: BIST
+   libdiskmgt: Disk Management Information Collector
+   libdisplayinfo: Display Information Collector
+   libhardwareinfo: Hardware Information Collector
+   libinstalledapps: Installed Application Collector
+   libmodinfo: Linux module information collector
+   libnetworkinfo: Network Information Collector
+   libnuma: NumaLib
+   libpciinfo: PCI Information Collector
+   libqlogic: QLogic HBA(s) Collector
+   libscsidev: SCSI/IDE Device Collector
+   libspfirmwarevpd: SPFirmwareVPD
+   libsysconfig: SysConfig
+   libtapehdd: Tape/HDD Collector
+   libusbinfo: USB Information Collector
+Running DSA cmpi plug-ins pass 1.
+   libFoDProviderModule: FoD Collector
+   libQpiCol_Module: QpiCol_Module
+   libsmart: HardDrive S.M.A.R.T Information Collector
+Running DSA cmpi plug-ins pass 2.
+   libFoDProviderModule: FoD Collector
+   libsmart: HardDrive S.M.A.R.T Information Collector
+Running DSA Pegasus Single-thread Group plug-ins pass 1.
+Running DSA Pegasus Single-thread Group plug-ins pass 2.
+Running DSA Pegasus Multi-threads Group plug-ins pass 1.
+   libbrcdprovider_Module: brcdprovider_Module
+   libDimmModule_Module: DimmModule_Module
+   libemulex_fc-ucna_provider_Module: emulex_fc-ucna_provider_Module
+   libEMULEX_CNA_PEG: EMULEX_CNA_PEG
+   libFIOUtlProviderModule: FIOUtlProviderModule
+   libFIO_Module: FIO_Module
+   libHiddenLogProviderModule: HiddenLogProviderModule 
+   libIntelMICProviderModule: IntelMICProviderModule 
+   libSSDProviderModule: SSDProviderModule 
+   libLSIUtlProviderModule: LSIUtlProviderModule 
+   liblsiPCIeSSDProviderModule: lsiPCIeSSDProviderModule 
+   libMLNX_CIMProvider_Module: MLNX_CIMProvider_Module 
+   libLSIESG_SMIS13_HHR_ProviderModule: LSIESG_SMIS13_HHR_ProviderModule 
+Running DSA Pegasus Multi-threads Group plug-ins pass 2.
+   libbrcdprovider_Module: brcdprovider_Module 
+   libDimmModule_Module: DimmModule_Module 
+   libemulex_fc-ucna_provider_Module: emulex_fc-ucna_provider_Module 
+   libMLNX_CIMProvider_Module: MLNX_CIMProvider_Module 
+   libLSIESG_SMIS13_HHR_ProviderModule: LSIESG_SMIS13_HHR_ProviderModule 
+Running DSA analyzer plug-ins pass 1.
+   libbasicanal: Basic Analysis 
+   libesainfo: ESA-DSA Information 
+   liblpanal: Light Path Analysis 
+Running DSA analyzer plug-ins pass 2.
+   liblpanal: Light Path Analysis 
+Adding DSA log entries to XML file.
+Writing XML data to file /var/log/Lenovo_Support/5465AC1_1234567_20180716-121300.xml.gz
+
+DSA capture completed successfully.
+cp: failed to access '/etc/sysconfig/network/': Not a directory
+cp: cannot stat '*-usb*': No such file or directory
+
+Please press ANY key to continue ...
+-->
 
 <!-- ################################################################## -->
 <!-- ################################################################## -->

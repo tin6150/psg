@@ -1,14 +1,24 @@
 #!/bin/sh 
 
 
-#SBATCH         	--job-name=cf1_allNodeTest    # CLI arg will overwrite this
+####
+#### helper script to run job on every node of a cluster, 
+#### test slurm job scheduling/running abilities
+#### and node abilities to run job
+#### see bottom for submission command against all nodes using sbatch -w 
+####
+
+
+#SBATCH         	--job-name=lr4x_allNodeTest    # CLI arg will overwrite this
 #               	CPU time:
 #SBATCH         	--time=605
 #      		      	Wall clock limit in HH:MM:ss
 # 	#SBATCH       	--time=00:10:00
 #SBATCH         	--partition=lr5
+#SBATCH         	--partition=cf1
 # 	#SBATCH       	-n 4
-#SBATCH        		--qos=lr_normal
+#SBATCH        		--qos=cf_normal
+#SBATCH        		--qos=lr_normal # cf_normal
 #	#SBATCH       		--qos=lr_lowprio
 #SBATCH         	--account=scs
 # 	#SBATCH       	--ntasks=2
@@ -37,7 +47,6 @@
 LOGDIR=/global/scratch/tin/JUNK/
 MAQ=$(hostname)
 hostname > $LOGDIR/$MAQ
-exit 0
 
 
 echo ----uptime-----------------------------------
@@ -47,6 +56,7 @@ date
 echo ---------------------------------------
 echo ---------------------------------------
 
+#exit 007			#### comment out if want to run more test!                       ####
 
 ################################################################################
 ##### setup and run test in specific dir
@@ -108,6 +118,7 @@ echo "date after sleep"
 date
 
 
+exit 0
 
 ################################################################################
 ##### info on how to run
@@ -133,4 +144,11 @@ date
 #        sbatch -w n${T}.cf1 --job-name=N${T}_cf1_allNodeTest /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
 # done
 
+
+## example run 4a:
+#for T in $(seq -w 0139 0147); do
+#for T in $(seq -w 0112 0135); do
+#        sbatch -w n${T}.lr4 --job-name=N${T}_lr4x_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+#                                                         # or /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+#done
 

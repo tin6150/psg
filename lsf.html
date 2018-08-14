@@ -248,7 +248,7 @@ sinfo -R -S %E		# output sorted/grouped by Reason
 sinfo -R -S %H		# output sorted by timestamp 
 sinfo -R -S %n		# output sorted by nodelist
 
-
+sinfo -R -S %E --format="%9u %19H %6t %N %E"	# %E is comment/reason, unrestricted in length.  -Sorted by rEason  ## not history
 
 
 squeue			# status of job and job steps
@@ -270,7 +270,7 @@ scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 
 
 sacct				# view accounting by individual job and job steps (more in troubleshooting below)
 
-sacctmgr show events start=2018-01-01 node=n0270.mako0          # history of sinfo events (added by scontrol)
+sacctmgr show events start=2018-01-01 node=n0270.mako0          # history of sinfo events (added by scontrol) but rEason is truncated :(
 
 
 sstat -j		# on currently running job/job step (more info avail than sacct which is historical)
@@ -313,7 +313,7 @@ drng	draining?
 comp	??
 idle	online, waiting for action
 alloc	allocated, ie running job
-mix	runnign mix of jobs? 
+mix	some cpu running job, but has more resource avail to run more jobs (non exclusive mode).
 
 JOB REASON CODES
 Cleaning
@@ -388,7 +388,7 @@ scontrol show reservation 	# show reservations
 				# listed user of the reservation can submit job that is flagged to use the reservation
 
 
-scontrol create reservation starttim=2018-01-02T16:15 duration=60 user=tin flags=maint nodes=n0142.cf1,n0143.cf1 reservation=rn_666
+scontrol create reservation starttim=2018-01-02T16:15 duration=60 user=tin flags=maint,IGNORE_JOBS nodes=n0142.cf1,n0143.cf1 reservation=rn_666
 scontrol create reservation starttim=2018-01-02T16:15 duration=10-0:0:0 user=tin flags=maint nodes=n0142.cf1,n0143.cf1 reservation=rn_66r76
 scontrol create reservation start=2018-01-10T12:25 end=2018-01-13 user=tin,meli flags=maint nodes=n0018.cf1,n0019.cf1 reservation=resv777
 # create reservation, admin priv may be req
