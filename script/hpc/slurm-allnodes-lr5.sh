@@ -6,9 +6,9 @@
 #SBATCH         	--time=605
 #      		      	Wall clock limit in HH:MM:ss
 # 	#SBATCH       	--time=00:10:00
-#SBATCH         	--partition=cf1
+#SBATCH         	--partition=lr5
 # 	#SBATCH       	-n 4
-#SBATCH        		--qos=cf_normal
+#SBATCH        		--qos=lr_normal
 #	#SBATCH       		--qos=lr_lowprio
 #SBATCH         	--account=scs
 # 	#SBATCH       	--ntasks=2
