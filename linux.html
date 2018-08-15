@@ -2356,6 +2356,24 @@ GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"
 grub2-mkconfig -o /boot/grub2/grub.cfg
 </PRE>
 
+Ubuntu/Mint seems to use
+<TT>quiet splash</TT> for GUI boot.
+Mint added <TT>nomdmonddf nomdmonism</TT>
+
+
+<!--
+Mint t430 upgrade:
+Running depmod.
+update-initramfs: deferring update (hook will be called later)
+Examining /etc/kernel/postinst.d.
+run-parts: executing /etc/kernel/postinst.d/apt-auto-removal 4.4.0-133-generic /boot/vmlinuz-4.4.0-133-generic
+run-parts: executing /etc/kernel/postinst.d/dkms 4.4.0-133-generic /boot/vmlinuz-4.4.0-133-generic
+Error! Bad return status for module build on kernel: 4.4.0-133-generic (x86_64)
+Consult /var/lib/dkms/ndiswrapper/1.59/build/make.log for more information.
+...
+Warning: No support for locale: en_US.utf8
+
+-->
 
 
 
