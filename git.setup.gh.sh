@@ -120,6 +120,7 @@ cd ~
 ln -s ${GIT_DIR}/blpriv/cf_bk              ~/CF_BK
 ln -s ${GIT_DIR}/blpriv/note               ~/NOTE
 ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ~/HPCS_toolkit
+ln -s ${GIT_DIR}/blpriv/bofhbot            ~/BOFHbot
 ln -s ${GIT_DIR}/psg                       ~/PSG
 
 cd $GIT_DIR	# ie cd back

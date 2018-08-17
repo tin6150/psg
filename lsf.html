@@ -249,6 +249,7 @@ sinfo -R -S %H		# output sorted by timestamp
 sinfo -R -S %n		# output sorted by nodelist
 
 sinfo -R -S %E --format="%9u %19H %6t %N %E"	# %E is comment/reason, unrestricted in length.  -Sorted by rEason  ## not history
+sinfo -N -R -S %E --format="%N %6t %19H %9u %E" # -N produce node centric output (1 node per line for scripting)
 
 
 squeue			# status of job and job steps
