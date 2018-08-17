@@ -2815,10 +2815,13 @@ ref:
 https://launchpad.net/~ubuntu-x-swat/+archive/ubuntu/updates</A>
 <BR>
 
+Zorin used ppa to install nvidia-390 for Quadro 4000 card.
+
+
 <PRE>
+Centos 7
 
 blacklist nouveau kernel driver...
-
 
 systemctl  enable multi-user.target --force	# not necessary?
 systemctl  set-default multi-user.target
@@ -2826,14 +2829,11 @@ systemctl  start graphical.target
 systemctl  set-default graphical.target
 
 
-
 ligthadm stop
 
 cp /etc/X11/xorg.conf /etc/X11/xorg.conf.bak
 nvidia-xconfig    
 nvidia-settings    
-
-
 
 system-configure-display	# rhel6
 
