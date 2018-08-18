@@ -13,6 +13,7 @@ sudo pip install ansible
 exit 0
 
 #### ~~~~ centos version below
+#### may want to add some check to be centos before doing some of them...
 
 sudo groupadd -g 43413 tin
 sudo useradd  -g tin -u 43413 -c "tin@lbl.gov" -m -d /home/tin -s /bin/bash tin 
@@ -21,6 +22,7 @@ sudo useradd  -g tin -u 43413 -c "tin@lbl.gov" -m -d /home/tin -s /bin/bash tin
 ##sudo passwd tin 
 ## need file redirect, so need to run as root... 
 cp -p /etc/shadow /etc/shadow.backup
+sed -i /etc/shadow '/^tin:/d' 	## need to remove tin first, untested.
 cat /etc/shadow | grep ^root: | sed  's/^root/tin/' >> /etc/shadow
 
 echo "tin 	ALL=(ALL) 	ALL" >> /etc/sudoers
@@ -30,6 +32,7 @@ mkdir tin-gh
 git clone https://www.github.com/tin6150/psg
 cd ~
 ln -s tin-gh/psg ~/PSG
-cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
+#cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
+bash ~tin/PSG/git.setup.gh.sh # when prompt for password, can enter it and continue if not using pipe method above
 
 
