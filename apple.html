@@ -602,8 +602,8 @@ sample startup script in location which is now deemed archaic: <BR>
 
 <PRE>
 screen /dev/tty.usbserial 9600
-	# ^A k 		: kill the connection (terminate screen and its use of /dev/tty...)
-	# ^A ^B b  	: send break (for sun's go prompt)
+	# ^a k 		: kill the connection (terminate screen and its use of /dev/tty...)
+	# ^a ^b b  	: send break (for sun's go prompt)   (don't think need ^B (upper case B))
 
 minicom -o -D /dev/tty.usbserial 
 
@@ -690,6 +690,8 @@ Why I hate Mac OS X ?
 <LI> If I am on the mouse (not touchpad), how do i switch workspace?  I got to click on where and where and where and where??  *sigh*
 
 <LI> Where is the Insert key?  Cuz when I run a Linux VM (to get away from MacOS), I could really use that Insert key.  A true Delete key would be quite useful too damn it!
+
+<LI> Still need to send break to some serial port console equipment?  ^a ^b b in screen MAY work for you.  But when I tried it (and really needed it), it didn't work.  Mac just don't like me.  I will not like it back! :-x
 
 </UL>
 

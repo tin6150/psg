@@ -2332,6 +2332,52 @@ grep [0-9] /sys/bus/platform/devices/coretemp.*/temp*_input
 <A NAME="kernel"></A>
 <H1>Kernel</H1>
 <BR>
+
+
+<H2>grub</H2>
+
+
+
+To disable nouveau driver from loading (so that commercial nvidia driver can be installed)
+(newer linux use this driver before even X, thus blacklist in modprobe don't cut it)
+
+ref: 
+<LI> https://forums.fedoraforum.org/showthread.php?310858-How-can-i-remove-disable-nouveau-in-grub
+<LI> https://www.redhat.com/archives/rhl-list/2004-May/msg07775.html 
+
+<PRE>
+append to boot argument to kernel: rd.driver.blacklist=nouveau
+</PRE>
+ 
+<PRE>
+edit /etc/default/grub :: 
+GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  
+(remove rhgb quiet for verbose text boot)
+grub2-mkconfig -o /boot/grub2/grub.cfg
+</PRE>
+
+Ubuntu/Mint seems to use
+<TT>quiet splash</TT> for GUI boot.
+Mint added <TT>nomdmonddf nomdmonism</TT>
+
+
+<!--
+Mint t430 upgrade:
+Running depmod.
+update-initramfs: deferring update (hook will be called later)
+Examining /etc/kernel/postinst.d.
+run-parts: executing /etc/kernel/postinst.d/apt-auto-removal 4.4.0-133-generic /boot/vmlinuz-4.4.0-133-generic
+run-parts: executing /etc/kernel/postinst.d/dkms 4.4.0-133-generic /boot/vmlinuz-4.4.0-133-generic
+Error! Bad return status for module build on kernel: 4.4.0-133-generic (x86_64)
+Consult /var/lib/dkms/ndiswrapper/1.59/build/make.log for more information.
+...
+Warning: No support for locale: en_US.utf8
+
+-->
+
+
+
+
 <A NAME="kernel-compile"></A>
 <H2>Kernel Compilation</H2>
 
@@ -2769,16 +2815,18 @@ ref:
 https://launchpad.net/~ubuntu-x-swat/+archive/ubuntu/updates</A>
 <BR>
 
+Zorin used ppa to install nvidia-390 for Quadro 4000 card.
+
+
 <PRE>
+Centos 7
 
 blacklist nouveau kernel driver...
-
 
 systemctl  enable multi-user.target --force	# not necessary?
 systemctl  set-default multi-user.target
 systemctl  start graphical.target
 systemctl  set-default graphical.target
-
 
 
 ligthadm stop
@@ -2787,11 +2835,16 @@ cp /etc/X11/xorg.conf /etc/X11/xorg.conf.bak
 nvidia-xconfig    
 nvidia-settings    
 
-
-
 system-configure-display	# rhel6
 
 </PRE>
+
+Installing nvidia if nouveau had been installed could be rather painful.
+see 
+<A HREF="https://devtalk.nvidia.com/default/topic/1021871/304-135-fails-to-build-load-on-rhel-7-4-kernel-3-10-0-693/">devtalk.nvidia</A>
+on steps to rid old nvidia.ko
+
+<BR>
 
 <BR><BR>
 <A NAME="VendorSpecific"></A>
