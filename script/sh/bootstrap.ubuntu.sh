@@ -1,17 +1,17 @@
 #!/bin/bash
 
-#### a series of commands for cut-n-paste
+#### a series of commands for (cut-n-paste) or exec script as sudo
 #### to setup a newly installed OS running ubuntu and derivative
-#### invoke this script with sudo if not cut-n-pasting.
-
+#### try to minimize, enough to run ansible and let that take over from there.
 
 sudo apt-get install git
 sudo apt-get install -y python-pip
 sudo pip install ansible
-#### zorin's ansible is 2.0.0.2, can't even do "include-tasks under tasks: section :(
+#### zorin's (12.4, ubuntu 16.04) comes with 
+#### ansible 2.0.0.2, it can't even do "include-tasks under tasks: section :(
 #### so pip version of ansible is used instead.
 
-#sudo dpkg --erase alpine-pico  # cuz have visudo bringing up pico!!
+#sudo dpkg --erase alpine-pico  # cuz have visudo bringing up pico!! nope, still there
 
 
 #exit 0
@@ -36,15 +36,17 @@ exit 0
 
 # below, if really needed, need to cut-n-paste.  
 # maybe can use sudo with heredoc??
+cd /tmp; cd ~tin
 
 sudo su - tin
-mkdir tin-gh
-tin git clone https://www.github.com/tin6150/psg
+sudo -u tin mkdir ~tin/tin-gh
+cd ~tin/tin-gh
+git clone https://www.github.com/tin6150/psg
 cd ~
 ln -s tin-gh/psg ~/PSG
 
 # below may have been run from psg dir already...
 #cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
-bash ~tin/PSG/git.setup.gh.sh # when prompt for password, can enter it and continue if not using pipe method above
+sudo -u tin ~tin/PSG/git.setup.gh.sh # when prompt for password, can enter it and continue if not using pipe method above
 
 
