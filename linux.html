@@ -2356,6 +2356,24 @@ GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"
 grub2-mkconfig -o /boot/grub2/grub.cfg
 </PRE>
 
+Ubuntu/Mint seems to use
+<TT>quiet splash</TT> for GUI boot.
+Mint added <TT>nomdmonddf nomdmonism</TT>
+
+
+<!--
+Mint t430 upgrade:
+Running depmod.
+update-initramfs: deferring update (hook will be called later)
+Examining /etc/kernel/postinst.d.
+run-parts: executing /etc/kernel/postinst.d/apt-auto-removal 4.4.0-133-generic /boot/vmlinuz-4.4.0-133-generic
+run-parts: executing /etc/kernel/postinst.d/dkms 4.4.0-133-generic /boot/vmlinuz-4.4.0-133-generic
+Error! Bad return status for module build on kernel: 4.4.0-133-generic (x86_64)
+Consult /var/lib/dkms/ndiswrapper/1.59/build/make.log for more information.
+...
+Warning: No support for locale: en_US.utf8
+
+-->
 
 
 
@@ -2797,10 +2815,13 @@ ref:
 https://launchpad.net/~ubuntu-x-swat/+archive/ubuntu/updates</A>
 <BR>
 
+Zorin used ppa to install nvidia-390 for Quadro 4000 card.
+
+
 <PRE>
+Centos 7
 
 blacklist nouveau kernel driver...
-
 
 systemctl  enable multi-user.target --force	# not necessary?
 systemctl  set-default multi-user.target
@@ -2808,14 +2829,11 @@ systemctl  start graphical.target
 systemctl  set-default graphical.target
 
 
-
 ligthadm stop
 
 cp /etc/X11/xorg.conf /etc/X11/xorg.conf.bak
 nvidia-xconfig    
 nvidia-settings    
-
-
 
 system-configure-display	# rhel6
 
@@ -3334,8 +3352,10 @@ minicom -o -m	# -o = no modem init
  		#      or ESC, key.  eg ALT-O for options)
 		#      useful when running minicom inside "screen", 
 		#      which also use ^A for escape, thus req ^a, a, key combo.
-minicom -o -m  -D /dev/tty.usbserial -8 
+minicom -o -m  -D /dev/tty.usbserial -b 9600 --8bit 
 
+dmesg | egrep --color -i serial\|tty # should determine serial port, eg ttyS0
+/dev/cu* are said to be obsolete circal kernel 2.x days.
 
 
 one anoying thing seems that minicom param change in ALT-O is not fully
@@ -3476,6 +3496,19 @@ e-conf		enlightment configuration
 linux-conf	most essential config of linux in here
 control-panel	old red hat panel, configure network, printer, etc
 
+</PRE>
+
+
+<H1>Keyboard shortcuts</H1>
+
+<H4>Zorin</H4>
+
+<PRE>
+ctrl + shf + PrtScr ==> clipboard (draw rectangle)
+       shf + PrtScr ==> File in Pictures folder
+
+ctrl + alt + PrtScr ==> clipboard (current window)
+       alt + PrtScr ==> File in Pictures folder.
 </PRE>
 
 <HR>
