@@ -5,10 +5,12 @@
 ## when it is first installed (or when hd has been replaced)
 ## Originally by Bernard Li,
 ## slightly modified, as there seems to be some typo... -Tin 2017.0711
-## last significant change 2017.0814
-## primarity loc: tin-bb/blpriv/hpcs_toolkit
-## secondary loc: psg/script/hpc/
+## last significant change 2018.0824 (added sanity check fn)
+## 1st loc: psg/script/hpc/
+## 2nd loc: tin-bb/blpriv/hpcs_toolkit
 
+
+## old way:
 ## [root@n0014 ~]# sudo -u bernardl cat  /global/home/users/bernardl/part_disks.sh  > /root/part_disks.sh
 ##[root@n0014 ~]# cat !$
 ##cat /root/part_disks.sh
