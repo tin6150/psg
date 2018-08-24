@@ -1,8 +1,14 @@
 #!/bin/bash 
 
 
-# this version is from cf1/run_staging_test_sanity.sh
+#### 
+####  MOVED to ~/HPCS_toolkit
+#### 
+
+
+# this version is from cf1/run_staging_test_sanity.sh   # vs _hpl version
 # prev version is from testbed/run_staging_test.sh
+# there are ver in lr5, maybe other.  
 
 # script to run Yong's staging.sh
 # expect to be running in a mostly empty dir, will create a dir to host output
