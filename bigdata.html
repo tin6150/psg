@@ -316,6 +316,17 @@ hdfs fsck PATH OPTIONS		# check health of hdfs
     <LI>
     </UL>
 
+  <H5>spark troubleshooting</H5>
+
+<PRE>
+http://n0156.lr3:8080/  - spark master (scheduler, monitor worker)
+http://n0161.lr3:8081/  - worker process
+
+http://n0093.lr3:4040/jobs/	- overview of job process, one port per job
+spark://n0093.lr3:7077/		- spark protocol for spart-submit to send job to the master
+
+</PRE>
+
   <A ID="kafka"></A>
   <H2>Apache Kafka</H2>
     <UL>

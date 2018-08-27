@@ -33,34 +33,71 @@ HTML validator: http://validator.w3.org/
 <head>
 	<title>Sys Admin Pocket Survival Guide</title>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
-        <link rel="stylesheet" href="psg2.css"                type="text/css" media="screen">
+        <link rel="stylesheet" href="psg.css"                 type="text/css" media="screen">
+	<!--
         <link rel="stylesheet" href="psg-table.css"           type="text/css">
         <link rel="stylesheet" href="psg2-links-icons.css"    type="text/css">
         <link rel="stylesheet" href="psg-positioning.css"     type="text/css">
+	-->
         <link rel="stylesheet" href="psg-print.css" type="text/css" media="print">
 </head>
 
     
 <body>
 
-  <!-- use hidden to get rid of the floater icons on upper right, they are just on the way! -->
-  <div id="fixie" hidden> <!-- add a fixed position example for css final project.   potentially use to place ad, which will appear like a 3rd column on right -->
-          <div id="one"   class="skinny"><a href="plug/plug.html"><img src="plug/nema-5-20R-drawing.gif" alt="nema5pic" width="100" height="100"></a></div>
-          <div id="two"   class="skinny"><a href="fig/unixoid_hell.gif"><img src="fig/unixoid_hell.gif"  alt="vi-hell"   width="100" height="77" ></a></div>
-          <div id="three" class="skinny"><a href="fig/Assistant.gif"><img    src="fig/Assistant.gif"     alt="clippie"   width="100" height="77" ></a></div>
-          <div id="four"  class="skinny"><!-- empty for now --></div>
-  </div> <!-- closes #fixie -->
 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="12" align="center">
+	  
+<A HREF="http://tin6150.github.io/psg/docker.html">Sys Admin Pocket Survival Guide - Docker</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="d" href="k8s.html">Kubernetes</a>		</td>
+      <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>	</td>  <!--TBA-->
+      <td align="center"><a accesskey="r" href="coreos.html">CoreOS</a>	</td>
+      <td align="center"><a accesskey="w" href="aws.html">AWS</a>	</td>
+      <td align="center"><a accesskey="b" href="bigdata.html">BigData</a>	</td>
+      <td align="center"><a accesskey="s" href="devops.html">DevOps</a>		</td>
+      <td align="center"><a accesskey="o" href="openstack.html">OpenStack</a>	</td>
+      <td align="center"><a accesskey="v" href="vagrant.html">Vagrant</a>	</td>
+      <td align="center"><a accesskey="c" href="blogger_container_hpc.html">Container in HPC</a>	</td>
+      <td align="center"><a accesskey="l" href="lsf.html">lsf/slurm/uge</a>				</td>
+      <td align="right"> <a accesskey="a" href="https://github.com/tin6150/inet-dev-class/tree/master/ansible">ansible</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+
+
+<!-- changed to use old psg css, cuz lines are too long to fit in narrow column.  to go back, see git log dc3b937 -->
+<!-- this file is kinda frankenstein.  started with psg2.css, then moved back to use psg1.css -->
+<!--
     
 <div id="wrapper">
   <div id="header">
-    <div id="title">Sys Admin Pocket Survival Guide</div>
-    <div id="sub-title">A Quick Reference Guide for Sys Admins with Alzeimer :)</div>
-  </div> <!-- closes header -->
+    <CENTER>
+    <H5>Sys Admin Pocket Survival Guide</H5>
+    <H5>A Quick Reference Guide for Sys Admins with Alzeimer :)</H5>
+    </CENTER>
+    
+  </div>
+
+
   
   <div id="navigation">
-      <!-- the replace was not inside hightlight area, but whole page, finc and put back some strong and em in doc...-->
-   <!--  strong, em, h5, or div are not allowed to be nested inside ul !!  -->
         <div class="azul">Cloud</div>
     
         <li> <a href="docker.html">docker</a></li>
@@ -80,8 +117,8 @@ HTML validator: http://validator.w3.org/
 
        <div class="azul">Unix</div>
 	
-        <li> <a href="linux.html">Linux</a></li>
         <li> <a href="nixos.html">NixOS</a></li>
+        <li> <a href="linux.html">Linux</a></li>
         <li> <a href="coreos.html">CoreOS</a></li>
         <li> <a href="sol.html">Solaris</a></li>
         <li> <a href="hpux.html">HP-UX</a> and <br>
@@ -167,7 +204,9 @@ HTML validator: http://validator.w3.org/
         <BR>
       	
 
-  </div> <!-- closes #navigation -->
+  </div> 
+-->
+<!-- closes #navigation -->
 
 
   <!-- ########################################################## -->
@@ -246,9 +285,8 @@ Under the hood</A>: <BR>
 
 <H3>Ecosystem, Competitor</H3>
 
-
 <UL>
-	<LI> Kubernetes
+	<LI> <A HREF="#k8s">Kubernetes</A>
 	<LI> <A HREF="bigdata.html#mesos">Mesos</A>
 	<LI>Vagrant 
 	<LI>ClusterHQ
@@ -364,14 +402,17 @@ docker images
 
 docker run -p 80:80   httpd	# run the httpd docker image, mapping port 80 on the container to port 80   on the host 
 				# if image not already pull-ed, docker run will pull it automatically
-docker run -p 8000:80 httpd &	# run the httpd docker image, mapping port 80 on the container to port 8000 on the host, putting docker in background so get back the prompt.
+docker run -p 8000:80 httpd &	# run the httpd docker image, mapping port 80 on the container to port 8000 on the host, 
+				# putting docker in background so get back the prompt.
 				# two instanced can run as above, resulting in service running in parallel 
 				# netstat -an | grep LISTEN will show that both port 80 and 8000 are in LISTEN state
-				# note that the httpd process is visible on the host.  it is NOT like in a VM that run all its process in a black box.
+				# note that the httpd process is visible on the host.  
+				# it is NOT like in a VM that run all its process in a black box.
 
 
 docker run -P -d training/webapp python app.py 	# this run a demo web app called app.py
-						# -P will map all ports in container to host.  but it maps sequentially starting from 32768
+						# -P will map all ports in container to host.  
+						#    but it maps sequentially starting from 32768
 						# -d is daemon mode, ie, put process in background.
 
 
@@ -709,12 +750,15 @@ docker run -p 80:80 -i -t --name ApachePsg_C tin6150/apache_psg_3a:dev2 httpd	# 
 
 <H3>Docker Data Volume</H3>
 
-<PRE>
 There are ways for container to mount the host's directory to its internal directory.  
+<BR>
 Multiple container can mount the same host directory as well, but application need to be careful with data access and lock or it can create corruption.
+<BR>
 
 https://docs.docker.com/engine/userguide/dockervolumes/
+<BR>
 
+<PRE>
 </PRE>
 
 
@@ -774,8 +818,10 @@ docker run -e WORDPRESS_DB_PASSWORD=password --name wordpress --link wordpressdb
 # --link name:alias is to create a private network connection to the named container
 #   (--link also copy ENV variables, if conflict, duplicated to HOST_ENV_abc and HOST_PORT_nnn)
 # if don't specify to bind to 0.0.0.0:80, wordpress default to some docker bridge IP.
-# use "-i -t" instead of "-d" to see web page access log in the console.  Can then detach from session using ^P ^Q (it will NOT put container in paused state)
-# alt, ^C on process.  docker start wordpress will largely resume where it was left off (wordpress saved most state info to disk).
+# use "-i -t" instead of "-d" to see web page access log in the console.  
+# Can then detach from session using ^P ^Q (it will NOT put container in paused state)
+# alt, ^C on process.  docker start wordpress will largely resume where it was left off 
+# (wordpress saved most state info to disk).
 
 
 # (tested to work on amazon linux.  centos7 didn't work, maybe SELinux... maybe cuz ran docker as root.)
@@ -792,7 +838,8 @@ Also, there is a more complex setup with NGINX load balancer, Redis cache:
 
 <H3>Docker Compose</H3>
 
-Docker Compose is a declarative way of managing containers.  Think Puppet, Chef and other configuration management tool, applied to docker.  
+Docker Compose is a declarative way of managing containers.  Think Puppet, Chef and other configuration management tool, 
+applied to docker.  
 <BR>
 eg Both examples of wordpress setup has reference to Docker Compose.
 <BR>
@@ -833,15 +880,35 @@ http://tiny.cc/DOCKER</A>
 <BR><BR>
 
 
-<H1>The Container Ecosystem</H1>
+<H1>Container Runtime</H1>
+<UL>
+<LI>Docker runtime engine (LXC?)
+<LI>containerd
+<LI>rkt
+<LI><A HREF="singularity.html">singularity</A>
+</UL>
 
-<A HREF="http://www.slideshare.net/lilumb/docker-101-61428727/9"><A IMG SRC="fig/univa-container-landscape.png" alt="container landscape stack diagram"></A>
+<H1>Container Orchaestration</H1>
+
+<UL>
+<LI><A HREF="k8s.html">Kubernetes</A>
+<LI>Docker Swarm
+<LI>Rancher
+<LI>Mesos Marathon
+<LI>
+</UL>
+
+<A NAME="landscape"></A>
+<H1>Container Landscape</H1>
+
+<CENTER>
+<A HREF="http://www.slideshare.net/lilumb/docker-101-61428727/9"><IMG SRC="fig/univa-container-landscape.png" alt="container landscape stack diagram"></A> <BR>
+Players in the container world, circa 2016. (Univa slide)
 <BR>
-
+</CENTER>
 
 
 <A ID="hpc"></A>
-
 <H3>Container in HPC</H3>
 
 Container in HPC is a quite a large topic.  For a feature comparison table of Shifter vs Singularity, and a list of relevant articles, see my blogger article 

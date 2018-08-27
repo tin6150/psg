@@ -195,6 +195,7 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 :OUTPUT ACCEPT [0:0]
 
 ## log incoming traffic, for temporary debugging only.  will create massive logs!
+## log to kernel.*.  0=emergency, 4=warning, 7=debug
 ## -A INPUT -p tcp -j LOG --log-prefix "IPTables Packet IN: " --log-level 7
 ## -A INPUT -p tcp -s 123.4.130.157 -j LOG --log-prefix "IPTables Packet IN: " --log-level 7
 

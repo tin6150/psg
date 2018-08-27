@@ -243,6 +243,15 @@ sinfo			# status of node, queue, etc
 	--Node		# output info in node-centric view (group similar nodes together)
 	-p PARTITION 	# info on specific partition (queue) 
 	--long		# add info on memory, tmp, reason, etc
+
+sinfo -R -S %E		# output sorted/grouped by Reason 
+sinfo -R -S %H		# output sorted by timestamp 
+sinfo -R -S %n		# output sorted by nodelist
+
+sinfo -R -S %E --format="%9u %19H %6t %N %E"	# %E is comment/reason, unrestricted in length.  -Sorted by rEason  ## not history
+sinfo -N -R -S %E --format="%N %6t %19H %9u %E" # -N produce node centric output (1 node per line for scripting)
+
+
 squeue			# status of job and job steps
 	-s		# info about job steps
 	-u USERNAME	# job info of specified user
@@ -262,7 +271,7 @@ scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 
 
 sacct				# view accounting by individual job and job steps (more in troubleshooting below)
 
-sacctmgr show events start=2018-01-01 node=n0270.mako0          # history of sinfo events (added by scontrol)
+sacctmgr show events start=2018-01-01 node=n0270.mako0          # history of sinfo events (added by scontrol) but rEason is truncated :(
 
 
 sstat -j		# on currently running job/job step (more info avail than sacct which is historical)
@@ -305,7 +314,7 @@ drng	draining?
 comp	??
 idle	online, waiting for action
 alloc	allocated, ie running job
-mix	runnign mix of jobs? 
+mix	some cpu running job, but has more resource avail to run more jobs (non exclusive mode).
 
 JOB REASON CODES
 Cleaning
@@ -380,7 +389,7 @@ scontrol show reservation 	# show reservations
 				# listed user of the reservation can submit job that is flagged to use the reservation
 
 
-scontrol create reservation starttim=2018-01-02T16:15 duration=60 user=tin flags=maint nodes=n0142.cf1,n0143.cf1 reservation=rn_666
+scontrol create reservation starttim=2018-01-02T16:15 duration=60 user=tin flags=maint,IGNORE_JOBS nodes=n0142.cf1,n0143.cf1 reservation=rn_666
 scontrol create reservation starttim=2018-01-02T16:15 duration=10-0:0:0 user=tin flags=maint nodes=n0142.cf1,n0143.cf1 reservation=rn_66r76
 scontrol create reservation start=2018-01-10T12:25 end=2018-01-13 user=tin,meli flags=maint nodes=n0018.cf1,n0019.cf1 reservation=resv777
 # create reservation, admin priv may be req
@@ -568,6 +577,48 @@ slurmdUser 			# slurmd    user.
 </PRE>
 
 
+<A NAME="cgroup_and_slurm"></A>
+<A NAME="cgroup_&_slurm"></A>
+<H3>cgroup & slurm</H3>
+
+<PRE>
+
+grep -r [0-9] /cgroup/cpuset/slurm
+
+/cgroup/cpuset/slurm/uid_43143/job_13272521/step_batch/cpuset.mem_hardwall:0
+/cgroup/cpuset/slurm/uid_43143/job_13272521/cpuset.mem_hardwall:0
+/cgroup/cpuset/slurm/uid_43143/cpuset.mem_hardwall:0
+/cgroup/cpuset/slurm/cpuset.mem_hardwall:0
+
+grep  [0-9] /cgroup/memory/slurm/*
+/cgroup/memory/slurm/memory.limit_in_bytes:9223372036854771712
+/cgroup/memory/slurm/memory.max_usage_in_bytes:2097704960             # 2G
+
+/cgroup/memory/slurm/uid_43143/memory.max_usage_in_bytes:1216872448   # 1.1G
+/cgroup/memory/slurm/uid_43143/job_13272521/memory.max_usage_in_bytes:1216872448
+
+
+# very often
+# mount -t /cgroup ... /sys/fs/cgroup
+
+slurm process are echo into cgroup task file.  eg:
+tin      15537     1  0 15:05 ?        00:00:07 /global/software/sl-7.x86_64/modules/langs/java/1.8.0_121/bin/java -cp /global/scratch/tin/spark/spark-test.13272521/conf/:/global/software/sl-7.x86_64/modules/java/1.8.0_121/spark/2.1.0/jars/* -Xmx1g org.apache.spark.deploy.master.Master --host n0093.lr3 --port 7077 --webui-port 8080
+
+grep -r 15537  *
+
+cpuset/slurm/uid_43143/job_13272521/step_batch/cgroup.procs:15537
+cpuset/slurm/uid_43143/job_13272521/step_batch/tasks:15537
+
+memory/slurm/uid_43143/job_13272521/step_batch/cgroup.procs:15537
+memory/slurm/uid_43143/job_13272521/step_batch/tasks:15537
+
+freezer/slurm/uid_43143/job_13272521/step_batch/cgroup.procs:15537
+freezer/slurm/uid_43143/job_13272521/step_batch/tasks:15537
+
+
+
+
+</PRE>
 
 <A NAME="slurm_assistant"></A>
 <H3>slurm Assistant</H3>
@@ -581,7 +632,7 @@ slurmdUser 			# slurmd    user.
 
 
 
-<H4>SLURM Ref</H4>
+<H3>SLURM Ref</H3>
 <UL>
 <LI><A HREF="http://www.linuxclustersinstitute.org/workshops/archive/20th/files/12-Slurm/Slurm.pdf">LCI workshop on Slurm</A>. slides in pdf, by Ryan Cox, BYU.
 <LI><A HREF="https://hpc.llnl.gov/banks-jobs/running-jobs/slurm-user-manual">LLNL Slurm User Guide</A>

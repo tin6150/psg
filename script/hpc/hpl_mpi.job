@@ -32,9 +32,14 @@
 #       #SBATCH         --time=1-02:00:00                  # format for 1 day 2 hours, could also use more than 24 hours
 #SBATCH                 --exclusive
 #       #SBATCH         --qos=lr_normal
+#	#SBATCH                 --qos=cf_normal
+#	#SBATCH                 --qos=condo_mp
+#	#SBATCH         	--partition=cf1-hp
 #SBATCH                 --qos=cf_normal
 #SBATCH         	--partition=cf1
+#SBATCH         	-n 64
 #	#SBATCH         	-n 128		# did not work for 64 last time.  128 => 3 nodes.  just can't get 64c per node for xhpl when requested like this.
+#	#SBATCH        	-N 2			# adjust as needed   # tested up to -N 16
 ###SBATCH         	-N 2			# adjust as needed   # tested up to -N 16
 #SBATCH                 -o  J%j_%N.out
 #	#SBATCH                 -o  slr_%j_%N.out
@@ -143,8 +148,6 @@ cp -p $BIOSHIGHLIGHT .         2> /dev/null
 #export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_skylake_icc_2018:$PATH
 
 #export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_phi_7210/:$PATH	# intel 2016 compiler stack
-#export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_phi_7210:$PATH	# intel 2018 compiler stack
-#export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel2018_nehalem:$PATH	
 export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_nehalem:$PATH	# lr4/savio are hashwell, but can't find binary for it...
 
 #export PATH=$PATH:~tin/gsHPCS_toolkit/benchmark/staging_sl7					# mpi_nxnlatbw
@@ -189,7 +192,9 @@ pwd
 date
 
 
-echo MPL.dat to copy is hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
+echo ----MPL.dat to copy is hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
+## somehow if below line is messed up, screw up PATH!
+echo ----HPL.dat--is--hpl/HPL.MPI.${HplDatNum}.dat----
 cp -p hpl/HPL.MPI.${HplDatNum}.dat HPL.dat
 ##cp -p hpl/HPL.MPI.0002.dat ./HPL.dat		# tmp forcing a 2 node run even when slurm assigned 3 nodes  ## FIXME
 

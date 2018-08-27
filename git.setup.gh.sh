@@ -4,11 +4,20 @@
 ################################################################################
 
 #### over time will put all my github (and bitbucket) repos cloning here
+#### for now, run as:
+#### cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
+#### and cut-n-paste output, pausing in places that may ask for password...
 
 
 # assume script is in the psg/ dir 
+#cd ..
 
-cd ..
+# nah, going forward, always setup a new dir :)
+MyGitDir=~/tin-gh
+[[ -d $MyGitDir ]] || mkdir $MyGitDir
+cd $MyGitDir
+
+
 
 
 ########################
@@ -18,10 +27,11 @@ cd ..
 ## create fn, and eval a param, don't always want to run this...  but it is essentially idempotent...
 #git clone https://tin6150@github.com/tin6150/psg
 
-cd psg
+[[ -d $MyGitDir/psg ]] || mkdir $MyGitDir/psg
+cd $MyGitDir/psg
 ## config need to write to some .git...   create a fn for this?
 
-# git config --global user.email "tin@newbox"             # change this to machine specific settings to get better idea of where commits, 
+git config --global user.email "tin@newbox.grumpyxmas.com"             # FIXME++ change this to machine specific settings to get better idea of where commits, 
                                                         # merges are done, but don't display well on bitbucket :(
 git config --global user.name tin6150
 ## in bitbucket, need username to match what bitbucket.org has in record for it to prompt for pwd
@@ -31,17 +41,26 @@ git config --global alias.lol "log --oneline --graph --decorate"                
 git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
 
 
-cd ..
+#cd ..
 
 ########################
 #### tin6150 github ####
 ########################
+
+cd $MyGitDir
+
+git clone https://tin6150@github.com/tin6150/psg
+echo "may need password..."
 
 git clone https://tin6150@github.com/tin6150/singularity
 ### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 git clone https://tin6150@github.com/tin6150/inet-dev-class
 ### boston housing price ML 
 git clone https://tin6150@github.com/tin6150/machine-learning-nanodegree.git
+
+### VMware tools as ansible role fork (so as not get updte unless manually checked)
+### actually trying to do subtree merging under CF_BK/Ansible/roles
+### git clone https://github.com/tin6150/ansible-role-vmwaretools
 
 ### old projects
 git clone https://tin6150@github.com/tin6150/db4cpa
@@ -72,6 +91,7 @@ git clone https://tin6150@github.com/tin6150/boinc-client.git
 # run from a parent dir eg ~/tin-bb 
 # cd ..
 git clone https://tin6150@bitbucket.org/tin6150/blpriv
+echo "may ask for password..."
 git clone https://tin6150@bitbucket.org/tin6150/spark
 git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
 
@@ -85,4 +105,23 @@ git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
 git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 
 
-# cuda is dup, can be ignored
+#  cuda is dup, can be ignored
+
+
+
+############################################################
+#### create sym links that I have in most places now
+############################################################
+
+# don't use tab below or cut-n-paste may engage tab completion.
+#GIT_DIR=$(pwd)
+GIT_DIR=$MyGitDir
+cd ~
+ln -s ${GIT_DIR}/blpriv/cf_bk              ~/CF_BK
+ln -s ${GIT_DIR}/blpriv/note               ~/NOTE
+ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ~/HPCS_toolkit
+ln -s ${GIT_DIR}/blpriv/bofhbot            ~/BOFHbot
+ln -s ${GIT_DIR}/psg                       ~/PSG
+
+cd $GIT_DIR	# ie cd back
+
