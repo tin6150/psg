@@ -86,6 +86,12 @@ setPrompt () {
 	export PS1
 	# PS1 in WSL (Ubuntu for win10)
 	# \[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$
+
+    # also setting TERM.  zorin screen set to screen.xterm-256color which is not well understood.
+    if [[ x.$TERM == x.screen.xterm-256color || x.$TERM == x.vt100 ]] ; then
+		export TERM=xterm
+	fi
+
 } # end setPrompt 
 
 
