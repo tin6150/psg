@@ -101,6 +101,8 @@ ipmitool delloem powermonitor	# display power usage info
 
 ipmitool user list 1	# list users configured to use ipmi
 
+ipmitool chassis identify	# blink location becon (typically blue) to help find machine
+
 ipmitool chassis bootdev pxe options=persistent		# change to use pxe boot by default on every boot.
 ipmitool -l lan -U root -P calvin -H 10.8.1.76 chassis bootdev pxe options=persistent
 		# issue the ipmi command remotely to a remote host using the remote iDRAC interface
