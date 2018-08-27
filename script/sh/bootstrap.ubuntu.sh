@@ -4,8 +4,13 @@
 #### to setup a newly installed OS running ubuntu and derivative
 #### try to minimize, enough to run ansible and let that take over from there.
 
-sudo apt-get install git
-sudo apt-get install -y python-pip
+
+#PkgCmd=apt-get
+
+
+sudo $PkgCmd install git
+sudo $PkgCmd install -y python-pip
+
 sudo pip install ansible
 #### zorin's (12.4, ubuntu 16.04) comes with 
 #### ansible 2.0.0.2, it can't even do "include-tasks under tasks: section :(
@@ -15,6 +20,13 @@ sudo pip install ansible
 
 
 #exit 0
+
+#### centos 6
+
+sudo yum install git
+sudo yum install -y epel-release
+sudo yum install -y ansible # 2.6.2
+sudo yum install -y libselinux-python  # allow ansible to config iptables
 
 #### ~~~~ centos version below
 #### may want to add some check to be centos before doing some of them...
