@@ -103,19 +103,20 @@ The good:
 
 
 <PRE>
-app:            wsl/ubuntu/bash         cygwin          	mobaxterm       ConEmu/bash
-subsystem:      wsl/bash                cygwin bash.exe ?   	                wsl/bash ?  
+app:            wsl/ubuntu              cygwin          	mobaxterm       ConEmu/bash
+subsystem:      wsl/bash                cygwin bash.exe     	                wsl/bash ?  
 -------------	--------------------	-------------------	--------------	-------------------
-bash		/bin/bash, elf64	/usr/bin/bash, PE32
+/bin	 	/bin in wsl fs subsys	c:\cygwin\bin		C:\Users\....AppData\Local\...\bin	
+bash		/bin/bash, elf64	/usr/bin/bash, PE32			same as wsl/ubuntu
+ls		/bin/ls,   elf64	/usr/bin/ls,   PE32			same as wsl/ubuntu
 
-ls		/bin/ls, elf64		/usr/bin/ls, PE32			/bin/ls, elf64
-
-$HOME           /home/t (wsl fs subsys) C:\cygwin\home\t       	C\tmp, C\moba\t /mnt/c/Users/t
+$HOME           /home/t (wsl fs subsys) C:\cygwin\home\t       	C\tmp, C\moba\t /mnt/c/Users/t [WinHome]
 C:\             /mnt/c                  /cygdrive/c     	/drvies/c       /mnt/c
 C:\tin
 G:\             /mnt/g, no ls           /cygdrive/g     	/drives/g       /mnt/g, no ls (invoked bash from wsl?)
 
-sym-links	ntfs link: NOPE   	ntfs link: ok		ntfs link: ok	same problem as wsl/bash			
+nfs-links	NOPE			default for ln -s	def for ln -s	NOPE
+unix-links	default			can handle		can handle	default
 
 terminal	"ubuntu"		cygwin-term		mobaXterm	ConEmu
 cut-n-paste	^C/^V ?	could be boxy	linux-style		linux-style	far-style?	 
@@ -156,12 +157,12 @@ ln -s ${CygUserBaseDir} ./WinHOME
 ln -s ${CygUserBaseDir}/Desktop .
 ln -s ${CygUserBaseDir}/Downloads .
 
-# will run git clone in wsl 
-# but the dir will reside in this cygwin folder
+# will run git clone in wsl , files in C:\tin, with sym links in there, no need for action here
 
+ln -s /cygdrive/g  ./Gdrv
+ln -s /cygdrive/g/My\ Drive/class/MLcoursera     .
+ln -s /cygdrive/g/My\ Drive/class/MLcoursera_go1 .
 
-cd ~/C_tin
-ln -s ${UserBaseDir}/tin-gh .
 </PRE>
 
 
@@ -195,20 +196,31 @@ export UserBaseDir=${BASEDIR}/Users/${USERNAME}
 Expect default home dir to be some obscure/inaccessible place mounted as /home/$USERNAME
 
 <PRE>
-export BASEDIR="/mnt/c"
-export UserBaseDir=${BASEDIR}/Users/t
-ln -s ${BASEDIR}/tin ./C_tin
-ln -s ${UserBaseDir} ./T
-ln -s ${UserBaseDir}/Desktop .
-ln -s ${UserBaseDir}/Downloads .
+export WslBaseDir="/mnt/c"
+export UserBaseDir=${WslBaseDir}/Users/t
+ln -s ${WslBaseDir}/tin ./C_tin
+ln -s ${UserBaseDir} 		./WinHome
+ln -s ${UserBaseDir}/Desktop 	.
+ln -s ${UserBaseDir}/Downloads 	.
 
-# Not sure about the git links such as PSG and CF_BK yet
-# One way is to create sym link under wsl so that it is posix link and not ntfs link.
-ln -s ${UserBaseDir}/tin-gh .
+# git repo is setup here
+# stored in C:\tin
+# with unix links here (cygwin generate ntfs-based links not usable here)
+[[ -e tin-gh ]] || ln -s ${WslBaseDir}/tin/tin-gh ./tin-gh  # git.setup.gh.sh may have set this up already
+
 </PRE>
 
 
+<H5>ConEmu tweaks</H5>
 
+<UL>
+<LI> Expect default home dir to be /mnt/c/Users/$USER # ie Windows Home dir for active user
+<LI> Import .xml config file with desired copy-n-paste, space, multiline dealing, etc (eg store in SkyDrive)
+</UL>
+
+<PRE>
+ln -s /mnt/c/tin ./C_tin
+</PRE>
 
 
 <H2>"Single User" recovery mode for WSL</H2>

@@ -15,12 +15,14 @@
 # nah, going forward, always setup a new dir :)
 ### in WSL setup, precreate:
 
-WslEnv=True
-if [[ x${WslEnv} == xTrue ]]; then
+##WslEnv=True
+##if [[ x${WslEnv} == xTrue ]]; then
+useC_tin=True  # in select WSL/bash env wehre I don't want things multiple time in home of cygwin, moba, etc.
+if [[ x${useC_tin} == xTrue ]]; then
 	cd /mnt/c/tin
 	mkdir tin-gh
 	cd ~
-	ln -s /mnt/c/tin/tin-gh .
+	ln -s /mnt/c/tin/tin-gh .	# this cmd need to run in wsl bash prompt  NOT cygwin. (cyz of /mnt/c)
 fi
 MyGitDir=~/tin-gh	# could be a link (mostly in win/wsl)
 [[ -e $MyGitDir ]] || mkdir $MyGitDir
@@ -123,15 +125,36 @@ git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 #### create sym links that I have in most places now
 ############################################################
 
+
 # don't use tab below or cut-n-paste may engage tab completion.
 #GIT_DIR=$(pwd)
-GIT_DIR=$MyGitDir
-cd ~
-ln -s ${GIT_DIR}/blpriv/cf_bk              ~/CF_BK
-ln -s ${GIT_DIR}/blpriv/note               ~/NOTE
-ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ~/HPCS_toolkit
-ln -s ${GIT_DIR}/blpriv/bofhbot            ~/BOFHbot
-ln -s ${GIT_DIR}/psg                       ~/PSG
+#### previos approach created symlink in home dir
+#### useful, but would need more.
+#-- block below should take care of this.
+#--GIT_DIR=$MyGitDir
+#--cd ~
+#--ln -s ${GIT_DIR}/blpriv/bofhbot            ~/BOFHbot
+#--ln -s ${GIT_DIR}/psg                       ~/PSG
+#--cd $GIT_DIR	# ie cd back
 
+
+
+####WSL/bash env need additional link from ghDir (or multiple homes)
+# don't use tab below or cut-n-paste may engage tab completion.
+#### for WSL/bash, want link in C_tin
+if [[ x${useC_tin} == xTrue ]]; then
+	GIT_DIR="./tin-gh"
+	cd ~/C_tin
+else
+	GIT_DIR=$MyGitDir
+	cd ~
+fi
+
+ln -s ${GIT_DIR}/blpriv/cf_bk              ./CF_BK
+ln -s ${GIT_DIR}/blpriv/note               ./NOTE
+ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ./HPCS_toolkit
+ln -s ${GIT_DIR}/blpriv/bofhbot            ./BOFHbot
+ln -s ${GIT_DIR}/psg                       ./PSG
+ln -s ${GIT_DIR}/psg                       ~/PSG		## historically created links with absolute PATH at ~
 cd $GIT_DIR	# ie cd back
 
