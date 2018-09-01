@@ -96,17 +96,13 @@ The good:
 
 <PRE>
 app:            wsl/ubuntu/bash         cygwin          	mobaxterm       ConEmu/bash
-subsystem:      wsl/bash                wsl/bash ?     		                wsl/bash           vs win only?
+subsystem:      wsl/bash                cygwin bash.exe ?   	                wsl/bash ?  
 -------------	--------------------	-------------------	--------------	-------------------
 bash		/bin/bash, elf64	/usr/bin/bash, PE32
 
-git setup	apt-get install git	(using wsl)				(use wsl)
-git config	not saved to ~/.git ?? :(
-git             /usr/bin/git, elf64     /usr/bin/git    	n/a             /usr/bin/git
-
 ls		/bin/ls, elf64		/usr/bin/ls, PE32			/bin/ls, elf64
 
-$HOME           /home/t (wsl only)      /home/t         	c:\tmp; C:\tin  /mnt/c/Users/t
+$HOME           /home/t (wsl fs subsys) C:\cygwin\home\t       	c:\tmp; C:\tin  /mnt/c/Users/t
 C:\             /mnt/c                  /cygdrive/c     	/drvies/c       /mnt/c
 C:\tin
 G:\             /mnt/g, no ls           /cygdrive/g     	/drives/g       /mnt/g, no ls (invoked bash from wsl?)
@@ -117,6 +113,16 @@ cut-n-paste	^C/^V ?	could be boxy	linux-style		linux-style	far-style?
 $TERM		xterm-256color		xterm			xterm		xterm-256color
 preference 	low			1			1		1 as configured on x1carb 
 
+
+sudo		use win password
+pkg		apt-get			cygwin setup.exe	build-in	apt-get from wsl
+
+git setup	apt-get install git	(using wsl)				(use wsl)
+git config	not saved to ~/.git ?? :(
+git             /usr/bin/git, elf64     /usr/bin/git    	n/a             /usr/bin/git
+
+octave		apt-get ins octave, didn't work
+	
 </PRE>
 
 
@@ -124,6 +130,8 @@ Notes
 <OL>
 <LI> cygwin without WSL may behave differently.  cygwin has its own set of tools downloadable from the setup.exe tool
 <LI> ConEmu should be just using bash from wsl, thus should behave exactly the same as the ubuntu bash, except for the terminal emulation part.
+<LI> apt-get install octave in wsl didn't work.  (there is a octave for windows, gui works, the .bat not yet).  On mac, "brew install octave" worked very well.  plots can launch GUI windows (cocoa? did not need to run X server).  
+<LI>
 </OL>
 
 
