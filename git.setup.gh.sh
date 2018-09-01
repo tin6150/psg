@@ -13,10 +13,20 @@
 #cd ..
 
 # nah, going forward, always setup a new dir :)
-MyGitDir=~/tin-gh
-[[ -d $MyGitDir ]] || mkdir $MyGitDir
+### in WSL setup, precreate:
+
+WslEnv=True
+if [[ x${WslEnv} == xTrue ]]; then
+	cd /mnt/c/tin
+	mkdir tin-gh
+	cd ~
+	ln -s /mnt/c/tin/tin-gh .
+fi
+MyGitDir=~/tin-gh	# could be a link (mostly in win/wsl)
+[[ -e $MyGitDir ]] || mkdir $MyGitDir
 cd $MyGitDir
 
+#exit 666
 
 
 

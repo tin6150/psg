@@ -78,6 +78,14 @@ The bads:
 <LI>No way to access linux subsystem files from Windows.  I am putting all files on the windows side in /mnt/c/Users.
 </UL>
 
+The meh:
+<UL>
+<LI> create sym links in WSL-bash ("ubuntu shell") (not cygwin or mobaXterm)
+<LI> wsl bash create symlinks as unix symlinks.  cygwin can understand these.
+<LI> cygwin create symlink as NFS link?  wsl-bash don't understand these, treat it as a file.
+<LI>
+</UL>
+
 The decent:
 <UL>
 <LI>git works for files written to the windows side.  file downloaded with Unix LF format remains so.  vim will preserve this.  Did not invoke UNIX2DOS conversion.  Did not need git-for-windows :)
@@ -102,11 +110,12 @@ bash		/bin/bash, elf64	/usr/bin/bash, PE32
 
 ls		/bin/ls, elf64		/usr/bin/ls, PE32			/bin/ls, elf64
 
-$HOME           /home/t (wsl fs subsys) C:\cygwin\home\t       	c:\tmp; C:\tin  /mnt/c/Users/t
+$HOME           /home/t (wsl fs subsys) C:\cygwin\home\t       	C\tmp, C\moba\t /mnt/c/Users/t
 C:\             /mnt/c                  /cygdrive/c     	/drvies/c       /mnt/c
 C:\tin
 G:\             /mnt/g, no ls           /cygdrive/g     	/drives/g       /mnt/g, no ls (invoked bash from wsl?)
 
+sym-links	ntfs link: NOPE   	ntfs link: ok		ntfs link: ok	same problem as wsl/bash			
 
 terminal	"ubuntu"		cygwin-term		mobaXterm	ConEmu
 cut-n-paste	^C/^V ?	could be boxy	linux-style		linux-style	far-style?	 
@@ -133,6 +142,73 @@ Notes
 <LI> apt-get install octave in wsl didn't work.  (there is a octave for windows, gui works, the .bat not yet).  On mac, "brew install octave" worked very well.  plots can launch GUI windows (cocoa? did not need to run X server).  
 <LI>
 </OL>
+
+<H5>Cygwin tweaks</H5>
+
+Expect default home dir to be c:\cygwin\home\$USERNAME
+
+<PRE>
+export CygBaseDir="/cygdrive/c"
+## $USER expect to be defined automagically, eg "t"
+export CygUserBaseDir=${CygBaseDir}/Users/${USER}
+ln -s ${CygBaseDir}/tin ./C_tin
+ln -s ${CygUserBaseDir} ./WinHOME
+ln -s ${CygUserBaseDir}/Desktop .
+ln -s ${CygUserBaseDir}/Downloads .
+
+# will run git clone in wsl 
+# but the dir will reside in this cygwin folder
+
+
+cd ~/C_tin
+ln -s ${UserBaseDir}/tin-gh .
+</PRE>
+
+
+
+<H5>MobaXterm tweaks</H5>
+Expect home dir default to C:\temp or some transient location that is lost when program closes. <BR>
+Manually change settings to put home dir to be same as cygwin, since it can access /cygdrive/c etc and thus share the sym links...
+<BR>
+Then don't need to crate any symlinks under Moba settings.  Only need to change its home dir.
+
+<!-- C:\moba\$USERNAME    maybe best, it use /drives/C, symlink created not usable by WSL. -->
+
+<!--
+<PRE>
+## $USERNAME expect to be defined automagically by mobaXterm, eg "t"
+ln -s /cygdrive/c/cygwin/home/${USERNAME} ./cyg_T  
+
+export BASEDIR="/drives/c"
+
+export UserBaseDir=${BASEDIR}/Users/${USERNAME}
+# ln can copy-n-paste from cygwin above
+# or just use links in cyg_T 
+
+</PRE>
+-->
+
+
+
+<H5>Ubuntu bash (WSL) tweaks</H5>
+
+Expect default home dir to be some obscure/inaccessible place mounted as /home/$USERNAME
+
+<PRE>
+export BASEDIR="/mnt/c"
+export UserBaseDir=${BASEDIR}/Users/t
+ln -s ${BASEDIR}/tin ./C_tin
+ln -s ${UserBaseDir} ./T
+ln -s ${UserBaseDir}/Desktop .
+ln -s ${UserBaseDir}/Downloads .
+
+# Not sure about the git links such as PSG and CF_BK yet
+# One way is to create sym link under wsl so that it is posix link and not ntfs link.
+ln -s ${UserBaseDir}/tin-gh .
+</PRE>
+
+
+
 
 
 <H2>"Single User" recovery mode for WSL</H2>
