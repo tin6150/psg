@@ -606,7 +606,8 @@ sample startup script in location which is now deemed archaic: <BR>
 <PRE>
 screen /dev/tty.usbserial 9600
 	# ^a k 		: kill the connection (terminate screen and its use of /dev/tty...)
-	# ^a ^b b  	: send break (for sun's go prompt)   (don't think need ^B (upper case B))
+	# ^a ^b    	: send break (for sun's go prompt)   (don't need ^B (upper case B))
+	# ^a b    	: send break (for sun's go prompt)   (after ^a, it is ^b OR just b, not a triplet of key seq to send the break)
 
 minicom -o -D /dev/tty.usbserial 
 
