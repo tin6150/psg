@@ -120,9 +120,22 @@ git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 #  cuda is dup, can be ignored
 
 
+#################################################################
+#### public repos, not owned by me ####
+#### but these are likely to be reused in other system
+#### and there is really no need to store them in other location
+#### i should be able to tell what's mine and what's not, 
+#### especially with this centralized git clone file
+#################################################################
+
+
+#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
+
 
 ############################################################
+############################################################
 #### create sym links that I have in most places now
+############################################################
 ############################################################
 
 

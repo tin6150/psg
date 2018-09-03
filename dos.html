@@ -112,7 +112,7 @@ subsystem:      wsl/bash                cygwin bash.exe     	                wsl
 bash		/bin/bash, elf64	/usr/bin/bash, PE32			same as wsl/ubuntu
 ls		/bin/ls,   elf64	/usr/bin/ls,   PE32			same as wsl/ubuntu
 
-$HOME           /home/t (wsl fs subsys) C:\cygwin\home\t       	C\tmp, C\cyg... /home/t or /mnt/c/Users/t [WinHome]
+$HOME           /home/t (lxfs subsys)   C:\cygwin\home\t       	C\tmp, C\cyg... /home/t || /mnt/c/Users/t [WinHome]
 C:\             /mnt/c                  /cygdrive/c     	/drvies/c       /mnt/c
 C:\tin
 G:\             /mnt/g, no ls           /cygdrive/g     	/drives/g       /mnt/g, no ls (invoked bash from wsl?)
@@ -123,10 +123,8 @@ unix-links	default			can handle		can handle	default
 terminal	"ubuntu"		cygwin-term		mobaXterm	ConEmu
 cut-n-paste	^C/^V ?	could be boxy	linux-style		linux-style	far-style?	 
 $TERM		xterm-256color		xterm			xterm		xterm-256color
+										TERM=cygwin needed for arrow keys to work in vi 
 preference 	low			mostly for config	1st		(1st if configured on x1carb)
-										- but 054t ssh viz have xterm problem :(
-										- may not really want to use conEmu :(
-										- but maybe screen-zorin problem...
 
 
 sudo		use win password
