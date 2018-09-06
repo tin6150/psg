@@ -5,31 +5,59 @@
 #### try to minimize, enough to run ansible and let that take over from there.
 
 
-#PkgCmd=apt-get
+macBootstrap() {
+	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	brew install caskroom/cask/burn added a GUI Burn.app into Applications.
+	#  brew cask can manage and install mac native apps.  (used by geerlingguy Ansible for DevOps).
+
+} # end-macBootstrap fn
+
+
+rhelBootstrap() {
+	sudo yum install git
+	sudo yum install -y epel-release
+	sudo yum install -y ansible # 2.6.2
+	sudo yum install -y libselinux-python  # allow ansible to config iptables
+} # end-rhelBootstrap fn
+
+debBootstrap() {
+	echo "running bootstrap for debian-based sysrtem"
+	echo "no-op for now"
+	#### zorin's (12.4, ubuntu 16.04) comes with 
+#### ansible 2.0.0.2, it can't even do "include-tasks under tasks: section :(
+#### so pip version of ansible is used instead.
+
+	#sudo dpkg --erase alpine-pico  # cuz have visudo bringing up pico!! nope, still there
+
+
+} # end-debBootstrap fn
+
+hostIsMac=$(uname -a | grep -c Darwin)
+hostIsDebian=$( uname -a | grep -c BLA )
+hostIsRhel=$( uname -a | egrep el[67].x86_64 ) #  not best, but ok
+
+if [[ $hostIsMac -eq 1 ]]; then
+	macBootstrap 
+	PkgCmd=brew
+elif  [[ $hostIsRhel -eq 1 ]]; then
+	PkgCmd=yum
+else
+	PkgCmd=apt-get
+fi
+
 
 
 sudo $PkgCmd install git
 sudo $PkgCmd install -y python-pip
 
 sudo pip install ansible
-#### zorin's (12.4, ubuntu 16.04) comes with 
-#### ansible 2.0.0.2, it can't even do "include-tasks under tasks: section :(
-#### so pip version of ansible is used instead.
-
-#sudo dpkg --erase alpine-pico  # cuz have visudo bringing up pico!! nope, still there
-
 
 #exit 0
 
-#### centos 6
 
-sudo yum install git
-sudo yum install -y epel-release
-sudo yum install -y ansible # 2.6.2
-sudo yum install -y libselinux-python  # allow ansible to config iptables
 
-#### ~~~~ centos version below
-#### may want to add some check to be centos before doing some of them...
+#### platform independent
+#### but likely not very meaningful in macOS
 
 sudo groupadd -g 43413 tin
 sudo useradd  -g tin -u 43413 -c "tin@lbl.gov" -m -d /home/tin -s /bin/bash tin 
