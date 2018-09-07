@@ -4,11 +4,26 @@
 #### to setup a newly installed OS running ubuntu and derivative
 #### try to minimize, enough to run ansible and let that take over from there.
 
+#### *sigh* homebrew does not allow to be run as sudo brew :(
+#### so maybe don't call this script via sudo, and let it invoke sudo where req.
+
 
 macBootstrap() {
-	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-	brew install caskroom/cask/burn added a GUI Burn.app into Applications.
-	#  brew cask can manage and install mac native apps.  (used by geerlingguy Ansible for DevOps).
+	if [[ -x /usr/local/bin/brew ]]; then
+		installBrew=0
+	else
+		echo "brew cmd not found, install homebrew"
+		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+		brew install caskroom/cask/burn added a GUI Burn.app into Applications.
+		#  brew cask can manage and install mac native apps.  (used by geerlingguy Ansible for DevOps).
+
+	fi
+
+	# install packages (that cannot easily mingled wiht other os yum install)
+	#$PkgCmd install python
+	echo "brew installing python and pip3 for ansible..."
+	brew install python
+	/usr/local/bin/pip3 install ansible
 
 } # end-macBootstrap fn
 
@@ -18,17 +33,24 @@ rhelBootstrap() {
 	sudo yum install -y epel-release
 	sudo yum install -y ansible # 2.6.2
 	sudo yum install -y libselinux-python  # allow ansible to config iptables
+	# if ansible above is enough, may not need next one
+	#echo "installing python-pip" 
+	sudo yum install -y python-pip
+	##pip install ansible
 } # end-rhelBootstrap fn
 
 debBootstrap() {
 	echo "running bootstrap for debian-based sysrtem"
-	echo "no-op for now"
 	#### zorin's (12.4, ubuntu 16.04) comes with 
-#### ansible 2.0.0.2, it can't even do "include-tasks under tasks: section :(
-#### so pip version of ansible is used instead.
+	#### ansible 2.0.0.2, it can't even do "include-tasks under tasks: section :(
+	#### so pip version of ansible is used instead.
+
+	#echo "installing python-pip"
+	#PkgCmd install -y python-pip
+	sudo apt install -y python-pip
+	pip install ansible
 
 	#sudo dpkg --erase alpine-pico  # cuz have visudo bringing up pico!! nope, still there
-
 
 } # end-debBootstrap fn
 
@@ -38,19 +60,23 @@ hostIsRhel=$( uname -a | egrep el[67].x86_64 ) #  not best, but ok
 
 if [[ $hostIsMac -eq 1 ]]; then
 	macBootstrap 
-	PkgCmd=brew
+	PkgCmd="brew"
 elif  [[ $hostIsRhel -eq 1 ]]; then
-	PkgCmd=yum
+	PkgCmd="sudo yum"
+	debBootstrap
 else
-	PkgCmd=apt-get
+	PkgCmd="sudo apt-get"
+	rhelBootstrap
 fi
 
 
 
-sudo $PkgCmd install git
-sudo $PkgCmd install -y python-pip
+#sudo $PkgCmd install git
+#sudo $PkgCmd install -y python-pip
+# PkgCmd will include sudo when running on non Darwin system 
+echo "installing git"
+$PkgCmd install git
 
-sudo pip install ansible
 
 #exit 0
 
@@ -58,7 +84,11 @@ sudo pip install ansible
 
 #### platform independent
 #### but likely not very meaningful in macOS
+#### few common cmd b/w centos,ubuntu,macOS
+#### but still worthwhile to have them in single file rather than multiple files 
+#### to keep track of changes in consistent manner
 
+echo "my very ownn stuff, ie add user, sudo, etc"
 sudo groupadd -g 43413 tin
 sudo useradd  -g tin -u 43413 -c "tin@lbl.gov" -m -d /home/tin -s /bin/bash tin 
 
@@ -73,6 +103,8 @@ echo "tin 	ALL=(ALL) 	ALL" | sudo tee -a /etc/sudoers
 
 
 exit 0
+
+
 
 # below, if really needed, need to cut-n-paste.  
 # maybe can use sudo with heredoc??
