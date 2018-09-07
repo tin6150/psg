@@ -199,7 +199,29 @@ create_links()
 } # end-create_links()
 
 
+macOS_setup()
+{
+
+	# refer to https://github.com/geerlingguy/mac-dev-playbook
+	# need ansible installed (eg use psg/script/sh/bootstart...sh)
+
+	xcode-select --install
+	cd $MyGitDir
+	git clone https://github.com/geerlingguy/mac-dev-playbook.git
+	cd mac-dev-playbook
+	ansible-galaxy install -r requirements.yml
+	#### roles/ dir created in . to store galaxy data
+	ansible-playbook main.yml -i inventory -K 	# inventory is just localhost
+
+	## analyze, but okay to try on new laptop :):
+	## My dotfiles are also installed into the current user's home directory, including the .osx dotfile for configuring many aspects of macOS for better performance and ease of use. You can disable dotfiles management by setting configure_dotfiles: no in your configuration.
+
+}
+
+
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
 run_git_clone
 create_links
+
+## macOS_setup ## cmd tried, but fn untested.
