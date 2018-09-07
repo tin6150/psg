@@ -882,6 +882,15 @@ search for switcher <BR>
 Alt-Esc will cycle thru windows, but pop all of them up as it cycles thru, which is still not what I want.  Icons are much quicker for the brain to process which window I want.  Maybe my brain just got too hard wired to the old way for too many years.  
 <BR>
 
+<BR>
+<PRE>
+sloopy mouse, this worked in ubuntu 16.04:
+gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
+
+but this didn't seems to work, don't think quote was needed:
+gconftool-2 --type string --set /apps/metacity/general/focus_mode sloppy
+</PRE>
+
 <H5>Gnome3 tweaks</H5>
 
 Need to install gnome-tweak-tool.  
