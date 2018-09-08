@@ -14,9 +14,10 @@ macBootstrap() {
 	else
 		echo "brew cmd not found, install homebrew"
 		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-		brew install caskroom/cask/burn added a GUI Burn.app into Applications.
-		#  brew cask can manage and install mac native apps.  (used by geerlingguy Ansible for DevOps).
-
+	  brew install caskroom/cask/burn added a GUI Burn.app into Applications.
+		# brew cask can manage and install mac native apps.  (used by geerlingguy Ansible for DevOps).
+    # not sure if this need to be setup manually
+    #brew install caskroom/cask/brew-cask 
 	fi
 
 	# install packages (that cannot easily mingled wiht other os yum install)
@@ -24,6 +25,12 @@ macBootstrap() {
 	echo "brew installing python and pip3 for ansible..."
 	brew install python
 	/usr/local/bin/pip3 install ansible
+  # brew cask are for GUI apps.
+  # soon would just do brew install (drop cask, at least for install)
+  brew install octave  # some/all may go to ansible, but trying not to start can of warm for  mac for now.
+  brew cask install vlc
+  brew cask install gitup
+  # no cask for OneNotes # there is a OneNotes Import thing ,not sure what it is
 
 } # end-macBootstrap fn
 
@@ -67,6 +74,7 @@ elif  [[ $hostIsRhel -eq 1 ]]; then
 else
 	PkgCmd="sudo apt-get"
 	rhelBootstrap
+
 fi
 
 

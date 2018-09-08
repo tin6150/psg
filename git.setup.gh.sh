@@ -221,7 +221,7 @@ macOS_setup()
 
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
-run_git_clone
-create_links
+#+run_git_clone
+#+create_links
 
-## macOS_setup ## cmd tried, but fn untested.
+macOS_setup ## cmd tried, but fn untested.
