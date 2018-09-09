@@ -1,4 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- vim: syntax=html noexpandtab nosmarttab noautoindent nosmartindent -->
+<!-- vim modelines read first and last 5 lines by default for vim directives -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -153,23 +155,24 @@ http://www.theunixschool.com/2012/06/sed-25-examples-to-delete-line-or.html</A>
 
 <H1>vi</H1>
 
+<PRE>
+
+vim -N # vim in compatibility mode, ie vi behavior.
+
+keyboar arrow keys, good for my sgi drug-adic keyboard! (or laptop with tiny arrow keys!!)
+
+   h   j   k   l  
+   lf  dn  up  rt
+
+      +----+
+      |  k |
+  +---+----+---+	   
+  | h | j  | l |
+  +---+----+---+	   
+</PRE>
+
 
 vimdiff    file1.txt file2.txt 		# character-based side-by-side diff, handle up to 4 files.
-
-<H3>Dealing with Python </H3>
-
-.vimrc:
-set tabstop=8 shiftwidth=8 expandtab
-
-
-:retab
-" will convert tab to spaces
-:set list	
-" see ^I for tab instead
-
-
-cat dictionary_dump.txt | sed -e 's/,/\n/g' -e "s/u'/ '/g"
-
 
 <H3>Basic VI editing commands</H3>
 
@@ -306,49 +309,7 @@ press control-v, then the control char to save a control char in doc
 
 </PRE>
 
-<H3>VIM Split Windows commands</H3>
-
-<PRE>
-:sp		= SPlit open file in new window frame
-^W ArrowKey	= move cursor to window Up, Down
-^W s	= split into two horizontal windows
-^W _	= maximize current windwow frame
-^W +  	= make current window frame bigger
-^W v    = split into two vertical windows  (vim 6.0)
-^W &lt    = reduce number of columns in current window
-^W &gt    = increate columns
-</PRE>
-
-<H3>VIM visual mode (cut-n-paste)</H3>
-<PRE>
-v = enter visual mode
-	use arrow to highlight blocks
-	y = copy block to memory (subsequent paste with p)
-	x = cut block  (remove from text and place into memory)
-
-	&gt = indent (shift) block 1 "tab"
-	&lt = back indent block 1 "tab"
-
-</PRE>
-
-
-
-<H2>VI etc</H2>
-
-<PRE>
-keyboar arrow keys, good for my sgi drug-adic keyboard!
-
-   h   j   k   l  
-   lf  dn  up  rt
-
-      +----+
-      |  k |
-  +---+----+---+	   
-  | h | j  | l |
-  +---+----+---+	   
-</PRE>
-
-<HR>
+<H1>Vim</H1>
 
 <PRE>
 vim is Vi clone, more features: vim -g or gvim = X based vim 5.3
@@ -384,8 +345,87 @@ compatible = vi compatible mode (only 1 level undo, etc)
 - wider terminal support.  vi can handle only up to 163 columns (inclusive).
 
 
+</PRE>
 
 
+
+<H3>VIM Split Windows commands</H3>
+
+<PRE>
+:sp		= SPlit open file in new window frame
+^W ArrowKey	= move cursor to window Up, Down
+^W s	= split into two horizontal windows
+^W _	= maximize current windwow frame
+^W +  	= make current window frame bigger
+^W v    = split into two vertical windows  (vim 6.0)
+^W &lt    = reduce number of columns in current window
+^W &gt    = increate columns
+</PRE>
+
+<H3>VIM visual mode (cut-n-paste)</H3>
+<PRE>
+v = enter visual mode
+	use arrow to highlight blocks
+	y = copy block to memory (subsequent paste with p)
+	x = cut block  (remove from text and place into memory)
+
+	&gt = indent (shift) block 1 "tab"
+	&lt = back indent block 1 "tab"
+
+</PRE>
+
+
+
+
+<A ID="grandios"></A>
+<H3>Turning off grandiose mode</H3>
+some sort of smartindent is doing a lot of wring thing and driving me nut.   
+  <LI> wsl using VIM 8.0, which does NOT support the keyword smartindent.
+  <LI> Zorin vim seems to be suffering from this grandiose character too :(
+<BR>
+Don't really have a solution to this yet, not sure what's going on.
+<TT>:set smartindent</TT> does <em>NOT</em> turn grandiose mode off :(
+<BR>
+Drop me a line if you can help!! Thx!
+
+
+<H3>Dealing with Python </H3>
+
+.vimrc:
+set tabstop=8 shiftwidth=8 expandtab
+
+
+:retab
+" will convert tab to spaces
+:set list	
+" see ^I for tab instead
+
+
+cat dictionary_dump.txt | sed -e 's/,/\n/g' -e "s/u'/ '/g"
+
+<H3>Dealing with Yaml </H3>
+
+Yaml is even messier to deal with than Python, due to indents requirements of lines with '-' and those without.
+May as well forget tab ever existed and just use space.
+alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab syntax-=on'"
+
+<H3>modeline</H3>
+
+Embed vim directives in the first/last (5) lines of a file.  see source of this file for eg.
+<BR>
+
+Ref: <A HREF="https://www.cs.oberlin.edu/~kuperman/help/vim/indenting.html">kuperman vim guide</A>
+it has a number of advance commands I have to learn! :)
+
+  <H1></H1>
+
+<H2>.vimrc</H2>
+
+Actually see 
+<A HREF="https://github.com/geerlingguy/dotfiles/blob/master/.vimrc">geerlingguy's .vimrc</A>
+
+
+<PRE>
 
 ************************************************************
 .vimrc
