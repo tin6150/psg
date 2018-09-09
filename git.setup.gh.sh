@@ -35,11 +35,12 @@ MyGitDir=~/tin-gh	# could be a link (mostly in win/wsl)
 cd $MyGitDir
 
 
-echo "current dir, where git clone(s) will take place is: (^C within 30 sec to cancel)"
+echo "current dir, where git clone(s) will take place is: (^C within 30 sec to cancel--or may need to press ENTER...)"
 ls -ld ~/tin-gh
 pwd
 pwd -P
-sleep 15
+#sleep 15
+read WaitForEnter
 
 #exit 666
 
@@ -63,7 +64,8 @@ git config --global user.name tin6150
 git config --global credential.helper 'cache --timeout=36000'
 git config --global github.user   tin6150
 git config --global alias.lol "log --oneline --graph --decorate"                # create alias "git lol"   # logd
-git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
+git config --global merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
+#git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
 
 
 #cd ..
@@ -193,8 +195,9 @@ create_links()
 
 	#
 	for LinkBase in ~/C_tin ~; do
-		[[ -d $LinkBase ]] && break
+		[[ -e $LinkBase ]] || continue # ie, skip the rest if dir/link existance is FALSE 
 		cd $LinkBase
+		# create links below only if they don't already exist
 		[[ -L CF_BK        ]] || ln -s ${GIT_DIR}/blpriv/cf_bk              ./CF_BK
 		[[ -L NOTE         ]] || ln -s ${GIT_DIR}/blpriv/note               ./NOTE
 		[[ -L HPCS_toolkit ]] || ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ./HPCS_toolkit
@@ -233,3 +236,12 @@ macOS_setup()
 create_links
 
 #macOS_setup ## cmd tried, but fn untested.
+
+#### PS:
+#### git clone should be in the right place
+#### but sym links for mobaXterm and maybe cygwin may not work yet
+#### in wsl/ubuntu/bash should be fine...
+#### too messy, too many env.  setup by and or just use C_tin as needed
+#### spending too much time on a not so serious problem.
+
+
