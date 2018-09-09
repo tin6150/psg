@@ -184,17 +184,25 @@ create_links()
 		cd ~/C_tin
 	else
 		# even in wsl, may want this in /home/$USERNAME, extra set of links, should not be too confusing...
-		GIT_DIR=$MyGitDir
+		GIT_DIR=$MyGitDir # ie export GIT_DIR="./tin-gh" , which should  still exist in ~, maybe link in wsl
 		cd ~
 	fi
+	# actually, always wants links in ~ ; in wsl, add link to C_tin.
+	# thus, above if is obsolete.
+	# using for loop below instead.  ## ++ untested at this point
 
-	ln -s ${GIT_DIR}/blpriv/cf_bk              ./CF_BK
-	ln -s ${GIT_DIR}/blpriv/note               ./NOTE
-	ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ./HPCS_toolkit
-	ln -s ${GIT_DIR}/blpriv/bofhbot            ./BOFHbot
-	ln -s ${GIT_DIR}/psg                       ./PSG
-	ln -s ${GIT_DIR}/psg                       ~/PSG		## historically created links with absolute PATH at ~
-	cd $GIT_DIR	# ie cd back
+	#
+	for LinkBase in ~/C_tin ~; do
+		[[ -d $LinkBase ]] && break
+		cd $LinkBase
+		[[ -L CF_BK        ]] || ln -s ${GIT_DIR}/blpriv/cf_bk              ./CF_BK
+		[[ -L NOTE         ]] || ln -s ${GIT_DIR}/blpriv/note               ./NOTE
+		[[ -L HPCS_toolkit ]] || ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ./HPCS_toolkit
+		[[ -L BOFHbot      ]] || ln -s ${GIT_DIR}/blpriv/bofhbot            ./BOFHbot
+		[[ -L PSG          ]] || ln -s ${GIT_DIR}/psg                       ./PSG
+		[[ -L ~/PSG        ]] || ln -s ${GIT_DIR}/psg                       ~/PSG		## historically created links with absolute PATH at ~
+		cd $GIT_DIR	# ie cd back
+	done
 
 } # end-create_links()
 
@@ -222,6 +230,6 @@ macOS_setup()
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
 #+run_git_clone
-#+create_links
+create_links
 
-macOS_setup ## cmd tried, but fn untested.
+#macOS_setup ## cmd tried, but fn untested.
