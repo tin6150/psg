@@ -25,10 +25,10 @@ useC_tin=$(uname -a  | grep -c Microsoft)  # this should be 1 in wsl ubuntu bash
 if [[ ${useC_tin} -eq 1 ]]; then
 	echo "useC_tin is true, in WSL"
 	cd /mnt/c/tin
-	mkdir tin-gh
+	[[ -e tin-gh ]] || mkdir tin-gh
 	cd ~
-	ln -s /mnt/c/tin/tin-gh .	# this cmd need to run in wsl bash prompt  NOT cygwin. (cyz of /mnt/c)
-	ln -s /mnt/c/tin ./C_tin
+	[[ -e tin-gh ]] || ln -s /mnt/c/tin/tin-gh .	# this cmd need to run in wsl bash prompt  NOT cygwin. (cyz of /mnt/c)
+	[[ -e C_tin  ]] || ln -s /mnt/c/tin ./C_tin
 fi
 MyGitDir=~/tin-gh	# could be a link (mostly in win/wsl)
 [[ -e $MyGitDir ]] || mkdir $MyGitDir
