@@ -268,12 +268,15 @@ defineAlias () {
 ### mac alias, future may have to add more mac specific stuff ??
 ###
 defineAliasMac () {
-	[[ -f /Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer ]] && alias vncviewer='/Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer' 
-	[[ -f /Applications/x2goclient.app/Contents/MacOS/x2goclient ]] && alias x2go=/Applications/x2goclient.app/Contents/MacOS/x2goclient
-	# not sure why, but mac don't seems to heed the defineAlias block above, so explicitly re-define these.
-	#alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
-	alias vim="vim -c 'set syntax=on shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE macStuff"
+	hostIsMac=$(uname -a | grep -c Darwin)
+	if [[ $hostIsMac -eq 1 ]]; then
+		[[ -f /Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer ]] && alias vncviewer='/Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer' 
+		[[ -f /Applications/x2goclient.app/Contents/MacOS/x2goclient ]] && alias x2go=/Applications/x2goclient.app/Contents/MacOS/x2goclient
+		# not sure why, but mac don't seems to heed the defineAlias block above, so explicitly re-define these.
+		#alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
+		#alias vim="vim -c 'set syntax=on shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
+		COMMON_ENV_TRACE="$COMMON_ENV_TRACE macStuff"
+	fi
 
 } # end defineAliasMac 
 
