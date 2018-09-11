@@ -57,7 +57,7 @@ read WaitForEnter
 cd $MyGitDir/psg
 ## config need to write to some .git...   create a fn for this?
 
-git config --global user.email "tin@newbox.grumpyxmas.com"             # FIXME++ change this to machine specific settings to get better idea of where commits, 
+git config --global user.email "sn+newbox@grumpyxmas.com"             # FIXME++ change this to machine specific settings to get better idea of where commits, 
                                                         # merges are done, but don't display well on bitbucket :(
 git config --global user.name tin6150
 ## in bitbucket, need username to match what bitbucket.org has in record for it to prompt for pwd
