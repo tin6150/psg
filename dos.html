@@ -101,6 +101,16 @@ The good:
 <LI>if the comptability layer keeps up, WSL would actually provide the closest Linux environment short of running a VM.   Better than Cygwin, probably better than macOS.  
 </UL>
 
+Ref:
+<UL>
+	<LI> <A HREF=https://cepa.io/2018/02/10/linuxizing-your-windows-pc-part1/#x-server">cepa article</A> has a very extensive review of WSL.
+	<UL>
+	<LI>apt install xfce4-terminal should hopefully be enough and light to add a real linux terminal.
+	<LI>hyper is a native windows app, maybe look into.
+	<LI>Cmder vs ConEmu
+	</UL>
+</UL>
+
 <H2>unixy tool comparison in the wsl world</H2>
 
 
@@ -248,12 +258,14 @@ ubuntu config --default-user jane
 ref: <A HREF="https://msdn.microsoft.com/en-us/commandline/wsl/user_support">ms doc</A>.
 
 
+<A NAME=xserver></A>
 <H2>Xserver</H2>
 WSL doesn't provide an X-server.  So, like the old days, a windows based X server software is needed.  <BR>
 Have not tried to run vncserver, but DBUS isn't avail, gnome-session has been reported not to work.  Maybe some old school Desktop Env that does not use DBUS may work.  Not sure if LXDE uses DBUS.  twm should not :)  <BR>
 
 <A HREF="https://github.com/QMonkey/wsl-tutorial">QMonkey at github</A> has instructions to use xfce, even have way to fix DBUS error.  Will also need to fix fonts (including unicode and chinese), but implies it has gotten to work.
 
+<A HREF="https://virtualizationreview.com/articles/2018/01/30/hands-on-with-wsl-graphical-apps.aspx">Fenton's article</A> reports x11-apps (xeyes), blockout2, works.  firefox works but no a/v.   vlc complains, but may have hacks.  
 <UL>
 
 <LI>vcXsrv    - small package.  Compiled by VC++.  Referred by QMonkey and other.
@@ -264,6 +276,7 @@ Have not tried to run vncserver, but DBUS isn't avail, gnome-session has been re
 
 </UL>
 
+See also <A HREF="vnc.html#XinWin">vnc.html</A>
 
 <H1>Unix-fying Windows/DOS, from Windows 7 days</H1>
 

@@ -14,9 +14,10 @@ macBootstrap() {
 	else
 		echo "brew cmd not found, install homebrew"
 		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-		brew install caskroom/cask/burn added a GUI Burn.app into Applications.
-		#  brew cask can manage and install mac native apps.  (used by geerlingguy Ansible for DevOps).
-
+	  brew install caskroom/cask/burn added a GUI Burn.app into Applications.
+		# brew cask can manage and install mac native apps.  (used by geerlingguy Ansible for DevOps).
+    # not sure if this need to be setup manually
+    #brew install caskroom/cask/brew-cask 
 	fi
 
 	# install packages (that cannot easily mingled wiht other os yum install)
@@ -24,6 +25,12 @@ macBootstrap() {
 	echo "brew installing python and pip3 for ansible..."
 	brew install python
 	/usr/local/bin/pip3 install ansible
+	# brew cask are for GUI apps.
+	# soon would just do brew install (drop cask, at least for install)
+	brew install octave  # some/all may go to ansible, but trying not to start can of warm for  mac for now.
+	brew cask install vlc
+	brew cask install gitup
+	# no cask for OneNotes # there is a OneNotes Import thing ,not sure what it is
 
 } # end-macBootstrap fn
 
@@ -38,6 +45,15 @@ rhelBootstrap() {
 	sudo yum install -y python-pip
 	##pip install ansible
 } # end-rhelBootstrap fn
+
+wslBootstrap() {
+	echo "running bootstrap for wsl-based sysrtem"
+	#echo "installing python-pip"
+	#PkgCmd install -y python-pip
+	sudo apt install -y ansible # 2.5.1 on 2018.09.09
+	#sudo apt install -y python-pip
+	#pip install ansible
+} # end-wslBootstrap fn
 
 debBootstrap() {
 	echo "running bootstrap for debian-based sysrtem"
@@ -54,6 +70,7 @@ debBootstrap() {
 
 } # end-debBootstrap fn
 
+hostIsWsl=$(uname -a | grep -c Microsoft)
 hostIsMac=$(uname -a | grep -c Darwin)
 hostIsDebian=$( uname -a | grep -c BLA )
 hostIsRhel=$( uname -a | egrep el[67].x86_64 ) #  not best, but ok
@@ -64,6 +81,9 @@ if [[ $hostIsMac -eq 1 ]]; then
 elif  [[ $hostIsRhel -eq 1 ]]; then
 	PkgCmd="sudo yum"
 	debBootstrap
+elif  [[ $hostIsWsl -eq 1 ]]; then
+	PkgCmd="sudo apt-get"
+	wslBootstrap
 else
 	PkgCmd="sudo apt-get"
 	rhelBootstrap

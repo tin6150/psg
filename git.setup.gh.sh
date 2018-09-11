@@ -25,21 +25,22 @@ useC_tin=$(uname -a  | grep -c Microsoft)  # this should be 1 in wsl ubuntu bash
 if [[ ${useC_tin} -eq 1 ]]; then
 	echo "useC_tin is true, in WSL"
 	cd /mnt/c/tin
-	mkdir tin-gh
+	[[ -e tin-gh ]] || mkdir tin-gh
 	cd ~
-	ln -s /mnt/c/tin/tin-gh .	# this cmd need to run in wsl bash prompt  NOT cygwin. (cyz of /mnt/c)
-	ln -s /mnt/c/tin ./C_tin
+	[[ -e tin-gh ]] || ln -s /mnt/c/tin/tin-gh .	# this cmd need to run in wsl bash prompt  NOT cygwin. (cyz of /mnt/c)
+	[[ -e C_tin  ]] || ln -s /mnt/c/tin ./C_tin
 fi
 MyGitDir=~/tin-gh	# could be a link (mostly in win/wsl)
 [[ -e $MyGitDir ]] || mkdir $MyGitDir
 cd $MyGitDir
 
 
-echo "current dir, where git clone(s) will take place is: (^C within 30 sec to cancel)"
+echo "current dir, where git clone(s) will take place is: (^C within 30 sec to cancel--or may need to press ENTER...)"
 ls -ld ~/tin-gh
 pwd
 pwd -P
-sleep 15
+#sleep 15
+read WaitForEnter
 
 #exit 666
 
@@ -63,7 +64,8 @@ git config --global user.name tin6150
 git config --global credential.helper 'cache --timeout=36000'
 git config --global github.user   tin6150
 git config --global alias.lol "log --oneline --graph --decorate"                # create alias "git lol"   # logd
-git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
+git config --global merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
+#git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
 
 
 #cd ..
@@ -184,17 +186,26 @@ create_links()
 		cd ~/C_tin
 	else
 		# even in wsl, may want this in /home/$USERNAME, extra set of links, should not be too confusing...
-		GIT_DIR=$MyGitDir
+		GIT_DIR=$MyGitDir # ie export GIT_DIR="./tin-gh" , which should  still exist in ~, maybe link in wsl
 		cd ~
 	fi
+	# actually, always wants links in ~ ; in wsl, add link to C_tin.
+	# thus, above if is obsolete.
+	# using for loop below instead.  ## ++ untested at this point
 
-	ln -s ${GIT_DIR}/blpriv/cf_bk              ./CF_BK
-	ln -s ${GIT_DIR}/blpriv/note               ./NOTE
-	ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ./HPCS_toolkit
-	ln -s ${GIT_DIR}/blpriv/bofhbot            ./BOFHbot
-	ln -s ${GIT_DIR}/psg                       ./PSG
-	ln -s ${GIT_DIR}/psg                       ~/PSG		## historically created links with absolute PATH at ~
-	cd $GIT_DIR	# ie cd back
+	#
+	for LinkBase in ~/C_tin ~; do
+		[[ -e $LinkBase ]] || continue # ie, skip the rest if dir/link existance is FALSE 
+		cd $LinkBase
+		# create links below only if they don't already exist
+		[[ -L CF_BK        ]] || ln -s ${GIT_DIR}/blpriv/cf_bk              ./CF_BK
+		[[ -L NOTE         ]] || ln -s ${GIT_DIR}/blpriv/note               ./NOTE
+		[[ -L HPCS_toolkit ]] || ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ./HPCS_toolkit
+		[[ -L BOFHbot      ]] || ln -s ${GIT_DIR}/blpriv/bofhbot            ./BOFHbot
+		[[ -L PSG          ]] || ln -s ${GIT_DIR}/psg                       ./PSG
+		[[ -L ~/PSG        ]] || ln -s ${GIT_DIR}/psg                       ~/PSG		## historically created links with absolute PATH at ~
+		cd $GIT_DIR	# ie cd back
+	done
 
 } # end-create_links()
 
@@ -221,7 +232,16 @@ macOS_setup()
 
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
-run_git_clone
+#+run_git_clone
 create_links
 
-## macOS_setup ## cmd tried, but fn untested.
+#macOS_setup ## cmd tried, but fn untested.
+
+#### PS:
+#### git clone should be in the right place
+#### but sym links for mobaXterm and maybe cygwin may not work yet
+#### in wsl/ubuntu/bash should be fine...
+#### too messy, too many env.  setup by and or just use C_tin as needed
+#### spending too much time on a not so serious problem.
+
+
