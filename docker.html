@@ -630,6 +630,7 @@ docker run -it --rm pdevine/elinks2 elinks http://172.31.28.159 	# use the host'
 
 
 
+<A NAME="dockerfile"></A>
 <H2>Building an image using dockerfile</H2>
 
 One way to build an image is to save/commit an existing/modified image. <BR>
@@ -642,10 +643,10 @@ https://docs.docker.com/engine/userguide/dockerimages/</A><BR>
 mkdir  myapp
 cd     myapp
 vi     dockerfile
-docker build -t bofh/myapp:v3 .		# . will search for ./dockerfile  -t is for tag
+docker build -t tin6150/myapp:v3 .		# . will search for ./dockerfile  -t is for tag
 
-# optional upload to docker hub, assuming user bofh has been registered
-docker push     bofh/myapp 
+# optional upload to docker hub, assuming user tin6150 has been registered
+docker push     tin6150/myapp 
 
 docker rmi      myapp... 		# remove an image from the lost host.
 
