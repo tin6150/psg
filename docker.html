@@ -646,6 +646,7 @@ vi     dockerfile
 docker build -t tin6150/myapp:v3 .		# . will search for ./dockerfile  -t is for tag
 
 # optional upload to docker hub, assuming user tin6150 has been registered
+# the "push path" depends on the tag used to do the build, not the relative file path of where dockerfile is located.
 docker push     tin6150/myapp 
 
 docker rmi      myapp... 		# remove an image from the lost host.
@@ -660,8 +661,15 @@ RUN apt-get update && apt-get install -y ruby ruby-dev		#
 RUN gem install sinatra
 # always run the apt-get update and install command in the same line using &&, 
 # or it would result in a db problem on the resulting container.
+# on flip side, it is kinda "bad form" needing to run update, should just base it on a newer image.
 </PRE>
 <BR>
+
+<UL>
+<LI> Each RUN line adds a layer, better to chain unix commands using && 
+<LI> ADD command will copy files from the build host to the container.  build is then no longer "build anywhere" 
+<LI>
+</UL>
 
 <H5>Example Docker HTTPD image + psg static web content</H5>
 
