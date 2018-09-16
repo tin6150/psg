@@ -204,6 +204,7 @@ defineAlias () {
 	alias printPerl5Lib='echo $PERL5LIB | sed "s/:/\n/g"'
 	alias chrome=chromium-browser 
 	alias hilite="grep --color -C100000"   # eg ip a | hilite inet
+	alias xt="lxterminal"	# mostly in wsl 
 	alias xlock="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlck="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlk="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
