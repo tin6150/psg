@@ -133,9 +133,16 @@ run_git_clone()
 	# cd ..
 	git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 
+	##########################
+	#### hpcs-cf git repo ####
+	##########################
+	# git clone git@hpcs-cf.lbl.gov:/remote/ansible.git 
+	#cd ~/tin-gh; ssh-agent bash -c 'ssh-add ~/.ssh/id_rsa ; git clone git@hpcs-cf.lbl.gov:/remote/ansible.git' # this prompt for ssh-key pw then git@hpcs-cf pw :(
+	cd ~/tin-gh; ssh-agent bash -c 'ssh-add ~/.ssh/id_dsa ; git clone git@hpcs-cf.lbl.gov:/remote/ansible.git'
+	cd ~/tin-gh/ansible ; ssh-agent bash -c 'ssh-add ~/.ssh/id_dsa ; git pull' # somehow n0013.ares git 1.7 need this method
+
 
 	#  cuda is dup, can be ignored
-
 
 	#################################################################
 	#### public repos, not owned by me ####

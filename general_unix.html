@@ -248,7 +248,7 @@ rsync -avl -e ssh  --rsync-path=/usr/local/bin/rsync remote-svr:/dir/* ./local/s
 
 <PRE>
 screen
-screen -T xterm    # set terminal type cuz Zorin setting to something weired older machine can't handle
+screen -S f1 -T xterm -s /usr/bin/fish    # set terminal type cuz Zorin setting to something weired older machine can't handle
 work as usual
 
 screen -r  = resume
@@ -256,10 +256,12 @@ screen -rd = resume, detach all other sessions
 screen -w  = list screens
 screen -d -r <pid> reatach remote and retach here
 screen -x = allow for multiple attach to a screen (mirror!)
+screen -s /usr/bin/fish = all scren sessions will use the fish shell.
 
 Can use named screen sessions, so don't have to lookup pid using screen -ls
 screen -S scr1
-screen -r scr1  = resume the specified named session scr1
+screen -r scr1  = resume the specified named session scr1.  Note that it does partial name match.  scr could be scr1, scr2, or just scr
+
 
 
 ctrl-a,d       = detach
