@@ -132,7 +132,14 @@ add_hpcs_module () {
 		echo "noop" > /dev/null
 		module load git
 		#module load intel openmpi mkl
+
+		## testing user env (wilson cai R problem)
+		module load r/3.4.2
+		module load r-packages
+		module load ml/superlearner/current-r-3.4.2
+		export R_LIBS_USER='/global/scratch/tin/R_pkg/'
 	fi
+
 	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 	## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
 	## some modules are avail after the language pack is loaded.  eg:
