@@ -132,6 +132,8 @@ run_git_clone()
 	# run from a parent dir eg ~/tin-bbb 
 	# cd ..
 	git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
+	git clone https://sn5050@bitbucket.org/berkeleylab/unified-vnfs.git
+
 
 	##########################
 	#### hpcs-cf git repo ####
