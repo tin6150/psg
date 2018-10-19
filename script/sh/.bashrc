@@ -132,6 +132,8 @@ add_hpcs_module () {
 		echo "noop" > /dev/null
 		module load git
 		#module load intel openmpi mkl
+		module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
+		#module load intel/2018.1.163 mkl openmpi
 	fi
 	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 	## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
