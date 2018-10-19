@@ -252,11 +252,20 @@ sinfo -R -S %E --format="%9u %19H %6t %N %E"	# %E is comment/reason, unrestricte
 sinfo -N -R -S %E --format="%N %6t %19H %9u %E" # -N produce node centric output (1 node per line for scripting)
 
 
-squeue			# status of job and job steps
+squeue			# status of job and job steps, TIME means job running time so far
 	-s		# info about job steps
 	-u USERNAME	# job info of specified user
 	-t all		# all state (but only recent job only, historical info in accounting rec only)
 	-i60		# iterate output every 60 sec
+
+squeue -p PARTITION --sort N -l 	# show nodes of a partition sequentially, with long  format (elapsed time and time limit)
+
+squeue -o "%N %l"	# specify output format %N = node, %l = time left
+			# default output:      "%.18i %.9P %.8j      %.8u %.2t %.10M      %.6D %R"
+			# def for -l, --long:  "%.18i %.9P %.8j      %.8u %.8T %.10M %.9l %.6D %R"   
+			# def for -s, --steps: "%.15i      %.8j %.9P %.8u      %.9M       %N"
+
+squeue --sort N -o "%.18i %.9P %.8j %.8u %.8T %.10M %.9l %.6D %R %l"  # %l = time limit
 
 smap			# topology view of system, job and job steps.  (new tool that combine sinfo and squeue data)
 sview			# new GUI:   view + update on sys, job, step, partition, reservation, topology

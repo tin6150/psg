@@ -248,7 +248,7 @@ rsync -avl -e ssh  --rsync-path=/usr/local/bin/rsync remote-svr:/dir/* ./local/s
 
 <PRE>
 screen
-screen -T xterm    # set terminal type cuz Zorin setting to something weired older machine can't handle
+screen -S z1 -T xterm -s /bin/zsh    # set terminal type cuz Zorin setting to something weired older machine can't handle
 work as usual
 
 screen -r  = resume
@@ -256,14 +256,18 @@ screen -rd = resume, detach all other sessions
 screen -w  = list screens
 screen -d -r <pid> reatach remote and retach here
 screen -x = allow for multiple attach to a screen (mirror!)
+screen -s /usr/bin/fish = all scren sessions will use the fish shell.
 
 Can use named screen sessions, so don't have to lookup pid using screen -ls
 screen -S scr1
-screen -r scr1  = resume the specified named session scr1
+screen -r scr1  = resume the specified named session scr1.  Note that it does partial name match.  scr could be scr1, scr2, or just scr
 
 
-ctrl-a,d  = detach
-crtl-a,x  = lock keyboard
+
+ctrl-a,d       = detach
+ctrl-a,ctrl-d  = detach  (ie, after ^a, could hit ^d or just d to detach)
+crtl-a,x       = lock keyboard
+crtl-a,ctrl-x  = lock keyboard
 ctrl-a,?  = help
 ctrl-a,c  = create new window ( or enter screen <cmd> w/in an existing screen window)
 ctrl-a,n  = switch to next window
@@ -279,11 +283,14 @@ ctrl-a, S = create split window mode
 ctrl-a, ^I= move focust to next split window (^I=TAB).
 ctrl-a, [ = history, allow scroll back, but really for cutting text into buffer.  
             Enter marks begin pt, move around.  Enter again marks end pt.
+            /, ?, n, p = search (like in "less")
 
 
-ctrl-a,a  = send ctrl-a to the terminal
-ctrl-a,tab= switch input focus to next region
-ctrl-a,ctrl-b= send a break
+ctrl-a,a  	= send ctrl-a to the terminal
+ctrl-a,tab	= switch input focus to next region
+ctrl-a,b 	= send a break
+ctrl-a,ctrl-b	= send a break (ie, after ^a, can hit ^b or simply b to send break.  screen's help means or, not that need to hit three seq of ^a, ^b then b to send a break)
+
 
 </PRE>
 

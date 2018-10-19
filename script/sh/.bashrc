@@ -128,13 +128,19 @@ add_hpcs_module () {
 		#module load vim  # only in sl7 module, throws err in sl6 :(
 	##fi
 	## the following don't load on perceus, but pretty much everywhere else...
-	if [[ -d /global/software/ ]] ; then 
+	if [[ -d /global/software/sl-7.x86_64 ]] ; then 
 		echo "noop" > /dev/null
 		module load git
 		#module load intel openmpi mkl
 		module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
 		#module load intel/2018.1.163 mkl openmpi
+		## testing user env (wilson cai R problem)
+		module load r/3.4.2
+		module load r-packages
+		module load ml/superlearner/current-r-3.4.2
+		export R_LIBS_USER='/global/scratch/tin/R_pkg/'
 	fi
+
 	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 	## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
 	## some modules are avail after the language pack is loaded.  eg:
@@ -206,6 +212,7 @@ defineAlias () {
 	alias printPerl5Lib='echo $PERL5LIB | sed "s/:/\n/g"'
 	alias chrome=chromium-browser 
 	alias hilite="grep --color -C100000"   # eg ip a | hilite inet
+	alias xt="lxterminal"	# mostly in wsl 
 	alias xlock="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlck="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlk="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
@@ -247,6 +254,9 @@ defineAlias () {
 	alias vit="\vim -c 'set shiftwidth=4 tabstop=4 formatoptions-=cro list nu syntax-=on'"    # syntax=yaml is what's expected.  syntax=on disables it.  -= does the trick.  
 	alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab syntax-=on'"    # for python coding.  ansible yaml may need tabstop=2
 	#alias vis="\vim -c 'set shiftwidth=2 tabstop=4 expandtab syntax'"    # for python coding.  ansible yaml may need tabstop=2
+	alias vig="\vim -c 'set shiftwidth=2 tabstop=2 formatoptions-=cro list nu showcmd showmode autoindent smartindent smarttab noerrorbells visualbell hlsearch showmatch cursorline syntax-=on'" # filetype=on'" # geerlingguy .vimrc
+  ## syntax still not automatic on in mac... test in linux...
+  ##filetype indent # not sure how to set this option as cli arg
 	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
 	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
@@ -270,12 +280,15 @@ defineAlias () {
 ### mac alias, future may have to add more mac specific stuff ??
 ###
 defineAliasMac () {
-	[[ -f /Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer ]] && alias vncviewer='/Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer' 
-	[[ -f /Applications/x2goclient.app/Contents/MacOS/x2goclient ]] && alias x2go=/Applications/x2goclient.app/Contents/MacOS/x2goclient
-	# not sure why, but mac don't seems to heed the defineAlias block above, so explicitly re-define these.
-	#alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
-	alias vim="vim -c 'set syntax=on shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE macStuff"
+	hostIsMac=$(uname -a | grep -c Darwin)
+	if [[ $hostIsMac -eq 1 ]]; then
+		[[ -f /Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer ]] && alias vncviewer='/Applications/RealVNC/VNC\ Viewer.app/Contents/MacOS/vncviewer' 
+		[[ -f /Applications/x2goclient.app/Contents/MacOS/x2goclient ]] && alias x2go=/Applications/x2goclient.app/Contents/MacOS/x2goclient
+		# not sure why, but mac don't seems to heed the defineAlias block above, so explicitly re-define these.
+		#alias vim="vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
+		#alias vim="vim -c 'set syntax=on shiftwidth=2 tabstop=4 formatoptions-=cro'"   # ansible yaml may need tabstop=2 :(
+		COMMON_ENV_TRACE="$COMMON_ENV_TRACE macStuff"
+	fi
 
 } # end defineAliasMac 
 

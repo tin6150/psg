@@ -84,6 +84,7 @@ screen, keystrokes, etc.
 x-ref: <A HREF="linux.html#XDMCP">linux#XDMCP</A>
 
 
+<A NAME="XinWin"></A>
 <H1>Running X-based apps in Windows</H1>
 
 There are many ways of running Unix GUI application in the Microsoft World (and Apple OS X).  The most popular way is to create an X-Window server on top of Windows so that Unix GUI programs can display directly on the Windows machine.  This can be done by program such as Exceed, X Manager, and even Cygwin.
@@ -133,7 +134,14 @@ X Manager 2.0</A> - Shareware, basic functionality, "lighter weight" install, so
 <LI>Humingbird Exceed - Lot more bells and whishels that may not be useful, integration into Explorer neighborhood, etc.  Likely best 3D performance of all implementation.
 <LI>X-Win32 ...  This is probably very old stuff now...
 <LI>NoMachine NX
+<LI> VcXsrv from <A HREF="https://sourceforge.net/projects/vcxsrv/">here</A> on Sourceforge.  <BR>
+     Clipboard integrated with windows <BR>
+     Native opengl via Windows WGL.  export LIBGL_ALWAYS_INDIRECT <BR>
+     (this seems to be getting quite popular by 2018.9)
+<LI> Xming (not entirely free anymore)
 </OL>
+
+See also <A HREF="dos.html#xserver">dos.html#xserver</A>
 
 <A NAME="x2go"></A>
 <A NAME="X2go"></A>
@@ -824,11 +832,11 @@ Ubuntu: sudo dpkg-reconfigure gdm	# display a TUI to change Display Manager
 
 <LI> GNOME 2 - Used by Red Hat till RHEL 6 days?  and many others.
 
-<LI> GNOME 3 - Quite a mess.  Many user didn't like the "new features".  X2go doesn't work with GNOME3.
+<LI> GNOME 3 - Quite a mess.  Many user didn't like the "new features".  X2go doesn't work with GNOME3.  Zorin OS probably does a skin/theme thing with GNOME3.  gdm keeps hanging when locking/unlocking the screen (not sure if having 3 large rotated screen made life hard for gdm).  Avoiding now.
 
 <LI> Gnome Shell - Replaces gnome-panel in GNOME3.
 
-<LI> MATE - Fork of GNOME2 to keep it going.  Linux Mint has a MATE version.  Started from Argentina.  Yerba mate!!  If long for the good old GNOME2 days, MATE is the way to go.  (Should work with X2go?)
+<LI> MATE - Fork of GNOME2 to keep it going.  Linux Mint has a MATE version.  Started from Argentina.  Yerba mate!!  If long for the good old GNOME2 days, MATE is the way to go.  (Should work with X2go?).  Seems to use LightDM.
 
 <LI> Cinnamon - Popularized with Linux Mint.  Fork of GNOME Shell, but without the gratuitous UI changes.  Cut-n-paste with mouse works like the good old days!  Quite pretty and very usable, I like it :)
 
@@ -841,11 +849,71 @@ Ubuntu: sudo dpkg-reconfigure gdm	# display a TUI to change Display Manager
 <LI> KDE Plasma.  Think here they f'up the mouse cut-n-paste.
 
 <LI> Unity.  This and Canonical data collection drove me away from Ubuntu.
-
+At least with Ubuntu 18.04, forced to use alt-tab and alt-` which is what I hated from the mac.  Deal breaker.
 
 <LI> FVWM, FVWM95.  I am dating myself here aren't I?
  
 </UL> 
+
+
+<A NAME="AppSwitcher"></A>
+<H2>App Switcher</H2>
+
+Alt-tab switches between windows.  How hard is that?
+Don't programmer knows the KISS rule?  *sigh*.
+<BR>
+
+Ubuntu 18.04 Unity has many options, all of the GROUP apps :(
+ie, use alt-tab to swich between app, then alt-` to switch between windows of the same app.  This is really annoying in small laptop screen with many overlapping windows, and only alt-tab allowed one to swap between say a specific browser window and terminal window to follow internet instructions.
+<BR>
+
+I tried many, but could not get it to behave the good old windows way.  
+I really tried really hard to get along with Unity.  But macOS broke it for me, this is breaking for me too :(
+<BR>
+
+<H5>Unity tweak</H5>
+Not that I managed to coax Unity to do what I wanted, but here were the options.
+<BR>
+<BR>
+Unity - CompizConfig Setting Manager (ccsm).  <BR>
+sudo apt install compizconfig-settings-manager compiz-plugins <BR>
+run ccsm (as user, not as root) <BR>
+search for switcher <BR>
+<BR>
+<UL>
+<LI> Application switcher
+<LI> Ring Switcher
+<LI> Static Application Switcher
+<LI> Shift switcher - Use Super-S to bring windows list.  then arrow key to pick desired window.  then enter.  too tedious!!
+</UL>
+Alt-Esc will cycle thru windows, but pop all of them up as it cycles thru, which is still not what I want.  Icons are much quicker for the brain to process which window I want.  Maybe my brain just got too hard wired to the old way for too many years.  
+<BR>
+
+<BR>
+<PRE>
+sloopy mouse, this worked in ubuntu 16.04:
+gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
+
+but this didn't seems to work, don't think quote was needed:
+gconftool-2 --type string --set /apps/metacity/general/focus_mode sloppy
+</PRE>
+
+<H5>Gnome3 tweaks</H5>
+
+Need to install gnome-tweak-tool.  
+Change sloopy mouse.
+
+<H3>Keymap</H3>
+
+CapsLock could be changed to be ctrl, alt, altGr, etc.
+I just realized I never use CapsLock anymore.  Perfect to give this key another function :)
+<BR>
+Linux has strange names for these things.  Third Level, Fifth Level.  
+It would be interesting if CapsLock can be used to change keyboard language.  Windows had a combination of L-Shift, L-alt or some such to swith between language (and another map to cycle withing different IME of the same language, again, should have kept the KISS rule.
+<BR>
+Treat CapsLock like the "world icon" on cell phone keyboard to switch between languages (and smileys!).  Or CapsLock to pop up screen keyboard to pick desired symbol/smiley.
+<BR>
+
 
 
 

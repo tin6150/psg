@@ -101,6 +101,16 @@ The good:
 <LI>if the comptability layer keeps up, WSL would actually provide the closest Linux environment short of running a VM.   Better than Cygwin, probably better than macOS.  
 </UL>
 
+Ref:
+<UL>
+	<LI> <A HREF=https://cepa.io/2018/02/10/linuxizing-your-windows-pc-part1/#x-server">cepa article</A> has a very extensive review of WSL.
+	<UL>
+	<LI>apt install xfce4-terminal should hopefully be enough and light to add a real linux terminal.
+	<LI>hyper is a native windows app, maybe look into.
+	<LI>Cmder vs ConEmu
+	</UL>
+</UL>
+
 <H2>unixy tool comparison in the wsl world</H2>
 
 
@@ -112,7 +122,7 @@ subsystem:      wsl/bash                cygwin bash.exe     	                wsl
 bash		/bin/bash, elf64	/usr/bin/bash, PE32			same as wsl/ubuntu
 ls		/bin/ls,   elf64	/usr/bin/ls,   PE32			same as wsl/ubuntu
 
-$HOME           /home/t (wsl fs subsys) C:\cygwin\home\t       	C\tmp, C\cyg... /home/t or /mnt/c/Users/t [WinHome]
+$HOME           /home/t (lxfs subsys)   C:\cygwin\home\t       	C\tmp, C\cyg... /home/t || /mnt/c/Users/t [WinHome]
 C:\             /mnt/c                  /cygdrive/c     	/drvies/c       /mnt/c
 C:\tin
 G:\             /mnt/g, no ls           /cygdrive/g     	/drives/g       /mnt/g, no ls (invoked bash from wsl?)
@@ -123,10 +133,8 @@ unix-links	default			can handle		can handle	default
 terminal	"ubuntu"		cygwin-term		mobaXterm	ConEmu
 cut-n-paste	^C/^V ?	could be boxy	linux-style		linux-style	far-style?	 
 $TERM		xterm-256color		xterm			xterm		xterm-256color
+										TERM=cygwin needed for arrow keys to work in vi 
 preference 	low			mostly for config	1st		(1st if configured on x1carb)
-										- but 054t ssh viz have xterm problem :(
-										- may not really want to use conEmu :(
-										- but maybe screen-zorin problem...
 
 
 sudo		use win password
@@ -250,12 +258,14 @@ ubuntu config --default-user jane
 ref: <A HREF="https://msdn.microsoft.com/en-us/commandline/wsl/user_support">ms doc</A>.
 
 
+<A NAME=xserver></A>
 <H2>Xserver</H2>
 WSL doesn't provide an X-server.  So, like the old days, a windows based X server software is needed.  <BR>
 Have not tried to run vncserver, but DBUS isn't avail, gnome-session has been reported not to work.  Maybe some old school Desktop Env that does not use DBUS may work.  Not sure if LXDE uses DBUS.  twm should not :)  <BR>
 
 <A HREF="https://github.com/QMonkey/wsl-tutorial">QMonkey at github</A> has instructions to use xfce, even have way to fix DBUS error.  Will also need to fix fonts (including unicode and chinese), but implies it has gotten to work.
 
+<A HREF="https://virtualizationreview.com/articles/2018/01/30/hands-on-with-wsl-graphical-apps.aspx">Fenton's article</A> reports x11-apps (xeyes), blockout2, works.  firefox works but no a/v.   vlc complains, but may have hacks.  
 <UL>
 
 <LI>vcXsrv    - small package.  Compiled by VC++.  Referred by QMonkey and other.
@@ -266,6 +276,7 @@ Have not tried to run vncserver, but DBUS isn't avail, gnome-session has been re
 
 </UL>
 
+See also <A HREF="vnc.html#XinWin">vnc.html</A>
 
 <H1>Unix-fying Windows/DOS, from Windows 7 days</H1>
 
