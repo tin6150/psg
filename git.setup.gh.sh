@@ -132,6 +132,12 @@ run_git_clone()
 	# run from a parent dir eg ~/tin-bbb 
 	# cd ..
 	git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
+	## biositting tool, collab with ETA Ling Jin, Tyler Huntington
+	# 1.1 GB repo , maybe data deleted.  
+	#~ git clone https://sn5050@bitbucket.org/olgakavvada/biositing_tool.git 
+	# forked , bb interface is significantly diff than github :(
+	#+ git clone https://sn5050@bitbucket.org/sn5050/biositing_tool_test.git
+	# no GIS_data subdir yet...
 
 
 	#  cuda is dup, can be ignored
