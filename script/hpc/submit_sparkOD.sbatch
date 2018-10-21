@@ -4,9 +4,12 @@
 # sbatch submit_sparkOD.sbatch 
 # -or-
 # sbatch --partition=lr3 --qos=lr_normal -N 3 --reservation=alsacc submit_sparkOD.sbatch 
+# -or-
+# sbatch --partition=savio2 --qos=normal -N 3  submit_sparkOD.sbatch 
 #
 # interactive:
 # srun --partition=lr3 --qos=lr_normal -N 1 --reservation=alsacc -t 8:00:00 --pty bash -i    # 8 hrs debugging
+# srun --partition=savio2 --qos=normal -N 1 -t 1:00:00 --pty bash -i    # 1 hrs debugging
 # source /global/home/groups/allhands/bin/spark_helper.sh
 # spark-start
 # spark-submit --master $SPARK_URL $SPARK_DIR/examples/src/main/python/pi.py 

@@ -6,9 +6,20 @@
 # run as root on perceus:
 # pdsh -w n00[00-11,20-71].cf1 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh
 
+# to make backup for all new sm gpu nodes in savio2:
+# run as root on master.brc:
+# pdsh -w n0[298-301].savio2 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh
 
-CentralLogRepo=/global/home/users/tin/CF_BK/cf1/sm_bios_cf
+# as tin, need to precreate
+# mkdir -p /global/home/users/tin/CF_BK/pub/sm_bios_cf
+# chmod 777 /global/home/users/tin/CF_BK/pub
+# chmod 777 /global/home/users/tin/CF_BK/pub/sm_bios_cf
+# bleh... do it in scratch where root can overwtite...
+
+#CentralLogRepo=/global/home/users/tin/CF_BK/pub/sm_bios_cf
+#CentralLogRepo=/global/home/users/tin/CF_BK/cf1/sm_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
+CentralLogRepo=/global/scratch/tin/gsCF_BK/savio2/sm_bios_cf
 #FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
 FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
 BiosBkDir=${CentralLogRepo}/bak${FECHA}
@@ -61,8 +72,8 @@ record_bios_settings_dell () {
 } # end record_bios_settings_dell fn
 
 
-record_bios_settings_dell
-#record_bios_settings_supermicro
+#record_bios_settings_dell
+record_bios_settings_supermicro
 
 chown tin $BIOSOUT $BIOSHIGHLIGHT
 

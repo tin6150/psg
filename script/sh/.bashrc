@@ -128,11 +128,19 @@ add_hpcs_module () {
 		#module load vim  # only in sl7 module, throws err in sl6 :(
 	##fi
 	## the following don't load on perceus, but pretty much everywhere else...
-	if [[ -d /global/software/ ]] ; then 
+	if [[ -d /global/software/sl-7.x86_64 ]] ; then 
 		echo "noop" > /dev/null
 		module load git
 		#module load intel openmpi mkl
+		module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
+		#module load intel/2018.1.163 mkl openmpi
+		## testing user env (wilson cai R problem)
+		module load r/3.4.2
+		module load r-packages
+		module load ml/superlearner/current-r-3.4.2
+		export R_LIBS_USER='/global/scratch/tin/R_pkg/'
 	fi
+
 	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 	## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
 	## some modules are avail after the language pack is loaded.  eg:
