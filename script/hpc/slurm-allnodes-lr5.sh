@@ -9,15 +9,15 @@
 ####
 
 
-#SBATCH         	--job-name=lr4x_allNodeTest    # CLI arg will overwrite this
+#SBATCH         	--job-name=lr6_allNodeTest    # CLI arg will overwrite this
 #               	CPU time:
 #SBATCH         	--time=605
 #      		      	Wall clock limit in HH:MM:ss
 # 	#SBATCH       	--time=00:10:00
-#SBATCH         	--partition=lr5
-#SBATCH         	--partition=cf1
+#SBATCH         	--partition=lr6
+#	#SBATCH        	--partition=cf1
 # 	#SBATCH       	-n 4
-#SBATCH        		--qos=cf_normal
+#	#SBATCH        		--qos=cf_normal
 #SBATCH        		--qos=lr_normal # cf_normal
 #	#SBATCH       		--qos=lr_lowprio
 #SBATCH         	--account=scs

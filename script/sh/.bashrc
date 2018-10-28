@@ -129,12 +129,13 @@ add_hpcs_module () {
 		#module load vim  # only in sl7 module, throws err in sl6 :(
 	##fi
 	## the following don't load on perceus, but pretty much everywhere else...
-	if [[ -d /global/software/ ]] ; then 
+	if [[ -d /global/software/sl-7.x86_64 ]] ; then 
 		echo "noop" > /dev/null
 		module load git
 		#module load intel openmpi mkl
 		module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
-
+		#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
+		#module load intel/2018.1.163 mkl openmpi
 		## testing user env (wilson cai R problem)
 		## should have extra dir test for consult-sw ... 
 		#module load r/3.4.2
