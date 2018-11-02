@@ -1565,7 +1565,9 @@ How do I convert my LVM root disk to LVM mirror after installation of Red Hat En
 <EM>Commands</EM>
 
 <PRE>
-lvconvert -m1 --type raid1 /dev/system_vg/root /dev/sdb
+vgextend system_vg /dev/vdb2     # add normal disk device into LVM purview
+
+lvconvert -m1 --type raid1 /dev/system_vg/root /dev/sdb     # create mirror at LV level, using specific disk that LVM has control of.
 
 
 lvconvert -m1 datavg/testlv
@@ -1576,7 +1578,12 @@ lvconvert -m1 datavg/testlv /dev/sdc
 # remove mirror, /dev/sdc is the device that is DETACHED
 
 
-should be for RHEL7...
+lvs -a -o+devices
+
+dmsetup table
+
+
+work be for RHEL7
 </PRE>
 
 
@@ -1596,12 +1603,23 @@ CentOS 7 Installation with LVM RAID 1 – Mirroring</A>
 <LI> quite a number of steps, to be done after initial OS is setup
 <LI> mdadm mirror for /boot using /dev/md* device
 <LI> Then run LVM on top of the /dev/md* mirrored disk?  so LVM doesn't know that it is mirrored.  /boot and whatever volume that is placed inside the LVM get the underlaying mirroring done transparently.
+<LI> still need to update grub manually
 </OL>
 
 See 
 <A HREF="https://access.redhat.com/solutions/2390831">
 How do I convert my root disk to RAID1 after installation of Red Hat Enterprise Linux 7?</A>
 
+
+<EM>Commands</EM>
+
+<PRE>
+mdadm --create /dev/md0 --level=1 --raid-disks=2 missing /dev/sdb1 --metadata=1.0
+...
+pvmove /dev/sda2 /dev/md1   # move VG from regular disk to md device (mirrored)
+...
+dracut -f --mdadmconf
+</PRE>
 
 <BR>
 <BR>
