@@ -81,6 +81,8 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/psg
 	echo "may need password..."
 
+	git clone https://tin6150@github.com/tin6150/bofhbot
+
 	git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 	git clone https://tin6150@github.com/tin6150/inet-dev-class

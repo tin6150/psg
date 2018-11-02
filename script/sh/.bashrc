@@ -82,6 +82,7 @@ setPrompt () {
 	# the one below pretty good in Terminal app in mac with Homebrew and custom brown text on dark blue bg profile
 	##PS1="${LIGHT_CYAN}__ ${WHITE}\u ${CYAN}\H ${LIGHT_GRAY}\w ${LIGHT_CYAN}> ${NO_COLOUR} "       ## good prompt, but hacking it so .rst file highlight prompt :)
 	PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR} "		## for .rst highlight
+	##PS1="${LIGHT_CYAN}\u${LIGHT_GRAY}@${CYAN}\h> ${NO_COLOUR}"		## TMP for presentation
 	[[ -n "$SINGULARITY_CONTAINER" ]] && PS1=${SINGULARITY_CONTAINER}" "${PS1}
 	export PS1
 	# PS1 in WSL (Ubuntu for win10)
@@ -132,13 +133,15 @@ add_hpcs_module () {
 		echo "noop" > /dev/null
 		module load git
 		#module load intel openmpi mkl
-		module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
+		module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
+		#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
 		#module load intel/2018.1.163 mkl openmpi
 		## testing user env (wilson cai R problem)
-		module load r/3.4.2
-		module load r-packages
-		module load ml/superlearner/current-r-3.4.2
-		export R_LIBS_USER='/global/scratch/tin/R_pkg/'
+		## should have extra dir test for consult-sw ... 
+		#module load r/3.4.2
+		#module load r-packages
+		#module load ml/superlearner/current-r-3.4.2
+		#export R_LIBS_USER='/global/scratch/tin/R_pkg/'
 	fi
 
 	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
