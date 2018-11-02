@@ -1366,7 +1366,7 @@ Logical:	LV: many virtual/logical partitioins on top of a single VG.
 Aggregation:	VG: volume group, encapsulate many PVs. 
 Physical:	PV: place extends "markings" on a partition or whole disk 
 partition	sda1 or sdd
-kernel
+kernel          -
 device		/dev/sda
 
 
@@ -1504,6 +1504,57 @@ vgchange -ay VolGrpName			# activate volume group
 mount -t ext3 /dev/to/fs /mnt/myfs	# mount the file system on the newly imported volume
 
 </PRE>
+
+<H5>Mirror OS volume</H5>
+
+<OL> 
+<LI> Something about mirror will not copy existing data but only create mirror going forward?  thus OS disk must be setup with mirror at install time?
+<LI> that can't be right.  mirror has to rebuild data when disk fail and get replaced.
+</OL>
+
+
+Ref:
+
+<OL>
+<LI> 
+<A HREF="https://access.redhat.com/solutions/1324843">
+How do I convert my LVM root disk to LVM mirror after installation of Red Hat Enterprise Linux 7?</A>
+
+<LI> 
+
+
+</OL>
+
+
+
+
+<H6>Terminology</H6>
+
+<OL>
+<LI> linear volume (single lvm with NO RAID?)  
+<LI> segment type (aka LV type) --type
+<LI> mirrored volume  (used up to RHEL 6, considered legacy in 2018)
+<LI> raid1  (rhel7 default)
+<LI>
+</OL>
+
+
+<PRE>
+
+lvconvert -m1 --type raid1 /dev/system_vg/root /dev/sdb
+
+
+lvconvert -m1 datavg/testlv
+# converts from linear to mirrored volume 
+
+
+lvconvert -m1 datavg/testlv /dev/sdc
+# remove mirror, /dev/sdc is the device that is DETACHED
+
+
+should be for RHEL7...
+</PRE>
+
 
 <H5>Removing LVM stuff</H5>
 
