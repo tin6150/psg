@@ -526,6 +526,16 @@ udev			# some hw persisten naming thing, eg for hd that may change name due to s
 <LI> Ubuntu: <TT>dpkg-reconfigure tzdata</TT>
 </UL>
 
+<H5>logrotate</H5>
+
+<PRE>
+/etc/cron.daily/logrotate	# cronjob that runs daily
+/etc/logrotate.d/syslog		# where /var/log/messages is stated to get rotated, compression, etc.
+/var/lib/logrotate/logrotate.status	# when a given log was last rotated.  new entry may have to wait eg 1 week before it get rotated
+
+/usr/sbin/logrotate -v /etc/logrotate.conf	# manually invoke logrotate with verbose output, stating why file are rotated or not.
+</PRE>
+
 <A NAME="xdmcp"></A>
 <H2>XDMCP</H2>
 
@@ -2342,18 +2352,21 @@ To disable nouveau driver from loading (so that commercial nvidia driver can be 
 (newer linux use this driver before even X, thus blacklist in modprobe don't cut it)
 
 ref: 
+<LI> https://linuxconfig.org/how-to-install-the-nvidia-drivers-on-centos-7-linux
 <LI> https://forums.fedoraforum.org/showthread.php?310858-How-can-i-remove-disable-nouveau-in-grub
 <LI> https://www.redhat.com/archives/rhl-list/2004-May/msg07775.html 
 
 <PRE>
-append to boot argument to kernel: rd.driver.blacklist=nouveau
+append to boot argument to kernel: rd.driver.blacklist=nouveau 	# don't remember if this really worked, maybe not
+append to boot argument to kernel: nouveau.modeset=0 		# this worked on exalearn 2018.11
 </PRE>
  
 <PRE>
 edit /etc/default/grub :: 
-GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  
+GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  		
+append to boot argument to kernel: nouveau.modeset=0 				# this worked on exalearn 2018.11
 (remove rhgb quiet for verbose text boot)
-grub2-mkconfig -o /boot/grub2/grub.cfg
+grub2-mkconfig -o /boot/grub2/grub.cfg      # BIOS mode, UEFI need a diff config
 </PRE>
 
 Ubuntu/Mint seems to use
