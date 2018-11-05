@@ -396,9 +396,19 @@ sadc -S IP6   is needed for v6 version of above.
 
 
 sar         # shows most common stats
-sar -r      # reports on memory and swap utilization  (98% util for 4 days on end is okay)
-sar -q      # shows load avg, run queue length
 sar -A      # shows all recorded activities
+
+sar -r      # memory and swap utilization (free vs used; 98% util for 4 days on end is okay)
+sar -R      # memory rate stat (frmpg/s = freed mem page per sec.  -ve = allocated pages)
+sar -S      # swap utilization
+sar -w      # swap rate
+
+sar -q      # shows load avg, run queue length
+sar -u      # combined cpu util
+sar -P ALL  # per-cpu utilization
+
+sar -B      # paging stats
+sar -b      # io xfer rate
 
 # show report recorded on named file with start time of 8pm, end time of mid-nite, 
 # at interval of 1800sec (30min)  (default is 10min interval)
@@ -415,11 +425,12 @@ sar -n KEYWORD 1		# live network report every 1 sec
 sar -n ALL 1-5			# report all network stats
 
 sar -n DEV 1			# check network dev utilization.  reported in kBytes/s. 
+sar -n DEV | grep enp1s0f0	# specific nic
 sar -n EDEV 1			# dev errors, eg rxfram reports frame alighment errors
 sar -n NFS,NFSD 1		# NFS client and server stats
 sar -n SOCK 1			# reports IP fragment in use (from mismatched MTU?)
 
-sar -n IP 1				# check network dev utilization.  reported in kBytes/s. 
+sar -n IP 1			# check network dev utilization.  reported in kBytes/s. 
 sar -n TCP,ETCP 1  		# check TCP stats, and errors eg retransmit.  active = outbound, passive = inbound
 
 </PRE>
