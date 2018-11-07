@@ -1201,7 +1201,9 @@ lsscsi -w -i -d	#
 
 
 ### p190 has controller properties.
-/opt/storcli64 /c0 show alarm # whether controller alarm is enabled
+/opt/storcli64 /c0 show alarm 		# whether controller alarm is enabled (probably whether alarm is usable, not whether it is beeping) [only for 9750 and 9690a)
+
+storcli64 /call show event		# display controller events, presumably fail drive, error status, etc would be listed here
 
 
 p210 drive locate command
