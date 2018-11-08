@@ -82,6 +82,7 @@ setPrompt () {
 	# the one below pretty good in Terminal app in mac with Homebrew and custom brown text on dark blue bg profile
 	##PS1="${LIGHT_CYAN}__ ${WHITE}\u ${CYAN}\H ${LIGHT_GRAY}\w ${LIGHT_CYAN}> ${NO_COLOUR} "       ## good prompt, but hacking it so .rst file highlight prompt :)
 	PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR} "		## for .rst highlight
+	#PS1="${LIGHT_CYAN}[\u@\h]> ${NO_COLOUR}"	## tmp for slide prep
 	[[ -n "$SINGULARITY_CONTAINER" ]] && PS1=${SINGULARITY_CONTAINER}" "${PS1}
 	export PS1
 	# PS1 in WSL (Ubuntu for win10)
