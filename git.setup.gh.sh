@@ -81,6 +81,8 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/psg
 	echo "may need password..."
 
+	git clone https://tin6150@github.com/tin6150/bofhbot
+
 	git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 	git clone https://tin6150@github.com/tin6150/inet-dev-class
@@ -133,6 +135,13 @@ run_git_clone()
 	# cd ..
 	git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 	git clone https://sn5050@bitbucket.org/berkeleylab/unified-vnfs.git
+
+	## biositting tool, collab with ETA Ling Jin, Tyler Huntington
+	# 1.1 GB repo , maybe data deleted.  
+	#~ git clone https://sn5050@bitbucket.org/olgakavvada/biositing_tool.git 
+	# forked , bb interface is significantly diff than github :(
+	#+ git clone https://sn5050@bitbucket.org/sn5050/biositing_tool_test.git
+	# no GIS_data subdir yet...
 
 
 	##########################
