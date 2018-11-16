@@ -24,15 +24,15 @@
 #SBATCH         	--account=scs
 # 	#SBATCH       	--ntasks=2
 # 	#SBATCH       	--mail-type=all
-#SBATCH       	--mail-type=END,FAIL
-#	#SBATCH         	--mail-type=FAIL
-#	#SBATCH         	--mail-type=NONE
+#	#SBATCH       	--mail-type=END,FAIL
+#SBATCH         	--mail-type=FAIL
+#	#SBATCH         --mail-type=NONE
 #SBATCH         	--mail-user=tin@berkeley.edu
 #	#SBATH         	--mail-user=tin@lbl.gov
 # 	#SBATCH       	-N 3
 #	#SBATCH        	-o  slurm_testnode_%N_%j.txt
-#SBATCH         	-o  sn_%N_%j.txt
 # 	#SBATCH       	-o  junkable_slurm_out_cf1.txt
+#SBATCH         	-o  sn_%N_%j.out
 
 # %j is for jobid (eg 128)
 # %J is for jobid.stepid (eg 128.0)
