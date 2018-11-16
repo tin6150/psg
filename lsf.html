@@ -586,6 +586,14 @@ slurmdUser 			# slurmd    user.
 </PRE>
 
 
+<UL>
+	<LI> run <TT>scontrol reconfig</TT>  for slurmctld to read new config (eg adding new partitions) </LI>
+	<LI> There is <EM>NO</EM> need to run <TT>scontrol create partition ...</TT> as a command.  All partition info is generated from definition in the <TT>slurm.conf</TT> file.  Just remember to run reconfig cmd as above.</LI>
+</UL>
+
+
+
+
 <A NAME="cgroup_and_slurm"></A>
 <A NAME="cgroup_&_slurm"></A>
 <H3>cgroup & slurm</H3>
