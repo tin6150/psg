@@ -189,8 +189,8 @@ create_links()
 	#-- block below should take care of this.
 	#--GIT_DIR=$MyGitDir
 	#--cd ~
-	#--ln -s ${GIT_DIR}/blpriv/bofhbot            ~/BOFHbot
-	#--ln -s ${GIT_DIR}/psg                       ~/PSG
+	#--ln -s ${GIT_DIR}/bofhbot            ~/BOFHbot
+	#--ln -s ${GIT_DIR}/psg                ~/PSG
 	#--cd $GIT_DIR	# ie cd back
 
 
@@ -219,7 +219,7 @@ create_links()
 		[[ -L CF_BK        ]] || ln -s ${GIT_DIR}/blpriv/cf_bk              ./CF_BK
 		[[ -L NOTE         ]] || ln -s ${GIT_DIR}/blpriv/note               ./NOTE
 		[[ -L HPCS_toolkit ]] || ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ./HPCS_toolkit
-		[[ -L BOFHbot      ]] || ln -s ${GIT_DIR}/blpriv/bofhbot            ./BOFHbot
+		[[ -L BOFHbot      ]] || ln -s ${GIT_DIR}/bofhbot                   ./BOFHbot
 		[[ -L PSG          ]] || ln -s ${GIT_DIR}/psg                       ./PSG
 		[[ -L ~/PSG        ]] || ln -s ${GIT_DIR}/psg                       ~/PSG		## historically created links with absolute PATH at ~
 		cd $GIT_DIR	# ie cd back
