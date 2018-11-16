@@ -133,7 +133,8 @@ add_hpcs_module () {
 		echo "noop" > /dev/null
 		module load git
 		#module load intel openmpi mkl
-		module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
+		#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
+		module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
 		#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
 		#module load intel/2018.1.163 mkl openmpi
 		## testing user env (wilson cai R problem)
