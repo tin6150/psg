@@ -100,7 +100,7 @@ setPrompt () {
 add_local_module () {
 	LOCAL_MODULE_DIR=/opt/modulefiles
 	# ln -s ~/PSG/modulefiles/ /opt 
-	if [[ -d $GLOBAL_MODULE_DIR ]] ; then 
+	if [[ -d $LOCAL_MODULE_DIR ]] ; then 
 		AddtoString MODULEPATH ${LOCAL_MODULE_DIR} 
 		SING_VER=2.4.2
 		[[ -x /opt/singularity-${SING_VER}/bin/singularity ]] && module load container/singularity/${SING_VER}
@@ -132,10 +132,13 @@ add_hpcs_module () {
 		#module load vim  # only in sl7 module, throws err in sl6 :(
 	##fi
 	## the following don't load on perceus, but pretty much everywhere else...
-	GLOBAL_MODULE_DIR=/global/software/sl-7.x86_64
+	GLOBAL_MODULE_DIR=/global/software/sl-7.x86_64/modfiles
 	#if [[ -d /global/software/sl-7.x86_64 ]] ; then 
 	if [[ -d $GLOBAL_MODULE_DIR ]] ; then 
-		AddtoString MODULEPATH ${GLOBAL_MODULE_DIR} 
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/langs
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
+		# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
 		# MODULEPATH manual fix was needed in exalearn cuz still need to configure system-wide source of that  script...
 		echo "noop" > /dev/null
 		module load git vim
@@ -375,6 +378,7 @@ if [[ x${MAQUINA} == x"backbay" ]]; then
 	[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
 	alias xt=/usr/bin/xfce4-terminal
+	alias lxt=/usr/bin/lxterminal
 	#export ANDROID_HOME=/home/sn/app/android-studio
 	export ANDROID_HOME=/home/sn/app/android-sdk
 	export JAVA_HOME=/home/sn/app/jdk1.8.0_101
