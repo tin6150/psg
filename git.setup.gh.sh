@@ -114,6 +114,12 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
 
+        ##############################
+        #### tin6150@github gitst ####
+        ##############################
+
+        git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
+
 
 	############################
 	#### formerly in tin-bb ####
