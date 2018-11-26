@@ -165,6 +165,7 @@ run_git_clone()
 
 
 	#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
+	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
 
 } # end-run_git_clone()
 
