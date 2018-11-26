@@ -100,15 +100,17 @@ setPrompt () {
 add_local_module () {
 	LOCAL_MODULE_DIR=/opt/modulefiles
 	# ln -s ~/PSG/modulefiles/ /opt 
-	AddtoString MODULEPATH ${LOCAL_MODULE_DIR} 
-	SING_VER=2.4.2
-	[[ -x /opt/singularity-${SING_VER}/bin/singularity ]] && module load container/singularity/${SING_VER}
-	AddtoString MODULEPATH /opt/modulefiles/
-	AddtoString MODULEPATH /opt2
-	#AddtoString MODULEPATH /opt2/singularity-2.4.alpha/modulefiles
-	#export MODULEPATH=$MODULEPATH:/opt/modulefiles/
-	#export MODULEPATH=$MODULEPATH:/opt2
-	#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
+	if [[ -d $LOCAL_MODULE_DIR ]] ; then 
+		AddtoString MODULEPATH ${LOCAL_MODULE_DIR} 
+		SING_VER=2.4.2
+		[[ -x /opt/singularity-${SING_VER}/bin/singularity ]] && module load container/singularity/${SING_VER}
+		AddtoString MODULEPATH /opt/modulefiles/
+		AddtoString MODULEPATH /opt2
+		#AddtoString MODULEPATH /opt2/singularity-2.4.alpha/modulefiles
+		#export MODULEPATH=$MODULEPATH:/opt/modulefiles/
+		#export MODULEPATH=$MODULEPATH:/opt2
+		#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
+	fi
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_local_module_ends"
 } # end add_local_module
 
@@ -130,11 +132,20 @@ add_hpcs_module () {
 		#module load vim  # only in sl7 module, throws err in sl6 :(
 	##fi
 	## the following don't load on perceus, but pretty much everywhere else...
-	if [[ -d /global/software/sl-7.x86_64 ]] ; then 
+	GLOBAL_MODULE_DIR=/global/software/sl-7.x86_64/modfiles
+	#if [[ -d /global/software/sl-7.x86_64 ]] ; then 
+	if [[ -d $GLOBAL_MODULE_DIR ]] ; then 
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/langs
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
+		# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
+		# MODULEPATH manual fix was needed in exalearn cuz still need to configure system-wide source of that  script...
 		echo "noop" > /dev/null
-		module load git
+		module load git vim
+		module load python/3.6
 		#module load intel openmpi mkl
-		module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
+		#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
+		module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
 		#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
 		#module load intel/2018.1.163 mkl openmpi
 		## testing user env (wilson cai R problem)
@@ -143,16 +154,17 @@ add_hpcs_module () {
 		#module load r-packages
 		#module load ml/superlearner/current-r-3.4.2
 		#export R_LIBS_USER='/global/scratch/tin/R_pkg/'
+
+		## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
+		## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
+		## some modules are avail after the language pack is loaded.  eg:
+		## module load python/2.7.5
+		## module load scikit-image
+		## module load gcc openmpi
+		# till /global/home/groups-sw/allhands/.bashrc  is fixed to include lr5:
+		# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
 	fi
 
-	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
-	## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
-	## some modules are avail after the language pack is loaded.  eg:
-	## module load python/2.7.5
-	## module load scikit-image
-	## module load gcc openmpi
-	# till /global/home/groups-sw/allhands/.bashrc  is fixed to include lr5:
-	# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
 } # end add_hpcs_module 
 
@@ -366,6 +378,7 @@ if [[ x${MAQUINA} == x"backbay" ]]; then
 	[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
 	alias xt=/usr/bin/xfce4-terminal
+	alias lxt=/usr/bin/lxterminal
 	#export ANDROID_HOME=/home/sn/app/android-studio
 	export ANDROID_HOME=/home/sn/app/android-sdk
 	export JAVA_HOME=/home/sn/app/jdk1.8.0_101
