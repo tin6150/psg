@@ -526,6 +526,16 @@ udev			# some hw persisten naming thing, eg for hd that may change name due to s
 <LI> Ubuntu: <TT>dpkg-reconfigure tzdata</TT>
 </UL>
 
+<H5>logrotate</H5>
+
+<PRE>
+/etc/cron.daily/logrotate	# cronjob that runs daily
+/etc/logrotate.d/syslog		# where /var/log/messages is stated to get rotated, compression, etc.
+/var/lib/logrotate/logrotate.status	# when a given log was last rotated.  new entry may have to wait eg 1 week before it get rotated
+
+/usr/sbin/logrotate -v /etc/logrotate.conf	# manually invoke logrotate with verbose output, stating why file are rotated or not.
+</PRE>
+
 <A NAME="xdmcp"></A>
 <H2>XDMCP</H2>
 
@@ -1191,7 +1201,9 @@ lsscsi -w -i -d	#
 
 
 ### p190 has controller properties.
-/opt/storcli64 /c0 show alarm # whether controller alarm is enabled
+/opt/storcli64 /c0 show alarm 		# whether controller alarm is enabled (probably whether alarm is usable, not whether it is beeping) [only for 9750 and 9690a)
+
+storcli64 /call show event		# display controller events, presumably fail drive, error status, etc would be listed here
 
 
 p210 drive locate command
@@ -1827,12 +1839,35 @@ mount and umount the system cleanly before running the check,
 so that xfs log is in proper state
 
 
-xfs_info				# see agcount.  if FS grew from GB to TB, it may have too many ag for efficient work.
-					# when too many ag (eg agcount=5295839, agsize=6336 blks), kworker spends many minutes scanning thru them before actual file operation can take place.
-					# recreate the fs  with eg agcount=125, agsize=268435328 blks and things will be much faster
-					# xfs_repair is equally faster and more "responsive" with a more normal agcount (hundres to thousands).
+xfs is a parallel fs.
+parallelism is governed by agcount (aggregate group count).
+each ag is a parallel thread.
+But don't set agcount per cpu thread, but on number of spinning disk.
+
+agcount of 4 to 16 are common.  really large array could have larger number.
+don't have agcount in thousands, it will have detrimental impact on performance.
+
+# use xfs_info to see agcount.  if FS grew from GB to TB, it may have too many ag for efficient work.
+# when too many ag (eg agcount=5295839, agsize=6336 blks), kworker spends many minutes scanning thru them before actual file operation can take place.
+# recreate the fs  with eg agcount=125, agsize=268435328 blks and things will be much faster
+# xfs_repair is equally faster and more "responsive" with a more normal agcount (hundres to thousands).
+# agcount * agsize = FS size.  largest agsize is 1 TiB, thus agcount on reallly large fs would be in hundreds.
+# xfs tuning per XFS fag is said to be largely not necessary, as default works well most of the time.
+# http://xfs.org/index.php/XFS_FAQ#Q:_I_want_to_tune_my_XFS_filesystems_for_.3Csomething.3E
+# agcount = thousands means write may have to consider all such AG to find optimal place to write.
+# when not catched, this result in lots of disk head seek.  
+# see http://xfs.9218.n7.nabble.com/Re-xfs-very-slow-after-mount-very-slow-at-umount-td424.html
+# ideally, agcount ~ number of disk strips (cpu core should not matter, as the slow component is disk)
+# thus, agcount of 4 to 16 are common number.
+
+# small agsize also means large files will be divided into many ag... thus creating fragmentation
+# (and lots of search for ag to use)
+
+# xfs was orig written by SGI for supercomputer, which operate on large files
+# so lots of small file access may not be xfs' strength.
 
 
+xfs_info				# see fs info, like agcount, agsize, sunit, swidth
 
 xfs_repair			    	# fs must be unmounted, or resulting fs maybe inconsistent (per RHEL7.4 man page)
 xfs_repair -n /dev/datavg/datavol	# dry run method, but (skip?) extended attributes
@@ -1910,6 +1945,21 @@ At the same time, it also bring many enterprise storage system features to the o
 Originally developed by Sun for Solaris, Oracle can't backtrack it.  CDDL stopping many distribution from including it in their .ISO.
 Cannonical still ship it with Ubuntu and provide support for it.  Has yet to be sued by Oracle :)
 Centos can get a zfs.repo and get it.  May still need some kernel modif (DMKS? no need to manually compile kernel?).
+
+
+<H5>ZFS basic cmd</H5>
+
+zfs list		# 
+zfs mount		# display currently mounted zfs fs.  may as well use zfs list
+
+zfs share -a		# share all zfs, done automatically when zfs "boot"
+	sharesmb=on 
+	sharenfs=on
+
+
+zpool list
+zpool status		# list all disks that make up a pool and their status.  how "raid group" is defined.
+
 
 
 <H5>ZFS pool creation</H5>
@@ -2444,18 +2494,21 @@ To disable nouveau driver from loading (so that commercial nvidia driver can be 
 (newer linux use this driver before even X, thus blacklist in modprobe don't cut it)
 
 ref: 
+<LI> https://linuxconfig.org/how-to-install-the-nvidia-drivers-on-centos-7-linux
 <LI> https://forums.fedoraforum.org/showthread.php?310858-How-can-i-remove-disable-nouveau-in-grub
 <LI> https://www.redhat.com/archives/rhl-list/2004-May/msg07775.html 
 
 <PRE>
-append to boot argument to kernel: rd.driver.blacklist=nouveau
+append to boot argument to kernel: rd.driver.blacklist=nouveau 	# don't remember if this really worked, maybe not
+append to boot argument to kernel: nouveau.modeset=0 		# this worked on exalearn 2018.11
 </PRE>
  
 <PRE>
 edit /etc/default/grub :: 
-GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  
+GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  		
+append to boot argument to kernel: nouveau.modeset=0 				# this worked on exalearn 2018.11
 (remove rhgb quiet for verbose text boot)
-grub2-mkconfig -o /boot/grub2/grub.cfg
+grub2-mkconfig -o /boot/grub2/grub.cfg      # BIOS mode, UEFI need a diff config
 </PRE>
 
 Ubuntu/Mint seems to use

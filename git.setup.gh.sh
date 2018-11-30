@@ -114,6 +114,12 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
 
+        ##############################
+        #### tin6150@github gitst ####
+        ##############################
+
+        git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
+
 
 	############################
 	#### formerly in tin-bb ####
@@ -165,6 +171,7 @@ run_git_clone()
 
 
 	#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
+	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
 
 } # end-run_git_clone()
 
@@ -189,8 +196,8 @@ create_links()
 	#-- block below should take care of this.
 	#--GIT_DIR=$MyGitDir
 	#--cd ~
-	#--ln -s ${GIT_DIR}/blpriv/bofhbot            ~/BOFHbot
-	#--ln -s ${GIT_DIR}/psg                       ~/PSG
+	#--ln -s ${GIT_DIR}/bofhbot            ~/BOFHbot
+	#--ln -s ${GIT_DIR}/psg                ~/PSG
 	#--cd $GIT_DIR	# ie cd back
 
 
@@ -219,7 +226,7 @@ create_links()
 		[[ -L CF_BK        ]] || ln -s ${GIT_DIR}/blpriv/cf_bk              ./CF_BK
 		[[ -L NOTE         ]] || ln -s ${GIT_DIR}/blpriv/note               ./NOTE
 		[[ -L HPCS_toolkit ]] || ln -s ${GIT_DIR}/blpriv/hpcs_toolkit       ./HPCS_toolkit
-		[[ -L BOFHbot      ]] || ln -s ${GIT_DIR}/blpriv/bofhbot            ./BOFHbot
+		[[ -L BOFHbot      ]] || ln -s ${GIT_DIR}/bofhbot                   ./BOFHbot
 		[[ -L PSG          ]] || ln -s ${GIT_DIR}/psg                       ./PSG
 		[[ -L ~/PSG        ]] || ln -s ${GIT_DIR}/psg                       ~/PSG		## historically created links with absolute PATH at ~
 		cd $GIT_DIR	# ie cd back

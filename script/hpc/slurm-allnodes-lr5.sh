@@ -9,28 +9,30 @@
 ####
 
 
-#SBATCH         	--job-name=lr6_allNodeTest    # CLI arg will overwrite this
+#SBATCH         	--job-name=allNodeTest    # CLI arg will overwrite this
 #               	CPU time:
 #SBATCH         	--time=605
 #      		      	Wall clock limit in HH:MM:ss
 # 	#SBATCH       	--time=00:10:00
-#SBATCH         	--partition=lr6
+#SBATCH         	--partition=savio3
 #	#SBATCH        	--partition=cf1
 # 	#SBATCH       	-n 4
 #	#SBATCH        		--qos=cf_normal
-#SBATCH        		--qos=lr_normal # cf_normal
 #	#SBATCH       		--qos=lr_lowprio
+#	#SBATCH        		--qos=lr_normal # cf_normal
+#SBATCH        		--qos=savio_normal 
 #SBATCH         	--account=scs
 # 	#SBATCH       	--ntasks=2
 # 	#SBATCH       	--mail-type=all
-# 	#SBATCH       	--mail-type=END,FAIL
-#	#SBATCH         	--mail-type=FAIL
-#SBATCH         	--mail-type=NONE
-#SBATCH         	--mail-user=tin@lbl.gov
+#	#SBATCH       	--mail-type=END,FAIL
+#SBATCH         	--mail-type=FAIL
+#	#SBATCH         --mail-type=NONE
+#SBATCH         	--mail-user=tin@berkeley.edu
+#	#SBATH         	--mail-user=tin@lbl.gov
 # 	#SBATCH       	-N 3
 #	#SBATCH        	-o  slurm_testnode_%N_%j.txt
-#SBATCH         	-o  sn_%N_%j.txt
 # 	#SBATCH       	-o  junkable_slurm_out_cf1.txt
+#SBATCH         	-o  sn_%N_%j.out
 
 # %j is for jobid (eg 128)
 # %J is for jobid.stepid (eg 128.0)
@@ -64,7 +66,8 @@ echo ---------------------------------------
 
 ##BASEDIR=/clusterfs/xmas/perf_test_tin/iozone3/
 ##BASEDIR=/global/scratch/tin/Junk/lr5/perf_test_tin/iozone3/
-BASEDIR=/global/scratch/tin/Junk/lr5/allNodeTest_tin/
+##BASEDIR=/global/scratch/tin/Junk/lr5/allNodeTest_tin/
+BASEDIR=/global/scratch/tin/Junk/savio3/allNodeTest_tin/
 
 
 HNAME=$(hostname)
@@ -148,7 +151,8 @@ exit 0
 ## example run 4a:
 #for T in $(seq -w 0139 0147); do
 #for T in $(seq -w 0112 0135); do
-#        sbatch -w n${T}.lr4 --job-name=N${T}_lr4x_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
-#                                                         # or /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+#for T in $(seq -w 0006 0017); do
+#        sbatch -w n${T}.savio3 --job-name=N${T}_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+#                                                       # or /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
 #done
 

@@ -465,8 +465,8 @@ Managing node state
 
 <PRE>
 sinfo -R									# see what nodes are down
-scontrol update nodename=n0001.savio1,n0002.savio2 state=down reason="bad ib" 	# manually down a node 
-scontrol update nodename=n0001.savio1,n0002.savio2 state=resume 		# revive a node
+scontrol update node=n0001.savio1,n0002.savio2 state=down reason="bad ib" 	# manually down a node 
+scontrol update node=n0001.savio1,n0002.savio2 state=resume 		 	# revive a node
 
 </PRE>
 
@@ -590,6 +590,14 @@ slurmdUser 			# slurmd    user.
 ...
 
 </PRE>
+
+
+<UL>
+	<LI> run <TT>scontrol reconfig</TT>  for slurmctld to read new config (eg adding new partitions) </LI>
+	<LI> There is <EM>NO</EM> need to run <TT>scontrol create partition ...</TT> as a command.  All partition info is generated from definition in the <TT>slurm.conf</TT> file.  Just remember to run reconfig cmd as above.</LI>
+</UL>
+
+
 
 
 <A NAME="cgroup_and_slurm"></A>
