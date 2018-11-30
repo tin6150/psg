@@ -479,7 +479,13 @@ sacctmgr list = sacctmgr show
 
 # "create association" is
 # really updating user entry, adding parition it can use, qos, etc
-sacctmgr add user tin Account=scs  Partition=alice0
+sacctmgr add user tin Account=scs  Partition=alice0 # if no qos is specified, all qos are added.
+sacctmgr delete user tin Account=scs Partition=savio3,savio3_bigmem
+sacctmgr add user tin Account=scs  Partition=savio3,savio3_bigmem qos=normal,savio_debug,savio_lowprio,savio_normal
+
+for User in "scoggins kmuriki wfeinstein"; do 
+	sacctmgr add user $User Account=scs  Partition=savio3,savio3_bigmem qos=normal,savio_debug,savio_lowprio,savio_normal
+done
 
 </PRE>
 <!-- modify ENTITY set ...  -->
