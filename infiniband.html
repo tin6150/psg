@@ -75,12 +75,25 @@ opensm 	# open fabric subnet manager.  run on one of the host.
 	# HA fabrics should be joined into a single one.
   	# Fix opensm.conf to bind to additional guid.  
 
+OFED has ib driver and opensm
+Mellanox compiled their own version and provide support for it, MLNX_OFED, aka MOFED.  has driver and opensm.  No more support for ConnectX-2 cards in 2018.
+SL7 version of OFED is said to have less trouble with LUSTER than general public OFED.
+
 
 opensm --create-config /tmp/opensm.conf 
 cp -i /tmp/opensm.conf /etc/opensm/
+vi /etc/opensm/opensm.conf # set GUID for the port where openSM should bind to
 
+</PRE>
+
+
+<H5>Troubleshooting commands</H5>
+
+<PRE>
 ibstat
   - all ports should be active.  It would be active if there is running fabric manager to register them when the port comes alive.
+  - If port is connected, but no running Subnet Manager, port status would be Initiating
+  - If port status is Down, then there is problem with physical link (even when no SM is running)  Reseating after SM is running may help.
   - node guid
   - port guid
 
@@ -93,16 +106,7 @@ ompi_info --all
 ompi-top
 ompi-ps
 
-</PRE>
 
-
-<H5>Troubleshooting commands</H5>
-
-<!-- 
-cat fabrics.conf | grep -v ^$ | tr '[]' '#' | awk -F\= '{print $1 " \"" $2 "\""}' > fabrics.node-name-map
--->
-
-<PRE>
 
 iblinkinfo 
 iblinkinfo --node-name-map fabrics.node-name-map
@@ -115,7 +119,17 @@ ibnetdiscover --node-name-map fabrics.node-name-map > ibnet.topo
 	# generate a topology file 
 	# switch LID would be listed above all the port, see comment field 
 
+
+cat fabrics.conf | grep -v ^$ | tr '[]' '#' | awk -F\= '{print $1 " \"" $2 "\""}' > fabrics.node-name-map
+
+MOFED (MLNX_OFED) for RH7
+/etc/init.d/openibd status
+/etc/init.d/opensmd status
+
+
 </PRE>
+
+
 
 <PRE class="code">
 # select output of ibnetdiscover
@@ -189,10 +203,31 @@ ibportstate  6        11         disable
 <LI> <A HREF="https://wiki.uiowa.edu/display/hpcadmin/Basic+Infiniband+troubleshooting">ulowa basic ib troubleshooting</A>
 </OL>
 
-
-
-
 <BR><HR><BR>
+
+
+<H2>IBoIP</H2>
+
+<PRE>
+
+
+# bring up interface after driver install, w/o reboot 
+rmmod    ib_ipoib
+modprobe ib_ipoib
+
+/etc/sysconfig/network-scripts/ifcfg-ib0 ::
+ConnectedMode
+no  = use datagram (default?)
+yes = like tcp?
+</PRE>
+
+
+Ref:
+<LI>
+<A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/sec-configure_ipoib_using_the_command_line">RH IPoIB cli</A>
+<LI>
+<A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/sec-Configuring_IPoIB#sec-Understanding_IPoIB_communication_modes">RH IPoIB</A>
+
 
 <H2>IBoIP with Bonding Config</H2>
 
