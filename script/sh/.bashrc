@@ -131,19 +131,26 @@ add_hpcs_module () {
 	##fi
 	## the following don't load on perceus, but pretty much everywhere else...
 	if [[ -d /global/software/sl-7.x86_64 ]] ; then 
-		echo "noop" > /dev/null
+		#echo "noop" > /dev/null
 		module load git
-		#module load intel openmpi mkl
-		#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
-		module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
-		#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now
-		#module load intel/2018.1.163 mkl openmpi
+	    	if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
+			#module load intel openmpi mkl
+			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
+			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
+
+			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
+			#module load intel/2018.1.163 mkl openmpi
+ 	    	fi
 		## testing user env (wilson cai R problem)
 		## should have extra dir test for consult-sw ... 
 		#module load r/3.4.2
 		#module load r-packages
 		#module load ml/superlearner/current-r-3.4.2
 		#export R_LIBS_USER='/global/scratch/tin/R_pkg/'
+		# python dir is empty at /global/software/sl-7.x86_64/modules/python/3.6
+		if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
+			module load python/3.6	# needed by bofhbot
+		fi
 	fi
 
 	## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
