@@ -114,6 +114,12 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
 
+        ##############################
+        #### tin6150@github gitst ####
+        ##############################
+
+        git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
+
 
 	############################
 	#### formerly in tin-bb ####
@@ -165,6 +171,7 @@ run_git_clone()
 
 
 	#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
+	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
 
 } # end-run_git_clone()
 

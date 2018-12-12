@@ -1,0 +1,35 @@
+## example systemd script to start service at boot time
+## systemctl list-unit-files
+## systemctl enable opensmd.service
+## systemctl start opensmd.service
+
+## /etc/systemd/system/opensmd.service ::
+
+## if edited, run 
+## systemctl daemon-reload
+
+[Unit]
+Description=IB Subnet Manager Daemon
+Documentation=man:opensm
+Requires=systemd-udev-settle.service
+After=systemd-udev-settle.service
+
+[Service]
+Type=oneshot
+#ExecStart=/usr/sbin/opensm
+ExecStart=/etc/init.d/opensmd start
+ExecStop=/etc/init.d/opensmd stop
+#Restart=Always
+Restart=False
+PIDFile=/var/run/opensm.systemd.pid
+RemainAfterExit=yes
+
+[Install]
+WantedBy=basic.target multi-user.target
+
+
+## ref 
+## https://unix.stackexchange.com/questions/47695/how-to-write-startup-script-for-systemd
+## https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/sec-configuring_the_subnet_manager
+## https://serverfault.com/questions/451362/switchless-infiniband-between-two-servers-on-rhel-6-3
+

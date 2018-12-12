@@ -506,6 +506,7 @@ Ref:
 <A NAME="sm"></A>
 <A NAME="SM"></A>
 <H3>SuperMicro (bios) update manager</H3>
+<!-- /global/scratch/tin/sw/sum/sum_2.0.0_Linux_x86_64/sum -->
 
 SUM = supermicro update manager, not the checksum command from the OS!
 <BR>
@@ -520,18 +521,23 @@ root access required
 <PRE>
 
 untar gz, no real need to install
-
 ./sum -h				# not the checksum command in linux default path... 
-sum -h -c GetBIOSInfo
+
+
+
+
 
 sum -i 10.10.... -u ADMIN -p ADMIN -c GetBIOSInfo	# use IPMI interface to get info
-sum -c GetBIOSInfo					# run on local machine
+sum -c GetBIOSInfo			# this find out firmware version info, etc.  run on local machine
+sum -c UpdateBios --file BIOS.rom 	# this update bios, not change config
 
-sum -c GetCurrentBiosCfg  --file  smBiosCf.txt	# write output to file
+sum -c GetCurrentBiosCfg  --file  smBiosCf.txt	# write output of BIOS settings (HT on or off, etc) to file
 sum -c GetCurrentBiosCfg     >    smBiosCf.txt	# should be same, but couple of places have * (default) next to diff entries.
 
-vi smBiosCf.txt		# make desired changes to BIOS use hex code for values.
+vi smBiosCf.txt		# make desired changes to BIOS use hex code for values. eg turn off Hyperthreading
 			# remove the first two lines of cfg that had the SM copyright info 
+			# in KNL, file was simple text file
+			# in skylake, file was xml (UEFI bios?)
 
 sum -c ChangeBiosCfg --file smBiosCf.txt --reboot	# update bios config, rebooting host 
 							# --reboot would actually be an soft reboot telling OS to shutdown (via ACPI?)
@@ -540,7 +546,6 @@ sum -h -c ChangeBiosCfg				# get help on how to make changes to bios
 
 sum -c LoadDefaultBiosCfg		
 sum -c GetDmiInfo
-sum -c UpdateBios --file BIOS.rom 	# this update bios, not change config
 
 </PRE>
 
