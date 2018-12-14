@@ -45,8 +45,15 @@
 
 <H1>InfiniBand</H1>
 
-openfabric.org - OFED source.	<BR>
-mellanox.com   - compile binaries for major distro, about 3 months lag behind source.  <BR>
+<OL>
+<LI>openfabric.org - OFED source.  Quite convoluted these days.	<BR>
+<LI>RHEL ofed      - RHEL backport fixes, and keep a more usable OFED stack than the community version.  use this before using community version to avoid headache (eg luster compatibility).   <BR>
+<LI>mellanox.com   - compile binaries for major distro, used to be about 3 months lag behind source, but probably best route for supported cards.  <BR>
+If updateing OS, need to get new version of driver, and recompile for the OS.  may take some 15 min to compile and install.
+May also disable opensmd systemd , just need to re-enable it
+
+</OL>
+
 
 <A HREF="http://tinyurl.com/infiniband">
 http://tinyurl.com/infiniband</A>	- my cache of IB docs.
