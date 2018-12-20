@@ -268,9 +268,17 @@ Ref:
 <A NAME="streams"></A>
 <H2> Memory Bandwidth </H2>
 
-<TT>streams triad</TT> is the typical tool to mesure CPU to memory bandwidth access.
+<A HREF="https://www.cs.virginia.edu/stream/ref.html"><TT>stream</TT></A> 
+is a decent tool to mesure CPU to memory bandwidth access.  
+
+
 
 <OL>
+	<LI>AMD EPYC</LI>
+	<UL>
+		<LI></LI>
+	</UL>
+
 	<LI> Skylake </LI> <!-- lr6 -->
 	<UL>
 		<LI>6 lanes per socket.  </LI>
@@ -281,10 +289,16 @@ Ref:
 		<LI></LI>
 	</UL>
 
+	<LI>KNL</LI> <!-- cf1 -->
+	<UL>
+		<LI>286,357 MB/s (triads avg w/ 1x64 threads Phi 7210 @ 1.30 GHz) [Likely only hitting on-die memory]</LI>
+	</UL>
+
+
 	<LI>Broadwell</LI> <!-- lr5 -->
 	<UL>
-		<LI>102,216 MB/s (triads avg w/ 2x14 threads E5-2680v4 @ 2.40 GHz)[lr5]</LI>
-		<LI> 98,266 MB/s (triads avg w/ 2x10 threads E5-2640v4 @ 2.40 GHz)[lr5_c20]</LI> <!-- lr5_c20 penguin with more RAM -->
+		<LI>102,216 MB/s (triads avg w/ 2x14 threads E5-2680v4 @ 2.40 GHz) [lr5]</LI>
+		<LI> 98,266 MB/s (triads avg w/ 2x10 threads E5-2640v4 @ 2.40 GHz) [lr5_c20]</LI> <!-- lr5_c20 penguin with more RAM -->
 		<LI></LI>
 	</UL>
 
