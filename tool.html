@@ -263,12 +263,15 @@ Ref:
 <LI>
 </UL>
 
+<A NAME="memory_bandwidth"></A>
+<A NAME="memory_bw"></A>
+<A NAME="streams"></A>
 <H2> Memory Bandwidth </H2>
 
 <TT>streams triad</TT> is the typical tool to mesure CPU to memory bandwidth access.
 
 <OL>
-	<LI> Skylake </LI>
+	<LI> Skylake </LI> <!-- lr6 -->
 	<UL>
 		<LI>6 lanes per socket.  </LI>
 		<LI>Dell Theoretical: 3 DIMM: 52 GB/s. 6 DIMM: 104 GB/s (Dual Ranked DDR4 2644)</LI>
@@ -277,14 +280,42 @@ Ref:
 		<LI>Some system have 4 or 8 slots per socket, when such slot is populated, memory bandwidth is variable as extra slot has to share the bus</LI>
 		<LI></LI>
 	</UL>
+
+	<LI>Broadwell</LI> <!-- lr5 -->
+	<UL>
+		<LI>102,216 MB/s (triads avg w/ 2x14 threads E5-2680v4 @ 2.40 GHz)[lr5]</LI>
+		<LI> 98,266 MB/s (triads avg w/ 2x10 threads E5-2640v4 @ 2.40 GHz)[lr5_c20]</LI> <!-- lr5_c20 penguin with more RAM -->
+		<LI></LI>
+	</UL>
+
+	<LI>Hashwell</LI> <!-- lr4-->
+	<UL>
+		<LI>104,796 MB/s (triads avg w/ 2x12 threads E5-2670v3 @ 2.30 GHz)</LI>
+	</UL>
+
+
+	<LI>Ivy Bridge</LI> <!-- lr3-->
+	<UL>
+		<LI>70,271.8 MB/s (triads avg w/ 2x8 threads E5-2670 @ 2.60 GHz)</LI>
+	</UL>
+
+	<LI>Nehalem</LI>
+	<UL>
+		<LI> 29054 MB/s (triads avg w/ 2x4 threads E5530 @ 2.40 GHz) [mako]</LI>
+	</UL>
+
 	<LI></LI>
+	<UL>
+		<LI></LI>
+	</UL>
+
 	<LI></LI>
-	<LI></LI>
+
 
 </OL>
 
 
-<IMG SRC="fig/dell_skylake_mem_bandwidth.jpg"><BR>
+<IMG SRC="fig/dell_skylake_mem_bandwidth.jpg" width="100%"><BR>
 
 
 <A NAME="perf"></A>
