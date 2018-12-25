@@ -574,6 +574,8 @@ Enclosing function locals
 Global   (module)
 Build-in (python)
 
+Before changing a global var inside a fn, must first declare var as <TT>global</TT> 
+
 Python3 added a <TT>nonlocal</TT> clause
 <A HREF="http://stackoverflow.com/questions/291978/short-description-of-python-scoping-rules">Python Scoping rules discussion</A>
 
@@ -610,12 +612,16 @@ print "this line is beyond the end of the if/elif/else block"
 # note there is no brackets or endif command to delineate the block !!
 
 
-for x in list:
+eg for-loop
+
+for x in list :
     cmd1
     cmd2
 cmd3
 
-while( X < 10 ):
+use `continue` to jump to next iteration
+
+while( X < 10 ) :
     cmd1
 cmd2
 
