@@ -294,9 +294,21 @@ is a decent tool to mesure CPU to memory bandwidth access.
 		<!-- cf1 -->
 		<LI>286,357 MB/s (triads avg w/ 1x64 threads Phi 7210 @ 1.30 GHz cache mode)</LI>
 		<LI><A HREF="https://downloads.dell.com/manuals/all-products/esuprt_software/esuprt_it_ops_datcentr_mgmt/high-computing-solution-resources_white-papers90_en-us.pdf">Dell published number for Phi 7230</A>:</LI>
-		<LI>480 GB/s on MCDRAM Phi7230 [on-die memory]</LI>
-		<LI> 84 GB/s w/ 6 DDR4 dimms</LI>
-		<LI></LI>
+		<LI>491,520 MB/s on MCDRAM Phi7230 [on-die memory]</LI>
+		<LI> 86,016 MB/s w/ 6 DDR4 dimms</LI>
+		<LI> <A HREF="https://software.intel.com/en-us/articles/optimizing-memory-bandwidth-in-knights-landing-on-stream-triad">Running stream test on KNL (Intel)</A> </LI>
+		<LI>
+			<PRE>
+			numactl -H 
+			# should be in FLAT mode (ie, at least two NUMA domain, so that MCDRAM vs off-die DDR4 memory can be addressed separately)
+			# IF in cache mode, effect of on-die memory caching cannot be removed from stream test
+			export OMP_NUM_THREADS=64; export KMP_AFFINITY=scatter; 
+			numactl -m 0
+			./stream
+			</PRE>
+		</LI>
+<!-- ~/HPCS_toolkit/run_stream_triad.sh /global/home/groups/scs/yqin/stream -->
+
 	</UL>
 
 
@@ -320,7 +332,7 @@ is a decent tool to mesure CPU to memory bandwidth access.
 
 	<LI>Nehalem</LI>
 	<UL>
-		<LI> 29054 MB/s (triads avg w/ 2x4 threads E5530 @ 2.40 GHz) [mako]</LI>
+		<LI> 29,054 MB/s (triads avg w/ 2x4 threads E5530 @ 2.40 GHz) [mako]</LI>
 	</UL>
 
 	<LI></LI>
