@@ -265,24 +265,39 @@ Ref:
 
 <A NAME="memory_bandwidth"></A>
 <A NAME="memory_bw"></A>
-<A NAME="streams"></A>
+<A NAME="stream"></A>
 <H2> Memory Bandwidth </H2>
 
 <A HREF="https://www.cs.virginia.edu/stream/ref.html"><TT>stream</TT></A> 
 is a decent tool to mesure CPU to memory bandwidth access.  
+<BR>
 
+Below are high level summary info.  Diff CPU has diff numa arch and memory localization can have huge impact on latency and access speed.  use <TT>lstopo</TT> to determine core to cache mapping, etc.
+<BR>
 
 
 <OL>
 	<LI>AMD EPYC</LI>
 	<UL>
+		<LI>8 memory channel per socket</LI>
+		<LI><A HREF="https://www.dell.com/support/article/us/en/19/sln313856/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study?lang=en">EPYC 7601 2.2 GHz 2x32c</A> Benchmark on Dell R7425 DDR4 2400 MT/s</LI>
+		<LI>3 memory modes</LI>
+		<OL>
+			<LI>Memory Channel Interleave.  Reported result.  8 NUMA nodes for 2-socket system, close to hw implementation </LI>
+			<LI>Memory Die Interleaving.   2 NUMA nodes for 2-socket system.</LI>
+			<LI>Memory Socket Interleave.  1 NUMA node.  ie, same as NUMA disabled.  </LI>
+		</OL>
+		<LI>244 GB/s 2x32</LI>
+		<LI>126 GB/s 1x32</LI>
+		<LI>Same socket, diff die is ~30% slower.  Diff socket is ~65% slower.</LI>
+		<LI>Max bandwidth is ~30 GB/s per core (absent of contention/sharing)</LI>
 		<LI></LI>
 	</UL>
 
 	<LI> Skylake </LI> <!-- lr6 -->
 	<UL>
-		<LI>6 lanes per socket.  </LI>
-		<LI>Dell Theoretical: 3 DIMM: 52 GB/s. 6 DIMM: 104 GB/s (Dual Ranked DDR4 2644)</LI>
+		<LI>6 memory channels per socket </LI>
+		<LI>Dell Benchmark: 3 DIMM: 52 GB/s. 6 DIMM: 104 GB/s (Dual Ranked DDR4 2644)</LI>
 		<LI>In practice, 6 DIMM on 2 sockets got ~ 100 GB/s </LI>
 		<LI>12 DIMM on 2 sockets got ~ 150 GB/s </LI>
 		<LI>Some system have 4 or 8 slots per socket, when such slot is populated, memory bandwidth is variable as extra slot has to share the bus</LI>
@@ -293,19 +308,19 @@ is a decent tool to mesure CPU to memory bandwidth access.
 	<UL>
 		<!-- cf1 -->
 		<LI>286,357 MB/s (triads avg w/ 1x64 threads Phi 7210 @ 1.30 GHz cache mode)</LI>
-		<LI><A HREF="https://downloads.dell.com/manuals/all-products/esuprt_software/esuprt_it_ops_datcentr_mgmt/high-computing-solution-resources_white-papers90_en-us.pdf">Dell published number for Phi 7230</A>:</LI>
-		<LI>491,520 MB/s on MCDRAM Phi7230 [on-die memory]</LI>
+		<LI><A HREF="https://downloads.dell.com/manuals/all-products/esuprt_software/esuprt_it_ops_datcentr_mgmt/high-computing-solution-resources_white-papers90_en-us.pdf">Dell benchmark for Phi 7230</A>:</LI>
+		<LI>491,520 MB/s on MCDRAM Phi7230 [in-socked memory]</LI>
 		<LI> 86,016 MB/s w/ 6 DDR4 dimms</LI>
-		<LI> <A HREF="https://software.intel.com/en-us/articles/optimizing-memory-bandwidth-in-knights-landing-on-stream-triad">Running stream test on KNL (Intel)</A> </LI>
+		<LI> <A HREF="https://software.intel.com/en-us/articles/optimizing-memory-bandwidth-in-knights-landing-on-stream-triad">Running stream test on KNL</A>(Intel):</LI>
 		<LI>
-			<PRE>
-			numactl -H 
-			# should be in FLAT mode (ie, at least two NUMA domain, so that MCDRAM vs off-die DDR4 memory can be addressed separately)
-			# IF in cache mode, effect of on-die memory caching cannot be removed from stream test
-			export OMP_NUM_THREADS=64; export KMP_AFFINITY=scatter; 
-			numactl -m 0
-			./stream
-			</PRE>
+		<PRE>
+		numactl -H 
+		# should be in FLAT mode (ie, at least two NUMA domain, so that MCDRAM vs off-socket DDR4 memory can be addressed separately)
+		# IF in cache mode, effect of in-socket memory caching cannot be removed from stream test
+		export OMP_NUM_THREADS=64; export KMP_AFFINITY=scatter; 
+		numactl -m 0
+		./stream
+		</PRE>
 		</LI>
 <!-- ~/HPCS_toolkit/run_stream_triad.sh /global/home/groups/scs/yqin/stream -->
 
