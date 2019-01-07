@@ -64,7 +64,7 @@
 <PRE>
 https://netapp.myco.com/na_admin 	# web gui URL.  Most feature avail there, including a console.
 
-ssh netapp.myco.com			# ssh (or rsh, telnet in) for CLI access
+ssh -o PubkeyAuthentication=no  -oKexAlgorithms=+diffie-hellman-group1-sha1 netapp.myco.com
 
 get root mount of /vol/vol0/etc in a unix machint do to direct config on files.
 
@@ -540,6 +540,45 @@ nfsstat -h 	# show detailed nfs statistics, several lines per client, since zero
 nfsstat -l 	# show 1 line stat per client, since boot (non resetable stat)
 
 </PRE>
+
+Cuz of sshuttle, mac and linux may become part of the allowed network client :(
+Mitigation to prevent NFS access thru sshutle is to require access on priviledge ports only (since sshuttle still run as user space.)
+<BR>
+7-mode
+<!-- 
+ssh -o PubkeyAuthentication=no  -oKexAlgorithms=+diffie-hellman-group1-sha1 netapp1
+-->
+<PRE>
+
+options nfs
+nfs.mount_rootonly           on         
+nfs.nfs_rootonly             off        
+
+</PRE>
+cDOT config:
+<PRE>
+
+
+nfs option nfs.mount_rootonly on # on is default, reject mount req from non reserved ports
+nfs option nfs.nfs_rootonly on   # off is default, which allow NFS request from non-reserved port (nfs mount tunneled by sshutle would come in as non priviledged port, thus need to turn this on.
+
+
+nfs modify -vserver als-vFiler -mount-rootonly # not changed, (def is on/enable)
+nfs modify -vserver als-vFiler -nfs-rootonly enable # this was changed
+
+vserver nfs show -vserver als-vFiler -nfs-rootonly 
+
+
+vserver show -vserver als-filercl -instance
+nfs show -vserver als-filercl
+        # see root mount and root nfs
+        # root nfs is now enabled...
+        # so if client still works, then i guess that's what we want
+        # hmm... i suppose stunnel make nfs req as non root.
+        # whereas linux nfs client is kernel calls thus root only...
+
+</PRE>
+
 
 <H4>NIS domain</H4>
 
