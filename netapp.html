@@ -495,6 +495,12 @@ NetApp Deduplication for FAS and V-Series Deployment and Implementation Guide
 NFS
 </H3>
 
+<OL>
+<LI> cDOT OnTap 9.x ? Exports are done via policy.  but apparently each export can only have 1 policy.  it seems to create an extra layer and not getting much in return.  maybe same client list can be placed in single export whence be used in multiple exports, since each qtree have its own exports
+<LI> export policy at SVM is hierarchical.  top level / root export need to open wide, then vol-level export a bit narrower, then qtree-level export with the exact specific.    ie hierarchy of subsets need to be unioned to higher lever export policy.  PITA.
+</OL>
+
+
 <PRE>
 
 (/) etc/export
@@ -513,7 +519,7 @@ Besides just having export for nfs and ahare for cifs,
 there is another setting about fs security permission style, nfs, ntfs, or mixed.  
 this control characteristic of chmod and files ACL.
 
-Once edit is done, telnet to netapp and issue cmd:
+Once edit is done, ssh to netapp and issue cmd:
 exportfs -a		# re-add all exports as per new etc/export file
 exportfs -u		# unexport everything.  Careful!
 exportfs -u vol/vol1	# unexport vol1 (everything else remains intact)
@@ -534,6 +540,12 @@ options nfs.v3.enable  on
 options nfs.tcp.enable on
 	# enable NFS v3 and TCP for better performance.
 
+
+starting with OnTap ~9.x a new middle layer called export policy is needed to govern between exported volume/qtree and client list.
+
+vfiler export-policy show
+volume qtree show -fields export-policy
+
 nfsstat 	# display nfs sttistics, separte v2 and v3
 nfsstat -z 	# zero the nfsstat counter
 nfsstat -h 	# show detailed nfs statistics, several lines per client, since zero
@@ -543,6 +555,7 @@ nfsstat -l 	# show 1 line stat per client, since boot (non resetable stat)
 
 Cuz of sshuttle, mac and linux may become part of the allowed network client :(
 Mitigation to prevent NFS access thru sshutle is to require access on priviledge ports only (since sshuttle still run as user space.)
+priviledge ports: below 1024, ie up to 1023
 <BR>
 7-mode
 <!-- 
@@ -771,6 +784,24 @@ WINDOM\* == *	# map all user of a specific domain
 </PRE>
 
 <H3>Command</H3>
+
+
+<H5>cDOT new commads</H5>
+
+<PRE>
+version			# show ontap version  eg 9.3P8
+
+system node show -node crfs4-prodcl-01  	# get serial number, usable to open support case
+system chassis show 				# some chassis serial that can *NOT* be used to open support case
+show-serial-number				# some other   serial that can *NOT* be used to open support case
+
+
+show-summary					# simple stats
+
+</PRE>
+
+
+<H5>commads usable with 7-mode</H5>
 <PRE>
 Commands for NetApp CLI (logged in thru telnet/ssh/rsh)
 
@@ -887,6 +918,13 @@ Note that cipher is for use in ssh (v1), and ciphers with is for ssh2.
 3des is secure enough, (des is not secure enough anymore), but it is slower than blowfish, etc 
 so many linux does not use 3des anymore.
 
+<BR>
+OnTap 9.x
+<PRE>
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 admin@netapp
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -o PubkeyAuthentication=no  -l naroot netapp2
+</PRE>
+
 <H3>vFiler</H3>
 
 <PRE>
@@ -895,6 +933,10 @@ Volumes are created on the physical (host) filer.
 It is then added (assigned) to a virtual filer.
 qtree are created by the vFiler.
 exports of fs is done by the vFiler.  Each vFiler has its own etc/exports for this purpose.  
+
+in cDOT 8.3, vfiler is called svm (storage virtual machine).
+it encapsulate the volumes, all protocol access, lif.  admin access is assigned to svm (so that netapp can do multi-tenancy thing)
+the hardware is really to just host the SVM.  most everything else is done inside the SVM (using vfiler commands)
 
 
 vol create vf1_vol0					# good practice to have vfiler name on the volume name
@@ -929,6 +971,9 @@ vfiler context vfiler0	# swtich back to physical (hosting) filer.
 
 CIFS share are also created inside the vfiler like NFS exports.  the config is saved in the cifsconfig_share.cfg file in the etc folder.
 
+
+
+vfiler export-policy show
 
 
 </PRE>
