@@ -55,15 +55,28 @@
   })();
 </script>
 
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+
 <H1>NetApp cluster-mode</H1>
 
+<OL>
+<LI>
 With OnTap 9.x, in cluster mode, view is really divided between HW and VM.  Think much more like VM and host of VMware.  <BR>
 OnTap 9.x cluster mode now separate 
 Data (File) Access (done by Storage Virtual Machine - SVM) 
 vs physical setup (nodes) 
-<BR>
 
+<LI>
 qtree is still supported by mostly for legacy migration, little need for it when things all contained inside an SVM.
+
+<LI> cDOT OnTap 9.x ? Exports are done via policy.  but apparently each export can only have 1 policy.  it seems to create an extra layer and not getting much in return.  maybe same client list can be placed in single export whence be used in multiple exports, since each qtree have its own exports
+
+<LI> export policy at SVM is hierarchical.  top level / root export need to open wide, then vol-level export a bit narrower, then qtree-level export with the exact specific.    ie hierarchy of subsets need to be unioned to higher lever export policy.  PITA.
+
+
+</OL>
+
 
 
 <H5>cDOT new commads</H5>
@@ -89,6 +102,14 @@ cluster statistics show		# CPU, NFS usage
 cluster ring show		# check various cluster quorum 
 
 event log show 
+
+
+# protocol options apply to whole cluster?  Don't seems to be restricted to specific SVM...
+
+nfs option nfs.mount_rootonly on # on is default, reject mount req from non reserved ports
+nfs option nfs.nfs_rootonly on   # off is default, which allow NFS request from non-reserved port (nfs mount tunneled by sshutle would come in as non priviledged port, thus need to turn this on.
+
+
 </PRE>
 
 
@@ -161,13 +182,19 @@ system configuration backup settings set-password # (Set the backup password for
 
 
 <H2>
-Links/Ref
+Cluster-mode Ref
 </H2>
 
 <OL>
 	<LI><A HREF="https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/">Pocket Guide Clustered Mode</A> from sysadmin tutorials</LI>
 	<LI><A HREF=""></A></LI>
 	<LI></LI>
+</OL>
+
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+<!-- ############################################################ -->
 
 <!-- netapp.ref -->
 <H1>NetApp 7-mode</H1>
@@ -607,12 +634,6 @@ NetApp Deduplication for FAS and V-Series Deployment and Implementation Guide
 <H3>
 NFS
 </H3>
-
-<OL>
-<LI> cDOT OnTap 9.x ? Exports are done via policy.  but apparently each export can only have 1 policy.  it seems to create an extra layer and not getting much in return.  maybe same client list can be placed in single export whence be used in multiple exports, since each qtree have its own exports
-<LI> export policy at SVM is hierarchical.  top level / root export need to open wide, then vol-level export a bit narrower, then qtree-level export with the exact specific.    ie hierarchy of subsets need to be unioned to higher lever export policy.  PITA.
-</OL>
-
 
 <PRE>
 
@@ -1314,7 +1335,7 @@ http://psg.ask-margo.com/netapp.html</A>] <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>
  for copyright info. <BR>
-Last Updated: 2007-04-27, 2009-04-01<BR>
+Last Updated: 2007-04-27, 2009-04-01, 2019-01-10<BR>
 
 
 <!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
