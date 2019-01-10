@@ -797,6 +797,59 @@ show-serial-number				# some other   serial that can *NOT* be used to open suppo
 
 
 show-summary					# simple stats
+</PRE>
+
+<H5>cDOT cluster-wide commands</H5>
+
+<PRE>
+dashboard performance show
+
+cluster statistics show		# CPU, NFS usage
+
+cluster ring show		# check various cluster quorum 
+
+event log show 
+</PRE>
+
+
+<H5>cDOT commands on physical node </H5>
+
+Commands on hw node, which may contain multiple SVM
+
+<PRE>
+
+system node run -node local sysconfig -a 	# sysconfig -a (across multiple SVM)
+
+node run -node NodeName -command sysstat -c 100 -x 5  # systat 100 times, at every 5 sec interval
+
+
+system node reboot -node NodeName -reason Msg
+
+system node rename -node OldName -newname NewNodeName
+
+storage failover show
+storage failover takeover -bynode NodeName
+storage failover giveback -bynode NodeName
+
+aggregate show -node NodeName -fields ha-policy
+aggregate show -space
+aggr      relocation show
+
+
+</PRE>
+
+
+<H5>cDOT commands on VM</H5>
+
+Commands contained inside an SVM
+<PRE>
+
+vserver show
+vserver show -vserver als-svm
+
+vserver setup 
+vserver create -vserver SVMname -rootvolume VolName # create new SVM
+
 
 </PRE>
 
@@ -940,6 +993,8 @@ the hardware is really to just host the SVM.  most everything else is done insid
 
 
 vol create vf1_vol0					# good practice to have vfiler name on the volume name
+							# SVM would have volume to itself, not visible by other SVM admin, so not needed in OnTap 9.x cluster mode (?)
+
 vfiler add vfiler1 /vol/vf1_vol0			# this would be root vol, aka /etc
 vfiler add vfiler1 /vol/vf1_vol1			# addional vol for data
 
@@ -999,6 +1054,22 @@ nsswitch.conf
 
 </PRE>
 
+
+<A NAME="cf_bk"></A>
+<H5>cDOT clustered-mode backup config</H5>
+
+Ref: https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/
+
+<PRE>
+system configuration backup create -backup-name node1-backup -node node1 (Create a cluster backup from node1)
+
+system configuration backup create -backup-name node1-backup -node node1 -backup-type node (Create a node backup of node1)
+
+system configuration backup settings modify -destination ftp://192.168.1.10/ -username backups (Sets scheduled backups to go to this destination URL)
+
+system configuration backup settings set-password # (Set the backup password for the destination URL above)
+
+</PRE>
 
 <H3>Logs</H3>
 
@@ -1170,12 +1241,17 @@ so not one-stop thing.  ==> limited use.
  
 
 <H1>
-Links
+Links/Ref
 </H1>
 
 <OL>
-<LI><A HREF="http://www.netapp.com/library/tr/3298.pdf">RAID_DP</A>	<BR>
-<LI>
+	<LI><A HREF="http://www.netapp.com/library/tr/3298.pdf">RAID_DP</A></LI>
+	<LI><A HREF="https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/">Pocket Guide Clustered Mode</A> from sysadmin tutorials</LI>
+	<LI><A HREF=""></A></LI>
+	<LI><A HREF=""></A></LI>
+	<LI></LI>
+	<LI></LI>
+	<LI></LI>
 </OL>
 
 <H1>
