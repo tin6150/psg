@@ -57,6 +57,8 @@
 
 <!-- ############################################################ -->
 <!-- ############################################################ -->
+<!-- ############################################################ -->
+<!-- ############################################################ -->
 
 <H1>NetApp cluster-mode</H1>
 
@@ -119,12 +121,12 @@ Commands on hw node, which may contain multiple SVM
 
 <PRE>
 
-system node run -node local sysconfig -a 	# sysconfig -a (across multiple SVM)
+system node run -node local sysconfig -a 		# sysconfig -a (across multiple SVM)
 
-node run -node NodeName -command sysstat -c 100 -x 5  # systat 100 times, at every 5 sec interval
+node run -node NodeName -command sysstat -c 100 -x 5  	# systat 100 times, at every 5 sec interval
 
 
-system node reboot -node NodeName -reason Msg
+system node reboot -node NodeName -reason Msg		# HA policy may bring it up elsewhere?
 
 system node rename -node OldName -newname NewNodeName
 
@@ -1319,7 +1321,7 @@ OnTap 7.0	- 2005?  Aggregate introduced here.
 OnTap 7.3.1	- 2008?  DeDuplication (a/sis) single instance storage available. 
 OnTap 8.1.4	-        Last version with NFSv2 support
 OnTap 8.2       -        Dropped support for NFSv2.  Sorry Epic VxWorks.
-OnTap 9		-        Introduced SVM - Storage VM - segregated Data vs HW access for multi-tenancy support
+OnTap 9		- 2017?  Introduced SVM - Storage VM - segregated Data vs HW access for multi-tenancy support
 
 </PRE>
 
