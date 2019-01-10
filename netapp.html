@@ -131,6 +131,15 @@ vserver setup
 vserver create -vserver SVMname -rootvolume VolName # create new SVM
 
 
+vserver export-policy show
+vserver export-policy rule show -vserver als-filercl -policyname default
+
+volume qtree show 
+volume qtree show -fields export-policy
+
+
+vserver nfs modify -vserver svm1 -showmount disabled    # showmount -e reports exports open to everyone in OnTap 9.x  this disable responding to showmount -e
+
 </PRE>
 
 
@@ -645,9 +654,10 @@ options nfs.tcp.enable on
 	# enable NFS v3 and TCP for better performance.
 
 
-starting with OnTap ~9.x a new middle layer called export policy is needed to govern between exported volume/qtree and client list.
+Note that starting with OnTap ~9.x a new middle layer called export policy is needed to govern between exported volume/qtree and client list.
 
-vfiler export-policy show
+vserver export-policy show
+
 volume qtree show -fields export-policy
 
 nfsstat 	# display nfs sttistics, separte v2 and v3
