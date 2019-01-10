@@ -55,9 +55,102 @@
   })();
 </script>
 
+<H1>NetApp cluster-mode</H1>
+
+With OnTap 9.x, in cluster mode, view is really divided between HW and VM.  Think much more like VM and host of VMware.  <BR>
+OnTap 9.x cluster mode now separate 
+Data (File) Access (done by Storage VM) 
+vs physical setup (nodes) 
+
+
+<H5>cDOT new commads</H5>
+
+<PRE>
+version			# show ontap version  eg 9.3P8
+
+system node show -node crfs4-prodcl-01  	# get serial number, usable to open support case
+system chassis show 				# some chassis serial that can *NOT* be used to open support case
+show-serial-number				# some other   serial that can *NOT* be used to open support case
+
+
+show-summary					# simple stats
+</PRE>
+
+<H5>cDOT cluster-wide commands</H5>
+
+<PRE>
+dashboard performance show
+
+cluster statistics show		# CPU, NFS usage
+
+cluster ring show		# check various cluster quorum 
+
+event log show 
+</PRE>
+
+
+<H5>cDOT commands on physical node </H5>
+
+Commands on hw node, which may contain multiple SVM
+
+<PRE>
+
+system node run -node local sysconfig -a 	# sysconfig -a (across multiple SVM)
+
+node run -node NodeName -command sysstat -c 100 -x 5  # systat 100 times, at every 5 sec interval
+
+
+system node reboot -node NodeName -reason Msg
+
+system node rename -node OldName -newname NewNodeName
+
+storage failover show
+storage failover takeover -bynode NodeName
+storage failover giveback -bynode NodeName
+
+aggregate show -node NodeName -fields ha-policy
+aggregate show -space
+aggr      relocation show
+
+
+</PRE>
+
+
+<H5>cDOT commands on VM</H5>
+
+Commands contained inside an SVM
+<PRE>
+
+vserver show
+vserver show -vserver als-svm
+
+vserver setup 
+vserver create -vserver SVMname -rootvolume VolName # create new SVM
+
+
+</PRE>
+
+
+<A NAME="cf_bk"></A>
+<H5>cDOT clustered-mode backup config</H5>
+
+Ref: https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/
+
+<PRE>
+system configuration backup create -backup-name node1-backup -node node1 (Create a cluster backup from node1)
+
+system configuration backup create -backup-name node1-backup -node node1 -backup-type node (Create a node backup of node1)
+
+system configuration backup settings modify -destination ftp://192.168.1.10/ -username backups (Sets scheduled backups to go to this destination URL)
+
+system configuration backup settings set-password # (Set the backup password for the destination URL above)
+
+</PRE>
+
+
 
 <!-- netapp.ref -->
-<H1>NetApp</H1>
+<H1>NetApp 7-mode</H1>
 
 <H3>NetApp 101</H3>
 
@@ -786,74 +879,6 @@ WINDOM\* == *	# map all user of a specific domain
 <H3>Command</H3>
 
 
-<H5>cDOT new commads</H5>
-
-<PRE>
-version			# show ontap version  eg 9.3P8
-
-system node show -node crfs4-prodcl-01  	# get serial number, usable to open support case
-system chassis show 				# some chassis serial that can *NOT* be used to open support case
-show-serial-number				# some other   serial that can *NOT* be used to open support case
-
-
-show-summary					# simple stats
-</PRE>
-
-<H5>cDOT cluster-wide commands</H5>
-
-<PRE>
-dashboard performance show
-
-cluster statistics show		# CPU, NFS usage
-
-cluster ring show		# check various cluster quorum 
-
-event log show 
-</PRE>
-
-
-<H5>cDOT commands on physical node </H5>
-
-Commands on hw node, which may contain multiple SVM
-
-<PRE>
-
-system node run -node local sysconfig -a 	# sysconfig -a (across multiple SVM)
-
-node run -node NodeName -command sysstat -c 100 -x 5  # systat 100 times, at every 5 sec interval
-
-
-system node reboot -node NodeName -reason Msg
-
-system node rename -node OldName -newname NewNodeName
-
-storage failover show
-storage failover takeover -bynode NodeName
-storage failover giveback -bynode NodeName
-
-aggregate show -node NodeName -fields ha-policy
-aggregate show -space
-aggr      relocation show
-
-
-</PRE>
-
-
-<H5>cDOT commands on VM</H5>
-
-Commands contained inside an SVM
-<PRE>
-
-vserver show
-vserver show -vserver als-svm
-
-vserver setup 
-vserver create -vserver SVMname -rootvolume VolName # create new SVM
-
-
-</PRE>
-
-
 <H5>commads usable with 7-mode</H5>
 <PRE>
 Commands for NetApp CLI (logged in thru telnet/ssh/rsh)
@@ -1054,22 +1079,6 @@ nsswitch.conf
 
 </PRE>
 
-
-<A NAME="cf_bk"></A>
-<H5>cDOT clustered-mode backup config</H5>
-
-Ref: https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/
-
-<PRE>
-system configuration backup create -backup-name node1-backup -node node1 (Create a cluster backup from node1)
-
-system configuration backup create -backup-name node1-backup -node node1 -backup-type node (Create a node backup of node1)
-
-system configuration backup settings modify -destination ftp://192.168.1.10/ -username backups (Sets scheduled backups to go to this destination URL)
-
-system configuration backup settings set-password # (Set the backup password for the destination URL above)
-
-</PRE>
 
 <H3>Logs</H3>
 
