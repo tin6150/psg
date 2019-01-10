@@ -97,11 +97,7 @@ show-summary					# simple stats
 <H5>cDOT cluster-wide commands</H5>
 
 <PRE>
-dashboard performance show
-
 cluster statistics show		# CPU, NFS usage
-
-cluster ring show		# check various cluster quorum 
 
 event log show 
 
@@ -134,9 +130,11 @@ storage failover show
 storage failover takeover -bynode NodeName
 storage failover giveback -bynode NodeName
 
-aggregate show -node NodeName -fields ha-policy
-aggregate show -space
-aggr      relocation show
+# aggregates
+
+aggr show -node NodeName -fields ha-policy
+aggr show -space
+aggr relocation show
 
 
 </PRE>
@@ -161,7 +159,18 @@ volume qtree show
 volume qtree show -fields export-policy
 
 
+vserver nfs show   -vserver svm1 -fields showmount
 vserver nfs modify -vserver svm1 -showmount disabled    # showmount -e reports exports open to everyone in OnTap 9.x  this disable responding to showmount -e
+
+
+# show if require use of priviledge port (below 1024)
+
+vserver nfs show -vserver als-filercl -fields nfs-rootonly 
+vserver nfs show -vserver als-filercl -fields mount-rootonly 
+
+# to actually make changes...
+
+
 
 </PRE>
 
