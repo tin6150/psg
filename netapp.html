@@ -151,9 +151,19 @@ vserver show -vserver als-svm
 vserver setup 
 vserver create -vserver SVMname -rootvolume VolName # create new SVM
 
+vserver nfs show		# which protocol is enabled (3,4,4.1, TCP,UDP)
+
+volume show -volume devel -instance	# see what volume export 
+
+volume show -volume prod -fields
+
+volume show -fields volume,junction-path,policy 	# see which volume has what export policy
+qtree show -fields vserver,volume,qtree-path,export-policy # qtree and exports
+	# these cli are so clunky, it is API and GUI oriented, not sys admin oriented :(
 
 vserver export-policy show
-vserver export-policy rule show -vserver als-filercl -policyname default
+vserver export-policy rule show -vserver als-filercl -policyname export_perf_test
+vserver export-policy rule modify -policyname export_perf_test -ruleindex ...
 
 volume qtree show 
 volume qtree show -fields export-policy
@@ -689,6 +699,9 @@ options nfs.tcp.enable on
 Note that starting with OnTap ~9.x a new middle layer called export policy is needed to govern between exported volume/qtree and client list.
 
 vserver export-policy show
+vserver export-policy rule show -vserver als-filercl -policyname export_perf_test
+vserver export-policy rule modify -policyname export_perf_test -ruleindex ...
+
 
 volume qtree show -fields export-policy
 
