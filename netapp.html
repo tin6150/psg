@@ -99,6 +99,9 @@ show-summary					# simple stats
 <PRE>
 cluster statistics show		# CPU, NFS usage
 
+cluster peer show		# DR peer info
+cluster peer ping		# see if peer is pingable
+
 event log show 
 
 
@@ -106,6 +109,17 @@ event log show
 
 nfs option nfs.mount_rootonly on # on is default, reject mount req from non reserved ports
 nfs option nfs.nfs_rootonly on   # off is default, which allow NFS request from non-reserved port (nfs mount tunneled by sshutle would come in as non priviledged port, thus need to turn this on.
+
+
+security login show				# list user who can login to the cluster, their role, login "application" (ssh,console,http)
+
+security login delete -user-or-group-name red8				# should delete user
+security login delete -user-or-group-name red8	-application telnet 	# remove ability to login via telnet
+
+
+
+cluster image show				# boot image, uploaded image for OS upgrade
+cluster image package show-repository		# applicatin packages...  netapp app store??
 
 
 </PRE>
@@ -157,8 +171,8 @@ volume show -volume devel -instance	# see what volume export
 
 volume show -volume prod -fields
 
-volume show -fields volume,junction-path,policy 	# see which volume has what export policy
-qtree show -fields vserver,volume,qtree-path,export-policy # qtree and exports
+volume show -fields volume,junction-path,policy 		# see which volume has what export policy
+qtree  show -fields vserver,volume,qtree-path,export-policy 	# qtree and exports
 	# these cli are so clunky, it is API and GUI oriented, not sys admin oriented :(
 
 vserver export-policy show
@@ -181,9 +195,58 @@ vserver nfs show -vserver als-filercl -fields mount-rootonly
 # to actually make changes...
 
 
+</PRE>
+
+<H5>Network</H5>
+LIF are assigned to SVM.  <BR>
+
+<PRE>
+net int show				# show LIF for all nodes/SVM
+vlan  show				# vlan and tagging info
+ifgrp show				# LACP/LAG config on each node, mac address
+
+net ipspace  show			# brief view of IP networks used in cluster
+net port broadcast-domain show		# MTU, subnet size 
+
+system service-processor show		# show IP assigned for service processor (RLM port)
+
+firewall policy show			# data/mgnt/interconnect  dns/ndmp/dns/http/ntp/snmp/ssh access policy
+
+
+
+ping -vserver ... -lif ... 		# even ping is a convoluted command
+</PRE>
+
+
+
+DR snapmirror traffic config on a dedicated private vlan.
+<PRE>
+
+network interface create -vserver crfs4-prodcl -lif crfs4-prodcl01-icl1 -role intercluster -home-node crfs4-prodcl-01 -home-port a0b -address 172.27.84.60 -netmask-length 24 -status-admin up -failover-policy disabled
+
+
+network ping -lif crfs4-prodcl-01_icl1 -vserver crfs4-prodcl -destination 172.27.84.59
+
+
+
+
+set adv
+cluster ring show
+set 
 
 </PRE>
 
+<H5>cDOT shutdown</H5>
+<PRE>
+
+
+snapmirror quiesce -destination-path als-filercl:*
+
+halt -node node01 -inhibit-takeover true -skip-lif-migration-before-shutdown true -reason test
+
+snapmirror resume ... 
+
+</PRE>
 
 <A NAME="cf_bk"></A>
 <H5>cDOT clustered-mode backup config</H5>
