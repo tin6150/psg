@@ -86,6 +86,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 	git clone https://tin6150@github.com/tin6150/inet-dev-class
+	git clone https://tin6150@github.com/tin6150/area51		# private repo, encrypted content, hopefully ok
 
 	### VMware tools as ansible role fork (so as not get updte unless manually checked)
 	### actually trying to do subtree merging under CF_BK/Ansible/roles
