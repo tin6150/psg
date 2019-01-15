@@ -162,8 +162,14 @@ qtree show -fields vserver,volume,qtree-path,export-policy # qtree and exports
 	# these cli are so clunky, it is API and GUI oriented, not sys admin oriented :(
 
 vserver export-policy show
-vserver export-policy rule show -vserver als-filercl -policyname export_perf_test
-vserver export-policy rule modify -policyname export_perf_test -ruleindex ...
+export-policy show		# same as above, don't need the vserver declaration
+export-policy rule show -vserver als-filercl -policyname export_perf_test
+export-policy rule modify -policyname export_perf_test -ruleindex ...
+export-policy rule create -policyname vm_backup-export -clientmatch 131.243.73.0/24 -rorule sys -rwrule sys  -vserver als-filercl -ruleindex 14 -protocol nfs
+### not sure if there is way to have system auto assign next ruleindex number...  
+
+
+snapmirror show			# snapmirror status - approx from 8.x 
 
 volume qtree show 
 volume qtree show -fields export-policy
