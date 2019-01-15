@@ -276,6 +276,44 @@ system configuration backup settings set-password # (Set the backup password for
 
 
 <H2>
+DR setup with SVM (OnTap 9.3)
+</H2>
+
+<PRE>
+# create SVM in the DR cluster to hold the SVM fail over:
+dr:: vserver create -vserver svm1-dr -subtype dp-destination
+
+# check and sync all snapmirror jobs so that in event of DR activate, all schedules are consistent:
+dr:: job schedule cron show
+dr:: job schedule cron create -name transition_snapshot_schedule_8  -hour 8,12,16,20 -minute 0
+dr:: job schedule cron create -name transition_snapshot_schedule_9  -hour 0          -minute 0
+
+
+# create a peering request to the production SVM:
+dr:: vserver peer create -vserver svm1-dr -peer-vserver svm1 -applications snapmirror -peer-cluster prodcl
+dr:: vserver      show
+dr:: vserver peer show
+
+# accept the request, establishing a peering relationship with the DR SVM:
+prod:: vserver peer show
+prod:: vserverpeer accept -vserver svm1 -peer-vserver svm1-dr
+
+
+# mirror the SVM config
+dr:: snapmirror create -source-path svm1: -destination-path svm1-dr: -type DP -throttle unlimited -policy DPDefault -schedule hourly -identity-preserve true
+dr:: snapmirror initialize -destination-path svm1-dr: 
+dr:: snapmirror show -destination-path svm-dr:
+
+
+</PRE>
+
+<!--
+xref:
+CF_BK/als/gilmar.rst 
+https://docs.google.com/document/d/13oIrDaPDwb52MRbllq1H2YkPQR5JtGw6O9ZcxeVzuIU/edit
+-->
+
+<H2>
 Cluster-mode Ref
 </H2>
 
@@ -284,6 +322,8 @@ Cluster-mode Ref
 	<LI><A HREF=""></A></LI>
 	<LI></LI>
 </OL>
+
+
 
 <!-- ############################################################ -->
 <!-- ############################################################ -->
