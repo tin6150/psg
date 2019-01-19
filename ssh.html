@@ -202,7 +202,7 @@ ssh-agent 		# run in background forever,
 			# but need to export SSH_AUTH_SOCK var manually in other shell session before agent work...
 			# eg:
 export SSH_AUTH_SOCK=/var/folders/wy/jztf8lmn08v4kry0vsxzskpw0000gn/T//ssh-oQzD1UBJO3AO/agent.12475
-export SSH_AGENT_PID=12476	# prob not really needed
+export SSH_AGENT_PID=12476	# not really needed
 
 
 ssh-add			# by default, add private keys in ~/.ssh/ to agent's memory.
@@ -212,10 +212,16 @@ ssh somehost		# private key, those with passphrase, will be automatically inoked
 
 
 
+
 # newer version of ssh will communicate automagically with ssh-agent ?
 # just that mac os x 10.12.5 has old ssh client that don't do this?
+# or maybe ssh-agent was disabled on mac?
 # 
-
+# actually: 
+# GNOME starts ssh agent on startup, and all shell start with proper env var set for SSH_AUTH_SOCK
+# ssh-add may still need to be run on the first shell session to let ssh-agent load the private key into its memory.
+# ref
+# https://unix.stackexchange.com/questions/72552/whats-the-purpose-of-ssh-agent
 
 </PRE>
 
