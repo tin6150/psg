@@ -182,7 +182,7 @@ run_git_clone()
 
 	#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
 	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
-
+	# git clone https://github.com/mapbox/mapbox-sdk-py.git		   # mapbox uploader, just cuz i need to search for things inside it
 } # end-run_git_clone()
 
 
