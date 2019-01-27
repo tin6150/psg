@@ -111,6 +111,7 @@ add_local_module () {
 		#export MODULEPATH=$MODULEPATH:/opt2
 		#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
 	fi
+	AddtoString PATH ~/.local/bin 		# pip install --user mapboxcli
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_local_module_ends"
 } # end add_local_module
 
