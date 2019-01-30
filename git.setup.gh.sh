@@ -112,6 +112,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/perf_tools
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
+	git clone https://tin6150@github.com/tin6150/smelly.git
 
         #############################################
         #### stuff I forked, play/learn with,    ####
