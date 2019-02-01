@@ -7,6 +7,9 @@
 #SBATCH --mem-per-cpu=2G 
 #SBATCH --time=90:00
 
+# for brc savio3, can submit as:
+# sbatch --partition=savio3 --account=co_laika --qos=laika_savio3_normal slurm-job-cf1.sh
+
 hostname
 date
 uptime
