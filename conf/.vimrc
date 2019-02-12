@@ -19,3 +19,10 @@
 " alias vis='\vim -c '\''set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab syntax-=on'\'''
 "
 set noai                
+
+" ==== 2019.0202 =========
+" kate and kdevelop in vi mode is my new fav editor, but there are still some quirkyness
+" vi outside screen has better color for comment, even when TERM=xterm-256color
+" so want some default that is kinda sane, even when still not optimal for python editing
+set shiftwidth=2 tabstop=4 formatoptions-=cro list nu noexpandtab syntax-=on 
+

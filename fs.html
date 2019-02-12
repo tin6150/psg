@@ -18,18 +18,17 @@
   <tbody>
     <tr>
       <th colspan="9" align="center">
-	  
-<A HREF="http://psg.ask-margo.com/fs.html">Sys Admin Pocket Survival Guide - FS</A>
+
+<A HREF="http://tin6150.github.io/psg/fs.html">Sys Admin Pocket Survival Guide - FS</A>
 
       </th>
     </tr>
     <tr>
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
-      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
-      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
-      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="i" href="isilon.html">Isilon</a></td>
       <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
       <td align="center"><a accesskey="e" href="emc.html">EMC</a>	</td>
+      <td align="center"><a accesskey="n" href="emcCelerra.html">EMC(NAS)</a></td>
       <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
     </tr>
   </tbody>
@@ -384,29 +383,104 @@ nfsserver:/unixhome                          -  /nfshome    nfs 2 yes rw,vers=3,
 	
 </PRE>
 
-
+<A NAME="NFSv4"></A>
+<A NAME="nfsv4"></A>
+<A NAME="v4"></A>
 <H1>NFSv4</H1>
 
+Features:
+<LI> Sync write persistence
+<LI> Distributed file locking
+<LI> 
+
+<PRE>
+
+* Stateful (!) personality
+    - Not same kind of statefulness as CIFS
+    - session is at app layer, not TCP layer.
+    - locks state are in controller memory, not persistent.  Client can re-check on lock and ensure no disruption during HA event.
+
+* UDP no longer supported
+
+* GSS-API: Generic Security Services API (RPCSEC_GSS)
+    - Kerberos
+    - LIPPKEY - Low Infrastructure Public Key Mechanism
+    - Simple PUblic Key Mechanism (SPKM-3)
+
+* Kerberos 5
+    - Symetric key
+    - Encrypted tickets and sesions keys from KDC
+    - Unix use MIT
+    - Windows use 2008R2 AD
+    - Support for Kerberos attribute is REQUIRED on client and server, 
+      but run time can opt to leave this blank;
+      whence Kerberos is not a must to have NFSv4 client talkign to NFSv4 server.
+
+* ACL is much closer and interoperable with CIFS
+    - based on NTFS model
+    - array of ACE (Access Control Entries)
+    - support allowed and denied permissions, flags
+    - UID/GID are string based (eg user@domain) instead of 32-bit integers used in NFSv3.  (!!)
+        + vserver nfs show -vserver nas1 -fields v4-numeric-ids : 
+          make netapp respond with numeric UID for client that cannot understand string, 
+          this would generally make things easier (eg for transition period)  [TR-4072 page 46]
+    - NFSv4 ACL, no support for POSIX ACL (migration from 3rd party must manually set NFSv4 ACL) 
+    - nfs4_setfacl -e 
+
+nfs4_getfacl /home/als/physbase/hlc/General/
+nfs4_editfacl     
+nfs4_setfacl
+
+* At least on netapp OnTap 9.x
+    - traditional bits permisisons seems to be kept in parallel to NFSv4 ACL on the file object 
+    - chmod in NFSv3 by default will change NFSv4 ACL, unless such trigger is set not to happen
+
+
+* Pseudo FS (in dedicated namespace)
+    - entry point at /
+    - junction path
+
+* Client need /etc/idmapd.conf
+    - if not set, use `domainname`
+
+
+</PRE>
+
+
+<H2>NFSv4 ref</H4>
+
 <UL>
-<A HREF="https://help.ubuntu.com/community/NFSv4Howto">https://help.ubuntu.com/community/NFSv4Howto</A>:
-<LI>Can operate without a Domain/Kerberos server.  set NEED_SVCGSSD=no, and NFSv4 can rely on client side authentication as in NFSv3, albeit this isn't all that secure.
-<LI>Use with Kerberos (MIT or Heimdal) + KDC (Key Distribution Center) provides much better security.
+<LI> <A HREF="https://www.netapp.com/us/media/tr-4067.pdf">TR-4067: Clustered Data ONTAP NFS Implementation and Best Practice Guide</A>(2017.07).  Page 81 discuss about NFSv4.1 and numeric id (instead of default string-based id) 
+    [<A HREF="3rdParty/OnTap-tr-4067.pdf">cache</A>]
+
+<LI><A HREF="https://www.netapp.com/us/media/tr-4073.pdf">TR-4073</A> (2017) -  NFSv4.x LDAP, etc security mappings.  
+
+<LI><A HREF="https://www.netapp.com/us/media/tr-3580.pdf">TR-3580: NetApp NFSv4 Best Practices Guide</A>(2016.02)
+    [<A HREF="3rdParty/OnTap-tr-3580.pdf">cache</A>] - covers more details and background of NFSv3 vs NFSv4, ACL, etc.
 <LI>
+
+
+<LI><A HREF="https://help.ubuntu.com/community/NFSv4Howto">https://help.ubuntu.com/community/NFSv4Howto</A>:
+<UL>
+	<LI>Can operate without a Domain/Kerberos server.  set NEED_SVCGSSD=no, and NFSv4 can rely on client side authentication as in NFSv3, albeit this isn't all that secure.
+	<LI>Use with Kerberos (MIT or Heimdal) + KDC (Key Distribution Center) provides much better security.
+</UL>
+<LI>
+
 <LI>NFS exports works differently.  On the server side, it has a root export where everything else falls under.
 <LI>Typically default to proto=tcp,port=2049
-<LI>
 <LI>/etc/idmapd.cfg, nfsidmap, map user with different UID b/w NFSv4 server and client.
-</UL>
+<LI>
 
-<UL>
 <LI><A HREF="http://www.enterprisenetworkingplanet.com/netos/article.php/3644471/Implement-NFSv4-Domains-and-Authentication.htm">http://www.enterprisenetworkingplanet.com/netos/article.php/3644471/Implement-NFSv4-Domains-and-Authentication.htm</A> (from 2006!):
-<LI>NFSv4 introduce concept of Domain.  Many would rely on DNS domain for client and server to match.  Solaris allow for setting an explicit NFS domain.
-<LI>In addition to UID/GID needing to batch b/w client and server, Domain must match as well.
-<LI>Could use DNS RR or TXT record to specify domain.
+<UL>
+	<LI>NFSv4 introduce concept of Domain.  Many would rely on DNS domain for client and server to match.  Solaris allow for setting an explicit NFS domain.
+	<LI>In addition to UID/GID needing to batch b/w client and server, Domain must match as well.
+	<LI>Could use DNS RR or TXT record to specify domain.
 </UL>
 
-<UL>
 <LI><A HREF="http://nfsworld.blogspot.com/2005/06/using-active-directory-as-your-kdc-for.html">Eisler's NFS blog</A> describe how to use Active Directory with NFSv4.  From 2005!  Long solved problem, how many use it?
+
 </UL>
 
 

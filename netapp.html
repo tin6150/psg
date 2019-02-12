@@ -25,10 +25,10 @@
     </tr>
     <tr>
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="4" href="fs.html">fs (incl NFSv4)</a></td>
       <td align="center"><a accesskey="i" href="isilon.html">Isilon</a></td>
       <td align="center"><a accesskey="n" href="emcCelerra.html">EMC(NAS)</a></td>
       <td align="center"><a accesskey="e" href="emc.html">EMC(SAN)</a></td>
-      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a></td>
       <td align="center"><a accesskey="l" href="ldap.html">LDAP</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
@@ -81,7 +81,8 @@ qtree is still supported by mostly for legacy migration, little need for it when
 
 
 
-<H5>cDOT new commads</H5>
+<H5>cDOT New Commads</H5>
+
 
 <PRE>
 version			# show ontap version  eg 9.3P8
@@ -166,6 +167,12 @@ vserver setup
 vserver create -vserver SVMname -rootvolume VolName # create new SVM
 
 vserver nfs show		# which protocol is enabled (3,4,4.1, TCP,UDP)
+vserver nfs show -vserver nas1 -fields v4-numeric-ids 	# see whether numeric id is used instead of string for UID/GID
+
+	# make netapp respond with numeric UID for client that cannot understand string, 
+	# this would generally make things easier (eg for transition period)  [TR-4072 page 46]
+
+
 
 volume show -volume devel -instance	# see what volume export 
 
@@ -191,6 +198,8 @@ snapmirror show			# snapmirror status - approx from 8.x
 
 volume qtree show 
 volume qtree show -fields export-policy
+qtree show -fields export-policy,security-style,unix-permissions,qtree-path,oplock-mode,is-export-policy-inherited
+
 
 
 vserver nfs show   -vserver svm1 -fields showmount
@@ -320,11 +329,20 @@ Cluster-mode Ref
 </H2>
 
 <OL>
+	<LI> <A HREF="https://library.netapp.com/ecm/ecm_download_file/ECMLP2508919">OnTap 7 to 9 command map</A>
+       (<A HREF="3rdParty/ONTAP_90_Command_Map_for_7Mode_Administrators.pdf">cache</A>)
+	</LI>
+	
+	<LI><A HREF=""></A></LI>
 	<LI><A HREF="https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/">Pocket Guide Clustered Mode</A> from sysadmin tutorials</LI>
 	<LI><A HREF=""></A></LI>
-	<LI></LI>
+	
+	<LI><A HREF="https://www.netapp.com/us/media/tr-3580.pdf">TR-3580: NFSv4 Best Practices Guide</A>
+       (<A HREF="3rdParty/OnTap-tr-3580.pdf">cache</A>)
+	</LI>
 </OL>
 
+<BR>
 
 
 <!-- ############################################################ -->
@@ -939,6 +957,8 @@ wcc		wafle cache control, oft use to check windows to unix mapping
 	-a add entrie
 	-d display stats
 
+cDOT:
+vserver name-mapping show
 
 options wafl.default_nt_user	username 
 	# set what nt user will be mapped to unix by def (blank)
