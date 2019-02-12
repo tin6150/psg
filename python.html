@@ -79,10 +79,11 @@
     </tr>
     <tr>
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
-      <td align="center"><a accesskey="s" href="python.html">Python</a></td>
+      <td align="center"><a accesskey="y" href="python.html">Python</a></td>
+      <td align="center"><a accesskey="j" href="javascript.html">javascript</a></td>
       <td align="center"><a accesskey="p" href="php.txt">PHP</a></td>
-      <td align="center"><a accesskey="p" href="perl.html">Perl</a></td>
-      <td align="right"><a accesskey="a" href="shellScript.txt">shellScript</a></td>
+      <td align="center"><a accesskey="l" href="perl.html">Perl</a></td>
+      <td align="right"><a accesskey="s" href="shellScript.txt">shellScript</a></td>
     </tr>
   </tbody>
 </table>
@@ -574,6 +575,8 @@ Enclosing function locals
 Global   (module)
 Build-in (python)
 
+Before changing a global var inside a fn, must first declare var as <TT>global</TT> 
+
 Python3 added a <TT>nonlocal</TT> clause
 <A HREF="http://stackoverflow.com/questions/291978/short-description-of-python-scoping-rules">Python Scoping rules discussion</A>
 
@@ -610,14 +613,25 @@ print "this line is beyond the end of the if/elif/else block"
 # note there is no brackets or endif command to delineate the block !!
 
 
-for x in list:
+eg for-loop
+
+for x in list :
     cmd1
     cmd2
 cmd3
 
-while( X < 10 ):
+use `continue` to jump to next iteration
+
+while( X < 10 ) :
     cmd1
 cmd2
+
+
+# logical operator 
+# just simple word, no all caps, no use of && ||   (editor will color these reserved word differently)
+and
+or
+not
 
 </PRE>
 

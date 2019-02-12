@@ -353,20 +353,30 @@ git checkout -b issue123	# create a branch and switch to it at the same time (?)
 git push -u origin issue123	# push the local branch "issue123" to origin (github) [can push branch tag up upstream even when there are 0 commits]
 
 
-git tag-a          2018_0901_wsl -m "wsl git hopefully not creating cr/lf chaos"  	# create a release 
+git tag -a         2018_0901_wsl -m "wsl git hopefully not creating cr/lf chaos"  	# create a release 
 git push -u origin 2018_0901_wsl							# push the tag to github
 
 
+
+# https://stackoverflow.com/questions/16329776/how-to-keep-a-git-branch-in-sync-with-master
+# resync a branch from master (ie master is ahead, have changes that should be incorporated into the branch)
 git checkout master		# swich to the master branch (master is trunk branch created by default)
+git pull
+git checkout issue123		# so sitting on the branch issue123
+git merge master		# resync changes done to master into issue123 branch (if master is ahead of issue123)
+				
+
+# merge changes done in a branch into master (ie issue123 is ahead of master and ready to "upload/publish")
+# could use web gui in github, which is considered a Pull Request.
+# or:
+git checkout master		# so sitting on master branch
+git merge issue123		# retrieve changes in issue123 branchand merge into current (since sitting on master)
 
 
 
 git mergetool			# launch visual diff tool
 
-
-
 git init 			# create a git repo based on content of the current dir (and sub dirs)
-
 
 git remote add     repoName url	# set a repo name for current "git dir", and url in github where it would upload to
 git remote set-url repoName url	# use this if need to change remote github/bitbucket url

@@ -1,6 +1,7 @@
 #!/bin/sh
 #SBATCH --job-name=test
-#SBATCH --partition=lr6
+#SBATCH --partition=lr3
+#SBATCH --constrain=lr3_normal # these are features in slurm conf
 #SBATCH --qos=lr_normal
 #SBATCH --account=scs
 #SBATCH --nodes=2

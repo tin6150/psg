@@ -234,6 +234,8 @@ SATA 150 has 150 MB/s bandwidth
 SATA II  has 300 MB/s
 SAS is 6 Gbps = 768 MB/s
 
+b = bits (network, serial protocol))
+B = Byte (storage, at least traditionally "parrallel", whole byte based protocol)
 
 
 			128KB	4KB			
@@ -260,6 +262,107 @@ Ref:
 <LI> https://www.tomshardware.com/reviews/desktop-hdd.15-st4000dm000-4tb,3494-3.html
 <LI>
 </UL>
+
+<A NAME="memory_bandwidth"></A>
+<A NAME="memory_bw"></A>
+<A NAME="stream"></A>
+<H2> Memory Bandwidth </H2>
+
+<A HREF="https://www.cs.virginia.edu/stream/ref.html"><TT>stream</TT></A> 
+is a decent tool to mesure CPU to memory bandwidth access.  
+<BR>
+
+Below are high level summary info.  Diff CPU has diff numa arch and memory localization can have huge impact on latency and access speed.  use <TT>lstopo</TT> to determine core to cache mapping, etc.
+<BR>
+
+
+<OL>
+	<LI></LI>
+	<UL>
+		<LI></LI>
+	</UL>
+
+	<LI>AMD EPYC</LI>
+	<UL>
+		<LI>8 memory channel per socket</LI>
+		<LI><A HREF="https://www.dell.com/support/article/us/en/19/sln313856/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study?lang=en">EPYC 7601 2.2 GHz 2x32c</A> Benchmark on Dell R7425 DDR4 2400 MT/s</LI>
+		<LI>3 memory modes</LI>
+		<OL>
+			<LI>Memory Channel Interleave.  Reported result.  8 NUMA nodes for 2-socket system, close to hw implementation </LI>
+			<LI>Memory Die Interleaving.   2 NUMA nodes for 2-socket system.</LI>
+			<LI>Memory Socket Interleave.  1 NUMA node.  ie, same as NUMA disabled.  </LI>
+		</OL>
+		<LI>244 GB/s 2x32</LI>
+		<LI>126 GB/s 1x32</LI>
+		<LI>Same socket, diff die is ~30% slower.  Diff socket is ~65% slower.</LI>
+		<LI>Max bandwidth is ~30 GB/s per core (absent of contention/sharing)</LI>
+		<LI></LI>
+	</UL>
+
+	<LI> Skylake </LI> <!-- lr6 -->
+	<UL>
+		<LI>6 memory channels per socket </LI>
+		<LI>Dell Benchmark: 3 DIMM: 52 GB/s. 6 DIMM: 104 GB/s (Dual Ranked DDR4 2644)</LI>
+		<LI>In practice, 6 DIMM on 2 sockets got ~ 100 GB/s </LI>
+		<LI>12 DIMM on 2 sockets got ~ 150 GB/s </LI>
+		<LI>Some system have 4 or 8 slots per socket, when such slot is populated, memory bandwidth is variable as extra slot has to share the bus</LI>
+		<LI></LI>
+	</UL>
+
+	<LI>KNL</LI> 
+	<UL>
+		<!-- cf1 -->
+		<LI>286,357 MB/s (triads avg w/ 1x64 threads Phi 7210 @ 1.30 GHz cache mode)</LI>
+		<LI><A HREF="https://downloads.dell.com/manuals/all-products/esuprt_software/esuprt_it_ops_datcentr_mgmt/high-computing-solution-resources_white-papers90_en-us.pdf">Dell benchmark for Phi 7230</A>:</LI>
+		<LI>491,520 MB/s on MCDRAM Phi7230 [in-socked memory]</LI>
+		<LI> 86,016 MB/s w/ 6 DDR4 dimms</LI>
+		<LI> <A HREF="https://software.intel.com/en-us/articles/optimizing-memory-bandwidth-in-knights-landing-on-stream-triad">Running stream test on KNL</A>(Intel):</LI>
+		<LI>
+		<PRE>
+		numactl -H 
+		# should be in FLAT mode (ie, at least two NUMA domain, so that MCDRAM vs off-socket DDR4 memory can be addressed separately)
+		# IF in cache mode, effect of in-socket memory caching cannot be removed from stream test
+		export OMP_NUM_THREADS=64; export KMP_AFFINITY=scatter; 
+		numactl -m 0
+		./stream
+		</PRE>
+		</LI>
+<!-- ~/HPCS_toolkit/run_stream_triad.sh /global/home/groups/scs/yqin/stream -->
+
+	</UL>
+
+	<LI>Broadwell</LI> <!-- lr5 -->
+	<UL>
+		<LI>102,216 MB/s (triads avg w/ 2x14 threads E5-2680v4 @ 2.40 GHz) [lr5]</LI>
+		<LI> 98,266 MB/s (triads avg w/ 2x10 threads E5-2640v4 @ 2.40 GHz) [lr5_c20]</LI> <!-- lr5_c20 penguin with more RAM -->
+		<LI></LI>
+	</UL>
+
+	<LI>Hashwell</LI> <!-- lr4-->
+	<UL>
+		<LI>104,796 MB/s (triads avg w/ 2x12 threads E5-2670v3 @ 2.30 GHz)</LI>
+	</UL>
+
+
+	<LI>Ivy Bridge</LI> <!-- lr3-->
+	<UL>
+		<LI>70,271.8 MB/s (triads avg w/ 2x8 threads E5-2670 @ 2.60 GHz)</LI>
+	</UL>
+
+	<LI>Nehalem</LI>
+	<UL>
+		<LI> 29,054 MB/s (triads avg w/ 2x4 threads E5530 @ 2.40 GHz) [mako]</LI>
+	</UL>
+
+	<LI></LI>
+	<UL>
+		<LI></LI>
+	</UL>
+
+</OL>
+
+
+<IMG SRC="fig/dell_skylake_mem_bandwidth.jpg" width="100%"><BR>
 
 
 <A NAME="perf"></A>

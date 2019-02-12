@@ -86,8 +86,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 	git clone https://tin6150@github.com/tin6150/inet-dev-class
-	### boston housing price ML 
-	git clone https://tin6150@github.com/tin6150/machine-learning-nanodegree.git
+	git clone https://tin6150@github.com/tin6150/area51		# private repo, encrypted content, hopefully ok
 
 	### VMware tools as ansible role fork (so as not get updte unless manually checked)
 	### actually trying to do subtree merging under CF_BK/Ansible/roles
@@ -113,7 +112,19 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/perf_tools
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
+	git clone https://tin6150@github.com/tin6150/smelly.git
 
+        #############################################
+        #### stuff I forked, play/learn with,    ####
+	#### but not necessary maintain/publixh  ####
+        #############################################
+
+	### boston housing price ML 
+	git clone https://tin6150@github.com/tin6150/machine-learning-nanodegree.git
+	### mapbox plugin, trying to get it to work on my map (ZWEDC collab with ETA)
+	### also avail as https://tin6150.github.io/mapbox-gl-controls
+	git clone https://github.com/tin6150/mapbox-gl-controls
+	
         ##############################
         #### tin6150@github gitst ####
         ##############################
@@ -172,7 +183,7 @@ run_git_clone()
 
 	#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
 	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
-
+	# git clone https://github.com/mapbox/mapbox-sdk-py.git		   # mapbox uploader, just cuz i need to search for things inside it
 } # end-run_git_clone()
 
 

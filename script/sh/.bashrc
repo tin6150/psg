@@ -111,6 +111,7 @@ add_local_module () {
 		#export MODULEPATH=$MODULEPATH:/opt2
 		#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
 	fi
+	AddtoString PATH ~/.local/bin 		# pip install --user mapboxcli
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_local_module_ends"
 } # end add_local_module
 
@@ -419,10 +420,13 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
 export COMMON_ENV_TRACE
 
 
+################################################################################
+
 # below is defined by some conda install thing
 # maybe tensorflow.  
 # don't think i actually need it, 
 # thus placed in a function and not called.
+## Hmm... maybe it was from brc... 
 condaSetup4exalearn () {
 
 	# added by Anaconda3 5.3.1 installer
@@ -443,3 +447,5 @@ condaSetup4exalearn () {
 	# <<< conda init <<<
 
 }
+
+################################################################################

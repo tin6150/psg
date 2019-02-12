@@ -35,24 +35,94 @@
 </div>
 </div>
 
-<H1>Network Plug Type</H1>
+<H1>Network Connectivity HW</H1>
+
+
+<H2>Module</H2>
+
+<OL>
+<LI> CFP - Probably the old big double square SC sized module on (cisco) swtiches, low port density per blade
+<LI> SPF+ (10g Twinax, ethenet "GBIC" to fiber optic module).  nearly square rectangle
+<LI> QSFP: Infiniband (QDR, FDR, EDR).  40-gbps Ethenet.  Wider rectangle than SFP
+<LI> QSFP+: 
+<LI> QSFP28: same size as QSFP.  Can use 100GBASE-SR4 
+<LI> 
+<LI> ??: even wider than QSFP.  (on 2nd port of a Mellanox IB card) [really?]
+<LI> 
+</OL>
+
+<H2>Connector</H2>
 
 <OL>
 <LI> RJ45
-<LI> SPF+ (10g Twinax, ethenet "GBIC" to fiber optic module).  nearly square rectangle
-<LI> QSFP: Infiniband (QDR, FDR, EDR).  40-gbps Ethenet.  Wider rectangle than SFP
-<LI> ??: even wider than QSFP.  (on 2nd port of a Mellanox IB card)
+<LI> 
+<LI> LC: narrow/compact connector for use with SFP transceivers
+<LI> SC (?): older wider optic for use with GBIC transceiver (from early 90s).
+<LI> 
+<LI> MPO/MTP-8,   
+<LI> MPO/MTP-12 - the oversized-RJ45 looking connector that has 8 or 12 fibers in it for the QSFP sized optic transceiver ?
+<LI> MTP : more freq use as truck cables ?
+<LI> 
 </OL>
+
+<OL>
+<LI> 100GBASE-SR4 vs 100GBASE-SR10.  
+<UL>
+	<LI> both intnded to transmit at 100Gbps.  
+	<LI> SR4 has 4 pairs of fiber, each at 25 Gbps.  
+	<LI> SR10 use 10-pairs, each at 10 Gbps.  
+	<LI> SR4 has higher port density, fit in QSFP28
+	<LI> SR10 (need?) to use the bigger connector, CFP.  
+	<LI> ref: <A HREF="http://www.fiber-optic-transceiver-module.com/100gbase-sr4-vs-100gbase-sr10.html">http://www.fiber-optic-transceiver-module.com/100gbase-sr4-vs-100gbase-sr10.html</A>
+	<LI> 
+</UL>
+<LI> 
+<LI> 
+</OL>
+
+
 
 <H2>Optic cables</H2>
 
 <OL>
 <LI> Single-mode: For Long Range eg between buildings
 <LI> Multi-mode: for Short Range
-<LI> LC: narrow/compact connector for use with SFP transceivers
-<LI> SC (?): older wider optic for use with GBIC transceiver (from early 90s).
+<LI> 
+<LI> SR - Short Range
+<LI> LR - Long  Range
 <LI> 
 </OL>
+
+
+
+<H2>OM</H2>
+
+ref: https://en.wikipedia.org/wiki/100_Gigabit_Ethernet
+
+<PRE>
+
+Cisco 100G-QSFP28-SR4: uses a 12-fiber standard QSFP MPO/MTP cable for connectivity 
+(4 Tx and 4 Rx, each lane providing 25 Gbps of throughput) 
+
+100GBASE-SR10 optics use a 2×12-fiber or 24-fiber strand MPO/MTP cable for connectivity 
+(10 Tx and 10 Rx, each lane providing 10 Gbps of throughput).
+
+
+MMF = Parallel Multi-Mode ribbon Fiber
+
+MMF FDDI
+MMF OM1 
+MMF OM2
+
+Laser optimized multimode fiber oft use with 100GBASE
+MMF OM3 - 50/125 um (2003) 1500 MHz*km @ 850nm -- OFNP ?
+MMF OM4 - 50/125 um (2008) 3500 MHz*km @ 850nm -- Plunum ?
+
+MMF OM5
+SMF OS1 
+SMF OS2
+
+</PRE>
 
 <H1>Electrical Plug Type</H1>
 
@@ -126,6 +196,17 @@ holes on them, respectively.  These names are now changed to the more politicall
     <td>(NEMA) L6-30R</td>
     <td><U>L</U>ock, 220 V, <U>30</U> AMP, <U>R</U>eceptacle</td>
     <td><img src="nema-L6-30R.gif"><IMG SRC="nema-L6-30R-drawing.gif"></td>
+  </tr>
+  <tr>
+    <td>(NEMA) L21-L20P</td>
+    <td><U>L</U>ock, 205 V, 20 AMP, <U>P</U>lug</td>
+    This is a 3 phase Y, 20A plug with ground in the middle pin, 4 pins on a circumference, one with a locking notch.  Maybe a safer design than L6-20.
+    <td><img src="nema-L21-L20P.gif"></td><!-- got pics, but not cropped yet 2019.0128-->
+  </tr>
+  <tr>
+    <td>(NEMA) L21-L20R</td>
+    <td><U>L</U>ock, 205 V, 20 AMP, <U>R</U>eceptacle</td>
+    <td><img src="nema-L21-L20R.gif"></td>
   </tr>
 </TABLE>  
 All the NEMA twist lock presented have essentially the same shape.  Their main 

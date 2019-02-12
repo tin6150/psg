@@ -262,6 +262,7 @@ Skylake... 14th gen PowerEdge...
 Query Sub NUMA Cluster (SNC) modes 
 	- numactl -H 
 	- /opt/dell/srvadmin/sbin/racadm get BIOS.ProcSettings.SubNumaCluster
+	- lstopo
 
 - SNC=Disabled (default).  ie, two socket show up as two NUMA domains.  
 - SNC=Enabled.  within socket has split NUMA domains. two socket system would then have FOUR NUMA domains.  application who does not optimize for memory locality would be worse off.  Thus, not recommended unless benchmark and tuning has been done that benefit from this setting. 

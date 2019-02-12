@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-  <title>Pocket Survival Guide - Postgres</title>
+  <title>Pocket Survival Guide - IPMI</title>
   <link rel="stylesheet" href="psg.css" type="text/css">
   <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
   <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
@@ -332,9 +332,62 @@ ipmitool lan print | grep 'IP Address'
 <BR>
 
 
+<H2>Finding power usage</H2>
+
+<PRE>
+
+
+# Dell C6320, 32 skylake cores in use.  drawing 336W
+# Merger reads busy server drawing 3.7A x 2 feed x 202V / 4 nodes per chassis = 373W.
+# ipmitool  sensor | grep 'Pwr Consumption'
+Pwr Consumption  | 336.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+
+# on, but idle skylake server, 96 GB RAM
+Pwr Consumption  | 168.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+# on, but idle skylake server, 192 GB RAM
+Pwr Consumption  | 168.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+
+# when machine is ipmi off:
+Pwr Consumption  | 0.000      | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+
+
+
+Power on power consumption remotely monitored by ipmitool :
+
+Pwr Consumption  | 0.000      | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 56.000     | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 112.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 126.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 140.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 154.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 154.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 154.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 252.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 210.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 196.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 168.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 182.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 168.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 182.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 168.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+Pwr Consumption  | 168.000    | Watts      | ok    | na        | na        | na        | 1106.000  | 1218.000  | na        
+
+
+</PRE>
+
+
 <BR><HR><BR>
 
-<H5>Ref</H5>
+<H2>Ref</H2>
 <A HREF=sol.html#ipmi>Solaris#IPMI</A>
 <BR>
 

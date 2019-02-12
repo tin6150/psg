@@ -55,16 +55,292 @@
   })();
 </script>
 
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+
+<H1>NetApp cluster-mode</H1>
+
+<OL>
+<LI>
+With OnTap 9.x, in cluster mode, view is really divided between HW and VM.  Think much more like VM and host of VMware.  <BR>
+OnTap 9.x cluster mode now separate 
+Data (File) Access (done by Storage Virtual Machine - SVM) 
+vs physical setup (nodes) 
+
+<LI>
+qtree is still supported by mostly for legacy migration, little need for it when things all contained inside an SVM.
+
+<LI> cDOT OnTap 9.x ? Exports are done via policy.  but apparently each export can only have 1 policy.  it seems to create an extra layer and not getting much in return.  maybe same client list can be placed in single export whence be used in multiple exports, since each qtree have its own exports
+
+<LI> export policy at SVM is hierarchical.  top level / root export need to open wide, then vol-level export a bit narrower, then qtree-level export with the exact specific.    ie hierarchy of subsets need to be unioned to higher lever export policy.  PITA.
+
+
+</OL>
+
+
+
+<H5>cDOT new commads</H5>
+
+<PRE>
+version			# show ontap version  eg 9.3P8
+
+system node show -node crfs4-prodcl-01  	# get serial number, usable to open support case
+system chassis show 				# some chassis serial that can *NOT* be used to open support case
+show-serial-number				# some other   serial that can *NOT* be used to open support case
+
+
+show-summary					# simple stats
+</PRE>
+
+<H5>cDOT cluster-wide commands</H5>
+
+<PRE>
+cluster statistics show		# CPU, NFS usage
+
+cluster peer show		# DR peer info
+cluster peer ping		# see if peer is pingable
+
+event log show 
+
+
+# protocol options apply to whole cluster?  Don't seems to be restricted to specific SVM...
+
+nfs option nfs.mount_rootonly on # on is default, reject mount req from non reserved ports
+nfs option nfs.nfs_rootonly on   # off is default, which allow NFS request from non-reserved port (nfs mount tunneled by sshutle would come in as non priviledged port, thus need to turn this on.
+
+
+security login show				# list user who can login to the cluster, their role, login "application" (ssh,console,http)
+
+security login delete -user-or-group-name red8				# should delete user
+security login delete -user-or-group-name red8	-application telnet 	# remove ability to login via telnet
+
+
+
+cluster image show				# boot image, uploaded image for OS upgrade
+cluster image package show-repository		# applicatin packages...  netapp app store??
+
+
+</PRE>
+
+
+<H5>cDOT commands on physical node </H5>
+
+Commands on hw node, which may contain multiple SVM
+
+<PRE>
+
+system node run -node local sysconfig -a 		# sysconfig -a (across multiple SVM)
+
+node run -node NodeName -command sysstat -c 100 -x 5  	# systat 100 times, at every 5 sec interval
+
+
+system node reboot -node NodeName -reason Msg		# HA policy may bring it up elsewhere?
+
+system node rename -node OldName -newname NewNodeName
+
+storage failover show
+storage failover takeover -bynode NodeName
+storage failover giveback -bynode NodeName
+
+# aggregates
+
+aggr show -node NodeName -fields ha-policy
+aggr show -space
+aggr relocation show
+
+
+</PRE>
+
+
+<H5>cDOT commands on VM</H5>
+
+Commands contained inside an SVM
+<PRE>
+
+vserver show
+vserver show -vserver als-svm
+
+vserver setup 
+vserver create -vserver SVMname -rootvolume VolName # create new SVM
+
+vserver nfs show		# which protocol is enabled (3,4,4.1, TCP,UDP)
+
+volume show -volume devel -instance	# see what volume export 
+
+volume show -volume prod -fields
+
+volume show -fields policy,junction-path   -vserver svm1 	# see which volume has what export policy, filtered by specified SVM
+volume show -fields policy,junction-path,junction-parent
+qtree  show -fields qtree-path,export-policy 			# qtree and exports
+qtree  show -fields qtree-path,export-policy -vserver svm1	# same as above, filter by specific svm, but vserver field will still be shown.
+	# some fields such as vserver and volume will always be shown even when not requested.
+	# these cli are so clunky, it is API and GUI oriented, not sys admin oriented :(
+
+
+vserver export-policy show
+export-policy show		# same as above, don't need the vserver declaration
+export-policy rule show -vserver als-filercl -policyname export_perf_test
+export-policy rule modify -policyname export_perf_test -ruleindex ...
+export-policy rule create -policyname vm_backup-export -clientmatch 131.243.73.0/24 -rorule sys -rwrule sys  -vserver als-filercl -ruleindex 14 -protocol nfs
+### not sure if there is way to have system auto assign next ruleindex number...  
+
+
+snapmirror show			# snapmirror status - approx from 8.x 
+
+volume qtree show 
+volume qtree show -fields export-policy
+
+
+vserver nfs show   -vserver svm1 -fields showmount
+vserver nfs modify -vserver svm1 -showmount disabled    # showmount -e reports exports open to everyone in OnTap 9.x  this disable responding to showmount -e
+
+
+# show if require use of priviledge port (below 1024)
+
+vserver nfs show -vserver als-filercl -fields nfs-rootonly 
+vserver nfs show -vserver als-filercl -fields mount-rootonly 
+
+# to actually make changes...
+
+
+</PRE>
+
+<H5>Network</H5>
+LIF are assigned to SVM.  <BR>
+
+<PRE>
+net int show				# show LIF for all nodes/SVM
+vlan  show				# vlan and tagging info
+ifgrp show				# LACP/LAG config on each node, mac address
+
+net ipspace  show			# brief view of IP networks used in cluster
+net port broadcast-domain show		# MTU, subnet size 
+
+system service-processor show		# show IP assigned for service processor (RLM port)
+
+firewall policy show			# data/mgnt/interconnect  dns/ndmp/dns/http/ntp/snmp/ssh access policy
+
+
+
+ping -vserver ... -lif ... 		# even ping is a convoluted command
+</PRE>
+
+
+
+DR snapmirror traffic config on a dedicated private vlan.
+<PRE>
+
+network interface create -vserver crfs4-prodcl -lif crfs4-prodcl01-icl1 -role intercluster -home-node crfs4-prodcl-01 -home-port a0b -address 172.27.84.60 -netmask-length 24 -status-admin up -failover-policy disabled
+
+
+network ping -lif crfs4-prodcl-01_icl1 -vserver crfs4-prodcl -destination 172.27.84.59
+
+
+
+
+set adv
+cluster ring show
+set 
+
+</PRE>
+
+<H5>cDOT shutdown</H5>
+<PRE>
+
+
+snapmirror quiesce -destination-path als-filercl:*
+
+halt -node node01 -inhibit-takeover true -skip-lif-migration-before-shutdown true -reason test
+
+snapmirror resume ... 
+
+</PRE>
+
+<A NAME="cf_bk"></A>
+<H5>cDOT clustered-mode backup config</H5>
+
+Ref: https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/
+
+<PRE>
+system configuration backup create -backup-name node1-backup -node node1 (Create a cluster backup from node1)
+
+system configuration backup create -backup-name node1-backup -node node1 -backup-type node (Create a node backup of node1)
+
+system configuration backup settings modify -destination ftp://192.168.1.10/ -username backups (Sets scheduled backups to go to this destination URL)
+
+system configuration backup settings set-password # (Set the backup password for the destination URL above)
+
+</PRE>
+
+
+<A NAME="svm_dr"></A>
+<A NAME="dr_setup_with_svm"></A>
+<H2>
+DR setup with SVM (OnTap 9.3)
+</H2>
+
+<PRE>
+# create SVM in the DR cluster to hold the SVM fail over:
+dr:: vserver create -vserver svm1-dr -subtype dp-destination
+
+# check and sync all snapmirror jobs so that in event of DR activate, all schedules are consistent:
+dr:: job schedule cron show
+dr:: job schedule cron create -name transition_snapshot_schedule_8  -hour 8,12,16,20 -minute 0
+dr:: job schedule cron create -name transition_snapshot_schedule_9  -hour 0          -minute 0
+
+
+# create a peering request to the production SVM:
+dr:: vserver peer create -vserver svm1-dr -peer-vserver svm1 -applications snapmirror -peer-cluster prodcl
+dr:: vserver      show
+dr:: vserver peer show
+
+# accept the request, establishing a peering relationship with the DR SVM:
+prod:: vserver peer show
+prod:: vserverpeer accept -vserver svm1 -peer-vserver svm1-dr
+
+
+# mirror the SVM config
+dr:: snapmirror create -source-path svm1: -destination-path svm1-dr: -type DP -throttle unlimited -policy DPDefault -schedule hourly -identity-preserve true
+dr:: snapmirror initialize -destination-path svm1-dr: 
+dr:: snapmirror show -destination-path svm-dr:
+
+
+</PRE>
+
+<!--
+xref:
+CF_BK/als/gilmar.rst 
+https://docs.google.com/document/d/13oIrDaPDwb52MRbllq1H2YkPQR5JtGw6O9ZcxeVzuIU/edit
+-->
+
+<H2>
+Cluster-mode Ref
+</H2>
+
+<OL>
+	<LI><A HREF="https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/">Pocket Guide Clustered Mode</A> from sysadmin tutorials</LI>
+	<LI><A HREF=""></A></LI>
+	<LI></LI>
+</OL>
+
+
+
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+<!-- ############################################################ -->
+<!-- ############################################################ -->
 
 <!-- netapp.ref -->
-<H1>NetApp</H1>
+<H1>NetApp 7-mode</H1>
 
 <H3>NetApp 101</H3>
 
 <PRE>
 https://netapp.myco.com/na_admin 	# web gui URL.  Most feature avail there, including a console.
 
-ssh netapp.myco.com			# ssh (or rsh, telnet in) for CLI access
+ssh -o PubkeyAuthentication=no  -oKexAlgorithms=+diffie-hellman-group1-sha1 netapp.myco.com
 
 get root mount of /vol/vol0/etc in a unix machint do to direct config on files.
 
@@ -513,7 +789,7 @@ Besides just having export for nfs and ahare for cifs,
 there is another setting about fs security permission style, nfs, ntfs, or mixed.  
 this control characteristic of chmod and files ACL.
 
-Once edit is done, telnet to netapp and issue cmd:
+Once edit is done, ssh to netapp and issue cmd:
 exportfs -a		# re-add all exports as per new etc/export file
 exportfs -u		# unexport everything.  Careful!
 exportfs -u vol/vol1	# unexport vol1 (everything else remains intact)
@@ -534,12 +810,62 @@ options nfs.v3.enable  on
 options nfs.tcp.enable on
 	# enable NFS v3 and TCP for better performance.
 
+
+Note that starting with OnTap ~9.x a new middle layer called export policy is needed to govern between exported volume/qtree and client list.
+
+vserver export-policy show
+vserver export-policy rule show -vserver als-filercl -policyname export_perf_test
+vserver export-policy rule modify -policyname export_perf_test -ruleindex ...
+
+
+volume qtree show -fields export-policy
+
 nfsstat 	# display nfs sttistics, separte v2 and v3
 nfsstat -z 	# zero the nfsstat counter
 nfsstat -h 	# show detailed nfs statistics, several lines per client, since zero
 nfsstat -l 	# show 1 line stat per client, since boot (non resetable stat)
 
 </PRE>
+
+Cuz of sshuttle, mac and linux may become part of the allowed network client :(
+Mitigation to prevent NFS access thru sshutle is to require access on priviledge ports only (since sshuttle still run as user space.)
+priviledge ports: below 1024, ie up to 1023
+<BR>
+7-mode
+<!-- 
+ssh -o PubkeyAuthentication=no  -oKexAlgorithms=+diffie-hellman-group1-sha1 netapp1
+-->
+<PRE>
+
+options nfs
+nfs.mount_rootonly           on         
+nfs.nfs_rootonly             off        
+
+</PRE>
+cDOT config:
+<PRE>
+
+
+nfs option nfs.mount_rootonly on # on is default, reject mount req from non reserved ports
+nfs option nfs.nfs_rootonly on   # off is default, which allow NFS request from non-reserved port (nfs mount tunneled by sshutle would come in as non priviledged port, thus need to turn this on.
+
+
+nfs modify -vserver als-vFiler -mount-rootonly # not changed, (def is on/enable)
+nfs modify -vserver als-vFiler -nfs-rootonly enable # this was changed
+
+vserver nfs show -vserver als-vFiler -nfs-rootonly 
+
+
+vserver show -vserver als-filercl -instance
+nfs show -vserver als-filercl
+        # see root mount and root nfs
+        # root nfs is now enabled...
+        # so if client still works, then i guess that's what we want
+        # hmm... i suppose stunnel make nfs req as non root.
+        # whereas linux nfs client is kernel calls thus root only...
+
+</PRE>
+
 
 <H4>NIS domain</H4>
 
@@ -732,6 +1058,9 @@ WINDOM\* == *	# map all user of a specific domain
 </PRE>
 
 <H3>Command</H3>
+
+
+<H5>commads usable with 7-mode</H5>
 <PRE>
 Commands for NetApp CLI (logged in thru telnet/ssh/rsh)
 
@@ -848,6 +1177,13 @@ Note that cipher is for use in ssh (v1), and ciphers with is for ssh2.
 3des is secure enough, (des is not secure enough anymore), but it is slower than blowfish, etc 
 so many linux does not use 3des anymore.
 
+<BR>
+OnTap 9.x
+<PRE>
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 admin@netapp
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 -o PubkeyAuthentication=no  -l naroot netapp2
+</PRE>
+
 <H3>vFiler</H3>
 
 <PRE>
@@ -857,8 +1193,14 @@ It is then added (assigned) to a virtual filer.
 qtree are created by the vFiler.
 exports of fs is done by the vFiler.  Each vFiler has its own etc/exports for this purpose.  
 
+in cDOT 8.3, vfiler is called svm (storage virtual machine).
+it encapsulate the volumes, all protocol access, lif.  admin access is assigned to svm (so that netapp can do multi-tenancy thing)
+the hardware is really to just host the SVM.  most everything else is done inside the SVM (using vfiler commands)
+
 
 vol create vf1_vol0					# good practice to have vfiler name on the volume name
+							# SVM would have volume to itself, not visible by other SVM admin, so not needed in OnTap 9.x cluster mode (?)
+
 vfiler add vfiler1 /vol/vf1_vol0			# this would be root vol, aka /etc
 vfiler add vfiler1 /vol/vf1_vol1			# addional vol for data
 
@@ -890,6 +1232,9 @@ vfiler context vfiler0	# swtich back to physical (hosting) filer.
 
 CIFS share are also created inside the vfiler like NFS exports.  the config is saved in the cifsconfig_share.cfg file in the etc folder.
 
+
+
+vfiler export-policy show
 
 
 </PRE>
@@ -1085,13 +1430,19 @@ so not one-stop thing.  ==> limited use.
 
  
 
-<H1>
-Links
-</H1>
+<H2>
+Links/Ref
+</H2>
 
 <OL>
-<LI><A HREF="http://www.netapp.com/library/tr/3298.pdf">RAID_DP</A>	<BR>
-<LI>
+	<LI><A HREF="http://www.netapp.com/library/tr/3298.pdf">RAID_DP</A></LI>
+	<LI><A HREF="https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/">Pocket Guide Clustered Mode</A> from sysadmin tutorials</LI>
+	<LI><A HREF="https://www.cloudibee.com/pocket-guide-for-netapp-commands-7-mode/">Pocket Guide for NetApp 7-mode</A></LI>
+	<LI><A HREF="https://docs.netapp.com/ontap-9/index.jsp?topic=%2Fcom.netapp.doc.dot-cm-cmpr-940%2Fnetwork__port__modify.html">OnTap 9 Doc Center</A></LI>
+	<LI><A HREF=""></A></LI>
+	<LI></LI>
+	<LI></LI>
+	<LI></LI>
 </OL>
 
 <H1>
@@ -1108,6 +1459,7 @@ OnTap 7.0	- 2005?  Aggregate introduced here.
 OnTap 7.3.1	- 2008?  DeDuplication (a/sis) single instance storage available. 
 OnTap 8.1.4	-        Last version with NFSv2 support
 OnTap 8.2       -        Dropped support for NFSv2.  Sorry Epic VxWorks.
+OnTap 9		- 2017?  Introduced SVM - Storage VM - segregated Data vs HW access for multi-tenancy support
 
 </PRE>
 
@@ -1123,7 +1475,7 @@ http://psg.ask-margo.com/netapp.html</A>] <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>
  for copyright info. <BR>
-Last Updated: 2007-04-27, 2009-04-01<BR>
+Last Updated: 2007-04-27, 2009-04-01, 2019-01-10<BR>
 
 
 <!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
