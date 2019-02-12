@@ -427,6 +427,7 @@ export COMMON_ENV_TRACE
 # don't think i actually need it, 
 # thus placed in a function and not called.
 ## Hmm... maybe it was from brc... 
+## but it was certinaly causing a long hang in exalearn when sourcing it
 condaSetup4exalearn () {
 
 	# added by Anaconda3 5.3.1 installer
