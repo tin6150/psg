@@ -91,7 +91,7 @@ setPrompt () {
 
     # also setting TERM.  zorin screen set to screen.xterm-256color which is not well understood.
     if [[ x.$TERM == x.screen.xterm-256color || x.$TERM == x.vt100 ]] ; then
-		export TERM=xterm
+		export TERM=xterm-256color
 	fi
 
 } # end setPrompt 

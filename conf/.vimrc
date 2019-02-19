@@ -74,5 +74,7 @@ set showmatch           " show matching bracket
 " clipboard
 set clipboard=unnamed   " allow yy, etc. to interact with OS X clipboard
 
+set background=dark     " comment will be more readable lighther color text
+
 " shortcuts
 map <F2> :NERDTreeToggle<CR>
