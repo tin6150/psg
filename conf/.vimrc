@@ -29,6 +29,8 @@ set modelines=1
 " ===== 2019.0222 =======
 " really want to do tab settings per file type
 " https://stackoverflow.com/questions/1562633/setting-vim-whitespace-preferences-by-filetype
+" this hopefull really do what i want now!  
+" modeline is NOT the way to go for collab, other may not like my settings!
 filetype plugin on 
 filetype plugin indent on 
 autocmd Filetype html 		setlocal ts=2 sw=2 expandtab
@@ -43,11 +45,14 @@ autocmd Filetype rst 		setlocal ts=4 sw=4 noexpandtab nolist nonu
 " kate and kdevelop in vi mode is my new fav editor, but there are still some quirkyness
 " vi outside screen has better color for comment, even when TERM=xterm-256color
 " so want some default that is kinda sane, even when still not optimal for python editing
+" this is like default, when not matched to above file type
 set shiftwidth=2 tabstop=4 formatoptions-=cro list nu noexpandtab syntax-=on 
 
 
-" settings from https://github.com/geerlingguy/dotfiles/blob/master/.vimrc
 
+
+
+" settings from https://github.com/geerlingguy/dotfiles/blob/master/.vimrc
 set autoread            " watch for file changes
 set number              " show line numbers
 set showcmd             " show selection metadata
