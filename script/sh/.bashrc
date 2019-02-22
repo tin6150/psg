@@ -91,7 +91,7 @@ setPrompt () {
 
     # also setting TERM.  zorin screen set to screen.xterm-256color which is not well understood.
     if [[ x.$TERM == x.screen.xterm-256color || x.$TERM == x.vt100 ]] ; then
-		export TERM=xterm
+		export TERM=xterm-256color
 	fi
 
 } # end setPrompt 
@@ -276,10 +276,10 @@ defineAlias () {
 	#alias ssh='ssh -o StrictHostKeyChecking=no'
 	#alias vi=vim	# vim not avail on sl7
 	#alias vim="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		# hopefully tab remains as tab for normal file edit
-	alias vit="\vim -c 'set shiftwidth=4 tabstop=4 formatoptions-=cro list nu syntax-=on'"    # syntax=yaml is what's expected.  syntax=on disables it.  -= does the trick.  
-	alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab syntax-=on'"    # for python coding.  ansible yaml may need tabstop=2
+	alias vit="\vim -c 'set shiftwidth=4 tabstop=4 formatoptions-=cro list nu noexpandtab '"    # syntax=yaml is what's expected.  syntax=on disables it.  -= does the trick.  
+	alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab  modelines=1'"    # for python coding.  ansible yaml may need tabstop=2
 	#alias vis="\vim -c 'set shiftwidth=2 tabstop=4 expandtab syntax'"    # for python coding.  ansible yaml may need tabstop=2
-	alias vig="\vim -c 'set shiftwidth=2 tabstop=2 formatoptions-=cro list nu showcmd showmode autoindent smartindent smarttab noerrorbells visualbell hlsearch showmatch cursorline syntax-=on'" # filetype=on'" # geerlingguy .vimrc
+	alias vig="\vim -c 'set shiftwidth=2 tabstop=2 formatoptions-=cro list nu showcmd showmode autoindent smartindent smarttab noerrorbells visualbell hlsearch showmatch cursorline'" # filetype=on'" # geerlingguy .vimrc
   ## syntax still not automatic on in mac... test in linux...
   ##filetype indent # not sure how to set this option as cli arg
 	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		

@@ -413,6 +413,18 @@ alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expand
 
 Embed vim directives in the first/last (5) lines of a file.  see source of this file for eg.
 <BR>
+<PRE>
+# space, eg for python, yaml :: 
+# vim:shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab filetype=p    ython
+
+# tab, eg for .sh, .html ::
+# vim:shiftwidth=4 tabstop=4 formatoptions-=cro list nu
+
+# haven't been able to force "syntax on" in modeline, so have to have it in .vimrc , but it should largely be on by default
+
+# sometime ago had alias vit="vim -c 'set syntax-=on'"  # not sure where it worked, but no longer work on zorin
+</PRE>
+
 
 Ref: <A HREF="https://www.cs.oberlin.edu/~kuperman/help/vim/indenting.html">kuperman vim guide</A>
 it has a number of advance commands I have to learn! :)
