@@ -20,6 +20,20 @@
 "
 set noai                
 
+
+" ===== 2019.0222 =======
+" really want to do tab settings per file type
+" https://stackoverflow.com/questions/1562633/setting-vim-whitespace-preferences-by-filetype
+filetype plugin on 
+filetype plugin indent on 
+autocmd Filetype html 		setlocal ts=2 sw=2 expandtab
+autocmd Filetype ruby 		setlocal ts=2 sw=2 expandtab
+autocmd Filetype javascript setlocal ts=4 sw=4 sts=0 noexpandtab
+autocmd Filetype txt 		setlocal ts=4 sw=4 noexpandtab nolist nonu
+autocmd Filetype rst 		setlocal ts=4 sw=4 noexpandtab nolist nonu
+
+
+
 " ==== 2019.0202 =========
 " kate and kdevelop in vi mode is my new fav editor, but there are still some quirkyness
 " vi outside screen has better color for comment, even when TERM=xterm-256color
