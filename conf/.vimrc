@@ -37,6 +37,7 @@ autocmd Filetype html 		setlocal ts=2 sw=2 expandtab
 autocmd Filetype ruby 		setlocal ts=2 sw=2 expandtab
 autocmd Filetype javascript setlocal ts=4 sw=4 sts=0 noexpandtab
 autocmd Filetype txt 		setlocal ts=4 sw=4 noexpandtab nolist nonu
+autocmd Filetype sh 		setlocal ts=4 sw=4 noexpandtab nolist nonu
 autocmd Filetype rst 		setlocal ts=4 sw=4 noexpandtab nolist nonu
 
 
@@ -46,7 +47,7 @@ autocmd Filetype rst 		setlocal ts=4 sw=4 noexpandtab nolist nonu
 " vi outside screen has better color for comment, even when TERM=xterm-256color
 " so want some default that is kinda sane, even when still not optimal for python editing
 " this is like default, when not matched to above file type
-set shiftwidth=2 tabstop=4 formatoptions-=cro list nu noexpandtab syntax-=on 
+set shiftwidth=2 tabstop=4 formatoptions-=cro nolist nu noexpandtab syntax-=on 
 
 
 

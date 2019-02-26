@@ -114,10 +114,10 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
 	git clone https://tin6150@github.com/tin6150/smelly.git
 
-        #############################################
-        #### stuff I forked, play/learn with,    ####
+    #############################################
+    #### stuff I forked, play/learn with,    ####
 	#### but not necessary maintain/publixh  ####
-        #############################################
+    #############################################
 
 	### boston housing price ML 
 	git clone https://tin6150@github.com/tin6150/machine-learning-nanodegree.git
@@ -130,6 +130,7 @@ run_git_clone()
         ##############################
 
         git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
+
 
 
 	############################
@@ -184,6 +185,17 @@ run_git_clone()
 	#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
 	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
 	# git clone https://github.com/mapbox/mapbox-sdk-py.git		   # mapbox uploader, just cuz i need to search for things inside it
+
+	############################
+	#### lbl-eta/smelly  ####
+	############################
+	## just to publish smelly under eta-lbl acc name
+
+	[[ -d $MyGitDir/psg/lbl-eta ]] || mkdir $MyGitDir/psg/lbl-eta
+	cd $MyGitDir/psg/lbl-eta
+	git clone https://lbl-eta@github.com/lbl-eta/smelly.git
+
+
 } # end-run_git_clone()
 
 
