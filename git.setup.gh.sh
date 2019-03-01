@@ -86,7 +86,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 	git clone https://tin6150@github.com/tin6150/inet-dev-class
-	git clone https://tin6150@github.com/tin6150/area51		# private repo, encrypted content, hopefully ok
+	git clone https://tin6150@github.com/tin6150/a51		# private repo, encrypted content.  formerly area51
 
 	### VMware tools as ansible role fork (so as not get updte unless manually checked)
 	### actually trying to do subtree merging under CF_BK/Ansible/roles
@@ -190,10 +190,17 @@ run_git_clone()
 	#### lbl-eta/smelly  ####
 	############################
 	## just to publish smelly under eta-lbl acc name
+	#-[[ -d $MyGitDir/lbl-eta ]] || mkdir $MyGitDir/lbl-eta
+	#-cd $MyGitDir/lbl-eta
+	#-git clone https://lbl-eta@github.com/lbl-eta/smelly.git
 
-	[[ -d $MyGitDir/psg/lbl-eta ]] || mkdir $MyGitDir/psg/lbl-eta
-	cd $MyGitDir/psg/lbl-eta
-	git clone https://lbl-eta@github.com/lbl-eta/smelly.git
+	## actually created an org lbnl-scienceit and placing smelly under it
+	[[ -d $MyGitDir/lbnl-scienceit ]] || mkdir $MyGitDir/lbnl-scienceit
+	cd $MyGitDir/lbnl-scienceit
+	git clone https://tin6150@github.com/lbnl-scienceit/smelly.git
+	
+
+
 
 
 } # end-run_git_clone()

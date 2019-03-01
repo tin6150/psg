@@ -33,8 +33,10 @@ set modelines=1
 " modeline is NOT the way to go for collab, other may not like my settings!
 filetype plugin on 
 filetype plugin indent on 
-autocmd Filetype html 		setlocal ts=2 sw=2 expandtab
 autocmd Filetype ruby 		setlocal ts=2 sw=2 expandtab
+autocmd Filetype python 		setlocal ts=2 sw=2 expandtab
+autocmd Filetype yaml 		setlocal ts=2 sw=2   expandtab noai nosmartindent cindent formatoptions-=cro
+autocmd Filetype html 		setlocal ts=2 sw=2 noexpandtab noai nosmartindent cindent 
 autocmd Filetype javascript setlocal ts=4 sw=4 sts=0 noexpandtab
 autocmd Filetype txt 		setlocal ts=4 sw=4 noexpandtab nolist nonu
 autocmd Filetype sh 		setlocal ts=4 sw=4 noexpandtab nolist nonu

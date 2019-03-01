@@ -385,8 +385,12 @@ sacctmgr show associations	# list all associations.  think of them as acl.
 sacctmgr show associations -p user=sn	# association for specified user
 					# -p use | to separate columns, reduce space usage.
 
+sacctmgr show qos	-p	# show all avail Quality of Service entitites 
 
-sacctmgr show qos		# show all avail Quality of Service entitites 
+# eg of qos:
+Name                     |Priority|GraceTime|Preempt      |PreemptMode|||UsageFactor|GrpTRES||||||MaxTRES||||||||||MinTRES|
+genomicdata_savio3_bigmem| 1000000| 00:00:00|savio_lowprio|cluster    |||1.000000   |node=4 ||||||node=4 ||||||||||cpu=1  |
+genomicdata_savio3_xlmem | 1000000| 00:00:00|savio_lowprio|cluster    |||1.000000   |node=1 ||||||node=1 ||||||||||cpu=1|
 
 
 squeue				# full detail of current job queue (all user, all jobs, on all partitions/queues)
