@@ -36,7 +36,7 @@ filetype plugin indent on
 autocmd Filetype ruby 		setlocal ts=2 sw=2 expandtab
 autocmd Filetype python 		setlocal ts=2 sw=2 expandtab
 autocmd Filetype yaml 		setlocal ts=2 sw=2   expandtab noai nosmartindent cindent formatoptions-=cro
-autocmd Filetype html 		setlocal ts=2 sw=2 noexpandtab noai nosmartindent cindent 
+autocmd Filetype html 		setlocal ts=4 sw=4 noexpandtab noai nosmartindent cindent 
 autocmd Filetype javascript setlocal ts=4 sw=4 sts=0 noexpandtab
 autocmd Filetype txt 		setlocal ts=4 sw=4 noexpandtab nolist nonu
 autocmd Filetype sh 		setlocal ts=4 sw=4 noexpandtab nolist nonu
@@ -98,5 +98,8 @@ set clipboard=unnamed   " allow yy, etc. to interact with OS X clipboard
 
 set background=dark     " comment will be more readable lighther color text
 
+" something causing vim to want to connect to port 6010 in brc and thus wait a
+" long time before a timeout, 
+" dont think is below, but disabling just in case
 " shortcuts
-map <F2> :NERDTreeToggle<CR>
+" map <F2> :NERDTreeToggle<CR>

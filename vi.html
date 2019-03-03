@@ -157,8 +157,6 @@ http://www.theunixschool.com/2012/06/sed-25-examples-to-delete-line-or.html</A>
 
 <PRE>
 
-vim -N # vim in compatibility mode, ie vi behavior.
-
 keyboar arrow keys, good for my sgi drug-adic keyboard! (or laptop with tiny arrow keys!!)
 
    h   j   k   l  
@@ -311,13 +309,68 @@ press control-v, then the control char to save a control char in doc
 
 <H1>Vim</H1>
 
+<H3>troubleshooting the stupid ai</H3>
+
+indent has become notoriously difficult.
+vim tries to be smart, but at least for my use, 
+needing constant change between "tab mode" and "space mode", 
+writting code vs rst vs pasting, 
+the ai is really annoying :(
+<BR>
+newer vi ai also tries to force an indent style.
+my old version html without ending &lt;/LI&gt; tags 
+drive the ai to indent wrongly for my stuff.  
+either i get this ai turned off or a divorce is in order :(
+
+
+<BR>
+*sigh* brc vim is the problem child.
+lrc vim is okay with the updated .vimrc that check for file type.
+<BR>
+
 <PRE>
-vim is Vi clone, more features: vim -g or gvim = X based vim 5.3
+
+vim -u NONE -U NONE -N		# start vim with default settings
+# -N : No-compatible mode, less vi compatible 
+
+vim --noplugin 
+vim -D 			  			# -D : debug mode
+
+
+:verbose set modeline?		# 
+
+:messages					# show warnings, errors
+
+:source %					# reload .vimrc
+:so $MYVIMRC
+
+
+
+</PRE>
+ref: https://vi.stackexchange.com/questions/2003/how-do-i-debug-my-vimrc-file
+
+
+<H3>vim debug mode</H3>
+
+vim --noplugin -D 			  # -D : debug mode
+<PRE>
+n				: next line
+ENTER			: repeat next line
+
+cont			: continue, back to vim interface
+q				: continue, back to vim interface
+
+</PRE>
+
+
+<H3>vim vs vi</H3>
+<PRE>
+vim is vi clone, more features: vim -g or gvim = X based vim 5.3
 ^R = redo, after some undo  (in command mode)
 ^T = go Back in help, etc.  ^O = go forward.  bookmark stuff.
 ^] = get into help topic.
 
-
+:set compatible
 compatible = vi compatible mode (only 1 level undo, etc)
  default on unless there is .vimrc file
 :help  (or :h) online help
