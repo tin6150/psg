@@ -37,6 +37,9 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
 
+
+
+
 ## https://github.com/robbyrussell/oh-my-zsh
 ## setup oh-my-zsh:
 ## xxx XXX !!! sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
@@ -60,7 +63,8 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ##ZSH_THEME="robbyrussell"  ## no hostname :(
-ZSH_THEME="agnoster" # (this is one of the fancy ones)
+#ZSH_THEME="agnoster" # (this is one of the fancy ones)
+ZSH_THEME="maran" # user@host:dir git(branch)
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -118,6 +122,8 @@ ZSH_THEME="agnoster" # (this is one of the fancy ones)
 ## git plugin is most useful, show branch name
 
 plugins=(
+  zsh-syntax-highlighting
+  zsh-autosuggestions
   git
   bundler
   dotenv
