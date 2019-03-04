@@ -181,6 +181,7 @@ run_git_clone()
 	#### especially with this centralized git clone file
 	#################################################################
 
+	git clone https://github.com/PySlurm/pyslurm.git # python interface for slurm...  not sure if can get sinfo...
 
 	#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
 	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
