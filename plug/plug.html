@@ -172,6 +172,22 @@ holes on them, respectively.  These names are now changed to the more politicall
     <td>Twist <U>L</U>ock, 11<U>5</U> V, <U>20</U> AMP, <U>P</U>lug</td>
     <td><IMG SRC="nema-L5-20P.gif"><IMG SRC="nema-L5-20P-drawing.gif"></td>
   </tr>
+
+  <tr>
+    <td>(NEMA) L21-L20P</td>
+	<td><U>L</U>ock, 205 V, 20 AMP, <U>P</U>lug.  <BR>
+		This is a 3 phase Y, 20A plug with ground in the middle pin, 4 pins on a circumference, one with a locking notch.  Maybe a safer design than L6-20. <BR>
+		But PDU I have seen so far for them always have 5-20 outlets, never seen them with 208V capable C13 outlets, which maybe why they were phased out in favor the L6-30. <BR>
+		<A HREF="https://www.customavrack.com/products/6024-l21-20p-plug-adapters.aspx">Additional ref, diagrams</A> from customAVrack.com <BR>
+	</td>
+    <td><img src="nema-L21-L20P.gif"></td><!-- got pics, but not cropped yet 2019.0128-->
+  </tr>
+  <tr>
+    <td>(NEMA) L21-L20R</td>
+    <td><U>L</U>ock, 205 V, 20 AMP, <U>R</U>eceptacle</td>
+    <td><img src="nema-L21-L20R.gif"></td>
+  </tr>
+
   <tr>
     <td>(NEMA) L5-20R</td>
     <td>Twist <U>L</U>ock, 11<U>5</U> V, <U>20</U> AMP, <U>R</U>eceptacle</td>
@@ -197,23 +213,41 @@ holes on them, respectively.  These names are now changed to the more politicall
     <td><U>L</U>ock, 220 V, <U>30</U> AMP, <U>R</U>eceptacle</td>
     <td><img src="nema-L6-30R.gif"><IMG SRC="nema-L6-30R-drawing.gif"></td>
   </tr>
+
   <tr>
-    <td>(NEMA) L21-L20P</td>
-    <td><U>L</U>ock, 205 V, 20 AMP, <U>P</U>lug</td>
-    This is a 3 phase Y, 20A plug with ground in the middle pin, 4 pins on a circumference, one with a locking notch.  Maybe a safer design than L6-20.
-    <td><img src="nema-L21-L20P.gif"></td><!-- got pics, but not cropped yet 2019.0128-->
-  </tr>
-  <tr>
-    <td>(NEMA) L21-L20R</td>
-    <td><U>L</U>ock, 205 V, 20 AMP, <U>R</U>eceptacle</td>
-    <td><img src="nema-L21-L20R.gif"></td>
+    <td>Hubbell 60Amp</td>
+	<td>60Amp 3-phase military grade connector :)  <BR>
+		IEC 60309.  These seems to be color coded, so this typle is always in blue.   For data center installation this is the only pig-tail i have seen.  <BR>
+	<A HREF="http://www.elecdirect.com/pin-sleeve-devices/60-amp-pin-and-sleeve-devices/ip67-iec309-pin-sleeve-plug-60a-3-phase-250vac-3-pole-4-wire-watertight/?geoip=us&ppc_keyword=&gclid=Cj0KCQiAn4PkBRCDARIsAGHmH3dMNQD6jqYR8fRWqucDGrXoZrQDTzIGLnVzTxGF7RRJ3vpA0cGtp7UaAsovEALw_wcB">
+	PIN & SLEEVE PLUG 60AMP 3Phase 250VAC 3P 4W IP67 WATERTIGHT</A>
+	<BR>
+
+    <td>
+		<img src="hubbell-60-P.gif">
+		<!-- got pics, but not cropped yet 2019.0306-->
+		<BR>
+		<A HREF="http://www.elecdirect.com/pin-sleeve-devices/60-amp-pin-and-sleeve-devices/ip67-iec309-pin-sleeve-plug-60a-3-phase-250vac-3-pole-4-wire-watertight/?geoip=us&ppc_keyword=&gclid=Cj0KCQiAn4PkBRCDARIsAGHmH3dMNQD6jqYR8fRWqucDGrXoZrQDTzIGLnVzTxGF7RRJ3vpA0cGtp7UaAsovEALw_wcB">
+		<img src="http://www.elecdirect.com/media/catalog/product/cache/1/image/1800x/040ec09b1e35df139433887a97daa66f/S/C/SCM4__P9W_3.jpg">
+		</A>
+	</td>
   </tr>
 </TABLE>  
+<BR>
 All the NEMA twist lock presented have essentially the same shape.  Their main 
 difference is the diameter of circle, with L5-20 having the smallest diameter, L6-20 being in the middle, 
 and L6-30 is the largest.  When checking connector type, it is best to read the 
 engravings on them to see which exact connector it is! 
 <BR><BR>  
+
+<H5>conductor size and current rating</H5>
+<OL>
+	<LI>awg 14 wire for 15 amp circuit
+	<LI>awg 12 wire for 20 amp circuit
+	<LI>awg 10 wire for 30 amp circuit
+</OL>
+The conductor size is independent of voltage.  If voltage is increased, eg to 400V, then it can deliver more power!  (Power = Volt * Amp)
+<BR><BR> 
+
 <TABLE width="100%" border="1">
 <THEAD>
   <TR>
@@ -430,9 +464,8 @@ Electrical Unit Conversion</A>(formulas for converting between W and VA).
 
 <BR><HR>
 <CENTER>
-  [Doc URL: <A HREF=http://tiny.cc/plug">tiny.cc/plugs</A>]<BR> 
-  [Doc URL: <A HREF=http://dl.dropbox.com/u/31360775/psg/plug/plug.html">http://dl.dropbox.com/u/31360775/psg/plug/plug.html</A>]<BR> 
-  [Obsolete Doc URL: <A HREF=http://www.cs.fiu.edu/~tho01/psg/plug/plug.html">http://www.cs.fiu.edu/~tho01/psg/plug/plug.html</A>] 
+  [Doc URL: <A HREF="http://tiny.cc/plug">tiny.cc/plugs</A>]<BR> 
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/plug/plug.html">http://tin6150.github.io/psg/plug/plug.html</A>]<BR> 
 <BR>
 (cc) Tin Ho. See 
 <A HREF=../psg.html>main page</A>
