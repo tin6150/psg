@@ -2984,9 +2984,13 @@ Centos 7
 blacklist nouveau kernel driver...
 
 systemctl  enable multi-user.target --force	# not necessary?
-systemctl  set-default multi-user.target
+systemctl  set-default multi-user.target    # no GUI, good for server, esp those with GPU cards!
 systemctl  start graphical.target
 systemctl  set-default graphical.target
+
+systemctl  get-default 	# see what's the default target
+
+https://www.google.com/search?q=disable+graphical+login+at+boot+rhel7&rlz=1C1GCEA_enUS814US814&oq=disable+graphical+login+at+boot+rhel7&aqs=chrome..69i57.14145j0j7&sourceid=chrome&ie=UTF-8
 
 
 ligthadm stop

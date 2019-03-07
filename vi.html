@@ -309,6 +309,7 @@ press control-v, then the control char to save a control char in doc
 
 <H1>Vim</H1>
 
+<!-- wanted to say turn off blonde mode, but that's not PC -->
 <H3>troubleshooting the stupid ai</H3>
 
 indent has become notoriously difficult.
@@ -329,6 +330,12 @@ lrc vim is okay with the updated .vimrc that check for file type.
 <BR>
 
 <PRE>
+
+:set nosmartindent
+:set nocindent
+:set noai
+:setlocal nosi
+:setlocal nocin
 
 vim -u NONE -U NONE -N		# start vim with default settings
 # -N : No-compatible mode, less vi compatible 

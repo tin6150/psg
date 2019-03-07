@@ -105,3 +105,7 @@ set background=dark     " comment will be more readable lighther color text
 " dont think is below, but disabling just in case
 " shortcuts
 " map <F2> :NERDTreeToggle<CR>
+"
+" https://vim.fandom.com/wiki/How_to_stop_auto_indenting
+" map F8 to turn off all weired indent ai
+:nnoremap <F8> :setl noai nocin nosi inde=<CR>
