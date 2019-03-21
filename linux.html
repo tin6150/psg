@@ -103,6 +103,29 @@ If using GRUB, then, at the menu for choosing kernel, do:
  lather, rinse, repeat
 </PRE>
 
+<H4>Single User Mode RHEL 7</H4>
+
+https://docs.fedoraproject.org/en-US/Fedora/19/html/Installation_Guide/s1-grub-targets.html
+
+<PRE>
+linux16 /vmlinux...  ro                        rd.lvm.lv=... 
+linux16 /vmlinux...  rw init=/sysboot/bin/bash 
+
+
+linux /vmlinux... systemd.unit=multi-user.target    
+
+remove rhgb quiet
+rhgh is redhat splash
+quiet remove most verbose msg
+
+
+/etc/default/grub
+GRUB_TIMEOUT=60
+GRUB_CMDLINE_Linux=... (remove rhgb quiet)
+grub2-mkconfig
+</PRE>
+
+
 <H4>Single User Mode RHEL 7 with pxe boot with chrooted env</H4>
 
 ln -sf /lib/systemd/system/rescue.target /etc/systemd/system/default.target
@@ -3268,6 +3291,8 @@ nmcli device 			# should show the interface no longer managed by Network Manager
 
 #systemctl enable network ??	# not enabled on system that use Network Manager exclusively?
 systemctl start  network 
+systemctl enable network       # redirect to something else...
+								# machine with Network Manager does not have this enabled (centos 7 default!)
 
 </PRE>
 

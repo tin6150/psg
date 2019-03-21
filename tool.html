@@ -228,22 +228,43 @@ So, these things will help finding a decent number for memory request.
 
 <H2>Disks</H2>
 
+<!-- :set shiftwidth=8 -->
 <PRE>
 
 SATA 150 has 150 MB/s bandwidth
 SATA II  has 300 MB/s
 SAS is 6 Gbps = 768 MB/s
+PCIe 3.1 x4 NVMe = ...
+
+
+NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015.  NVMe drives are often in NAND
+M.2 = replaces mSATA
+	<LI> typically bare chips
+U.2 (SFF-8639)
+	<LI> The U.2 connector is mechanically identical to the SATA Express device plug, but provides four PCI Express lanes through a different usage of available pins (wikipedia)
+	<LI> ie not to to use SATA controller...
+	<LI> support hot swap.
+	<LI> typically inside an enclosure
+	
 
 b = bits (network, serial protocol))
 B = Byte (storage, at least traditionally "parrallel", whole byte based protocol)
 
 
-			128KB	4KB			
-			Seq r/w Rnd r/w
-			MB/s	IOPS
----------------------	-------	-------	----	
-Intel SSD S4510  	560/510 97k/36k
-Intel SSD S4610  	560/510 97k/51k
+			128KB		4KB		Latency		Power
+			Seq read/write 	Rnd r/w		read/write	active/idle
+			MB/s		IOPS		microsec 	w	
+---------------------	-------------	-----------	--------	------	-------
+Intel SSD S4510  	560/510 	97k/36k
+Intel SSD S4610  	560/510 	97k/51k
+Intel SSD P4510	1TB  	2850/1100	465k/70k	77/18 		10/5	64-Layer 3D TLC NAND
+Intel SSD P4510 2TB	3200/2000	637k/81.5k			12/5
+Intel SSD P4510 8TB	3200/3000	641k/134.5k			15/5
+
+Intel SSD Pro 7600p M.2 3200/1625 	340k/275k				3D2 TLC 512 GB to 2 TB version
+Intel SSD Pro 7600p M.2 1640/650	105k/160k					128 GB version	
+
+TLC = Tri-Level Cell
 
 
 			Seq r/w Rnd r/w
@@ -260,6 +281,8 @@ Seagate Barracu 7200rpm 410
 Ref: 
 <UL>
 <LI> https://www.tomshardware.com/reviews/desktop-hdd.15-st4000dm000-4tb,3494-3.html
+<LI> https://ark.intel.com/content/www/us/en/ark/compare.html?productIds=122572,122579,122580,122573
+<LI>
 <LI>
 </UL>
 
