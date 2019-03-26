@@ -109,3 +109,5 @@ set background=dark     " comment will be more readable lighther color text
 " https://vim.fandom.com/wiki/How_to_stop_auto_indenting
 " map F8 to turn off all weired indent ai
 :nnoremap <F8> :setl noai nocin nosi inde=<CR>
+
+" maybe good to map some Fn key to :set paste  and :set nopaste

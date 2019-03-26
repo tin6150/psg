@@ -5,8 +5,11 @@
 
 #### over time will put all my github (and bitbucket) repos cloning here
 #### for now, run as:
-#### cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
-#### and cut-n-paste output, pausing in places that may ask for password...
+##XX cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
+##XX and cut-n-paste output, pausing in places that may ask for password...
+#### mkdir/cd ~/tin-gh, pre-run:
+#### git clone https://tin6150@github.com/tin6150/psg
+#### bash psg/git.setup.gh.sh
 
 
 # assume script is in the psg/ dir 
@@ -262,6 +265,20 @@ create_links()
 		[[ -L ~/PSG        ]] || ln -s ${GIT_DIR}/psg                       ~/PSG		## historically created links with absolute PATH at ~
 		cd $GIT_DIR	# ie cd back
 	done
+
+	FECHA=$(  date +%Y%m%d )
+	if [[ -f ~/.bashrc ]]; then
+		mv ~/.bashrc ~/.bashrc.$FECHA
+		ln -s  ${GIT_DIR}/psg/script/sh/.bashrc ~/.bashrc
+	fi
+	if [[ -f ~/.vimrc ]]; then
+		mv ~/.vimrc ~/.vimrc.$FECHA
+		ln -s  ${GIT_DIR}/psg/conf/.vimrc ~/.vimrc
+	fi
+	if [[ -f ~/.zshrc ]]; then
+		mv ~/.zshrc ~/.zshrc.$FECHA
+		ln -s  ${GIT_DIR}/psg/conf/.zshrc ~/.zshrc
+	fi
 
 } # end-create_links()
 
