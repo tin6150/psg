@@ -269,16 +269,19 @@ create_links()
 	FECHA=$(  date +%Y%m%d )
 	if [[ -f ~/.bashrc ]]; then
 		mv ~/.bashrc ~/.bashrc.$FECHA
-		ln -s  ${GIT_DIR}/psg/script/sh/.bashrc ~/.bashrc
 	fi
+	if [[ -f ~/.bash_profile ]]; then
+		mv ~/.bash_profile ~/.bash_profile.$FECHA
+	fi
+	ln -s  ~/.bashrc ~/.bash_profile
 	if [[ -f ~/.vimrc ]]; then
 		mv ~/.vimrc ~/.vimrc.$FECHA
-		ln -s  ${GIT_DIR}/psg/conf/.vimrc ~/.vimrc
 	fi
+	ln -s  ${GIT_DIR}/psg/conf/.vimrc ~/.vimrc
 	if [[ -f ~/.zshrc ]]; then
 		mv ~/.zshrc ~/.zshrc.$FECHA
-		ln -s  ${GIT_DIR}/psg/conf/.zshrc ~/.zshrc
 	fi
+	ln -s  ${GIT_DIR}/psg/conf/.zshrc ~/.zshrc
 
 } # end-create_links()
 
