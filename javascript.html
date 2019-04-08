@@ -71,6 +71,40 @@ may still want to move it back to psg as javascript.html
 tba
 
 
+JS is weakly typed.
+a = 1; 
+b = 1; 
+( a == b )  // this works
+( a === b ) // comparison operator is ===   , or at least Mozilla Dev Net use this.
+
+
+
+https://codeburst.io/javascript-essentials-types-data-structures-3ac039f9877b
+
+6 types of primitive data types:
+
+typeof true   // boolean
+typeof false  // boolean
+logical operators:  && || 
+
+typeof null   // object!! rtfm!
+
+typeof undefined  // undefined
+
+Symbols // everything are different.
+
+typeof 1.5 // number
+typeof NaN  // number  WTF?? :)
+typeof Infinity // number
+typeof 'a' // string
+
+
+everything else is ojbect.  eg hash, function, etc.
+
+
+there is a concept of strict mode, which change behavior for mixed data types
+
+
 Hash:
 * http://www.mojavelinux.com/articles/javascript_hashes.html
 * https://stackoverflow.com/questions/1208222/how-to-do-associative-array-hashing-in-javascript
@@ -80,9 +114,71 @@ Object:
 - var myObj = {};
 
 
+JSON (java script object notation):
+- often a list (array) of objects.
+- a way to serialize list as communication encoding in API (eg REST calls).
+- HOW to refer to individual elements???   D3js seems to represent things in JSON as well... 
+
+</PRE>
+
+<H5>Arrays</H5>
+
+<A HREF="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array</A>
+
+<PRE>
+Note that Array is a (?) list construct (?) and not a data type. 
+so, can have an array of any of the data type.
+
+[ 'a', 'b' ] + [ 'c' , 'd' ]  //
+
+var fruits = ['Apple', 'Banana'];
+fruits.length ; // 2
+
+# loop over an array
+
+fruits.forEach(function(item, index, array) {
+  console.log(item, index);
+});
+// Apple 0
+// Banana 1
+
+
+fruits[0]; // Apple, ie 0-index for first array element
+
+fruits.push('Orange');   // add element to array (double check that don't have to assign to a new object)
+remainingList = fruits.pop();     // remove from end   (note remainingList is a new list?  original list "fruits" stays the same?  also note that pop() isn't returning the element that was removed!
+or is MDN tutorial just confusing/mixed up??
+
 
 
 </PRE>
+
+
+
+<H5>Variable & scope</H5>
+
+<PRE>
+
+
+y = 1; 	  // eg of undeclared variable, scope is global, even when first use is inside a function
+var z = 2;   // eg of delcared variable, if inside a function, not usable outside of fn it was declared. (aka constrained)
+
+function can create new variable scoping, if block cannot.
+
+</PRE>
+additional diff b/w declared and undeclared vars: 
+(<A HREF="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var">MDN</A>)
+<BR>
+
+
+<UL>
+<LI> Declared variables are created before any code is executed. Undeclared variables do not exist until the code assigning to them is executed.
+<LI> Declared variables are a non-configurable property of their execution context (function or global). Undeclared variables are configurable (e.g. can be deleted).
+</UL>
+
+
+
 
 
 <A ID="output"></A>
