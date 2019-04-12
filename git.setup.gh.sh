@@ -127,6 +127,9 @@ run_git_clone()
 	### mapbox plugin, trying to get it to work on my map (ZWEDC collab with ETA)
 	### also avail as https://tin6150.github.io/mapbox-gl-controls
 	git clone https://github.com/tin6150/mapbox-gl-controls
+
+	### reading csv in javascript, D3js didnt work for me, so hoping this would.  but may need older release to find out what broke the example...
+	git clone https://github.com/tin6150/jquery-csv.git
 	
         ##############################
         #### tin6150@github gitst ####

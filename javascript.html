@@ -40,7 +40,8 @@
       <td align="center"><a accesskey="j" href="javascript.html">javascript</a></td>
       <td align="center"><a accesskey="p" href="php.txt">PHP</a></td>
       <td align="center"><a accesskey="l" href="perl.html">Perl</a></td>
-      <td align="right"><a accesskey="s" href="shellScript.txt">shellScript</a></td>
+      <td align="center"><a accesskey="s" href="shellScript.txt">shellScript</a></td>
+      <td align="right"><a accesskey="g" href="git">sourceControl.html#git</a></td>
     </tr>
   </tbody>
 </table>
@@ -167,12 +168,23 @@ var z = 2;   // eg of delcared variable, if inside a function, not usable outsid
 function can create new variable scoping, if block cannot.
 
 </PRE>
+
+<OL>
+
+<LI>
+var, let, const in ES6 (2015).  Include explanation of hoisting:
+<A HREF="https://www.digitalocean.com/community/tutorials/understanding-variables-scope-hoisting-in-javascript">Digital Ocean</A> <BR>
+Note that duplication declaration with var is allowed (and no warnings!).  <BR>
+use `let` inside block or fn is recommended, reduce chance of overwritting global declaration.  it also explicitly error out on duplicate `let` declaration
+
+<LI>
 additional diff b/w declared and undeclared vars: 
 (<A HREF="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var">MDN</A>)
 <BR>
-
+</OL>
 
 <UL>
+
 <LI> Declared variables are created before any code is executed. Undeclared variables do not exist until the code assigning to them is executed.
 <LI> Declared variables are a non-configurable property of their execution context (function or global). Undeclared variables are configurable (e.g. can be deleted).
 </UL>
@@ -197,6 +209,17 @@ Quick output
 </PRE>
 
 
+<A ID="input"></A>
+<H2>Input</H2>
+<H5>Reading file from server</H5>
+
+
+<UL>
+	<LI> <A HREF="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Fetching_data">https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Client-side_web_APIs/Fetching_data</A>
+Reading file from server, but uses ajax, async method.  
+good for interactivity, painful for data analytics program :(
+
+</UL>
 
 <BR><HR><BR>
 
