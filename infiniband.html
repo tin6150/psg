@@ -77,9 +77,15 @@ Symbol Error - Think of this as packet error in the ethernet world.  it is the r
 <PRE>
 opensm 	# open fabric subnet manager.  run on one of the host.  
 	# additional standy manager on other hosts can be setup.  
-	# the daemon process will only bind to first IB port.  
+	# the daemon process will only bind to ONE IB port.  
 	# HA fabrics should be joined into a single one.
-  	# Fix opensm.conf to bind to additional guid.  
+  	# Fix opensm.conf to bind to desired guid (port).   
+	# not specifiying one will get prompt to choose if multiple port is avail.
+	# If have two-port card and need TWO subnet manager, then need to 
+	# update /etc/init.d/opensm and start TWO instance of opensmd
+	# use -g GUID to specify which port each instance use.  this would overwrite config in /etc/opensm/opensm.conf. eg 
+ 	# /usr/sbin/opensm --daemon 
+ 	# /usr/sbin/opensm --daemon -g 0x506b4b03007c00c2
 
 OFED has ib driver and opensm
 Mellanox compiled their own version and provide support for it, MLNX_OFED, aka MOFED.  has driver and opensm.  No more support for ConnectX-2 cards in 2018.
