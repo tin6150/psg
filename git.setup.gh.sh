@@ -136,6 +136,8 @@ run_git_clone()
         ##############################
 
         git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
+		git clone https://gist.github.com/tin6150/a9041b900d3803d6d5f012af93704dbf.git # netapp_svm_root_vol_data_protection.txt # axiom
+
 
 
 
