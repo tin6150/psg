@@ -223,10 +223,12 @@ vserver nfs modify -vserver svm1 -showmount disabled    # showmount -e reports e
 
 # show if require use of priviledge port (below 1024)
 
-vserver nfs show -vserver als-filercl -fields nfs-rootonly 
-vserver nfs show -vserver als-filercl -fields mount-rootonly 
+vserver nfs show -vserver axiom88 -fields nfs-rootonly      # def disabled.  sshuttle mitigation need to enable this.
+vserver nfs show -vserver axiom88 -fields mount-rootonly    # def enabled
 
-# to actually make changes...
+# to actually make changes:
+vserve nfs modify axiom88  -nfs-rootonly enable
+
 
 
 </PRE>
@@ -338,6 +340,20 @@ xref:
 CF_BK/als/gilmar.rst 
 https://docs.google.com/document/d/13oIrDaPDwb52MRbllq1H2YkPQR5JtGw6O9ZcxeVzuIU/edit
 -->
+
+<A NAME="checklist"></A>
+<H2>
+Deployment checklist
+</H2>
+
+<OL>
+	<LI>sshuttle mitigation: restrict to reserved port (<TT>nfs-rootonly</TT>)</LI>
+	<LI>security login show</LI>
+	<LI>firewall policy show</LI>
+	<LI>exports-policy show</LI>
+	<LI></LI>
+</OL>
+
 
 <A NAME="cluster-mode_ref"></A>
 <H2>
@@ -863,7 +879,7 @@ nfsstat -l 	# show 1 line stat per client, since boot (non resetable stat)
 </PRE>
 
 Cuz of sshuttle, mac and linux may become part of the allowed network client :(
-Mitigation to prevent NFS access thru sshutle is to require access on priviledge ports only (since sshuttle still run as user space.)
+Mitigation to prevent NFS access thru sshuttle is to require access on priviledge ports only (since sshuttle still run as user space.)
 priviledge ports: below 1024, ie up to 1023
 <BR>
 7-mode
