@@ -205,6 +205,10 @@ export-policy rule create -policyname vm_backup-export -clientmatch 131.243.73.0
 ### not sure if there is way to have system auto assign next ruleindex number...  
 
 
+## verify a specific client have access to a volume:
+vserver export-policy check-access -vserver svmA -client-ip 10.3.33.89 -volume data -authentication-method sys -protocol nfs3 -access-type read-write 
+
+
 snapmirror show			# snapmirror status - approx from 8.x 
 
 volume qtree show 
