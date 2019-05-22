@@ -70,6 +70,7 @@ git config --global alias.lol "log --oneline --graph --decorate"                
 git config --global merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
 #git config merge.conflictstyle diff3            # cmd diff tool, make file w/ <<<< |||| >>>>, bearable
 
+git config --global core.autocrlf false          # auto CR/LF conversion, if not disabled, vscode may update file b/w format and create too many git changes.
 
 #cd ..
 
