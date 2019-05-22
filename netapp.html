@@ -205,6 +205,10 @@ export-policy rule create -policyname vm_backup-export -clientmatch 131.243.73.0
 ### not sure if there is way to have system auto assign next ruleindex number...  
 
 
+## verify a specific client have access to a volume:
+vserver export-policy check-access -vserver svmA -client-ip 10.3.33.89 -volume data -authentication-method sys -protocol nfs3 -access-type read-write 
+
+
 snapmirror show			# snapmirror status - approx from 8.x 
 
 volume qtree show 
@@ -219,10 +223,12 @@ vserver nfs modify -vserver svm1 -showmount disabled    # showmount -e reports e
 
 # show if require use of priviledge port (below 1024)
 
-vserver nfs show -vserver als-filercl -fields nfs-rootonly 
-vserver nfs show -vserver als-filercl -fields mount-rootonly 
+vserver nfs show -vserver axiom88 -fields nfs-rootonly      # def disabled.  sshuttle mitigation need to enable this.
+vserver nfs show -vserver axiom88 -fields mount-rootonly    # def enabled
 
-# to actually make changes...
+# to actually make changes:
+vserve nfs modify axiom88  -nfs-rootonly enable
+
 
 
 </PRE>
@@ -335,8 +341,23 @@ CF_BK/als/gilmar.rst
 https://docs.google.com/document/d/13oIrDaPDwb52MRbllq1H2YkPQR5JtGw6O9ZcxeVzuIU/edit
 -->
 
+<A NAME="checklist"></A>
 <H2>
-Cluster-mode Ref
+Deployment checklist
+</H2>
+
+<OL>
+	<LI>sshuttle mitigation: restrict to reserved port (<TT>nfs-rootonly</TT>)</LI>
+	<LI>security login show</LI>
+	<LI>firewall policy show</LI>
+	<LI>exports-policy show</LI>
+	<LI></LI>
+</OL>
+
+
+<A NAME="cluster-mode_ref"></A>
+<H2>
+Cluster-Mode Ref
 </H2>
 
 <OL>
@@ -344,6 +365,7 @@ Cluster-mode Ref
        (<A HREF="3rdParty/ONTAP_90_Command_Map_for_7Mode_Administrators.pdf">cache</A>)
 	</LI>
 	
+	<LI><A HREF="https://gist.github.com/tin6150/a9041b900d3803d6d5f012af93704dbf"></A>Gist on SVM root volume data protection</LI>
 	<LI><A HREF=""></A></LI>
 	<LI><A HREF="https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/">Pocket Guide Clustered Mode</A> from sysadmin tutorials</LI>
 	<LI><A HREF=""></A></LI>
@@ -857,7 +879,7 @@ nfsstat -l 	# show 1 line stat per client, since boot (non resetable stat)
 </PRE>
 
 Cuz of sshuttle, mac and linux may become part of the allowed network client :(
-Mitigation to prevent NFS access thru sshutle is to require access on priviledge ports only (since sshuttle still run as user space.)
+Mitigation to prevent NFS access thru sshuttle is to require access on priviledge ports only (since sshuttle still run as user space.)
 priviledge ports: below 1024, ie up to 1023
 <BR>
 7-mode

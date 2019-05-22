@@ -1,26 +1,18 @@
 
 ################################################################################
-#### this rst is really now a shell script that can be run 
-################################################################################
-
-#### over time will put all my github (and bitbucket) repos cloning here
-#### for now, run as:
-##XX cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
-##XX and cut-n-paste output, pausing in places that may ask for password...
 #### mkdir/cd ~/tin-gh, pre-run:
 #### git clone https://tin6150@github.com/tin6150/psg
 #### bash psg/git.setup.gh.sh
+################################################################################
+
+#### old method, not liked anymore, cuz prompt for password get gabled from paste
+##XX cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
+##XX and cut-n-paste output, pausing in places that may ask for password...
 
 
-# assume script is in the psg/ dir 
-#cd ..
-
-# nah, going forward, always setup a new dir :)
-### in WSL setup, precreate:
-
+# check, now automatically detect, for wsl env:
 useC_tin=0
 useC_tin=$(uname -a  | grep -c Microsoft)  # this should be 1 in wsl ubuntu bash
-
 
 ##WslEnv=True
 ##if [[ x${WslEnv} == xTrue ]]; then
@@ -43,6 +35,7 @@ ls -ld ~/tin-gh
 pwd
 pwd -P
 #sleep 15
+echo "press Enter to continue..."
 read WaitForEnter
 
 #exit 666
@@ -118,6 +111,17 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
 	git clone https://tin6150@github.com/tin6150/smelly.git
 
+    ###########################################
+	#### greta, currently owned by greta-d ####
+    ###########################################
+	#git clone https://github.com/greta-sw/forward-buffer  # need to login as greta-d , or add tin6150 as a member...
+	git clone https://greta-d@github.com/greta-sw/forward-buffer
+	git clone https://greta-d@github.com/greta-sw/signal-decomposition
+	git clone https://greta-d@github.com/greta-sw/data-analysis
+	git clone https://greta-d@github.com/greta-sw/fpga
+	git clone https://greta-d@github.com/greta-sw/slow-control
+	git clone https://greta-d@github.com/greta-sw/sysconfig
+
     #############################################
     #### stuff I forked, play/learn with,    ####
 	#### but not necessary maintain/publixh  ####
@@ -137,6 +141,8 @@ run_git_clone()
         ##############################
 
         git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
+		git clone https://gist.github.com/tin6150/a9041b900d3803d6d5f012af93704dbf.git # netapp_svm_root_vol_data_protection.txt # axiom
+
 
 
 
@@ -160,6 +166,7 @@ run_git_clone()
 	# cd ..
 	git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 	git clone https://sn5050@bitbucket.org/berkeleylab/unified-vnfs.git
+	git clone https://sn5050@bitbucket.org/gimpbully/scg-ansible.git # ro, tmp?
 
 	## biositting tool, collab with ETA Ling Jin, Tyler Huntington
 	# 1.1 GB repo , maybe data deleted.  
