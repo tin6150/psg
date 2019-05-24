@@ -99,7 +99,7 @@ Brendan Gregg on Linux Performance</A>
 <LI> iftop -i eth2						# provide live stats for inter-host traffic 
 <LI> nicstat 1		# read/write KB/s, repeat every 1 second
 <LI> netstat
-<LI> ethtool eth0	# speed, duplex, but no collision info
+<LI> ethtool eth0	# speed, duplex, new version under root has collision info
 <LI> mii-tool -vv eth0	
 <LI> ibstat		# from ofed
 <LI>
@@ -111,6 +111,22 @@ Brendan Gregg on Linux Performance</A>
 
 <LI> tcpdump		# trace network packages, advance
 <LI>
+</PRE>
+<PRE>
+
+# reset collision, drop, etc counters reported by ifconfig and ethtool -S
+ethtool  -i enp94s0f1		# determine driver used (if not build into kernel)
+ifconfig    enp94s0f1 down
+modprobe -r ixgbe			# intel 10G NIC
+modprobe    ixgbe
+ifconfig    enp94s0f1 up
+
+ethtool -S enp94s0f1  | egrep -i 'drop|col|err' # look for drop or collision, no report on pause frames
+ethtool -S enp216s0f1 | grep -v ': 0$'  | more  # look for anything with non zero counter
+
+mlx5_core # mellanox 100G Ethernet (and IB?)
+
+
 </PRE>
 
 <H5>Disk I/O</H5>
@@ -1642,14 +1658,19 @@ Network perf measurement:
 yum install iperf3
 apt-get install iperf
 
-iperf3 -s			# start server, def use TCP, port 5201
-iperf3 -s -p 80			# start server, listen on port 80.  remain LISTEN after client disconnect
+iperf3 -s					# start server, def use TCP, port 5201
+iperf3 -s -p 8000			# start server, listen on port 80.  remain LISTEN after client disconnect
 
 iperf3 -c SERVER -t 30 -i 1	# start as client, connect to SERVER
 				# run test for 30 sec, report progress every 1 sec
 
 iperf3 -c SVR -t 10 -i 1 -P 2		# -P 2 = parallel 4 streams
 iperf3 -c SVR -t 10 -i 1 -P 2 -w 32M 	# -w 16M = use 32M TCP buffer
+
+iperf3 -u -b 1G         -t 600 -c 10.22.22.2 -R        # Reverse run, ie as Receiver rather than sender
+iperf3 -u -b 100M       -t 600 -c 10.22.22.2 -p 8000
+iperf3 -u -b 1G  -w50M  -t 600 -c 10.22.22.2 -p 8000   # large buffer needed to avoid drop of udp
+iperf3    -b 1G         -t 600 -c 10.22.22.2 -p 8000   # if no -w support, use this method and check for tcp retransmit
 
 </PRE>
 

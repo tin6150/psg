@@ -166,7 +166,8 @@ run_git_clone()
 	# cd ..
 	git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
 	git clone https://sn5050@bitbucket.org/berkeleylab/unified-vnfs.git
-	git clone https://sn5050@bitbucket.org/gimpbully/scg-ansible.git # ro, tmp?
+	#git clone https://sn5050@bitbucket.org/gimpbully/scg-ansible.git # ro, tmp?
+	git clone https://sn5050@bitbucket.org/berkeleylab/scg-ansible.git # probably rw now under bl
 
 	## biositting tool, collab with ETA Ling Jin, Tyler Huntington
 	# 1.1 GB repo , maybe data deleted.  
