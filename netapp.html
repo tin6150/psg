@@ -1470,6 +1470,38 @@ volcopy is fast, it will also copy all the snapshots associated with the volume.
 <BR>
 <BR>
 
+<H2>
+Disk sanitazation
+</H2>
+
+
+Before decommisioning a filer, best to remove volume, and maybe zero or sanitize the disks.  <BR>
+Sanitazion is more secure than just simply zeroing the disk.
+For sanitizing, can choose number of pass with -c N, max 7, def 3.
+<BR>
+ref: https://www.pickysysadmin.ca/2012/04/19/how-to-securely-erase-your-data-on-a-netapp/
+
+<PRE>
+vol offline ...
+vol destroy ...
+aggr offline ...
+aggr destroy ...
+
+aggregate status -v 
+disk status 
+
+options licensed_feature.disk_sanitization.enable on
+#no longer need to get lic from netapp sales.  but still get warning about some side effects, etc
+
+# get a list of disk, exclude disk that are still in use
+disk sanitize start -p 0x666 -c 1 0a.00.1 0a.00.22 ... DISK_LIST    # single pass, choosing my own pattern
+disk sanitize start          -c 7 0a.00.1 0a.00.22 ... DISK_LIST    # 7 pass as req by DoD
+disk sanitize status
+disk status
+
+disk sanitize release DISK_LIST    # restore disk from FAILED to spare
+</PRE>
+
 <H2>DFM</H2>
 Data Fabric Manager, now known as ...
 <BR>
