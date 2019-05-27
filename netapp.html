@@ -1477,7 +1477,9 @@ Disk sanitazation
 
 Before decommisioning a filer, best to remove volume, and maybe zero or sanitize the disks.  <BR>
 Sanitazion is more secure than just simply zeroing the disk.
-For sanitizing, can choose number of pass with -c N, max 7, def 3.
+For sanitizing, can choose number of pass with -c N, max 7, def 3.  <BR>
+Sanitization happens in the background, in parallel for each disk.  But a 4 TB SAS drive can still take hours for a single pass.  <BR>
+
 <BR>
 ref: https://www.pickysysadmin.ca/2012/04/19/how-to-securely-erase-your-data-on-a-netapp/
 
@@ -1494,8 +1496,10 @@ options licensed_feature.disk_sanitization.enable on
 #no longer need to get lic from netapp sales.  but still get warning about some side effects, etc
 
 # get a list of disk, exclude disk that are still in use
-disk sanitize start -p 0x666 -c 1 0a.00.1 0a.00.22 ... DISK_LIST    # single pass, choosing my own pattern
-disk sanitize start          -c 7 0a.00.1 0a.00.22 ... DISK_LIST    # 7 pass as req by DoD
+disk sanitize start -p 0x666 -c 1 0a.00.1 0a.00.19 ... DISK_LIST    # single pass, choosing my own pattern
+# can carry out for a single disk, but prompt warning, so best to do a list
+# it need to list each disk individually, it does not take range(s)
+disk sanitize start          -c 7 0a.00.5 0b.00.22 ... DISK_LIST    # 7 pass as req by DoD
 disk sanitize status
 disk status
 
