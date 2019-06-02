@@ -256,6 +256,11 @@ COMMIT
 ##-A INPUT -s 192.168.1.0/24 -p udp --dport 138 -j ACCEPT
 </PRE>
 
+
+<A ID="port"></A>
+<A ID="port_forwarding"></A>
+<H5>Port Fowarding</H5>
+
 Port forward incoming traffic hitting on port 80, sending it to port 8000.
 <PRE>
 iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8000
@@ -269,6 +274,38 @@ this is relevant sometime when you the requestor come from the same machine (eg 
 [ommitting the -i eth0 may get it to forward traffic even when it is on the same host?]
 <BR>
 
+<A ID="one"></A>
+<A ID="one-off"></A>
+<H5>One-off manipulation</H5>
+
+Not recommended unless in niche circumstances.
+
+<PRE>
+# allow for established connection
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# ensure default policy is to drop (else need to explicitly define a drop rule at the end of the chain)
+iptables -P INPUT   DROP
+iptables -P FORWARD DROP
+
+
+iptables -A INPUT -s 73.170.217.126/32  -p tcp --dport 80   -j ACCEPT -m comment --comment "-A appends as last rule of the chain"
+iptables -I INPUT -s 73.170.217.126/32  -p tcp --dport 80   -j LOG    -m comment --comment "-I insert as first rule of the chain"
+	# -j LOG will trigger log mechanism, and jump back when done
+
+iptables -nvL --line-n 		# list rule with index number
+iptables -D INPUT 1			# delete index 1 of INPUT chain
+
+
+# custom chain to LOG and DROP connection 
+iptables -N LOG_AND_DROP
+iptables -A LOG_AND_DROP -j LOG --log-prefix "IPTables Source host denied " --log-level 7
+iptables -A LOG_AND_DROP -j DROP		# add as last rule to default to log and then drop packet not otherwise already allowed
+
+
+iptables -S   # also get custom chains (eg those created by docker, ufw, etc)
+
+</PRE>
 
 <A ID="firewalld"></A>
 <H2>firewalld</H2>
