@@ -303,7 +303,10 @@ iptables -A LOG_AND_DROP -j LOG --log-prefix "IPTables Source host denied " --lo
 iptables -A LOG_AND_DROP -j DROP		# add as last rule to default to log and then drop packet not otherwise already allowed
 
 
-iptables -S   # also get custom chains (eg those created by docker, ufw, etc)
+iptables -S         # also get custom chains (eg those created by docker, ufw, etc)
+
+iptables -X INPUT   # remove all INPUT chain (so default to allow all; unless policy (-D) is drop?  or that get reset as well?)
+iptables -F         # flush all rules (iptables still active, but largely allow all)
 
 </PRE>
 
