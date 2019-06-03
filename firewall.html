@@ -359,6 +359,32 @@ ref:
 <A HREF="https://www.linode.com/docs/security/firewalls/introduction-to-firewalld-on-centos">
 Linode intro to firewallD on CentOS</A>
 
+<H5>Precedence</H5>
+
+<OL>
+	<LI>Sources (list of IP) are processed first.  </LI>
+	<LI>Interfaces (eg eno1, enp94s0f0) are applied second</LI>
+	<LI>In a zone, <TT>target: default</TT> means kick the packet upstair (typically means ACCEPT if the service is listed, DROP/REJECT otherise?) </LI>
+	<LI>the default zone is not the same as <TT>target: default</TT>   default zone is often what Network Manager assign when the network is joined.  firewalld allow explicitly defining which one is the default zone (eg set it to DMZ)</LI>
+	<LI><TT>iptables -S</TT> would be good friend for debugging</LI>
+	<LI>rich rules are low level iptable rules, not recommended in firewallD, unless no pre-defined service for it.  it is processed within a zone. </LI>
+	<LI></LI>
+</OL>
+
+<PRE>
+</PRE>
+
+
+ref: 
+<UL>
+<LI>
+<A HREF="https://www.linuxjournal.com/content/understanding-firewalld-multi-zone-configurations">Linux Journal Zone Config on FirewallD</A>
+<LI>
+	<A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/security_guide/sec-working_with_zones">RHEL7 firewallD Zones</A>
+
+</UL>
+
+
 
 <A ID="ufw"></A>
 <A ID="gufw"></A>
