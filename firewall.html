@@ -595,7 +595,8 @@ Ref:
 <LI>Docker add lots of iptables to route traffic from host to container.  And it does so at the <TT>PREROUTING</TT> chain, thereby bypassing most of FirewallD or UFW rules</LI>
 <LI>Add custom rule to DOCKER-USER chain to regulate what flows into container.  Avail with Docker 17.06 (not in RHEL7 rpm, need to use docker-ce).  </LI>
 <LI> <A HREF="https://unrouted.io/2017/08/15/docker-firewall/">Unrouted</A> describe the addition of a custom chain <TT>FILTER</TT> and feed both DOCKER and regular physical host traffic into it for centralized control.  This could be good for single host use, likely need other approach for a farm of servers running docker</LI>
-<LI></LI>
+<LI>Note that DOCKER-USER chain is NAT-ed, thus may need to use the IP of the container</LI>
+<LI><A HREF="https://serverfault.com/questions/704643/steps-for-limiting-outside-connections-to-docker-container-with-iptables">serverfault post</A></LI>
 <LI></LI>
 </OL>
 

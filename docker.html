@@ -891,11 +891,25 @@ Also, there is a more complex setup with NGINX load balancer, Redis cache:
 
 <H3>Docker Compose</H3>
 
-Docker Compose is a declarative way of managing containers.  Think Puppet, Chef and other configuration management tool, 
-applied to docker.  
+<PRE>
+docker-compose up		# read docker-compose.yml, and bring up container(s) as specified in the declarative yml file
+
+probably compete with kubernetes.
+</PRE>
+
 <BR>
 eg Both examples of wordpress setup has reference to Docker Compose.
 <BR>
+
+<A NAME="security"></A>
+<H3>Security</H3>
+
+<OL>
+	<LI>docker create iptables in the PREROUTING level, thereby often bypassing host's FirewallD or UFW rules.  see <A HREF="firewall.html#docker">firewall#docker</A></LI>
+	<LI>Docker Daemon typically listen to unix socket.  But it could be configured to listen on network port, in which case TLS certs (with key/passphrase) is recommended.  see <A HREF="https://docs.docker.com/engine/security/https/">Docker security doc</A> </LI>
+	<LI></LI>
+	<LI></LI>
+</OL>
 
 <H3>Reference</H3>
 
