@@ -112,6 +112,11 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/smelly.git
 
     ###########################################
+	#### private github repo ####
+    ###########################################
+	git clone https://tin6150@github.com/tin6150/cmaq.git
+
+    ###########################################
 	#### greta, currently owned by greta-d ####
     ###########################################
 	#git clone https://github.com/greta-sw/forward-buffer  # need to login as greta-d , or add tin6150 as a member...
