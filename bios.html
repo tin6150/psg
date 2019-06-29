@@ -533,7 +533,7 @@ sum -c GetBIOSInfo			# this find out firmware version info, etc.  run on local m
 sum -c UpdateBios --file BIOS.rom 	# this update bios, not change config
 
 sum -c GetCurrentBiosCfg  --file  smBiosCf.txt	# write output of BIOS settings (HT on or off, etc) to file
-sum -c GetCurrentBiosCfg     >    smBiosCf.txt	# should be same, but couple of places have * (default) next to diff entries.
+sum -c GetCurrentBiosCfg     >    smBiosCf.txt	# should be same, but couple of places have * (default) next to diff entries.  also has SM(c) header, should avoid
 
 vi smBiosCf.txt		# make desired changes to BIOS use hex code for values. eg turn off Hyperthreading
 			# remove the first two lines of cfg that had the SM copyright info 
