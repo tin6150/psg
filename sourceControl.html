@@ -474,6 +474,14 @@ git config --global alias.lol "log --oneline --graph --decorate"		# create alias
 
 </PRE>
 
+<H5>git against "origin"</H5>
+
+For team, non forked project, <TT>origin</TT> is the central repo residing on github.com or bitbucket.com
+<BR>
+origin vs upstream?
+<BR>
+
+
 <H5>git against "upstream"</H5>
 
 <TT>upstream</TT> usually refer to the "grand daddy" repo of an open source project, where <TT>Pull Requests</TT> are submitted to add one's contribution to the open source project.  <BR>
@@ -505,6 +513,46 @@ git push origin master 			# (same as?) `git push`
 
 # create Pull Request on github.com 
 # forks are tracked by github.com, the PR will submit the changes to the grand daddy repo.
+
+</PRE>
+
+<H5>git between branches</H5>
+
+<OL>	
+	<LI>create a new branch, make changes, commit, close off branch once it is done</LI>
+	<LI>Before branching, checkout into the branch where the merge will eventually be done against. eg <TT>git checkout dev; git branch tin-dev</TT></LI>
+	<LI></LI>
+	<LI></LI>
+</OL>
+
+<PRE>
+
+git checkout tin
+git pull origin dev		# do this before commit changes, help keep branch uptodate 
+
+--0--
+
+git fetch				# update all branches
+git pull origin develop # only update a specific branch (develop)
+
+--0--
+
+git checkout tin
+git merge develop		# pull changes from develop branch into the repo I am sitting in (tin)
+git push origin   tin	# ie git push?  get my local changes into "origin" (bitbucket)
+
+
+overall idea is to pull/fetch all changes into the branch I am doing edit.
+resolve all conflicts (merge) locally.
+then push the changes/commits into origin (bitbucket), then create PR.
+
+If already created PR, 
+still fetch all changes from "parent branch" locally.
+resolve and commit , then PR will reflect the final change without conflic,
+thereby allowing easy merge w/o conflict.
+
+
+
 
 </PRE>
 

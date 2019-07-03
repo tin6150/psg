@@ -110,6 +110,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
 	git clone https://tin6150@github.com/tin6150/smelly.git
+	git clone https://tin6150@github.com/tin6150/cvs.git
 
     ###########################################
 	#### private github repo ####
@@ -117,15 +118,21 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/cmaq.git
 
     ###########################################
-	#### greta, currently owned by greta-d ####
+	### greta, formerly owned by greta-d, i became co-owner now ####
     ###########################################
 	#git clone https://github.com/greta-sw/forward-buffer  # need to login as greta-d , or add tin6150 as a member...
-	git clone https://greta-d@github.com/greta-sw/forward-buffer
-	git clone https://greta-d@github.com/greta-sw/signal-decomposition
-	git clone https://greta-d@github.com/greta-sw/data-analysis
-	git clone https://greta-d@github.com/greta-sw/fpga
-	git clone https://greta-d@github.com/greta-sw/slow-control
-	git clone https://greta-d@github.com/greta-sw/sysconfig
+	#git clone https://greta-d@github.com/greta-sw/forward-buffer
+	#git clone https://greta-d@github.com/greta-sw/signal-decomposition
+	#git clone https://greta-d@github.com/greta-sw/data-analysis
+	#git clone https://greta-d@github.com/greta-sw/fpga
+	#git clone https://greta-d@github.com/greta-sw/slow-control
+	#git clone https://greta-d@github.com/greta-sw/sysconfig
+	git clone https://tin6150@github.com/greta-sw/forward-buffer
+	git clone https://tin6150@github.com/greta-sw/signal-decomposition
+	git clone https://tin6150@github.com/greta-sw/data-analysis
+	git clone https://tin6150@github.com/greta-sw/fpga
+	git clone https://tin6150@github.com/greta-sw/slow-control
+	git clone https://tin6150@github.com/greta-sw/sysconfig
 
     #############################################
     #### stuff I forked, play/learn with,    ####
