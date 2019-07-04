@@ -28,7 +28,7 @@
 <table summary="Navigation header" width="100%">
   <tbody>
     <tr>
-      <th colspan="4" align="center">
+      <th colspan="8" align="center">
 	  
 <A HREF="http://tiny.cc/tin6150">Sys Admin Pocket Survival Guide - Source Control</A>
       </th>
@@ -342,12 +342,10 @@ still fetch all changes from "parent branch" locally.
 resolve and commit , then PR will reflect the final change without conflic,
 thereby allowing easy merge w/o conflict.
 
-
-
-
 </PRE>
 
-<H5>dealing with conflicts</H5>
+
+<H2>dealing with conflicts</H2>
 
 <TT>git config merge.conflictstyle diff3 </TT>
 will got a long way in automatically merging differences.
@@ -365,7 +363,7 @@ for many other gory options.  <BR>
 
 
 
-<H5>git terminology</H5>
+<H2>git terminology</H2>
 
 <UL>
 	<LI>upstream<BR>
@@ -382,7 +380,7 @@ for many other gory options.  <BR>
 <BR>
 
 
-<H5>github</H5>
+<H2>github</H2>
 
 Example instructions to add files as git repo into github
 
@@ -399,12 +397,37 @@ git config --global color.ui      true
 git remote add origin https://github.com/tin6150/psg.git
 git push -u origin master
 
-
-
-
 </PRE>
 
-<H5>git in windows</H5>
+<!-- ###################################################### -->
+
+<H1>Client/tools</H1>
+
+<H5>git TUI client</H5>
+<UL>
+	<LI>tig: top-like interface, read existing git repo, no need to login.
+	<LI>gs??
+	<LI>fugitive, a vim bundle - https://github.com/tpope/vim-fugitive
+</UL>
+
+<A ID="guiTool"></A>
+<H5>git GUI client</H5>
+
+<UL>
+	<LI>git gui : GUI version of git.   <BR>
+	    read local git repo, no need for additional login.   <BR>
+	    apt install git-gui <BR>
+	<LI>gitk: GUI tool to review commits, but not branches?  like a limited subset of <TT>git gui</TT><BR>
+	    apt install gitk <BR>
+	<LI>Git Extensions: seems promising GUI.  Mono app in Linux. Mac, Windoze.   Need many supporting tools (git for Windows, putty) and likely github login.
+	<LI>GitKraken seems highly rated, but not free for non-commercial use.
+	<LI>reviews: https://www.cloudways.com/blog/best-git-gui-clients/
+	<LI>
+</UL>
+
+<!-- ###################################################### -->
+
+<H2>git in windows</H2>
 
 Install wsl <BR>
 <TT>sudo apt install git </TT><BR>
@@ -413,6 +436,8 @@ can have the git run outside the lxfs subsystem, eg cd /mnt/c/... and git clone 
 <BR>
 Use terminal like Cmnder or <TT>apt get install lxterminal</TT> and use with like XcSvr.
 <BR>
+
+
 
 
 <H6>TL;DR</H6>
@@ -437,29 +462,9 @@ export HOMEPATH=\      <BR>
 export HOMEDRIVE=H:   <BR>
 <BR>
 
-<H5>git TUI client</H5>
-<UL>
-	<LI>tig: top-like interface, read existing git repo, no need to login.
-	<LI>gs??
-	<LI>fugitive, a vim bundle - https://github.com/tpope/vim-fugitive
-</UL>
 
-<A ID="guiTool"></A>
-<H5>git GUI client</H5>
 
-<UL>
-	<LI>git gui : GUI version of git.   <BR>
-	    read local git repo, no need for additional login.   <BR>
-	    apt install git-gui <BR>
-	<LI>gitk: GUI tool to review commits, but not branches?  like a limited subset of <TT>git gui</TT><BR>
-	    apt install gitk <BR>
-	<LI>Git Extensions: seems promising GUI.  Mono app in Linux. Mac, Windoze.   Need many supporting tools (git for Windows, putty) and likely github login.
-	<LI>GitKraken seems highly rated, but not free for non-commercial use.
-	<LI>reviews: https://www.cloudways.com/blog/best-git-gui-clients/
-	<LI>
-</UL>
-
-<H5>git references</H5>
+<H1>git references</H1>
 
 <UL>
 <LI><A HREF="https://www.youtube.com/watch?v=ZDR433b0HJY">Comprehensive git workshop video</A> by Scott Chacon.
