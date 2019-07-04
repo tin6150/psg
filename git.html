@@ -1,13 +1,508 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-  <head>
-    <title>git redirects to sourceControl.html#git </title>
-    <!-- meta redirect -->
-    <META http-equiv="refresh" content="1;URL=https://tin6150.github.io/psg/sourceControl.html#git">
-  </head>
-  <body bgcolor="#ffffff">
-    <center>You will be redirected to the new location automatically in 1 seconds. <BR>
-    git redirects to sourceControl.html#git 
-    </center>
-  </body>
-</html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>Pocket Survival Guide - Source Control</title>
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
 
+
+  <!-- Global site tag (gtag.js) - Google Analytics - t6@g new property for psg-github site -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-4515095-6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-4515095-6');
+</script>
+
+
+</head>
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="4" align="center">
+	  
+<A HREF="http://tiny.cc/tin6150">Sys Admin Pocket Survival Guide - Source Control</A>
+      </th>
+    </tr>
+    <tr>
+      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+	  <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a>(svn, cvs, rcs, p4)</td>
+
+      <td align="center"><a accesskey="d" href="development.html">Development</a></td>
+      <td align="center"><a accesskey="y" href="python.html">Python</a></td>
+      <td align="center"><a accesskey="j" href="javascript">javascript</a></td>
+      <td align="center"><a accesskey="h" href="php.txt">PHP</a></td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a></td>
+      <td align="right"><a accesskey="s" href="shellScript.html">shellScript</a></td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+
+<!-- forked from development.html -->
+
+<H1>GIT - Source Control</H1>
+<A NAME="git"></A>
+
+git is a very different beast than the other traditional source control system.  
+Instead of having a "code centric" view to create trees and branches, git is more of a "developer centric" paradigm.  As such, many actions don't have the same parallel as say SVN, even though some commands seems similar on the surface.
+<BR>
+<BR>
+git works as a two stage commit.  
+commands to manipulate the local git database which is the central view of the scm.
+Additionally, git can sync to a remote server (think github), and this is the repo server where many collaborators "check in" their codes for sharing.
+<BR>
+<BR>
+
+
+<div align="CENTER">
+<A HREF="https://github.com/Plateful/plateful-mobile/wiki/Git-Workflow-Diagram">
+<IMG SRC="fig/git-workflow-diagram_gertmenian-wong.png" alt="diagram for git workflow"><BR>
+</A>
+Source: 
+<A HREF="https://github.com/Plateful/plateful-mobile/wiki/Git-Workflow-Diagram">
+https://github.com/Plateful/plateful-mobile/wiki/Git-Workflow-Diagram"</A>
+<BR>
+</div>
+<BR>
+
+<BR>
+<H5>Downloading open source sw</H5>
+
+<PRE>
+git clone https://github.com/singularityware/singularity.git	# download the whole sw repo
+git tag								# see available tagged releases
+git checkout tags/2.2						# switch to use the named tag release (2.2)
+
+</PRE>
+
+
+<BR>
+
+<H5>git against local copy of repository</H5>
+
+
+<div align="CENTER">
+<A HREF="http://365git.tumblr.com/post/472624933/the-four-buckets-how-git-considers-content">
+<IMG SRC="fig/git-workflow-local-365git.png" alt="diagram for git workflow within developer's laptop"><BR>
+</A>
+Source: 
+<A HREF="http://365git.tumblr.com/post/472624933/the-four-buckets-how-git-considers-content">
+http://365git.tumblr.com/post/472624933/the-four-buckets-how-git-considers-content</A><BR>
+</div>
+<BR>
+
+<PRE>
+git clone			# create a local copy of a source code tree
+git commit -a 			# most basic workflow after edit, most like svn, commit all changes
+
+
+git commit file1 file2		# check into local copy (but other don't see this change yet)
+git commit file1 -m "comment"	# provide check in comment on cli rather than launch editor
+
+git add file			# kinda feel like "add new file to be tracked"
+				# but really is adding changes into the git db
+git add -p 			# patch-based add (allow committing chunk of code at a time rather than whole file)
+
+git status			# show commit staatus within the local copy of repo only.  
+				# if the clone had been some time and master had seen other commits, 
+				# it will NOT show up in the status command.  
+				# only another git fetch would get these changes.
+
+
+
+## think these are still acting on local copy.  in fact, it is likely that 
+## git act on local copy, except for few commands to interact with master repo...
+
+git log file1
+git log 
+git log --oneline         	# compact log, easier to read!
+git log --oneline file		# changes pertaining to the specified file only
+git log --oneline issue123	# changes pertaining to the specified branch only  (?)
+git log --decorate
+git log --graph			# 
+git log --oneline --graph --decorate	# can alias to "lol" for this oft use combo
+git log -p 			# patch: show diff introduced by each change (instead of just commit msg for the log)
+
+git log -p [-1] PATH/FILE	# list last -N COMMITED changes.  Current edit against git repo is NOT shown!
+git diff ??			# find how PATH/FILE differ from current state with last commit in git
+gitk FILE			# GUI tool to see commits/diff (but not branches?)
+
+git log issue123 ^master	# branch diff, changes in branch issue123 but NOT in master
+				# ^ indicate "not in"
+
+git show COMMIT_HASH		# details of the commit
+
+git branch			# list branches.  * indicate the current branch working on.
+git branch -r			# list all branches avail in (r)emote server
+git branch issue123		# create a branch called "issue123" (eg after a bug#)
+git branch --edit-description issue123	# modify a description for the named branch.  it brings up a text editor
+git branch --list -v    	# list branches and descriptioins
+				# actually, the info is last commit msg, branch desc so far only visible in the editor that comes up when using --edit-descriptiong.  thus, also  using git_branch.rst file... but 
+git checkout -b issue123	# create a branch and switch to it at the same time (?)
+git push -u origin issue123	# push the local branch "issue123" to origin (github) [can push branch tag up upstream even when there are 0 commits]
+
+
+git tag -a  v0.5   2128f04 -m "eg of adding a tag at a specific commit point"
+git push --tags  origin master
+
+git tag -a         2018_0901_wsl -m "wsl git hopefully not creating cr/lf chaos"  	# create a release 
+git push -u origin 2018_0901_wsl							# push the tag to github
+
+
+
+# https://stackoverflow.com/questions/16329776/how-to-keep-a-git-branch-in-sync-with-master
+# resync a branch from master (ie master is ahead, have changes that should be incorporated into the branch)
+git checkout master		# swich to the master branch (master is trunk branch created by default)
+git pull
+git checkout issue123		# so sitting on the branch issue123
+git merge master		# resync changes done to master into issue123 branch (if master is ahead of issue123)
+				
+
+# merge changes done in a branch into master (ie issue123 is ahead of master and ready to "upload/publish")
+# could use web gui in github, which is considered a Pull Request.
+# or:
+git checkout master		# so sitting on master branch
+git merge issue123		# retrieve changes in issue123 branchand merge into current (since sitting on master)
+
+
+git checkout filename.txt #  retrieve filename.txt from repo, discarding local changes (for uncommited changes?)
+
+
+git mergetool			# launch visual diff tool
+
+git init 			# create a git repo based on content of the current dir (and sub dirs)
+
+git remote add     repoName url	# set a repo name for current "git dir", and url in github where it would upload to
+git remote set-url repoName url	# use this if need to change remote github/bitbucket url
+				# url for the named repo need to be pre-created in github, bitbucket, etc
+
+git push --set-upstream repoName master	# the first push to a new repo need to specify the repository and branch name 
+
+
+git reset			# abandone current uncommited changes.  ie revert files to state in the git repo
+git clean -nd			# clean is to remove all untracked files in the current dir.   -nd = preview/dry run
+git clean -id			# -i for interactive.  -f for force.
+
+git revert			# abandone changes in a checkout ?
+git reset head			# undo "git add"
+
+
+git log --diff-filter=D --summary | grep delete		# list all deleted files in github
+git checkout SHA^ -- ./filename				# restore a file.  ^ means right before the commit
+
+
+git ls-files -d | xargs git checkout -- 					# undelete all unstaged deletion (those not commited yet)
+git status | grep 'deleted:' | awk '{print $2}' | xargs git checkout --		# recover  all staged delete (after commit)	
+
+</PRE>
+
+<H5>git against "origin" </H5>
+
+<TT>origin</TT> is typically the developer's central repo hosted on github, <BR>
+or the hosting location of a fork of a project. <BR>
+<BR> 
+
+<PRE>
+git push			# get local copy pushed into "central", or source of clone.  other will get the changes now.
+				# this uses the default, which really means git push origin master # for primary source, master branch.
+
+git push origin master		# what "git push" is doing when other params are omitted
+				# pushes my current "master" branch to central repo "origin" by uploading data (to github)
+
+git pull			# sync local git db with the remote server db (eg github, aka central)
+				# recommend to do this before pushing changes back to central.
+				# pull (from central) daily or so when working on a branch to keep code merges manageable
+				# and the pull does not "post" my local changes to central so no one knows about the local work 
+
+git pull --rebase		# may want to do this before commit... so conflicts are local.
+				# rebase has to do with where to insert changes into the original tree... 
+				# rebase is typically the most desirable option
+				# BUT...
+				# in corp env, almost always better to use fetch and merge than pull --rebase
+				# Hmm...
+
+
+git fetch 			# get changes on master repo and sync them to local copy of the repo.  
+				# conflict may arise from this.  
+				# better resolve conflict here before committing/pushing.
+
+git merge 			# merge branch
+
+
+# it is prefered to resolve conflicts in local copy, 
+# rather than push the changes out
+# and have everyone look at changes at the global level, 
+# which may cause lot of conflict in other's code.
+
+# config git to use proxy
+# note that shell env var http_proxy isn't heeded
+git config --global http.proxy http://proxy01.eville.com:2011
+
+git config --global --unset http.proxy
+
+
+git config --global alias.proxy   "config --global http.proxy http://proxy01.eville.com:2011"
+git config --global alias.noproxy "config --global --unset http.proxy"
+
+git config --global alias.lol "log --oneline --graph --decorate"		# create alias "git lol"   # logd
+
+</PRE>
+
+<H5>git against "origin"</H5>
+
+For team, non forked project, <TT>origin</TT> is the central repo residing on github.com or bitbucket.com
+<BR>
+origin vs upstream?
+<BR>
+
+
+<H5>git against "upstream"</H5>
+
+<TT>upstream</TT> usually refer to the "grand daddy" repo of an open source project, where <TT>Pull Requests</TT> are submitted to add one's contribution to the open source project.  <BR>
+Example workflow can be seen at 
+<A HREF="http://singularity.lbl.gov/contributing-code">Singularity documentationcontribution</A> page.
+
+<PRE>
+
+# fork the project 
+# git clone the fork above
+
+git checkout master
+git remote add "upstream" https://github.com/singularityware/singularityware.github.io
+
+
+# made changes
+git commit ...
+
+
+# goal is to make any conflicting changes locally and 
+# address them before pushing it upstream 
+# where many other folks will see conflict and be affected by it
+
+git pull upstream master		# resync upstream (grand daddy repo) to my master (what i forked)
+git pull --rebase upstream master	# (same as?) `git pull --rebase`
+# perform any necessary merges
+git commit ...
+git push origin master 			# (same as?) `git push`
+
+# create Pull Request on github.com 
+# forks are tracked by github.com, the PR will submit the changes to the grand daddy repo.
+
+</PRE>
+
+<H5>git between branches</H5>
+
+<OL>	
+	<LI>create a new branch, make changes, commit, close off branch once it is done</LI>
+	<LI>Before branching, checkout into the branch where the merge will eventually be done against. eg <TT>git checkout dev; git branch tin-dev</TT></LI>
+	<LI></LI>
+	<LI></LI>
+</OL>
+
+<PRE>
+
+git checkout tin
+git pull origin dev		# do this before commit changes, help keep branch uptodate 
+
+--0--
+
+git fetch				# update all branches
+git pull origin develop # only update a specific branch (develop)
+
+--0--
+
+git checkout tin
+git merge develop		# pull changes from develop branch into the repo I am sitting in (tin)
+git push origin   tin	# ie git push?  get my local changes into "origin" (bitbucket)
+
+
+overall idea is to pull/fetch all changes into the branch I am doing edit.
+resolve all conflicts (merge) locally.
+then push the changes/commits into origin (bitbucket), then create PR.
+
+If already created PR, 
+still fetch all changes from "parent branch" locally.
+resolve and commit , then PR will reflect the final change without conflic,
+thereby allowing easy merge w/o conflict.
+
+
+
+
+</PRE>
+
+<H5>dealing with conflicts</H5>
+
+<TT>git config merge.conflictstyle diff3 </TT>
+will got a long way in automatically merging differences.
+And those that actually have conflicting lines will be marked clearly in the file, search for 
+<TT> <<<<  ||||  >>>> </TT>
+<BR><BR>
+
+There are also visual diff tools.
+command line method using branch can also be used.
+Refer to 
+<A HREF="http://stackoverflow.com/questions/161813/how-to-resolve-merge-conflicts-in-git">post in stackoverflow</A>
+for many other gory options.  <BR>
+
+<BR>
+
+
+
+<H5>git terminology</H5>
+
+<UL>
+	<LI>upstream<BR>
+		The main repository of a project where everone ultimate contribute their code to.
+	<LI>origin<BR>
+		Typically one's fork of "upstream", ie, my master stored in github or bitbucket 
+	<LI>Fast Forward Changes <BR>
+	    See git help push explanations. <BR>
+	<LI>HEAD <BR>
+	    A symbolic ref to current branch. <BR>
+	    It is the parent of the commit.
+
+</UL>
+<BR>
+
+
+<H5>github</H5>
+
+Example instructions to add files as git repo into github
+
+<PRE>
+git config user.email "tin6150@gmail.com"
+git config user.name  "tin"
+
+# can use git config --global  if no need to use diff settings per repository
+git config --global credential.helper 'cache --timeout=3600'
+git config --global github.user   tin6150
+git config --global github.token  mytoken
+git config --global color.ui      true
+
+git remote add origin https://github.com/tin6150/psg.git
+git push -u origin master
+
+
+
+
+</PRE>
+
+<H5>git in windows</H5>
+
+Install wsl <BR>
+<TT>sudo apt install git </TT><BR>
+This is pretty usable. <BR>
+can have the git run outside the lxfs subsystem, eg cd /mnt/c/... and git clone into a folder there.  it works too.
+<BR>
+Use terminal like Cmnder or <TT>apt get install lxterminal</TT> and use with like XcSvr.
+<BR>
+
+
+<H6>TL;DR</H6>
+
+These notes are pre WSL, or if it was ever desired to use git but not WSL...<BR>
+<BR>
+There is a git client for windows, but the cli didn't suite my taste and need :( <BR>
+in the git-bash terminal, git push will prompt for username in the cli, and a pop up GUI window for password. <BR>
+<BR>
+
+Cygwin and MobaXterm has provided a quite usable unix-like bash environment for windoze.  However, getting git to work has been very tricky :(
+The following info from 
+<A HREF="http://stackoverflow.com/questions/14774159/git-warning-unable-to-access-p-gitconfig-invalid-argument#15498965">stack overflow</A> 
+may help...
+<BR>
+unset HOMEPATH    <BR>
+export HOME=/c    # in MINGW64 from PortableGit bash terminal  <BR>
+<BR>
+
+At the end, cygwin with the git that it ships with worked out okay for me, but it is not usable inside a mobaXterm tab. <BR>
+export HOMEPATH=\      <BR>
+export HOMEDRIVE=H:   <BR>
+<BR>
+
+<H5>git TUI client</H5>
+<UL>
+	<LI>tig: top-like interface, read existing git repo, no need to login.
+	<LI>gs??
+	<LI>fugitive, a vim bundle - https://github.com/tpope/vim-fugitive
+</UL>
+
+<A ID="guiTool"></A>
+<H5>git GUI client</H5>
+
+<UL>
+	<LI>git gui : GUI version of git.   <BR>
+	    read local git repo, no need for additional login.   <BR>
+	    apt install git-gui <BR>
+	<LI>gitk: GUI tool to review commits, but not branches?  like a limited subset of <TT>git gui</TT><BR>
+	    apt install gitk <BR>
+	<LI>Git Extensions: seems promising GUI.  Mono app in Linux. Mac, Windoze.   Need many supporting tools (git for Windows, putty) and likely github login.
+	<LI>GitKraken seems highly rated, but not free for non-commercial use.
+	<LI>reviews: https://www.cloudways.com/blog/best-git-gui-clients/
+	<LI>
+</UL>
+
+<H5>git references</H5>
+
+<UL>
+<LI><A HREF="https://www.youtube.com/watch?v=ZDR433b0HJY">Comprehensive git workshop video</A> by Scott Chacon.
+<LI><A HREF="https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell">git branching</A> philosophy well explained (part of online book)
+<LI><A HREF="https://progit.org">pro git</A>.  Book title "Pro Git" from A-press.  avail online.  GIT reference, (?) also has lobby/reasons to move to git.
+<LI><A HREF="https://stackoverflow.com/questions/7203515/git-how-to-search-for-a-deleted-file-in-the-project-commit-history">recover deleted file</A> from Stack Overflow. <BR>
+
+
+</UL>
+
+
+<!-- ###################################################### -->
+
+<H1>Git the Princess</H1>
+
+Thanks to the folks at
+<A HREF="https://toggl.com/developer-methods-infographic">toggl</A> <BR>
+ 
+<div align="CENTER">
+<A HREF="https://toggl.com/programming-princess">
+<IMG SRC="fig/toggl-how-to-save-the-princess-in-8-programming-languages.jpg"></A>
+</div>
+
+<!-- ###################################################### -->
+
+<BR><HR>
+<div align="CENTER">
+  Doc URL<BR>
+<A HREF="https://tin6150.github.io/psg/git.html">https://tin6150.github.io/psg/git.html</A><BR>
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  hoti1<BR>
+  bofh<BR>
+  bofh1</div>
+
+
+</body>
+
+
+</html>
