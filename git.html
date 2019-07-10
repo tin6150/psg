@@ -319,16 +319,20 @@ git push origin master 			# (same as?) `git push`
 <PRE>
 
 git checkout tin
-git pull origin dev		# do this before commit changes, help keep branch uptodate 
+git pull          origin dev    # pull from origin, the dev branch, into the branch i am sitting in.
+                                # do this before commit changes, help keep branch uptodate 
+git pull --rebase origin dev    # --rebase seems to work out better when "parent" (dev) branch has lots of changes that I just want to keep.  
+
+                                # git commit and push after pull should produce desirable result
 
 --0--
 
-git fetch				# update all branches
-git pull origin develop # only update a specific branch (develop)
+git fetch				# update all branches ?
 
 --0--
 
 git checkout tin
+						# merge had been really messy/fuzzy...
 git merge develop		# pull changes from develop branch into the repo I am sitting in (tin)
 git push origin   tin	# ie git push?  get my local changes into "origin" (bitbucket)
 
@@ -341,6 +345,11 @@ If already created PR,
 still fetch all changes from "parent branch" locally.
 resolve and commit , then PR will reflect the final change without conflic,
 thereby allowing easy merge w/o conflict.
+
+
+
+git branch        --delete  BRANCH_NAME	# delete local branch, if all changes already pushed
+git push   origin --delete BRANCH_NAME	# work on "origin", ie bitbucket, and remove the branch that is there.  ie, it include a push right away.
 
 </PRE>
 
