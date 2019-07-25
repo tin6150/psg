@@ -247,7 +247,7 @@ So, these things will help finding a decent number for memory request.
 
 <H2>Disks</H2>
 
-<!-- :set shiftwidth=8 -->
+<!-- :set tabstop=8 shiftwidth=8  # which is what browser render as -->
 <PRE>
 
 SATA 150 has 150 MB/s bandwidth
@@ -255,9 +255,11 @@ SATA II  has 300 MB/s
 SAS is 6 Gbps = 768 MB/s
 PCIe 3.1 x4 NVMe = ...
 
+NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
 
-NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015.  NVMe drives are often in NAND
-M.2 = replaces mSATA
+</PRE>
+
+    <LI> M.2 = replaces mSATA
 	<LI> typically bare chips
 U.2 (SFF-8639)
 	<LI> The U.2 connector is mechanically identical to the SATA Express device plug, but provides four PCI Express lanes through a different usage of available pins (wikipedia)
@@ -265,25 +267,42 @@ U.2 (SFF-8639)
 	<LI> support hot swap.
 	<LI> typically inside an enclosure
 	
+<PRE>
 
 b = bits (network, serial protocol))
 B = Byte (storage, at least traditionally "parrallel", whole byte based protocol)
+Ti = Si unit, ie multiple of 1000, not 1024.
 
 
 			128KB		4KB		Latency		Power
 			Seq read/write 	Rnd r/w		read/write	active/idle
-			MB/s		IOPS		microsec 	w	
+			MB/s		IOPS 1000	microsec 	w	
 ---------------------	-------------	-----------	--------	------	-------
-Intel SSD S4510  	560/510 	97k/36k
-Intel SSD S4610  	560/510 	97k/51k
-Intel SSD P4510	1TB  	2850/1100	465k/70k	77/18 		10/5	64-Layer 3D TLC NAND
-Intel SSD P4510 2TB	3200/2000	637k/81.5k			12/5
-Intel SSD P4510 8TB	3200/3000	641k/134.5k			15/5
+Intel SSD S4510  	560/510 	 97 /36 
+Intel SSD S4610  	560/510 	 97 /51
+Intel SSD P4510	1TB  	2850/1100	465 /70 	77/18 		10/5	64-Layer 3D TLC NAND
+Intel SSD P4510 2TB	3200/2000	637 /81.5			12/5
+Intel SSD P4510 8TB	3200/3000	641 /134.5			15/5
 
 Intel SSD Pro 7600p M.2 3200/1625 	340k/275k				3D2 TLC 512 GB to 2 TB version
 Intel SSD Pro 7600p M.2 1640/650	105k/160k					128 GB version	
 
-TLC = Tri-Level Cell
+Micron 9100 Max  Much older, no longer avail?
+
+Micron 9200 Max U2      3430/2400 	 800/270
+Micron 9200 Max AIC     4600/3800       1000/270
+
+Micron 9300 Pro U2 3.8T	3500/3100	 835/105	86/11
+Micron 9300 Pro U2 7.6T	3500/3500	 850/145
+Micron 9300 Max U2 3.2T	3500/3100	 835/210		
+Micron 9300 Max U2 6.4T	3500/3500	 850/310		
+
+
+
+
+TLC = Tri-Level Cell.  3-bit addressing, maybe 32 or newer use 64 layers.
+Micron typically best.
+Samsung typically worse, consumer oriented device.
 
 
 			Seq r/w Rnd r/w
@@ -293,6 +312,8 @@ Samsung HD501LJ 7200rpm  80-90
 WD Caviar Green 5400rpm 223
 WD Red          5400rpm 368
 Seagate Barracu 7200rpm 410
+
+
 
 
 </PRE>
