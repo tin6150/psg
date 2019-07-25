@@ -95,7 +95,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/pyspark
 	git clone https://tin6150@github.com/tin6150/taxo-spark
 
-	### singularity container dev or not posting to singularity-hub.org 
+	### singularity container dev or not posting to singularity-hub.org  (the one script install of singularity is in here)
 	git clone https://tin6150@github.com/tin6150/singhub      
 
 	### contributed to singularityware web doc
@@ -111,6 +111,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
 	git clone https://tin6150@github.com/tin6150/smelly.git
 	git clone https://tin6150@github.com/tin6150/cvs.git
+	git clone https://tin6150@github.com/tin6150/PGI-Singularity.git  # fork from Ryan, pgi compiler, netcdf lib
 
     ###########################################
 	#### private github repo ####
@@ -227,6 +228,10 @@ run_git_clone()
 	cd $MyGitDir/lbnl-scienceit
 	git clone https://tin6150@github.com/lbnl-scienceit/smelly.git
 	
+	[[ -d $MyGitDir/nick ]] || mkdir $MyGitDir/nick
+	cd $MyGitDir/nick
+	git clone https://github.com/nicolaschan/bofhbot.git
+
 
 
 

@@ -257,17 +257,21 @@ PCIe 3.1 x4 NVMe = ...
 
 NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
 
-</PRE>
 
-    <LI> M.2 = replaces mSATA
-	<LI> typically bare chips
+M.2 = replaces mSATA 
+  * typically bare chips, gumstick format
+
 U.2 (SFF-8639)
-	<LI> The U.2 connector is mechanically identical to the SATA Express device plug, but provides four PCI Express lanes through a different usage of available pins (wikipedia)
-	<LI> ie not to to use SATA controller...
-	<LI> support hot swap.
-	<LI> typically inside an enclosure
+  * The U.2 connector is mechanically identical to the SATA Express device plug, but provides four PCI Express lanes through a different usage of available pins (wikipedia)
+  *	ie not to to use SATA controller...
+  *	support hot swap.
+  *	typically inside an enclosure, like traditional 2.5" HDD
+
+AIC
+  * Add-In card format.  ie pci card.
+  * back then hard some AIC card better performing than U.2 (not sure why, cuz U.2 should be PCIe x4 too).
+  * Some AIC is just carrier for 2x U.2 drives.
 	
-<PRE>
 
 b = bits (network, serial protocol))
 B = Byte (storage, at least traditionally "parrallel", whole byte based protocol)

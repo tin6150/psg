@@ -237,6 +237,8 @@ git pull --rebase		# may want to do this before commit... so conflicts are local
 				# BUT...
 				# in corp env, almost always better to use fetch and merge than pull --rebase
 				# Hmm...
+				# --rebase may work well between diff branches, where conflict files are few, changes between contributor are in "islands".
+				# --rebase may NOT be so good w/in a branch of single contributor, since the edits on different machines likely rooted on same base and don't want to `rebase` that.
 
 
 git fetch 			# get changes on master repo and sync them to local copy of the repo.  
@@ -348,7 +350,7 @@ thereby allowing easy merge w/o conflict.
 
 
 
-git branch        --delete  BRANCH_NAME	# delete local branch, if all changes already pushed
+git branch        --delete BRANCH_NAME	# delete local branch, if all changes already pushed
 git push   origin --delete BRANCH_NAME	# work on "origin", ie bitbucket, and remove the branch that is there.  ie, it include a push right away.
 
 </PRE>
