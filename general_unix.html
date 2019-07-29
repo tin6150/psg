@@ -270,6 +270,8 @@ ctrl-a,ctrl-d  = detach  (ie, after ^a, could hit ^d or just d to detach)
 crtl-a,x       = lock keyboard
 crtl-a,ctrl-x  = lock keyboard
 ctrl-a,?  = help
+
+screen window, better think of them as tab :)
 ctrl-a,c  = create new window ( or enter screen <cmd> w/in an existing screen window)
 ctrl-a,n  = switch to next window
 ctrl-a,p  = switch to prev window 
@@ -280,12 +282,20 @@ ctrl-a,0  = switch to window number 0 (to 9, enter - for blank window)
 ctrl-a, A = prompt for a title name for current window
 ctrl-a, N = show number and title of current window
 ctrl-a, k = kill current window
-ctrl-a, S = create split window mode
+
+
+ctrl-a, S = create horizontal split (region) mode
+ctrl-a, | = create vertical   split (region) mode (newer feature? not avail on osx)
 ctrl-a, ^I= move focust to next split window (^I=TAB).
+	splits are for the current session, each reagion can navigate to different window/tab as desired.
+	the split are gone when detached.
+	i have not used this much, prefering to use new terminal and create additional screen session.
+	i suppose tmux approach is better, but i need to wrap my head around it.
+
+
 ctrl-a, [ = history, allow scroll back, but really for cutting text into buffer.  
             Enter marks begin pt, move around.  Enter again marks end pt.
             /, ?, n, p = search (like in "less")
-
 
 ctrl-a,a  	= send ctrl-a to the terminal
 ctrl-a,tab	= switch input focus to next region
@@ -295,6 +305,50 @@ ctrl-a,ctrl-b	= send a break (ie, after ^a, can hit ^b or simply b to send break
 
 </PRE>
 
+<A name="tmux"></A>
+<H5>tmux</H5>
+
+tmux use ctrl-b instead of ctrl-a that screen use, less keymap conflict
+<BR>
+tmux use session, window, pane (screen has session, "window" (which i think of as tab)
+<BR>
+
+ref: https://danielmiessler.com/study/tmux/
+<BR>
+
+<PRE>
+tmux new -s tmux1			# this start a new session, like screen session
+ctrl-b, d = detach			# -or- tmux detach
+tmux attach -t tmux1
+
+
+ctrl-b, ?		= help
+ctrl-b, s		= list sessions
+ctrl-b, $		= rename sessions
+
+
+ctrl-b, c		= crate new window (think of this as tab, same as screen)
+ctrl-b, w       = list window (screen ctrl-a, ")   # very much like screen "tab"
+ctrl-b, n 		= new  window (same as screen)
+ctrl-b, p 		= prev window (same as screen)
+ctrl-b, ,		= rename window
+
+
+splitting is best thought of as pane, which is within a window (tab)
+ie, switching to a different window/tab will completely change all panes 
+
+ctrl-b, "		= split pane vertically
+ctrl-b, %		= split pane horizontally
+ctrl-b, down/up/left/right arrows 	= move between panes
+ctrl-b, j/k/h/l 					= move between panes, same as vi movement keys
+ctrl-b,{		= swap with prev pane (exchange position, not just cursor focus)
+		(spliting pane behaviour is very different than screen's split)
+		(i don't find it too useful, but okay when inside a container and no easy way to get more window)
+		(the splits are rememberd w/in the window/tab they are created, so they get resumed, which is nice)
+
+
+
+</PRE>
 
 <A name="find"></A>
 <H5>find</H5>
