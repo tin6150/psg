@@ -116,7 +116,8 @@ run_git_clone()
     ###########################################
 	#### private github repo ####
     ###########################################
-	git clone https://tin6150@github.com/tin6150/cmaq.git
+	#git clone https://tin6150@github.com/tin6150/cmaq-old # i created this and had copy of pre git-repo cmaq eg 4.5.1 but stopping development on that for now
+	git clone https://tin6150@github.com/tin6150/CMAQ.git # fork, using 5.2.1  Note it is ALL CAPS  (on bofh used lower case, it worked, but renamed it)
 
     ###########################################
 	### greta, formerly owned by greta-d, i became co-owner now ####
