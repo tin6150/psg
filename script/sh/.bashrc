@@ -36,11 +36,11 @@ PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
 ##--echo "Path after /etc/bashrc.  $PATH"
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 
-###
-###
+###############################################################################
+###############################################################################
 ###  function declaration section
-###
-###
+###############################################################################
+###############################################################################
 
 # Function to avoid repetitive environment variable entries
 # eg use after declaration:
@@ -97,6 +97,11 @@ setPrompt () {
 } # end setPrompt 
 
 
+################################################################################
+#### module stuff
+################################################################################
+
+
 add_local_module () {
 	LOCAL_MODULE_DIR=/opt/modulefiles
 	# ln -s ~/PSG/modulefiles/ /opt 
@@ -123,9 +128,57 @@ add_personal_module () {
 		#module load langs/intel/2018.1.163_eval 
 		#module load intel/2018.1.163/mkl/2018.1.163_eval
 		#module load intel/2018.1.163/openmpi/2.0.4-intel_eval
+		module load  tools/cvs/1.11.23
 	fi
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
 } # end add_personal_module
+
+add_cmaq_module () {
+	# for use in lrc
+	GLOBAL_MODULE_DIR=/global/software/sl-7.x86_64/modfiles
+	if [[ -d $GLOBAL_MODULE_DIR ]] ; then 
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/langs
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
+		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
+		echo "noop" > /dev/null
+		module load git vim
+		if [[ -d /global/software/sl-7.x86_64/modules/gcc ]] ; then 
+				#> module list from pghuy
+				module load tmux
+				module load r
+				module unload gcc
+				module load gcc
+				module load openmpi/3.0.1-gcc
+				module load netcdf
+				module load python/2.7
+				module unload emacs/24.1
+				module load ncl
+				module load nco
+				module load ncview
+												
+				#>all the modules used by pghuy, may be needed to run cmaq
+				#>module purge
+				#>module load gcc/6.3.0 
+				#>module load openmpi/3.0.1-gcc 
+				#>module load antlr/2.7.7-gcc 
+				#>module load udunits/2.2.24-gcc 
+				#>module load  vim/7.4 hdf5/1.8.20-gcc-s ncl/6.3.0-gcc emacs/25.1 netcdf/4.6.1-gcc-s gsl/2.3-gcc tmux/2.7 python/2.7 szip/2.1.1 java/1.8.0_121 hdf5/1.8.18-gcc-s nco/4.7.4-gcc-s r/3.4.2 netcdf/4.4.1.1-gcc-s ncview/2.1.7-gcc 
+
+		fi
+		# python dir is empty at /global/software/sl-7.x86_64/modules/python/3.6
+		if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
+			module load python/3.6	# needed by bofhbot
+		fi
+
+	fi
+
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_cmaq_module"
+} # end add_cmaq_module 
+
+
+
+
+
 
 add_hpcs_module () {
 	# perceus has no SMF at all, thus still need to test.  but SL6 vs SL7 are handled by other scg script
@@ -146,8 +199,9 @@ add_hpcs_module () {
 			#module load intel openmpi mkl
 			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
 			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
+			module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p
 
-			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
+		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
 			#module load intel/2018.1.163 mkl openmpi
  	    	fi
 
@@ -174,7 +228,7 @@ add_hpcs_module () {
 
 	fi
 
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ModDir_set"
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"
 } # end add_hpcs_module 
 
 add_hpcs_bin () {
@@ -184,6 +238,8 @@ add_hpcs_bin () {
 	#AddtoString PATH /global/home/groups/scs/yqin
 	##--echo "Path after mocking: $PATH"
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
+
+	AddtoString PATH /global/scratch/tin/singularity-repo  # cvs via container
 } # end add_hpcs_bin 
 
 add_cosmic_module () {
@@ -210,13 +266,12 @@ add_cosmic_module () {
 	fi
 } # end add_cosmic_module 
 
-###
+################################################################################
 ### define alias
-###
-###
+### ----------------------------------------------------------------------------
 ### originally from from .alias, 
 ### merging into here cuz want to be lazy and just link .bashrc for ~ to github
-###
+################################################################################
 defineAlias () {
 
 	alias ls0="ls  -l | perl -lane 'if ($F[4] == 0 )    { print \$_ };' "   # can use $_ in shell, but need \$_ for sourced script
@@ -241,8 +296,11 @@ defineAlias () {
 	alias xlock="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlck="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlk="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
+	alias shot="mate-screenshot -i"	# Zorin
 	#alias psh="ps H -H -eF -jl --context --headers --forest"
-	alias ssh="ssh -Y"
+	# overwrite default behaviour, keep command name
+	#alias ssh='ssh -o StrictHostKeyChecking=no' # already done by some default cluster cf
+	alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
@@ -264,20 +322,19 @@ defineAlias () {
 	alias ef='ps -ef'
 	alias lt="ls -latr"
 	alias ltr="ls -latr"
-	alias sq="squeue"
+	alias sq="squeue"          
 	alias sqt="squeue -u tin"
-	alias assoc="sacctmgr show associations -p"
+	alias assoc="sacctmgr show associations -p"                    # slurm
 	alias sevents="sacctmgr show events start=2018-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol)
 	alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # %E is comment/reason, unrestricted in length.  -Sorted by rEason
 
 
-	# overwrite default behaviour, keep command name
+
 	alias grep='grep --color=auto'
-	#alias ssh='ssh -o StrictHostKeyChecking=no'
 	#alias vi=vim	# vim not avail on sl7
 	#alias vim="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		# hopefully tab remains as tab for normal file edit
-	alias vit="\vim -c 'set shiftwidth=4 tabstop=4 formatoptions-=cro list nu noexpandtab '"    # syntax=yaml is what's expected.  syntax=on disables it.  -= does the trick.  
-	alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab  modelines=1'"    # for python coding.  ansible yaml may need tabstop=2
+	alias vit="\vim -c 'set shiftwidth=4 tabstop=4 formatoptions-=cro list nu noexpandtab paste'"    # syntax=yaml is what's expected.  syntax=on disables it.  -= does the trick.  
+	alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab  modelines=1 paste'"    # for python coding.  ansible yaml may need tabstop=2
 	#alias vis="\vim -c 'set shiftwidth=2 tabstop=4 expandtab syntax'"    # for python coding.  ansible yaml may need tabstop=2
 	alias vig="\vim -c 'set shiftwidth=2 tabstop=2 formatoptions-=cro list nu showcmd showmode autoindent smartindent smarttab noerrorbells visualbell hlsearch showmatch cursorline'" # filetype=on'" # geerlingguy .vimrc
   ## syntax still not automatic on in mac... test in linux...
@@ -340,12 +397,11 @@ defineAliasSge () {
 } # end defineAliasSge
 
 
-
-###
-###
+################################################################################
+################################################################################
 ### "main" - script start point
-###
-###
+################################################################################
+################################################################################
 
 umask 0002      # i do want file default group writable
 
@@ -364,8 +420,9 @@ export EDITOR=vi
 # nah, better to use ^R to search bash history
 
 
-
+################################################################################
 ### some check for host specific stuff
+################################################################################
 
 MAQUINA=$(hostname)
 
@@ -402,7 +459,8 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
-add_hpcs_module	# overwrite PATH and don't export it back correctly??  only in SL6... ??
+#~~add_hpcs_module	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
+add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq 
 add_personal_module 
 add_cosmic_module 
 
@@ -421,7 +479,7 @@ export COMMON_ENV_TRACE
 
 
 ################################################################################
-
+################################################################################
 # below is defined by some conda install thing
 # maybe tensorflow.  
 # don't think i actually need it, 
@@ -450,3 +508,5 @@ condaSetup4exalearn () {
 }
 
 ################################################################################
+# vim modeline, also see alias `vit`
+# vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
