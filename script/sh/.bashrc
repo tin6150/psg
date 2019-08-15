@@ -142,11 +142,12 @@ add_cmaq_module () {
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
 		echo "noop" > /dev/null
 		module load git vim
-		if [[ -d /global/software/sl-7.x86_64/modules/gcc ]] ; then 
+		#if [[ -d /global/software/sl-7.x86_64/modules/gcc ]] ; then 
+		if [[ -d /global/software/sl-7.x86_64/modules/gcc && -d /global/software/sl-7.x86_64/modules/tools/tmux/ ]] ; then 
 				#> module list from pghuy
 				module load tmux
-				module load r
-				module unload gcc
+				#module load r
+				#module unload gcc
 				module load gcc
 				module load openmpi/3.0.1-gcc
 				module load netcdf
@@ -274,6 +275,7 @@ add_cosmic_module () {
 ################################################################################
 defineAlias () {
 
+	alias fecha="date +%Y%m%d.%H%M.%S" # format Year.mmdd.HourMinute.Sec # %s is sec since 1970-0101
 	alias ls0="ls  -l | perl -lane 'if ($F[4] == 0 )    { print \$_ };' "   # can use $_ in shell, but need \$_ for sourced script
 	alias ls-0="ls -l | perl -lane 'if ($F[4] != 0 )    { print \$_ };' "
 	#alias ls-0="/home/hoti1/applet/script/ls-0.pl"
@@ -283,7 +285,7 @@ defineAlias () {
 	alias listgid="ypcat group  | awk -F: ' {print \$3 \" \" \$1} ' | sort -n"
 
 	#alias Dirs='dirs | sed "s/\ /\n/g"'  	# don't work in bash 3.2.57 x86_64-apple-darwin17
-	alias Dirs="dirs | tr ' ' '\n'"		# work in macos
+	alias Dirs="dirs | tr ' ' '\n'"		# work in macos # better to use dirs -v now
 	alias printDbg='env | egrep DBG\|ENV_TRACE\|DOT\|SKEL\|SOFT'
 	alias printTrace='env | fgrep ENV_TRACE | sed "s/ /\n/g"'
 	alias printPath='echo $PATH | sed "s/:/\n/g"'
@@ -342,6 +344,11 @@ defineAlias () {
 	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
 	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
+
+	###
+	### stuff for ETA/CMAQ
+	###
+	alias Monitor='watch -d -n 30 "echo ""; squeue -u tin --start --long ; squeue -u tin --long; echo "" ; wc iolog_000.out ; ls -ltr *nc iolog_000.out; echo ""; grep Walltime iolog_000.out | tac  "'
 
 	###
 	### Alias that need to be defined as function
@@ -460,7 +467,7 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
 #~~add_hpcs_module	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
-add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq 
+add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
 add_personal_module 
 add_cosmic_module 
 
@@ -493,13 +500,13 @@ condaSetup4exalearn () {
 	# !! Contents within this block are managed by 'conda init' !!
 	__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
 	if [ $? -eq 0 ]; then
-	    \eval "$__conda_setup"
+	    eval "$__conda_setup"
 	else
 	    if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
 		. "/home/tin/anaconda3/etc/profile.d/conda.sh"
 		CONDA_CHANGEPS1=false conda activate base
 	    else
-		\export PATH="/home/tin/anaconda3/bin:$PATH"
+			export PATH="/home/tin/anaconda3/bin:$PATH"
 	    fi
 	fi
 	unset __conda_setup
