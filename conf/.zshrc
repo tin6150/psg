@@ -164,3 +164,20 @@ plugins=(
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+#
+################################################################################
+# .alias is sharable b/w bash and zsh, 
+# may want to fork that out of .bashrc... 
+# (but zsh not in lrc, so just putting a few i really use here for now)
+alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab  modelines=1 paste'"    # for python coding.  ansible yaml may need tabstop=2
+alias vit="\vim -c 'set shiftwidth=4 tabstop=4 formatoptions-=cro list nu noexpandtab paste'"    # syntax=yaml is what's expected.  syntax=on disables it.  -= does the trick.  
+alias vis="\vim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab  modelines=1 paste'"    # for python coding.  ansible yaml may need tabstop=2
+
+alias hilite="grep --color -C100000"   # eg ip a | hilite inet
+alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
+
+
+
+################################################################################
+# vim modeline, also see alias `vit`
+# vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 

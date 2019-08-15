@@ -346,6 +346,10 @@ stty -a
 csh/tcsh
 ================================================================================
 
+#### argggg... no fn in t/csh :(  http://www.grymoire.com/Unix/CshTop10.txt
+#### also google for "csh considered harmful"
+#### why is cmaq still stuck in csh ??!!
+
 csh has a GOTO command (bash don't, but can use heredocs to emulate the fn):
 
 goto label
@@ -355,11 +359,16 @@ label:
 echo this will execute
 
 
+so, instead of fn, can use goto 
+wonderful!
+
 
 
 ** CSH Anoyance **
 
 csh craps:
+
+PATH is treated special in csh
 
 set path = ( $path /bin /usr/local/bin /usr/bin /usr/bin/X11 ~/bin /sbin /usr/sbin . )
 ##***  don't use $PATH above, it must be lower case $path in the parenthesis.  
@@ -388,6 +397,17 @@ setenv PATH            "${PATH}:${AMGEN_HOME}/bin"
 
 ### LD_LIBRARY_PATH seems to be okay with the setenv LD_LIBRARY_PATH 
 ### and colon separated list...
+
+
+### seed the variables before use.  very tedious!
+
+    if(! ${?PATH}) then
+        set path = ( /bin ) # ie seed PATH since it was never defined
+    endif
+    if(! ${?LD_LIBRARY_PATH}) then
+        setenv LD_LIBRARY_PATH "/lib" # ie seed PATH since it was never defined
+    endif
+
 
 setenv  DISPLAY hostname:1
 unsetenv DISPLAY		# undo setenv
