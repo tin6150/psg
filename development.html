@@ -238,7 +238,8 @@ LD_PRELOAD=$PRELOAD ldd $OCTAVE
 
 
 <PRE>
-TAB is important, preserve it during cut-n-paste!!  space cannot work as substitute!!
+when declaring commands under a section,
+leading TAB is important, preserve it during cut-n-paste!!  space cannot work as substitute!!
 
 
 
@@ -254,9 +255,50 @@ gcc
                 Similar to -L, "it is only necessary if you are linking with shared
                 libraries (lib*.so) that are not in "standard" places like /usr/lib
 cc
+        TBD
 
+
+--
+
+gnu make seems very hideous, worse than yaml :(
+csh was considered dangerous, but worse thing is being done to makefile, 
+and there are no substitute :(
+
+Maybe it is in new GNU make since 2012 ?
+variable definition of the form FOO = bar are forward referenced.
+Foo := Bar is simple var that is not forward referenced.
+
+make (largely?) ignore quotes.
+BAZ="some text"
+will literary have the quote in the var BAZ
+
+
+SPACE matters, even at end of line.
+syntax/eg for checking if variable is empty is below
+it is a cut-n-pase from vi :set list mode, so as to observe carefully where TAB is expected, 
+and the lack of SPACE  (eg from changes done to cmaq/Lucas makefile)
+it is for a definition that clean up things when `make clean` is 
+
+clean:$
+# see if var is empty, quite strange syntax for makefile.  space matter.  and the ifeq has to be in column 1, no indent!$
+ifeq ($(DIR_INSTL),)$
+^I@echo "DIR_INSTL not defined, would remove /lib and /bin, exiting"$
+else ifeq ( $(DIR_INSTL), '/' )$
+^I@echo "DIR_INSTL is /, would remove /lib and /bin, exiting"$
+^Irm -rf $(DIR_INSTL)/bld$
+^Irm -rf $(DIR_INSTL)/lib$
+^Irm -rf $(DIR_INSTL)/bin$
+endif$
+
+
+given space at end may matter, best not to add #comment at end of line
 
 </PRE>
+
+ref:
+	<LI> https://unix.stackexchange.com/questions/220447/checking-environment-variables-value-in-makefile <LI>
+	<LI> section 6.2 on two flavor of variables: http://www.chiark.greenend.org.uk/doc/make-doc/make.html/Using-Variables.html </LI>
+
 
 
 <A ID="gdb"></A>

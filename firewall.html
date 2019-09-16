@@ -397,6 +397,13 @@ firewall-cmd --direct --get-all-chains				# direct interaction with iptables
 firewall-cmd --direct --get-all-rules
 
 
+# eg for removing subnet or host from a specific zone
+firewall-cmd --zone=internal --remove-source 128.3.0.0/16 --permanent
+firewall-cmd --zone=trusted  --remove-source 128.3.7.87   --permanent
+firewall-cmd --zone=trusted  --remove-source 128.3.7.87                # rm running config is more important
+## ansible add it to internal
+
+
 </PRE>
 
 ref:

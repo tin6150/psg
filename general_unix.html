@@ -284,13 +284,14 @@ ctrl-a, N = show number and title of current window
 ctrl-a, k = kill current window
 
 
-ctrl-a, S = create horizontal split (region) mode  
-ctrl-a, | = create vertical   split (region) mode (newer feature? not avail on osx)
-ctrl-a, ^I= move focust to next split window (^I=TAB).
+ctrl-a, S = create horizontal split (region) mode # ie top/bottom split.  tmux ^b, " 
+ctrl-a, | = create vertical   split (region) mode # ie left/right split.  tmux ^b, %  # newer feature? not avail on osx
+ctrl-a,tab  = switch input focus to next region (split)
+ctrl-a, ^I  = move focust to next split window (^I=TAB).
 	splits are for the current session, each reagion can navigate to different window/tab as desired.
 	the split are gone when detached.
 	i have not used this much, prefering to use new terminal and create additional screen session.
-	i suppose tmux approach is better, but i need to wrap my head around it.
+	tmux approach is better, as it persist and resumable :)
 
 
 ctrl-a, [ = history, allow scroll back, but really for cutting text into buffer.  
@@ -298,7 +299,6 @@ ctrl-a, [ = history, allow scroll back, but really for cutting text into buffer.
             /, ?, n, p = search (like in "less")
 
 ctrl-a,a  	= send ctrl-a to the terminal
-ctrl-a,tab	= switch input focus to next region
 ctrl-a,b 	= send a break
 ctrl-a,ctrl-b	= send a break (ie, after ^a, can hit ^b or simply b to send break.  screen's help means or, not that need to hit three seq of ^a, ^b then b to send a break)
 
@@ -313,39 +313,72 @@ tmux use ctrl-b instead of ctrl-a that screen use, less keymap conflict
 tmux use session, window, pane (screen has session, "window" (which i think of as tab)
 <BR>
 
-ref: https://danielmiessler.com/study/tmux/
+ref: 
+<LI><A HREF="https://danielmiessler.com/study/tmux/">https://danielmiessler.com/study/tmux/</A> </LI>
+<LI><A HREF="https://tmuxcheatsheet.com/">https://tmuxcheatsheet.com/</A></LI>
 <BR>
 
 <PRE>
-tmux new -s tmux1			# this start a new session, like screen session
+tmux new -s tmux1			# this start a new session, like screen session # new process instance
 ctrl-b, d = detach			# -or- tmux detach
-tmux attach -t tmux1
+tmux ls 				# list all sessions
+tmux attach  -t tmux1			# attach a named session (screen -r)
+tmux attach -dt tmux1			# detach remotely and attach here (screen -rd)
 
 
 ctrl-b, ?		= help
-ctrl-b, s		= list sessions
-ctrl-b, $		= rename sessions
 
 
-ctrl-b, c		= crate new window (think of this as tab, same as screen)
-ctrl-b, w       	= list window (screen ctrl-a, ")   # very much like screen "tab"
-ctrl-b, n 		= new  window (same as screen)
-ctrl-b, p 		= prev window (same as screen)
-ctrl-b, ,		= rename window
+# screen sessions/instances are independent, but tmux also provide abilities to swap between them:
+ctrl-b, s		## list sessions [ tmux process instances ]
+ctrl-b, w		== list windows  [ those within the session ]
+ctrl-b, $		#  rename sessions
+ctrl-b, ,		=  rename window
+
+
+
+
+
+# tmux window (tab) is like screen tab
+ctrl-b, c		# crate new window (think of this as tab, same as screen)
+ctrl-b, w       	# list window (screen ctrl-a, ")   # very much like screen "tab".  new version print a tree of sessions+windows
+ctrl-b, n 		# next window (same as screen)
+ctrl-b, p 		# prev window (same as screen)
+ctrl-b, ,		# rename window
 
 
 splitting is best thought of as pane, which is within a window (tab)
 ie, switching to a different window/tab will completely change all panes 
+(spliting pane behaviour is very different than screen's split)
+(the splits are rememberd w/in the window/tab they are created, so they get resumed, which is nice)
 
-ctrl-b, "				= split/divide pane vertically   # ie, 2 fat  and short/wide panes == 2 panes with 1/2 of vertical height
-ctrl-b, %				= split/divide pane horizontally # ie, 2 tall and skinny     panes == 2 panes with 1/2 of original width
-ctrl-b, down/up/left/right arrows 	= move between panes
-ctrl-b, j/k/h/l 			= move between panes, same as vi movement keys
-ctrl-b,{				= swap with prev pane (exchange position, not just cursor focus)
-		(spliting pane behaviour is very different than screen's split)
-		(the splits are rememberd w/in the window/tab they are created, so they get resumed, which is nice)
+^b, "		# split/div pane vert  (screen ^a,S) # top/bottom split. ie 2 fat  and wide   panes == 2 panes with 1/2 of vertical height
+^b, %		# split/div pane horiz (screen ^a,|) # left/right split. ie 2 tall and skinny panes == 2 panes with 1/2 of original width.  Bad for cut-n-paste
 
 
+^b, j/k/h/l 		# move between panes, same as vi movement keys
+^b, dw/up/lf/rg arrows	# move between panes
+
+^b,^Up			# resize: make pane divider go up
+^b,^Dn			# resize: make pane divider go down
+^b,^Left
+^b,^Right
+
+ctrl-b, q		# show pane number
+ctrl-b, q, 0		# jump to pane 0
+ctrl-b, q, 1		# jump to pane 1
+ctrl-b, x		# kill pane (ask confirmation).  all panes are killed before the tab get killed
+
+ctrl-b,alt-2		# equalize all panes, arrange top to bottom.  [alt-n maybe intercepted by terminal to switch between tabs]
+ctrl-b,alt-1		# equalize all panes, arrange left to right
+ctrl-b,alt-3		# T split.  Top wide screen with many bottom small panes
+ctrl-b,alt-4		# rotated T split, with tall panel on left.
+ctrl-b,alt-5		# 4 equal quadrants. If 3 panes, get inverted T split, like mirror of "3"
+
+ctrl-b,{		# swap with prev pane (exchange position, not just cursor focus)
+			# idea is likely to swap small pane into main pane in one of alt-3 or alt-4 arrangement
+
+ctrl-b, ctrl-b		# send ^B (eg scroll back in less, vi)
 
 </PRE>
 

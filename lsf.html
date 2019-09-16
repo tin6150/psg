@@ -185,7 +185,7 @@ Options commont to most/all job submission commands:
 sbatch/salloc/srun
 	--ntasks=100	# number of tasks to 100 (ie array job) (-n 100)
 	--nodes=x --ntasks-per-node=y	# less recommended way to run large MPI job
-	--time=10	# time limit in minutes (actual cpu run time?) , per task?? (help scheduler do backfill)
+	--time=10	# time limit in minutes (wall clock after job starts)   (also help scheduler do backfill)
 	--depend=JOBID	# job dependency, like qhold until a parent job has finished before starting this.
 
 
@@ -290,6 +290,7 @@ scontrol show partition		# view partition/queue info
 scontrol show nodes		# view nodes info (as specified to slurm.conf)
 scontrol show config		# view config of whole system (eg when asking mailing list for help)
 scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 min for the queue named "debug"
+scontrol update jobid=12345 TimeLimit=5-12	# change time limit of a specific job to 5.5 days
 
 sacct				# view accounting by individual job and job steps (more in troubleshooting below)
 

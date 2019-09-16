@@ -2223,6 +2223,12 @@ yum       --whatprovides '*bin/yes'   # coreutils
 yum --setopt=tsflags=noscripts -y install boinc-client  # pass --noscripts to rpm when installing the boinc-client*rpm
 # it is like setting yum.conf tsflags option that make rpm install package without triggering execution of install script"
 
+
+# yum package bundles/collections (meta package?)
+yum grouplist
+yum groupinfo "Development Tools" 		# cmake and many other stuff is in the optional part :(
+yum --setopt=group_package_types=optional groupinstall "@Development tools"
+
 </PRE>
 
 <H5>Creating YUM Repository</H5>
