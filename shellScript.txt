@@ -104,11 +104,16 @@ INT1 -gt INT2
 INT1 -lt INT2
 
 String comparison test
-Str1 = Str2
+Str1 =  Str2    # use =  with test or [ ]
+Str1 == Str2		# use == with [[ ]]
 Str1 != Str2
 
 Since they are string, may as well use "Str" so account for undefined/empty string cases.
 
+-z Str # zero length string
+-n Str # non-zero length string
+
+Str1 =~ regex   # true if regex matched (ie found in Str1)
 --------
 
 LD_PRELOAD_OPTS=...
