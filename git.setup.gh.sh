@@ -216,6 +216,8 @@ run_git_clone()
 	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
 	# git clone https://github.com/mapbox/mapbox-sdk-py.git		   # mapbox uploader, just cuz i need to search for things inside it
 
+	git clone https://github.com/dlab-berkeley/introduction-to-pandas.git # d-lab Intro to Pandas
+
 	############################
 	#### lbl-eta/smelly  ####
 	############################

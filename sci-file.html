@@ -1,5 +1,10 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+<!-- 
+vim: syntax=html tabstop=8 noexpandtab nosmarttab noautoindent nosmartindent 
+###xxxvim: tabstop=8 noexpandtab #nonumber
+### tabstop=8 is what browser render HTML PRE block as
+-->
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet" href="psg.css" type="text/css">
@@ -38,6 +43,75 @@
 <div class="titlepage">
 </div>
 </div>
+
+
+<A name="hdf5"></A>
+<H1>HDF5</H1>
+
+Hierarchical Data Format <BR>
+API/Library to pack large dataset/array into single file (for transfer over network?)  <BR>
+There are serial vs parallel versions. <BR>
+
+<PRE>
+
+h5import  	# create hdf5 archive?
+h5repack    	# extract single dataset/group from an hdf5 archive ?
+h5ls   		# 
+h5dump  
+h5diff  	ph5diff
+h5debug  
+h5stat        
+h5copy   
+
+h5cc   	h5pcc
+h5c++  
+h5fc    h5pfc
+
+h5jam  
+h5unjam 
+
+h5mkgrp        
+h5redeploy  
+h5repart  
+h52gif  
+
+gif2h5  
+
+h5perf_serial  
+
+
+</PRE>
+
+<A name="netcdf"></A>
+<H1>NetCDF</H1>
+
+NetCDF - Network Common Data Form.  <BR>
+Often used for geospatial data storing array-oriented scientific data 
+(eg input for CMAQ modeling). <BR>
+NetCDF v4  is the HDF5 format, with some restrictions.  <BR>
+CDF5 format is from parallel-netcdf project <BR>
+There are serial vs parallel versions (even for NetCDF v4?) <BR>
+<BR>
+Maybe able to just learn to use nc commands without invoking hdf5 commands directly ? <BR>
+
+
+<PRE>
+
+module load  gccc/6.3.0 hdf5/1.8.20-gcc-p netcdf/4.6.1-gcc-p 
+
+ncdump 			# dump output of file, human readable ?
+
+ocprint 
+nccopy  
+ncgen  
+ncgen3  
+nc-config  
+
+
+
+
+
+</PRE>
 
 
 <H1>BioInformatics File Format</H1>
