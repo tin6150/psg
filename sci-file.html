@@ -48,6 +48,8 @@ vim: syntax=html tabstop=8 noexpandtab nosmarttab noautoindent nosmartindent
 <A name="hdf5"></A>
 <H1>HDF5</H1>
 
+<H5>.hdf5</H5>
+
 Hierarchical Data Format <BR>
 API/Library to pack large dataset/array into single file (for transfer over network?)  <BR>
 There are serial vs parallel versions. <BR>
@@ -85,14 +87,16 @@ h5perf_serial
 <A name="netcdf"></A>
 <H1>NetCDF</H1>
 
+<H5>.nc</H5>
 NetCDF - Network Common Data Form.  <BR>
 Often used for geospatial data storing array-oriented scientific data 
-(eg input for CMAQ modeling). <BR>
-NetCDF v4  is the HDF5 format, with some restrictions.  <BR>
+(eg input for CMAQ modeling, oceanography, ArcGIS). <BR>
+Older CDF format were flat, whereas HDF was Hierarchical.  Thus HDF originally provided more grouping functionality to organize data, good for long term maintenance of the data "archive". <BR>
+NetCDF v4  is the HDF5 format, with some restrictions.  (typically considered a simpler API with essentially the same functionality) <BR>
 CDF5 format is from parallel-netcdf project <BR>
 There are serial vs parallel versions (even for NetCDF v4?) <BR>
 <BR>
-Maybe able to just learn to use nc commands without invoking hdf5 commands directly ? <BR>
+One can learn to use nc commands without invoking hdf5 commands directly.  And if just using it, the choice "between" .hdf5 vs .nc is form the application on hand, unless one is debating writting a new app.  <BR>
 
 
 <PRE>
@@ -107,12 +111,16 @@ ncgen
 ncgen3  
 nc-config  
 
-
-
-
-
 </PRE>
 
+Related tools
+<UL>
+    <LI>ncBrowse - view java graphics, 3D viz</LI>
+    <LI>ncview - view multi dimention data with changing color map, etc.  X-based?</LI>
+    <LI>NCL - NCAR Command Language - viz netCDF files (and other formats)</LI>
+    <LI></LI>
+    <LI></LI>
+</UL>
 
 <H1>BioInformatics File Format</H1>
 
