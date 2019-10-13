@@ -306,6 +306,11 @@ ctrl-a,ctrl-b	= send a break (ie, after ^a, can hit ^b or simply b to send break
 </PRE>
 
 <A name="tmux"></A>
+
+<A HREF="http://hyperpolyglot.org/multiplexers">screen & tmux side-by-side</A> <BR>
+C-x = Control-x  <BR> 
+M-x = Meta-x, typically Alt-x <BR>
+
 <H5>tmux</H5>
 
 tmux use ctrl-b instead of ctrl-a that screen use, less keymap conflict
@@ -317,6 +322,30 @@ ref:
 <LI><A HREF="https://danielmiessler.com/study/tmux/">https://danielmiessler.com/study/tmux/</A> </LI>
 <LI><A HREF="https://tmuxcheatsheet.com/">https://tmuxcheatsheet.com/</A></LI>
 <BR>
+<BR>
+
+Key bindings that need to memorized for effective use of tmux <BR>
+
+<PRE class="code">
+
+^b ,	# rename win/tab	^b $   	# rename session/instance
+^b w 	# list window		^b s	# list   session
+^b c    # create window		^b: new	# new session
+^b n	# next window		???	# jump to next session?
+^b l	# last active window
+
+^b " 	# top-bottom pane	^b %  	# side/side pane
+^b ^o	# rotate pane		^b alt-o # rotate pane backward
+^b q 0	# jump to pane 0
+^b ;	# jump back to prev pane
+^b SP   # cycle pane arrangement (alt-5 is good for quad)
+^b x  	# close/kill current pane
+
+^b ^b	# send ctrl-b, useful in nested tmux or vi back page
+^b :    # command
+^b :set -g mouse on		# mouse mode, allow resize pane w/ tmux 2.1+
+
+</PRE>
 
 <PRE>
 tmux new -s tmux1			# this start a new session, like screen session # new process instance
@@ -330,10 +359,10 @@ ctrl-b, ?		= help
 
 
 # screen sessions/instances are independent, but tmux also provide abilities to swap between them:
-ctrl-b, s		## list sessions [ tmux process instances ]
-ctrl-b, w		== list windows  [ those within the session ]
-ctrl-b, $		#  rename sessions
-ctrl-b, ,		=  rename window
+ctrl-b, s		# list sessions [ tmux process instances ]
+ctrl-b, w		= list windows  [ those within the session ]
+ctrl-b, $		# rename sessions (instance) (name shows up in tmux -ls)
+ctrl-b, ,		= rename window   (tabs)     (name appears in bottom green status bar)
 
 
 
@@ -345,6 +374,8 @@ ctrl-b, w       	# list window (screen ctrl-a, ")   # very much like screen "tab
 ctrl-b, n 		# next window (same as screen)
 ctrl-b, p 		# prev window (same as screen)
 ctrl-b, ,		# rename window
+
+ctrl-b, !		# convert window (tab) into pane  (!, screen can't do this)
 
 
 splitting is best thought of as pane, which is within a window (tab)
@@ -367,6 +398,7 @@ ie, switching to a different window/tab will completely change all panes
 ctrl-b, q		# show pane number
 ctrl-b, q, 0		# jump to pane 0
 ctrl-b, q, 1		# jump to pane 1
+ctrl-b, ;   		# jump to previous active pane
 ctrl-b, x		# kill pane (ask confirmation).  all panes are killed before the tab get killed
 
 ctrl-b,alt-2		# equalize all panes, arrange top to bottom.  [alt-n maybe intercepted by terminal to switch between tabs]
@@ -374,11 +406,55 @@ ctrl-b,alt-1		# equalize all panes, arrange left to right
 ctrl-b,alt-3		# T split.  Top wide screen with many bottom small panes
 ctrl-b,alt-4		# rotated T split, with tall panel on left.
 ctrl-b,alt-5		# 4 equal quadrants. If 3 panes, get inverted T split, like mirror of "3"
+ctrl-b,SPACE		# cycle between the 5 pane arrangement options
+ctrl-b,z        	# zoom current pane (but still leave | at borders so no good for cut-n-paste
 
+ctrl-b,ctrl-o		# rotate panes forward  (useful eg in alt-3 view)
+ctrl-b,alt-o		# rotate panes backward
 ctrl-b,{		# swap with prev pane (exchange position, not just cursor focus)
-			# idea is likely to swap small pane into main pane in one of alt-3 or alt-4 arrangement
+ctrl-b,}		# swap with next pane (exchange position, not just cursor focus)
+			# idea is likely to swap small pane into larger pane in one of alt-3 or alt-4 arrangement
 
-ctrl-b, ctrl-b		# send ^B (eg scroll back in less, vi)
+ctrl-b,m		# mark current pane (thicker green border to make it more obvious, i like it)
+ctrl-b,M		# unmark current pane 
+
+
+ctrl-b, ctrl-b		# send ^b (eg scroll back in less, vi; or nested tmux)
+
+
+
+</PRE>
+
+<H6>tmux commands</H6>
+
+for use in command mode and .tmux.conf file   <BR>
+
+Once inside tmux, can re-execute the config as <BR>
+<TT>tmux source-file ~/.tmux.conf</TT> <BR>
+
+
+<PRE>
+ctrl-b, :               # enter command mode
+resize-pane -D 		# move pane divider down
+resize-pane -U 10	# move pane divider up    by 10 lines
+resize-pane -L 10	# move pane divider left  by 10 lines
+resize-pane -t 1 -R 10	# move pane divider right by 10 lines for pane id 1
+
+
+# https://gist.github.com/MohamedAlaa/2961058
+# has these that would be useful to use mouse to resize pane size, but don't work even in tmux 2.9a :(
+# not even when placed in ~/.tmux.conf
+
+setw -g mode-mouse off
+set -g mouse-select-pane off
+set -g mouse-resize-pane off
+set -g mouse-select-window off
+
+# https://stackoverflow.com/questions/11832199/tmux-set-g-mouse-mode-on-doesnt-work
+# since 2.1, just need
+set -g mouse on
+
+# but mouse highlight will go to tmux buffer, not X clipboard, which is usually not what I want :(
 
 </PRE>
 

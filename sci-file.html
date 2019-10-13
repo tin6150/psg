@@ -98,12 +98,16 @@ There are serial vs parallel versions (even for NetCDF v4?) <BR>
 <BR>
 One can learn to use nc commands without invoking hdf5 commands directly.  And if just using it, the choice "between" .hdf5 vs .nc is form the application on hand, unless one is debating writting a new app.  <BR>
 
+<BR>
+NetCDF file are self describing, having all info in its header.  
+Array Strucutured in header also provide random seek to desired record.  
+<BR>
 
 <PRE>
 
 module load  gccc/6.3.0 hdf5/1.8.20-gcc-p netcdf/4.6.1-gcc-p 
 
-ncdump 			# dump output of file, human readable ?
+ncdump 			# show structure of file in ascii (from NCAR)
 
 ocprint 
 nccopy  
@@ -122,6 +126,149 @@ Related tools
     <LI></LI>
 </UL>
 
+<A name="ioapi"></A>
+<H3>IOAPI</H3>
+
+IOAPI is library used by CMAQ to read/write .nc files. 
+(Fortran files are machine specific)
+<BR>
+Much of the data in CMAQ are time-series.
+ie, for the variables/arrays defined, IOAPI automatically apply time stamp or stepping info for them.
+<BR>
+
+
+<PRE>
+
+JDATE: YYYYDay eg 201935 is Feb 4 of 2019.
+JTIME: HHMMSS  (10000 * Hour) + (100 * Minute) + Seconds
+
+Logical filename.  Max 16 chars.  hide NetCDF internal file structure from user/programmer.
+
+</PRE>
+
+<H5>IOAPI cmd</H5>
+
+From 
+<A HREF="http://views.cira.colostate.edu/data/Documents/CMAQ/cmaq-manual.pdf">CMAQ manual (v4.6)</A> p50 of pdf
+
+<BR>
+
+<PRE>
+M3XTRACT
+extract a subset of variables from a file for a specified time
+interval
+
+M3DIFF 
+compute statistics for pairs of variables
+
+M3STAT 
+compute statistics for variables in a file
+build a boundary-condition file for a sub-grid window of
+a gridded file
+
+BCWNDW
+build a boundary-condition file for a sub-grid window of
+a gridded file
+
+M3EDHDR 
+edit header attributes/file descriptive parameters
+
+M3TPROC
+compute time period aggregates and write them to an output
+file
+
+M3TSHIFT 
+copy/time shift data from a file
+
+M3WNDW 
+window data from a gridded file to a sub-grid
+
+M3FAKE
+build a file according to user specifications, filled with
+dummy data
+
+VERTOT 
+compute vertical-column totals of variables in a file
+
+UTMTOOL 
+coordinate conversions and grid-related computations for
+Lat/Lon, Lambert, and UTM
+
+</PRE>
+
+<H1>CMAQ</H1>
+
+Community Modeling ...   
+By EPA.
+<BR>
+
+Ref:
+<A HREF="http://views.cira.colostate.edu/data/Documents/CMAQ/cmaq-manual.pdf">CMAQ manual (v4.6)</A> 
+
+<BR>
+
+Modeling components and workflow overview - 
+(see p56 of pdf).
+<BR>
+
+
+<LI>
+CCTM - CMAQ chemistry-trasnport model - main program of CMAQ modeler.  Most of the other programs are pre-processor to prepare data for CCTM use.
+</LI>
+
+<H5>Pre-processors </H5>
+
+<UL>
+
+<LI>
+MM5 or WRF - Meteorology model (input?)
+</LI>
+
+<LI>
+SMOKE - Emission model (not part of CMAQ)
+</LI>
+
+<LI>MCIP.  Meteorological models, produce GRIDDESC  (one sub-type of IOAPI format) suitable for CCTM.
+</LI>
+
+<LI>
+ICON - prepare initial condition (eg from ascii), produce netcdf file as input to CCTM.  The input are specific to the modeling grid and chem parameterization.<BR>
+Data source could be ascii or previous CCTM output.
+</LI>
+
+<LI>
+BCON - Boundary Condition.  produce .nc file as input for CCTM.  <BR>
+  Data source could be ascii or previous CCTM output.
+</LI>
+
+<LI>
+JRPOC - output is a lookup table of phtolysis rate (in clear sky condition), which is needed by CCTM to do its modeling.
+</LI>
+
+</UL>
+
+<H5>Support tools</H5>
+
+<UL>
+
+<LI>
+PARIO - Govern communication of Parrallel run of CCTM.
+</LI>
+
+<LI>
+STENEX - diagnostic tool for CMAQ
+</LI>
+
+<LI>
+</LI>
+
+<LI>
+</LI>
+
+
+</UL>
+
+
 <H1>BioInformatics File Format</H1>
 
 <A id="sam"></A>
@@ -133,6 +280,7 @@ Related tools
 <LI>VCF: Variant call format.  Mutation centric view 
 <LI>
 </UL>
+
 <PRE>
 </PRE>
 
