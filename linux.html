@@ -3225,7 +3225,10 @@ systemctl daemon-reload bruker_lmgr		# reload service after changes to init scri
 
 /etc/systemd/system				# dir where startup files are stored
 
-systemd-analyze blame				
+/etc/systemd/system/multi-user.target.wants	# expect sym link to /usr/lib/systemd/system
+/etc/systemd/system/default.target.wants	# can drop a file here (uniq name that does not conflict with other service in /usr/lib/systemd/system) and it will be run on boot
+
+systemd-analyze blame						# time line of service starting, bottom = first service, top = last service
 
 </PRE> 
 

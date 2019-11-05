@@ -339,6 +339,7 @@ Key bindings that need to memorized for effective use of tmux <BR>
 ^b q 0	# jump to pane 0
 ^b ;	# jump back to prev pane
 ^b SP   # cycle pane arrangement (alt-5 is good for quad)
+^b z    # zoom/unzoom current pane
 ^b x  	# close/kill current pane
 
 ^b ^b	# send ctrl-b, useful in nested tmux or vi back page
@@ -394,6 +395,8 @@ ie, switching to a different window/tab will completely change all panes
 ^b,^Dn			# resize: make pane divider go down
 ^b,^Left
 ^b,^Right
+^b,M-Up			# resize: make pane divider go up by 5 cells (M=meta=alt)
+^b,M-Left
 
 ctrl-b, q		# show pane number
 ctrl-b, q, 0		# jump to pane 0
@@ -409,7 +412,7 @@ ctrl-b,alt-5		# 4 equal quadrants. If 3 panes, get inverted T split, like mirror
 ctrl-b,SPACE		# cycle between the 5 pane arrangement options
 ctrl-b,z        	# zoom current pane (but still leave | at borders so no good for cut-n-paste
 
-ctrl-b,ctrl-o		# rotate panes forward  (useful eg in alt-3 view)
+Ctrl-b,ctrl-o		# rotate panes forward  (useful eg in alt-3 view)
 ctrl-b,alt-o		# rotate panes backward
 ctrl-b,{		# swap with prev pane (exchange position, not just cursor focus)
 ctrl-b,}		# swap with next pane (exchange position, not just cursor focus)
@@ -419,6 +422,7 @@ ctrl-b,m		# mark current pane (thicker green border to make it more obvious, i l
 ctrl-b,M		# unmark current pane 
 
 
+ctrl-b, ~		# show prev tmux message, if any (eg error in command) (?)
 ctrl-b, ctrl-b		# send ^b (eg scroll back in less, vi; or nested tmux)
 
 

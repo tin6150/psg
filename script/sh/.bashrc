@@ -328,7 +328,7 @@ defineAlias () {
 	alias sqt="squeue -u tin"
 	alias assoc="sacctmgr show associations -p"                    # slurm
 	alias sevents="sacctmgr show events start=2018-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol)
-	alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # %E is comment/reason, unrestricted in length.  -Sorted by rEason
+	alias sinfo-R='sinfo -N -R -S %E --format="%9u %19H %6t %N %E"'   # %E is comment/reason, unrestricted in length.  -Sorted by rEason # -N is node centric, ie one node per line, has to be first arg
 
 
 

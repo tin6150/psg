@@ -491,35 +491,62 @@ docker run --help		# help specific to the sub command.
 	<LI> Achieved using <TT>ip netns</TT>
 	<LI> iptables, brctl, virtual switches
 	<LI> Docker provides network isolation, but no throtling
-	<LI> 3 network methods: 
-     	<UL> 
-	     <LI>bridged (default)
-	     <UL> 
-		<LI> Virtual ethernet interface is used (veth), called docker0
-		<LI> All containers on docker0 can communicate with one another by default (icc=true), ie no isolation between these containers.
-	     </UL> 
+	<LI> 3 network_mode: 
+     	 <UL> 
+	     <LI>bridged (default if not specified)
+					<UL> 
+					<LI> Virtual ethernet interface is used (veth), called docker0
+					<LI> All containers on docker0 can communicate with one another by default (icc=true), ie no isolation between these containers.
+					<LI> use -p 8000:80 to map host's port 8000 to container's port 80.
+					<LI> performance not as good as host mode network.  Some blog says bridge mode get 80% of host mode network.
+					<LI> some argues that bridge is more portable and easier to scale in different environment
+					</UL> 
 
-	     <LI>host
-	     <UL> 
-		<LI> container use host network stack, thus no isolation
-		<LI> allow access to D-Bus, unexpected behavior.
-		<LI> use not really recommended
-	     </UL> 
+	     <LI>host (--net=host)
+					<UL> 
+					<LI> container use host network stack, thus no isolation
+					<LI> allow access to D-Bus, unexpected behavior.
+					<LI> may open container to wider workd, security implications.
+					<LI> 
+					</UL> 
 
 	     <LI>shared
-	     <UL> 
-		<LI> An existing container network stack is shaerd with other containers.  ie Network Namespace is shared.
-		<LI> like bridged, FS and Process isolation remains
-	     </UL> 
-     	</UL>
-	<LI> Docker will manipulate iptables, bypass UFW.  if want to protect container from general access, see <A HREF="#behind_ufw">below</A>.
+					<UL> 
+					<LI> An existing container network stack is shaerd with other containers.  ie Network Namespace is shared.
+					<LI> like bridged, FS and Process isolation remains
+					</UL> 
+     	 </UL>
+	<LI> Docker will manipulate iptables, bypass UFW (in bridge mode).  if want to protect container from general access, see <A HREF="#behind_ufw">below</A>.
 	<LI> 
 	<LI> 
 </OL>
 
+<PRE>
+Example network config and its effect. docker_compose.yml that starts grafana that utilize tcp/3000
+
+network_mode                    ports (mapping)     docker ps PORTS             netstat -an                       Comment
+-----------------------------   -----------------   -----------------------     ------------------------------    ----------------------------------------------
+(default, ie not spelled out)   not spelled out     3000/tcp                    (nothing)                         3000 not accessible from host (outside docker)
+(default, ie not spelled out)   3000                0.0.0.0:3000->3000/tcp      tcp6 0 0 :::3000  :::*  LISTEN    
+bridge                          3000                0.0.0.0:3000->3000/tcp      tcp6 0 0 :::3000  :::*  LISTEN    ie, same as default, expected
+host                            not spelled out     (blank)                     tcp6 0 0 :::3000  :::*  LISTEN    3000 accessible from host (governed by ufw?)
+host                            3333:3000           (blank)                     tcp6 0 0 :::3000  :::*  LISTEN    port mapping actually ignored in host mode, host connection to 3333 is rejected
+
+
+
+</PRE>
+
 <A ID="ufw"></A>
 <A NAME="behind_ufw"></A>
 <H5>Docker containers behind UFW</H5>
+
+docker by default create iptables in the PREROUTING level, thereby often bypassing host's FirewallD or UFW rules. see 
+<A HREF="firewall.html#docker">firewall#docker</A>.  
+Disabling docker manipulation of iptables has lots of side effects.
+It would be easier to have container only bind an internal interface not exposed to the internet.
+
+<BR>
+<BR>
 
 Ref: 
 <LI> <A HREF="https://www.mkubaczyk.com/2017/09/05/force-docker-not-bypass-ufw-rules-ubuntu-16-04/">mkubaczyk blog</A>
@@ -549,9 +576,6 @@ the other thing is that the host, bofh, had a rule that allow full access (meant
 
 
 iptables -t nat -A POSTROUTING ! -o docker0 -s 172.17.0.0/16 -j MASQUERADE
-
-
-
 
 </PRE>
 
