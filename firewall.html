@@ -357,10 +357,23 @@ iptables -F         # flush all rules (iptables still active, but largely allow 
 <A ID="firewalld"></A>
 <H2>firewalld</H2>
 
-RHEL7 default to <TT>firewalld</TT>.  It allows for programmatic way of configureing netfilter.  The config file is XML.  It does generate IPTABLES commands, but does not use the /etc/sysconfig/iptables file.    Those who likes the iptables cli would feel very foreign with firewalld and vice versa.  <BR>
+RHEL7 default to <TT>firewalld</TT>.  It allows for programmatic way of configureing netfilter.  The config file is XML.  But configuration is typically done by <TT>firewall-cmd</TT> cli and there is no need to muck with the XML files directly.  Firewalld does generate IPTABLES commands, but does not use the /etc/sysconfig/iptables file.    Those who likes the iptables cli would feel very foreign with firewalld and vice versa.  <BR>
 firewalld also run as a dynamic firewall service, and thus has a daemon.  The daemon works with NetworkManager, determining <TT>zones</TT> the network is and apply firewall rules accordingly (public WiFi would be in a zone with more restrictions than home network.  <BR>
 For a given system, either use the iptables (service) or firewalld.  Pick one and stick to it.
 <BR><BR>
+<BR><BR>
+firewalld out of the box comes with a number of zones pre-created.
+But by and large, there is no pre-defined "pathway" on how packet travels.
+It is not necessarily that "inside" zone will always go to "public" zone.
+<BR>
+Think of zone as grouping traffic together, and sys admin add <TT>target</TT> of what this group as a whole should do.
+<TT>target: default</TT> simply means keep processin the target thru the other chain.  If no rules define that a packet should be dropped, then it would be allowed thru to the user process.  
+In practice, at least on linux server, <TT>arget: default</TT> would mostly lead to ACCEPT.  If desire is to block such traffice, it tends to become <TT>target: DROP</TT> (or %%REJECT%%).
+<BR>
+But other target action can be done, either in the zone itself (eg accept) or later chains (eg NAT, port forward, etc).  <BR>
+Refer to the <A HREF="iptables(/chains) diagram">#tables_chains_diagram</A>
+<BR>
+
 
 <PRE>
 system-config-firewall		# for static rule config of firewalld
@@ -642,6 +655,7 @@ Ref:
 <IMG SRC="fig/netfilter-traversal.png" TITLE="netfilter traversal by Martin Brown" height="100%"></A><BR>
 </div>
 
+<A ID="tables_chains_diagram"></A>
 
 A network router almost always has firewall running these days.  <BR>
 For dedicated network-edge firewall such as Check Point and Pix, see  
