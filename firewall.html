@@ -435,6 +435,33 @@ ref:
 
 </UL>
 
+<H5>Masquerade/NAT</H5>
+
+
+<PRE>
+
+Masquerade (ie, perform NAT):
+eg Simple NAT-router, route internal zone traffic with RFC 1918 private IP range to public zone (internet).
+Just need to add masquerade to the public zone, ie perform NAT on all packets coming in and out.
+
+firewall-cmd --add-masquerade --zone=public --permanent
+
+
+DNAT = Destination NAT.   Think of Port forwarding.
+eg Expose web server to the public world.
+
+firewall-cmd --permanent --zone=public --add-forward-port=port=80:proto=tcp:toport=80:toaddr=192.168.199.10
+
+
+</PRE>
+
+ref: 
+<UL>
+<LI>
+	<A HREF="https://myredhatcertification.wordpress.com/2015/04/26/firewalld-masquerade-forwarding-transparent-proxy/">blog</A>
+</LI>
+
+</UL>
 
 
 <A ID="ufw"></A>
