@@ -368,10 +368,15 @@ It is not necessarily that "inside" zone will always go to "public" zone.
 <BR>
 Think of zone as grouping traffic together, and sys admin add <TT>target</TT> of what this group as a whole should do.
 <TT>target: default</TT> simply means keep processin the target thru the other chain.  If no rules define that a packet should be dropped, then it would be allowed thru to the user process.  
-In practice, at least on linux server, <TT>arget: default</TT> would mostly lead to ACCEPT.  If desire is to block such traffice, it tends to become <TT>target: DROP</TT> (or %%REJECT%%).
+In practice, at least on linux server, <TT>arget: default</TT> would mostly lead to ACCEPT.  If desire is to block such traffice, it tends to become <TT>target: DROP</TT> (or <TT>%%REJECT%%</TT>).
 <BR>
 But other target action can be done, either in the zone itself (eg accept) or later chains (eg NAT, port forward, etc).  <BR>
-Refer to the <A HREF="iptables(/chains) diagram">#tables_chains_diagram</A>
+Refer to the <A HREF="iptables(/chains) diagram">firewall.html#tables_chains_diagram</A>
+<BR>
+<BR>
+
+ref: 
+<A HREF="https://firewalld.org/documentation/zone/options.html">firewalls.org zone options</A>
 <BR>
 
 
