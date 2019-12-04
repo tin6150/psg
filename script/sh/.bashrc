@@ -466,8 +466,8 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
-#~~add_hpcs_module	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
-add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
+add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
+#add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
 add_personal_module 
 add_cosmic_module 
 
