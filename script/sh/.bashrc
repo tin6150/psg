@@ -200,7 +200,9 @@ add_hpcs_module () {
 			#module load intel openmpi mkl
 			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
 			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
-			module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p
+			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
+			#//brc has different version number for hdf5... not needed there... 
+	
 
 		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
 			#module load intel/2018.1.163 mkl openmpi
@@ -236,7 +238,8 @@ add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
 	AddtoString PATH /global/home/groups/scs/IB-tools 
 	AddtoString PATH /global/home/groups/scs/tin
-	#AddtoString PATH /global/home/groups/scs/yqin
+	AddtoString PATH /global/scratch/tin/meli           # osu_*
+	AddtoString PATH /global/home/groups/scs/yqin		# stream
 	##--echo "Path after mocking: $PATH"
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
 
