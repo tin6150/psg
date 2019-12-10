@@ -458,7 +458,7 @@ docker commit -a "author name"		# -a add the authoer's name
 
 docker tag ...			# tag/name (?container as image) for docker push to hub.docker.com
 
-docker login			# login to hub.docker.com ...
+docker login			# login to docker hub.  credentials will be saved as base64 enconding in ~/.docker/config.json (ie, NOT encrypted!)
 docker info			# version, disk usage, metadata size, etc
 
 
@@ -787,7 +787,7 @@ docker run    -p 80:80   -i -t --name ApachePsgII 8e300072616a  /usr/local/apach
 docker rename		# rename a container
 ? rename image... no way to do this??   but when upload to dockerhub, give it a new name, and pull it again...
 
-docker login			# login to docker hub.  credentials will be saved w/ encryption
+docker login			# login to docker hub.  credentials will be saved as base64 enconding in ~/.docker/config.json (ie, NOT encrypted!)
 
 docker commit -m "apache psgIII" edb6d60c97da tin6150/apache_psg3
 				# edb6d60c97da is a container id (from docker ps -a)

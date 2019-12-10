@@ -139,6 +139,8 @@ GUI									qmon			sview
 <A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
 <BR>
 
+<A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018.
+
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
@@ -174,7 +176,7 @@ salloc			# run interactive job, asking scheduler to allocate certain resources t
 salloc bash		# get a bash shell in intertive mode with req resource
 
 srun			# Typically for MPI job, create job allocation, launch job step.
-srun uname		# run the uname command in a cluster using srun
+srun --pty -p lr3 -A scs --qos=lr_normal -N 1 -t 0:59:00 /bin/bash  # interactive bash shell for 59 min on 1 Node.
 
 sattach			# connect to the stdin, stdout and stderr of a job or job step
 

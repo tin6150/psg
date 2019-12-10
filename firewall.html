@@ -409,7 +409,8 @@ firewall-cmd --zone=public --add-port=4000/tcp --permanent	# allow port 4000 fro
 firewall-cmd --zone=public --remove-port=4000/tcp            	# undo the add above
 
 firewall-cmd --reload						# read from config, presumably drop anything that is runtime and not in --permanent
-								
+
+firewall-cmd --runtime-to-permanent			# save config that were done without --permanent
 
 firewall-cmd --direct --get-all-chains				# direct interaction with iptables
 firewall-cmd --direct --get-all-rules

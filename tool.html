@@ -435,6 +435,161 @@ Below are high level summary info.  Diff CPU has diff numa arch and memory local
 
 <IMG SRC="fig/dell_skylake_mem_bandwidth.jpg" width="100%"><BR>
 
+<BR>
+<BR>
+
+
+
+<A NAME="cpu_tuning"></A>
+<H1>CPU tuning</H1>
+<BR>
+
+<!--
+	n0[134-138].savio3 Asus    GPU 4x RTX 4080Ti
+	n0[143-145].savio3 Colefax GPU 8x RTX 4080Ti
+    https://mail.google.com/mail/u/1/?zx=2xeddmwpage5#search/k_args/KtbxLzGcCdhxzJMxxFqZmjLKtCNfFDMmhg?compose=CllgCJZXhxsjqqJSNTQPwKrSTPrDxdBMFhMjtfdfRrKgrzsfBvdvXnFTqBnNQZdGgDdfBGfznMg
+	/global/home/users/tin/CF_BK/savio3/colefax_n0143_savio3.rst 
+	/global/scratch/tin/meli/osu_bw
+-->
+
+<PRE>
+
+pstate and cstate, which govern power saving and thus clock frequency, can cause unexpected latency in PCI bus and thus Infiniband performance.
+
+Things to check:
+
+1. remove your current kernel args "processor.max_cstate=1 intel_idle.max_cstate=0"
+2. add the new kernel args "intel_pstate=disable"
+
+(wwulf may only keep first kargs param.  cat /proc/cmdline after machine boot)
+
+
+pdsh -w n0[143-145].savio3 "cat /proc/cpuinfo | grep 'cpu MHz' | head -1"
+
+
+kargs not likely useful.  cmd should work, but need them installed and invoked on boot...
+
+
+cpupower frequency-set -g performance
+# 800 or 1200 is low
+# 2600 would be more performant, though it does use more power.
+
+
+
+
+Tests:
+
+mpirun -np 2 -H 10.0.7.144,10.0.7.145 -report-bindings -bind-to core ./osu_latency  # need to be able to ssh to node to run orte
+# latency below 1.20 us would be good; above 1.70 would be lousy.  5.6+ would be bad.  10+ would be horrible
+# ethernet latency is in ms (? maybe 100s of us).  
+
+mpirun -np 2 -H 10.0.7.144,10.0.7.145 -report-bindings -bind-to core ./osu_bw
+# Size        Bandwidth (MB/s)     bad eg:
+#                     good eg:     bad eg:
+1                         2.67       1.55
+2                         5.34       3.51
+4                        12.00       7.32
+...
+32768                  9956.58     7977.42
+65536                 11726.98     9445.02   # good BW plateau much earlier and at higher value
+...
+2097152               12403.11    10018.76
+4194304               12411.50    10024.22
+
+
+</PRE>
+
+
+<BR>
+<BR>
+
+to save power, look into:
+<PRE>
+
+having just BIOS Latency Optimized workload and no kargs of intel_pstate=disable give CPU running at 1200 MHz.
+in this state, can use `cpupower frequency-set -g performance` to get to performance mode (perhaps prolog script)
+and `cpupower frequency-set -g powersave` to get back to 1200 MHz, saving some power, perhaps use epilog script for job to invoke it.
+but slurm epilog/prolog does not run as root, but as slurm, so may need to use sudo.
+
+
+another alternative is to 
+simply power save or shutdown the node via slurm
+https://slurm.schedmd.com/power_save.html
+
+</PRE>
+
+<BR>
+<BR>
+
+
+Things that may be relevant to CPU frequency and thus bus latency:
+
+<PRE>
+
+3a. Bios Changes
+
+I went to the bios of two asus nodes (n0137.savio3, n0138) and made a number of changes.
+The latency, measured only between two nodes, is ~3.2 us.  Better than the 4 us originally, but still not the 1.2 us we are getting from the supermicro nodes.  
+
+disable hyperthreading (was enabled)
+        Intel TXT left as disabled
+        VMX left as enabled
+        SMX left as disabled
+
+
+there were lot of profile optimization for various benchmark, like MP Linpack, spec cpu, HammerDB, STREAM Triad, etc.
+        mostly, think it change Engine Boost
+        core optimizer is always disabled for many benchmark/workflow i selected
+end up picking by workload  (recommended to operate at 25C or below, so not sure if we should leave this on?)
+        picked HPC
+        (other options: Latency optimized, Peak Frequency, power efficient)
+        change
+        Engine Boost  -> Level3(Max)   (was disabled
+        core optimizer is left as disabled
+       
+
+P-state:   (left all as default)
+        boot performance: max
+        energy efficient turbo: enable
+        turbo mode: enable
+     
+
+
+c-state
+        not entirely obvious
+        disabled CPU C6 report   ##
+        disabled C1E
+package c state control
+        changed from auto to C0/C1 state  ##
+
+        left sw controlled T-states as disabled (default)
+
+trusted computing
+        Changed to "disabled" security device
+        none was found to begin with anyway
+
+ACPI settings
+        Disabled hibernation
+
+
+3b. A second BIOS change that I tested, but no real improvements either:
+
+Socket Config 
+  CPU - Adv PM Tuning
+    Energy perf BIAS
+      Workload config
+        - first test above had left as Balanced
+        - 2nd test changed to I/O sensitive
+
+</PRE>
+
+
+Ref:
+
+<LI> https://photos.google.com/share/AF1QipMiNW5KMVx3VaeW-9JQyMj8oKk-UOyPTeG83gN2hROo9ms81wEEw9ikvuGhxZVk2Q?key=UUZ2M1ZmMFVyTUo2Y1AtVFVvWXE2VVo1WV9JWlNn - Summary of changes done for Asus GPU nodes
+<LI> Other workflow profiles: https://photos.app.goo.gl/BGg3sej3oWyzPnbp9 
+<LI> https://photos.google.com/album/AF1QipMqkSucnOzq757nZCUzjGlM3u6Ul3HFqKLlheae - many screenshot of BIOS settings for Asus
+
 
 <A NAME="perf"></A>
 <A NAME="performance"></A>

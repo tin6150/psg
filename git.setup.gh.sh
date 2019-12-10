@@ -151,7 +151,7 @@ run_git_clone()
 	git clone https://github.com/tin6150/jquery-csv.git
 	
         ##############################
-        #### tin6150@github gitst ####
+        #### tin6150@github gist  ####
         ##############################
 
         git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
