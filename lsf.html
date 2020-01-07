@@ -464,16 +464,29 @@ sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDisk
 
 
 # example of querying jobs ran in a certain time frame:
-sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2017-12-20T00:00:00 --end=2018-01-01T23:59:59
+sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2019-12-18T00:00:00 --end=2018-01-01T23:59:59
 
-# all users, failure states, in a certain time frame (hung job not listed here):
-sacct -a -X -s F,NF -r lr5  -S 2017-12-16  -E 2017-12-18
+# all users, failure states, in a certain time frame (hung job not listed here; end time required or get no output):
+sacct -a -X -s F,NF -r lr5  -S 2019-12-16  -E 2019-12-18
 
-# many problem states (but may not be comprehensive)
+# Node Failure, job would have died (-a = all users, may req root):
+sacct -a -X -s NF -r lr5  -o job,start,end,partition,user,jobname,AllocNode,AllocTRES,DerivedExitCode,state,CPUTime,Elapsed -S 2017-12-20  -E 2018-01-01
+
+# many problem states (but may not be comprehensive), for all users 
 sacct -a  -X -s F,NF,CA,S,PR,TO,BF -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,NNodes,DerivedExitCode,state -S 2017-12-25  -E 2017-12-31
 
-# Node Failure, job would have died:
-sacct -a  -X -s NF -r lr5  -o job,start,end,partition,user,jobname,AllocNode,AllocTRES,DerivedExitCode,state,CPUTime,Elapsed -S 2017-12-20  -E 2018-01-01
+
+# get an idea of failed/timeout jobs and nodes they ran on
+# SystemComment,Comment are usually blank
+# Reason no longer avail?
+# but may not be the last job that ran on the node, other jobs could have subsequently ran on the node...
+# specifying End time required even when not asked for it to be in output list (else get empty list)
+sacct -S 2019-12-21 -E 2020-01-01 -a -X -s F,NF,TO -p -o state,job,start,Elapsed,ExitCode,jobname,user,AllocNode,NodeList,SystemComment,Comment | sed 's/|/\t/g' | less
+
+
+# what job ran on a given node
+?? sacct -N n0[000-300].lr4
+?? get empty list :(
 
 </PRE>
 
@@ -615,6 +628,8 @@ slurmdUser 			# slurmd    user.
 <UL>
 	<LI> run <TT>scontrol reconfig</TT>  for slurmctld to read new config (eg adding new partitions) </LI>
 	<LI> There is <EM>NO</EM> need to run <TT>scontrol create partition ...</TT> as a command.  All partition info is generated from definition in the <TT>slurm.conf</TT> file.  Just remember to run reconfig cmd as above.</LI>
+	<LI>gres.conf needs to be configured for GPU.  use <TT>nvidia-smi topo -m</TT> to find out GPU:CPU binding</LI>
+	<LI></LI>
 </UL>
 
 
