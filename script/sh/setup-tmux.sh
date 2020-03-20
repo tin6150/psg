@@ -29,7 +29,8 @@ tmux set-option status-style bg=blue  # immediately before get the color treatme
 tmux split-window -v -d -t "m1"  'unset TMUX; tmux attach -dt s1; date'
 tmux split-window -v -d -t "m1"  'unset TMUX; tmux attach -dt s2'
 tmux split-window -v -d -t "m1"  'unset TMUX; tmux attach -dt s3'
-tmux select-layout -t m1 even-vertical  # ^b atl-2
+tmux kill-pane     -t m1
+tmux select-layout -t m1 even-vertical # ^b atl-2
 
 
 tmux kill-session -t m2  # kill the config before recreating them
@@ -38,7 +39,8 @@ tmux set-option status-style bg=magenta # immediately before get the color treat
 tmux split-window -v -d -t "m2" 'unset TMUX; tmux attach -dt s4'
 tmux split-window -v -d -t "m2" 'unset TMUX; tmux attach -dt s5' 
 tmux split-window -v -d -t "m2" 'unset TMUX; tmux attach -dt s6; date'
-tmux select-layout -t m1 even-vertical # ^b atl-2
+tmux kill-pane     -t m2
+tmux select-layout -t m2 even-vertical # ^b atl-2
 # still have an extra pane left over that i don't like... but not sure how to rid it 
 # good enough for now
 
