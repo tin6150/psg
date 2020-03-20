@@ -6,7 +6,7 @@
 SESSION_LIST="s1 s2 s3 s4 s5 s6" #used to name these as t7 t8 t9
 
 for SESSION in $SESSION_LIST; do
-	##tmux kill-session -t $SESSION    # kill old config (used in dev)
+	tmux kill-session -t $SESSION    # kill old config (used in dev)
 	tmux new-session -d    -s $SESSION   # -d for detache mode, just want to set them up in background 
 	tmux new-window -n lo      -t ${SESSION}:  -d  'echo "localhost";  date;      bash'
 	tmux new-window -n brc     -t ${SESSION}:  -d  'echo "ssh -Y brc.berkeley.edu"; ssh -Y brc.berkeley.edu; bash'
@@ -22,17 +22,19 @@ for SESSION in $SESSION_LIST; do
 done
 
 tmux set-option -g mouse off 
-tmux set-option status-style bg=cyan
 
-tmux kill-session -t m1  # kill the config before recreating them
+tmux kill-session -t m1  # kill the config before recreating them.  safe as just place holders
 tmux new-session  -d -A -s "m1"  # meta 1
+tmux set-option status-style bg=blue  # immediately before get the color treatment
 tmux split-window -v -d -t "m1"  'unset TMUX; tmux attach -dt s1; date'
 tmux split-window -v -d -t "m1"  'unset TMUX; tmux attach -dt s2'
 tmux split-window -v -d -t "m1"  'unset TMUX; tmux attach -dt s3'
 tmux select-layout -t m1 even-vertical  # ^b atl-2
 
+
 tmux kill-session -t m2  # kill the config before recreating them
 tmux new-session  -d -A -s "m2"  # meta 2
+tmux set-option status-style bg=magenta # immediately before get the color treatment
 tmux split-window -v -d -t "m2" 'unset TMUX; tmux attach -dt s4'
 tmux split-window -v -d -t "m2" 'unset TMUX; tmux attach -dt s5' 
 tmux split-window -v -d -t "m2" 'unset TMUX; tmux attach -dt s6; date'
