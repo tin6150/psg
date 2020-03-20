@@ -650,6 +650,13 @@ docker exec ApacheB ps -ef
 	# will run "ps -ef" inside the container, print output, and terminate the exec
 	# think of "ssh remotehost ps -ef" to run command w/o interactive shell in a remote environment
 
+# docker exec depends on a running container
+# to start a container with a specific command is done by specifying a different entrypoint. eg
+docker run --entrypoint "/bin/ls" ubuntu
+# but there seems to be some kernel issue, -v does not work
+docker run -v $HOME:/myhome --entrypoint "/bin/ls /myhome" ubuntu
+# fails miserably (on Zorin 12/Xenial or CentOS 7)
+
 </PRE>
 
 <H5>
@@ -824,6 +831,20 @@ docker run -p 80:80 -i -t --name ApachePsg_C tin6150/apache_psg_3a:dev2 httpd	# 
 </PRE>
 
 <H2>Other more advance topics</H2>
+
+<H3>X11 apps</H3>
+
+
+<PRE>
+echo $DISPLAY # :0.0
+xhost +
+docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix  tin6150/metabolic /usr/bin/xpdf
+</PRE>
+
+See:
+<LI> <A HREF="https://github.com/jessfraz/dockerfiles">https://github.com/jessfraz/dockerfiles</A>
+<LI> <A HREF="http://fabiorehm.com/blog/2014/09/11/running-gui-apps-with-docker/">Fabio's post</A>
+<BR><BR>
 
 <H3>Docker Data Volume</H3>
 

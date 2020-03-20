@@ -158,6 +158,10 @@ git branch --list -v    	# list branches and descriptioins
 git checkout -b issue123	# create a branch and switch to it at the same time (?)
 git push -u origin issue123	# push the local branch "issue123" to origin (github) [can push branch tag up upstream even when there are 0 commits]
 
+git branch -d       issue123		# delete local branch
+git branch --delete issue123		# delete local branch FORCEFULLY ie, even if NOT merged or pushed yet
+git push origin --delete issue123	# delete remote branch 
+
 
 git tag -a  v0.5   2128f04 -m "eg of adding a tag at a specific commit point"
 git push --tags  origin master

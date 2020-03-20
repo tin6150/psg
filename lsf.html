@@ -430,7 +430,11 @@ scontrol create reservation start=2018-01-10T12:25 end=2018-01-13 user=tin,meli 
 # can have overlapping reservation (eg same set of nodes reserved with different name across time that have overlap
 # presumably then scheduler accept job as per reservation, then schedule as a resource sharing exercise.
 
+scontrol update reservation=rn_666 EndTime=2020-02-03T11:30
+# change end time of reservation
+
 scontrol delete reservation=rn_666
+
 
 sbatch --reservation=rn_666 ...	# submit a job run under reservation
 
