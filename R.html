@@ -113,6 +113,12 @@ Rscript --quiet -e 'install.packages("ggplot2",  repos = "http://cran.us.r-proje
 Rscript --quiet -e 'install.packages(c("aCRM", "akima", "broom", "cluster", "clusterCrit"), repos = "http://cran.us.r-project.org")'
 
 
+Rscript --quiet --no-readline --slave ...
+	# --quiet is same as --silent 
+	# --slave was to make R run as quietly as possible 
+	# --no-readline hopefully do less drawing on screen and make install log more readable...
+	# there isn't a --no-verbose or --no-interactive
+
 
 install many packages in single command:
 https://stackoverflow.com/questions/29041423/how-to-install-multiple-packages
@@ -122,14 +128,15 @@ install.packages(c("EIAdata", "gdata", "ggmap", "ggplot2")) # rest omitted
 have not tried yet:
 install.r EIAdata gdata ggmap ggplot2    # rest omitted again
 
+</PRE>
 
+<!--
 list from (not optimized)
 cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | grep library |  awk -F: '{print "\"" $2}' | sort -u  |  cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | grep library |  awk -F: '{print "\"" $2 "\""}' | sort -u  | xargs | sed 's/ /\", \"/g'
 
+-->
 
 
-
-</PRE>
 
 
 

@@ -2303,6 +2303,8 @@ apt-get update				# update repository db
 apt-get -d install perl-Compress-Zlib	# install a specific package
 					# -d = download only, stored in /var/cache/apt/archives
 
+apt-get -y install		# answer yes.  DEBIAN_FRONTEND=noninteractive dont always stop the questioning :/
+
 aptitude search foo			# kinda equiv to yum list | grep foo
 aptitude install foo			# equiv to yum install foo
 aptitude show genome-music		# brief info about pkg
@@ -2951,7 +2953,7 @@ https://wiki.debian.org/SELinux/Setup</A>
 <PRE>
 
 apt-get install selinux-basics selinux-policy-default auditd 
-apt-get istall setools	# may have lots of dependencies in older debians
+apt-get install setools	# may have lots of dependencies in older debians
 
 download script from https://wiki.debian.org/SELinux/Setup?action=AttachFile&do=view&target=_load_selinux_policy
 
