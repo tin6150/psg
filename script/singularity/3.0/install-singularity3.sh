@@ -1,16 +1,15 @@
 
 #https://sylabs.io/guides/3.0/user-guide/installation.html#install-from-source
 
-
-#export VERSION=3.0.3 && # adjust this as necessary \
-
-# 3.5.3 is latest on 2020-03-26
+# ran on fed888xxx (xubuntu upgraded to 20.04 instance) 2020.0330
 
 ### pfff... no go 1.13 in this ubuntu 18.04 box :(
-### then ubuntu 20.04 don't have a singularity-container in apt yet?!
+### and ubuntu 20.04 don't have a singularity-container in apt yet?!
 
 export GOPATH=/opt/go
 
+#export VERSION=3.0.3 && # adjust this as necessary \
+# 3.5.3 is latest on 2020-03-26
 export VERSION=3.5.3 # adjust this as necessary 
 
     mkdir -p $GOPATH/src/github.com/sylabs 
