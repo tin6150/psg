@@ -83,6 +83,20 @@ sudo singularity build ./ansys.sif ./Singularity
 # cd /tmp (or other dir that is root writable)
 sudo singularity build --sandbox ./ansys.sif ./Singularity  2>&1 | tee singularity_build.log
 
+
+
+# pull has a centralized cache, but image still be written to `pwd` multiple times 
+singularity pull shub://tin6150/r4eta    
+singularity pull --name myR shub://tin6150/r4eta # store in pwd, 
+singularity cache list -v
+
+singularity exec myR 
+singularity exec myR bash
+singularity exec myR rstudio
+singularity exec shub://tin6150/r4eta rstudio
+
+
+
 </PRE>
 
 
