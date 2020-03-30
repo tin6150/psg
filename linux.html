@@ -2303,7 +2303,8 @@ apt-get update				# update repository db
 apt-get -d install perl-Compress-Zlib	# install a specific package
 					# -d = download only, stored in /var/cache/apt/archives
 
-apt-get -y install		# answer yes.  DEBIAN_FRONTEND=noninteractive dont always stop the questioning :/
+
+apt-get -y --quiet install DEBname   # answer yes.  DEBIAN_FRONTEND=noninteractive dont always stop the questioning :/
 
 aptitude search foo			# kinda equiv to yum list | grep foo
 aptitude install foo			# equiv to yum install foo
@@ -2313,7 +2314,8 @@ cat/var/lib/dpkg/info/genome-music.list # list files installed by a given packag
 
 dselect
 dpkg -l					# list installed packages (.dpkg) = rpm -qa
-dpkg -i					# rpm -ivh
+dpkg -i file.deb		# rpm -ivh
+apt-get install ./file.deb	# probably better, solve dependencies
 
 dpkg  --search file			# find which package has file
 rpm    -qif    file
@@ -3061,6 +3063,29 @@ see
 on steps to rid old nvidia.ko
 
 <BR>
+
+<H2>ANSI escapes</H2>
+
+<PRE>
+Ansi is the most common escape sequence to draw colors on screen.
+more colorfile.txt will parse them correctly.
+less colorfile.txt does not (yet) display file with color.  to rid them:
+
+cat colorfile.txt | strip-ansi | less
+
+npm install --global strip-ansi-cli
+
+sed can likely remove them, but not as easy as above.
+
+vt100 dont support color, but still support ncurses/readline to draw character on screen  (?)
+
+docker build, 
+Rscript install
+apt-get install
+are tools that tend to draw on screen and make for very annoying logs :/
+
+
+</PRE>
 
 <BR><BR>
 <A NAME="VendorSpecific"></A>
