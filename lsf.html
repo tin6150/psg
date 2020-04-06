@@ -1,5 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- vi : set tabstop=8 -->
+<!-- vim: tabstop=8 
+    # as that's how browser renders it -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -176,7 +177,9 @@ salloc			# run interactive job, asking scheduler to allocate certain resources t
 salloc bash		# get a bash shell in intertive mode with req resource
 
 srun			# Typically for MPI job, create job allocation, launch job step.
-srun --pty -p lr3 -A scs --qos=lr_normal -N 1 -t 0:59:00 /bin/bash  # interactive bash shell for 59 min on 1 Node.
+srun --pty -p lr3        -A scs --qos=lr_normal    -N 1      -t 0:59:00     /bin/bash  # interactive bash shell for 59 min on 1 Node.
+srun --pty -p savio2_gpu -A scs --qos savio_normal -N 1 -n 1 -t 60 --gres=gpu:1  bash  # requesting gpu node as gres
+
 
 sattach			# connect to the stdin, stdout and stderr of a job or job step
 
@@ -218,7 +221,7 @@ what account I am in?  what partitions are there?  What QoS are there?
 
 sacctmgr show assoc user=USERNAME format=acc,part,qos	# list account, partition, QoS for the specified USERNAME
 sacctmgr show associations -p user=USERNAME	 	# see what associations a specified user has been granted, -p = "parsable"
-sacctmgr show qos format=name			    	# list QoS
+sacctmgr show qos -p format=name		    	# list QoS
 scontrol show partition					# list "queues"
 
 
