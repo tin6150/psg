@@ -115,6 +115,14 @@ Note that :: is used as directory separator from the "library root dir".  eg
 use Bio::Perl::foo;
 should find something in $PERL5LIB/Bio/Perl/foo.pm
 </PRE>
+Checking @INC for PERL5LIB
+<PRE>
+       checking PERL5LIB @INC
+        env -i perl -V    # ignores the PERL5LIB env var
+        env    perl -V
+		both should return the same output, but if root's env got inherited, clear it with something like <TT>export PERL5LIB=''</TT>
+
+</PRE>
 
 <H2>One-Liner PERL in shell as AWK replacement</H2>
 

@@ -283,7 +283,13 @@ squeue -o "%N %l"	# specify output format %N = node, %l = time left
 			# def for -l, --long:  "%.18i %.9P %.8j      %.8u %.8T %.10M %.9l %.6D %R"   
 			# def for -s, --steps: "%.15i      %.8j %.9P %.8u      %.9M       %N"
 
-squeue --sort N -o "%.18i %.9P %.8j %.8u %.8T %.10M %.9l %.6D %R %l"  # %l = time limit
+squeue --sort N -o "%.18i %.9P %.8j %.8u %.8T %.10M %.9l %.6D %R"     
+squeue --sort N -o "%R %.6D %.14P  %.18i %.8j %.14u %.8T %.10M %.9l" 
+# %R is node name, but could be multiple, or absent not RUNNING yet.
+# %j is job name
+# %u is username
+# %T is state info (RUNNING, PENDING, etc)
+# %l = time limit
 
 smap			# topology view of system, job and job steps.  (new tool that combine sinfo and squeue data)
 sview			# new GUI:   view + update on sys, job, step, partition, reservation, topology

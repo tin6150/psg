@@ -5,7 +5,7 @@ github support .rst just as well as .md
 Can use README.rst as default rather than README.md.
 
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
-Thus, pay special attention to ``code blocks``
+Thus, pay special attention to ``verbose text``
 (actually, tailing underline after word seems to be the culprit)
 
 
@@ -177,6 +177,18 @@ So, just like normal text <BR>
 Use html markdup of "br" <BR>
 to mean hard break of line?
 Nope.  RTFM!
+
+hard new line in rst need to be prefixed in an annoying way.
+
+| the pipe in the beginning indicate where line breaks are
+| another line
+
+another trick was to use raw HTML, but that's for web rendering only.  see
+https://stackoverflow.com/questions/51198270/how-do-i-create-a-new-line-with-restructuredtext/51199504
+
+.md allow use of \
+at end for hard line break
+or the double space at end, which works, except it is invisible and some text editor automatically stripe end white space.
 
 
 ----
@@ -410,3 +422,41 @@ trying raw, it gets reverse text block in github.
 	
 
 back to normal
+
+
+
+
+
+still here?
+-----------
+
+
+wow, apparently i wrote a lot before.  or pasted a lot... \
+a lot of stuff in middle are dealing with lists
+
+
+Files location
+==============
+
+location of .rst and .md files are in 2 places so that I can see how it got rendered
+  - psg/reStructuredText_markup.rst
+  - https://github.com/tin6150/inet-dev-class/rst_md
+
+  actually no, don't want to maintain 2 copies.  just mv to inet-dev-class.
+
+
+Example os .rst that I maintain
+====================================
+
+ones that I think has features I wondered how they would work out...
+
+* https://github.com/tin6150/covid19_care_capacity_map 
+   - glossary term, really just to force indent block of text.  messy, no way to do hard line break, so easier to just use lots of nested bullet lists
+   
+
+
+comments
+--------
+
+.. this is comment line in rst, ie, not displayed
+.. so vim modeline is set as rst comment
