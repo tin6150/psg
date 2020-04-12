@@ -247,17 +247,7 @@ Use html markdup of "br" <BR>
 to mean hard break of line?
 Nope.  RTFM!
 
-hard new line in rst need to be prefixed in an annoying way.
-
-| the pipe in the beginning indicate where line breaks are
-| another line
-
-another trick was to use raw HTML, but that's for web rendering only.  see
-https://stackoverflow.com/questions/51198270/how-do-i-create-a-new-line-with-restructuredtext/51199504
-
-.md allow use of \
-at end for hard line break
-or the double space at end, which works, except it is invisible and some text editor automatically stripe end white space.
+**> no good solution, see reStructuredText_hard_line_break.rst <**
 
 
 ----
