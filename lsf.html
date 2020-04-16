@@ -176,9 +176,10 @@ sbatch	myscript	# submit script to run in batch mode
 salloc			# run interactive job, asking scheduler to allocate certain resources to it
 salloc bash		# get a bash shell in intertive mode with req resource
 
-srun			# Typically for MPI job, create job allocation, launch job step.
-srun --pty -p lr3        -A scs --qos=lr_normal    -N 1      -t 0:59:00     /bin/bash  # interactive bash shell for 59 min on 1 Node.
-srun --pty -p savio2_gpu -A scs --qos savio_normal -N 1 -n 1 -t 60 --gres=gpu:1  bash  # requesting gpu node as gres
+srun			    # Typically for MPI job, create job allocation, launch job step.
+srun --pty -p lr3           -A scs --qos=lr_normal    -N 1      -t 0:59:00     /bin/bash  # interactive bash shell for 59 min on 1 Node.
+srun --pty -p savio2_gpu    -A scs --qos savio_normal -N 1 -n 1 -t 60 --gres=gpu:1  bash  # requesting gpu node as gres
+srun --pty -p savio3_2080ti -A scs --qos savio_normal -n 2 -t 60  hostname
 
 
 sattach			# connect to the stdin, stdout and stderr of a job or job step

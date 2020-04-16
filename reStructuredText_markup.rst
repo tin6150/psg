@@ -40,15 +40,22 @@ location of .rst and .md files are in 2 places so that I can see how it got rend
 *PSG version will be master*.  inet-dev-class is a cache (and not really needed, as error in rst will cause github not to render in both places, so just need to fix the error!).  
 
 
-Example of .rst that I maintain
-===============================
+Example of .rst that I maintain to look for constructs
+======================================================
 
 ones that I think has features I wondered how they would work out...
 
+* https://github.com/tin6150/inet-dev-class/tree/master/mapbox/README.rst
+    - this was pretty extensive, one of the longer .rst that I tried to make for good reading.  
+    - tagging for json5 code block
+    - image
+
 * https://github.com/tin6150/covid19_care_capacity_map 
    - glossary term, really just to force indent block of text.  messy, no way to do hard line break, so easier to just use lots of nested bullet lists
+   - comment, vim: modeline
    
 
+* the set of reStructuredText*rst files in this PSG dir for various trial ground
 
 
 References

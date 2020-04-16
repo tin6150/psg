@@ -17,6 +17,10 @@ https://stackoverflow.com/questions/51198270/how-do-i-create-a-new-line-with-res
 at end for hard line break
 or the double space at end, which works, except it is invisible and some text editor automatically stripe end white space.
 
+.. .md two tailing white spaces cannot cause a hard line break  
+.. nor can \ 
+.. i wondered about: \^M at the end, but that didnt work either
+
 
 
 old notes
