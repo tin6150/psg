@@ -83,6 +83,8 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 	git clone https://tin6150@github.com/tin6150/inet-dev-class
+	git clone https://tin6150@github.com/tin6150/adjoin
+	git clone https://tin6150@github.com/tin6150/covid19_care_capacity_map
 	git clone https://tin6150@github.com/tin6150/a51		# private repo, encrypted content.  formerly area51
 
 	### VMware tools as ansible role fork (so as not get updte unless manually checked)
@@ -335,6 +337,13 @@ macOS_setup()
 	## analyze, but okay to try on new laptop :):
 	## My dotfiles are also installed into the current user's home directory, including the .osx dotfile for configuring many aspects of macOS for better performance and ease of use. You can disable dotfiles management by setting configure_dotfiles: no in your configuration.
 
+}
+
+
+npm_package_install()
+{
+	sudo npm install --global json5
+	sudo npm install --global d3-geo-projection # geo2svg test geojson
 }
 
 
