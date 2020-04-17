@@ -1202,6 +1202,27 @@ http://ganglia.sourceforge.net/</A>
 <BR><BR>
 
 
+<H2>Stress test</H2>
+Burn in test, load machine up to see power utilization, etc.
+
+<PRE>
+
+stress    --cpu 2		# some stats are reported
+
+stress-ng --cpu 4 --all # --all = parallel run of all tests 
+
+
+7z 
+	apt install p7zip-full
+	7z b --mmt1				# multi-threaded benchmark via 7z compression alg, report MIPS.
+
+</PRE>
+
+
+For single machine with display, consider
+<LI> s-tui
+<PRE>
+</PRE>
 
 <!-- tcpdump.ref -->
 <!-- ethereal.ref -->

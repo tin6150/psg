@@ -270,9 +270,10 @@ sinfo -R -S %n		# output sorted by nodelist
 alias sinfo-N='sinfo --Node --long --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
     # -N is node centric, ie one node per line, has to be first arg
     # -p PARTNAME  # can add this after aliased command instead of using grep for specific queue
-    # %f = feature
 
 alias sinfo-f='sinfo --Node --long --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
+    # %f = feature eg savio3_m1536, which is 16x more ram than savio3_m96
+    # feature name change to ponder: 4x1080ti, 2xV100, 4x2080ti, 8xTitanRTX  (do we always get Ti version?) but may not want to change savio2, maybe only add to it
 
 alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # -Sorted by rEason (oper input reason=...) ##slurm
     # %E is comment/reason, unrestricted in length.  
