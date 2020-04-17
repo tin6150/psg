@@ -1,4 +1,7 @@
 <html>
+<!-- vim: tabstop=8 shiftwidth=8 noexpandtab paste
+browser render tab as 8 spaces for html PRE
+-->
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
   <title>Pocket Survival Guide - Linux</title>
@@ -3636,20 +3639,84 @@ iso2usb - making bootable usb thumbdrive from .iso
 
 <PRE>
 
-windoze
-=======
+CentOS 8, 7, 6.5 and newer
+--------------------------
 
-* LiLi, was old favorite, but stopped working for CentOS 7 or 8 iso
-* Fedora writer, easy to work, but whole USB overwritten and becomes read only :(
-* Unetbootin (win/linux/mac).  Write to existing FAT32, make it bootable.
-  Seems a bit slow?  http://unetbootin.github.io/
-* PS.  DVD sizes are: 4.7, 8.5, 9.4, 17.08 GB.  So, maybe create a partition of 18GB for hosting such boot media.
+Need dd, their iso format has a portion that windows cannot copy correctly.
+dd if=centos.iso of=/dev/sdz
+
+must write to the whole usb, not a partition in it!  ie, can't use /dev/sdz1
+so will need to dedicate a whole usb key to it.
+
+see https://wiki.centos.org/HowTos/InstallFromUSBkey
+
+Resulting image looks like (partition is read only, and extra space on usb is wasted):
+
+    Disk /dev/sdc: 15.1 GiB, 16170196480 bytes, 31582415 sectors
+    /dev/sdc1  *        0 15335423 15335424  7.3G  0 Empty
+    /dev/sdc2       23772    44151    20380   10M ef EFI (FAT-12/16/32)
+
+    /dev/sdc1 on /media/tin/RHEL-8-1-0-BaseOS-x86_64 type iso9660 (ro,nosuid,nodev,relatime,nojoliet,check=s,map=n,blocksize=2048,uid=43413,gid=100,dmode=500,fmode=400,uhelper=udisks2)
+
+
+Fedora Media Writer for windows work, easy, but overwrite whole USB and create read-only FS (or is it ext2?).
+  It likely use dd underneath.
+
 
 
 Linux
 =====
 
-dd if=some.iso of=/dev/sdb  dont work??
+* UNetbootin ? works for ubuntu?  
+
+* livecd-iso-to-disk said can preserve files on usb 
+    - https://docs.fedoraproject.org/en-US/quick-docs/creating-and-using-a-live-installation-image/index.htm]
+
+* etcher for ubuntu... work for fedora.iso ? ... 
+    - https://itsfoss.com/create-fedora-live-usb-ubuntu/
+    - appImage (multiplatform), GUI.
+    - on Ubuntu 18.04, wiped the whole USB and created an iso9660 RO FS
+      resulting usb has single partition, of type 17: Hidden HPFS/NTFS
+      /dev/sdd1  *        0 3710975 3710976  1.8G 17 Hidden HPFS/NTFS
+      may as well just use dd?  it does "label" the disk, eg: /media/tin/SL-75-x86_64-LiveDVDgnome
+
+
+
+
+* live-iso
+
+
+SL7 could use dd, but also have other options listed in  http://www.livecd.ethz.ch/usbdisk.html
+
+* live usb creator gui -
+  yum --enablerepo=sl-addons install liveusb-creator
+
+
+livecd-tools (cli)
+------------------
+
+for SL7 can be found here: http://www.livecd.ethz.ch/download/RPMS/7x/x86_64/
+
+livecd-iso-to-disk SL-64-i386-2013-04-17-LiveCD.iso /dev/sdb1
+
+To reserve space for data persistence use option --overlay-size-mb: 
+livecd-iso-to-disk --overlay-size-mb 1024 SL-64-i386-2013-04-17-LiveCD.iso /dev/sdb1
+
+
+
+
+
+
+windoze tools
+=============
+
+* LiLi, was old favorite, but stopped working for CentOS 7 or 8 iso.  maybe okay for ubuntu/debian.
+  lili writes to existing FAT32 partition, so could use the usb for regular storage as well.
+* UNetbootin (win/linux/mac).  Write to existing FAT32, make it bootable.
+  Seems a bit slow?  http://unetbootin.github.io/
+  Cant work for Centos 7 iso.
+* PS.  DVD sizes are: 4.7, 8.5, 9.4, 17.08 GB.  So, maybe create a partition of 18GB for hosting such boot media.
+
 
 
 </PRE>

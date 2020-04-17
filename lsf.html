@@ -267,8 +267,18 @@ sinfo -R -S %E		# output sorted/grouped by Reason
 sinfo -R -S %H		# output sorted by timestamp 
 sinfo -R -S %n		# output sorted by nodelist
 
-sinfo -R -S %E --format="%9u %19H %6t %N %E"	# %E is comment/reason, unrestricted in length.  -Sorted by rEason  ## not history
-sinfo -N -R -S %E --format="%N %6t %19H %9u %E" # -N produce node centric output (1 node per line for scripting, -N has to be the first argument)
+alias sinfo-N='sinfo --Node --long --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
+    # -N is node centric, ie one node per line, has to be first arg
+    # -p PARTNAME  # can add this after aliased command instead of using grep for specific queue
+    # %f = feature
+
+alias sinfo-f='sinfo --Node --long --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
+
+alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # -Sorted by rEason (oper input reason=...) ##slurm
+    # %E is comment/reason, unrestricted in length.  
+    # once -R is used, it preced -N, but this output is good for sorting by symptoms
+
+
 
 
 squeue			# status of job and job steps, TIME means job running time so far
