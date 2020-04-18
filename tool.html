@@ -1202,19 +1202,87 @@ http://ganglia.sourceforge.net/</A>
 <BR><BR>
 
 
+<A NAME="stress"></A>
 <H2>Stress test</H2>
+
 Burn in test, load machine up to see power utilization, etc.
 
 <PRE>
 
-stress    --cpu 2		# some stats are reported
+stress --cpu  60 -t 60s	   		## 152 W 
+stress --cpu  64 -t 60s	   		## 160 W 
+stress --cpu 200 -t 60s	   		## 160 W 
+stress --vm  60 -t 60s 			## 216W on knl savio2 # idle = 96W
+stress --vm  64 -t 180 			## 240W
+stress --io  60 -t 60s 			## 144W 
+stress --hdd 60 -t 60s 			## 112W
+stress --io 4 --hdd 2 --vm  8 --cpu 50 -t 60s  ## 160W
+stress --io 4 --hdd 2 --vm  50 --cpu  50 -t  60s  ## 240W
+stress --io 6 --hdd 2 --vm  64 --cpu  64 -t 180s  ## 240W  # max power usage when cpu match core counts ***
+stress                --vm 128 --cpu 128 -t 120s  ## 232W  #didnt crash :P
+stress                --vm 128 --cpu  32 -t 120s  ## 224W
+stress --io 32        --vm 128 --cpu  32 -t 120s  
+stress --io 256 --hdd 2 --vm 256 --cpu  64 -t 120 ## 216W #didnt crash :P
+stress --io   6 --hdd 2 --vm  64           -t 120 ## 240W #dont need to hog cpu, vm will take care of it, io was matched to number of memory channel
+## actually, just --vm matching number of cores pretty much reach peak power, --io, --hd don't add to power load once it is peaked.
+
+## linkpack likely only used 208W
+
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t 120
+
+# each number after the test is number of worker
+# io test and virtual memory test automatically trigger substantial load on cpu already
+# -t 60s =  limit test to 60 sec 
+
+
+while [[ 1 == 1 ]] ; do ipmitool sensor | grep -i watt ; sleep 5; done
+while [[ 1 == 1 ]] ; do ipmitool sensor|egrep -i watt\|amp; lscpu|grep MHz; sleep 5; done
+
+
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t 120 ## 406W on savio3 bigmem (idle=182W)
+	# 406 W with --vm 64 or 32
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t 120  ## 25 Amp on n0098.savio2 (idle=6A/30W)
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 20 -t 120s ## 25 Amp on n0098.savio2 
+	# 25A * 12V = 300W.  6A * 5V = 30W
+	# -t 120 or -t 120s didn't stop process on savio1 :/
+	# process linger even after ^C .  kill -9 dont work either, had to reboot!
+
 
 stress-ng --cpu 4 --all # --all = parallel run of all tests 
 
+T=60; singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress-ng --cpu 63 --backoff 15 --timeout ${T}  --tz --log-brief # 176W # don't see hdd access
+T=60; singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress-ng --all  1 --backoff 15 --timeout ${T}  --tz --log-brief # keeps crashing :(
+
+cd /local/scratch/tin/tmp
+stress-ng --all 1 --backoff 15 --timeout 120s  --tz --log-brief 
+	# --all 1 : all tests, 1 worker (enough to cause crazy high uptime)
+rm /local/scratch/tin/tmp/stress* 
+
+stress-ng is newer, but didn't work on the knl node (at least not --all 1)
+or did not use more power than stress test, so didn't bother.
+maybe --vm would use more power... i dont need the stats from it
+old stress dont leave files behind needing clean up ^_^
+
+
 
 7z 
-	apt install p7zip-full
+	apt install p7zip-full  # 7z
+	yum install p7zip       # 7za
 	7z b --mmt1				# multi-threaded benchmark via 7z compression alg, report MIPS.
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
+# need to loop it for stress test, as (b)enchmark finishes quickly
+# there are some idle time, Power ranged 144-160W
+# so not as good of power load test as "stress"
+
+
+
+mprime 
+	no ready yum package
+	finding prime was said to be good exercise for cpu/ram
 
 </PRE>
 
