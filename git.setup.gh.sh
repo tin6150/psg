@@ -342,6 +342,8 @@ macOS_setup()
 
 npm_package_install()
 {
+	# no npm, maybe should put this in ansible playbook 
+	echo "Running sudo npm install --global ..., provide sudo password next..." 
 	sudo npm install --global json5
 	sudo npm install --global d3-geo-projection # geo2svg test geojson
 }
@@ -349,8 +351,9 @@ npm_package_install()
 
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
-#+run_git_clone
+run_git_clone
 create_links
+#npm_package_install
 
 #macOS_setup ## cmd tried, but fn untested.
 
