@@ -3599,6 +3599,42 @@ http://www.cyberciti.biz/tips/top-linux-monitoring-tools.html has good overview.
 </PRE>
 
 
+<A ID="difftools"></A>
+<H5>
+diff tools
+</H5>
+
+<PRE>
+
+vimdiff    file1.txt file2.txt          # character-based side-by-side diff, handle up to 4 files.
+					# always default to side by side diff.
+                                        # ^w J = vertical split   (toggle)
+                                        # ^w H = horizontal split 
+
+
+vim -o A.txt B.txt C.txt will open three horizontal splits for each file.
+vim -O A.txt B.txt C.txt will open three vertical splits for each file
+
+
+- fldiff # X, side by side, opt to ignore space, best diff so far ## avail in  wsl, zorin, not in centos7
+- meld # lots of deps on KDE or Qt?  but new version is very good.  fairly close to github web diff.  only side by side diff. 
+- icdiff # text color sdiff by char, very nice (but no ignore space) ## not in zorin, ubuntu?
+
+
+- dwdiff # doesnt seems to be in centos7
+- colordiff # -yw for side and ignore space, but not too good
+
+- kdiff3,  GUI, up to 3 files diff? can't handle large diff.  depends/install kde-runtime 
+- kdiff3-qt # lots of qt stuff needed
+
+- mgdiff # clone of xdiff, old school X, no ignore space option
+- xxdiff # directory diff and merge tool
+- wdiff  # gnu word diff
+- docdiff
+
+
+</PRE>
+
 
 <A ID="minicom"></A>
 <H5>

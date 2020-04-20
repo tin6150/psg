@@ -54,6 +54,9 @@ ones that I think has features I wondered how they would work out...
    - glossary term, really just to force indent block of text.  messy, no way to do hard line break, so easier to just use lots of nested bullet lists
    - comment, vim: modeline
    
+* CF_BK/cueball/ANSIBLE/README.rst 
+   - meta tags like :url: 
+   - rest of it likely not good render 
 
 * the set of reStructuredText*rst files in this PSG dir for various trial ground
 
