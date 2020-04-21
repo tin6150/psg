@@ -9,31 +9,47 @@
 #### also for power/stress test.
 ####
 
+#### slurm-allnodes-lr5.sh has the most notes as of 2020.04
+#### slurm-job.sh, slurm-script-eg.sh are simple versions.
+#### slurm-job-cf1.sh should have been clean version for a specific partition
 
-#SBATCH         	--job-name=allNodeTest    # CLI arg will overwrite this
-#               	CPU time:
-#SBATCH         	--time=605
-#      		      	Wall clock limit in HH:MM:ss
-# 	#SBATCH       	--time=00:10:00
-#SBATCH         	--partition=savio3
-#	#SBATCH        	--partition=cf1
-# 	#SBATCH       	-n 4
-#	#SBATCH        		--qos=cf_normal
-#	#SBATCH       		--qos=lr_lowprio
-#	#SBATCH        		--qos=lr_normal # cf_normal
-#SBATCH        		--qos=savio_normal 
-#SBATCH         	--account=scs
-# 	#SBATCH       	--ntasks=2
-# 	#SBATCH       	--mail-type=all
-#	#SBATCH       	--mail-type=END,FAIL
-#SBATCH         	--mail-type=FAIL
-#	#SBATCH         --mail-type=NONE
-#SBATCH         	--mail-user=tin@berkeley.edu
-#	#SBATH         	--mail-user=tin@lbl.gov
-# 	#SBATCH       	-N 3
-#	#SBATCH        	-o  slurm_testnode_%N_%j.txt
-# 	#SBATCH       	-o  junkable_slurm_out_cf1.txt
-#SBATCH         	-o  sn_%N_%j.out
+
+#SBATCH				--job-name=allNodeTest    # CLI arg will overwrite this
+#					CPU time:
+#SBATCH				--time=605
+#					Wall clock limit in HH:MM:ss
+#	#SBATCH			--time=00:10:00
+#   oh don't remember all the diff b/w -n -N --nodes=...   rtfm 
+#   --nodes=2 --ntasks=8 --cpus-per-task=2 would span 2 nodes and give 4 tasks per node # https://research-it.berkeley.edu/services/high-performance-computing/running-your-jobs
+#	#SBATCH			-n 3
+#	#SBATCH			-N 3
+#	#SBATCH			--ntasks=2
+#	#SBATCH			--nodes=4
+#	#SBATCH			--qos=cf_normal
+#	#SBATCH  		--qos=lr_lowprio
+#	#SBATCH  		--qos=lr_normal # cf_normal
+#SBATCH				--qos=savio_normal 
+#SBATCH				--account=scs
+
+#SBATCH				--partition=savio3
+#	#SBATCH			--partition=cf1
+
+#### gpu gres request
+#   #SBATCH         --partition=savio2_gpu
+#   #SBATCH         --gres=gpu:2
+
+## #SBATCH --constrain=savio2_1080ti   # feature in slurm.conf
+
+
+#	#SBATCH			--mail-type=all
+#	#SBATCH			--mail-type=END,FAIL
+#   #SBATCH			--mail-type=FAIL
+#SBATCH  			--mail-type=NONE
+#SBATCH				--mail-user=tin@berkeley.edu
+#	#SBATCH			--mail-user=tin@lbl.gov
+#	#SBATCH			-o  slurm_testnode_%N_%j.txt
+#	#SBATCH			-o  junkable_slurm_out_cf1.txt
+#SBATCH				-o  sn_%N_%j.out
 
 # %j is for jobid (eg 128)
 # %J is for jobid.stepid (eg 128.0)
@@ -98,7 +114,7 @@ singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr
 
 ) > $OUTFILE
 
-exit 007			#### comment out if want to run more test!                       ####
+exit 0			#### comment out if want to run more test!                       ####
 
 ################################################################################
 ##### setup and run test in specific dir
