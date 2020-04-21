@@ -9,7 +9,8 @@
 #SBATCH --account=scs
 #SBATCH --nodes=2
 #SBATCH --mem-per-cpu=2G 
-#SBATCH --time=02:30:00
+#SBATCH --time=00:09:59
+####SBATCH --time=02:30:00
 
 # submit as 
 # sbatch --partition=savio2 -N 1 --account=scs --qos=savio_debug ./slurm-job.sh

@@ -6,6 +6,7 @@
 #### test slurm job scheduling/running abilities
 #### and node abilities to run job
 #### see bottom for submission command against all nodes using sbatch -w 
+#### also for power/stress test.
 ####
 
 
@@ -48,13 +49,39 @@
 
 LOGDIR=/global/scratch/tin/JUNK/
 MAQ=$(hostname)
-hostname > $LOGDIR/$MAQ
+OUTFILE=$LOGDIR/$MAQ.out.rst
+#hostname > $LOGDIR/$MAQ
 
+# run whole thing in subshell to capture output to a file
 
-echo ----uptime-----------------------------------
-uptime
+(
+echo ----hostname-----------------------------------
+echo -n "hostname: " 
+hostname 
 echo ----date-----------------------------------
 date
+
+echo ---------------------------------------
+echo ---------------------------------------
+echo ----pwd; df -h /tmp -----------------------------------
+echo -n "pwd: "
+pwd
+df -h /tmp 
+echo ----df-hl------------------------------
+df -hl
+echo -----proc-mounts----------------------------------
+cat /proc/mounts
+
+echo ----uname-r----------------------------------
+echo -n "uname -r: " 
+uname -r
+echo ----os-release----------------------------------
+cat /etc/os-release
+echo ----uptime-----------------------------------
+uptime
+
+
+
 echo ----free-m----------------------------------
 free -m
 echo ----swapon-s-----------------------------------
@@ -66,7 +93,9 @@ numactl -s
 echo ---------------------------------------
 echo ---------------------------------------
 
-#exit 007			#### comment out if want to run more test!                       ####
+) > $OUTFILE
+
+exit 007			#### comment out if want to run more test!                       ####
 
 ################################################################################
 ##### setup and run test in specific dir
@@ -102,26 +131,10 @@ time -p dd if=/dev/zero of=./dd.${HNAME}.out bs=1024 count=2
 
 echo ---------------------------------------
 echo ---------------------------------------
-echo ----hostname-----------------------------------
-echo -n "hostname: "
-hostname
-echo ----pwd-----------------------------------
-echo -n "pwd: "
-pwd
-echo ----uname-r----------------------------------
-echo -n "uname -r: " 
-uname -r
-echo ----os-release----------------------------------
-cat /etc/os-release
-echo ----df-hl------------------------------
-df -hl
-echo -----proc-mounts----------------------------------
-cat /proc/mounts
 echo ----uptime-----------------------------------
-uptime
-
-echo ---------------------------------------
-echo ---------------------------------------
+uptime 
+echo ----date-----------------------------------
+date
 echo "date before sleep"
 date
 sleep 180
@@ -163,4 +176,19 @@ exit 0
 #        sbatch -w n${T}.savio3 --job-name=N${T}_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
 #                                                       # or /global/home/users/tin/sn-gh/psg/script/hpc/slurm-allnodes-lr5.sh
 #done
+
+
+#for T in $(seq -w 0279 0281); do
+for T in $(seq -w 0236 0237); do
+        sbatch -w n${T}.savio2 --job-name=N${T}_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+done
+
+
+## example submit to idle nodes only
+## see slurm-allIdle-brc.sh  for more elaborate test?
+NODELIST=$( sinfo --Node --long --format '%N %.8t' | awk '/idle/ {print $1}' | tail -2 )
+for NODE in $NODELIST; do
+	echo "sbatching to $NODE"
+	sbatch -w n${NODE} --job-name=${NODE}_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+done
 
