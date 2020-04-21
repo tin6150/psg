@@ -4,7 +4,7 @@
 # to load them up to test power util
 # tin 2020.0419
 
-# ./slurm-allIdle-brc.sh | tee ./slurm-allIdle-brc.runme.sh
+# ./submit-slurm-allIdle-brc.sh | tee ./submit-slurm-allIdle-brc.runme.sh
 # so that have a record of all the nodes to execute jobs, and clean up afterward as necessary
 # though could likely get from squeue.
 
@@ -25,7 +25,7 @@ for PARTITION in $PARTITION_LIST; do
 		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
 		for NODE in $NODELIST; do
 			#echo "##  sbatching partition: $PARTITION for node: $NODE"
-			echo sbatch -w ${NODE} --partition=$PARTITION --ntasks=2 --gres=gpu:1 --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+			echo sbatch -w ${NODE} --partition=$PARTITION --ntasks=2 --gres=gpu:1 --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 			##echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
 			# qos may be diff for savio3?  and no trivial way to find out.  this all submit aint easy :/
 		done
@@ -35,14 +35,14 @@ done
 : '
 
 error with submission:
-sbatch -w n0162.savio1 --partition=savio --ntasks=2 --gres=gpu:1 --exclusive=user --mail-type=NONE --job-name=n0162.savio1_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+sbatch -w n0162.savio1 --partition=savio --ntasks=2 --gres=gpu:1 --exclusive=user --mail-type=NONE --job-name=n0162.savio1_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 
 
 ////
 
 gpu command that  can submit job, but it is not exclusive, and other could land on it, including my very own 2nd job.
 
-sbatch -w n0301.savio2 --partition=savio2_1080ti --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=n0301.savio2_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+sbatch -w n0301.savio2 --partition=savio2_1080ti --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=n0301.savio2_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 
 But exclusive is not heeded, my very own job are oversubscribed 3x when --ntasks=2 and --gres=gpu:1
 fiddle with --ntasks=4 didnt help.
@@ -91,14 +91,14 @@ for PARTITION in $PARTITION_LIST; do
 		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
 		for NODE in $NODELIST; do
 			#echo "##  sbatching partition: $PARTITION for node: $NODE"
-			echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+			echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 			##echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
 			# qos may be diff for savio3?  and no trivial way to find out.  this all submit aint easy :/
 		done
 
 done
 
-echo "##  job script used is /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh "
+echo "##  job script used is /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh "
 echo "##  output is in /global/scratch/tin/JUNK/ "
 
 
@@ -116,7 +116,7 @@ cat > /dev/null << END_HEREDOC
 
 not sure why this savio2 node error out:
 
-sbatch -w n0239.savio2 --partition=savio2 -n 1  --mail-type=NONE --job-name=n0239.savio2_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+sbatch -w n0239.savio2 --partition=savio2 -n 1  --mail-type=NONE --job-name=n0239.savio2_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 sbatch: error: Batch job submission failed: Requested node configuration is not available
 
 
