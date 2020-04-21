@@ -4,6 +4,11 @@
 # becoming a longish python script
 # adopted from bofhbot
 
+print(" *** abandoning, too much work for nothing.  use the .sh version instead ***" )
+exit
+return
+foo 
+
 
 import os
 import re # regex
@@ -55,7 +60,7 @@ n0298.savio2 savio2_1080ti      idle
 def generateSinfo() :
     global sinfoNfile
     dbg(5, "sinfoNfile is set to: %s" % sinfoNfile)
-    cmd = 'sinfo --Node --long --format "%N %20P %.10t" | grep idle' + " > "  + sinfoNfile   # node first, one node per line :)
+    cmd = 'sinfo --Node --long --format "%N %20P %.10t" | grep idle | grep savio' + " > "  + sinfoNfile   # node first, one node per line :)
     #cmd = 'sinfo --Node --long --format "%N %20P %.10t"' + " > "  + sinfoNfile   
     command = cmd
     dbg(5, command)
@@ -273,14 +278,19 @@ def main():
     global sinfoNfile
     generateSinfo()  
     sinfoList = buildSinfoList() # fn use "OOP/Global" file containing sinfo output
-
-    # oh nick...
-    # easier see old way https://github.com/tin6150/bofhbot/blob/8c111e4ef6c1cb5f38359ca7c95696a01046b618/bofhbot.py
-    color=False
-    # oh nick... nodes = [ (node, line, args.color) for line in sinfoList for node in getNodeList(line) ]
-
-    nodeList = getNodeList(sinfoList)
+    nodeList = sinfoList2nodeList( sinfoList )  # works, but only get nodename
     dbg(5, "nodes are: %s" % nodeList )
+
+    #nodeSet = sinfoList2nodeSet( sinfoList )  # need a hash... partition and its list of nodes.
+    # but that's quite a bit of work for a one time deal...
+
+    # def getNodeList( sinfoLine ) :
+    # def sinfoList2nodeList( sinfoList ):
+
+
+    #nodeList = getNodeList(sinfoList)
+    #def getNodeList( sinfoLine ) :
+
 
 # main()-end
 
