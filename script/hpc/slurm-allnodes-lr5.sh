@@ -93,6 +93,9 @@ numactl -s
 echo ---------------------------------------
 echo ---------------------------------------
 
+echo "==== 7z benchmark next ======================================================="
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
+
 ) > $OUTFILE
 
 exit 007			#### comment out if want to run more test!                       ####
@@ -186,9 +189,8 @@ done
 
 ## example submit to idle nodes only
 ## see slurm-allIdle-brc.sh  for more elaborate test?
-NODELIST=$( sinfo --Node --long --format '%N %.8t' | awk '/idle/ {print $1}' | tail -2 )
+NODELIST=$( sinfo --Node --long --format '%N %20P %.8t' | awk '/idle/ {print $1}' | tail -2 )
 for NODE in $NODELIST; do
-	echo "sbatching to $NODE"
-	sbatch -w n${NODE} --job-name=${NODE}_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+	echo sbatch -w ${NODE} --job-name=${NODE}_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
 done
 

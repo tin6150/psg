@@ -5,10 +5,10 @@
 # tin 2020.0419
 
 
-[[ -d /global/scratch/tin/JUNK/SLURM_OUT/ ]] || mkdir /global/scratch/tin/JUNK/SLURM_OUT
+[[ -d /global/scratch/tin/JUNK/SLURM_OUT/ ]] || mkdir -p /global/scratch/tin/JUNK/SLURM_OUT
 
 
-#echo "**** Idle nodes are ****"
+#echo "##  **** Idle nodes are ****"
 #sinfo --Node --long --format "%N %20P %.10t" | grep savio  | grep idle 
 
 
@@ -29,23 +29,21 @@ PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | awk '/savio/ {pr
 
 
 for PARTITION in $PARTITION_LIST; do
-		echo "---- Processing $PARTITION..."
+		echo "##  ---- Processing $PARTITION..."
 
-
-	  # for PARTION="savio" need to append a space for grep not to match savio2	
-		# hmm... "savio2 " would match twice for "savio2_1080ti" as well or n0172.savio2_bigmem ++FIXME
-		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | grep "$PARTITION " | awk '/idle/ {print $1}'  )
+		# for PARTION="savio" need to append a space for grep not to match savio2	
+		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
 		for NODE in $NODELIST; do
-			#echo "sbatching partition: $PARTITION for node: $NODE"
-			#++echo sbatch -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
-			echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
+			#echo "##  sbatching partition: $PARTITION for node: $NODE"
+			echo sbatch -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+			##echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
 			# qos may be diff for savio3?  and no trivial way to find out.  this all submit aint easy :/
 		done
 
 done
 
-echo "## job script used is /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh "
-echo "## output is in /global/scratch/tin/JUNK/ "
+echo "##  job script used is /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh "
+echo "##  output is in /global/scratch/tin/JUNK/ "
 
 
 
