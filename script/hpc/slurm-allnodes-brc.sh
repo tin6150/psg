@@ -10,21 +10,26 @@
 ####
 
 #### slurm-allnodes-lr5.sh has the most notes as of 2020.04
+#### this one adapted from run_iozone_lr5.sh, but don't want to run iozone on prod fs.
+#### 
 #### slurm-job.sh, slurm-script-eg.sh are simple versions.
 #### slurm-job-cf1.sh should have been clean version for a specific partition
 
 
 #SBATCH				--job-name=allNodeTest    # CLI arg will overwrite this
-#					CPU time:
-#SBATCH				--time=605
+#					CPU time (in seconds 1199 == 00:19:59 HH:MM:ss) :
+#	#SBATCH			--time=1199
+#SBATCH				--time=00:19:59
 #					Wall clock limit in HH:MM:ss
 #	#SBATCH			--time=00:10:00
+#
 #   oh don't remember all the diff b/w -n -N --nodes=...   rtfm 
 #   --nodes=2 --ntasks=8 --cpus-per-task=2 would span 2 nodes and give 4 tasks per node # https://research-it.berkeley.edu/services/high-performance-computing/running-your-jobs
-#	#SBATCH			-n 3
-#	#SBATCH			-N 3
 #	#SBATCH			--ntasks=2
 #	#SBATCH			--nodes=4
+#	#SBATCH			--ntasks=2           # -n, help scheduler determine total tasks and how many nodes are needed
+#	#SBATCH			--cpus-per-task 1    # will be 1 except when running threaded code. 
+
 #	#SBATCH			--qos=cf_normal
 #	#SBATCH  		--qos=lr_lowprio
 #	#SBATCH  		--qos=lr_normal # cf_normal
@@ -57,7 +62,6 @@
 # %n is node number relative to current job, 0 for first node.  task spanning multiple node will get multiple file created
 # -J is --job-name for CLI arg
 
-### adapted from run_iozone_lr5.sh, but don't want to run iozone on prod fs.
 
 ################################################################################
 ##### print some header info into the log
@@ -106,15 +110,62 @@ echo ----lscpu-----------------------------------
 lscpu
 echo ----nuactl-s-----------------------------------
 numactl -s
+
+echo ---------------------------------------
+echo ---------------------------------------
+echo ---w------------------------------------
+w
+echo "---ps -ef | grep -v root ------------------------------------"
+ps -ef | grep -v root
+
+
 echo ---------------------------------------
 echo ---------------------------------------
 
 echo "==== 7z benchmark next ======================================================="
-singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
+echo "7za b skipped"
+#singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
 
-) > $OUTFILE
+) > $OUTFILE   # capture whole cmd list into a single output file
 
-exit 0			#### comment out if want to run more test!                       ####
+#exit 0			#### comment out if want to run more test!                       ####
+
+
+################################################################################
+##### stress tool to spin cpu and check power usage
+################################################################################
+
+# adjust time limit of job 
+# and the -t timeout value in the stress command
+# see psg/tool.html for detail
+# dont really need --cpu 64
+# overloading seems ok
+# except savio1 which w/o overloading still leave linger jobs behind :/
+
+(
+
+echo "---------------------------------------"
+echo "---------------------------------------"
+
+echo "==== stress test via singularity next ======================================================="
+#echo "stress skipped"
+
+TIME=660
+echo running... singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
+
+) >> $OUTFILE   # append/capture whole cmd list into a single output file
+
+exit 0
+
+: '
+  comments:
+  user:
+  NODE=n0297.savio2 ; while [[ 1 == 1 ]]; do sinfo-N | grep $NODE; ssh $NODE uptime ; ssh $NODE lscpu | grep MHz ; date; sleep 15; done
+  root:
+  NODE=n0301.savio2 ; while [[ 1 == 1 ]]; do sinfo --Node | grep $NODE; ssh $NODE uptime ; ssh $NODE ipmitool sensor | egrep -i watt\|amp; date; sleep 15; done
+
+'
 
 ################################################################################
 ##### setup and run test in specific dir
