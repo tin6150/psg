@@ -19,7 +19,8 @@
 #SBATCH				--job-name=allNodeTest    # CLI arg will overwrite this
 #					CPU time (in seconds 1199 == 00:19:59 HH:MM:ss) :
 #	#SBATCH			--time=1199
-#SBATCH				--time=00:19:59
+# #SBATCH				--time=00:19:59
+#SBATCH				--time=05:19:59
 #					Wall clock limit in HH:MM:ss
 #	#SBATCH			--time=00:10:00
 #
@@ -70,7 +71,8 @@
 LOGDIR=/global/scratch/tin/JUNK/
 MAQ=$(hostname)
 OUTFILE=$LOGDIR/$MAQ.out.rst
-#hostname > $LOGDIR/$MAQ
+
+hostname 
 
 # run whole thing in subshell to capture output to a file
 
@@ -123,10 +125,10 @@ echo ---------------------------------------
 echo ---------------------------------------
 
 echo "==== 7z benchmark next ======================================================="
-echo "7za b skipped"
-#singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
+#echo "7za b skipped"
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
 
-) > $OUTFILE   # capture whole cmd list into a single output file
+) > $OUTFILE   # capture all cmd list into a file name I prefer, slurm -o is too limitig
 
 #exit 0			#### comment out if want to run more test!                       ####
 
@@ -143,18 +145,19 @@ echo "7za b skipped"
 # except savio1 which w/o overloading still leave linger jobs behind :/
 
 (
-
 echo "---------------------------------------"
 echo "---------------------------------------"
+sleep 5  # give a little pause before running stress test, 7z benchmark added some measure of delay.
 
 echo "==== stress test via singularity next ======================================================="
 #echo "stress skipped"
 
-TIME=660
+##TIME=660  ## ++TODO change accordingly
+TIME=20660  ## ~5.6 hours
 echo running... singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
 singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
 
-) >> $OUTFILE   # append/capture whole cmd list into a single output file
+) >> $OUTFILE   # append/capture the whole thing into a file name I prefer, slurm -o is too limitig
 
 exit 0
 

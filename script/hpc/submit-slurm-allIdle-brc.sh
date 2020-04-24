@@ -10,14 +10,42 @@
 
 
 [[ -d /global/scratch/tin/JUNK/SLURM_OUT/ ]] || mkdir -p /global/scratch/tin/JUNK/SLURM_OUT
+chmod 777 /global/scratch/tin/JUNK/
+chmod 777 /global/scratch/tin/JUNK/SLURM_OUT
+
+SLEEPTIME=1
 
 
 #echo "##  **** Idle nodes are ****"
 #sinfo --Node --long --format "%N %20P %.10t" | grep savio  | grep idle 
 
 
+# htc likely have cgroup limiting which cpu they can use
+# so a single sbatch will only occupy 1 core and leave the rest idle.  
+# other partition seems fine (eg knl)
+
+
+
 #PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | awk '/savio/ {print $2}' | sort -u  )
-PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep -v gpu\|80ti | awk '/savio/ {print $2}' | sort -u  )
+#PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep -v gpu\|80ti | awk '/savio/ {print $2}' | sort -u  )
+PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep htc | awk '/savio/ {print $2}' | sort -u  )
+for PARTITION in $PARTITION_LIST; do
+		echo "##  ---- Processing $PARTITION..."
+
+		# for PARTION="savio" need to append a space for grep not to match savio2	
+		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
+		for NODE in $NODELIST; do
+			echo "sbatch --ntask=12 -w ${NODE} --partition=$PARTITION --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh ; sleep $SLEEPTIME"
+		done
+
+done
+
+exit 0  # tmp htc
+
+
+
+
+PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep -v gpu\|80ti\|htc | awk '/savio/ {print $2}' | sort -u  )
 for PARTITION in $PARTITION_LIST; do
 		echo "##  ---- Processing $PARTITION..."
 
@@ -25,7 +53,7 @@ for PARTITION in $PARTITION_LIST; do
 		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
 		for NODE in $NODELIST; do
 			#echo "##  sbatching partition: $PARTITION for node: $NODE"
-			echo sbatch -w ${NODE} --partition=$PARTITION --ntasks=2 --gres=gpu:1 --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
+			echo "sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh ; sleep $SLEEPTIME"
 			##echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
 			# qos may be diff for savio3?  and no trivial way to find out.  this all submit aint easy :/
 		done
@@ -47,16 +75,14 @@ sbatch -w n0301.savio2 --partition=savio2_1080ti --exclusive=user --ntasks=2 --g
 But exclusive is not heeded, my very own job are oversubscribed 3x when --ntasks=2 and --gres=gpu:1
 fiddle with --ntasks=4 didnt help.
 change --gres=gpu:4 dont work.  in this case, only gpu:1 work.
-hmm.... maybe the exclusive thing got overwritten by the spank bank plugin...
+(exclusive=user means i can submit more job to it, but other user scheduler will not schedule other user to it
+more info https://slurm.schedmd.com/mcs.html )
 
-Tue Apr 21 14:25:39 PDT 2020
              JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
            5825827    savio2 slurm-jo      tin PD       0:00      1 (QOSMaxWallDurationPerJobLimit)
-           5827719     savio n0164.sa      tin PD       0:00      1 (Resources)
-           5828375 savio2_10 n0301.sa      tin  R       6:55      1 n0301.savio2
-           5828371 savio2_10 n0301.sa      tin  R       7:31      1 n0301.savio2
-           5828384 savio2_10 n0301.sa      tin  R       2:09      1 n0301.savio2
-
+           5827719     savio n0164.sa      tin PD       0:00      1 (Priority)
+           5872924 savio2_ht n0222.sa      tin  R       3:38      1 n0222.savio2
+           5872921 savio2_ht n0222.sa      tin  R       4:38      1 n0222.savio2
 
 '
 
@@ -70,11 +96,6 @@ echo "##  ===================================================================#"
 # job oversubcribe/exclusive does not overwrite system's option :(
 # some fine tuning maybe necessary...
 
-
-
-# may not be able to handle gpu yet cuz of gres thing...
-# actually worked for n0005. savio3_gpu
-# but not for savio2_1080ti cuz of generic gres spec
 
 # sigh, savio2 n0300 complains too
 # sbatch: error: Batch job submission failed: Requested node configuration is not available
@@ -91,9 +112,14 @@ for PARTITION in $PARTITION_LIST; do
 		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
 		for NODE in $NODELIST; do
 			#echo "##  sbatching partition: $PARTITION for node: $NODE"
-			echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
+			#echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err  ~tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh  
+			#~~echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err  ~tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh  
+			echo "sbatch -w ${NODE} --partition=$PARTITION --time=05:30:59 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err   ~wfeinstein/test-gpu/test.sh ; sleep $SLEEPTIME"
+
+			##echo srun --time=00:19:55 --account=scs --qos=savio_normal -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest   --pty bash   
 			##echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
-			# qos may be diff for savio3?  and no trivial way to find out.  this all submit aint easy :/
+			#--echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh # stress cpu part on gpu node, does not get to run.
+			#echo sleep  $SLEEPTIME
 		done
 
 done
