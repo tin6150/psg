@@ -35,7 +35,7 @@ for PARTITION in $PARTITION_LIST; do
 		# for PARTION="savio" need to append a space for grep not to match savio2	
 		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
 		for NODE in $NODELIST; do
-			echo "sbatch --ntask=12 -w ${NODE} --partition=$PARTITION --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh ; sleep $SLEEPTIME"
+			echo "sbatch --ntasks=12 -w ${NODE} --partition=$PARTITION --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh ; sleep $SLEEPTIME"
 		done
 
 done
