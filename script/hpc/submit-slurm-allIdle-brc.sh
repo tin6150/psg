@@ -43,6 +43,9 @@ done
 #exit 0  # tmp htc
 
 
+echo "##  ===================================================================#" 
+echo "##  Oversubscribe=Yes  htc  partitions ##"
+echo "##  ===================================================================#" 
 
 
 PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep -v gpu\|80ti\|htc | awk '/savio/ {print $2}' | sort -u  )
@@ -59,6 +62,51 @@ for PARTITION in $PARTITION_LIST; do
 		done
 
 done
+
+
+echo "##  ===================================================================#" 
+echo "##  Oversubscribe=Yes  gpu  partitions ##"
+echo "##  ===================================================================#" 
+
+
+
+
+# slurm.conf Oversubscribe=Yes : savio3_2080ti savio3_gpu avio2_1080ti savio2_gpu savio2_htc
+PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep gpu\|80ti | awk '/savio/ {print $2}' | sort -u  )
+for PARTITION in $PARTITION_LIST; do
+		echo "##  ---- Processing $PARTITION..."
+		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
+		for NODE in $NODELIST; do
+			#echo "##  sbatching partition: $PARTITION for node: $NODE"
+			#echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err  ~tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh  
+			#echo "sbatch -w ${NODE} --partition=$PARTITION --time=05:30:59 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err   ~wfeinstein/test-gpu/test.sh ; sleep $SLEEPTIME"
+			#vv echo "sbatch -w ${NODE} --partition=$PARTITION --time=05:30:59 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err   ~tin/tin-gh/psg/script/hpc/wei-tf-cnn-benchmark.sh"
+			echo "sbatch -w ${NODE} --partition=$PARTITION --time=01:18:50 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err  ~tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh"  
+			##echo srun --time=00:19:55 --account=scs --qos=savio_normal -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest   --pty bash   
+			##echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
+			#--echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh # stress cpu part on gpu node, does not get to run.
+			#echo sleep  $SLEEPTIME
+		done
+
+done
+
+echo "##  job script used is /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh "
+echo "##  output is in /global/scratch/tin/JUNK/ "
+
+
+# --exclusive=user seems to work, slurm will respect that (so long as there are other free nodes?)   # at least for savio2_htc
+
+
+
+exit 0  
+
+
+############################################################
+############################################################
+#### Do NOT run below !! 
+#### exit above must be preserved 
+############################################################
+############################################################
 
 : '
 
@@ -86,11 +134,6 @@ more info https://slurm.schedmd.com/mcs.html )
 
 '
 
-
-
-echo "##  Oversubscribe=Yes partitions ##"
-echo "##  ===================================================================#" 
-
 # htc and other non exclusive node?  
 # well, mix node would not be idle
 # job oversubcribe/exclusive does not overwrite system's option :(
@@ -105,46 +148,10 @@ echo "##  ===================================================================#"
 
 
 
-# slurm.conf Oversubscribe=Yes : savio3_2080ti savio3_gpu avio2_1080ti savio2_gpu savio2_htc
-PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep gpu\|80ti | awk '/savio/ {print $2}' | sort -u  )
-for PARTITION in $PARTITION_LIST; do
-		echo "##  ---- Processing $PARTITION..."
-		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
-		for NODE in $NODELIST; do
-			#echo "##  sbatching partition: $PARTITION for node: $NODE"
-			#echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err  ~tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh  
-			#~~echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err  ~tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh  
-			#echo "sbatch -w ${NODE} --partition=$PARTITION --time=05:30:59 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err   ~wfeinstein/test-gpu/test.sh ; sleep $SLEEPTIME"
-			echo "sbatch -w ${NODE} --partition=$PARTITION --time=05:30:59 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err   ~tin/tin-gh/psg/script/hpc/wei-tf-cnn-benchmark.sh"
-			##echo srun --time=00:19:55 --account=scs --qos=savio_normal -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest   --pty bash   
-			##echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
-			#--echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh # stress cpu part on gpu node, does not get to run.
-			#echo sleep  $SLEEPTIME
-		done
-
-done
-
-echo "##  job script used is /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh "
-echo "##  output is in /global/scratch/tin/JUNK/ "
-
-
-# --exclusive=user seems to work, slurm will respect that (so long as there are other free nodes?)   # at least for savio2_htc
-
-
-
-exit 0  
-
-
-############################################################
-############################################################
-#### Do NOT run below !! 
-#### exit above must be preserved 
-############################################################
-############################################################
+########
 
 
 cat > /dev/null << END_HEREDOC
-
 
 
 not sure why this savio2 node error out:

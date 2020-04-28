@@ -20,7 +20,7 @@
 #### slurm-job-cf1.sh should have been clean version for a specific partition
 
 
-#SBATCH				--job-name=SnGpuTest    # CLI arg will overwrite this
+#SBATCH				--job-name=SnGpuTest    # -J CLI arg will overwrite this
 #					CPU time (in seconds 1199 == 00:19:59 HH:MM:ss) :
 #	#SBATCH			--time=1199
 #SBATCH				--time=08:19:59
@@ -29,6 +29,7 @@
 #
 #   oh don't remember all the diff b/w -n -N --nodes=...   rtfm 
 #   --nodes=2 --ntasks=8 --cpus-per-task=2 would span 2 nodes and give 4 tasks per node # https://research-it.berkeley.edu/services/high-performance-computing/running-your-jobs
+#?? #SBATCH			-N 1		# wei had this, but shouldnt matter cuz cli use --ntasks=8
 #	#SBATCH			--ntasks=2
 #	#SBATCH			--nodes=4
 #	#SBATCH			--ntasks=2           # -n, help scheduler determine total tasks and how many nodes are needed
@@ -38,7 +39,7 @@
 #	#SBATCH  		--qos=lr_lowprio
 #	#SBATCH  		--qos=lr_normal # cf_normal
 #SBATCH				--qos=savio_normal 
-#SBATCH				--account=scs
+#SBATCH				--account=scs        # -A
 
 #   #SBATCH			--partition=savio2
 #	#SBATCH			--partition=cf1
@@ -110,7 +111,7 @@ echo "==== ================= ===================================================
 echo "---module list before purge ------------------------------------"
 module list    2>&1
 module purge   2>&1
-module load ml/tensorflow/1.12.0-py36
+module load ml/tensorflow/1.12.0-py36 2>&1 
 echo "---module list after purge ------------------------------------"
 module list    2>&1
 
@@ -118,9 +119,9 @@ module list    2>&1
 
 PRECISION=fp32 
 MODEL=inception3
-BATCH_SIZE=32
-NUM_BATCHES=250000   # this should take about 8 hours
-NUM_GPU=4							# for V100 or colefax, need to change.
+BATCH_SIZE=32 # --num_batches param, this  should take about 8 hours
+NUM_BATCHES=250000 # for V100 or colefax, need to change.
+NUM_GPU=4							
 
 echo "---about to start tf cnn benchmark  --------------------"
 
@@ -128,12 +129,17 @@ echo "---about to start tf cnn benchmark  --------------------"
 ##time python /global/home/users/tin/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagene
 
 
-echo time python /global/home/users/wfeinstein/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagene
 ## see ~wfeinstein/test-gpu/test.sh 
 
-python /global/home/users/wfeinstein/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagene
+#?? python /global/home/users/wfeinstein/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagene
 
 ##time python /global/home/users/wfeinstein/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagene
+
+# now using files under my dir
+echo time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu-log
+
+time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu-log
+
 
 ( 
 
