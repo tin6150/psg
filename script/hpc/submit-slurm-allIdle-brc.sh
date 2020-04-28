@@ -40,7 +40,7 @@ for PARTITION in $PARTITION_LIST; do
 
 done
 
-exit 0  # tmp htc
+#exit 0  # tmp htc
 
 
 
@@ -114,8 +114,8 @@ for PARTITION in $PARTITION_LIST; do
 			#echo "##  sbatching partition: $PARTITION for node: $NODE"
 			#echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err  ~tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh  
 			#~~echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err  ~tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh  
-			echo "sbatch -w ${NODE} --partition=$PARTITION --time=05:30:59 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err   ~wfeinstein/test-gpu/test.sh ; sleep $SLEEPTIME"
-
+			#echo "sbatch -w ${NODE} --partition=$PARTITION --time=05:30:59 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err   ~wfeinstein/test-gpu/test.sh ; sleep $SLEEPTIME"
+			echo "sbatch -w ${NODE} --partition=$PARTITION --time=05:30:59 --exclusive=user --ntasks=8 --gres=gpu:4 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out -e /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.err   ~tin/tin-gh/psg/script/hpc/wei-tf-cnn-benchmark.sh"
 			##echo srun --time=00:19:55 --account=scs --qos=savio_normal -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest   --pty bash   
 			##echo srun -w ${NODE} --partition=$PARTITION -n 1 --mail-type=NONE --job-name=${NODE}_allNodeTest_srun --time=00:09:59 --account=scs --qos=savio_normal -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out hostname
 			#--echo sbatch -w ${NODE} --partition=$PARTITION --exclusive=user --ntasks=2 --gres=gpu:1 --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh # stress cpu part on gpu node, does not get to run.
@@ -132,8 +132,15 @@ echo "##  output is in /global/scratch/tin/JUNK/ "
 
 
 
-exit 0
+exit 0  
 
+
+############################################################
+############################################################
+#### Do NOT run below !! 
+#### exit above must be preserved 
+############################################################
+############################################################
 
 
 cat > /dev/null << END_HEREDOC
