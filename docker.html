@@ -458,7 +458,7 @@ docker commit -a "author name"		# -a add the authoer's name
 
 docker tag ...			# tag/name (?container as image) for docker push to hub.docker.com
 
-docker login			# login to hub.docker.com ...
+docker login			# login to docker hub.  credentials will be saved as base64 enconding in ~/.docker/config.json (ie, NOT encrypted!)
 docker info			# version, disk usage, metadata size, etc
 
 
@@ -650,6 +650,13 @@ docker exec ApacheB ps -ef
 	# will run "ps -ef" inside the container, print output, and terminate the exec
 	# think of "ssh remotehost ps -ef" to run command w/o interactive shell in a remote environment
 
+# docker exec depends on a running container
+# to start a container with a specific command is done by specifying a different entrypoint. eg
+docker run --entrypoint "/bin/ls" ubuntu
+# but there seems to be some kernel issue, -v does not work
+docker run -v $HOME:/myhome --entrypoint "/bin/ls /myhome" ubuntu
+# fails miserably (on Zorin 12/Xenial or CentOS 7)
+
 </PRE>
 
 <H5>
@@ -694,6 +701,18 @@ docker run -p 80:80 httpd
 docker pull pdevine/elinks2     
 docker run -it --rm pdevine/elinks2 elinks http://www.yahoo.com		# will start interactive browser 
 docker run -it --rm pdevine/elinks2 elinks http://172.31.28.159 	# use the host's eth0 IP to access the web server running on it
+</PRE>
+
+<H5>
+alternate entry points, run as user, etc
+</H5>
+
+<PRE>
+docker run  -it --entrypoint /usr/bin/Rscript -v $HOME:/tmp/home  --user=$(id -u):$(id -g) tin6150/r4eta
+
+docker run  -it --entrypoint /bin/bash  --user=$(id -u):$(id -g) tin6150/r4eta
+
+
 </PRE>
 
 
@@ -787,7 +806,7 @@ docker run    -p 80:80   -i -t --name ApachePsgII 8e300072616a  /usr/local/apach
 docker rename		# rename a container
 ? rename image... no way to do this??   but when upload to dockerhub, give it a new name, and pull it again...
 
-docker login			# login to docker hub.  credentials will be saved w/ encryption
+docker login			# login to docker hub.  credentials will be saved as base64 enconding in ~/.docker/config.json (ie, NOT encrypted!)
 
 docker commit -m "apache psgIII" edb6d60c97da tin6150/apache_psg3
 				# edb6d60c97da is a container id (from docker ps -a)
@@ -824,6 +843,20 @@ docker run -p 80:80 -i -t --name ApachePsg_C tin6150/apache_psg_3a:dev2 httpd	# 
 </PRE>
 
 <H2>Other more advance topics</H2>
+
+<H3>X11 apps</H3>
+
+
+<PRE>
+echo $DISPLAY # :0.0
+xhost +
+docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix  tin6150/metabolic /usr/bin/xpdf
+</PRE>
+
+See:
+<LI> <A HREF="https://github.com/jessfraz/dockerfiles">https://github.com/jessfraz/dockerfiles</A>
+<LI> <A HREF="http://fabiorehm.com/blog/2014/09/11/running-gui-apps-with-docker/">Fabio's post</A>
+<BR><BR>
 
 <H3>Docker Data Volume</H3>
 

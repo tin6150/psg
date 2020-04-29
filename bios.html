@@ -205,7 +205,8 @@ During Post, keys:
 <PRE>
 tab		Display BIOS POST message
 
-del 		run setup
+del		run setup (BIOS)
+F2 		run setup (BIOS)
 F11		boot menu
 F12		Network boot
 
@@ -221,6 +222,17 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 
 </PRE>
 
+<H2>Tyan</H2>
+
+<PRE>
+del		run setup (AMI BIOS)
+</PRE>
+
+<H2>Asus</H2>
+
+<PRE>
+?? del		run setup (AMI BIOS)
+</PRE>
 
 <H2>Dell</H2>
 
@@ -329,9 +341,12 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 
 <H3>Other BIOS param</H3>
 <!-- 
-##singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
 
-singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm \
+## better to use  PSG/script/hpc/record_bios_settings.sh 
+
+##singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img   /opt/dell/srvadmin/sbin/racadm \
+  singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img         /opt/dell/srvadmin/sbin/racadm \
+  singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm \
 
 # singularity-hub build probably won't work cuz build machine don't have an iDRAC :(
 -->
@@ -602,6 +617,10 @@ Putty KeyPad=01                         // *01 (VT100), 02 (LINUX), 04 (XTERMR6)
 Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
 
 </PRE>
+
+<H5>Ref</H5>
+
+<A HREF="https://www.intel.com/content/dam/support/us/en/documents/network/omni-adptr/sb/Intel_OP_Performance_Tuning_UG_H93143_v1_0.pdf">Intel E5 v3 (Hashwell) bios param tuning for Fabric</A>(Omnipath, Infiniband).
 
 
 <H1>Service Processor</H1>

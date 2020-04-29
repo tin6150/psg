@@ -658,6 +658,27 @@ if( txt == "abc" ):
 
 </PRE>
 
+
+<PRE class="code">
+# import regular expression (regex) lib
+import re
+
+# this is closest to perl re search
+m = re.search(r"(\w+)(Jul)(\w+)", "foo_Jul_bar")
+
+if m : # ie execute only when a match is found
+	print( "YES match found" )
+	print( m.group(0) ) # "foo_Jul_bar", ie the whole regex match
+	print( m.group(1) ) # "foo_", perl's \1
+	print( m.group(2) ) # "Jul" , perl's \2
+	print( m.group(3) ) # "_bar", perl's \3
+else : 
+	print( "NO  match found" )
+
+#re.match(...) match only starting from the beginning
+
+</PRE>
+
 <PRE class="code">
 # get command line argument
 import sys

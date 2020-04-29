@@ -1,5 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- vi : set tabstop=8 -->
+<!-- vim: tabstop=8 
+    # as that's how browser renders it -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -139,6 +140,8 @@ GUI									qmon			sview
 <A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
 <BR>
 
+<A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018.
+
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
@@ -173,8 +176,11 @@ sbatch	myscript	# submit script to run in batch mode
 salloc			# run interactive job, asking scheduler to allocate certain resources to it
 salloc bash		# get a bash shell in intertive mode with req resource
 
-srun			# Typically for MPI job, create job allocation, launch job step.
-srun uname		# run the uname command in a cluster using srun
+srun			    # Typically for MPI job, create job allocation, launch job step.
+srun --pty -p lr3           -A scs --qos=lr_normal    -N 1      -t 0:59:00     /bin/bash  # interactive bash shell for 59 min on 1 Node.
+srun --pty -p savio2_gpu    -A scs --qos savio_normal -N 1 -n 1 -t 60 --gres=gpu:1  bash  # requesting gpu node as gres
+srun --pty -p savio3_2080ti -A scs --qos savio_normal -n 2 -t 60  hostname
+
 
 sattach			# connect to the stdin, stdout and stderr of a job or job step
 
@@ -216,7 +222,7 @@ what account I am in?  what partitions are there?  What QoS are there?
 
 sacctmgr show assoc user=USERNAME format=acc,part,qos	# list account, partition, QoS for the specified USERNAME
 sacctmgr show associations -p user=USERNAME	 	# see what associations a specified user has been granted, -p = "parsable"
-sacctmgr show qos format=name			    	# list QoS
+sacctmgr show qos -p format=name		    	# list QoS
 scontrol show partition					# list "queues"
 
 
@@ -261,8 +267,19 @@ sinfo -R -S %E		# output sorted/grouped by Reason
 sinfo -R -S %H		# output sorted by timestamp 
 sinfo -R -S %n		# output sorted by nodelist
 
-sinfo -R -S %E --format="%9u %19H %6t %N %E"	# %E is comment/reason, unrestricted in length.  -Sorted by rEason  ## not history
-sinfo -N -R -S %E --format="%N %6t %19H %9u %E" # -N produce node centric output (1 node per line for scripting, -N has to be the first argument)
+alias sinfo-N='sinfo --Node --long --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
+    # -N is node centric, ie one node per line, has to be first arg
+    # -p PARTNAME  # can add this after aliased command instead of using grep for specific queue
+
+alias sinfo-f='sinfo --Node --long --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
+    # %f = feature eg savio3_m1536, which is 16x more ram than savio3_m96
+    # feature name change to ponder: 4x1080ti, 2xV100, 4x2080ti, 8xTitanRTX  (do we always get Ti version?) but may not want to change savio2, maybe only add to it
+
+alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # -Sorted by rEason (oper input reason=...) ##slurm
+    # %E is comment/reason, unrestricted in length.  
+    # once -R is used, it preced -N, but this output is good for sorting by symptoms
+
+
 
 
 squeue			# status of job and job steps, TIME means job running time so far
@@ -278,7 +295,13 @@ squeue -o "%N %l"	# specify output format %N = node, %l = time left
 			# def for -l, --long:  "%.18i %.9P %.8j      %.8u %.8T %.10M %.9l %.6D %R"   
 			# def for -s, --steps: "%.15i      %.8j %.9P %.8u      %.9M       %N"
 
-squeue --sort N -o "%.18i %.9P %.8j %.8u %.8T %.10M %.9l %.6D %R %l"  # %l = time limit
+squeue --sort N -o "%.18i %.9P %.8j %.8u %.8T %.10M %.9l %.6D %R"     
+squeue --sort N -o "%R %.6D %.14P  %.18i %.8j %.14u %.8T %.10M %.9l" 
+# %R is node name, but could be multiple, or absent not RUNNING yet.
+# %j is job name
+# %u is username
+# %T is state info (RUNNING, PENDING, etc)
+# %l = time limit
 
 smap			# topology view of system, job and job steps.  (new tool that combine sinfo and squeue data)
 sview			# new GUI:   view + update on sys, job, step, partition, reservation, topology
@@ -428,7 +451,11 @@ scontrol create reservation start=2018-01-10T12:25 end=2018-01-13 user=tin,meli 
 # can have overlapping reservation (eg same set of nodes reserved with different name across time that have overlap
 # presumably then scheduler accept job as per reservation, then schedule as a resource sharing exercise.
 
+scontrol update reservation=rn_666 EndTime=2020-02-03T11:30
+# change end time of reservation
+
 scontrol delete reservation=rn_666
+
 
 sbatch --reservation=rn_666 ...	# submit a job run under reservation
 
@@ -462,16 +489,29 @@ sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDisk
 
 
 # example of querying jobs ran in a certain time frame:
-sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2017-12-20T00:00:00 --end=2018-01-01T23:59:59
+sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2019-12-18T00:00:00 --end=2018-01-01T23:59:59
 
-# all users, failure states, in a certain time frame (hung job not listed here):
-sacct -a -X -s F,NF -r lr5  -S 2017-12-16  -E 2017-12-18
+# all users, failure states, in a certain time frame (hung job not listed here; end time required or get no output):
+sacct -a -X -s F,NF -r lr5  -S 2019-12-16  -E 2019-12-18
 
-# many problem states (but may not be comprehensive)
+# Node Failure, job would have died (-a = all users, may req root):
+sacct -a -X -s NF -r lr5  -o job,start,end,partition,user,jobname,AllocNode,AllocTRES,DerivedExitCode,state,CPUTime,Elapsed -S 2017-12-20  -E 2018-01-01
+
+# many problem states (but may not be comprehensive), for all users 
 sacct -a  -X -s F,NF,CA,S,PR,TO,BF -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,NNodes,DerivedExitCode,state -S 2017-12-25  -E 2017-12-31
 
-# Node Failure, job would have died:
-sacct -a  -X -s NF -r lr5  -o job,start,end,partition,user,jobname,AllocNode,AllocTRES,DerivedExitCode,state,CPUTime,Elapsed -S 2017-12-20  -E 2018-01-01
+
+# get an idea of failed/timeout jobs and nodes they ran on
+# SystemComment,Comment are usually blank
+# Reason no longer avail?
+# but may not be the last job that ran on the node, other jobs could have subsequently ran on the node...
+# specifying End time required even when not asked for it to be in output list (else get empty list)
+sacct -S 2019-12-21 -E 2020-01-01 -a -X -s F,NF,TO -p -o state,job,start,Elapsed,ExitCode,jobname,user,AllocNode,NodeList,SystemComment,Comment | sed 's/|/\t/g' | less
+
+
+# what job ran on a given node
+?? sacct -N n0[000-300].lr4
+?? get empty list :(
 
 </PRE>
 
@@ -613,6 +653,8 @@ slurmdUser 			# slurmd    user.
 <UL>
 	<LI> run <TT>scontrol reconfig</TT>  for slurmctld to read new config (eg adding new partitions) </LI>
 	<LI> There is <EM>NO</EM> need to run <TT>scontrol create partition ...</TT> as a command.  All partition info is generated from definition in the <TT>slurm.conf</TT> file.  Just remember to run reconfig cmd as above.</LI>
+	<LI>gres.conf needs to be configured for GPU.  use <TT>nvidia-smi topo -m</TT> to find out GPU:CPU binding</LI>
+	<LI></LI>
 </UL>
 
 

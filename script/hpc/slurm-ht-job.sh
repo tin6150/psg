@@ -1,6 +1,7 @@
 #!/bin/sh
 #SBATCH --job-name=ht-test
-#SBATCH --partition=savio2_knl
+##SBATCH --partition=savio2_knl
+#SBATCH --partition=savio2
 # #SBATCH --partition=savio2_knl,savio2,savio1   # comma list accepted, but core count stuff may need special handling
 #SBATCH --qos=normal
 #SBATCH --account=scs

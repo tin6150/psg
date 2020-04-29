@@ -83,6 +83,9 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 	git clone https://tin6150@github.com/tin6150/inet-dev-class
+	git clone https://tin6150@github.com/tin6150/smelly.git
+	git clone https://tin6150@github.com/tin6150/adjoin
+	git clone https://tin6150@github.com/tin6150/covid19_care_capacity_map
 	git clone https://tin6150@github.com/tin6150/a51		# private repo, encrypted content.  formerly area51
 
 	### VMware tools as ansible role fork (so as not get updte unless manually checked)
@@ -109,8 +112,6 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/perf_tools
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
-	git clone https://tin6150@github.com/tin6150/smelly.git
-	git clone https://tin6150@github.com/tin6150/adjoin.git
 	git clone https://tin6150@github.com/tin6150/cvs.git
 	git clone https://tin6150@github.com/tin6150/PGI-Singularity.git  # fork from Ryan, pgi compiler, netcdf lib
 
@@ -152,7 +153,7 @@ run_git_clone()
 	git clone https://github.com/tin6150/jquery-csv.git
 	
         ##############################
-        #### tin6150@github gitst ####
+        #### tin6150@github gist  ####
         ##############################
 
         git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
@@ -339,10 +340,20 @@ macOS_setup()
 }
 
 
+npm_package_install()
+{
+	# no npm, maybe should put this in ansible playbook 
+	echo "Running sudo npm install --global ..., provide sudo password next..." 
+	sudo npm install --global json5
+	sudo npm install --global d3-geo-projection # geo2svg test geojson
+}
+
+
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
-#+run_git_clone
+run_git_clone
 create_links
+#npm_package_install
 
 #macOS_setup ## cmd tried, but fn untested.
 

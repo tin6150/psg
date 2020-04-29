@@ -16,6 +16,13 @@ awk -F: '{print $1 ":" $3}' < /etc/passwd
 cut -d: -f1,3 < /etc/passwd			
 # cut -f1-3 is 1 to 3.  3- is 3 onward.
 
+
+
+sed doing several sequential edits, older version need -e "s/.../.../" -e "..."
+eg from 
+cat somefile.csv | sed -e "s/Total Hospital Beds/TotalHospitalBeds/" -e "s/Hospital Beds per 1,000 Population/HospitalBedsPer1kPop/"  -e "s/Total CHCs/TotalCHCs/" -e "s/CHC Service Delivery Sites/CHCServiceDeliverySites/"
+
+
 ---
 
 
@@ -162,4 +169,10 @@ $7~/bin.csh/{CSHELL++}
 $7~/a/{BSHELL++; print $7}
 END {print TSHELL " "  CSHELL " " BSHELL}
 
+
+eg from slurm-allIdle-brc.sh :
+
+NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
+
+$2 ~ /^exactWord$/   # use this for exact matching.  == is for number, can't compare string.  use ^ and $ to indicate limit of word.  column value would have space stripped already.
 

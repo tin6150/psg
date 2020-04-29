@@ -245,6 +245,31 @@ This is another line.
 -->
 
 
+<H1>OpenSSL</H1>
+
+certs, and stuff
+
+<PRE>
+
+# git only take .pem certs, convert .crt to .pem as:
+
+openssl x509 -in greyhound.crt -out greyhound.pem -outform PEM
+
+
+# check expiration date of a .pem file:
+
+openssl x509 -enddate -noout -in greyhound.pem
+
+</PRE>
+
+
+Ref:
+
+<LI>EasyRSA self-signed certs (used with openVPN) </LI>
+<LI>OpenSC ssh tunnel</LI>
+<LI></LI>
+
+
 <BR><HR>
 <div align="CENTER">
   [Doc URL: <A HREF="http://tin6150.github.io/psg/ssh.html">

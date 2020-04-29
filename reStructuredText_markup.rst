@@ -5,8 +5,88 @@ github support .rst just as well as .md
 Can use README.rst as default rather than README.md.
 
 Any incorrect construct that paralize the .rst parser will stop the rendering and revert back to raw.
-Thus, pay special attention to ``code blocks``
+Thus, pay special attention to ``code block``  (really ``verbose text, or monospaced text``)
 (actually, tailing underline after word seems to be the culprit)
+
+
+SUMMARY
+=======
+
+* use lots of bullet text.  since no reasonable way to make hard  line break in rst.
+
+* keep it simple.  not worth spending time on fancy features.
+
+* use :: (two colons, blank line before and after) for creating pre-formatted text
+  since quite often i still just want to preserve my text blocks, new lines.
+  Actually, not sure if the color highlight in vim for rst is really worth the headache of creating them.
+  a WYSIWYG editor for rst would be nice :)
+
+* use comment (..) for vim modeline, see bottom of this file.  this may really be a hack of rst command?
+
+- use dash to start list
+- ``double backquotes``  highligt in reverse text and monospace font
+- *single asterist* to delimited *italic text* 
+- **double asterisks** became **bold**
+- nice thing is vim will highlight text specially from .rst syntax (mostly)
+
+
+Files location
+==============
+
+location of .rst and .md files are in 2 places so that I can see how it got rendered
+  - psg/reStructuredText_markup.rst  [*master*]
+  - https://github.com/tin6150/inet-dev-class/rst_md [cache]
+
+*PSG version will be master*.  inet-dev-class is a cache (and not really needed, as error in rst will cause github not to render in both places, so just need to fix the error!).  
+
+
+Example of .rst that I maintain to look for constructs
+======================================================
+
+ones that I think has features I wondered how they would work out...
+
+* https://github.com/tin6150/inet-dev-class/tree/master/mapbox/README.rst
+    - this was pretty extensive, one of the longer .rst that I tried to make for good reading.  
+    - tagging for json5 code block
+    - image
+
+* https://github.com/tin6150/covid19_care_capacity_map 
+   - glossary term, really just to force indent block of text.  messy, no way to do hard line break, so easier to just use lots of nested bullet lists
+   - comment, vim: modeline
+   
+* CF_BK/cueball/ANSIBLE/README.rst 
+   - meta tags like :url: 
+   - rest of it likely not good render 
+
+* the set of reStructuredText*rst files in this PSG dir for various trial ground
+
+
+References
+----------
+
+- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText#Examples_of_reST_markup
+- reStructuredText quick ref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
+- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
+- preformatting samples, but not necessarily code syntax highlight: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples 
+
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+Lots of old notes below, TL; DR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+**todo** 
+break multiple sections/examples into different rst files.
 
 
 GitHub warning
@@ -31,6 +111,9 @@ As python, space matter.  But this is the case of nested list, which in this cas
 
 Given the tech nature of most doc, .rst probably better than markdown.
 However, stackoverflow is essentially markdown.
+github default to .md, and most folks seems to use .md rather than .rst.
+.md seems to be better with code block, but i can't stand # rendering as title, as i use that often as comment, even in text files!
+hmm... maybe use // as comment, as JavaScript and GOlang do...
 
 
 Next should be a table of content.  the ``contents directive`` will read entries from the ``topic directive`` , as well as things that parsed are headers (those with underlines and stuff).  Thus, explicit ``topic`` or ``title`` directives are not really necessary.   (``sidebar directive`` not supported by github rendered)
@@ -50,8 +133,12 @@ Pre-formatted code block (literal text)
 
         blank line and indent after :: to start a pre-formatted mono-space text block
         another line
+        another line
+		github render the above into final text as well.  easier just have them at end of line
+        another line
 
-back to normal text here
+back to normal text here after a blank line
+
 
 .. code:: bash
 
@@ -75,7 +162,7 @@ back to normal text here
 
 back to normal text here
 
-One thing that .md might be better than .rst is that 
+One thing that *.md* might be better than .rst is that 
 pre-formatted code block can be delimited with triple backticks (optionally followed by language name)
 ``` bash
 echo "code here"
@@ -89,16 +176,9 @@ But I rather indent than deal with # as header which attract attention rather th
 
 
 
+next ==== line is rendered as horizontal line:
+
 ==========================================================
-
-References
-----------
-
-- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText#Examples_of_reST_markup
-- reStructuredText quick ref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
-- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
-- preformatting samples, but not necessarily code syntax highlight: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples 
-
 
 
 .. topic:: Examples 1
@@ -107,11 +187,10 @@ Examples that works
 
 Note that single dash subline make this a subheader but no ruler line below it like the above does
 
-- use dash to start list
-- ``double backquotes``  highligt in reverse text and monospace font
-- *single asterist* to delimited *italic text* 
-- **double asterisks** became **bold**
-- nice thing is vim will highlight text specially from .rst syntax (mostly)
+
+.. topic:: Examples 2
+Examples 2, lists (that works)
+------------------------------
 
 
 List with human numbers
@@ -177,6 +256,8 @@ So, just like normal text <BR>
 Use html markdup of "br" <BR>
 to mean hard break of line?
 Nope.  RTFM!
+
+**> no good solution, see reStructuredText_hard_line_break.rst <**
 
 
 ----
@@ -332,13 +413,16 @@ B. Adding space in the beginning will be treated as quoted text and add email-st
 
 
 
----------------------------------------------------------------------------
-  this is an example of boxed text, but github don't render them as boxed 
----------------------------------------------------------------------------
 
-===============================
- another example of boxed text
-===============================
+| ---------------------------------------------------------------------------
+|   this is an example of boxed text, but github don't render them as boxed 
+|   it was not to have the pipe in front, but github is my primary place for rst
+|   and it is utterly broken, so can't afford to have a thing that really break
+| ---------------------------------------------------------------------------
+
+| ===============================
+|  another example of boxed text
+| ===============================
 
 (note the starting space in the text line vs the dash line)
 
@@ -361,6 +445,14 @@ Preformatted code example
 
 reference for preformatting: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples
 reference for directive: http://docutils.sourceforge.net/docs/user/rst/cheatsheet.txt
+
+
+::
+
+	two colons, blank lines before and after it,  next lines with indent 
+	this should be treated different than next block
+	arrggg... i should break down the examples into multiple rst files
+	so that one error won't cascade to downstream texts :(
 
 
 ::
@@ -410,3 +502,26 @@ trying raw, it gets reverse text block in github.
 	
 
 back to normal
+
+
+
+
+
+still here?
+-----------
+
+
+wow, apparently i wrote a lot before.  or pasted a lot... \
+a lot of stuff in middle are dealing with lists
+
+
+
+comments
+--------
+
+.. this is comment line in rst, ie, not displayed
+.. so vim modeline is set as rst comment
+
+.. # use 8-space tab as that's how github render the rst
+.. # vim: shiftwidth=8 tabstop=8 noexpandtab paste 
+

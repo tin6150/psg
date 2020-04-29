@@ -13,7 +13,8 @@
 # submit job as  
 #    sbatch   ./slurm-script-eg.sh                                          
 #    sbatch   --partition savio1   ./slurm-script-eg.sh                                          
-#    sbatch   --partition=savio2 -w n0293.savio2 -N 1 --account=scs --qos=savio_debug ./slurm-script-eg.sh                                          
+#    sbatch   --partition=savio2 -w n0293.savio2 -N 1 --account=scs --qos=savio_debug ./slurm-script-eg.sh   
+#    sbatch   -p savio2  -A scs --qos savio_debug ./slurm-script-eg.sh # works in 2020.0412, this script has all required feature (or not specifying feature not understood by some bloody banking plugin?
 
 
 hostname

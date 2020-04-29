@@ -46,18 +46,25 @@
 <H1>InfiniBand</H1>
 
 <OL>
-<LI>openfabric.org - OFED source.  Quite convoluted these days.	<BR>
+<LI>
+<A HREF="http://www.openfabrics.org/download_linux.htm">openfabrics.org</A>
+Primary source for OFED.  Somewhat convoluted, thus a bit of work to get them compiled on your platform.
+ Compilation for MPI, MVAPICH, etc would be needed for HPC env. 
+ They include ULP (upper layer protocol) such as IPoIB.  <BR>
+
 <LI>RHEL ofed      - RHEL backport fixes, and keep a more usable OFED stack than the community version.  use this before using community version to avoid headache (eg luster compatibility).   <BR>
 <LI>mellanox.com   - compile binaries for major distro, used to be about 3 months lag behind source, but probably best route for supported cards.  <BR>
 If updateing OS, need to get new version of driver, and recompile for the OS.  may take some 15 min to compile and install.
 May also disable opensmd systemd , just need to re-enable it
 
+
+<LI>
+	It seems that the current trend is to use the ofed drivers.
+some compilation needed.  Compilation for MPI, MVAPICH, etc would be needed for HPC env. 
+They include ULP (upper layer protocol) such as IPoIB.  <BR> 
+
 </OL>
 
-
-<A HREF="http://tinyurl.com/infiniband">
-http://tinyurl.com/infiniband</A>	- my cache of IB docs.
-<BR>
 
 <H2>InfiniBand 101 </H2>
 
@@ -71,6 +78,15 @@ GUID - Global Uniq ID <BR>
 <BR>
 
 Symbol Error - Think of this as packet error in the ethernet world.  it is the rate of error accumulation that should be of concern. <BR>
+<BR>
+
+XmtDiscards - counter indicative of congestion (concern when rate of increase is rapid)
+<BR>
+
+<BR>
+
+Verbs - IB allow code to be run on the network.  Think optimizing calls for calculating sum of counters distributed among many IB hosts.  Verbs allow command to be executed on feature-rich IB swtich.  
+<BR>
 <BR>
 
 
@@ -139,6 +155,17 @@ MOFED (MLNX_OFED) for RH7
 /etc/init.d/opensmd status
 
 
+ibcheck
+
+ibacm...
+        # ib adaptive control manager
+        # not really needed by OFED, but included by yong
+
+
+tool to update IB (HCA?) firmware:
+flint ?
+mfp ?
+
 </PRE>
 
 
@@ -169,6 +196,7 @@ pdsh -g etna0 TERM=vt52 /usr/bin/hca_self_test.ofed | grep -i fail
 perfquery		# simple to read ib counters.  pay special attention to:
 			# SymbolErrorCounter
 			# LinkErrorRecover
+			# infiniband-diags by Mellanox, install to /sbin
 
 ibqueryerrors -c -s XmWait
 
@@ -208,20 +236,60 @@ ibportstate  6        11         disable
 </PRE>
 
 
+<H5>ibcheck</H5>
+
+<PRE>
+ibcheck needs root to run many cmd (ibcheck use fabrics.conf for GUID to hostname resolution, etna below is name of a cluster)
+ibcheck -f ../fabrics.conf -C etna -E  -dd -a -b -O 20 > ibcheck-E-b-dd-a.etna.out.1226
+
+ibcheck -h		# help (also pydoc ./ibcheck)
+
+ibcheck -E      # errors and perf counter (top-like UI, h for help)
+
+ibcheck -d -f fabrics.conf -C lrc-fabric
+	-f      # specify a fabric definition file, so name displayed is looked up from fabrics.conf
+	-d      # detail level 1, just a list of devices
+	-dd     # detail level 2, switch and what is connected to each ports [most adequate output]
+		# -dd   scan all ports with a link attached to it, ie list switch and what is connected to it.
+	-ddd    # detail level 3, add vendor id, device id, guid etc to each switch or Ca.  empty ports explicity listed as such
+		# -ddd  scan all ports - empty port will be explicity listed as such
+	-C      # filter by Cluster - ie display only for entries matching specified cluster
+	-i      # change scan interval, in seconds.
+	-b      # batch mode, avoid the top-like interface for -E
+	-O      # timeout, default to 3 sec, may need it to be longer
+
+ibcheck -f fabrics.conf -dd -C cf0 -E -i3
+		# monitor Error counter for specific cluster
+		# top-like interface.  use space to toggle between error-only list vs all-node list
+		# -f fabrics.conf is file maintained manually.  Use Node GUID : name key-value pair
+		# note that nodes are defined in their cluster (eg [lr4]) and super cluster (ie [lrc-fabric])
+
+ibcheck -l 32,33 -ddd 					# -l filter for specific LID (comma list)
+ibcheck -f fabrics.conf -g 0x7cfe900300b515e0 -ddd 	# -g GUID, can be comma list
+ibcheck -f fabrics.conf -t ibnetdiscover.out	 	# -t scan for changes against a saved ibnetdiscovery file
+ibcheck -f fabrics.conf -dd -M 				# -M also display how many subnet manager(s) are running and where.
+
+ibcheck -E -b         -O 10 -ddd
+
+</PRE>
+
+
 <H5>Ref</H5>
 
 <OL>
 <LI> <A HREF="https://drive.google.com/file/d/1n59lb-IkWjIgUJBPSuXtA_fi2qYtbAHX/view?usp=sharing">Yong Qin's IB Diag & Troubleshooting</A>
 <LI> <A HREF="https://wiki.uiowa.edu/display/hpcadmin/Basic+Infiniband+troubleshooting">ulowa basic ib troubleshooting</A>
+<LI> <A HREF="http://tinyurl.com/infiniband">http://tinyurl.com/infiniband</A> - my cache of assorted IB docs.
 </OL>
 
 <BR><HR><BR>
 
 
-<H2>IBoIP</H2>
+<H1>IBoIP</H1>
+
+Run IP network over Infiniband (instead of Ethernet).
 
 <PRE>
-
 
 # bring up interface after driver install, w/o reboot 
 rmmod    ib_ipoib
@@ -466,7 +534,7 @@ for things that use IB directly like MPICH...  don't know....).
   [Doc URL: <A HREF="http://tin6150.github.io/psg/">
 http://tin6150.github.io/psg/
 </A>] <BR>
-Last Updated: 2018-02-03
+Last Updated: 2020-01-07
   <!--[Doc URL: <A HREF="http://psg.ask-margo.com/">http://psg.ask-margo.com/</A>] <BR>-->
 <BR>
 (cc) Tin Ho. See 
@@ -487,3 +555,5 @@ Last Updated: 2018-02-03
 
 
 </html>
+<!-- vim:shiftwidth=8 tabstop=8  nolist nu noexpandtab
+-->

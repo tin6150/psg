@@ -1,4 +1,7 @@
 <html>
+<!-- vim: tabstop=8 shiftwidth=8 noexpandtab paste
+browser render tab as 8 spaces for html PRE
+-->
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
   <title>Pocket Survival Guide - Linux</title>
@@ -1096,11 +1099,7 @@ No partitions are needed in such disk.  only scsi reservation commands are issue
 <A NAME="ib"></A>
 <H1>Infiniband</H1>
 
-It seems that the current trend is to use the ofed drivers.
-some compilation needed.  Compilation for MPI, MVAPICH, etc would be needed for HPC env.
-They include ULP (upper layer protocol) such as IPoIB.  <BR>
-see:
-<A HREF="http://www.openfabrics.org/download_linux.htm">openfabrics.org</A>
+Info moved to <A HREF="infiniband.html">infiniband.html</A>
 
 <A NAME="raid"></A>
 <A NAME="RAID"></A>
@@ -1271,6 +1270,13 @@ there is a gui called raid manager. <BR>
 
 /opt/MegaRAID/MegaCli/MegaCli64
 
+# ?? not sure what these params are exactly:
+# -a    = array controller number.  
+# -a0   = array controller 0
+# -aAll = all array controllers (if there were multiple)
+# -l    = ??
+# -L    = Logical Disk?
+
 MegaCli64 -LDInfo -lall -aall	# array info and state
 MegaCli64 -LDInfo -lall -aall | egrep --color "Adapter|^Virtual Drive|Name|^RAID Level|^Size|State|Number Of Drives"
 
@@ -1287,10 +1293,23 @@ MegaCli64 -PDInfo -PhysDrv [1:2] -aALL | more
 MegaCli64 -Pdgetmissing -a2		# see if there are missing drive in adapter 2
 
 MegaCli64 -PdList -aall | grep --color -i firmware	# get firmware info
+MegaCli64 -LdPdInfo -aAll # logicak disk info
 
 lsblk
 
 ## how to find out which linux /dev/sdX maps to which VirtualDisk (LUN) on the RAID controller ??
+
+
+MegaCli64 -ShowSummary -aAll
+MegaCli64 -EncInfo -aAll						# enclosure info
+
+MegaCli64 -AdpEventLog -GetEventLogInfo -aAll	# event log
+MegaCli64 -AdpEventLog -GetEvents
+
+MegaCli64 -AdpBbuCmd -aAll 						# Backup Battery Unit (BBU) state
+MegaCli64 -AdpBbuCmd -GetBbuStatus -a0
+MegaCli64 -AdpBbuCmd -GetBbuDesignInfo -a1
+
 
 </PRE>
 
@@ -1303,7 +1322,10 @@ echo "- - -" > /sys/class/scsi_host/host0/scan			# scan for new device, change h
 echo 1 > /sys/block/sda/device/rescan				# rescan for changed size, change sda to appropriate drive
 
 
+MegaCli64 -CfgLdAdd -r0'[32:3]' -a0     # create new config for Logical Disk with raid0 (with disk 32:3 ie one plain disk)
+										# -a0 = on array controller #0
 MegaCli64 -CfgLdAdd -r5'[252:5,252:6,252:7]' -a0		# create new raid5 LUN
+
 MegaCli64 -LDRecon -Start -r5 -Add -PhysDrv[32:3] -L0 -a0	# extend existing LUN with 1 new Physical Drive
 MegaCli64 -LDRecon ShowProg L0 -a0				# view reconstruction progress (when replacing bad drive?, or extending VD?)
 MegaCli -LDGetProp -DskCache -LAll -aALL			# check physical HD cache, recommend enable iff have UPS
@@ -2284,6 +2306,9 @@ apt-get update				# update repository db
 apt-get -d install perl-Compress-Zlib	# install a specific package
 					# -d = download only, stored in /var/cache/apt/archives
 
+
+apt-get -y --quiet install DEBname   # answer yes.  DEBIAN_FRONTEND=noninteractive dont always stop the questioning :/
+
 aptitude search foo			# kinda equiv to yum list | grep foo
 aptitude install foo			# equiv to yum install foo
 aptitude show genome-music		# brief info about pkg
@@ -2292,7 +2317,8 @@ cat/var/lib/dpkg/info/genome-music.list # list files installed by a given packag
 
 dselect
 dpkg -l					# list installed packages (.dpkg) = rpm -qa
-dpkg -i					# rpm -ivh
+dpkg -i file.deb		# rpm -ivh
+apt-get install ./file.deb	# probably better, solve dependencies
 
 dpkg  --search file			# find which package has file
 rpm    -qif    file
@@ -2932,7 +2958,7 @@ https://wiki.debian.org/SELinux/Setup</A>
 <PRE>
 
 apt-get install selinux-basics selinux-policy-default auditd 
-apt-get istall setools	# may have lots of dependencies in older debians
+apt-get install setools	# may have lots of dependencies in older debians
 
 download script from https://wiki.debian.org/SELinux/Setup?action=AttachFile&do=view&target=_load_selinux_policy
 
@@ -3040,6 +3066,29 @@ see
 on steps to rid old nvidia.ko
 
 <BR>
+
+<H2>ANSI escapes</H2>
+
+<PRE>
+Ansi is the most common escape sequence to draw colors on screen.
+more colorfile.txt will parse them correctly.
+less colorfile.txt does not (yet) display file with color.  to rid them:
+
+cat colorfile.txt | strip-ansi | less
+
+npm install --global strip-ansi-cli
+
+sed can likely remove them, but not as easy as above.
+
+vt100 dont support color, but still support ncurses/readline to draw character on screen  (?)
+
+docker build, 
+Rscript install
+apt-get install
+are tools that tend to draw on screen and make for very annoying logs :/
+
+
+</PRE>
 
 <BR><BR>
 <A NAME="VendorSpecific"></A>
@@ -3550,6 +3599,42 @@ http://www.cyberciti.biz/tips/top-linux-monitoring-tools.html has good overview.
 </PRE>
 
 
+<A ID="difftools"></A>
+<H5>
+diff tools
+</H5>
+
+<PRE>
+
+vimdiff    file1.txt file2.txt          # character-based side-by-side diff, handle up to 4 files.
+					# always default to side by side diff.
+                                        # ^w J = vertical split   (toggle)
+                                        # ^w H = horizontal split 
+
+
+vim -o A.txt B.txt C.txt will open three horizontal splits for each file.
+vim -O A.txt B.txt C.txt will open three vertical splits for each file
+
+
+- fldiff # X, side by side, opt to ignore space, best diff so far ## avail in  wsl, zorin, not in centos7
+- meld # lots of deps on KDE or Qt?  but new version is very good.  fairly close to github web diff.  only side by side diff. 
+- icdiff # text color sdiff by char, very nice (but no ignore space) ## not in zorin, ubuntu?
+
+
+- dwdiff # doesnt seems to be in centos7
+- colordiff # -yw for side and ignore space, but not too good
+
+- kdiff3,  GUI, up to 3 files diff? can't handle large diff.  depends/install kde-runtime 
+- kdiff3-qt # lots of qt stuff needed
+
+- mgdiff # clone of xdiff, old school X, no ignore space option
+- xxdiff # directory diff and merge tool
+- wdiff  # gnu word diff
+- docdiff
+
+
+</PRE>
+
 
 <A ID="minicom"></A>
 <H5>
@@ -3579,6 +3664,96 @@ eg as default .dlf, then restart minicom for it to become effective!
 
 Solaris, use 9600, 8n1, no flow control (hardware of software).
 Acopia seems to have required Flow Control DTS/DTR.
+
+</PRE>
+
+<A NAME="iso2usb"></A>
+<H1>
+iso2usb - making bootable usb thumbdrive from .iso
+</H1>
+
+
+<PRE>
+
+CentOS 8, 7, 6.5 and newer
+--------------------------
+
+Need dd, their iso format has a portion that windows cannot copy correctly.
+dd if=centos.iso of=/dev/sdz
+
+must write to the whole usb, not a partition in it!  ie, can't use /dev/sdz1
+so will need to dedicate a whole usb key to it.
+
+see https://wiki.centos.org/HowTos/InstallFromUSBkey
+
+Resulting image looks like (partition is read only, and extra space on usb is wasted):
+
+    Disk /dev/sdc: 15.1 GiB, 16170196480 bytes, 31582415 sectors
+    /dev/sdc1  *        0 15335423 15335424  7.3G  0 Empty
+    /dev/sdc2       23772    44151    20380   10M ef EFI (FAT-12/16/32)
+
+    /dev/sdc1 on /media/tin/RHEL-8-1-0-BaseOS-x86_64 type iso9660 (ro,nosuid,nodev,relatime,nojoliet,check=s,map=n,blocksize=2048,uid=43413,gid=100,dmode=500,fmode=400,uhelper=udisks2)
+
+
+Fedora Media Writer for windows work, easy, but overwrite whole USB and create read-only FS (or is it ext2?).
+  It likely use dd underneath.
+
+
+
+Linux
+=====
+
+* UNetbootin ? works for ubuntu?  
+
+* livecd-iso-to-disk said can preserve files on usb 
+    - https://docs.fedoraproject.org/en-US/quick-docs/creating-and-using-a-live-installation-image/index.htm]
+
+* etcher for ubuntu... work for fedora.iso ? ... 
+    - https://itsfoss.com/create-fedora-live-usb-ubuntu/
+    - appImage (multiplatform), GUI.
+    - on Ubuntu 18.04, wiped the whole USB and created an iso9660 RO FS
+      resulting usb has single partition, of type 17: Hidden HPFS/NTFS
+      /dev/sdd1  *        0 3710975 3710976  1.8G 17 Hidden HPFS/NTFS
+      may as well just use dd?  it does "label" the disk, eg: /media/tin/SL-75-x86_64-LiveDVDgnome
+
+
+
+
+* live-iso
+
+
+SL7 could use dd, but also have other options listed in  http://www.livecd.ethz.ch/usbdisk.html
+
+* live usb creator gui -
+  yum --enablerepo=sl-addons install liveusb-creator
+
+
+livecd-tools (cli)
+------------------
+
+for SL7 can be found here: http://www.livecd.ethz.ch/download/RPMS/7x/x86_64/
+
+livecd-iso-to-disk SL-64-i386-2013-04-17-LiveCD.iso /dev/sdb1
+
+To reserve space for data persistence use option --overlay-size-mb: 
+livecd-iso-to-disk --overlay-size-mb 1024 SL-64-i386-2013-04-17-LiveCD.iso /dev/sdb1
+
+
+
+
+
+
+windoze tools
+=============
+
+* LiLi, was old favorite, but stopped working for CentOS 7 or 8 iso.  maybe okay for ubuntu/debian.
+  lili writes to existing FAT32 partition, so could use the usb for regular storage as well.
+* UNetbootin (win/linux/mac).  Write to existing FAT32, make it bootable.
+  Seems a bit slow?  http://unetbootin.github.io/
+  Cant work for Centos 7 iso.
+* PS.  DVD sizes are: 4.7, 8.5, 9.4, 17.08 GB.  So, maybe create a partition of 18GB for hosting such boot media.
+
+
 
 </PRE>
 
