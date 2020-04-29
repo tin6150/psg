@@ -495,6 +495,25 @@ export COMMON_ENV_TRACE
 ## but it was certinaly causing a long hang in exalearn when sourcing it
 condaSetup4exalearn () {
 
+	# conda install in wsl tin-t55
+	# not going to source conda.sh by default, remember to do it by hand if needed.
+	# hopefully just setting the PATH is enough
+
+	# >>> conda initialize >>>
+	# !! Contents within this block are managed by 'conda init' !!
+	__conda_setup="$('/home/tin/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+	if [ $? -eq 0 ]; then
+		eval "$__conda_setup"
+	else
+		if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
+			. "/home/tin/anaconda3/etc/profile.d/conda.sh"
+		else
+			export PATH="/home/tin/anaconda3/bin:$PATH"
+		fi
+	fi
+	unset __conda_setup
+	# <<< conda initialize <<<
+
 	# added by Anaconda3 5.3.1 installer
 	# >>> conda init >>>
 	# !! Contents within this block are managed by 'conda init' !!
@@ -503,17 +522,28 @@ condaSetup4exalearn () {
 	    eval "$__conda_setup"
 	else
 	    if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
-		. "/home/tin/anaconda3/etc/profile.d/conda.sh"
-		CONDA_CHANGEPS1=false conda activate base
+			# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
+			CONDA_CHANGEPS1=false conda activate base
 	    else
-			export PATH="/home/tin/anaconda3/bin:$PATH"
+			# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
+			DUMMY="done"
 	    fi
 	fi
 	unset __conda_setup
 	# <<< conda init <<<
 
+
 }
+
+
+# get anaconda into PATH, but source conda.sh manually if/when needed
+
+if [[ -d /home/tin/anaconda3/bin ]] ;  then
+	export PATH="/home/tin/anaconda3/bin:$PATH"
+fi
 
 ################################################################################
 # vim modeline, also see alias `vit`
 # vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
+
+

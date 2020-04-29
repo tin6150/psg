@@ -110,6 +110,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
 	git clone https://tin6150@github.com/tin6150/smelly.git
+	git clone https://tin6150@github.com/tin6150/adjoin.git
 	git clone https://tin6150@github.com/tin6150/cvs.git
 	git clone https://tin6150@github.com/tin6150/PGI-Singularity.git  # fork from Ryan, pgi compiler, netcdf lib
 
