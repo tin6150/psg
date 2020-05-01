@@ -1,23 +1,14 @@
 #!/bin/bash  -l
 
-# -l in bash is important for login shell and getting the TF job to start correctly?  nope, still no dice.
+# -l in bash is SOMETIME important for login shell and getting the TF job to start
 
-#### gpu job from wei now, comment need update...
-
-
+#### this script run GPU jobs using 4 GPU at a time.
+#### it runs a TF CNN benchmark, but run on large batches (instead of epoch?)
+#### mostly to stress test/power load test a machine
+#### (it is a adaptation from  ~wfeinstein/test-gpu/test.sh)
+#### submit-slurm-allIdle-brc.sh can invoke this script
 ####
-#### helper script to run job on every node of a cluster, 
-#### test slurm job scheduling/running abilities
-#### and node abilities to run job
-#### see bottom for submission command against all nodes using sbatch -w 
-#### also for power/stress test.
-####
-
-#### slurm-allnodes-lr5.sh has the most notes as of 2020.04
-#### this one adapted from run_iozone_lr5.sh, but don't want to run iozone on prod fs.
-#### 
-#### slurm-job.sh, slurm-script-eg.sh are simple versions.
-#### slurm-job-cf1.sh should have been clean version for a specific partition
+#### can also just invoke this script directly from the shell to test a specific node
 
 
 #SBATCH				--job-name=SnGpuTest    # -J CLI arg will overwrite this
@@ -120,8 +111,10 @@ module list    2>&1
 PRECISION=fp32 
 MODEL=inception3
 BATCH_SIZE=32 # --num_batches param, this  should take about 8 hours
-NUM_BATCHES=250000 # for V100 or colefax, need to change.
-NUM_GPU=4							
+#NUM_BATCHES=250000 # for V100 or colefax, need to change.
+NUM_BATCHES=2500001 # for V100 or colefax, need to change.
+#NUM_GPU=4							
+NUM_GPU=7							
 
 echo "---about to start tf cnn benchmark  --------------------"
 
@@ -136,9 +129,11 @@ echo "---about to start tf cnn benchmark  --------------------"
 ##time python /global/home/users/wfeinstein/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagene
 
 # now using files under my dir
-echo time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu-log
+echo time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
 
+date > /global/scratch/tin/JUNK/test-gpu-log.start 
 time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu-log
+date > /global/scratch/tin/JUNK/test-gpu-log.end
 
 
 ( 
@@ -153,4 +148,7 @@ echo $shell
 
 exit 0 
 
+
+#### example submission
+#### sbatch -w n0144.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:4 --time=05:40:59 --mail-type=NONE --job-name=n0144.savio3_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 
