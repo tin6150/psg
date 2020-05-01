@@ -131,9 +131,9 @@ echo "---about to start tf cnn benchmark  --------------------"
 # now using files under my dir
 echo time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
 
-date > /global/scratch/tin/JUNK/test-gpu-log.start 
-time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu-log
-date > /global/scratch/tin/JUNK/test-gpu-log.end
+date > /global/scratch/tin/JUNK/test-gpu.start 
+time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.log
+date > /global/scratch/tin/JUNK/test-gpu.end
 
 
 ( 
