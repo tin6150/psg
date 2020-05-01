@@ -83,6 +83,7 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
 	git clone https://tin6150@github.com/tin6150/inet-dev-class
+	git clone https://tin6150@github.com/tin6150/smelly.git
 	git clone https://tin6150@github.com/tin6150/adjoin
 	git clone https://tin6150@github.com/tin6150/covid19_care_capacity_map
 	git clone https://tin6150@github.com/tin6150/a51		# private repo, encrypted content.  formerly area51
@@ -111,7 +112,6 @@ run_git_clone()
 	git clone https://tin6150@github.com/tin6150/perf_tools
 	git clone https://tin6150@github.com/tin6150/cuda
 	git clone https://tin6150@github.com/tin6150/boinc-client.git
-	git clone https://tin6150@github.com/tin6150/smelly.git
 	git clone https://tin6150@github.com/tin6150/cvs.git
 	git clone https://tin6150@github.com/tin6150/PGI-Singularity.git  # fork from Ryan, pgi compiler, netcdf lib
 
