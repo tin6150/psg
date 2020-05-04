@@ -348,7 +348,8 @@ defineAlias () {
 	###
 	### stuff for ETA/CMAQ
 	###
-	alias Monitor='watch -d -n 30 "echo ""; squeue -u tin --start --long ; squeue -u tin --long; echo "" ; wc iolog_000.out ; ls -ltr *nc iolog_000.out; echo ""; grep Walltime iolog_000.out | tac  "'
+	alias  Monitor='watch -d -n 30 "squeue -u tin --start | grep -v JOBID ; squeue -u tin --long | egrep -v 2019\|JOBID; echo "" ; pwd; wc iolog_000.out ; ls -ltr *nc iolog_000.out; echo ""; grep Walltime iolog_000.out | tac  "'
+	alias MonitorX='watch -d -n 30 "echo ""; squeue -u tin --format="%.18i %.9P %.8j %.8u %.2t  %.19S %.6D %20Y %R", --sort=S ; echo "" ; wc iolog_000.out ; ls -ltr *nc iolog_000.out; echo ""; grep Walltime iolog_000.out | tac "' # somehow don't work as alias inside watch, maybe quotes problem, which somehow watch managed to manage nested "" 
 
 	###
 	### Alias that need to be defined as function
@@ -467,7 +468,7 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
 #~~add_hpcs_module	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
-add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
+#++add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
 add_personal_module 
 add_cosmic_module 
 

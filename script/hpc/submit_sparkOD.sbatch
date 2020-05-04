@@ -81,8 +81,9 @@ spark-start
 EXITCODE=$?
 echo "spark-start completed, exitcode is $EXITCODE"
 module list
-which start-master.sh
-which start-slaves.sh
+#which start-master.sh
+#which start-slaves.sh
+# start-master.sh is not a script!  it is a function.  use `declare` to see them
 echo "======================================================"
 
 echo  SPARK ENV vars:
