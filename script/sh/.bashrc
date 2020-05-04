@@ -551,6 +551,7 @@ condaSetup4exalearn () {
 
 if [[ -d /home/tin/anaconda3/bin ]] ;  then
 	export PATH="/home/tin/anaconda3/bin:$PATH"
+	export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh"
 fi
 
 ################################################################################
