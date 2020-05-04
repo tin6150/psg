@@ -9,6 +9,8 @@
 ## 1st loc: psg/script/hpc/
 ## 2nd loc: tin-bb/blpriv/hpcs_toolkit
 
+### slightly updated 2019.0916 
+### from perceus:/global/home/groups/scs/disks/part_disks.sh 
 
 ## old way:
 ## [root@n0014 ~]# sudo -u bernardl cat  /global/home/users/bernardl/part_disks.sh  > /root/part_disks.sh
@@ -72,6 +74,9 @@ run_fdisk_cmd()
 	/bin/umount /local
 	/bin/umount /tmp
 
+	### I had this at top, may not need to do that again here.
+	echo "" > /proc/sys/kernel/hotplug
+
 	#wipe the partition table (and then some)
 	/bin/dd if=/dev/zero of=$SD_NAME bs=1024k count=10
 
@@ -86,6 +91,10 @@ run_fdisk_cmd()
 	echo running lvcreate for local
 	$LVMROOT/lvcreate -y -n local -l $LOCAL_SIZE $VG_NAME
 
+	###
+	sync
+	sleep 1
+
 	umount /tmp
 	/sbin/mkswap -L swap /dev/$VG_NAME/swap
 	$MKFS -L tmp /dev/$VG_NAME/tmp
@@ -96,6 +105,7 @@ run_fdisk_cmd()
 	umount /tmp
 	mount /tmp
 	chmod 1777 /tmp
+	chmod 1777 /var/tmp ###
 	swapon -a
 	swapon -s
 	df -h /tmp

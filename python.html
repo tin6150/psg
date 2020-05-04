@@ -164,7 +164,8 @@
 
 <LI>numpy - basic numerical analysis
 <LI>scipy - build on numpy, more data analysis for scientific applications.
-<LI><A HREF="http://pandas.pydata.org/">pandas</A> - kinda provide an equiv of R.  
+<LI><A HREF="http://pandas.pydata.org/">pandas</A> - kinda provide an equiv of R.  Work with data frames.  See 
+	<A HREF="#dataframe">#dataframe</A> below
 </UL>
 
 <H2>Python idiosyncracies</H2>
@@ -657,6 +658,27 @@ if( txt == "abc" ):
 
 </PRE>
 
+
+<PRE class="code">
+# import regular expression (regex) lib
+import re
+
+# this is closest to perl re search
+m = re.search(r"(\w+)(Jul)(\w+)", "foo_Jul_bar")
+
+if m : # ie execute only when a match is found
+	print( "YES match found" )
+	print( m.group(0) ) # "foo_Jul_bar", ie the whole regex match
+	print( m.group(1) ) # "foo_", perl's \1
+	print( m.group(2) ) # "Jul" , perl's \2
+	print( m.group(3) ) # "_bar", perl's \3
+else : 
+	print( "NO  match found" )
+
+#re.match(...) match only starting from the beginning
+
+</PRE>
+
 <PRE class="code">
 # get command line argument
 import sys
@@ -1112,6 +1134,72 @@ ref:
 <BR>
 <A HREF="https://docs.python.org/3/tutorial/classes.html#class-objects">Python 3 tutorial on classes</A>
 <BR>
+
+<A NAME="dataframe"></A>
+<H1>DataFrame (Pandas), DataSeries</H1>
+
+<LI> DataFrame is essentially a table (2D).  </LI>
+<LI> Operations (methods) work on all elements of a given column.  so avoid having to write iterative loops. </LI>
+<LI></LI>
+
+<LI>DataSeries is a different data structure and has different methods.  <BR>
+	These are horizontal?  But not exactly 1D?
+</LI>
+<LI></LI>
+
+<PRE>
+
+import pandas as pd
+unemployment = pd.read_csv("data.csv")
+myTable.to_csv("path/result.csv")  # save result, export to csv
+
+
+slices (return another dataframe) vs loc/iloc (return a data series)
+pretty confusing here.
+also, does it mutate the object (dataframe) like method would?  
+or just return a new data frame that is diplayed by jupyter notebook, but otherwise discarded if not saved to a new dataframe.
+
+Note that for loc, ending index is NOT included.  But it is included in iloc. !! 
+
+[...] is for slicing
+[[...]] ??
+
+merge.
+Used to join two dataframes.  
+This is essentially a JOIN in datababase parlance.
+Left/Right inner/outter applies, which may generate really strange looking tables.  RTFM.
+
+inplace=True # edit table in place
+inplace=False  # good for transient display?   don't save into existing table, saving need assignment to new table
+
+unemployment = unemployment.drop(... , inplace=True, ... )   # drop column 
+dropna()  # drop (rows?) with missing value.
+
+unemployment['en_name'].unique()  # return unique country names
+unemployment['en_name'].nunique()  #  think of count( ...unique() )
+
+unemployment['unemployment_rate'].isnull().sum()  # give a count of number of rows where column unemployment_rate is null (ie missing data).
+
+
+.reset_index(drop=True, inplace=True)    # eg before plotting, good to reset the row index if done work to remove data.
+index usually used as x values in plots, thus sequential indexing would be nice (or else get gap?)
+
+pd.to_datetime('1868/3/23')  # in yyyy/m/dd format!! :)
+pd.to_datetime('3/23/1868', format='%m/%d/%Y')  # specify format
+return a timestamp object.
+
+
+GroupBy
+unemployment.groupby('name')['unemployment_rate_null'].sum()
+
+
+
+
+</PRE>
+
+Ref:
+Berkeley D-Lab 
+<LI> <A HREF="https://github.com/dlab-berkeley/introduction-to-pandas">Introduction to pandas</A> </LI>
 
 
 <A NAME="pyspark"></A>

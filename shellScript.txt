@@ -104,11 +104,16 @@ INT1 -gt INT2
 INT1 -lt INT2
 
 String comparison test
-Str1 = Str2
+Str1 =  Str2    # use =  with test or [ ]
+Str1 == Str2		# use == with [[ ]]
 Str1 != Str2
 
 Since they are string, may as well use "Str" so account for undefined/empty string cases.
 
+-z Str # zero length string
+-n Str # non-zero length string
+
+Str1 =~ regex   # true if regex matched (ie found in Str1)
 --------
 
 LD_PRELOAD_OPTS=...
@@ -277,6 +282,17 @@ many lines
 " > /tmp/heredoc.txt
 
 
+for multilines comment, can use a variation of the fork bomb as:
+
+: '
+blah blah blah
+foo
+bar
+baz
+ref: https://stackoverflow.com/questions/43158140/way-to-create-multiline-comments-in-bash
+'
+
+
 
 
 shell editor
@@ -363,43 +379,69 @@ so, instead of fn, can use goto
 wonderful!
 
 
+csh may not source .login just like bash may not source .profile ?
+docker exec tcsh, does NOT source /etc/csh.login
+but DOES source /etc/csh.cshrc
+so put things in .cshrc  (like putting things in .bashrc).  eff-it :-/
+
 
 ** CSH Anoyance **
 
 csh craps:
 
 PATH is treated special in csh
+it seems csh keep a sync of path and PATH as space and colon delimited list
+only PATH has such special treatment, LD_LIBRARY_PATH does not.
+##** $path is a space delimited list
+##** $PATH is a colon delimited list
+##** setenv expects a colon delimited list
+##** set    expects a space delimited list
 
+
+set path = ( ${path:q} /opt/openmpi/2.1.6/bin ) 
 set path = ( $path /bin /usr/local/bin /usr/bin /usr/bin/X11 ~/bin /sbin /usr/sbin . )
 ##***  don't use $PATH above, it must be lower case $path in the parenthesis.  
 ##***  or else it will consider the colon delimited list as a unit and path won't work,
 ##***  even when displayed correctly!!  another reason why csh is bad!! =)
 
 setenv PATH            "${PATH}:${AMGEN_HOME}/bin"
-###*** above works, ${PATH} is the right thing to use.  (it seems braces {} are required around var name.
+### above would works, ${PATH} can be used like that.  
+### CSH treats : in variable name as manipulation token,
+### braces {} will properly define where variable name eval ends.
+### ${var:q}  will apply :q var evaluation to $var
+### but ${var}:bla , : is outside variable name eval and not treated special by csh...
 
-##** $path is a space delimited list
-##** $PATH is a colon delimited list
-##** setenv expects a colon delimited list
-##** set    expects a space delimited list
+### csh variable modifiler , only 1 can be used, cannot be combined
+#   :q  -- quote wordlist, keeping items separate; don't expand special metacharater (ie, keep things verbatim).  it does NOTHING on regard whether var exist or not
+#   :x  -- quote a pattern, expand to wordlist
+#   :e  -- get var extension.  these are like basename command?  eg set TEST=/foo/test.txt ; echo $TEST:e get txt
+#   :t  -- get var's tail
+#   :h  -- get header.  set TEST=/foo/bar/test.txt ; echo $TEST:h get /foo/bar
+#   :ge -- get all extensions (for when there are multiple files?  space delimited?)
+
+### tcsh add :l and :u to lowercase and uppercase the FIRST letter of the var
+### http://www.grymoire.com/Unix/Csh.html#uh-92
+### https://www.ibm.com/support/knowledgecenter/en/ssw_aix_72/osmanagement/c_var_file_sub.html
+### https://docstore.mik.ua/orelly/unix/unixnut/ch05_03.htm
+
 
 ##** check path using env | grep -i path
 ##**  and NOT echo $PATH as csh treat such evaluation specially and 
 ##**  it will produce confusing results! 
 
-###  Still don't know what the hell is the differentce between PATH and path
-###  only reliable way to set path is
-###  CSH treats : in variable name as manipulation token,
-###  so setting path with colon in them is likely going to have issues 
-###
-###  *** CONCLUSION: Best use space and the lower case version!!
+###  *** CONCLUSION: Best use space and the lower case version!!  it is the most reliable way.
 ###  set path ( $path /more/path )
+###  cuz csh will print $path without : in them and have properly "tokenized" the entries
+
+### /etc/csh.login do this to update path (in a loop actually)
+### set path = ( ${path:q} /opt/openmpi/2.1.6/bin ) 
+### csh environment var qualifier :q may skip error when path was not declared or empty ??
 
 ### LD_LIBRARY_PATH seems to be okay with the setenv LD_LIBRARY_PATH 
 ### and colon separated list...
 
-
-### seed the variables before use.  very tedious!
+### csh need seed the variables before use.  very tedious!
+### maybe ${VAR:q} can be appended without causing error when it was never declared before?
 
     if(! ${?PATH}) then
         set path = ( /bin ) # ie seed PATH since it was never defined
@@ -407,6 +449,7 @@ setenv PATH            "${PATH}:${AMGEN_HOME}/bin"
     if(! ${?LD_LIBRARY_PATH}) then
         setenv LD_LIBRARY_PATH "/lib" # ie seed PATH since it was never defined
     endif
+
 
 
 setenv  DISPLAY hostname:1
@@ -437,7 +480,8 @@ else
 endif
 
 These kind of check should be done for things like LD_LIBRARY_PATH, etc.
-There is probably an easier way, using :q or something
+There is probably an easier way, but :q doesn't really help.  
+:q is used in csh.login likely to keep strange metacharacter from being interpreted.
 
 
 

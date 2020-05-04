@@ -174,15 +174,18 @@ config files in /etc/postfix
 logs in /var/log/maillot
 
 postfix reload		# after doing changes to config files
-postfix flush 		# churn thru the mail backlog
-mailq			# check the mailq
+postfix flush 		# churn thru the mail backlog ==? postqueue -f
+mailq			# check the mailq  == postqueue -p
+postsuper -d 6DF3D6A444 # remove a specific mail in the queue with the specified id
+postsuper -d deferred   # remove all deferred mail (but not other errors).   CAREFUL!
+postsuper -d ALL        # remove all queue mail (all those shown by mailq).  VERY CAREFUL!
 
 
 postconf -d    # show default param for postfix 
 postconf -d  | grep mydomain
 postconf -d  | grep myhost 
 
-postconf -n 		# to find out what settings are overruled by your main.cf. 
+postconf -n 		# to find out what settings are overruled by your main.cf. , show what postfix parsed/took out of config file
 postconf mail_version	# To find out what Postfix version you have, execute the command 
 
 </pre>
@@ -199,20 +202,40 @@ mascarade is to hide some early portion of the domain name,
 eg strip na.nova.com to nova.com
 
 
-/etc/postfix/canonical			# change domain address in both sender and recipient
-					# main for username to first.last, 
-					# but should be able to specify domain as in eg of sender-canonical
+/etc/postfix/canonical
+	# change domain address in both sender and recipient
+	# main for username to first.last, 
+	# but should be able to specify domain as in eg of sender-canonical
+	# postmap ./canonical
+	# postmap -q "string" ./canonical # ??
+	# eg:
+	@local          @lbl.gov
+	@beagle         @lbl.gov
+	@beagle.local   @lbl.gov
+
+
+
 
 /etc/postfix/sender-canonical		# sender only, need to enable clause in main.cf.  
-					# eg content:
-		@local		@na.grumpy.com
-		@headnode	@na.grumpy.com
-		@headnode.local	@na.grumpy.com
+	# eg content:
+	@local          @lbl.gov
+	@beagle         @lbl.gov
+	@beagle.local   @lbl.gov
+	# eg content 2:
+	@local		@na.grumpy.com
+	@headnode	@na.grumpy.com
+	@headnode.local	@na.grumpy.com
 
 
 /etc/postfix/recipient-canonical	# eg:
-		root@na.grumpy.com	root
-		@mycluster.local	@na.grumpy.com
+	root@na.grumpy.com	root
+	@mycluster.local	@na.grumpy.com
+	eg2: 
+	root@beagle.lbl.gov    root
+	@gretadev              @lbl.gov
+	@beagle                @lbl.gov
+	@beagle.local          @lbl.gov
+
 
 
 after update to the file, recreate hash (or dbm) as:
@@ -221,6 +244,9 @@ sudo postmap /etc/postfix/sender-canonical
 Specify dbm instead of hash if your system uses dbm files instead of db files. To find out what lookup tables Postfix supports, use the command "postconf -m".
 
 Execute the command "postmap /etc/postfix/relay_recipients" whenever you change the relay_recipients table.
+	eg of relay-canonical (tailing x means "checked" to allow domain to relay):
+	@lbl.gov         x
+
 
 Execute the command "postmap /etc/postfix/transport" whenever you change the transport table.
 
@@ -244,6 +270,20 @@ relayhost = smtp.na.skinforum.org
 mydomain = na.skinforum.org
 myorigin = headnode.na.skinforum.org
 
+</PRE>
+
+
+Example for node sending mail to be relayed.
+SASL auth is turned off, ok only for private network with no possible outside access.
+<!-- CF_BK/beagle_gretaDev/postfix/client_main.cf -->
+
+<PRE class=cf>
+mydestination = $mydomain, $myhostname, localhost.$mydomain   
+relayhost = 10.2.3.4:25
+mydomain = gretadev 
+mynetworks = 127.0.0.0/8 
+smtp_sasl_auth_enable = no
+smtp_use_tls = no                # DOE special anyway :p
 </PRE>
 
 <H2>Ref</H2>
@@ -374,3 +414,5 @@ http://tin6150.github.io/psg/psg.html
 </div> <!-- closes wrapper --> 
 </body>
 </html>
+<!-- vim: noexpandtab tabstop=8 
+-->

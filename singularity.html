@@ -62,6 +62,8 @@ Ref:
 <PRE>
 sudo singularity build pgi_netcdf.img pg_netcdf.def
 sudo singularity build myimg Singularity 
+sudo singularity build --writable metabolic.sif Singularity 2>&1  | tee singularity_build.log
+
 # assuming Singularity is the .def file
 
 Note that singularitypro26-runtime rpm does not support the "build" subcommand
@@ -73,6 +75,28 @@ Singularity 3.0 is a new rewrite in GO, it is not backward compatibile with 2.x.
 <A HREF="https://sylabs.io/guides/3.0/user-guide/">3.0 doc at sylabs.io</A>
 
 <PRE>
+
+# read-only image
+sudo singularity build ./ansys.sif ./Singularity
+
+# sandbox would create writable directory
+# cd /tmp (or other dir that is root writable)
+sudo singularity build --sandbox ./ansys.sif ./Singularity  2>&1 | tee singularity_build.log
+
+
+
+# pull has a centralized cache, but image still be written to `pwd` multiple times 
+singularity pull shub://tin6150/r4eta    
+singularity pull --name myR shub://tin6150/r4eta # store in pwd, 
+singularity cache list -v
+
+singularity exec myR 
+singularity exec myR bash
+singularity exec myR rstudio
+singularity exec shub://tin6150/r4eta rstudio
+
+
+
 </PRE>
 
 

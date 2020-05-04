@@ -1,5 +1,10 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+<!-- vim: paste 
+-->
+<!-- also see: 
+  * CF_BK/beppic-filer/2020-04-upgrade.rst
+-->
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
@@ -73,12 +78,28 @@
 
 <H1>NetApp cluster-mode</H1>
 
+<H2>cDOT 101</H2>
 <OL>
 <LI>
 With OnTap 9.x, in cluster mode, view is really divided between HW and VM.  Think much more like VM and host of VMware.  <BR>
 OnTap 9.x cluster mode now separate 
 Data (File) Access (done by Storage Virtual Machine - SVM) 
 vs physical setup (nodes) 
+<LI>
+	maybe cDOT backported to 8.3?  There are support of Storage VM in there.  <BR>
+	or is it that in 9.x, 7-mode has been dropped and must use cDOT?
+
+<LI>
+	cDOT can run on a single head system.
+	It is just that the adoption of Storage VM wrap things around in extra layer.
+	It is POSSIBLE to reuse storage shelf of 7-mode data and upgrade to cDOT mode, 7MTT will update ONLY the metadata.  data and WAFL structure are preserved, so snapshot, storage saving, etc are preserved.
+<LI>
+	Not clear if 7-mode to cDOT can do in-place upgrade on the same head, anectodally yes.
+	document TR-4025.pdf only talk about attaching to new head.  maybe just want to sale!
+<LI>
+	snapvault has a 7mode (qtree based) and cluster mode (volume based), and are not compatible.
+	Thus, maybe forced to upgrade to a cDOT to use snapvault compatible with target system.
+
 
 <LI>
 qtree is still supported by mostly for legacy migration, little need for it when things all contained inside an SVM.
@@ -230,6 +251,13 @@ vserver nfs show -vserver axiom88 -fields mount-rootonly    # def enabled
 vserve nfs modify axiom88  -nfs-rootonly enable
 
 
+system node run node NODENAME -command sysstat -x # cpu and disk usage
+
+# cDOT, need to start stat collection before being able to see any counters:
+statistics start -node NODENME -object OBJNAME
+
+statistics show object OBJ -instance INST -counter [TAB]
+[TAB] is friend to see list
 
 </PRE>
 
@@ -365,7 +393,7 @@ Cluster-Mode Ref
        (<A HREF="3rdParty/ONTAP_90_Command_Map_for_7Mode_Administrators.pdf">cache</A>)
 	</LI>
 	
-	<LI><A HREF="https://gist.github.com/tin6150/a9041b900d3803d6d5f012af93704dbf"></A>Gist on SVM root volume data protection</LI>
+	<LI><A HREF="https://gist.github.com/a9041b900d3803d6d5f012af93704dbf">Gist on SVM root volume data protection</A></LI>
 	<LI><A HREF=""></A></LI>
 	<LI><A HREF="https://www.sysadmintutorials.com/tutorials/netapp/netapp-clustered-ontap/netapp-clustered-ontap-cli/">Pocket Guide Clustered Mode</A> from sysadmin tutorials</LI>
 	<LI><A HREF=""></A></LI>
@@ -915,7 +943,30 @@ nfs show -vserver als-filercl
         # hmm... i suppose stunnel make nfs req as non root.
         # whereas linux nfs client is kernel calls thus root only...
 
+
+# 7-mode stat counter
+stats show nfsv3:nfs:nfsv3_read_ops
+stats show nfsv3:nfs:nfsv3_write_ops
+stats show nfsv3:nfs:nfsv3_read_latency
+stats show nfsv3:nfs:nfsv3_write_latency
+stats show nfsv3:nfs:nfsv3_read_size_histo
+stats show nfsv3:nfs:nfsv3_write_size_histo
+
+sysstat -x # cpu and disk util
+
+cDOT, need to start stat collection:
+statistics start -node NODENME -object OBJNAME
+
+statistics show object OBJ -instance INST -counter [TAB]
+[TAB] is friend to see list
+
+system node run node <nodename> -command sysstat -x
+
+
 </PRE>
+
+
+
 
 
 <H4>NIS domain</H4>
@@ -1548,31 +1599,31 @@ OnTap 7.0	- 2005?  Aggregate introduced here.
 OnTap 7.3.1	- 2008?  DeDuplication (a/sis) single instance storage available. 
 OnTap 8.1.4	-        Last version with NFSv2 support
 OnTap 8.2       -        Dropped support for NFSv2.  Sorry Epic VxWorks.
-OnTap 9		- 2017?  Introduced SVM - Storage VM - segregated Data vs HW access for multi-tenancy support
+OnTap 9		- 2017?  Introduced SVM - Storage VM - segregated Data vs HW access for multi-tenancy support.  7-mode support has been dropped
+OnTap 8.3	- ??  backport?  cDOT mode avail, is it using Storage VM or vfiler?? 
 
 </PRE>
 
 <BR><HR>
 <div align="CENTER">
-  [Doc URL: <A HREF="http://tin6150.github.io/psg/netapp.html">
-  http://tin6150.github.io/psg/netapp.html</A>] <BR>
+
   [Doc URL: <A HREF="http://tin6150.github.io/psg/netapp.html">
   http://tin6150.github.io/psg/netapp.html</A>] <BR>
   [Doc URL: <A HREF="http://psg.ask-margo.com/netapp.html">
-http://psg.ask-margo.com/netapp.html</A>] <BR>
-<BR>
-(cc) Tin Ho. See 
-<A HREF=psg.html#cc>main page</A>
- for copyright info. <BR>
-Last Updated: 2007-04-27, 2009-04-01, 2019-01-10<BR>
+  http://psg.ask-margo.com/netapp.html</A>] <BR>
+  <BR>
+  (cc) Tin Ho. See 
+  <A HREF=psg.html#cc>main page</A>
+   for copyright info. <BR>
+  Last Updated: 2007-04-27, 2009-04-01, 2019-01-10<BR>
 
+	<HR>
+	<A HREF="http://www.climateprediction.net"><IMG SRC="banner/climateprediction.jpg"></A>
+	<A HREF="http://boinc.berkeley.edu"><IMG SRC="banner/boinc_transparent.png"></A>
 
-
-
-<HR>
-<A HREF="http://www.climateprediction.net"><IMG SRC="banner/climateprediction.jpg"></A>
-<A HREF="http://boinc.berkeley.edu"><IMG SRC="banner/boinc_transparent.png"></A>
 </div>
+
+
 <div class="sig"><BR>
   hoti1<BR>
   sn5050<BR>

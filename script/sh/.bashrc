@@ -200,7 +200,9 @@ add_hpcs_module () {
 			#module load intel openmpi mkl
 			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
 			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
-			module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p
+			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
+			#//brc has different version number for hdf5... not needed there... 
+	
 
 		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
 			#module load intel/2018.1.163 mkl openmpi
@@ -236,7 +238,8 @@ add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
 	AddtoString PATH /global/home/groups/scs/IB-tools 
 	AddtoString PATH /global/home/groups/scs/tin
-	#AddtoString PATH /global/home/groups/scs/yqin
+	AddtoString PATH /global/scratch/tin/meli           # osu_*
+	AddtoString PATH /global/home/groups/scs/yqin		# stream
 	##--echo "Path after mocking: $PATH"
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
 
@@ -324,12 +327,20 @@ defineAlias () {
 	alias ef='ps -ef'
 	alias lt="ls -latr"
 	alias ltr="ls -latr"
-	alias sq="squeue"          
-	alias sqt="squeue -u tin"
-	alias assoc="sacctmgr show associations -p"                    # slurm
-	alias sevents="sacctmgr show events start=2018-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol)
-	alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # %E is comment/reason, unrestricted in length.  -Sorted by rEason
+	alias sq="squeue"          ##slurm
+	alias sqt="squeue -u tin"  ##slurm
+	alias assoc="sacctmgr show associations -p"                    ##slurm
+	alias sevents="sacctmgr show events start=2018-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
 
+    alias sinfo-N='sinfo --Node --long --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
+    # -N is node centric, ie one node per line, has to be first arg
+    # -p PARTNAME  # can add this after aliased command instead of using grep for specific queue
+	alias sinfo-f='sinfo --Node --long --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
+
+
+    alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # -Sorted by rEason (oper input reason=...) ##slurm
+    # %E is comment/reason, unrestricted in length.  
+    # once -R is used, it preced -N, but this output is good for sorting by symptoms
 
 
 	alias grep='grep --color=auto'
@@ -360,7 +371,7 @@ defineAlias () {
 
 	Size() { ls -l $* | awk '{sum+=$5} END {print sum}' ; }         # Size *.txt  # not /usr/bin/size!
 
-	# slurm alias, experimenting...
+	##slurm alias, experimenting...
 	Sinfo() { sinfo  | awk '{print $1 "  " $2 "  " $3 "  " $4}' | sort -u ; }
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE defineAlias_end"
 
@@ -467,8 +478,8 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
-#~~add_hpcs_module	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
-#++add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
+add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
+#add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
 add_personal_module 
 add_cosmic_module 
 
@@ -496,6 +507,25 @@ export COMMON_ENV_TRACE
 ## but it was certinaly causing a long hang in exalearn when sourcing it
 condaSetup4exalearn () {
 
+	# conda install in wsl tin-t55
+	# not going to source conda.sh by default, remember to do it by hand if needed.
+	# hopefully just setting the PATH is enough
+
+	# >>> conda initialize >>>
+	# !! Contents within this block are managed by 'conda init' !!
+	__conda_setup="$('/home/tin/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+	if [ $? -eq 0 ]; then
+		eval "$__conda_setup"
+	else
+		if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
+			. "/home/tin/anaconda3/etc/profile.d/conda.sh"
+		else
+			export PATH="/home/tin/anaconda3/bin:$PATH"
+		fi
+	fi
+	unset __conda_setup
+	# <<< conda initialize <<<
+
 	# added by Anaconda3 5.3.1 installer
 	# >>> conda init >>>
 	# !! Contents within this block are managed by 'conda init' !!
@@ -504,17 +534,29 @@ condaSetup4exalearn () {
 	    eval "$__conda_setup"
 	else
 	    if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
-		. "/home/tin/anaconda3/etc/profile.d/conda.sh"
-		CONDA_CHANGEPS1=false conda activate base
+			# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
+			CONDA_CHANGEPS1=false conda activate base
 	    else
-			export PATH="/home/tin/anaconda3/bin:$PATH"
+			# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
+			DUMMY="done"
 	    fi
 	fi
 	unset __conda_setup
 	# <<< conda init <<<
 
+
 }
+
+
+# get anaconda into PATH, but source conda.sh manually if/when needed
+
+if [[ -d /home/tin/anaconda3/bin ]] ;  then
+	export PATH="/home/tin/anaconda3/bin:$PATH"
+	export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh"
+fi
 
 ################################################################################
 # vim modeline, also see alias `vit`
 # vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
+
+

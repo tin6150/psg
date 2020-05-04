@@ -435,6 +435,224 @@ Below are high level summary info.  Diff CPU has diff numa arch and memory local
 
 <IMG SRC="fig/dell_skylake_mem_bandwidth.jpg" width="100%"><BR>
 
+<BR>
+<BR>
+
+
+
+<A NAME="cpu_tuning"></A>
+<H1>CPU tuning</H1>
+
+Background info: 
+<LI> <A HREF="https://metebalci.com/blog/a-minimum-complete-tutorial-of-cpu-power-management-c-states-and-p-states/">A MINIMUM COMPLETE TUTORIAL OF CPU POWER MANAGEMENT, C-STATES AND P-STATES</A>
+<LI><A HREF="https://www.dell.com/support/article/us/en/04/qna41893/what-is-the-c-state?lang=en">Intel C-State levels</A>
+<BR>
+<BR>
+
+<!--
+	n0[134-138].savio3 Asus    GPU 4x RTX 4080Ti
+	n0[143-145].savio3 Colefax GPU 8x RTX 4080Ti
+    https://mail.google.com/mail/u/1/?zx=2xeddmwpage5#search/k_args/KtbxLzGcCdhxzJMxxFqZmjLKtCNfFDMmhg?compose=CllgCJZXhxsjqqJSNTQPwKrSTPrDxdBMFhMjtfdfRrKgrzsfBvdvXnFTqBnNQZdGgDdfBGfznMg
+	/global/home/users/tin/CF_BK/savio3/colefax_n0143_savio3.rst 
+	/global/scratch/tin/meli/osu_bw
+-->
+
+<PRE>
+
+cstate and pstate, which govern powering down subsystem and voltage/frequency, respectively, helps save power but can cause unexpected latency in PCI bus and thus Infiniband performance.
+
+Things to tweak:
+
+1. remove your current kernel args "processor.max_cstate=1 intel_idle.max_cstate=0"
+2. add the new kernel args "intel_pstate=disable"
+
+
+wwsh -y provision set n0143.savio3 --kargs="nopti intel_pstate=disable processor.max_cstate=1 intel_idle.max_cstate=0"
+	# didn't help with colefax gpu 
+wwsh -y provision set n0143.savio3 --kargs="nopti processor.max_cstate=1 intel_idle.max_cstate=1"
+	# osu_latency, osu_bw still bad , even after cpupower -g performance
+(very old ver of wwulf may only keep first kargs param.)
+cat /proc/cmdline after machine boot to see kernel arg actually used to boot.
+ref: https://access.redhat.com/solutions/202743
+	 https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
+
+        intel_idle.max_cstate=  [KNL,HW,ACPI,X86]
+                        0       disables intel_idle and fall back on acpi_idle (ie /sys/devices/system/cpu/cpuidle/current_driver=none)
+                        1 to 9  specify maximum depth of C-state.
+						
+						https://www.thomas-krenn.com/en/wiki/Processor_P-states_and_C-states
+						C0 – Active Mode: Code is executed, in this state the P-States (see above) are also relevant.
+						C1 – Auto Halt
+						C1E – Auto halt, low frequency, low voltage
+						C2 – Temporary state before C3. Memory path open
+						C3 – L1/L2 caches flush, clocks off
+						C6 – Save core states before shutdown and PLL off
+						C7 – C6 + LLC may be flushed
+						C8 – C7 + LLC must be flushed
+
+						disabling pstate seems to have significant impact on infiniband latency (osu_latency), but then keep cpu running at normal clock rate and not slowing down.
+						cstate doesn't seems to have impact on osu_latency.  ie left /sys/module/intel_idle/parameters/max_cstate = 9 
+
+
+pdsh -w n0[143-145].savio3 "cat /proc/cpuinfo | grep 'cpu MHz' | head -1"
+
+cat /sys/module/intel_idle/parameters/max_cstate	# 9 is default.  0=disabled
+
+
+
+kargs not likely useful.  cmd should work, but need them installed and invoked on boot...
+
+
+cpupower frequency-set -g performance
+# 800 or 1200 is low
+# 2600 would be more performant, though it does use more power.
+
+cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_min_freq
+cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq
+cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_cur_freq
+(seems not avail if psate is disabled, ie, when using acpi driver instead of intel_pstate driver (?)
+but cat /proc/cpuinfo | grep MHz is reflective of cpuinfo_cur_freq )
+
+turbostat
+
+kargs intel_pstate=disable would (mostly*) make cpu run at a single frequency.  
+lscpu would then reports a single fixed frequency instead of Max/Min.
+(mostly*) = Most of the time.  BIOS pstate setting on Tyan mboard w/ casdelake cpu also need to be disabled.
+
+Power utilization tends to go up
+(for Linux kernel 3.x, the default is to use acpi driver when intel_pstate=disable is ABSENT)
+
+
+Tests:
+
+mpirun -np 2 -H 10.0.7.144,10.0.7.145 -report-bindings -bind-to core  osu_latency  # need to be able to ssh to node to run orte
+# latency below 1.20 us would be good;  ~2.2 is common.  3+ us starts to be bad.   5.6+ would be bad.  10+ would be horrible
+# PCI switch would add latency of ~0.3 us.
+# cpu binding to PCI slot of IB card is needed for optimal performance, ~0.4 us.  
+# ethernet latency is in ms (? maybe ~100 us).  
+# OSU_latency maybe subject to (mpi) timing bug.  at least running linpack with mpi may get affected depending on clock frequency setup.
+
+
+mpirun -np 2 -H 10.0.7.144,10.0.7.145 -report-bindings -bind-to core  osu_bw
+# Size        Bandwidth (MB/s)     bad eg:
+#                     good eg:     bad eg:
+1                         2.67       1.55
+2                         5.34       3.51
+4                        12.00       7.32
+...
+32768                  9956.58     7977.42
+65536                 11726.98     9445.02   # good BW plateau much earlier and at higher value
+...
+2097152               12403.11    10018.76
+4194304               12411.50    10024.22
+
+
+</PRE>
+
+
+<BR>
+<BR>
+
+<H5>To save power</H5>
+
+having just BIOS Latency Optimized workload and no kargs of intel_pstate=disable give CPU running at 1200 MHz.
+in this state, can use `cpupower frequency-set -g performance` to get to performance mode (perhaps prolog script)
+and `cpupower frequency-set -g powersave` to get back to 1200 MHz, saving some power, perhaps use epilog script for job to invoke it. <BR>
+but slurm epilog/prolog does not run as root, but as slurm, so may need to use sudo.
+ <BR>
+ <BR>
+singularity exec /global/scratch/tin/singularity-repo/perf_tools7.simg cpupower frequency-info --policy <BR>
+# not really showing what policy is currently in use <BR>
+singularity exec /global/scratch/tin/singularity-repo/perf_tools7.simg cpupower frequency-set -g performance <BR>
+ <BR>
+ <BR>
+
+another alternative is to 
+simply power save or shutdown the node via slurm
+<A HREF="https://slurm.schedmd.com/power_save.html">https://slurm.schedmd.com/power_save.html</A>
+ <BR>
+ <BR>
+Slurm does not currently (v 19.10) has a way to keep track of power usage of a cluster,
+cannot easily implement cap.
+But perhaps tracking it via "consumable" counter, thinking of it as a license to be check out, 
+then each node that comes on checkout N "miniamp token" so that Slurm can know roughtly how much it can go...
+<PRE>
+</PRE>
+
+<BR>
+<BR>
+
+
+Things that may be relevant to CPU frequency and thus bus latency:
+
+<PRE>
+
+3a. Bios Changes
+
+I went to the bios of two asus nodes (n0137.savio3, n0138) and made a number of changes.
+The latency, measured only between two nodes, is ~3.2 us.  Better than the 4 us originally, but still not the 1.2 us we are getting from the supermicro nodes.  
+
+disable hyperthreading (was enabled)
+        Intel TXT left as disabled
+        VMX left as enabled
+        SMX left as disabled
+
+
+there were lot of profile optimization for various benchmark, like MP Linpack, spec cpu, HammerDB, STREAM Triad, etc.
+        mostly, think it change Engine Boost
+        core optimizer is always disabled for many benchmark/workflow i selected
+end up picking by workload  (recommended to operate at 25C or below, so not sure if we should leave this on?)
+        picked HPC
+        (other options: Latency optimized, Peak Frequency, power efficient)
+        change
+        Engine Boost  -> Level3(Max)   (was disabled
+        core optimizer is left as disabled
+       
+
+P-state:   (left all as default)
+        boot performance: max
+        energy efficient turbo: enable
+        turbo mode: enable
+     
+
+
+c-state
+        not entirely obvious
+        disabled CPU C6 report   ##
+        disabled C1E
+package c state control
+        changed from auto to C0/C1 state  ##
+
+        left sw controlled T-states as disabled (default)
+
+trusted computing
+        Changed to "disabled" security device
+        none was found to begin with anyway
+
+ACPI settings
+        Disabled hibernation
+
+
+3b. A second BIOS change that I tested, but no real improvements either:
+
+Socket Config 
+  CPU - Adv PM Tuning
+    Energy perf BIAS
+      Workload config
+        - first test above had left as Balanced
+        - 2nd test changed to I/O sensitive
+
+</PRE>
+
+
+Ref:
+
+<LI> <A HREF="https://photos.app.goo.gl/BGg3sej3oWyzPnbp9">
+	Summary of workflow profile and their configured Pstate info on Asus GPU nodes (AMI BIOS)</A>
+
+<LI> <A HREF="https://photos.google.com/album/AF1QipMqkSucnOzq757nZCUzjGlM3u6Ul3HFqKLlheae">many screenshot of BIOS settings for Asus</A>
+
+<BR><BR>
 
 <A NAME="perf"></A>
 <A NAME="performance"></A>
@@ -984,6 +1202,95 @@ http://ganglia.sourceforge.net/</A>
 <BR><BR>
 
 
+<A NAME="stress"></A>
+<H2>Stress test</H2>
+
+Burn in test, load machine up to see power utilization, etc.
+
+<PRE>
+
+stress --cpu  60 -t 60s	   		## 152 W 
+stress --cpu  64 -t 60s	   		## 160 W 
+stress --cpu 200 -t 60s	   		## 160 W 
+stress --vm  60 -t 60s 			## 216W on knl savio2 # idle = 96W
+stress --vm  64 -t 180 			## 240W
+stress --io  60 -t 60s 			## 144W 
+stress --hdd 60 -t 60s 			## 112W
+stress --io 4 --hdd 2 --vm  8 --cpu 50 -t 60s  ## 160W
+stress --io 4 --hdd 2 --vm  50 --cpu  50 -t  60s  ## 240W
+stress --io 6 --hdd 2 --vm  64 --cpu  64 -t 180s  ## 240W  # max power usage when cpu match core counts ***
+stress                --vm 128 --cpu 128 -t 120s  ## 232W  #didnt crash :P
+stress                --vm 128 --cpu  32 -t 120s  ## 224W
+stress --io 32        --vm 128 --cpu  32 -t 120s  
+stress --io 256 --hdd 2 --vm 256 --cpu  64 -t 120 ## 216W #didnt crash :P
+stress --io   6 --hdd 2 --vm  64           -t 120 ## 240W #dont need to hog cpu, vm will take care of it, io was matched to number of memory channel
+## actually, just --vm matching number of cores pretty much reach peak power, --io, --hd don't add to power load once it is peaked.
+
+## linkpack likely only used 208W
+
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t 120
+
+# each number after the test is number of worker
+# io test and virtual memory test automatically trigger substantial load on cpu already
+# -t 60s =  limit test to 60 sec 
+
+
+while [[ 1 == 1 ]] ; do ipmitool sensor | grep -i watt ; sleep 5; done
+while [[ 1 == 1 ]] ; do ipmitool sensor|egrep -i watt\|amp; lscpu|grep MHz; sleep 5; done
+
+
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t 120 ## 406W on savio3 bigmem (idle=182W)
+	# 406 W with --vm 64 or 32
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t 120  ## 25 Amp on n0098.savio2 (idle=6A/30W)
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 20 -t 120s ## 25 Amp on n0098.savio2 
+	# 25A * 12V = 300W.  6A * 5V = 30W
+	# -t 120 or -t 120s didn't stop process on savio1 :/
+	# process linger even after ^C .  kill -9 dont work either, had to reboot!
+
+
+stress-ng --cpu 4 --all # --all = parallel run of all tests 
+
+T=60; singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress-ng --cpu 63 --backoff 15 --timeout ${T}  --tz --log-brief # 176W # don't see hdd access
+T=60; singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress-ng --all  1 --backoff 15 --timeout ${T}  --tz --log-brief # keeps crashing :(
+
+cd /local/scratch/tin/tmp
+stress-ng --all 1 --backoff 15 --timeout 120s  --tz --log-brief 
+	# --all 1 : all tests, 1 worker (enough to cause crazy high uptime)
+rm /local/scratch/tin/tmp/stress* 
+
+stress-ng is newer, but didn't work on the knl node (at least not --all 1)
+or did not use more power than stress test, so didn't bother.
+maybe --vm would use more power... i dont need the stats from it
+old stress dont leave files behind needing clean up ^_^
+
+
+
+7z 
+	apt install p7zip-full  # 7z
+	yum install p7zip       # 7za
+	7z b --mmt1				# multi-threaded benchmark via 7z compression alg, report MIPS.
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
+# need to loop it for stress test, as (b)enchmark finishes quickly
+# there are some idle time, Power ranged 144-160W
+# so not as good of power load test as "stress"
+
+
+
+mprime 
+	no ready yum package
+	finding prime was said to be good exercise for cpu/ram
+
+</PRE>
+
+
+For single machine with display, consider
+<LI> s-tui
+<PRE>
+</PRE>
 
 <!-- tcpdump.ref -->
 <!-- ethereal.ref -->
