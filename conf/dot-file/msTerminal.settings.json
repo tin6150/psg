@@ -5,10 +5,30 @@
 
 // To view the default settings, hold "alt" while clicking on the "Settings" button.
 // For documentation on these settings, see: https://aka.ms/terminal-documentation
+
+///////////////////////
+// things i dont like msTerminal
+// - cursor does not change color if match background, so it disapears
+// - focus on (lxterm?) chnage from filled block to empty block depends if have focus, my brain has been trained for that and want to see it.
+// mouse does not scroll in vi
+// middle click does not paste
+// ssh-agent env need to be setup in each new window manually, no easy way to make it inherit (till ssh-agent actually run on windows?)
+// things i like:
+// fonts are nicer than lxterm
+// copy can copy format, but paste add "windows terminal", so annoying!
+// better than std ubuntu bash since that was a lousy dos box.
+// mac is better than windoze in these regards
+
+
+// file loc: C:\Users\tin61\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+// *sigh* is that hex code version or machine specific??!! wtf??
+// cp /mnt/c/Users/tin61/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json /home/tin/tin-gh/psg/conf/dot-file#/msTerminal.settings.json 
+
 {
     "$schema": "https://aka.ms/terminal-profiles-schema",
 
-    "defaultProfile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+    //"defaultProfile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+    "defaultProfile": "{c6eaf9f4-32a7-5fdc-b5cf-066e8a4b1e40}",  // Ubuntu
 
     // You can add more global application settings here.
     // To learn more about global settings, visit https://aka.ms/terminal-global-settings
@@ -28,19 +48,9 @@
         "defaults":
         {
             // Put settings here that you want to apply to all profiles.
-            "cursorShape": "emptyBox",  
-            "cursorColor": "#ff0000",
-						// above set to make vim search text highlight navitagatable.  Sn
-						// just notices MS json in vscode supports comments!!  
-
-
-                // rest tried to make ubuntu terminal default, didnt react
-                "guid": "{c6eaf9f4-32a7-5fdc-b5cf-066e8a4b1e40}",
-                "hidden": false,
-                "name": "Ubuntu-18.04",
-                "source": "Windows.Terminal.Wsl"
-            
-
+            "cursorShape": "vintage",  // still bad with search text in vim
+            //"cursorShape": "underscore",
+            "cursorColor": "#e5ff00"
             
         },
         "list":

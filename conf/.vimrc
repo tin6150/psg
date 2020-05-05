@@ -38,7 +38,8 @@ filetype plugin indent on
 autocmd Filetype ruby 		setlocal ts=2 sw=2 expandtab
 autocmd Filetype python 		setlocal ts=2 sw=2 expandtab
 autocmd Filetype yaml 		setlocal ts=2 sw=2   expandtab noai nosmartindent cindent formatoptions-=cro
-autocmd Filetype html 		  setlocal ts=4 sw=4 noexpandtab noai nosmartindent nocindent 
+autocmd Filetype html 		  setlocal ts=8 sw=8 noexpandtab noai nosmartindent nocindent 
+" browser render tab as 8 spaces apart, so best for html PRE to use 8 space equiv for tab
 autocmd Filetype javascript setlocal ts=4 sw=4 sts=0 noexpandtab
 autocmd Filetype txt 		setlocal ts=4 sw=4 noexpandtab nolist nonu
 autocmd Filetype sh 		setlocal ts=4 sw=4 noexpandtab nolist nonu
