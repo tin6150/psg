@@ -77,6 +77,24 @@ hostname
 # run whole thing in subshell to capture output to a file
 
 (
+
+exitCode=~/PSG/script/hpc/test_hdf5_lock.py
+
+echo ----hostname--id-----------------------------------
+hostname 
+id
+echo ----hdf5-lustre-flock-test----------------------------------
+if [[ $exitCode == 7 ]]; then
+	echo "test_hdf5_lock returned 7, need to rebOOt"
+	echo "sudo reboot ..."
+else 
+	echo "test_hdf5_lock returned NOT 7, NO reboot"
+fi
+
+
+
+
+
 echo ----hostname-----------------------------------
 echo -n "hostname: " 
 hostname 
@@ -126,7 +144,7 @@ echo ---------------------------------------
 
 echo "==== 7z benchmark next ======================================================="
 #echo "7za b skipped"
-singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
+#++ singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
 
 ) > $OUTFILE   # capture all cmd list into a file name I prefer, slurm -o is too limitig
 

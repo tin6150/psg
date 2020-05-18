@@ -68,8 +68,6 @@ run_rm_lvm_cmd()
 	### I had this at top, may not need to do that again here.
 	echo "" > /proc/sys/kernel/hotplug
 
-	#wipe the partition table (and then some)
-	/bin/dd if=/dev/zero of=$SD_NAME bs=1024k count=10
 
 
 	echo undo lvcreate for swap
@@ -82,6 +80,9 @@ run_rm_lvm_cmd()
 
 	echo undo pvcreate
 	$LVMROOT/pvremove $SD_NAME
+
+	#wipe the partition table (and then some)
+	/bin/dd if=/dev/zero of=$SD_NAME bs=1024k count=10
 
 
 	###
