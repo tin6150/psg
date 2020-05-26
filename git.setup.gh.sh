@@ -304,10 +304,12 @@ create_links()
 	if [[ -f ~/.bashrc ]]; then
 		mv ~/.bashrc ~/.bashrc.$FECHA
 	fi
+	ln -s  ${GIT_DIR}/psg/script/sh/.bashrc       ~/.bashrc
 	if [[ -f ~/.bash_profile ]]; then
 		mv ~/.bash_profile ~/.bash_profile.$FECHA
 	fi
-	ln -s  ~/.bashrc ~/.bash_profile
+	#ln -s  ~/.bashrc ~/.bash_profile # why did i do this?
+	ln -s  ${GIT_DIR}/psg/script/sh/.bash_profile ~/.bash_profile
 	if [[ -f ~/.vimrc ]]; then
 		mv ~/.vimrc ~/.vimrc.$FECHA
 	fi
