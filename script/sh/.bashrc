@@ -132,6 +132,7 @@ add_personal_module () {
 		module load  tools/cvs/1.11.23
 	fi
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
+    export ANSIBLE_NOCOWS=1 # newline print just doesnt work in most places :/
 } # end add_personal_module
 
 add_cmaq_module () {
@@ -279,6 +280,7 @@ add_cosmic_module () {
 ################################################################################
 defineAlias () {
 
+	alias reboot='echo R U sure U want to do that?'
 	alias fecha="date +%Y%m%d.%H%M.%S" # format Year.mmdd.HourMinute.Sec # %s is sec since 1970-0101
 	alias ls0="ls  -l | perl -lane 'if ($F[4] == 0 )    { print \$_ };' "   # can use $_ in shell, but need \$_ for sourced script
 	alias ls-0="ls -l | perl -lane 'if ($F[4] != 0 )    { print \$_ };' "
@@ -465,6 +467,7 @@ if [[ x${MAQUINA} == x"backbay" ]]; then
 
 	alias xt=/usr/bin/xfce4-terminal
 	alias lxt=/usr/bin/lxterminal
+	alias reboot='echo R U sure U want to do that?'
 	#export ANDROID_HOME=/home/sn/app/android-studio
 	export ANDROID_HOME=/home/sn/app/android-sdk
 	export JAVA_HOME=/home/sn/app/jdk1.8.0_101
