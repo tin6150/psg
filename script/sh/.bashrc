@@ -495,6 +495,10 @@ defineAliasMac
 ##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
 
 
+# testing rootless docker in Zink
+export PATH=/home/tin/bin:$PATH
+export DOCKER_HOST=unix:///run/user/43143/docker.sock
+
 
 
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
