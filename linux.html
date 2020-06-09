@@ -2427,10 +2427,26 @@ cat /proc/cpuinfo | grep MHz		# current core speed in ubuntu, max core speed for
 sudo cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_cur_freq  # ubuntu, rhel 7.4+ 
 sudo cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq	# ubuntu, fedora?
 
+sudo cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor  # rhel, but not present if no governor avail
+
+
 RHEL7 may need CPUfreq driver to be installed 
 https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/power_management_guide/cpufreq_governors
 or cpupower from kernel-tools
 https://access.redhat.com/solutions/1287663
+can have this run via singularity
+
+possible kargs for governors:
+https://www.kernel.org/doc/html/v4.12/admin-guide/pm/intel_pstate.html
+intel_pstate=disable # this maybe bad, no lower MHz in idle, no turbo?   was tried in specific cascadelake checking on IB osu_latency
+intel_pstate=passive
+intel_pstate=force # don't use acpi-cpufreq even if preferred on a given system, careful: thermal implication.  ok on skylake?
+no_hwp, hwp_only, support_acpi_ppc, per_cpu_perf_limits
+
+pstate avail for most Intel SandyBridge and later CPU.
+pstate with hwp (hardware managed pstate) is recommended and default policy.  cpu decide on pstate, os can give it hints.  ?hwp avail to skylake and later?
+
+
 
 sudo dmidecode -t processor | grep Speed	# but "Current Speed" is from ACPI and maybe stale
 						# Max Speed 
@@ -2571,11 +2587,22 @@ GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"
 append to boot argument to kernel: nouveau.modeset=0 				# this worked on exalearn 2018.11
 (remove rhgb quiet for verbose text boot)
 grub2-mkconfig -o /boot/grub2/grub.cfg      # BIOS mode, UEFI need a diff config
+
+
+sudo update-grub
+sudo update-grub2
 </PRE>
 
 Ubuntu/Mint seems to use
 <TT>quiet splash</TT> for GUI boot.
 Mint added <TT>nomdmonddf nomdmonism</TT>
+
+<BR>
+nouveau.blacklist=1 in grub.conf didn't work in Mint.
+<BR>
+Driver Manager was the right tool to change from nouveau to nvidia driver in Mint.
+
+
 
 
 <!--
@@ -3612,8 +3639,8 @@ vimdiff    file1.txt file2.txt          # character-based side-by-side diff, han
                                         # ^w H = horizontal split 
 
 
-vim -o A.txt B.txt C.txt will open three horizontal splits for each file.
-vim -O A.txt B.txt C.txt will open three vertical splits for each file
+vimdiff -o A.txt B.txt C.txt will open three horizontal splits for each file.
+vimdiff -O A.txt B.txt C.txt will open three vertical splits for each file
 
 
 - fldiff # X, side by side, opt to ignore space, best diff so far ## avail in  wsl, zorin, not in centos7

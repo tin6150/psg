@@ -131,12 +131,13 @@ run_git_clone()
 	#git clone https://greta-d@github.com/greta-sw/fpga
 	#git clone https://greta-d@github.com/greta-sw/slow-control
 	#git clone https://greta-d@github.com/greta-sw/sysconfig
-	git clone https://tin6150@github.com/greta-sw/forward-buffer
-	git clone https://tin6150@github.com/greta-sw/signal-decomposition
-	git clone https://tin6150@github.com/greta-sw/data-analysis
-	git clone https://tin6150@github.com/greta-sw/fpga
-	git clone https://tin6150@github.com/greta-sw/slow-control
-	git clone https://tin6150@github.com/greta-sw/sysconfig
+	# many repo are being renamed or recrated differently ca 2020-06
+	#-git clone https://tin6150@github.com/greta-sw/forward-buffer
+	#-git clone https://tin6150@github.com/greta-sw/signal-decomposition
+	#-git clone https://tin6150@github.com/greta-sw/data-analysis
+	#-git clone https://tin6150@github.com/greta-sw/fpga
+	#-git clone https://tin6150@github.com/greta-sw/slow-control
+	git clone https://tin6150@github.com/greta-sw/config
 
     #############################################
     #### stuff I forked, play/learn with,    ####
@@ -219,6 +220,12 @@ run_git_clone()
 	# git clone https://github.com/mapbox/mapbox-sdk-py.git		   # mapbox uploader, just cuz i need to search for things inside it
 
 	git clone https://github.com/dlab-berkeley/introduction-to-pandas.git # d-lab Intro to Pandas
+
+	################################################
+	#### gitlab instead of github or bitbucket  ####
+	################################################
+
+	git clone https://gitlab.com/tin6150/rit-docs.git
 
 	############################
 	#### lbl-eta/smelly  ####

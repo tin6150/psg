@@ -190,6 +190,19 @@ ipmitool -I open sel list
 
 </PRE>
 
+<A ID="asus"></A>
+<H5>Obscure IPMI cmd for Asus</H5>
+
+May only be relevant to ESC4000 G4
+
+<PRE>
+
+ipmitool raw 0x32 0x71 0x00 0x01 0x01 # set ipmi/bmc to use shared nic
+ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed for channel 8
+
+</PRE>
+
+
 
 <H5>Serial over IPMI SoL </H5>
 
