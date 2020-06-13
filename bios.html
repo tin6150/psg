@@ -352,8 +352,8 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 
 ## better to use  PSG/script/hpc/record_bios_settings.sh 
 
-##singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img   /opt/dell/srvadmin/sbin/racadm \
-  singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img         /opt/dell/srvadmin/sbin/racadm \
+x singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img   /opt/dell/srvadmin/sbin/racadm \
+x singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img         /opt/dell/srvadmin/sbin/racadm \
   singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm \
 
 # singularity-hub build probably won't work cuz build machine don't have an iDRAC :(

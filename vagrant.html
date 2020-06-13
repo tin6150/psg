@@ -50,15 +50,55 @@
 
 <H1>Vagrant</H1>
 
+<H2>Vagrant Example Use Case</H2>
+
 <PRE>
 
-vagrant init 			# will create a new Vagrantfile in current dir
+singhub/ folder has a 
+Vagrantfile -> Vagranfile.centos7
+which download a ready-to-run virtualbox image, eg
+
+	http://cloud.centos.org/centos/7/vagrant/x86_64/images/CentOS-7-x86_64-Vagrant-1805_01.VirtualBox.box
+	http://cloud.centos.org/centos/8/vagrant/x86_64/images/CentOS-8-Vagrant-8.0.1905-1.x86_64.vagrant-virtualbox.box
+
+the provision section could run shell commands
+OR it can invoke ansible
+and execute the vagranfile_playbook.yml
+
+which does some basic setup/cleansing.
+
+Could have this to create VM on Zink for use.
+eg Various OS flavor to test out Singularity in them.
+
+
+PS.
+Ansible is not invoking Vagrant to create VM.
+VM creation use ansible in two places
+- as part of vagrant provision
+- IFF full desktop experience inside the VM desired: once machine is a running vm, could run my cueball/ANSIBLE/wsl_locahost_playbook.yml and treat it like any other machine I use.
+
+- historically may have tried osboxes VirtualBox image, but the centos cloud vagrant/box is more scriptable.
+
+</PRE>
+
+
+<H2>Vagrant 101</H2>
+
+<PRE>
+
+vagrant init 			# will seed a .vagrant/ dir and a new Vagrantfile in current dir
 --or--
-vi Vagrantfile			# skip init and use a customized file. eg singhub/Vagrantfile
+vi Vagrantfile			# create/edit/cp Vagrantfile.centos8 Vagrantfile
 
 vagrant up
+
+			# how to use diff vagrantfile in the same dir?  as have multiple yml file in it to execute??
+
 vagrant provision		# (re)run provision section of Vagrantfile 
 vagrant provision --debug 	# add debug output to above
+
+	The provision section could run a shell script
+	Or a lot of folks also have it run ansible and execute a playbook
 
 vagrant up --provision | tee provision.log	# run vagrant up and forces provision to run
 
@@ -100,9 +140,12 @@ Example Vagrantfile</A>.
 <H2>Installation</H2>
 
 <PRE>
-Mint:    sudo apt-get install vagrant virtualbox
+Mint:    
+sudo apt-get install vagrant virtualbox
+sudo apt     install virtualbox-qt       # needed by startvm hexcode --type gui
 
-Centos7: yum -y install https://releases.hashicorp.com/vagrant/1.9.6/vagrant_1.9.6_x86_64.rpm
+Centos7: 
+yum -y install https://releases.hashicorp.com/vagrant/1.9.6/vagrant_1.9.6_x86_64.rpm
 # https://www.tecmint.com/how-to-install-vagrant-on-centos-7/ says vagrant can use docker too...
 # but not so sure.  vagrant ask for VirtualBox, VMware, hyperV.  
 
