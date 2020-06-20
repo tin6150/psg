@@ -317,7 +317,8 @@ defineAlias () {
 	alias vncsvr12='vncserver -geometry 1280x800 -depth 32'   #  macbook full screen, native 2304x1440. said should scale to 1400 x 900 but did not find it to be doing that.
         alias vncsvr14='vncserver -geometry 1440x840 -depth 24'   #  macbook pro window, native 2880x1800 Retina.  y=860 causes gvncviewer to scroll, so not using
 
-	#alias vncsvr30='vncserver -geometry 2400x1400 -depth 32'   # actual 2560x1600
+	alias vncsvr24='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
+	alias vncsvr4k='vncserver -geometry 3700x2100 -depth 24'   # 4k res 3840x2160
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
 

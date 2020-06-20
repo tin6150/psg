@@ -203,6 +203,15 @@ ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed f
 </PRE>
 
 
+<H5>Obscure IPMI cmd for Penguin Relion 2940 w/ Gigabyte mboard</H5>
+<PRE>
+ipmitool raw 0x2e 0xcc 0x5e 0x2b 0 0x0C 0x01 0x02 # set ipmi/bmc to use share nic
+
+# there maybe a bios settings to put the NIC in shared mode, but some notes has it that it wasn't very reliable, 
+# so support provided the ipmitool raw command.
+# this was for the 4 nodes in 2U w/ intel E5-2640 v4 CPU
+</PRE>
+
 
 <H5>Serial over IPMI SoL </H5>
 

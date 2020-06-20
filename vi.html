@@ -1,6 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- vim: syntax=html noexpandtab nosmarttab noautoindent nosmartindent  tabstop=8
-	 ##tabstop=8 is what browser render HTML PRE block as
+<!-- vim: filetype=html noexpandtab nosmarttab noautoindent nosmartindent  tabstop=8
+	##tabstop=8 is what browser render HTML PRE block as
+	# tab on left
+#2345678
 -->
 <!-- vim modelines read first and last 5 lines by default for vim directives -->
 <html>
@@ -302,6 +304,8 @@ I= case sensitive (even if ignore case flag is set)
 				hat^D = tmp suspend indent
 </PRE>
 
+settings can be in .vimrc or modeline
+
 
 <H3>slightly more advanced commands</H3>
 
@@ -487,14 +491,30 @@ Embed vim directives in the first/last (5) lines of a file.  see source of this 
 <BR>
 <PRE>
 # space, eg for python, yaml :: 
-# vim:shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab filetype=p    ython
+# vim: filetype=python shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab 
+
+# note that filetype=... set shiftwidth, settings are parsed left to right, last one stays.
+# so if have things like shiftwidth=8 tabstop=8 filetype=ruby
+# the filetype setting will reset tabstop back to 2 spaces
 
 # tab, eg for .sh, .html ::
-# vim:shiftwidth=4 tabstop=4 formatoptions-=cro list nu
+# vim: shiftwidth=4 tabstop=4 formatoptions-=cro list nu
 
 # haven't been able to force "syntax on" in modeline, so have to have it in .vimrc , but it should largely be on by default
-
+# cuz syntax is a command and not a set option?
 # sometime ago had alias vit="vim -c 'set syntax-=on'"  # not sure where it worked, but no longer work on zorin
+
+# Debian/Mint has modeline disabled by default.  Query it by:
+:verbose set modeline?		# 
+
+# reenable via .vimrc:: set modelines=5
+
+# yaml/python and tabs are enemies.
+# nosmarttab noautoindent nosmartindent  dont seems to reliably get rid of the "ai" in vim
+# :set paste  to get into paste mode is easiest
+# but paste mode is mutually exclusive (ie overwrite) expandtab :-/
+# tab and yaml, cant live with them, cant live without them :-//
+
 </PRE>
 
 
