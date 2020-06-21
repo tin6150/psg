@@ -315,10 +315,12 @@ defineAlias () {
 	alias psr="ps -ALo pid,ppid,pcpu,wchan:16,psr,cmd:90,user --header | grep --color -C 200 PID.*USER"	# processor core number of ea pid
 
 	alias vncsvr12='vncserver -geometry 1280x800 -depth 32'   #  macbook full screen, native 2304x1440. said should scale to 1400 x 900 but did not find it to be doing that.
-        alias vncsvr14='vncserver -geometry 1440x840 -depth 24'   #  macbook pro window, native 2880x1800 Retina.  y=860 causes gvncviewer to scroll, so not using
+	alias vncsvr14='vncserver -geometry 1440x840 -depth 24'   #  macbook pro window, native 2880x1800 Retina.  y=860 causes gvncviewer to scroll, so not using
 
-	alias vncsvr24='vncserver -geometry 2400x1400 -depth 24'   # actual 2560x1600
-	alias vncsvr4k='vncserver -geometry 3700x2100 -depth 24'   # 4k res 3840x2160
+	alias vncsvr16='vncserver -geometry 1540x760 -depth 24'    #  1600x900  m42
+	alias vncsvr19='vncserver -geometry 1860x1080 -depth 24'   #  1920x1200 display
+	alias vncsvr24='vncserver -geometry 2400x1420 -depth 24'   # actual 2560x1600
+	alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
 
