@@ -638,6 +638,45 @@ tool to manipulate BIOS using cli tool...
 TBA
 
 
+<A NAME="dell_support_assist"></A>
+<H2>Dell Support Assist</H2>
+
+<PRE>
+
+singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  \
+/opt/dell/srvadmin/sbin/racadm  supportassist collect
+
+Job ID = JID_926261291256
+RAC1154: The requested operation is initiated.
+
+Run the RACADM jobqueue sub-command, using the job id to check the status of
+the requested operation.
+
+
+racadm  jobqueue view
+-------------------------JOB QUEUE------------------------
+[Job ID=JID_926261291256]
+Job Name=SupportAssist Collection
+Status=Completed
+Start Time=[Not Applicable]
+Expiration Time=[Not Applicable]
+Message=[SRV088: The SupportAssist Collection Operation is completed successfully.]
+Percent Complete=[100]
+----------------------------------------------------------
+
+
+
+	# this didn't work, not sure where file went:
+  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  supportassist  exportlastcollection -f tsr.zip
+
+# ftp server??!!
+  racadm supportassist exportlastcollection -l ftp://192.168.10.24/share -u myuser -p mypass
+
+
+
+
+</PRE>
+
 <A NAME="dsa"></A>
 <H2>Lenovo DSA</H2>
 
@@ -779,6 +818,7 @@ cp: cannot stat '*-usb*': No such file or directory
 
 Please press ANY key to continue ...
 -->
+
 
 <!-- ################################################################## -->
 <!-- ################################################################## -->
