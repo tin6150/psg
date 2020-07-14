@@ -529,9 +529,9 @@ condaSetup4exalearn () {
 		eval "$__conda_setup"
 	else
 		if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
-			. "/home/tin/anaconda3/etc/profile.d/conda.sh"
+# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
 		else
-			export PATH="/home/tin/anaconda3/bin:$PATH"
+# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
 		fi
 	fi
 	unset __conda_setup
@@ -562,7 +562,7 @@ condaSetup4exalearn () {
 # get anaconda into PATH, but source conda.sh manually if/when needed
 
 if [[ -d /home/tin/anaconda3/bin ]] ;  then
-	export PATH="/home/tin/anaconda3/bin:$PATH"
+# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
 	export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh"
 fi
 
