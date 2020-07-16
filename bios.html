@@ -357,6 +357,22 @@ x singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idraca
   singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm \
 
 # singularity-hub build probably won't work cuz build machine don't have an iDRAC :(
+
+
+racadm commands, maybe more useful ones
+
+ rollback             - Rollback firmware to its previous version.
+ frontpanelerror      - hide LCD errors - color amber to blue
+ recover              - Recover firmware to its previous version.
+ remoteimage          - make a remote ISO image available to the server
+ rollback             - Rollback firmware to its previous version.
+ hwinventory          - Monitoring and Inventory of H/W NICs connected to the server.
+ update               - Platform Update of the devices on the server
+ jobqueue             - Jobqueue of of the jobs currently scheduled
+ sensorsettings       - Set the sensor threshold levels.
+ getsensorinfo        - got psu of chassis info.
+
+
 -->
 
 When CPU doesn't perform, check these params (racadm):
@@ -451,7 +467,9 @@ More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hex
 <PRE>
 racadm techsupreport collect 	# start a support collection 
 racadm jobqueue view
-racadm techsupreport export -f tsr_report.zip 
+racadm techsupreport export -f tsr_report.zip         # didn't work via singularity img (cuz idrac version diff?)
+racadm supportassist exportlastcollection -f tsr.zip  # via sl7-tools vnfs
+
 
 racadm racreset		# restart rac, like power cycling the service processor, but not the wipe config and restore to factory default kind of reset, which does have a separate cmd for
 </PRE>
