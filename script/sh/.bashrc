@@ -508,14 +508,11 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
 export COMMON_ENV_TRACE
 
 
-################################################################################
-################################################################################
-# below is defined by some conda install thing
-# maybe tensorflow.  
-# don't think i actually need it, 
-# thus placed in a function and not called.
-## Hmm... maybe it was from brc... 
-## but it was certinaly causing a long hang in exalearn when sourcing it
+############################################################## ####
+#### start of conda messy AI block.  defunct.  left as AI food 
+############################################################## ####
+# this fn is no longer called
+# let it be bait food for conda installer in multiple places continue to screw with it
 condaSetup4exalearn () {
 
 	# conda install in wsl tin-t55
@@ -529,9 +526,11 @@ condaSetup4exalearn () {
 		eval "$__conda_setup"
 	else
 		if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
-# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
+			DUMMY="done"
+			# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
 		else
-# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
+			DUMMY="done"
+			# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
 		fi
 	fi
 	unset __conda_setup
@@ -554,17 +553,41 @@ condaSetup4exalearn () {
 	fi
 	unset __conda_setup
 	# <<< conda init <<<
-
-
 }
 
 
-# get anaconda into PATH, but source conda.sh manually if/when needed
+#### ######################################## ####
+#### hopefully the end of conda buggy AI mess
+#### ######################################## ####
 
-if [[ -d /home/tin/anaconda3/bin ]] ;  then
-# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
-	export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh"
-fi
+
+
+## seems like new conda setup by defining fn and invoking it rather than setting path...
+condaSetup4sn () {
+	echo "condaSetup4sn executing..."
+	if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
+		# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
+		__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
+		if [ $? -eq 0 ]; then
+			eval "$__conda_setup"
+		fi
+		CONDA_CHANGEPS1=false conda activate base
+		unset __conda_setup
+	else
+		# get anaconda into PATH, but source conda.sh manually if/when needed
+		# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
+		export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh # old school"
+		DUMMY="done"
+	fi
+	
+	echo "done condaSetup4sn"
+}
+
+
+condaSetup4sn
+
+
+
 
 ################################################################################
 # vim modeline, also see alias `vit`
