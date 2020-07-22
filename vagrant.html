@@ -1,4 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- vim: set filetype=html tabstop=8 : -->
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -50,15 +51,54 @@
 
 <H1>Vagrant</H1>
 
+<H2>Vagrant Example Use Case</H2>
+
 <PRE>
 
-vagrant init 			# will create a new Vagrantfile in current dir
+singhub/ folder has a 
+cp Vagranfile.centos7 Vagrantfile 
+which download a ready-to-run virtualbox image, eg
+
+	http://cloud.centos.org/centos/7/vagrant/x86_64/images/CentOS-7-x86_64-Vagrant-1805_01.VirtualBox.box
+	http://cloud.centos.org/centos/8/vagrant/x86_64/images/CentOS-8-Vagrant-8.0.1905-1.x86_64.vagrant-virtualbox.box
+
+the provision section could run shell commands
+OR it can invoke ansible
+and execute the vagranfile_playbook.yml
+
+which does some basic setup/cleansing.
+
+Could have this to create VM on Zink for use.
+eg Various OS flavor to test out Singularity in them.
+
+
+PS.
+Ansible is not invoking Vagrant to create VM.
+VM creation use ansible in two places
+- as part of vagrant provision
+- IFF full desktop experience inside the VM desired: once machine is a running vm, could run my cueball/ANSIBLE/wsl_locahost_playbook.yml and treat it like any other machine I use.
+
+- historically may have tried osboxes VirtualBox image, but the centos cloud vagrant/box is more scriptable.
+
+</PRE>
+
+
+<H2>Vagrant 101</H2>
+
+<PRE>
+
+vagrant init 			# will seed a .vagrant/ dir and a new Vagrantfile in current dir
 --or--
-vi Vagrantfile			# skip init and use a customized file. eg singhub/Vagrantfile
+vi Vagrantfile			# create/edit/cp Vagrantfile.centos8 Vagrantfile
 
 vagrant up
+
+
 vagrant provision		# (re)run provision section of Vagrantfile 
 vagrant provision --debug 	# add debug output to above
+
+	The provision section could run a shell script
+	Or a lot of folks also have it run ansible and execute a playbook
 
 vagrant up --provision | tee provision.log	# run vagrant up and forces provision to run
 
@@ -68,7 +108,7 @@ vagrant box add centos/7 https://vagrantcloud.com/centos/boxes/7/versions/1708.0
 # but in mint, still can't do vagrant up, something crashes , but that maybe virtualbox bug... oh, my linux box had been acting up...
 
 vagrant status
-vagrant global-status		# if have some global farm thing setup
+vagrant global-status		# multiple Vagrantfile, or global farm 
 vagrant suspend			# hibernate vm
 vagrant resume			# resume vm after hibernation
 vagrant halt			# power off vm
@@ -96,13 +136,73 @@ Example Vagrantfile</A>.
 <BR>
 
 
+<H2>Multiple instances</H2>
+
+There are likely many scenarios where multiple instances are needed, 
+eg multiple machine to support a app/db environment.
+Those could be in a vagrantfile with multiple instances defined in it.
+<BR><BR>
+
+Here, i cover the case for creating multiple VM that are independent of one another,
+for various sys admin testings.
+<BR>
+eg, a Vagrantfile defining a VM for CentOS 7, another for 8, yet another for FreeBSD 11 or an Ubuntu machine.
+<BR>
+<BR>
+Because vagrant expect one directory to host one config file, 
+the fact that one can use <TT>VAGRANT_VAGRANTFILE</TT> to specify an alternate definition file doesn't really help.
+This is because there is a .vagrant dir hosting quite a bit of config.
+
+<BR>
+Thus, it is best to create one directory for each test env.
+This way, 
+<TT>VBoxManage list vms</TT>
+will also list machines prefixed with the folder name, thus aiding finding out what is what.
+eg
+<PRE>
+"vagrant_centos7_default_1592008049000_63100" {7bfb7f7f-226b-4091-a49a-92d55999f98a}
+"vagrant_freeBSD_default_1592249070181_35687" {eea57223-a976-4a5d-a0d7-9deff2d3b748}
+
+</PRE>
+
+<BR>
+Furthermore, one now just need to cd to the right directory to do <BR>
+<TT>vagrant status</TT> <BR>
+<TT>vagrant ssh</TT> <BR>
+etc without having to prefix each command with <TT> VAGRANT_VAGRANTFILE=Vagrantfile.centos8</TT>
+or having set it in an export and forgot to change it :)
+<BR>
+<BR>
+
+<H2>Dir Structure</H2>
+
+<PRE>
+
+$HOME/.vagrant.d/ ...
+
+.vagrantfile/		# store info about VM created by vagrant up
+
+VM images, if using VirtualBox, is in $HOME/VirtualBox VMs/VMNAME ie, a location virtual box always use, not dependent on Vagrantfile...
+see vboxmanage list vms --long
+	
+
+</PRE>
+
+Ref:
+Using alternate Vagrantfile was dicussed in
+https://stackoverflow.com/questions/23888381/how-to-run-several-boxes-with-vagrant
+but i think that point is moot now.
+
 
 <H2>Installation</H2>
 
 <PRE>
-Mint:    sudo apt-get install vagrant virtualbox
+Mint:    
+sudo apt-get install vagrant virtualbox
+sudo apt     install virtualbox-qt       # needed by startvm hexcode --type gui
 
-Centos7: yum -y install https://releases.hashicorp.com/vagrant/1.9.6/vagrant_1.9.6_x86_64.rpm
+Centos7: 
+yum -y install https://releases.hashicorp.com/vagrant/1.9.6/vagrant_1.9.6_x86_64.rpm
 # https://www.tecmint.com/how-to-install-vagrant-on-centos-7/ says vagrant can use docker too...
 # but not so sure.  vagrant ask for VirtualBox, VMware, hyperV.  
 
@@ -124,14 +224,26 @@ sudo hdiutil detach /Volumes/VirtualBox/
 </PRE>
 
 
+<H2>Links</H2>
+
+<UL>
+	<LI><A HREF="https://www.vagrantup.com/docs/other/environmental-variables.html">Vagrant env vars</A></LI>
 
 
-<H2>Virtual Box</H2>
+</UL>
+
+
+<H1>Virtual Box</H1>
 
 <PRE>
 /usr/bin/vboxmanage 
 vboxmanage list vms
+vboxmanage list vms --long
 vboxmanage showvminfo
+
+/usr/bin/VBoxManage  startvm   "springer"           --type headless
+/usr/bin/VBoxManage  controlvm "springer"  poweroff --type headless
+
 
 </PRE>
 

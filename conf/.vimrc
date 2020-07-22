@@ -33,6 +33,7 @@ set modelines=5
 " https://stackoverflow.com/questions/1562633/setting-vim-whitespace-preferences-by-filetype
 " this hopefull really do what i want now!  
 " modeline is NOT the way to go for collab, other may not like my settings!
+" but tabstop govern alignment...
 filetype plugin on 
 filetype plugin indent on 
 autocmd Filetype ruby 		setlocal ts=2 sw=2 expandtab
@@ -97,7 +98,10 @@ set showmatch           " show matching bracket
 " call pathogen#infect()  " use pathogen
 
 " clipboard
-set clipboard=unnamed   " allow yy, etc. to interact with OS X clipboard
+"xx set clipboard=unnamed   " allow yy, etc. to interact with OS X clipboard
+" https://stackoverflow.com/questions/38617304/how-to-disable-vim-pasting-to-from-system-clipboard
+" vim in Mint 19.3 use system clipboard, which annoys my old habit, so disable
+set clipboard=
 
 set background=dark     " comment will be more readable lighther color text
 

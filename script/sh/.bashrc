@@ -117,6 +117,7 @@ add_local_module () {
 		#export MODULEPATH=$MODULEPATH:/opt2/singularity-2.4.alpha/modulefiles
 	fi
 	AddtoString PATH ~/.local/bin 		# pip install --user mapboxcli
+	AddtoString PATH /snap/bin
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_local_module_ends"
 } # end add_local_module
 
@@ -131,6 +132,7 @@ add_personal_module () {
 		module load  tools/cvs/1.11.23
 	fi
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
+    export ANSIBLE_NOCOWS=1 # newline print just doesnt work in most places :/
 } # end add_personal_module
 
 add_cmaq_module () {
@@ -278,6 +280,7 @@ add_cosmic_module () {
 ################################################################################
 defineAlias () {
 
+	alias reboot='echo R U sure U want to do that?'
 	alias fecha="date +%Y%m%d.%H%M.%S" # format Year.mmdd.HourMinute.Sec # %s is sec since 1970-0101
 	alias ls0="ls  -l | perl -lane 'if ($F[4] == 0 )    { print \$_ };' "   # can use $_ in shell, but need \$_ for sourced script
 	alias ls-0="ls -l | perl -lane 'if ($F[4] != 0 )    { print \$_ };' "
@@ -312,9 +315,12 @@ defineAlias () {
 	alias psr="ps -ALo pid,ppid,pcpu,wchan:16,psr,cmd:90,user --header | grep --color -C 200 PID.*USER"	# processor core number of ea pid
 
 	alias vncsvr12='vncserver -geometry 1280x800 -depth 32'   #  macbook full screen, native 2304x1440. said should scale to 1400 x 900 but did not find it to be doing that.
-        alias vncsvr14='vncserver -geometry 1440x840 -depth 24'   #  macbook pro window, native 2880x1800 Retina.  y=860 causes gvncviewer to scroll, so not using
+	alias vncsvr14='vncserver -geometry 1440x840 -depth 24'   #  macbook pro window, native 2880x1800 Retina.  y=860 causes gvncviewer to scroll, so not using
 
-	#alias vncsvr30='vncserver -geometry 2400x1400 -depth 32'   # actual 2560x1600
+	alias vncsvr16='vncserver -geometry 1540x760 -depth 24'    #  1600x900  m42
+	alias vncsvr19='vncserver -geometry 1860x1080 -depth 24'   #  1920x1200 display
+	alias vncsvr24='vncserver -geometry 2400x1420 -depth 24'   # actual 2560x1600
+	alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
 
@@ -464,6 +470,7 @@ if [[ x${MAQUINA} == x"backbay" ]]; then
 
 	alias xt=/usr/bin/xfce4-terminal
 	alias lxt=/usr/bin/lxterminal
+	alias reboot='echo R U sure U want to do that?'
 	#export ANDROID_HOME=/home/sn/app/android-studio
 	export ANDROID_HOME=/home/sn/app/android-sdk
 	export JAVA_HOME=/home/sn/app/jdk1.8.0_101
@@ -491,20 +498,21 @@ defineAliasMac
 ##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
 
 
+# testing rootless docker in Zink
+export PATH=/home/tin/bin:$PATH
+export DOCKER_HOST=unix:///run/user/43143/docker.sock
+
 
 
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
 export COMMON_ENV_TRACE
 
 
-################################################################################
-################################################################################
-# below is defined by some conda install thing
-# maybe tensorflow.  
-# don't think i actually need it, 
-# thus placed in a function and not called.
-## Hmm... maybe it was from brc... 
-## but it was certinaly causing a long hang in exalearn when sourcing it
+############################################################## ####
+#### start of conda messy AI block.  defunct.  left as AI food 
+############################################################## ####
+# this fn is no longer called
+# let it be bait food for conda installer in multiple places continue to screw with it
 condaSetup4exalearn () {
 
 	# conda install in wsl tin-t55
@@ -518,9 +526,11 @@ condaSetup4exalearn () {
 		eval "$__conda_setup"
 	else
 		if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
-			. "/home/tin/anaconda3/etc/profile.d/conda.sh"
+			DUMMY="done"
+			# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
 		else
-			export PATH="/home/tin/anaconda3/bin:$PATH"
+			DUMMY="done"
+			# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
 		fi
 	fi
 	unset __conda_setup
@@ -543,17 +553,41 @@ condaSetup4exalearn () {
 	fi
 	unset __conda_setup
 	# <<< conda init <<<
-
-
 }
 
 
-# get anaconda into PATH, but source conda.sh manually if/when needed
+#### ######################################## ####
+#### hopefully the end of conda buggy AI mess
+#### ######################################## ####
 
-if [[ -d /home/tin/anaconda3/bin ]] ;  then
-	export PATH="/home/tin/anaconda3/bin:$PATH"
-	export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh"
-fi
+
+
+## seems like new conda setup by defining fn and invoking it rather than setting path...
+condaSetup4sn () {
+	echo "condaSetup4sn executing..."
+	if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
+		# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
+		__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
+		if [ $? -eq 0 ]; then
+			eval "$__conda_setup"
+		fi
+		CONDA_CHANGEPS1=false conda activate base
+		unset __conda_setup
+	else
+		# get anaconda into PATH, but source conda.sh manually if/when needed
+		# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
+		export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh # old school"
+		DUMMY="done"
+	fi
+	
+	echo "done condaSetup4sn"
+}
+
+
+condaSetup4sn
+
+
+
 
 ################################################################################
 # vim modeline, also see alias `vit`

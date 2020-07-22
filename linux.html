@@ -371,6 +371,8 @@ Fedora Core 3                   2.6.9
 Fedora Core 6			2.6.19-1	2.5-10.fc6	4.1.1-51.fc6		
 Fedora 8                        2.6.23
 
+RHEL 8.1			4.18.0-147.3.1  2.28-72		8.3.1-4.5
+
 
 RHEL 2.1, 3, 4.  Increasing support cost: WS,                    WS HPC, 		ES (2 socket max),      AS
              5.                           Desktop + workstation, HPC Compute Nodes, 	Server, 		Advance Platform
@@ -1402,6 +1404,16 @@ sudo parted /dev/sdb set 1 LVM		# optional
 	## the LVM flag isn't likely relevant, but will be printed in output
 	## to help remind sys admin it is LVM and not say ext3 fs.
 
+# repartition disk, data seems untouched :)
+# need partition number and end size.  
+# if omitted will prompt, can use size in GB or % in addition to sector.
+# -1 is last block on disk.  
+sudo help parted # display help.  
+
+# eg resize partition 1, use 100% of avail space (eg after VM hd grew):
+sudo parted /dev/sda resizepart 1 100%  
+
+
 sudo parted /dev/sdb rm 1		# remove partition 1
 
 
@@ -2388,6 +2400,12 @@ ntsysv 				# TUI of serviceconf (vsftp/telnet/rlogin, etc)
 
 </PRE>
 
+<H5>systemd</H5>
+RHEL7, some newer ubuntu?
+<PRE>
+systemctl status firewalld
+</PRE>
+
 <H4>SuSE</H4>
 
 
@@ -2427,10 +2445,26 @@ cat /proc/cpuinfo | grep MHz		# current core speed in ubuntu, max core speed for
 sudo cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_cur_freq  # ubuntu, rhel 7.4+ 
 sudo cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq	# ubuntu, fedora?
 
+sudo cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor  # rhel, but not present if no governor avail
+
+
 RHEL7 may need CPUfreq driver to be installed 
 https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/power_management_guide/cpufreq_governors
 or cpupower from kernel-tools
 https://access.redhat.com/solutions/1287663
+can have this run via singularity
+
+possible kargs for governors:
+https://www.kernel.org/doc/html/v4.12/admin-guide/pm/intel_pstate.html
+intel_pstate=disable # this maybe bad, no lower MHz in idle, no turbo?   was tried in specific cascadelake checking on IB osu_latency
+intel_pstate=passive
+intel_pstate=force # don't use acpi-cpufreq even if preferred on a given system, careful: thermal implication.  ok on skylake?
+no_hwp, hwp_only, support_acpi_ppc, per_cpu_perf_limits
+
+pstate avail for most Intel SandyBridge and later CPU.
+pstate with hwp (hardware managed pstate) is recommended and default policy.  cpu decide on pstate, os can give it hints.  ?hwp avail to skylake and later?
+
+
 
 sudo dmidecode -t processor | grep Speed	# but "Current Speed" is from ACPI and maybe stale
 						# Max Speed 
@@ -2571,11 +2605,22 @@ GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"
 append to boot argument to kernel: nouveau.modeset=0 				# this worked on exalearn 2018.11
 (remove rhgb quiet for verbose text boot)
 grub2-mkconfig -o /boot/grub2/grub.cfg      # BIOS mode, UEFI need a diff config
+
+
+sudo update-grub
+sudo update-grub2
 </PRE>
 
 Ubuntu/Mint seems to use
 <TT>quiet splash</TT> for GUI boot.
 Mint added <TT>nomdmonddf nomdmonism</TT>
+
+<BR>
+nouveau.blacklist=1 in grub.conf didn't work in Mint.
+<BR>
+Driver Manager was the right tool to change from nouveau to nvidia driver in Mint.
+
+
 
 
 <!--
@@ -3477,13 +3522,22 @@ See also <TT>ipa-client-install</TT> and <TT>realmd</TT> <BR>
 <H3>firewall in rhel7</H3>
 
 <PRE>
-iptables		# default, boot up executes /etc/sysconfig/iptables ...
+firewalld is default firewall, does NOT write to /etc/sysconfig/iptables
+
+iptables		# rhel 6 default, boot up executes /etc/sysconfig/iptables ...
 
 ??
 firewall-config		# GUI tool.  DONT use system-config-firewall
-			# shorewall
+			# shorewall, not default, but supported as os package.
 </PRE>
 
+
+<H1>RHEL8 New STuff</H1>
+
+<PRE>
+default, no /usr/bin/python , which may break things like ansible (unless otherwise configured to explicityly use python3)
+alternatives --set python /usr/bin/python3
+</PRE>
 
 <A NAME="progies"></A>
 <H1>
@@ -3557,8 +3611,17 @@ redhat-logiviewer	# GUI tool to parse many diff logs
 
 gqview			# acdsee like image viewer
 eog			# eyes of genome, graphics file viewer
+eom			# eyes of mate
 eeyes			# electric eyes
 gimp			# "photoshop"
+
+Oothers to ponder:
+sudo snap install irfanview # via wine
+gthumb			# thumbview, crop, resize (probably not resample)
+nomacs
+XnViewMP
+GwenView
+
 
 ethereal is replaced by wireshark
 but that only install text-based snooper called /usr/sbin/tshark
@@ -3612,8 +3675,8 @@ vimdiff    file1.txt file2.txt          # character-based side-by-side diff, han
                                         # ^w H = horizontal split 
 
 
-vim -o A.txt B.txt C.txt will open three horizontal splits for each file.
-vim -O A.txt B.txt C.txt will open three vertical splits for each file
+vimdiff -o A.txt B.txt C.txt will open three horizontal splits for each file.
+vimdiff -O A.txt B.txt C.txt will open three vertical splits for each file
 
 
 - fldiff # X, side by side, opt to ignore space, best diff so far ## avail in  wsl, zorin, not in centos7
