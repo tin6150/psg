@@ -300,6 +300,15 @@ SNC disabled is baseline.  If enable SNC:
 
 See <A HREF="script/hpc/racadmSetBios.sh">racadmSetBios.sh</A> script that set this and many below values. <BR>
 
+<H3>Numa on Epyc Rome 7xx2</H3>
+
+
+<PRE>
+
+BIOS.ProcSettings.NumaNodesPerSocket # default to 4, and numactl -H will show node with 0 RAM :/
+BIOS.ProcSettings.ProcVirtualization 
+</PRE>
+
 <H3>Memory Operating Mode</H3>
 
 <PRE>
@@ -672,6 +681,37 @@ Putty KeyPad=01                         // *01 (VT100), 02 (LINUX), 04 (XTERMR6)
 Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
 
 </PRE>
+
+<H5>SMC IPMI</H5>
+
+Info from 
+<A HREF="https://serverfault.com/questions/361940/configuring-supermicro-ipmi-to-use-one-of-the-lan-interfaces-instead-of-the-ipmi">serverfault</A>
+
+<BR>
+<BR>
+
+Supermicro has an <A HREF="ftp://ftp.supermicro.com/utility/IPMICFG/">IPMICFG</A> 
+util that allows for commands like:
+
+<PRE>
+sudo ipmiutil lan -e										# check config
+sudo ipmiutil smcoem lanport dedicated  # set to shared
+</PRE>
+
+instead of getting the util, can apparently just use raw commands via ipmitool.
+worked in 2020 on a server w/ cascade lake processor.  <BR>
+  <BR>
+It is slightly unerving not knowing what it is really doing and if it would work on a server of a different vintage... hopefully it can't do lasting damage.  <BR>
+It didn't look like SUM was able to change the IPMI interface settings.  <BR>
+
+<PRE>
+
+To get LAN mode:                ipmitool raw 0x30 0x70 0x0c 0
+To set LAN mode dedicated:      ipmitool raw 0x30 0x70 0x0c 1 0
+To set LAN mode onboard/shared: ipmitool raw 0x30 0x70 0x0c 1 1
+To set LAN mode failover:       ipmitool raw 0x30 0x70 0x0c 1 2        # default? this settings worked as "shared"
+</PRE>
+
 
 <H5>Ref</H5>
 
