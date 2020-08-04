@@ -339,6 +339,9 @@ Skylake... 14th gen PowerEdge...
 	- Reduce HPL performance by ~7% on Skylake 6130 2.1 GHz 32cores 96G on Dell C6420
 	- Exposes HPL clock calculation bug in random manner (cuz it messes with CPU clock?)
 
+  Using LowLatencyOptimizedProfile:
+	- This was undocumented profile in 12th Gen PowerEdge
+	- said to make a world of difference for latency , but has significant draw on power and will keep all fans blowing on full speed all the time
 
 racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and dependencies):
 	- PerfPerWattOptimizedDapc - Performance Per Watt (DAPC)
@@ -470,8 +473,32 @@ racadm jobqueue view
 racadm techsupreport export -f tsr_report.zip         # didn't work via singularity img (cuz idrac version diff?)
 racadm supportassist exportlastcollection -f tsr.zip  # via sl7-tools vnfs
 
-
 racadm racreset		# restart rac, like power cycling the service processor, but not the wipe config and restore to factory default kind of reset, which does have a separate cmd for
+
+</PRE>
+
+
+<H5>ipmi</H5>
+
+Dell maintain their <A HREF="https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=0992n">own version of ipmi</A> that handles complex situation that RHEL7 ipmitool didn't.
+eg: <BR>
+./ipmitool delloem lan set shared with lom1
+<!-- 
+~tin/sw/dell_ipmi/ipmitool delloem lan set shared with lom1
+-->
+
+<BR>
+
+<PRE>
+racadm set iDRAC.NIC.Selection 2
+
+with the selections as follows
+1 - Dedicated
+2 - LOM1
+3 - LOM2
+4 - LOM3
+5 - LOM4
+
 </PRE>
 
 <!--
@@ -537,6 +564,8 @@ Ref:
 <LI><A HREF="http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor">Dell skylake Performance Benchmark results</A> (HPL, Stream, SpecInt, Ansys, etc)
 
 <LI><A HREF="http://www.dell.com/support/manuals/vi/en/vidhs1/dell-opnmang-dplymnt-toolkit-v5.0.1/dtk_cli-v5/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us"></A>
+<LI><A HREF="https://downloads.dell.com/manuals/common/poweredge_perf_amdepyc7002series.pdf">Dell Epyc Rome Becnharmk results</A> 
+<LI><A HREF="https://www.dell.com/support/article/en-us/sln311501/high-performance-computing?lang=en">Dell HPC results</A>
 <LI><A HREF=""></A>
 <LI>
 </UL>
