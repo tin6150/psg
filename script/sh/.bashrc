@@ -564,14 +564,17 @@ condaSetup4exalearn () {
 
 ## seems like new conda setup by defining fn and invoking it rather than setting path...
 condaSetup4sn () {
-	echo "condaSetup4sn executing..."
+	##echo "condaSetup4sn executing..."
 	if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
 		# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
 		__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
+		##__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook )"
 		if [ $? -eq 0 ]; then
 			eval "$__conda_setup"
+		else
+			##echo "eval of $ __conda_setup was non zero..."
+			CONDA_CHANGEPS1=false conda activate base
 		fi
-		CONDA_CHANGEPS1=false conda activate base
 		unset __conda_setup
 	else
 		# get anaconda into PATH, but source conda.sh manually if/when needed
@@ -580,11 +583,11 @@ condaSetup4sn () {
 		DUMMY="done"
 	fi
 	
-	echo "done condaSetup4sn"
+	##echo "done condaSetup4sn"
 }
 
 
-condaSetup4sn
+condaSetup4sn  # strange problem on bofh
 
 
 
