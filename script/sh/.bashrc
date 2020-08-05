@@ -336,7 +336,7 @@ defineAlias () {
 	alias sq="squeue"          ##slurm
 	alias sqt="squeue -u tin"  ##slurm
 	alias assoc="sacctmgr show associations -p"                    ##slurm
-	alias sevents="sacctmgr show events start=2018-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
+	alias sevents="sacctmgr show events start=2020-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
 
     alias sinfo-N='sinfo --Node --long --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
     # -N is node centric, ie one node per line, has to be first arg

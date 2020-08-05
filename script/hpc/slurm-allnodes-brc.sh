@@ -142,9 +142,9 @@ ps -ef | grep -v root
 echo ---------------------------------------
 echo ---------------------------------------
 
-echo "==== 7z benchmark next ======================================================="
+echo "==== 7z benchmark next (7za b)======================================================="
 #echo "7za b skipped"
-#++ singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
 
 ) > $OUTFILE   # capture all cmd list into a file name I prefer, slurm -o is too limitig
 
@@ -171,7 +171,8 @@ echo "==== stress test via singularity next ====================================
 #echo "stress skipped"
 
 ##TIME=660  ## ++TODO change accordingly
-TIME=20660  ## ~5.6 hours
+#TIME=20660  ## ~5.6 hours
+TIME=60      ## 60 sec.  this stupid thing tends to hang when killed and may leave slurm with CG job status :/
 echo running... singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
 singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
 
