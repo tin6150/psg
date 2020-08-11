@@ -112,8 +112,8 @@ module list    2>&1
 PRECISION=fp32 
 MODEL=inception3
 BATCH_SIZE=32 # --num_batches param, this  should take about 8 hours
-#NUM_BATCHES=250000 # for V100 or colefax, need to change.  # real    951m51.584s # user    6718m43.128s # sys     525m50.911s
-NUM_BATCHES=2500001 # for V100 or colefax, need to change.
+NUM_BATCHES=250000 # for V100 or colefax, need to change.  # real    951m51.584s # user    6718m43.128s # sys     525m50.911s
+#NUM_BATCHES=2500001 # for V100 or colefax, need to change.
 #NUM_GPU=4
 #NUM_GPU=7 #8
 NUM_GPU=8
