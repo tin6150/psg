@@ -826,6 +826,12 @@ docker push              tin6150/apache_psg_3a:dev2	# in hub.docker.com, see 81M
 
 
 
+podman build -t tin6150/r4envids -f Dockerfile .  | tee Dockerfile.monolithic.LOG
+podman login docker.io
+podman push tin6150/r4envids           # had pre-created the repo in hub.docker.com
+podman push tin6150/r4envids:newtag
+
+
 
 
 
