@@ -319,10 +319,13 @@ see
 <BR>
 
 
+<A HREF="https://docs.scipy.org/doc/scipy/reference/stats.html">SciPy stats function</A>
+
 <PRE>
 
 
-prefix:
+prefix: p, q, d, r ::
+
 p for "probability", the cumulative distribution function (c. d. f.)
 	F(x) = P(X <= x)
    	Answer What is  P(X < 27.4) when X has Normal distribution with mean 50 and standard deviation of 20 aka N(50,20).  N often styled as cursive cap N.
@@ -333,40 +336,53 @@ p for "probability", the cumulative distribution function (c. d. f.)
    	Python: scipy.stats.norm.cdf( 27.4, loc=50, scale=20 )
    	Excel:  norm.dist( 27.4, 50, 20, TRUE ) 
 
+	For calculation of the p-value in a right tailed test for a given z-score:
+   	1 - pnorm( 27.4, 50, 20 )
+   	pnorm(27.4, 50, 20, lower.tail=FALSE )  # lower.tail=FALSE -> upper/right tail
+	Python: 
+	1 - scipy.stats.norm.cdf( 27.4, 50, 20 )
+	scipy.stats.norm.sf( 27.4, 50, 20 )     # sf = 1 - cdf
+
+
 q for "quantile", the inverse c. d. f.    - aka PPF(q) for probability ( 1 - &alpha; )
    	p = F(x)
 	x = F-inv(p)
    	F-inv is styled as F^-1.
    	So given a number p between zero and one, qnorm looks up the p-th quantile of the normal distribution.
    	Answer What is F-inv(0.95) when X has the N(100, 15^2) distribution?
-   	qnorm(0.95, mean=100, sd=15, lower.tail=TRUE)
-   	qnorm(0.05, mean=100, sd=15, lower.tail=FALSE)   # from the relation (1-alpha) = 0.95
    	qnorm(0.95, 100, 15)
-   	Python: stats.norm.ppf( 0.95, loc=100, scale=15 )
-   	Excel: norm.inv(0.95,...) or norm.s.inv(0.05)
-   		
+   	qnorm(0.95, mean=100, sd=15, lower.tail=TRUE)
+   	qnorm(0.05, mean=100, sd=15, lower.tail=FALSE)   # from the relation (1-alpha) + alpha = 1, here alpha=0.95
+   	Python: scipy.stats.norm.ppf( 0.95, loc=100, scale=15 )
+   	Excel: norm.inv( 0.95, 100, 15 ) .  Excel has a norm.s.inv(0.05), but only take mean=0 sd=1.
 
    	
 d for "density", the density function (p. f. or p. d. f.)
    		
 
 r for "random", a random variable having the specified distribution
+	Generating random numbers from a standard normal distribution
+	N(miu=0,sigma=1)  # N cursive, miu=mean of 0, sigma=standard deviation of 1
+	rnorm(n=1, mean=0, sd=1 )
+	Python: scipy.stats.norm.rvs( loc=0, scale=1, size=1, random_state=123 ) # random_state is optional, use seed for repeatable/determinsistic result
+	If n or size > 1 get a vector.
+	Excel:  norm.s.inv( rand() )
 
 pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution
 pbinom, qbinom, dbinom, and rbinom.  For the binomial distribution, these functions are 
 
-pchisq	qchisq	dchisq	rchisq - for Chi-Square
+pchisq	qchisq	dchisq	rchisq - for Chi-Square   scipy.stats.chi2.cdf() etc
 pexp	qexp	dexp	rexp   - for Exponential
 plogis	qlogis	dlogis	rlogis - for Logistic
 plnorm	qlnorm	dlnorm	rlnorm - for Log Normal
 ppois	qpois	dpois	rpois  - for Poisson
-pt	qt	dt	rt     - for Student t
+pt	qt	dt	rt     - for Student t    scipy.stats.t.cdf() etc
 punif	qunif	dunif	runif  - for Uniform
 
 Note that for continuous distribution, some of these fn are defined using integrals, and R doesn't do integrations!
 
 
-All function take option mean and standard deviation.  If omitted, default to 1 for both of these parameters
+All function take option mean and standard deviation.  If omitted, default mean=0, sd=1.  
 
 pnorm(27.4, mean=50, sd=20)
 pnorm(27.4, 50, 20)
