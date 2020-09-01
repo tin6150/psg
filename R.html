@@ -25,14 +25,15 @@
     </tr>
     <tr>
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
-      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
-      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
-      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
-      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
-      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
-      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
-      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
-      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+      <td align="center"><a accesskey="s" href="python.html">python</a>	</td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a>	</td>
+      <td align="center"><a accesskey="d" href="k8s.html">Kubernetes</a>                </td>
+      <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>       </td>  <!--TBA-->
+      <td align="center"><a accesskey="r" href="coreos.html">CoreOS</a> </td>
+      <td align="center"><a accesskey="w" href="aws.html">AWS</a>       </td>
+      <td align="center"><a accesskey="b" href="bigdata.html">BigData</a>       </td>
+      <td align="center"><a accesskey="v" href="vagrant.html">Vagrant</a>       </td>
+      <td align="right"> <a accesskey="a" href="shellScript.txt">shellScript</a></td>
     </tr>
   </tbody>
 </table>
@@ -204,8 +205,7 @@ I suggest that we only use <- for assignment and = for specifying named paramete
 
 <H5>101</H5>
 
-<A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">
-	R short primer (pdf)</A> (page 12)
+<A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">R short primer (pdf)</A> (page 12)
 
 <PRE>
 
@@ -226,7 +226,7 @@ true, do expr each run
 • x[n]: the n-th element   # R index starts at 1
 • x[m:n]: the m-th to n-th element
 • x[c(k,m,n)]: specific elements
-• x[x>m & x<n]: elements between m and n
+• x[x&gt;m &amp; x&lt;n]: elements between m and n
 
 • x$n: element of list or data frame named n
 
@@ -312,16 +312,44 @@ Result: vector without NAs.
 <H5>stat functions</H5>
 
 see 
-<A HREF="https://www.stat.umn.edu/geyer/old/5101/rlook.html#:~:text=dnorm%20is%20the%20R%20function,standard%20deviation%20of%20the%20distribution.">
-	"UNM Stat 5101"</A>
+<A HREF="https://www.stat.umn.edu/geyer/old/5101/rlook.html#:~:text=dnorm%20is%20the%20R%20function,standard%20deviation%20of%20the%20distribution.">"UNM Stat 5101"</A>
+<BR>
+
+<A HREF="http://eric.univ-lyon2.fr/~ricco/tanagra/fichiers/en_Tanagra_Calcul_P_Value.pdf">CDF and PPF in Excel, R and Python</A> (good graphical guide covering what the p, q, d, r functions cover.
+<BR>
+
 
 <PRE>
 
 
 prefix:
 p for "probability", the cumulative distribution function (c. d. f.)
-q for "quantile", the inverse c. d. f.
+	F(x) = P(X <= x)
+   	Answer What is  P(X < 27.4) when X has Normal distribution with mean 50 and standard deviation of 20 aka N(50,20).  N often styled as cursive cap N.
+   	if variance (&sigma;) is given, use the relation s.d. = sqrt(sigma) 
+   	pnorm( 27.4, mean=50, sd=20, lower.tail=TRUE )
+	pnorm( 27.4, 50, 20 )
+   	In R, optional param default to mean=0, sd=1, lower.tail=TRUE.
+   	Python: scipy.stats.norm.cdf( 27.4, loc=50, scale=20 )
+   	Excel:  norm.dist( 27.4, 50, 20, TRUE ) 
+
+q for "quantile", the inverse c. d. f.    - aka PPF(q) for probability ( 1 - &alpha; )
+   	p = F(x)
+	x = F-inv(p)
+   	F-inv is styled as F^-1.
+   	So given a number p between zero and one, qnorm looks up the p-th quantile of the normal distribution.
+   	Answer What is F-inv(0.95) when X has the N(100, 15^2) distribution?
+   	qnorm(0.95, mean=100, sd=15, lower.tail=TRUE)
+   	qnorm(0.05, mean=100, sd=15, lower.tail=FALSE)   # from the relation (1-alpha) = 0.95
+   	qnorm(0.95, 100, 15)
+   	Python: stats.norm.ppf( 0.95, loc=100, scale=15 )
+   	Excel: norm.inv(0.95,...) or norm.s.inv(0.05)
+   		
+
+   	
 d for "density", the density function (p. f. or p. d. f.)
+   		
+
 r for "random", a random variable having the specified distribution
 
 pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution
@@ -368,8 +396,7 @@ a <- 5
 
 
 <H5>vector, matrix</H5>
-<A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">
-	R short primer (pdf)</A>
+<A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">R short primer (pdf)</A>
 
 <PRE>
 
