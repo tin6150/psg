@@ -195,7 +195,6 @@ result
 
 result2=dbListTables( con )
 # see list of tables for the connected schema
-I suggest that we only use <- for assignment and = for specifying named parameters.
 
 </PRE>
 
@@ -311,22 +310,22 @@ Result: vector without NAs.
 
 <H5>stat functions</H5>
 
-see 
-<A HREF="https://www.stat.umn.edu/geyer/old/5101/rlook.html#:~:text=dnorm%20is%20the%20R%20function,standard%20deviation%20of%20the%20distribution.">"UNM Stat 5101"</A>
+Ref: <BR>
+- <A HREF="https://www.stat.umn.edu/geyer/old/5101/rlook.html#:~:text=dnorm%20is%20the%20R%20function,standard%20deviation%20of%20the%20distribution.">"UNM Stat 5101"</A>
 <BR>
 
-<A HREF="http://eric.univ-lyon2.fr/~ricco/tanagra/fichiers/en_Tanagra_Calcul_P_Value.pdf">CDF and PPF in Excel, R and Python</A> (good graphical guide covering what the p, q, d, r functions cover.
+- <A HREF="http://eric.univ-lyon2.fr/~ricco/tanagra/fichiers/en_Tanagra_Calcul_P_Value.pdf">CDF and PPF in Excel, R and Python</A> (good graphical guide covering what the p, q, d, r functions cover.)
 <BR>
 
-
-<A HREF="https://docs.scipy.org/doc/scipy/reference/stats.html">SciPy stats function</A>
+- <A HREF="https://docs.scipy.org/doc/scipy/reference/stats.html">SciPy stats function</A>
+<BR>
 
 <PRE>
 
 
 prefix: p, q, d, r ::
 
-p for "probability", the cumulative distribution function (c. d. f.)
+p for "probability", the cumulative distribution function (c.d.f.)
 	F(x) = P(X <= x)
    	Answer What is  P(X < 27.4) when X has Normal distribution with mean 50 and standard deviation of 20 aka N(50,20).  N often styled as cursive cap N.
    	if variance (&sigma;) is given, use the relation s.d. = sqrt(sigma) 
@@ -344,7 +343,7 @@ p for "probability", the cumulative distribution function (c. d. f.)
 	scipy.stats.norm.sf( 27.4, 50, 20 )     # sf = 1 - cdf
 
 
-q for "quantile", the inverse c. d. f.    - aka PPF(q) for probability ( 1 - &alpha; )
+q for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha; )
    	p = F(x)
 	x = F-inv(p)
    	F-inv is styled as F^-1.
@@ -357,7 +356,7 @@ q for "quantile", the inverse c. d. f.    - aka PPF(q) for probability ( 1 - &al
    	Excel: norm.inv( 0.95, 100, 15 ) .  Excel has a norm.s.inv(0.05), but only take mean=0 sd=1.
 
    	
-d for "density", the density function (p. f. or p. d. f.)
+d for "density", the density function (p.f. or p.d.f.)
    		
 
 r for "random", a random variable having the specified distribution
@@ -369,8 +368,8 @@ r for "random", a random variable having the specified distribution
 	Excel:  norm.s.inv( rand() )
 
 pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution
-pbinom, qbinom, dbinom, and rbinom.  For the binomial distribution, these functions are 
 
+pbinom  qbinom  dbinom  rbinom - for binomial distribution
 pchisq	qchisq	dchisq	rchisq - for Chi-Square   scipy.stats.chi2.cdf() etc
 pexp	qexp	dexp	rexp   - for Exponential
 plogis	qlogis	dlogis	rlogis - for Logistic
@@ -402,13 +401,13 @@ a <- 5
 # both = and <- can be used for assignment
 # But <- is prefered by the R crowd.  it also screw with my html code here, so maybe R should go to .rst 
 
-# there are some subtle differences, side effect, formula, etc
-# see https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/
-# overall, recommend 
-# for better readability of R code, 
+# there are some subtle differences, side effect, formula, etc.
+# see <A HREF="https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/">https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/</A>
+# overall, for better readability of R code, 
+# it was suggested to only use <- for assignment and = for specifying named parameters.
+# But I was not convinced and will likely continue to use = 
 
 </PRE>
-
 
 
 <H5>vector, matrix</H5>
