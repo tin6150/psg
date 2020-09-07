@@ -184,6 +184,17 @@ $HOME/.vagrant.d/ ...
 
 VM images, if using VirtualBox, is in $HOME/VirtualBox VMs/VMNAME ie, a location virtual box always use, not dependent on Vagrantfile...
 see vboxmanage list vms --long
+
+
+Vagrantfile does not allow specifying location of the .vdi file (only for DVD iso)
+ie, clause like this doeesn't get heeded for the path:
+  config.vm.disk :disk, size: "112GB", primary: true, path: "/clusterfs/gretadev/data/VBoxVM/greyhound"
+
+https://stackoverflow.com/questions/36332996/store-vagrant-vm-in-custom-folder
+perhaps:
+
+VBoxManage setproperty machinefolder /clusterfs/gretadev/data/VBoxVM
+vagrant up
 	
 
 </PRE>

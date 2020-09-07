@@ -703,6 +703,34 @@ which one to use is a matter of preference.
 
 <H2>Libraries</H2>
 
+<A NAME="doParallel"></A>
+<H3>doParallel</H3>
+
+One way to do parallel processing in R
+
+<PRE>
+NumThread=15
+library(doParallel)
+cl = makeCluster( NumThread, outfile="mkcluster.out" )   ## create a cluster object
+registerDoParallel(cl)
+foreach(i=1:3) %dopar% sqrt(i)
+# the %dopar% says to run the foreach loop in parallel for each item
+# all console output inside cluster object will go to outfile 
+# there are eg combine=rbind to merge result
+stopCluster(cl)
+
+detectCores() ## return number of cores on machine
+
+</PRE>
+
+Ref: 
+<UL>
+<LI><A HREF="https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf">CRAN doParallel</A></LI>
+
+<LI><A HREF="https://www.rdocumentation.org/packages/doParallel/versions/1.0.15/topics/registerDoParallel">R Doc on doParallel</A></LI>
+<LI></LI>
+</UL>
+
 <H3>lifkit</H3>
 
 
