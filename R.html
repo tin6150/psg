@@ -106,8 +106,10 @@ library( rJava );	# see if it can load the R library named rJava (case sensitive
 
 
 listing all installed libraries:
-
 Rscript -e 'library()' 
+
+
+
 
 sI <- sessionInfo()
 sI
@@ -116,6 +118,13 @@ sI
 system('env')	# this is running the env command via the shell and display that info
 system('id -a; hostname')
 
+# in jupyter notebook, the system() command output to console 
+# use combination of intern=TRUE and wrap with print() just to be sure
+print(system( 'uptime', intern=TRUE ))  
+
+
+library(data.table)
+fread( "cat /proc/loadavg", check.names=TRUE ) ## run system command and read result into data frame
 
 
 </PRE>
