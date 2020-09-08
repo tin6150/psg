@@ -20,6 +20,7 @@ MAILTO=bofh@example.com
 # before docker purge them after 6 months
 
 # aw crap, may need docker login... or run from non saturated IP...
+# actually, login is in hash ~/.docker/daemon.json 
 
 PullCmd="docker pull"
 #PullCmd="sudo podman pull"
@@ -29,8 +30,8 @@ ImgList="r4eta r4envids metabolic perl4metabolic base4metabolic bioperl bioperl-
 date
 
 for Img in $ImgList; do
-	echo Running : $PullCmd $Img
-	$PullCmd $Img
+	echo Running : $PullCmd tin6150/$Img
+	$PullCmd tin6150/$Img
 	echo $?
 done
 
