@@ -99,8 +99,8 @@ then, in raven's prompt, a 'telnet localhost 30000' will connect to the ftp serv
 read as: Remote port 30000   send to devapp01:21  the rest is just login to the remote machine.
 once the ssh session is killed, the channel disapears (though just simple exit with preconnected channel will be forked to background).
 
-     -R port:host:hostport 	#R = remote
-     -L port:host:hostport 	#L = local
+     -R port:host:hostport 	remotesvr	#R = remote
+     -L port:localhost:hostport remotesvr	#L = local
 
 floride# ssh -L 443:localhost:22 root@grads
 	localhost:443 will be LISTEN state, and tunnel to grads:22, which need root to work.
@@ -112,7 +112,7 @@ voivod$  ssh -L 2022:localhost:443 tho01@sn -p 23
 	localhost:2022 tunnel to floride:443, it will ask for password thru ssh on port 23.
 
 Note that this double tunneling will connect, but need root access for port < 1024 :(
-each machine only open port in 127.0.0.1:* so can't remotely connect.
+each machine only open port in 127.0.0.1:* so cant remotely connect.
 
 
 
@@ -122,10 +122,16 @@ each machine only open port in 127.0.0.1:* so can't remotely connect.
 X11 forwarding...
 
 deepnds on configuration of both server and client to fwd X11
-ssh has an -X option to force it (but what if server refuse, then i guess it won't work then).
+ssh has an -X option to force it (but what if server refuse, then i guess it wont work then).
 
 ONce ssh into the remote machine, even thru several machines, will forward the X11 port correctly.  it set the display to some virtual display on the local machine, on :10.0 (port 6010) or something.  all the work will be behind the scene tthru the many virtual xserver that ssh setup on the way
 
+
+if using vnc and want to wrap that traffic inside ssh, 
+ssh -L 5911:localhost:5901  remoteVncSvr 
+   then in a separate window on the localmachine, 
+vncviewer localhost:11
+   this connect to local port 5911, wrap by ssh, then into the remote vncserver port 5901, ie :1
 
 
 ---
@@ -136,7 +142,7 @@ ssh tho01@grads "cat file" > file.txt
 ssh tho01@grads " cat binfile | uuencode - " | uudecode -p > binfile
 cat binfile | uuencode - | ssh +C mis02 " uudecode -p > binfile"
 
-(had addded - for uuencode to expect stdin (won't work w/o cat though), and -p for uudecode to output to stdout (or else it dump into a file named '-').  grads cshrc noisy output will affect this working!)
+(had addded - for uuencode to expect stdin (wont work w/o cat though), and -p for uudecode to output to stdout (or else it dump into a file named '-').  grads cshrc noisy output will affect this working!)
 
 -p is in solaris only, presummably linux use diff option to output to stdout
 

@@ -216,6 +216,8 @@ curl has more power than get, especially when need to use POST instead of GET
     pass=ANotSoSecurePass
     curl -k -L -XGET "https://tin:${mypass}@registry:443/v2/_catalog" 
     # return a list of images as json
+    # -k skip check whether cert is valid/from known ca$
+
 
     curl -k -L -XGET "https://tin:${pwd}@registry:443/v2/conductor/tags/list" 
     # list all tags for container called "conductor"

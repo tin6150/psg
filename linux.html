@@ -3327,6 +3327,7 @@ systemctl daemon-reload bruker_lmgr		# reload service after changes to init scri
 /etc/systemd/system				# dir where startup files are stored
 
 /etc/systemd/system/multi-user.target.wants	# expect sym link to /usr/lib/systemd/system
+/etc/systemd/system/                    	# can drop a file here and allow systemctl enable SVC_NAME ## preferred
 /etc/systemd/system/default.target.wants	# can drop a file here (uniq name that does not conflict with other service in /usr/lib/systemd/system) and it will be run on boot
 
 systemd-analyze blame						# time line of service starting, bottom = first service, top = last service
@@ -3355,7 +3356,8 @@ systemctl disable vncserver0			# remove sym link, but seems like service still l
 </PRE> 
 
 <PRE class="cf">
-# /etc/systemd/system/vncserver0.service
+# /etc/systemd/system/vncserver0.service  # ensure executable
+# systemctl daemon-reload
 # systemctl enable vncserver0			# add sym link to multi-user.target.wants to start the service
 [Unit]
 Description=Remote desktop service (VNC)

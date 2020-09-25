@@ -761,9 +761,6 @@ vncviewer -shared -hextile localhost:11
 # -hextile will not let machine think it is local and use raw.
 # actually, not sure if that is windows only.
 
-# for linux machine to vnc server on tin-u10, but i haven't gotten it to work yet.
-
-
 New vncclient (eg tigervnc, mobaXterm) support a -via option:
 
 vncviewer -via user@server:1
@@ -771,6 +768,7 @@ vncviewer -via user@server:1
 and the ssh tunnel will be created.  No need to manually run ssh and understand the whole tunnel business :)
 
 
+realvnc traffic is encrypted, use that and don't have to worry about wrapping with ssh.  but realvnc server need license.
 </PRE>
 
 

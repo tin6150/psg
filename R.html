@@ -728,6 +728,11 @@ foreach(i=1:3) %dopar% sqrt(i)
 # there are eg combine=rbind to merge result
 stopCluster(cl)
 
+.combine=rbind # row-bind, ie, each result becomes a row
+.combine=cbind # col-bind, ie, each result becomes a col
+.combine=c     # c() ?
+
+
 detectCores() ## return number of cores on machine
 
 </PRE>
@@ -737,8 +742,30 @@ Ref:
 <LI><A HREF="https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf">CRAN doParallel</A></LI>
 
 <LI><A HREF="https://www.rdocumentation.org/packages/doParallel/versions/1.0.15/topics/registerDoParallel">R Doc on doParallel</A></LI>
+<LI><A HREF="https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html"> Quick Intro to Parallel Computing in R</LI>
+<LI><A HREF="https://ljdursi.github.io/beyond-single-core-R/#/">Beyond Single-Core R</A> (and github source at https://github.com/ljdursi/beyond-single-core-R</LI>
+<LI></LI>
 <LI></LI>
 </UL>
+
+
+
+<A NAME="Nested Parallel"></A>
+<H3>nestedParallel</H3>
+
+https://stackoverflow.com/questions/21306027/nesting-parallel-functions-in-r
+
+<PRE>
+
+cl = makeCluster(2, type = "SOCK")
+clusterCall(cl, function() {
+  library(doSNOW)
+  registerDoSNOW(makeCluster(2, type = "SOCK"))
+  NULL
+})
+registerDoSNOW(cl)
+
+</PRE>
 
 <H3>lifkit</H3>
 
