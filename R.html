@@ -302,7 +302,9 @@ date-time (POSIX)
 ?"%*%"  # get help on topic, quote it if it has "funny" symbols
 
 %*% # matrix multiply
-%/% # ??
+%/% # ?? partitioning data into partition for shipping to different nodes 
+
+%:% # compose or nest foreach objects - https://ljdursi.github.io/beyond-single-core-R/#/84
 
 %%  # modulus, ie reminder.  eg 7%%3 is 1
 
@@ -822,7 +824,7 @@ foreach should be tought of lapply, not for loop
 Parallel libs: doParallel, doMC, doMPI
   cl = parallel::makeCluster(4)
   cl = parallel::makeCluster(4, type = "FORK")   # unix fork(), default?
-  cl = parallel::makeCluster(4, type = "PSOCK")  # PSOCK creates a brand new session in R, nothing inherited from parent.
+  cl = parallel::makeCluster(4, type = "PSOCK")  # Posix Sockets creates a brand new session in R, nothing inherited from parent.  if do this, may as well use MPI cluster and really scale it.
   cl = parallel::makeForkCluster(4)
 
 use registerDoSEQ() if want to force foreach to run in serial 
@@ -834,6 +836,10 @@ Thus, "side-effects" such as those produced by `for` vanishes in parallelization
 
 SNOW - like PSOCK, entirely new process, so ned to explicitly copy data.  but process can be on remote machine.
 
+
+https://ljdursi.github.io/beyond-single-core-R/#/55
+clusterCall()
+clusterEvalQ() # easier to use for tasks
 
 </PRE>
 
@@ -872,6 +878,101 @@ Ref:
 <LI></LI>
 <LI></LI>
 </UL>
+
+<A NAME="Clustering_on_Clusters"></A>
+<H3>Clustering on Clusters</H3>
+
+https://ljdursi.github.io/beyond-single-core-R/#/57
+
+<PRE>
+ship data to other nodes of the cluster:
+cl = makeCluster(8)
+clusterExport(cl, "jan2010")
+cares = clusterApply(cl, rep(5,4), do.n.kmeans)
+stopCluster(cl)
+mcres = mclapply(rep(5,4), do.n.kmeans, mc.cores=4)
+
+</PRE>
+
+https://ljdursi.github.io/beyond-single-core-R/#/59
+<BR>
+
+<PRE>
+# Running across machines:
+# 2 machine, each with 8 core of process?
+
+hosts = c( rep("localhost",8), rep("192.168.0.10", 8) )
+cl = makePSOCKcluster(names=hosts)
+clusterCall(cl, rnorm, 5)
+clusterCall(cl, system, "hostname")
+stopCluster(cl)
+
+</PRE>
+<!-- ++ check for SimAnneal , but need to ship data to node ++ -->
+
+
+<A NAME="snow"></A>
+<H3>Snow</H3>
+
+https://ljdursi.github.io/beyond-single-core-R/#/61
+<BR>
+
+<PRE>
+scheduling
+viz of run
+
+library(snow,quiet=TRUE)
+
+do.kmeans.nclusters <- function(n) { kmeans(jan2010, centers=n, nstart=10) }
+
+cl = makeCluster(2)
+clusterExport(cl,"jan2010")
+
+tm = snow.time( clusterApply(cl, 1:6, do.kmeans.nclusters) )
+plot(tm)
+
+# load balance, below is more like mc.preschedule=FALSE, kicking off task to worker only when needed
+tm.lb = snow.time(clusterApplyLB(cl, 1:6, do.kmeans.nclusters))
+plot(tm.lb)
+
+</PRE>
+
+https://ljdursi.github.io/beyond-single-core-R/#/73 - Summary for parallel/snow
+
+<LI>clusterExport good for for SIMD
+<LI>clusterApplyLB good for MIMD
+<LI>parLapply
+<LI> makePSOCKcluster for small cluster
+<LI> makeMPIcluster for larger cluster -- but read up on pbdR first
+<LI> pdbR      -- https://ljdursi.github.io/beyond-single-core-R/#/143
+<LI> pdb*apply -- https://ljdursi.github.io/beyond-single-core-R/#/152
+<LI>
+
+https://ljdursi.github.io/beyond-single-core-R/#/83
+
+<PRE>
+foreach parallel
+.multicombine=TRUE
+
+%:% nest foreach object # slide 84
+
+
+</PRE>
+
+
+MPI cluster 
+
+<PRE>
+https://ljdursi.github.io/beyond-single-core-R/#/149
+
+init()
+rank = comm.rank()
+...
+allreduce(length(dta), op="sum")
+comm.print(data.min)
+
+finalize()
+</PRE>
 
 
 
