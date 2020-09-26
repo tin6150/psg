@@ -734,38 +734,31 @@ by() ... think of GROUP_BY in SQL
 </PRE>
 
 <A NAME="Parallelization"></A>
-<H2>Parallelization in R</H2>
+
+
+<A NAME="mc"></A>
+<H2>Parallelization in R using mc* functions </H2>
+
+mclapply   <BR>
+mcparallel   <BR>
+mccollect   <BR>
+mc.core   <BR>
+
+<BR>
+
+Ref: 
+<A HREF="https://ljdursi.github.io/beyond-single-core-R/#/26">Beyond single core R</A>
+<BR>
 
 <PRE>
-for is run for its side effect
-foreach returns result, side effects maybe gone (when using parallel backend).
-foreach should be tought of lapply, not for loop
-
-
-%do% is serial
-Parallel libs: doParallel, doMC, doMPI
-  cl = parallel::makeCluster(4)
-  cl = parallel::makeCluster(4, type = "FORK")   # unix fork(), default?
-  cl = parallel::makeCluster(4, type = "PSOCK")  # PSOCK creates a brand new session in R, nothing inherited from parent.
-  cl = parallel::makeForkCluster(4)
-
-use registerDoSEQ() if want to force foreach to run in serial 
-
-much of the parallelization is done using fork() in unix (may not work in windows).
-Also, fork() allow access to vars/memory from parent, but result not returned at the end.
-Need to do some special collection/return if need to save those data.
-Thus, "side-effects" such as those produced by `for` vanishes in parallelization.
-
-SNOW - like PSOCK, entirely new process, so ned to explicitly copy data.  but process can be on remote machine.
-
-
-~~~~~
-
-mc* are multi-core routines
+mc*        are multi-core routines
 mcparallel is good for parallel tasks
-mcapply    is good for data parallelism
+mclapply   is good for data parallelism - easily replace lapply()
 mc.cores   really should represent number of tasks, core can be oversubscribed often with little perf degradation
+</PRE>
 
+
+<PRE>
 parallel::mclapply - multi-core lapply - https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html
 
 instead of 
@@ -788,18 +781,59 @@ mccollect   # wait and collect result.  so kinda like MPI scatter/gather
 
 ## hmm... maybe parallelize SimAnneal this way??  ++
 
+</PRE>
 
 
+<A HREF="https://blog.dominodatalab.com/multicore-data-science-r-python/">domino data lab</A> on caret/doMC 
+<BR>
 
-https://blog.dominodatalab.com/multicore-data-science-r-python/
+<PRE>
+
 library(doMC)
 library(caret) # popular ML using foreach to parallelize CV-folds, etc.
 	fit.lda.ser vs
 	fit.lda.par
 
 
-Beyond single core R
-https://ljdursi.github.io/beyond-single-core-R/#/26
+</PRE>
+
+<A NAME="cluster"></A>
+<H2>Parallelization in R using cluster functions </H2>
+
+makeCluster()  <BR>
+stopCluster()  <BR>
+doParallel()   <BR>
+registerDoSEQ() <BR>
+
+snow <BR>
+
+foreach <BR>
+%do% <BR>
+%dopar% <BR>
+
+<PRE>
+
+for is run for its side effect
+foreach returns result, side effects maybe gone (when using parallel backend).
+foreach should be tought of lapply, not for loop
+
+
+%do% is serial
+Parallel libs: doParallel, doMC, doMPI
+  cl = parallel::makeCluster(4)
+  cl = parallel::makeCluster(4, type = "FORK")   # unix fork(), default?
+  cl = parallel::makeCluster(4, type = "PSOCK")  # PSOCK creates a brand new session in R, nothing inherited from parent.
+  cl = parallel::makeForkCluster(4)
+
+use registerDoSEQ() if want to force foreach to run in serial 
+
+much of the parallelization is done using fork() in unix (may not work in windows).
+Also, fork() allow access to vars/memory from parent, but result not returned at the end.
+Need to do some special collection/return if need to save those data.
+Thus, "side-effects" such as those produced by `for` vanishes in parallelization.
+
+SNOW - like PSOCK, entirely new process, so ned to explicitly copy data.  but process can be on remote machine.
+
 
 </PRE>
 
