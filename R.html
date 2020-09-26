@@ -706,11 +706,59 @@ It is the equivalent of unix shell pipe.
 iris %>% head() %>% summary() is equiv to summary(head(iris))
 which one to use is a matter of preference.
 
+</PRE>
+
+<H2>apply family of function</H2>
+
+
+see <A HREF="https://www.r-bloggers.com/2016/03/apply-lapply-rapply-sapply-functions-in-r/">R-bloggers</A>
+
 <PRE>
+apply(t(beaver1),1,max) ## apply function max to data, 1=row-wise)
+lapply() returns a list
+sapply() returns a vector instead of a list
+tapply() does grouping before running summary function on them
+by() ... think of GROUP_BY in SQL
 
 
+</PRE>
 
-<H2>Libraries</H2>
+<A NAME="Parallelization"></A>
+<H2>Parallelization in R</H2>
+
+<PRE>
+for is run for its side effect
+foreach returns result, side effects maybe gone (when using parallel backend).
+foreach should be tought of lapply, not for loop
+
+
+%do% is serial
+Parallel libs: doParallel, doMC, doMPI
+  cl = parallel::makeCluster(4)
+  cl = parallel::makeCluster(4, type = "FORK")   # unix fork(), default?
+  cl = parallel::makeCluster(4, type = "PSOCK")  # PSOCK creates a brand new session in R, nothing inherited from parent.
+  cl = parallel::makeForkCluster(4)
+
+use registerDoSEQ() if want to force foreach to run in serial 
+
+much of the parallelization is done using fork() in unix (may not work in windows).
+Also, fork() allow access to vars/memory from parent, but result not returned at the end.
+Need to do some special collection/return if need to save those data.
+Thus, "side-effects" such as those produced by `for` vanishes in parallelization.
+
+
+parallel::mclapply - https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html
+
+instead of 
+	result = lapply(starts, fx)
+use
+	result = mclapply(starts, fx, cores=4)
+mclapply gathers up the responses from each of these function calls, and returns a list of responses that is the same length as the list or vector of input data (one return per input item).
+
+starts is a variable holding data, eg rep(100, 40)
+fx is a custom function that lapply() runs
+
+</PRE>
 
 <A NAME="doParallel"></A>
 <H3>doParallel</H3>
@@ -766,6 +814,9 @@ clusterCall(cl, function() {
 registerDoSNOW(cl)
 
 </PRE>
+
+
+<H2>Libraries</H2>
 
 <H3>lifkit</H3>
 
