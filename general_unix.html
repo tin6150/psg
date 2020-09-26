@@ -207,7 +207,30 @@ end of old wget internal notes
 <A ID="curl"></A>
 <H5>curl </H5>
 
-curl does many similar thing than wget...
+curl has more power than get, especially when need to use POST instead of GET
+
+<PRE>
+
+    Test if privately hosted docker registry (v2) is responding:
+
+    pass=ANotSoSecurePass
+    curl -k -L -XGET "https://tin:${mypass}@registry:443/v2/_catalog" 
+    # return a list of images as json
+    # -k skip check whether cert is valid/from known ca$
+
+
+    curl -k -L -XGET "https://tin:${pwd}@registry:443/v2/conductor/tags/list" 
+    # list all tags for container called "conductor"
+
+
+    Other examples to try if anonymous login to registry is allowed:
+
+    curl -k -L -XGET  "https://beagle/" -d "email=tin@place"            # do nothing?  no complain about auth either
+    curl -k -L -XGET  "https://beagle/v2/_catalog" -d "email=tin@place"
+    curl -k -L -XPOST "https://beagle/v2/_catalog" -d "email=tin@place"
+
+
+</PRE>
 
 
 <A name="rsync"></A>

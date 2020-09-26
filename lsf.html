@@ -651,7 +651,7 @@ slurmdUser 			# slurmd    user.
 
 
 <UL>
-	<LI> run <TT>scontrol reconfig</TT>  for slurmctld to read new config (eg adding new partitions) </LI>
+	<LI> run <TT>scontrol reconfig</TT>  for slurmctld to read new config (eg adding new partitions).  But if adding nodes, need to restart slurmctld, reconfig will just kill the daemon. </LI>
 	<LI> There is <EM>NO</EM> need to run <TT>scontrol create partition ...</TT> as a command.  All partition info is generated from definition in the <TT>slurm.conf</TT> file.  Just remember to run reconfig cmd as above.</LI>
 	<LI>gres.conf needs to be configured for GPU.  use <TT>nvidia-smi topo -m</TT> to find out GPU:CPU binding</LI>
 	<LI></LI>

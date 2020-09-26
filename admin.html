@@ -820,6 +820,15 @@ tinh            ALL=(ALL) ALL		# could have placed this user in alias section al
 # user		hostlist=(userlist) commandlist
 
 
+# below are not needed as ultimately ALL commands are allowed.
+# but if future changes, then they can be enabled.  tested to work.
+#GRETA_DOCKER   GRETADEV = NOPASSWD: /bin/sudo su - gitlab
+#GRETA_DOCKER   GRETADEV = NOPASSWD: /bin/sudo su - runner
+#GRETA_DOCKER   GRETADEV = (gitlab) NOPASSWD: ALL
+#GRETA_DOCKER   GRETADEV = (runner) NOPASSWD: ALL
+GRETA_DOCKER    GRETADEV = NOPASSWD: ALL
+
+
 </PRE>
 
 

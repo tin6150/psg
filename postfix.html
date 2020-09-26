@@ -243,9 +243,16 @@ sudo postmap /etc/postfix/sender-canonical
 
 Specify dbm instead of hash if your system uses dbm files instead of db files. To find out what lookup tables Postfix supports, use the command "postconf -m".
 
-Execute the command "postmap /etc/postfix/relay_recipients" whenever you change the relay_recipients table.
+Execute the command "postmap /etc/postfix/relay_recipient" whenever you change the relay_recipients table.
 	eg of relay-canonical (tailing x means "checked" to allow domain to relay):
 	@lbl.gov         x
+
+	# added additional domain on 2020.0718, 
+        # but not likely needed, as all email, even those to gmail.com, were forwarded to onward smtp server
+	@berkeley.edu    x
+	@es.net          x
+	@nersc.gov       x
+
 
 
 Execute the command "postmap /etc/postfix/transport" whenever you change the transport table.

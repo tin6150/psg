@@ -191,12 +191,17 @@ This hopefully also means that if there is eth connected to the management port,
 
 
 
-<H2>Lenovo</H2>
+<H2>Lenovo Server</H2>
 
 <PRE>
 F1 		Setup
 F2		Diagnostics
 F12		Select Boot Device	# Need legacy mode to do PXE boot
+</PRE>
+
+<H2>Lenovo Desktop/Laptop</H2>
+<PRE>
+Enter  (or ThinkVantage button)
 </PRE>
 
 <H2>SuperMicro</H2>
@@ -233,7 +238,13 @@ F12 boot from ...
 <H2>Asus</H2>
 
 <PRE>
-?? del		run setup (AMI BIOS)
+del		run setup (AMI BIOS)
+alt+F2 - EzFlash
+F8 = BBS POPUP
+
+
+^B PXE prompt for Intel I350 on-board NIC
+
 </PRE>
 
 <H2>Dell</H2>
@@ -294,6 +305,15 @@ SNC disabled is baseline.  If enable SNC:
 
 See <A HREF="script/hpc/racadmSetBios.sh">racadmSetBios.sh</A> script that set this and many below values. <BR>
 
+<H3>Numa on Epyc Rome 7xx2</H3>
+
+
+<PRE>
+
+BIOS.ProcSettings.NumaNodesPerSocket # default to 4, and numactl -H will show node with 0 RAM :/
+BIOS.ProcSettings.ProcVirtualization 
+</PRE>
+
 <H3>Memory Operating Mode</H3>
 
 <PRE>
@@ -333,6 +353,9 @@ Skylake... 14th gen PowerEdge...
 	- Reduce HPL performance by ~7% on Skylake 6130 2.1 GHz 32cores 96G on Dell C6420
 	- Exposes HPL clock calculation bug in random manner (cuz it messes with CPU clock?)
 
+  Using LowLatencyOptimizedProfile:
+	- This was undocumented profile in 12th Gen PowerEdge
+	- said to make a world of difference for latency , but has significant draw on power and will keep all fans blowing on full speed all the time
 
 racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and dependencies):
 	- PerfPerWattOptimizedDapc - Performance Per Watt (DAPC)
@@ -346,11 +369,27 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 
 ## better to use  PSG/script/hpc/record_bios_settings.sh 
 
-##singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img   /opt/dell/srvadmin/sbin/racadm \
-  singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img         /opt/dell/srvadmin/sbin/racadm \
+x singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img   /opt/dell/srvadmin/sbin/racadm \
+x singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img         /opt/dell/srvadmin/sbin/racadm \
   singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm \
 
 # singularity-hub build probably won't work cuz build machine don't have an iDRAC :(
+
+
+racadm commands, maybe more useful ones
+
+ rollback             - Rollback firmware to its previous version.
+ frontpanelerror      - hide LCD errors - color amber to blue
+ recover              - Recover firmware to its previous version.
+ remoteimage          - make a remote ISO image available to the server
+ rollback             - Rollback firmware to its previous version.
+ hwinventory          - Monitoring and Inventory of H/W NICs connected to the server.
+ update               - Platform Update of the devices on the server
+ jobqueue             - Jobqueue of of the jobs currently scheduled
+ sensorsettings       - Set the sensor threshold levels.
+ getsensorinfo        - got psu of chassis info.
+
+
 -->
 
 When CPU doesn't perform, check these params (racadm):
@@ -445,9 +484,35 @@ More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hex
 <PRE>
 racadm techsupreport collect 	# start a support collection 
 racadm jobqueue view
-racadm techsupreport export -f tsr_report.zip 
+racadm techsupreport export -f tsr_report.zip         # didn't work via singularity img (cuz idrac version diff?)
+racadm supportassist exportlastcollection -f tsr.zip  # via sl7-tools vnfs
 
 racadm racreset		# restart rac, like power cycling the service processor, but not the wipe config and restore to factory default kind of reset, which does have a separate cmd for
+
+</PRE>
+
+
+<H5>ipmi</H5>
+
+Dell maintain their <A HREF="https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=0992n">own version of ipmi</A> that handles complex situation that RHEL7 ipmitool didn't.
+eg: <BR>
+./ipmitool delloem lan set shared with lom1
+<!-- 
+~tin/sw/dell_ipmi/ipmitool delloem lan set shared with lom1
+-->
+
+<BR>
+
+<PRE>
+racadm set iDRAC.NIC.Selection 2
+
+with the selections as follows
+1 - Dedicated
+2 - LOM1
+3 - LOM2
+4 - LOM3
+5 - LOM4
+
 </PRE>
 
 <!--
@@ -513,6 +578,8 @@ Ref:
 <LI><A HREF="http://en.community.dell.com/techcenter/high-performance-computing/b/general_hpc/archive/2017/08/01/bios-characterization-for-hpc-with-intel-skylake-processor">Dell skylake Performance Benchmark results</A> (HPL, Stream, SpecInt, Ansys, etc)
 
 <LI><A HREF="http://www.dell.com/support/manuals/vi/en/vidhs1/dell-opnmang-dplymnt-toolkit-v5.0.1/dtk_cli-v5/syscfg-for-bios-configuration?guid=guid-928037f2-1410-4547-b2f7-d9b07d702060&lang=en-us"></A>
+<LI><A HREF="https://downloads.dell.com/manuals/common/poweredge_perf_amdepyc7002series.pdf">Dell Epyc Rome Becnharmk results</A> 
+<LI><A HREF="https://www.dell.com/support/article/en-us/sln311501/high-performance-computing?lang=en">Dell HPC results</A>
 <LI><A HREF=""></A>
 <LI>
 </UL>
@@ -620,6 +687,37 @@ Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
 
 </PRE>
 
+<H5>SMC IPMI</H5>
+
+Info from 
+<A HREF="https://serverfault.com/questions/361940/configuring-supermicro-ipmi-to-use-one-of-the-lan-interfaces-instead-of-the-ipmi">serverfault</A>
+
+<BR>
+<BR>
+
+Supermicro has an <A HREF="ftp://ftp.supermicro.com/utility/IPMICFG/">IPMICFG</A> 
+util that allows for commands like:
+
+<PRE>
+sudo ipmiutil lan -e										# check config
+sudo ipmiutil smcoem lanport dedicated  # set to shared
+</PRE>
+
+instead of getting the util, can apparently just use raw commands via ipmitool.
+worked in 2020 on a server w/ cascade lake processor.  <BR>
+  <BR>
+It is slightly unerving not knowing what it is really doing and if it would work on a server of a different vintage... hopefully it can't do lasting damage.  <BR>
+It didn't look like SUM was able to change the IPMI interface settings.  <BR>
+
+<PRE>
+
+To get LAN mode:                ipmitool raw 0x30 0x70 0x0c 0
+To set LAN mode dedicated:      ipmitool raw 0x30 0x70 0x0c 1 0
+To set LAN mode onboard/shared: ipmitool raw 0x30 0x70 0x0c 1 1
+To set LAN mode failover:       ipmitool raw 0x30 0x70 0x0c 1 2        # default? this settings worked as "shared"
+</PRE>
+
+
 <H5>Ref</H5>
 
 <A HREF="https://www.intel.com/content/dam/support/us/en/documents/network/omni-adptr/sb/Intel_OP_Performance_Tuning_UG_H93143_v1_0.pdf">Intel E5 v3 (Hashwell) bios param tuning for Fabric</A>(Omnipath, Infiniband).
@@ -631,6 +729,45 @@ Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
 tool to manipulate BIOS using cli tool...
 TBA
 
+
+<A NAME="dell_support_assist"></A>
+<H2>Dell Support Assist</H2>
+
+<PRE>
+
+singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  \
+/opt/dell/srvadmin/sbin/racadm  supportassist collect
+
+Job ID = JID_926261291256
+RAC1154: The requested operation is initiated.
+
+Run the RACADM jobqueue sub-command, using the job id to check the status of
+the requested operation.
+
+
+racadm  jobqueue view
+-------------------------JOB QUEUE------------------------
+[Job ID=JID_926261291256]
+Job Name=SupportAssist Collection
+Status=Completed
+Start Time=[Not Applicable]
+Expiration Time=[Not Applicable]
+Message=[SRV088: The SupportAssist Collection Operation is completed successfully.]
+Percent Complete=[100]
+----------------------------------------------------------
+
+
+
+	# this didn't work, not sure where file went:
+  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  supportassist  exportlastcollection -f tsr.zip
+
+# ftp server??!!
+  racadm supportassist exportlastcollection -l ftp://192.168.10.24/share -u myuser -p mypass
+
+
+
+
+</PRE>
 
 <A NAME="dsa"></A>
 <H2>Lenovo DSA</H2>
@@ -773,6 +910,7 @@ cp: cannot stat '*-usb*': No such file or directory
 
 Please press ANY key to continue ...
 -->
+
 
 <!-- ################################################################## -->
 <!-- ################################################################## -->

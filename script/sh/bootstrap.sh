@@ -109,8 +109,9 @@ $PkgCmd install git
 #### to keep track of changes in consistent manner
 
 echo "my very ownn stuff, ie add user, sudo, etc"
-sudo groupadd -g 43413 tin
-sudo useradd  -g tin -u 43413 -c "tin@lbl.gov" -m -d /home/tin -s /bin/bash tin 
+# uid is 4xx4x -- the 4s are 4 digits apart!
+sudo groupadd -g 43143 tin
+sudo useradd  -g tin -u 43143 -c "tin@lbl.gov" -m -d /home/tin -s /bin/bash tin 
 
 ##sudo pwconv
 ##sudo passwd tin 

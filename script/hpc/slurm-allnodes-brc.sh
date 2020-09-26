@@ -77,6 +77,24 @@ hostname
 # run whole thing in subshell to capture output to a file
 
 (
+
+exitCode=~/PSG/script/hpc/test_hdf5_lock.py
+
+echo ----hostname--id-----------------------------------
+hostname 
+id
+echo ----hdf5-lustre-flock-test----------------------------------
+if [[ $exitCode == 7 ]]; then
+	echo "test_hdf5_lock returned 7, need to rebOOt"
+	echo "sudo reboot ..."
+else 
+	echo "test_hdf5_lock returned NOT 7, NO reboot"
+fi
+
+
+
+
+
 echo ----hostname-----------------------------------
 echo -n "hostname: " 
 hostname 
@@ -124,7 +142,7 @@ ps -ef | grep -v root
 echo ---------------------------------------
 echo ---------------------------------------
 
-echo "==== 7z benchmark next ======================================================="
+echo "==== 7z benchmark next (7za b)======================================================="
 #echo "7za b skipped"
 singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
 
@@ -153,7 +171,8 @@ echo "==== stress test via singularity next ====================================
 #echo "stress skipped"
 
 ##TIME=660  ## ++TODO change accordingly
-TIME=20660  ## ~5.6 hours
+#TIME=20660  ## ~5.6 hours
+TIME=60      ## 60 sec.  this stupid thing tends to hang when killed and may leave slurm with CG job status :/
 echo running... singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
 singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
 

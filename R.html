@@ -9,7 +9,7 @@
   <META NAME="Robots" CONTENT="all"/>
   <META NAME="Author" CONTENT="Tin Ho"/>
 
-  <title>Pocket Survival Guide - OS</title>
+  <title>Pocket Survival Guide - R</title>
 </head>
 
 <body> 
@@ -25,14 +25,15 @@
     </tr>
     <tr>
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
-      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
-      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
-      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
-      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
-      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
-      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
-      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
-      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+      <td align="center"><a accesskey="s" href="python.html">python</a>	</td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a>	</td>
+      <td align="center"><a accesskey="d" href="k8s.html">Kubernetes</a>                </td>
+      <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>       </td>  <!--TBA-->
+      <td align="center"><a accesskey="r" href="coreos.html">CoreOS</a> </td>
+      <td align="center"><a accesskey="w" href="aws.html">AWS</a>       </td>
+      <td align="center"><a accesskey="b" href="bigdata.html">BigData</a>       </td>
+      <td align="center"><a accesskey="v" href="vagrant.html">Vagrant</a>       </td>
+      <td align="right"> <a accesskey="a" href="shellScript.txt">shellScript</a></td>
     </tr>
   </tbody>
 </table>
@@ -44,7 +45,54 @@
 </div>
 
 
+<div align="CENTER">
+<A HREF="https://xkcd.com/539/"><IMG SRC="fig/xkcd_boyfriend.png"></A>
+</div>
+
+
+
 <H1>R</H1>
+
+<A NAME="container"></A>
+<A NAME="singularity"></A>
+<A NAME="docker"></A>
+<H2>Jupyter Notebook with R kernel Container</H2>
+
+<PRE>
+
+singularity pull shub://tin6150/DIOS_demonstration
+singularity exec DIOS_demonstration_latest.sif /opt/conda/bin/jupyter lab --allow-root
+
+-or-
+
+docker
+podman run  -it --entrypoint=/opt/conda/bin/jupyter  tin6150/r4envids lab --allow-root
+
+
+</PRE>
+
+<A NAME="jupyter"></A>
+<H3>Jupyter Notebook IR Kernel Setup</H3>
+
+conda install -c conda-forge jupyterlab
+
+
+IRkernel is R kernel for Jupyther Notebook.  Need to install as R package, then add kernel spec to Jupyter Notebook:
+
+Rscript -e "install.packages('IRkernel')"
+
+# system wide
+IRkernel::installspec(user = FALSE)
+
+# per user
+Rscript --no-readline --slave -e "IRkernel::installspec(user = TRUE)"
+
+
+
+/home/tin/anaconda3/bin/jupyter lab 
+# expect to have browser launched with URL http://localhost:8888/lab
+# then click icon to create new R notebook
+
 
 <H2>Environment</H2>
 
@@ -58,8 +106,25 @@ library( rJava );	# see if it can load the R library named rJava (case sensitive
 
 
 listing all installed libraries:
-
 Rscript -e 'library()' 
+
+
+
+
+sI <- sessionInfo()
+sI
+
+
+system('env')	# this is running the env command via the shell and display that info
+system('id -a; hostname')
+
+# in jupyter notebook, the system() command output to console 
+# use combination of intern=TRUE and wrap with print() just to be sure
+print(system( 'uptime', intern=TRUE ))  
+
+
+library(data.table)
+fread( "cat /proc/loadavg", check.names=TRUE ) ## run system command and read result into data frame
 
 
 </PRE>
@@ -112,6 +177,8 @@ scripted to run from shell:
 Rscript --quiet -e 'install.packages("ggplot2",  repos = "http://cran.us.r-project.org")'    
 Rscript --quiet -e 'install.packages(c("aCRM", "akima", "broom", "cluster", "clusterCrit"), repos = "http://cran.us.r-project.org")'
 
+# do NOT have TAB(s) inside the arg list for packages(...), as Rscript can't tolerate it when invoked from a bash script.
+
 
 Rscript --quiet --no-readline --slave ...
 	# --quiet is same as --silent 
@@ -144,6 +211,18 @@ cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | g
 <PRE>
 capabilities() 		# see if support X11, etc
 system("id;pwd")	# run OS commands
+
+setwd("dirname")	# cd to dirname, most useful in interactive R session.
+source("myFuncList.R")	# import function list from file
+
+.libPaths()		# list path used to scan for R libs 
+
+.libPaths(  c( ./libPaths(), '/home/tin/R/x86_64-pc-linux-gnu-library/3.4' ) )   # add path to library 
+
+
+
+rm(list=ls())  		# remove all var in memory
+
 </PRE>
 
 
@@ -171,12 +250,570 @@ result
 result2=dbListTables( con )
 # see list of tables for the connected schema
 
-# = is likely std var assign
-# <- is probably some sort of pointer assignment, pass by object reference kind of stuff ??
+</PRE>
+
+
+
+<H1>R Programming</H1>
+
+<H5>101</H5>
+
+<A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">R short primer (pdf)</A> (page 12)
+
+<PRE>
+
+• function(arglist){expr}: 
+function definition: do expr with list of arguments arglist
+
+• if(cond){expr1}else{expr2}: if-statement:
+if cond is true, then expr1, else expr2
+
+• for(var in vec) {expr}: 
+for-loop: the counter var runs through the vector vec 
+and does expr each run
+
+• while(cond){expr}: while-loop: while cond is
+true, do expr each run
+
+
+• x[n]: the n-th element   # R index starts at 1
+• x[m:n]: the m-th to n-th element
+• x[c(k,m,n)]: specific elements
+• x[x&gt;m &amp; x&lt;n]: elements between m and n
+
+• x$n: element of list or data frame named n
+
+• x[["n"]]: idem		# [[ ]] in R ... 
+
+• [i,j]: element at i-th row and jth column
+• [i, ]: row i
+
+
+• return: show variable on the screen (used in functions)
+
+
+• as.numeric or as.character: change class to
+number or character string
+
+• strptime: change class from character to
+date-time (POSIX)
+
 
 </PRE>
 
 
+<H5>R stuff - NA : Not available data</H5>
+
+<PRE>
+
+NA is the token to indicate a value that is not availabe.  Kinda like UNDEF.  
+It is not a string, and it is not NULL.
+It is spelled exactly as NA , both caps.
+
+> foo=NA
+> foo
+[1] NA
+> bar=na
+Error: object 'na' not found
+
+• is.na: test if variable is NA
+
+R by default will not compute on dataset that contain NA.
+If you don’t mind about the missing data and
+want to compute the statistics anyway, you can
+add the argument na.rm=TRUE 
+(Should I remove the NAs? Yes!).
+
+> max(j, na.rm=TRUE)
+[1] 2
+
+
+</PRE>
+
+<H5>R stuff - stat stuff</H5>
+
+
+<PRE>
+
+• lm(v1∼v2): linear fit (regression line) between 
+vector v1 on the y-axis and v2 on the x-axis
+
+• nls(v1∼a+b*v2, start=ls(a=1,b=0)): nonlinear fit. 
+Should contain equation with variables
+(here v1 and v2 and parameters (here a and b)
+with starting values
+
+• coef: returns coefficients from a fit
+• summary: returns all results from a fit
+
+• sum: sum of a vector
+• mean: mean of a vector
+• sd: standard deviation of a vector
+
+
+• aggregate(x,by=ls(y),FUN="mean"): split
+data set x into subsets (defined by y) and computes means of the subsets.
+Result: a new vector.
+
+• approx: interpolate. Argument: vector with NAs. 
+Result: vector without NAs.
+
+</PRE>
+
+
+
+<H5>stat functions</H5>
+
+Ref: <BR>
+- <A HREF="https://www.stat.umn.edu/geyer/old/5101/rlook.html#:~:text=dnorm%20is%20the%20R%20function,standard%20deviation%20of%20the%20distribution.">"UNM Stat 5101"</A>
+<BR>
+
+- <A HREF="http://eric.univ-lyon2.fr/~ricco/tanagra/fichiers/en_Tanagra_Calcul_P_Value.pdf">CDF and PPF in Excel, R and Python</A> (good graphical guide covering what the p, q, d, r functions cover.)
+<BR>
+
+- <A HREF="https://docs.scipy.org/doc/scipy/reference/stats.html">SciPy stats function</A>
+<BR>
+
+<PRE>
+
+
+prefix: p, q, d, r ::
+
+p for "probability", the cumulative distribution function (c.d.f.)
+	F(x) = P(X <= x)
+   	Answer What is  P(X < 27.4) when X has Normal distribution with mean 50 and standard deviation of 20 aka N(50,20).  N often styled as cursive cap N.
+   	if variance (&sigma;) is given, use the relation s.d. = sqrt(sigma) 
+   	pnorm( 27.4, mean=50, sd=20, lower.tail=TRUE )
+	pnorm( 27.4, 50, 20 )
+   	In R, optional param default to mean=0, sd=1, lower.tail=TRUE.
+   	Python: scipy.stats.norm.cdf( 27.4, loc=50, scale=20 )
+   	Excel:  norm.dist( 27.4, 50, 20, TRUE ) 
+
+	For calculation of the p-value in a right tailed test for a given z-score:
+   	1 - pnorm( 27.4, 50, 20 )
+   	pnorm(27.4, 50, 20, lower.tail=FALSE )  # lower.tail=FALSE -> upper/right tail
+	Python: 
+	1 - scipy.stats.norm.cdf( 27.4, 50, 20 )
+	scipy.stats.norm.sf( 27.4, 50, 20 )     # sf = 1 - cdf
+
+
+q for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha; )
+   	p = F(x)
+	x = F-inv(p)
+   	F-inv is styled as F^-1.
+   	So given a number p between zero and one, qnorm looks up the p-th quantile of the normal distribution.
+   	Answer What is F-inv(0.95) when X has the N(100, 15^2) distribution?
+   	qnorm(0.95, 100, 15)
+   	qnorm(0.95, mean=100, sd=15, lower.tail=TRUE)
+   	qnorm(0.05, mean=100, sd=15, lower.tail=FALSE)   # from the relation (1-alpha) + alpha = 1, here alpha=0.95
+   	Python: scipy.stats.norm.ppf( 0.95, loc=100, scale=15 )
+   	Excel: norm.inv( 0.95, 100, 15 ) .  Excel has a norm.s.inv(0.05), but only take mean=0 sd=1.
+
+   	
+d for "density", the density function (p.f. or p.d.f.)
+   		
+
+r for "random", a random variable having the specified distribution
+	Generating random numbers from a standard normal distribution
+	N(miu=0,sigma=1)  # N cursive, miu=mean of 0, sigma=standard deviation of 1
+	rnorm(n=1, mean=0, sd=1 )
+	Python: scipy.stats.norm.rvs( loc=0, scale=1, size=1, random_state=123 ) # random_state is optional, use seed for repeatable/determinsistic result
+	If n or size > 1 get a vector.
+	Excel:  norm.s.inv( rand() )
+
+pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution
+
+pbinom  qbinom  dbinom  rbinom - for binomial distribution
+pchisq	qchisq	dchisq	rchisq - for Chi-Square   scipy.stats.chi2.cdf() etc
+pexp	qexp	dexp	rexp   - for Exponential
+plogis	qlogis	dlogis	rlogis - for Logistic
+plnorm	qlnorm	dlnorm	rlnorm - for Log Normal
+ppois	qpois	dpois	rpois  - for Poisson
+pt	qt	dt	rt     - for Student t    scipy.stats.t.cdf() etc
+punif	qunif	dunif	runif  - for Uniform
+
+Note that for continuous distribution, some of these fn are defined using integrals, and R doesn't do integrations!
+
+
+All function take option mean and standard deviation.  If omitted, default mean=0, sd=1.  
+
+pnorm(27.4, mean=50, sd=20)
+pnorm(27.4, 50, 20)
+
+
+
+</PRE>
+
+
+
+<H5>assignment</H5>
+
+<PRE>
+a =  5
+a <- 5
+
+# both = and <- can be used for assignment
+# But <- is prefered by the R crowd.  it also screw with my html code here, so maybe R should go to .rst 
+
+# there are some subtle differences, side effect, formula, etc.
+# see <A HREF="https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/">https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/</A>
+# overall, for better readability of R code, 
+# it was suggested to only use <- for assignment and = for specifying named parameters.
+# But I was not convinced and will likely continue to use = 
+
+</PRE>
+
+
+<H5>vector, matrix</H5>
+<A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">R short primer (pdf)</A>
+
+<PRE>
+
+vec1 = c( 1, 3, 5, 7)	# c = concatenate, paste together.  
+vec2 = c( 2, 4, 6, 8)
+vec3 = seq(10,25,5)     # aka: vec3 = seq(from=10,to=25,by=5)  # result: [1] 10 15 20 25
+
+sum(vec2)
+
+
+> mat1=matrix( data = c(1,2,3,4,5,6), ncol=3 )   # ncol define how many column the matrix has
+> mat1
+     [,1] [,2] [,3]
+[1,]    1    3    5
+[2,]    2    4    6
+
+> mat[2,2]
+[1] 4
+
+matlb/octave matrix syntax is A LOT nicer :-D
+pay special attention to the sequence of the numbers.
+
+cbind	# column bind to create matrix
+rbind 	# row    bind
+
+
+</PRE>
+
+
+<H5>dataframe, 1-indexed array</H5>
+
+<PRE>
+
+coord = data.frame(x = runif(n.total), y = runif(n.total), sampled = 0) 
+coord.sampled = coord[coord$sampled == 1,]   # initial sites
+
+data.frame (coord) is like a table
+and $ separate the table name and the column name.
+Thus, the above eg has 
+coord$x
+coord$y
+coord$sampled
+each of them is an array (representing the cell values across many rows of the table).
+coord$x[1]  # table coord, column x, row 1  # R is 1-indexed.  (unlike python 0-indexed)
+coord$x[2]  # table coord, column x, row 2
+
+
+> t = data.frame(x = c(11,12,14), y = c(19,20,21), z = c(10,9,7))
+> t
+   x  y  z
+1 11 19 10
+2 12 20  9
+3 14 21  7
+
+> mean(t$x)
+[1] 12.33333
+
+
+
+</PRE>
+
+<H5>List</H5>
+
+<PRE>
+List in a simple form is a vector.
+but it can be arbitrary number of object, each having different length.
+
+syntax looks like it has some nested structure, pay close attention.
+
+> L2=list(vec1,vec2)
+> L2
+[[1]]
+[1] 1 3 5 7
+
+[[2]]
+[1] 2 4 6 8
+
+
+> L = list(one=1, two=c(1,2),five=seq(1, 4, length=5))
+> L
+$one
+[1] 1
+
+$two
+[1] 1 2
+
+$five
+[1] 1.00 1.75 2.50 3.25 4.00
+
+
+
+</PRE>
+
+
+<H2>Strange R stuff</H2>
+
+<A NAME="formula"></A>
+<H3> Formula and tilde (~) operator</H3>
+
+Coming from a programming world, R's definition of formula and its use of the tilde (~) operator is one of the weirest sh-IT of R!! =)
+
+<BR>
+<BR>
+
+R has this concept of formula, and, at least from a user perspective, is different than function.
+(Actually, a formula can be called 'f' and another function 'f' and they can coexist and be called correctly by the right context!)
+<BR>
+<BR>
+For python programmer, forget about programming for a bit.  Put on the stat thinking cap :)  <BR>
+Remember the flower classification example in data science class?
+<A HREF="https://stackoverflow.com/questions/14976331/use-of-tilde-in-r-programming-language">stack overflow</A>
+describes this construct: <BR>
+<TT>Species ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width</TT><BR>
+as "Model Species depends on Sepal Length, Sepal Width, Petal Length and Petal Width"  <BR>
+	<BR>
+
+The tilde (~) operator	is often used for regression model.  <BR>
+The LHS of the ~ operator is the name of the model (Species). <BR>
+The RHS are the variables that is fed into the model, with the + operator being overloaded (don't literary means add them, but to treat each as "columns" to find covariance).  Most models use data frames, and each "variable" is a column vector of data.
+<BR><BR>
+
+<H3>formula has delayed evaluation</H3>
+
+Ref: 
+<A HREF="https://cran.r-project.org/web/packages/lazyeval/vignettes/lazyeval.html">Cran Lazy Eval</A>, scroll down to the Formulas section.  <BR><BR>
+
+
+A formula capture delays the evaluation of an expression so that you can later evaluate it with f_eval(). ie
+<PRE>
+f <- ~ 1 + 2 + 3
+</PRE>
+The formula 'f' will be defined, but the RHS expression will not be calculated yet.
+<BR>
+Only when 
+<PRE>
+f_eval(f)
+</PRE>
+is executed is the expression calculated.
+
+<BR>
+Above was a one-sided formula.  <BR>
+Below is a two-sided formula: <BR>
+
+<PRE>
+	g <- y ~ x + z
+</PRE>
+
+lazyeval provides abstraction like: <BR>
+<PRE>
+f_rhs(g)   # x + z
+f_lhs(g)   # y         
+</PRE>
+
+
+<H3>Common formula</H3>
+
+<A HREF="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/formula">R Doc</A>
+<BR><BR>
+
+lm and glm are logistic regresion models.
+
+the form y ~ model is interpreted as a specification that the response y is modelled by a linear predictor specified symbolically by model. Such a model consists of a series of terms separated by + operators. 
+
+<BR><BR>
+
+Model operators:
+<PRE>
++ 		separate a series of terms that affect the model.
+: 		??
+* 		factor crossing: a*b interpreted as a+b+a:b
+^ 		crossing to specific degree.  eg (a+b)^2 for crossing twice
+^in%    terms on the left are  nested within those on the right.
+-      	remove dependence on the specified series
+
+I() - To avoid this confusion, the function I() can be used to bracket those portions of a model formula where the operators are used in their arithmetic sense
+
+
+</PRE>
+
+
+<OL>
+<LI>	The lattice package uses them to <A HREF="https://www.rdocumentation.org/packages/lattice/topics/B_00_xyplot">specify the variables to plot.</A></LI>
+<LI>	The ggplot2 package uses them to <A HREF="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">specify panels for plotting.</A></LI>
+<LI>	The dplyr package uses them for <A HREF="https://cran.r-project.org/web/packages/lazyeval/vignettes/lazyeval.html">non-standard evaulation.</A></LI>
+
+
+</OL>
+
+<H3>Tilde operator</H3>
+
+
+Try to understand this:
+
+<PRE>
+x <- c(1:100)
+y <- seq(0.1,10,0.1)
+	
+	
+# all these 3 are the same:
+plot(y ~ I(x^3)) 
+plot(I(x^3), y) 
+plot(x^3, y)         # no need to use I() function as ~ operator never used.
+
+# note how ~ syntatically swapped the order of the independent and dependent variables x and y
+
+# but this below is very different:
+# ^ is interpreted as model operator for cross reference.  ( due to presence of ~ operator)
+ploy(y ~ x^3) 
+
+	
+</PRE>
+
+<A HREF="https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i/8055683#8055683">SO more extensive discussion on formula</A>
+
+
+<A HREF="http://blog.rtwilson.com/regression-in-python-using-r-style-formula-its-easy/">Regression in Python usinr R-style formula</A> seems to discuss use of ~ and regression formula in R.
+
+<PRE>
+import pandas as pd
+from statsmodels.formula.api import ols
+	
+model = ols("MPG ~ Year", data=df)
+results = model.fit()
+</PRE>
+
+
+Y<A NAME="pipe"></A>
+<H3>Pipe</H3>
+
+<A HREF="https://stackoverflow.com/questions/24536154/what-does-mean-in-r">stack overflow</A>
+
+<PRE>
+
+
+%>% is defined by magrittr, which is used by dplyr.
+It is the equivalent of unix shell pipe.
+
+iris %>% head() %>% summary() is equiv to summary(head(iris))
+which one to use is a matter of preference.
+
+<PRE>
+
+
+
+<H2>Libraries</H2>
+
+<A NAME="doParallel"></A>
+<H3>doParallel</H3>
+
+One way to do parallel processing in R
+
+<PRE>
+NumThread=15
+library(doParallel)
+cl = makeCluster( NumThread, outfile="mkcluster.out" )   ## create a cluster object
+registerDoParallel(cl)
+foreach(i=1:3) %dopar% sqrt(i)
+# the %dopar% says to run the foreach loop in parallel for each item
+# all console output inside cluster object will go to outfile 
+# there are eg combine=rbind to merge result
+stopCluster(cl)
+
+.combine=rbind # row-bind, ie, each result becomes a row
+.combine=cbind # col-bind, ie, each result becomes a col
+.combine=c     # c() ?
+
+
+detectCores() ## return number of cores on machine
+
+</PRE>
+
+Ref: 
+<UL>
+<LI><A HREF="https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf">CRAN doParallel</A></LI>
+
+<LI><A HREF="https://www.rdocumentation.org/packages/doParallel/versions/1.0.15/topics/registerDoParallel">R Doc on doParallel</A></LI>
+<LI><A HREF="https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html"> Quick Intro to Parallel Computing in R</LI>
+<LI><A HREF="https://ljdursi.github.io/beyond-single-core-R/#/">Beyond Single-Core R</A> (and github source at https://github.com/ljdursi/beyond-single-core-R</LI>
+<LI></LI>
+<LI></LI>
+</UL>
+
+
+
+<A NAME="Nested Parallel"></A>
+<H3>nestedParallel</H3>
+
+https://stackoverflow.com/questions/21306027/nesting-parallel-functions-in-r
+
+<PRE>
+
+cl = makeCluster(2, type = "SOCK")
+clusterCall(cl, function() {
+  library(doSNOW)
+  registerDoSNOW(makeCluster(2, type = "SOCK"))
+  NULL
+})
+registerDoSNOW(cl)
+
+</PRE>
+
+<H3>lifkit</H3>
+
+
+
+<H2>ModeSim</H2>
+
+
+<PRE>
+geoR::lifkit
+
+## likfit - Likelihood Based Parameter Estimation For Gaussian Random Fields
+## https://www.rdocumentation.org/packages/geoR/versions/1.8-1/topics/likfit
+
+SimAnneal()
+kridge
+
+~
+
+raster::extract()
+
+
+makCluster
+registerDoParallel
+%dopar%
+
+</PRE>
+
+
+<H2>Python using R</H2>
+
+<OL>
+<LI>https://towardsdatascience.com/from-r-vs-python-to-r-and-python-aa25db33ce17</LI>
+<LI>PypeR - R within Python</LI>
+<LI>pyRserve - connect to a remote R server</LI>
+<LI>rpy2 - runs embedded R in a Python process </LI>
+<LI></LI>
+</OL>
+
+<H2>R using python</H2>
+
+<OL>
+<LI>rPython</LI>
+<LI>SnakeCharmR - fork, more modern ver of rPython</LI>
+<LI>PythonInR</LI>
+<LI>reticulate</LI>
+<LI></LI>
+</OL>
 
 <BR><HR><BR>
 
@@ -185,10 +822,14 @@ result2=dbListTables( con )
 <BR>
 
 
+<!--  ----------------------------------------------------------------------  -->
+<!--  ----------------------------------------------------------------------  -->
+<!--  ----------------------------------------------------------------------  -->
+
 <BR><HR>
 <div align="CENTER">
-  [Doc URL: <A HREF="http://tin6150.github.io/psg/">
-http://tin6150.github.io/psg/
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/R.html">
+http://tin6150.github.io/psg/R.html
 </A>] <BR>
 Last Updated: 2008-03-22
   <!--[Doc URL: <A HREF="http://psg.ask-margo.com/">http://psg.ask-margo.com/</A>] <BR>-->

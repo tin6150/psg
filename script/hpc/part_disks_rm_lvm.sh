@@ -26,7 +26,7 @@ run_sanity_check()
 	# can't get regex to work as expected yet
 	if [[ x$MAQUINA =~ xn[0-9][0-9][0-9][0-9] ]]; then
 		echo "hostname pattern passes sanity test, running fdisk"
-		run_fdisk_cmd  # no () in bash fn call!
+		run_rm_lvm_cmd  # no () in bash fn call!
 		echo "Completed FDisk"
 		exit 0
 	fi
@@ -53,11 +53,6 @@ run_rm_lvm_cmd()
 	VG_NAME="vg0"
 	SD_NAME="/dev/sda"
 
-	#use lvm syntax
-	SWAP_SIZE="8G"
-	TMP_SIZE="8G"
-	LOCAL_SIZE="100%FREE"
-
 	LVMROOT="/sbin"
 	MKFS="/sbin/mkfs.ext4"
 
@@ -68,8 +63,6 @@ run_rm_lvm_cmd()
 	### I had this at top, may not need to do that again here.
 	echo "" > /proc/sys/kernel/hotplug
 
-	#wipe the partition table (and then some)
-	/bin/dd if=/dev/zero of=$SD_NAME bs=1024k count=10
 
 
 	echo undo lvcreate for swap
@@ -82,6 +75,9 @@ run_rm_lvm_cmd()
 
 	echo undo pvcreate
 	$LVMROOT/pvremove $SD_NAME
+
+	#wipe the partition table (and then some)
+	/bin/dd if=/dev/zero of=$SD_NAME bs=1024k count=10
 
 
 	###
@@ -110,6 +106,6 @@ run_rm_lvm_cmd()
 ########################################
 ########################################
 
-run_sanity_check  # and if pass, that will call run_fdisk_cmd
+run_sanity_check  # and if pass, that will call run_rm_lvm_cmd
 
 

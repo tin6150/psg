@@ -386,6 +386,31 @@ sudo docker run httpd			# will download httpd container if not already present
 
 </PRE>
 
+<H3>Quick test</H3>
+
+
+<PRE>
+
+docker run --rm hello-world
+docker run --rm --gpus all nvidia/cuda:10.2-base nvidia-smi
+docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
+
+</PRE>
+
+To relay image from public docker to an internally hosted registry server on host/port "registry:443"
+
+<PRE>
+
+docker tag hello-world            registry:443/hello-world
+docker image push                 registry:443/hello-world
+docker run --rm                   registry:443/hello-world
+
+docker tag nvidia/cuda:10.2-base  registry:443/cuda:10.2-base
+docker image push                 registry:443/cuda:10.2-base
+docker run --rm --gpus all        registry:443/cuda:10.2-base
+
+</PRE>
+
 <H3>Basic Commands</H3>
 
 <CENTER>
@@ -824,6 +849,12 @@ docker push              tin6150/apache_psg_3a:dev2	# in hub.docker.com, see 81M
 # docker tag ref https://docs.docker.com/mac/step_six/
 
 
+
+
+podman build -t tin6150/r4envids -f Dockerfile .  | tee Dockerfile.monolithic.LOG
+podman login docker.io
+podman push tin6150/r4envids           # had pre-created the repo in hub.docker.com
+podman push tin6150/r4envids:newtag
 
 
 

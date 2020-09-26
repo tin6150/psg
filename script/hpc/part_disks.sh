@@ -12,11 +12,12 @@
 ### slightly updated 2019.0916 
 ### from perceus:/global/home/groups/scs/disks/part_disks.sh 
 
-## old way:
-## [root@n0014 ~]# sudo -u bernardl cat  /global/home/users/bernardl/part_disks.sh  > /root/part_disks.sh
-##[root@n0014 ~]# cat !$
-##cat /root/part_disks.sh
-
+#### 2020.0810
+#### run as:
+#### ./part_disks.sh sda   # single sda, traditional setup
+#### ./part_disks.sh ssd   # single /dev/nvme0n1, otherwise same setup as sda
+#### ./part_disks.sh mms      # mirror sda, sdb.  ssd on sdc  eg n0174.sav3
+#### ./part_disks.sh 3d       # 3 disks raid, tbd (check on HPCS_TOOLKIT/raid_part_disks.sh )
 
 
 ############################################################
@@ -32,18 +33,18 @@ run_sanity_check()
 		exit 007
 	fi
 
-	# can't get regex to work as expected yet
-	if [[ x$MAQUINA =~ xn[0-9][0-9][0-9][0-9] ]]; then
-		echo "hostname pattern passes sanity test, running fdisk"
-		run_fdisk_cmd  # no () in bash fn call!
-		echo "Completed FDisk"
-		exit 0
+
+	# this regex is good enough, acc for greta nodes naming scheme
+	if [[ x$MAQUINA =~ x[ncsw][0-9][0-9][0-9][0-9] ]]; then
+		echo "hostname pattern passes sanity test, continuting..." # ie not causing an abort/exit
+		#run_fdisk_cmd  # no () in bash fn call!
+		#echo "Completed FDisk"
+		#exit 0
+	else
+		echo "hostname pattern sanity test FAILED. NOT running fdisk!  Exiting."
+		exit 007
 	fi
-
-
-	# if didn't call fdisk fn, then exit
-	echo "hostname pattern sanity test FAILED. NOT running fdisk!  Exiting."
-	exit 007
+	# normal return, allow caller to decide what to do next
 
 }
 
@@ -51,8 +52,28 @@ run_sanity_check()
 ############################################################
 
 
-run_fdisk_cmd()
+run_fdisk_cmd_single()
 {
+
+	case "$1" in
+		sda)
+			SD_NAME="/dev/sda"
+			;;
+		ssd)
+			SD_NAME="/dev/nvme0n1"
+			;;
+		*)
+			echo "must specify one of sda or ssd.  exiting"
+			exit 007
+			;;
+	esac
+
+
+	echo "About to run_fdisk_cmd_single... (sleeping for 20, ctrl-c to abort)"
+	echo "run_fdisk_cmd_single arg1 is $1"
+	echo "run_fdisk_cmd_single SD_NAME is $SD_NAME"
+	sleep 20
+	echo "Running run_fdisk_cmd_single..."
 
 	## disable hotplug in kernel so that it doesn't (randomly) complain about inconsistent state
 	## https://access.redhat.com/solutions/1547313
@@ -60,7 +81,6 @@ run_fdisk_cmd()
 	sleep 3
 
 	VG_NAME="vg0"
-	SD_NAME="/dev/sda"
 
 	#use lvm syntax
 	SWAP_SIZE="8G"
@@ -109,7 +129,7 @@ run_fdisk_cmd()
 	swapon -a
 	swapon -s
 	df -h /tmp
-	echo "Should reboot after fdisk partition disk..."
+	echo "Fdisk on single disk ends.  Should reboot after fdisk partition disk..."
 
 }
 
@@ -122,6 +142,27 @@ run_fdisk_cmd()
 ########################################
 ########################################
 
-run_sanity_check  # and if pass, that will call run_fdisk_cmd
+case "$1" in 
+	sda)
+		run_sanity_check  # if fail check, it cause an abort/exit
+		run_fdisk_cmd_single sda
+		;;
+	ssd)
+		run_sanity_check  # if fail check, it cause an abort/exit
+		run_fdisk_cmd_single ssd
+		;;
+	mms)
+		run_sanity_check  # if fail check, it cause an abort/exit
+		echo use ./part_disks_mms.sh # external script (in PSG), later can merge into here... 
+		;;
+	3d)
+		echo "not yet implemented, use HPCS_TOOLKIT/raid_part_disks.sh for now"
+		;;
+	*)
+		echo "this script now need 1 param: sda|ssd|mms|3d"
+		;;
+esac
+
+exit 0
 
 

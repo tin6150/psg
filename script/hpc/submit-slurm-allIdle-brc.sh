@@ -1,12 +1,20 @@
 #!/bin/bash
 
 # script to submit jobs to all idle nodes
+# v2 test for luster lock problem with hdf5 and reboot node if needed
+# need to run job as root, so output will have sudo in the submission
+# ./submit-slurm-allIdle-brc.sh | tee ./submit-slurm-rebOOter-brc.runme.sh
+# 2020.0514
+
+
+#### v1 comment >>
+# script to submit jobs to all idle nodes
 # to load them up to test power util
 # tin 2020.0419
-
 # ./submit-slurm-allIdle-brc.sh | tee ./submit-slurm-allIdle-brc.runme.sh
 # so that have a record of all the nodes to execute jobs, and clean up afterward as necessary
 # though could likely get from squeue.
+#### <<< end v1 comment ####
 
 
 [[ -d /global/scratch/tin/JUNK/SLURM_OUT/ ]] || mkdir -p /global/scratch/tin/JUNK/SLURM_OUT
@@ -27,20 +35,22 @@ SLEEPTIME=1
 
 
 #PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | awk '/savio/ {print $2}' | sort -u  )
-#PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep -v gpu\|80ti | awk '/savio/ {print $2}' | sort -u  )
-PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep htc | awk '/savio/ {print $2}' | sort -u  )
+PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep -v gpu\|80ti | awk '/savio/ {print $2}' | sort -u  )
+#PARTITION_LIST=$(sinfo --Node --long --format "%N %20P %.10t" | egrep htc | awk '/savio/ {print $2}' | sort -u  )
 for PARTITION in $PARTITION_LIST; do
 		echo "##  ---- Processing $PARTITION..."
 
 		# for PARTION="savio" need to append a space for grep not to match savio2	
 		NODELIST=$( sinfo --Node --long --format '%N %20P %.10t' | awk "\$2 ~ /^$PARTITION$/ && \$3 ~ /idle/ {print \$1}" )
 		for NODE in $NODELIST; do
-			echo "sbatch --ntasks=12 -w ${NODE} --partition=$PARTITION --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh ; sleep $SLEEPTIME"
+			#echo "sbatch --ntasks=12 -w ${NODE} --partition=$PARTITION --exclusive=user --mail-type=NONE --job-name=${NODE}_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh ; sleep $SLEEPTIME"
+			# may need to add sudo
+			echo "sbatch --ntasks=12 -w ${NODE} --partition=$PARTITION --exclusive=user --mail-type=NONE --job-name=${NODE}_rebOOt -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out ~tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh ; sleep $SLEEPTIME"
 		done
 
 done
 
-#exit 0  # tmp htc
+exit 0  # tmp htc
 
 
 echo "##  ===================================================================#" 

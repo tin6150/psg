@@ -155,6 +155,12 @@ Beats having to ssh in, run vncserver, and then start a vnc client.  Think it wa
 NX still provides a more seamless (and probably speedier) experience, but NX may not be free.  <BR>
 X2go does not work with GNOME 3 :( <BR>
 
+<BR><BR>
+2020 setup, need x2go server, so it install some binary, like x2golistsessions.  but don't need a daemon.  server don't need X.Org install. see https://wiki.x2go.org/doku.php/doc:installation:x2goserver.   
+Client (need another install, avail for win and mac), ssh in and run command.  Can avoid Gnome3 but running LXDE or just /usr/bin/xterm.    Win client include X11, but mac said to need XQuartz and additional setup.
+Server is said to be based on NX3, but don't need a proxy user.
+There are provision for pulse audio to tunnel thru ssh as well.
+Windows firewall prompt for allowing ssh and pulse audio (inbound?) connection.
 
 <A NAME="nx"></A>
 <A NAME="NX"></A>
@@ -755,9 +761,6 @@ vncviewer -shared -hextile localhost:11
 # -hextile will not let machine think it is local and use raw.
 # actually, not sure if that is windows only.
 
-# for linux machine to vnc server on tin-u10, but i haven't gotten it to work yet.
-
-
 New vncclient (eg tigervnc, mobaXterm) support a -via option:
 
 vncviewer -via user@server:1
@@ -765,6 +768,7 @@ vncviewer -via user@server:1
 and the ssh tunnel will be created.  No need to manually run ssh and understand the whole tunnel business :)
 
 
+realvnc traffic is encrypted, use that and don't have to worry about wrapping with ssh.  but realvnc server need license.
 </PRE>
 
 

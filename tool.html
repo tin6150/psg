@@ -652,6 +652,65 @@ Ref:
 
 <LI> <A HREF="https://photos.google.com/album/AF1QipMqkSucnOzq757nZCUzjGlM3u6Ul3HFqKLlheae">many screenshot of BIOS settings for Asus</A>
 
+
+<A NAME="amd"></A>
+<A NAME="epyc"></A>
+<A NAME="rome"></A>
+<H5>AMD Epyc Rome</H5>
+
+<LI> <A HREF="http://developer.amd.com/wp-content/resources/56420.pdf">HPC Tuning guide for AMD EPYC</A></LI>
+<LI>Logical processor, Hyperthreading is called Simultaneous Multi-Threading (SMT)</LI>
+<LI>SEV = Secure Encrypted Virtualization (memory encryption per Virtual Machine</LI>
+<LI>SME = Secure Memory Encryption (encrypts all memory)</LI>
+
+
+<PRE>
+
+C-states should be left enabled in BIOS.
+C2 can be disabled for IB via cli.
+
+- C0: active, the active frequency while running an application/job.
+- C1: idle
+- C2: idle and power-gated. 
+      This is a deeper sleep state and will have a greater latency in getting to C0 
+      compared to when it idles in C1. 
+
+For a HPC cluster with a high performance low latency interconnect such as Mellanox
+disable the C2 idle state. Assuming a dual socket 2x32 core system
+cpupower -c 0-63 idle-set -d 2
+• Set the CPU governor to ‘performance’:
+cpupower frequency-set -g performance
+
+
+Use 
+hwloc-ls to find out which cpu id is closest to the IB
+then use
+numactl -C $CPUID osu_bibw
+to bind the MPI process (eg osu_* microbenchmark binary) to the cpuid closest to the IB
+for lowest latency.
+
+
+</PRE>
+
+
+
+Virtual Memory reclaim (good to run in epilog to free up cache)
+<PRE>
+/proc/sys/vm/zone_reclaim_mode
+
+echo 1 > /proc/sys/vm/drop_caches [frees page-cache]
+echo 2 > /proc/sys/vm/drop_caches [frees slab objects e.g. dentries, inodes]
+echo 3 > /proc/sys/vm/drop_caches [cleans page-cache and slab objects]
+
+</PRE>
+
+
+
+Max performance is to have most NUMA that can be supported.
+Each socket can do 1,2,4 NUMA (zone?).
+For NUMA=4 req all DIMM to be populated?
+But if use NUMA=2 or 1, how to run HPL with OpenMP?
+
 <BR><BR>
 
 <A NAME="perf"></A>
@@ -1342,6 +1401,12 @@ tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump
 		# -w write output to file
 
 
+sudo tcpdump -v -n host 10.22.22.55 -i enp94s0f0
+
+tcpdump -u port 69 -i enp94s0f0		# tftp traffic on udp/69
+
+sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:bf -i enp94s0f0
+# -e add mac address to output
 
 </PRE>
 
@@ -1672,6 +1737,17 @@ echo "GET / HTTP 1.1" | nc www.google.com 80; echo $?	# can test ability to conn
 
 telnet www.google.com 80 		# simple network connectivity test using the telnet tool
 GET / HTTP 1.1				
+
+
+telnet mta.server.com 25
+EHLO tin.example.com
+mail from:tin@lbl.gov
+rcpt to:tin@lbl.gov
+DATA
+Subject: manual telnet 25 smtp test
+additional body message here
+end test with a dot by itself
+.
 </PRE>
 
 
