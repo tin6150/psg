@@ -1,5 +1,10 @@
 ## .bashrc ##
 
+## 2020.0917 t55
+SSH_AUTH_SOCK=/tmp/ssh-Kh0CqZjDV50Z/agent.126; export SSH_AUTH_SOCK;
+SSH_AGENT_PID=127; export SSH_AGENT_PID;
+echo Agent pid 127;
+
 ##
 ##  it seems that .bashrc is NOT sourced when doing sudo su - username
 ##  or when ssh in.  (so, bashrc not sourced when exec as login shell)
@@ -298,6 +303,7 @@ defineAlias () {
 	alias chrome=chromium-browser 
 	alias hilite="grep --color -C100000"   # eg ip a | hilite inet
 	alias xt="lxterminal"	# mostly in wsl 
+	alias vscode="'/mnt/c/Program Files/Microsoft VS Code/bin/code'"
 	alias xlock="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlck="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlk="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
