@@ -306,9 +306,9 @@ date-time (POSIX)
 
 %:% # compose or nest foreach objects - https://ljdursi.github.io/beyond-single-core-R/#/84
 
+$>% # like unix pipe, used a lot by dplyr 
+
 %%  # modulus, ie reminder.  eg 7%%3 is 1
-
-
 2^4 and 2**4 both seems to be power, get 16.  2^4 notation maybe preferred.
 
 </PRE>
@@ -690,7 +690,7 @@ ploy(y ~ x^3)
 	
 </PRE>
 
-<A HREF="https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i/8055683#8055683">SO more extensive discussion on formula</A>
+<A HREF="https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i/8055683#8055683">StackOverflow more extensive discussion on formula</A>
 
 
 <A HREF="http://blog.rtwilson.com/regression-in-python-using-r-style-formula-its-easy/">Regression in Python usinr R-style formula</A> seems to discuss use of ~ and regression formula in R.
@@ -704,7 +704,7 @@ results = model.fit()
 </PRE>
 
 
-Y<A NAME="pipe"></A>
+<A NAME="pipe"></A>
 <H3>Pipe</H3>
 
 <A HREF="https://stackoverflow.com/questions/24536154/what-does-mean-in-r">stack overflow</A>
@@ -736,6 +736,42 @@ by() ... think of GROUP_BY in SQL
 </PRE>
 
 <A NAME="Parallelization"></A>
+<H2>Parallelization in R</H2>
+
+3 main types of parallization:
+<LI> same host, fork() and stuff
+<LI> socket based multi-node parallelization, without needing MPI (cluster)
+<LI> MPI 
+<LI> pbdR, hiding some of the complexity of MPI
+
+Well, there is also Hardoop/SparkR but that's a platforms of its own.
+
+<BR><BR>
+
+Tutorials <BR><BR>
+
+Chris Paciorek (UC Berkeley Stats Dept)
+<A HREF="https://htmlpreview.github.io/?https://github.com/berkeley-scf/tutorial-parallel-distributed/blob/master/parallel-dist.html">Parallel Processing for Distributed Computing</A> Cover R, Python, Matlab and C, as well as how to use them in a Slurm cluster.
+
+<BR><BR>
+Jonathan Dursi
+<A HREF="https://ljdursi.github.io/beyond-single-core-R/#/1">Beyond Single-Core R</A> a slide deck on Parallelization in R.  His github repo has data for running his example, and I wrapped that with a Jupyter Notebook container so everyone can try it:
+
+<PRE>
+
+Start jupyter notebook web server (on specific port, eg 6997):
+
+docker run -p 6997:6997 -v "$PWD":/mnt -it --entrypoint=/opt/conda/bin/jupyter  tin6150/beyond-single-core-r  lab --allow-root  --no-browser --port=6997 --ip=0.0.0.0
+
+Point web browser to something like
+  http://127.0.0.1:6997/
+and paste the token URL link shown on the terminal console
+
+/mnt is a mount of the current dir (PWD) where you started the docker process, and files written there will persist after the container is terminated.  (Other files inside the container are ephemeral!)
+
+</PRE>
+
+<A HREF="https://hub.docker.com/repository/docker/tin6150/beyond-single-core-r/general">Docker Hub entry of this notebook server</A>
 
 
 <A NAME="mc"></A>
@@ -781,10 +817,32 @@ https://ljdursi.github.io/beyond-single-core-R/#/30
 mcparallel  # fork a task , run in background
 mccollect   # wait and collect result.  so kinda like MPI scatter/gather
 
-## hmm... maybe parallelize SimAnneal this way??  ++
-
 </PRE>
 
+<!-- ## hmm... maybe parallelize SimAnneal this way??  ++ -->
+
+Linear Regression Model fitting, in series vs parallel <BR>
+https://ljdursi.github.io/beyond-single-core-R/#/32 and slide 33
+
+
+<PRE>
+
+fit1 =  lm(DISTANCE  ~ AIR_TIME,  data=jan2010))
+fit2 =  lm(ARR_DELAY ~ DEP_DELAY, data=jan2010))
+
+-vs-
+
+parfits = function() {
+     pfit1 = mcparallel(lm(DISTANCE  ~ AIR_TIME,  data=jan2010))
+     pfit2 = mcparallel(lm(ARR_DELAY ~ DEP_DELAY, data=jan2010))
+     mccollect( list(pfit1, pfit2) )
+}
+parfits()
+
+Note that mcollect asked for the tasks output to be combined into a list.
+Some data structure maybe needed to extract more complex model result??
+
+</PRE>
 
 <A HREF="https://blog.dominodatalab.com/multicore-data-science-r-python/">domino data lab</A> on caret/doMC 
 <BR>
@@ -796,8 +854,9 @@ library(caret) # popular ML using foreach to parallelize CV-folds, etc.
 	fit.lda.ser vs
 	fit.lda.par
 
-
 </PRE>
+
+
 
 <A NAME="cluster"></A>
 <H2>Parallelization in R using cluster functions </H2>
@@ -939,13 +998,16 @@ plot(tm.lb)
 
 https://ljdursi.github.io/beyond-single-core-R/#/73 - Summary for parallel/snow
 
-<LI>clusterExport good for for SIMD
-<LI>clusterApplyLB good for MIMD
-<LI>parLapply
+<LI> clusterExport good for for SIMD
+<LI> clusterApplyLB good for MIMD
+<LI> mcparallel is best for MIMD?
+<LI> parLapply
 <LI> makePSOCKcluster for small cluster
 <LI> makeMPIcluster for larger cluster -- but read up on pbdR first
 <LI> pdbR      -- https://ljdursi.github.io/beyond-single-core-R/#/143
 <LI> pdb*apply -- https://ljdursi.github.io/beyond-single-core-R/#/152
+<LI> using pdbR -- bring hpc distributed memory processing (SPMD) to R, see section 3.1.2 of <A HREF="https://htmlpreview.github.io/?https://github.com/berkeley-scf/tutorial-parallel-distributed/blob/master/parallel-dist.html">CPaciorek's Parallel Processing for Distributed Computing</A>
+<LI>
 <LI>
 
 https://ljdursi.github.io/beyond-single-core-R/#/83
