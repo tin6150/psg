@@ -253,6 +253,28 @@ result2=dbListTables( con )
 </PRE>
 
 
+<A NAME="gc"></A>
+<H2>GC: Garbage Collection</H2>
+
+<PRE>
+gc(verbose=TRUE) 	# explicitly call garbage collection
+ls() 			# list all vars
+object.size( get("myData") )	
+rm()
+sort( sapply( ls(), function(x) { object.size(get(x))} ),decreasing=TRUE )	# list all vars and their sizes
+
+vars are out of scope at the end of function, and gc can happen to them automatically
+
+bigmemory leave data on file.  some packages are build using bigmemory
+
+file-backed big matrix -- https://ljdursi.github.io/beyond-single-core-R/#/132 
+data = read.big.matrix(...)
+
+csv is slow.
+HDF5 and netCDF recommended. 
+
+</PRE>
+ref: https://ljdursi.github.io/beyond-single-core-R/#/111
 
 <H1>R Programming</H1>
 
@@ -790,13 +812,18 @@ registerDoParallel
 <A NAME="Parallelization"></A>
 <H1>Parallelization in R</H1>
 
-3 main types of parallization:
-<LI> same host, fork() and stuff
+6 main types of parallization:
+
+<LI> same host, fork(), threads, parent/child memory with copy-on-write.
+<LI> Rdsm - shared memory within a single computer, so multiple PSOCK same-node processes can read/write to 1 single memory region.
 <LI> socket based multi-node parallelization, without needing MPI (cluster)
 <LI> MPI 
 <LI> pbdR, hiding some of the complexity of MPI
+<LI> Hardoop/SparkR but that's a platforms of its own.
+<LI> Packages that does parallelism under the hood.  eg BLAS, caret, many others 
 
-Well, there is also Hardoop/SparkR but that's a platforms of its own.
+<BR>
+
 
 <BR><BR>
 
@@ -807,10 +834,22 @@ Chris Paciorek (UC Berkeley Stats Dept)
 
 <BR><BR>
 Jonathan Dursi
-<A HREF="https://ljdursi.github.io/beyond-single-core-R/#/1">Beyond Single-Core R</A> a slide deck on Parallelization in R.  His github repo has data for running his example, and I wrapped that with a Jupyter Notebook container so everyone can try it:
+<A HREF="https://ljdursi.github.io/beyond-single-core-R/#/1">Beyond Single-Core R</A> a slide deck on Parallelization in R.  
+Summary slides: <BR>
+
+<LI> Packages that does parallelism under the hood -- https://ljdursi.github.io/beyond-single-core-R/#/22
+<LI> paralle/multicore with mc* -- https://ljdursi.github.io/beyond-single-core-R/#/51
+<LI> cluster* parLapply snow -- https://ljdursi.github.io/beyond-single-core-R/#/73
+<LI> foreach doParallel isplit %:% -- https://ljdursi.github.io/beyond-single-core-R/#/98
+<LI> Best Practices -- https://ljdursi.github.io/beyond-single-core-R/#/106
+<LI> bigmemory morder mpermute mwhich sub.big.matrix -- https://ljdursi.github.io/beyond-single-core-R/#/133
+<LI> Rdsm -- shared memory within node by multiple process -- https://ljdursi.github.io/beyond-single-core-R/#/142
+
+
+Dursi's github repo has data for running his example, and I wrapped that with a Jupyter Notebook container so everyone can try using this 
+<A HREF="https://hub.docker.com/repository/docker/tin6150/beyond-single-core-r/general">Docker Container with Jupyter notebook server</A>:
 
 <PRE>
-
 Start jupyter notebook web server (on specific port, eg 6997):
 
 docker run -p 6997:6997 -v "$PWD":/mnt -it --entrypoint=/opt/conda/bin/jupyter  tin6150/beyond-single-core-r  lab --allow-root  --no-browser --port=6997 --ip=0.0.0.0
@@ -820,10 +859,8 @@ Point web browser to something like
 and paste the token URL link shown on the terminal console
 
 /mnt is a mount of the current dir (PWD) where you started the docker process, and files written there will persist after the container is terminated.  (Other files inside the container are ephemeral!)
-
 </PRE>
 
-<A HREF="https://hub.docker.com/repository/docker/tin6150/beyond-single-core-r/general">Docker Hub entry of this notebook server</A>
 
 
 <A NAME="mc"></A>
@@ -990,6 +1027,32 @@ Ref:
 <LI></LI>
 </UL>
 
+<A NAME="Rdsm"></A>
+<H3>Rdsm</H3>
+https://ljdursi.github.io/beyond-single-core-R/#/139
+<PRE>
+library(parallel)
+library(Rdsm)
+
+nrows = 7
+cl = makePSOCKcluster(3)       # form 3-process PSOCK (share-nothing) cluster
+init = mgrinit(cl)             # initialize Rdsm
+mgrmakevar(cl,"m",nrows,nrows)  # make a 7x7 shared matrix
+bar = makebarr(cl)
+
+clusterEvalQ(cl,myid = myinfo$id)
+
+clusterExport(cl,c("nrows"))
+dmy = clusterEvalQ(cl,myidxs = getidxs(nrows))
+dmy = clusterEvalQ(cl, m[myidxs,1:nrows] = myid)
+dmy = clusterEvalQ(cl,"barr()")
+
+print(m[,])
+
+
+</PRE>
+
+
 <A NAME="Clustering_on_Clusters"></A>
 <H3>Clustering on Clusters</H3>
 
@@ -1144,4 +1207,6 @@ Last Updated: 2008-03-22
 <!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
 
 
+<!-- vim: paste tabstop=8 
+-->
 </html>
