@@ -999,6 +999,52 @@ eg Both examples of wordpress setup has reference to Docker Compose.
 	<LI></LI>
 </OL>
 
+<H3>Quay.io Registry</H3>
+From RedHat.  charge for hosting private repo.
+
+
+<A NAME="ghcr"></A>
+<H3>ghcr - GitHub Container Registry</H3>
+
+Free for Open source project.  
+longer longevity than Docker?
+Not sure if it allow for larger image size.
+hub.docker.com won't cloud build anything larger than 20G.
+But seems like could build locally and push a 25.1 GB image to docker.io.
+push to ghcr actually failed, so not sure if will continue to use it.
+
+
+<PRE>
+
+
+head -1 ~/.ssh/token | docker login ghcr.io  -u tin6150 --password-stdin
+docker tag 869b44021e4a ghcr.io/tin6150/metabolic:4.0
+docker push             ghcr.io/tin6150/metabolic:4.0
+
+# but failed, maybe due to size 
+
+Error: Error copying image to the remote destination: Error writing blob: Error uploading layer to https://ghcr.io/v2/tin6150/metabolic/blobs/upload/8a4c3f7f-1628-43e6-b9aa-0655fe6c1faa?digest=sha256%3A138bf1d88427d73721eb2b23281827e551e1fe7ec42ac63bd35da9859ff8d3ab: received unexpected HTTP status: 504 Gateway Time-out
+
+docker tag b982a301de32 ghcr.io/tin6150/r4envids
+docker push             ghcr.io/tin6150/r4envids
+
+</PRE>
+
+
+<PRE>
+
+github package registry, older way to support container, avoid use:
+
+head -1 ~/.ssh/token | docker login https://docker.pkg.github.com -u tin6150 --password-stdin
+
+docker tag IMAGE_ID docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION
+docker build     -t docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION PATH
+docker push         docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION
+
+</PRE>
+
+
+
 <H3>Reference</H3>
 
 <UL>

@@ -261,6 +261,7 @@ gc(verbose=TRUE) 	# explicitly call garbage collection
 ls() 			# list all vars
 object.size( get("myData") )	
 rm()
+rm(list=ls())  		# remove all var in memory # probably useful in rstudio when playing, but not in actual program!
 sort( sapply( ls(), function(x) { object.size(get(x))} ),decreasing=TRUE )	# list all vars and their sizes
 
 vars are out of scope at the end of function, and gc can happen to them automatically
@@ -497,6 +498,33 @@ a <- 5
 
 </PRE>
 
+<H4>Data Structures</H3>
+
+<A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R</A>
+
+<PRE>
+
+1D:
+vector: homegenoeus elements.  c()
+list:   heterogeneous elements.  list()
+
+2D:
+matrix:     homegenoeus elements.  matrix()
+dataframe:  heterogeneous elements, named columns. think table of data/spreadsheet :-D.  data.frame(), tidyverse
+
+3D, multi-dimention:
+array:     homogeneous elements.  1-indexed.  array(), dim()
+
+
+attribute()
+structure()
+
+factor() to store categorical data -- ie predefined values
+
+</PRE>
+
+
+
 
 <H5>vector, matrix</H5>
 <A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">R short primer (pdf)</A>
@@ -529,7 +557,37 @@ rbind 	# row    bind
 </PRE>
 
 
-<H5>dataframe, 1-indexed array</H5>
+
+
+<H5>array</H5>
+
+R is 1-indexed, so first entry of df is 1  <BR>
+A 1D array is a vector.  <BR>
+A 2D array is a matrix.  <BR>
+3D and higher dim structure is rarer in stats.  <BR>
+
+<PRE>
+
+dim()
+length()
+names()
+rownames()
+colnames()
+dimnames()
+t() - transpose
+
+c() generalizes to cbind() and rbind() for matrix
+abind() for arrays
+
+as.matrix()
+as.array()  -- for conversions
+
+</PRE>
+
+
+<H5>dataframe</H5>
+
+R is 1-indexed, so first entry of df is 1
 
 <PRE>
 
@@ -558,8 +616,24 @@ coord$x[2]  # table coord, column x, row 2
 [1] 12.33333
 
 
+typeof( t )
+calss( t )
+is.data.frame( t )
+
+cbind(t, data.frame( z = 3:1 )
+rbind(t, data.frame(...) )
+
+
+
 
 </PRE>
+
+
+It’s a common mistake to try and create a data frame by cbind()ing vectors together. This doesn’t work because cbind() will create a matrix unless one of the arguments is already a data frame. Instead use data.frame() directly
+<BR>
+Since a data frame is a list of vectors, it is possible for a data frame to have a column that is a list
+<BR>
+
 
 <H5>List</H5>
 
@@ -590,6 +664,16 @@ $five
 [1] 1.00 1.75 2.50 3.25 4.00
 
 
+[ ]   returns a list
+[[ ]] returns the object which is stored in list
+If it is a named list, then
+    List$name or List[["name"]] will return same as List[[ ]]
+While List["name"] returns a list
+
+ref: https://stackoverflow.com/questions/32819539/proper-way-to-access-list-elements-in-r
+
+for list returned by ans = mccollect( list(jobs...) )
+typically ans[[1]], ans[[2]] etc will contain the original answer desired.
 
 </PRE>
 
@@ -814,13 +898,15 @@ registerDoParallel
 
 6 main types of parallization:
 
-<LI> same host, fork(), threads, parent/child memory with copy-on-write.
+<LI> same host, FORK based, parent/child memory model with copy-on-write: mclapply, mcparallel, mccollect.
 <LI> Rdsm - shared memory within a single computer, so multiple PSOCK same-node processes can read/write to 1 single memory region.
-<LI> socket based multi-node parallelization, without needing MPI (cluster)
-<LI> MPI 
+<LI> PSOCK based multi-node parallelization, without needing MPI (cluster): SNOW: parLapply, clusterApplyLB 
+<LI> MPI based -- SNOW cluster implement on this as well.
 <LI> pbdR, hiding some of the complexity of MPI
 <LI> Hardoop/SparkR but that's a platforms of its own.
 <LI> Packages that does parallelism under the hood.  eg BLAS, caret, many others 
+
+<LI> future_map(), purrr -- https://byuistats.github.io/M335/parallel_furrr.html
 
 <BR>
 
@@ -845,6 +931,9 @@ Summary slides: <BR>
 <LI> bigmemory morder mpermute mwhich sub.big.matrix -- https://ljdursi.github.io/beyond-single-core-R/#/133
 <LI> Rdsm -- shared memory within node by multiple process -- https://ljdursi.github.io/beyond-single-core-R/#/142
 
+<BR>
+<BR>
+
 
 Dursi's github repo has data for running his example, and I wrapped that with a Jupyter Notebook container so everyone can try using this 
 <A HREF="https://hub.docker.com/repository/docker/tin6150/beyond-single-core-r/general">Docker Container with Jupyter notebook server</A>:
@@ -867,7 +956,7 @@ and paste the token URL link shown on the terminal console
 <H2>Parallelization in R using mc* functions </H2>
 
 mclapply   <BR>
-mcparallel   <BR>
+mcparallel  (likely just called parallel in early days)   <BR>
 mccollect   <BR>
 mc.core   <BR>
 
@@ -905,6 +994,16 @@ pvec - for simple use case of applying func to each element of vector and return
 https://ljdursi.github.io/beyond-single-core-R/#/30
 mcparallel  # fork a task , run in background
 mccollect   # wait and collect result.  so kinda like MPI scatter/gather
+
+
+library(multicore)                    ## functionality replaced by library('parallel') 
+fun1 = function() {Sys.sleep(10); 1}
+fun2 = function() {Sys.sleep(5);  2}
+f1 = parallel(fun1())                 ## new fn name is mcparallel()
+f2 = parallel(fun2())
+result = collect(list(f1, f2))
+
+result[[1]]  # would contain result of f1
 
 </PRE>
 
