@@ -1,4 +1,11 @@
+image: ruby:2.7
+
 pages:
   script:
     - date
-    - ls
+    - mkdir public
+    - cp -pr . public
+    - date
+  artifacts:
+    paths:
+      - public
