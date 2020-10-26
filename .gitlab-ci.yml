@@ -4,7 +4,7 @@ pages:
   script:
     - date
     - mkdir public
-    - cp -pr . public
+    - (tar cf - * ) | ( cd public; tar xf - )
     - date
   artifacts:
     paths:
