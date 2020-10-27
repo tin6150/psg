@@ -127,8 +127,18 @@ ifconfig    enp94s0f1 up
 ethtool -S enp94s0f1  | egrep -i 'drop|col|err' # look for drop or collision, no report on pause frames
 ethtool -S enp216s0f1 | grep -v ': 0$'  | more  # look for anything with non zero counter
 
+ethtool -G enp180s0f0  rx 8192 tx 8192
+ethtool -g enp180s0f0  # lower case for query, upper case for set
+ethtool -C enp180s0f0  rx-usecs 100
+ethtool -c enp180s0f0  
+
 mlx5_core # mellanox 100G Ethernet (and IB?)
 
+
+
+
+
+ss -tulp		# check socket status
 
 </PRE>
 
