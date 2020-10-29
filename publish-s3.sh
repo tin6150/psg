@@ -7,8 +7,8 @@
 # maybe can get it to work on MINGW64/git-bash, 
 # but this is the pain of this dev in windows not having proper linux support!
 
-cp -p psg2.html psg.html
-cp -p psg2.html index.html
+#--cp -p psg2.html psg.html
+#--cp -p psg2.html index.html   # pub back in the days with dropbox/fat not supporting link
 ## linux dropbox tends to change file perm to 000 !! :(
 ## but s3 don't care about these perms, so only fix when pushing to arvixe.
 #find  . -type d -exec chmod a+rx,u+rwx {} \;

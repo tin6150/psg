@@ -528,6 +528,22 @@ for things that use IB directly like MPICH...  don't know....).
 <BR>
 
 
+<A NAME="troubleshooting"></A>
+<H1>Troubleshooting</H1>
+
+<PRE>
+
+mst start
+mst status
+
+mlxvpd    -d /dev/mst/mt4119_pciconf0 	# show nic model part number, serial
+mlxuptime -d /dev/mst/mt4119_pciconf0	# show dev cpu freq and uptime
+
+ibv_devinfo	# find firmware version
+
+</PRE>
+
+
 <A ID="ib2eth"></A>
 <A NAME="ib_to_ethernet"></A>
 <H1>IB to Ethenert</H1>
