@@ -214,29 +214,24 @@ server_cifs VDM2 -J compname=vdm2,domain=oak.net,admin=hotin,ou="ou=Computers:ou
 # from the bottom of the LDAP tree, separated by colon, working upward.
 # When in doubt, use the full domain account priviledges.
 
-# &lt;!--
 
-<!-- 
-enginst acc don't cut it, need an admin user account with (essentially) 
-full domain ad access).
-ou
+server_cifs VDM2 -J compname=VDM2,domain=fr.gap.net,admin=engineer,ou="ou=Servers:Resources:FCUK"
+server_cifs VDM2 -J compname=uk-r66,domain=uk.gap.net,admin=installer,ou="ou=Servers:Resources:ENUK"
+server_cifs VDM2 -J compname=uk-r66,domain=uk.gap.net,admin=administrator,ou="cn=Servers:cn=Resources:ou=FCUK"
+server_cifs VDM2 -J compname=server2,domain=uk.gap.net,admin=engins,ou="cn=Servers:cn=Resources:ou=ZJCN"
 
-server_cifs VDM2 -J compname=VDM2,domain=us.eville.net,admin=enginst,ou="ou=Servers:Resources:USEM"
+exact username and ou path depends on your AD tree design.
+in test Windom 
+eng/ins acc don't cut it, cuz need an admin user account with (essentially) 
+full Windom priv
 
-server_cifs VDM2 -J compname=us-s61,domain=na.novartis.net,admin=enginst,ou="ou=Servers:Resources:USEM"
-think above worked... 
-but doc seems to indicate need something more like ou="cn=Servers:cn=Resources:ou=USEM"
---> 
-
-
-
-
-# option to reset password if account password has changed but want to use same credential/object again...   resetserverpasswd
+# there is option to reset password if account password has changed but want to use same credential/object again...  best to  resetserverpasswd
 
 
 other troubleshooting commands:
 ... server_kerberos -keytab ...
-server_cifssupport VDM2 -cred -name WinUsername -domain winDom   # test domain user credentials
+server_cifssupport VDM2 -cred -name WinUsername -domain winDom   # use test domain user credentials
+server_cifssupport VDM2 -cred -name Installer   -domain winDom   # use prod domain user credentials
 
 
 server_viruschk server_4	# check to see if CAVA is working for a specific data mover
@@ -1132,7 +1127,7 @@ nas_storage -failback id=1	# if CX backend has trespassed disk, fail them back t
 # Drive 1_0_7 will be replaced by a hot spare (run as root):
 # -h specify the backend CX controller, ip address in bottom of /etc/hosts of control station.
 # use of navicli instead of the secure one okay as it is a private network with no outside connections
-naviseccli -h xxx.xxx.xxx.xxx -user emc -password emc -scope 0 copytohotspare 1_0_7 -initiate
+naviseccli -h 128.3.10.10 -user emc -password emc -scope 0 copytohotspare 1_0_7 -initiate
 # --or--
 /nas/sbin/navicli -h 128.221.252.200 -user nasadmin -scope 0 copytohotspare 1_0_7 -initiate 
 
@@ -1200,7 +1195,8 @@ Last Updated: 2008-03-22
 <A HREF="http://boinc.berkeley.edu"><IMG SRC="banner/boinc_transparent.png"></A>
 </div>
 <div class="sig"><BR>
-  hoti1<BR>
+  nSarCoV2<BR>
+  hot10<BR>
   sn5050<BR>
   psg101 sn50 tin6150</div>
 
