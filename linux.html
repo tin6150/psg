@@ -2534,6 +2534,25 @@ vm.swappiness = 0
 
 </PRE>
 
+
+<H5>kargs</H5>
+
+<PRE>
+
+cat /proc/cmdline	# list of kargs passed to kernel at boot
+			# also reported in the first few lines of dmesg
+
+kargs are to be space separated.
+the comma used in some args are specific to that one arg, eg "console=ttyS1,115200n8"  are options for console, not kargs proper.
+
+"iommu=pt net.ifnames=0 biosdevname=0 acpi_irq_nobalance console=tty0 console=ttyS1,115200n8"
+
+iommu=pt is used by AMD for nic 
+net.ifnames=0 biosdevname=0 	# tell rhel 7 to use eth1, eth2 etc nic name rather than enp196s0f1 
+
+</PRE>
+
+
 <A NAME="sensors"></A>
 <H2>sensors</H2>
 
