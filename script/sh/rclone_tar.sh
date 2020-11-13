@@ -3,22 +3,23 @@
 ## run rclone sync to google share drive on a list of directories
 ## this version use  tar | rclone cat ...
 
-## script placed in /etc/cron.monthly/z...rclone_tar.sh
+## script placed in /etc/cron.monthly/rclone_tar.sh
 ## this version now is ALTERNATING between EVEN and ODD months
 ## but is NOT doing rotation in the sense move renaming old backup or removing them if they are more than 7 days old.
 
-## Tin 2020.11.12
+## Tin 2020.11.13
 
-LOCAL_BACKUP_LIST="/home"       # beppic-filer
+##LOCAL_BACKUP_LIST="/home"       # beppic-filer
 ##LOCAL_BACKUP_LIST="/home /eda"    # beppic-filer
 #LOCAL_BACKUP_LIST="/global/oldhome /eda"    # beppic-filer
 #++LOCAL_BACKUP_LIST="/home /global/oldhome /eda"    # beppic-filer
+
 ##LOCAL_BACKUP_LIST="/opt/gitlab/backups"       # greyhound
+
 #LOCAL_BACKUP_LIST="/dbbackup/mysql_backups"  # beagle
 
-##LOCAL_BACKUP_LIST="/etc /clusterfs/gretadev/data /global/home/users"  # beagle tar
-#LOCAL_BACKUP_LIST="/etc /global/home/users /clusterfs/gretadev/data /opt /srv "  # beagle tar
-#++LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
+LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
+#--LOCAL_BACKUP_LIST="/etc /global/home/users /clusterfs/gretadev/data /opt /srv "  # beagle tar
 # /etc /srv are annoying as they create too many little files, so left that to the 7-day rotation script
 
 
@@ -86,7 +87,7 @@ run_rclone_push() {
         fi
 }
 
-run_rclone_push 2>&1 | tee -a $LOGFILE | mail -s "$HOSTNAME - rclone push - $SUM_EXIT_CODE" "$MAILTO"
+run_rclone_push 2>&1 | tee -a $LOGFILE | mail -s "$HOSTNAME - rclone_tar/rcat monthly - $SUM_EXIT_CODE" "$MAILTO"
 
 
 
