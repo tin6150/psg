@@ -31,7 +31,7 @@ HTML validator: http://validator.w3.org/
 -->    
     
 <head>
-	<title>Sys Admin Pocket Survival Guide</title>
+	<title>GIS dev, sys admin style :-P</title>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
         <link rel="stylesheet" href="psg2.css"                type="text/css" media="screen">
         <link rel="stylesheet" href="psg-table.css"           type="text/css">
@@ -52,16 +52,25 @@ HTML validator: http://validator.w3.org/
     
 <div id="wrapper">
   <div id="header">
-    <div id="title">Sys Admin Pocket Survival Guide</div>
-    <div id="sub-title">A Quick Reference Guide for Sys Admins with Alzeimer :)</div>
+    <div id="title">GIS Dev, Sys Admin Style &#128540;  </div>
+    <div id="sub-title">To be DevOps or not to be? </div>
   </div> <!-- closes header -->
   
   <div id="navigation">
       <!-- the replace was not inside hightlight area, but whole page, finc and put back some strong and em in doc...-->
    <!--  strong, em, h5, or div are not allowed to be nested inside ul !!  -->
+       <div class="azul">Cloud</div>
+        <ul>
+        <li> <a href="docker.html">docker</a></li>
+        <li> <a href="aws.html">AWS</a></li>
+        <li> <a href="openstack.html">OpenStack</a></li>
+        </ul>
+
        <div class="azul">Unix</div>
 	<ul>
-        <li> <a href="sul>.html">Solaris</a></li>
+        <li> <a href="nixos.html">NixOS</a></li>
+        <li> <a href="coreos.html">CoreOS</a></li>
+        <li> <a href="sol.html">Solaris</a></li>
         <li> <a href="linux.html">Linux</a></li>
         <li> <a href="hpux.html">HP-UX</a> and <br>
                 <a href="hpux.supl.html">supplement</a></li>
@@ -83,7 +92,7 @@ HTML validator: http://validator.w3.org/
 
         <div class="azul">Big Data</div>
 	<ul>
-        <li> <a href="lsf.html">LSF, PBS/Torque, LSF.</a></li>
+        <li> <a href="lsf.html">LSF, Slurm.</a></li>
         <li> <a href="mpi.html">MPI, PVM</a></li>
         <li> <a href="sci-file.html">Science File Format/Info</a></li>
         <li><a href="sci-app.html">Sci-App</a></li>
@@ -92,17 +101,24 @@ HTML validator: http://validator.w3.org/
       
         <div class="azul">Unix Dev</div>
 	<ul>
+  	<li><a href="devops.html">DevOps</a></li>
   	<li><a href="development.html">compilers, etc</a></li>
+  	<li><a href="python.html">Python</a></li>
+  	<li><a href="perl.html">Perl</a></li>
   	<li><a href="shellScript.txt">sh/bash, csh/tcsh</a></li>
   	<li><a href="awk.txt">AWK</a></li>
-  	<li><a href="perl.html">Perl</a></li>
-  	<li><a href="python.html">Python</a></li>
   	<li><a href="php.txt">PHP</a></li>
   	<li><a href="javascript_eg.html">javascript_eg</a></li>
    	<li>gcc</li>
   	<li><a href="gdb.html">gdb</a></li>
    	<li>java</li>
-   	<li>rcs, cvs, p4, subversion</li>
+        <li><a href="git.html">git</a></li>
+        <li><a href="sourceControl.html#svn">subversion</a></li>
+        <li><a href="sourceControl.html#cvs">cvs</a></li>
+        <li><a href="sourceControl.html#rcs">rcs</a></li>
+        <li><a href="sourceControl.html#hg">mercurial hg</a></li>
+        <li><a href="sourceControl.html#p4">perforce</a></li>
+
 	<li><a href="vi.html">vi</a></li> 
 	</ul>
 
@@ -143,6 +159,8 @@ HTML validator: http://validator.w3.org/
         <li><a href=""></a></li>
         <li> &nbsp; </li>
 	</ul>
+
+        <div class="azul"><a href="psg1.html">Full TOC on main page</A></div>
             
   </div> <!-- closes #navigation -->
 
@@ -151,263 +169,90 @@ HTML validator: http://validator.w3.org/
   <!-- ########################################################## -->
   
   <div id="content">
+  <p>
 
-      <p>
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/977"><IMG SRC="fig/xkcd_map_projections.png"  alt="xkcd comic strip on map projection"></A>
+</div>
   
-  <H2>Lustre</H2>
-<p>
-A high performance file system that is guaranteed to make you buy Excedrin(TM) by the box load :)
--- high performance, if you can get it to work.
-</p>
+  <H1>GIS</H1>
 
 
-<H2>Overview</H2>
+  <A ID="ndjson"></A>
+  <H2>ndjson</H2>
+    <UL>
+    <LI><A HREF="https://medium.com/@tin_ho/command-line-cartography-census-blockgroup-level-data-5aa222de8ab0">Command-Line Cartography, Census BlockGroup level data</A></LI> 
+    <LI><A HREF="https://docs.google.com/presentation/d/1H6FK2_PKrMz7qTFFXyrlEczsY3pjDmuec00DbyKbV6k/edit?usp=sharing">How to go from Text / CSV to Interactive Web Map With minimal programming</A> using Mapbox </LI>
+    <LI></LI>
+    </UL>
 
+  <A ID="mapbox"></A>
+  <H2>Mapbox example projects</H2>
+    <UL>
+
+    <LI><A HREF="https://smelly.lbl.gov">Smelly</A>: a prototype siting tool for anaerobic digestion of municipal waste to energy generation plants that provides odor dispersion based on climate and terrain modeling data.  </LI>
+
+    <LI><A HREF="https://tin6150.github.io/adjoin/">Adjoin</A>: a proof of concept interactive web map showing ozone pollution impact on marginalized community of central California. </LI>
+
+    <LI><A HREF="https://tin6150.github.io/census_pop/census2010ca_bg.html#10/36.7681/-119.8362">Census 2020 decenial population density at 'Block Group' level</A></LI>
+
+    <LI><A HREF="https://tin6150.github.io/covid19_care_capacity_map/covidtracking_care_capacity_map.html">COVID19 over time</A>: An interactive map to visualize COVID19 cases across 50 states and over time.  Disclaimer: data collection in the USA has become, lets just say politicized.  Thus, analyze data with extra care.  </LI>
+
+    <LI></LI>
+    </UL>
+
+
+<A ID="terminology"></A>
+<A ID="vocab"></A>
+<H1>Terminology</H1>
+
+Map projection
+<BR>
 <UL>
-<LI>	MDS: Meta Data Server:  manage file metadata, such as ower, attribute, lock, file pathname, file layout (how stripped, which OSS the file reside).    Many config has a single MDS, which could be SPOF.  Active/standby MDS can be implemented.  Scalability is a bit hindered by single MDS, but it is only for meta data, not actual file "block" data io.  Employment of multiple MDT helps with perf.
-<LI>	MDT: Meta Data Target.  New in Lustre 2.4, where a MDS can have multiple MDT to spread the load.
-<LI>	OSS: Object Store Server.  Handle file IO.  Client bulk access is directly with OSS without interaction with MDS.  Tend to have multiple OSS per cluster.  Each OSS manages 1-8 OST.
-<LI>	OST: Object Store Target.  OST maps to a single local FS. 
-<LI>	
+<LI>UTM
+<LI>Mercator
+<LI>Albers
+<LI>CA Albers
 </UL>
 
 
-<H2>Client side</H2>
 
-<H3>Settings</H3>
-
-<PRE>
-/etc/fstab ::
-10.46.8.150@tcp0:10.46.8.151@tcp0:/lstr2  /mnt/lustre  lustre  defaults,_netdev  0 0
-
-
-/etc/modprobe.conf ::
-options ksocklnd peer_timeout=0
-options lnet networks=tcp0(eth0)
-# (2nd line is being tested for statbility) :: 
-# use eth1 if cluster node is multi-homed, 
-# pick nic on same network as storage where mount takes place
-
-</PRE>
-
-<H3>Recommended settings</H3>
-
-<H5>TCP settings, set before mounting lustre</H5>
-<PRE>
-echo 16777216 > /proc/sys/net/core/wmem_default 
-echo 16777216 > /proc/sys/net/core/wmem_max 
-echo 16777216 > /proc/sys/net/core/rmem_default 
-echo 16777216 > /proc/sys/net/core/rmem_max
-echo 4096 87380 16777216 > /proc/sys/net/ipv4/tcp_rmem 
-echo 4096 87380 16777216 > /proc/sys/net/ipv4/tcp_wmem 
-echo 30000 > /proc/sys/net/core/netdev_max_backlog
-ifconfig eth1 txqueuelen ${TXQLEN:-40}
-exit 0
-</PRE>
-
-<H5>Lustre settings, set after mounting</H5>
-<PRE>
-for i in /proc/fs/lustre/osc/*/checksums; do echo 0 > $i; done
-for i in /proc/fs/lustre/osc/*/max_dirty_mb; do echo 512 > $i; done
-for i in /proc/fs/lustre/osc/*/max_rpc*; do echo 32 > $i; done
-</PRE>
-
-
-<H3>Commands</H3>
-
-<pre>
-lfs df -h		# df 
-lfs osts		# list object stores
-lfs mdts		# list metadata stores
-lctl
-lctl ping  10.46.8.50 
-lctl lustre_build_version
-lctl device_list
-lctl list_nids			# see if using tcp or ib
-lctl --net tcp peer_list
-lctl --net tcp interface_list
-
-</pre>
-
-    
-<H3>Linux Performance Cmd</H3>
-
-
-<PRE>
-sudo ethtool eth1		# see nic speed, duplex
-
-
-# ssh to any compute node (lustre client)
-time -p tcpclient 10.46.8.151 50000 100000 -10000
-
-# tcpclient binary obtained from lustre server.
-
-</PRE>
-
-<H3>Performance/Tuning</H3>
-
-
-Lustre is a cluster-based file system.  Striping across multiple servers and disk store is what get most performance.
-Typically setup is done so that each file stay w/in a single stripe, but then as different files are created, 
-they will end up in different stripe (server).
-<BR>
-But for really large file and it is accessed by many clients, best performance would be have if such file is actually stripped.
-To do this, use the lfs setstripe command.
-<BR>
-To simplify life, settings are done per directory basis, but lustre apply to files created therein.
-
-
-<H5>Method Default</H5>
-
-<PRE>
-
-# sequentially create files that are 1G each.
-# each file will land on different stripe
-# (but each file in one stripe)
-
-mkdir test-default
-cd    test-default
-for i in 0 1 2 3 4 5 6 7 ; do
-  time -p dd if=/dev/zero of=$i.tmp bs=1024k count=1024
-done
-
-lfs getstripe * 
-# will see that diff file have diff obdidx, 
-# which means they are on diff OST servers
-
-# note that the first number is tremendously skewed by caching
-# using smaller file size will get even more caching and less indicative of sustained performance
-# 1 gbps NIC, wirespeed is about 125 MB/s
-
-</PRE>
-
-<H5>Method 1: stripe w/in single file</H5>
-
-<PRE>
-
-# sequentially create files that are 1G each.
-# each file will land on different stripe
-# and within each file they will have diff stripe
-
-# setstripe command does this
-# -s NUMBER 	: for stripe size, 4194340 = 4MB
-# -i -1 	: index of OST where files would go, -1 means any
-# -c -1		: client number?  -1 = any random.   good for up to 8 OST, but as OST are added, especialy in imbalance, may need to tweak this.
-
-mkdir test-file-stripe
-#lfs   setstripe test-file-stripe -s 4194304 -i -1 -c -1
-cd    test-file-stripe
-for i in 0 1 2 3 4 5 6 7 ; do
-  time -p dd if=/dev/zero of=$i.tmp bs=1024k count=1024
-done
-
-lfs getstripe *
-# will see that each file has multiple odbidx number
-# indicating striping w/in a single file
-
-</PRE>
-
-
-
-
-<H5>Method 2: Geek testing </H5>
-
-Terascala created some script that create a series of directories at the top level of the lustre file system,
-where by diff dir would mean writting data with differnt stripping patters.
-
-
-<PRE>
-
-# login to lustre server (eg mds1)
-cd /root/bin/misc/clients
-./setup_directories
-
-
-The above will result in dirs that are:
-
-/mnt/lustre/ost
-	ost-00      ost-01 ... ost-0n
-	a series of ost dir, where files written to any of these dir will stay within each ost.
-	This is good to benchmark to ensure all OST are performing equally.
-	Test as root:
-		for i in  /mnt/lustre/ost/ost* ; do
-			time -p dd if=/dev/zero of=$i/dummy-file.tmp bs=1024k count=1024
-		done
-
-
-	lfs getstripe /mnt/lustre/ost/ost-00
-	# will show obdidx all pointing to the same number 
-	# (within each ost-0n dir)
-
-/mnt/lustre/strip-xM
-	# where x indicate stripe sizes. 1M maybe too small for optimal performance
-	# 4M would be good starting point
-	# different size dir are created so that 
-	# performance against each of those can be done quickly
-
-
-
-lfs getstripe *
-
-</PRE>
-
-
-
-
-
-<H2>compiling driver</H2>
-
-kernel version specific.  It would be nice if they use DKMS so that the lustre module is automatically recompiled each time a new kernel is installed on the system.  <BR>
-<BR>
-
-patched kernel req on the server side (ie MDS, OST), but not needed on client side (ie compute node mounting lustre fs). <BR>
-<BR>
-
-To compile lustre module, the 'quilt' tool is helpful.  <BR>
-<BR>
-
-
-<PRE>
-</PRE>
-
-<H2>Server side</H2>
-
-<H3>Config</H3>
-<OL>
-<LI>MDS are metadata server, typically one is enough, as it is only to check file path info.  1 second standby maybe useful in HA.  lustre ost are not cluster-based, thus the other node is standby and not active-active ??
-<LI>OST: these are the file/data block servers.  As many as needed to control the disks shelves and provide performance.
-Terascala make these in HA active/standby pair.  
-<!--also on Dell hardware.-->
-
-</OL>
-
-<H3>start up</H3>
-
-<PRE>
-/etc/init.d/tslagent start
-
-</PRE>
-
-<H3>cmd</H3>
-
-<PRE>
-ts 		# similar to tentakel or gsh , run command on all server nodes
-
-for i in 1 2 3 4 5 6; do ts $i echo ======= \; hostname\; mount ; done
-
-
-</PRE>
-
-<H3>Ref/Links</H3>
+<H2>Links</H2>
 <UL>
-<LI><A HREF="http://wiki.whamcloud.com/display/PUB/Documentation">http://wiki.whamcloud.com/display/PUB/Documentation</A>
+<LI> 
+<LI>
 </UL>
+
+<div class="quote">
+</div>
+
+<PRE>
+</PRE>
+
+
+<div align="CENTER">
+<A HREF="http://www.explainxkcd.com/wiki/index.php/1138"><IMG SRC="fig/xkcd_heatmap.png"  alt="xkcd comic strip on heatmap"></A>
+</div>
 
 
 <BR><BR>
 <HR>
-<BR><BR>
-
+<!-- google custom search. site-specific set to psg.skinforum.org, cuz may not be able to search dropbox -->
+<!-- need configuration at https://cse.google.com/cse/create/getcode?cx=009863428534768709666%3Amqjt3pr91t4 -->
+Search within the PSG pages:
+<script>
+  (function() {
+    var cx = '009863428534768709666:mqjt3pr91t4';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:searchbox-only></gcse:searchbox-only>
+<!-- end google custom search -->
 
 
 <A NAME="cc"></A>
@@ -453,21 +298,16 @@ are obviously those of the vendor and original authors.  I am merely caching the
 
 <h3>Where is PSG hosted these days?</h3>
   <div id="psg-url">
-  <a href="http://tin6150.github.io/psg/psg2.html">http://tin6150.github.io/psg/psg2.html</a> 
+  <a href="http://tin6150.github.io/psg/psg2.html">http://tin6150.github.io/psg/</a> 
   This new home page at github<br>
-  
-  <A HREF="http://tiny.cc/tin6150"> 
-  http://tiny.cc/tin6150/</A>
-  New home in 2011.06.  <BR>
+  <a href="http://tin6150.gitlab.io/psg/psg2.html">http://tin6150.gitlab.io/psg/</a> 
+  GitLab mirror 2020.10<br>
 
-  <A HREF="http://tiny.cc/tin6150a"> 
-  http://tiny.cc/tin6150a/</A>
-  Alt home in 2011.06.  <BR>
+
 
 
 <A HREF="http://tin6150.s3-website-us-west-1.amazonaws.com/psg.html">http://tin6150.s3-website-us-west-1.amazonaws.com/psg.html</A> 
-(won't be coming after all)
-
+(coming soon... and we are finally there!)
 <BR>
 <a href="ftp://read:only@sn.is-a-geek.com/psg/psg.html">ftp://sn.is-a-geek.com/psg/psg.html</a> 
 My home "server".  Up sporadically.
@@ -521,7 +361,7 @@ http://tin6150.github.io/psg/psg.html
   
   
   
-  <div id="footer"> (CC 2012) Some Rights Reserved.</div>
+  <div id="footer"> (CC 2020) Some Rights Reserved.</div>
   
 </div> <!-- closes wrapper --> 
 </body>

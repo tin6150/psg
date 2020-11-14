@@ -33,8 +33,9 @@ run_sanity_check()
 		exit 007
 	fi
 
-	# can't get regex to work as expected yet
-	if [[ x$MAQUINA =~ xn[0-9][0-9][0-9][0-9] ]]; then
+
+	# this regex is good enough, acc for greta nodes naming scheme
+	if [[ x$MAQUINA =~ x[ncsw][0-9][0-9][0-9][0-9] ]]; then
 		echo "hostname pattern passes sanity test, continuting..." # ie not causing an abort/exit
 		#run_fdisk_cmd  # no () in bash fn call!
 		#echo "Completed FDisk"

@@ -15,4 +15,9 @@
 
 #fgrep -l "cs.fiu" *html | awk '{print " sed -i \"s/www.cs.fiu.edu\\\/\~tho01\\\/psg/psg.ask-margo.com/g\" " $0 }'  > run2016_dropbox.sh
 
-fgrep -l "2007-06" *html | awk '{print " sed -i \"s/\(no longer updated as of 2007-06\)//\" " $0 }'  > run2016_dropbox.sh
+#--fgrep -l "2007-06" *html | awk '{print " sed -i \"s/\(no longer updated as of 2007-06\)//\" " $0 }'  > run2016_dropbox.sh
+
+# 2020.1018
+# replace ask-margo with github.io
+# ++ echeck that  psg.html and index.html sym link to psg2.html
+fgrep -l "psg.ask-margo.com/" *html | awk '{print " sed -i \"s^psg.ask-margo.com/^tin6150.github.io/psg/^g\" " $0 }'  > generated_transform_doc_url.tmp.sh

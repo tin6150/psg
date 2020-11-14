@@ -127,8 +127,18 @@ ifconfig    enp94s0f1 up
 ethtool -S enp94s0f1  | egrep -i 'drop|col|err' # look for drop or collision, no report on pause frames
 ethtool -S enp216s0f1 | grep -v ': 0$'  | more  # look for anything with non zero counter
 
+ethtool -G enp180s0f0  rx 8192 tx 8192
+ethtool -g enp180s0f0  # lower case for query, upper case for set
+ethtool -C enp180s0f0  rx-usecs 100
+ethtool -c enp180s0f0  
+
 mlx5_core # mellanox 100G Ethernet (and IB?)
 
+
+
+
+
+ss -tulp		# check socket status
 
 </PRE>
 
@@ -1401,6 +1411,12 @@ tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump
 		# -w write output to file
 
 
+sudo tcpdump -v -n host 10.22.22.55 -i enp94s0f0
+
+tcpdump -u port 69 -i enp94s0f0		# tftp traffic on udp/69
+
+sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:bf -i enp94s0f0
+# -e add mac address to output
 
 </PRE>
 
@@ -1731,6 +1747,17 @@ echo "GET / HTTP 1.1" | nc www.google.com 80; echo $?	# can test ability to conn
 
 telnet www.google.com 80 		# simple network connectivity test using the telnet tool
 GET / HTTP 1.1				
+
+
+telnet mta.server.com 25
+EHLO tin.example.com
+mail from:tin@lbl.gov
+rcpt to:tin@lbl.gov
+DATA
+Subject: manual telnet 25 smtp test
+additional body message here
+end test with a dot by itself
+.
 </PRE>
 
 
@@ -2134,7 +2161,7 @@ using qsub script in cluster (mostly to generate random storage traffic):
   [Doc URL]<BR>
 <A HREF="http://tiny.cc/TOOL">tiny.cc/TOOL</A><BR>
 <A HREF="https://tin6150.github.io/psg/tool.html">https://tin6150.github.io/psg/tool.html</A><BR>
-<A HREF="http://psg.ask-margo.com/tool.html">http://psg.ask-margo.com/tool.html</A> 
+<A HREF="http://tin6150.github.io/psg/tool.html">http://tin6150.github.io/psg/tool.html</A> 
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html>main page</A>

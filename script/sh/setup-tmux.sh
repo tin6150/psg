@@ -3,7 +3,8 @@
 # setup tmux 3 sessions, each with a standard set of windows (what I think of tabs)
 # http://man7.org/linux/man-pages/man1/tmux.1.html
 
-META_SESSION_LIST="m1 m2 m3" # add more meta session if desired
+META_SESSION_LIST="m1 m2 m3 m4" # add more meta session if desired
+#--META_SESSION_LIST="m4" # add more meta session if desired
 for MS in $META_SESSION_LIST; do
 
 	# each meta session contain 3 smaller pane with sessions inside of them
