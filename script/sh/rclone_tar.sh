@@ -18,10 +18,14 @@
 
 #LOCAL_BACKUP_LIST="/dbbackup/mysql_backups"  # beagle
 
-LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
+#~~LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
 #--LOCAL_BACKUP_LIST="/etc /global/home/users /clusterfs/gretadev/data /opt /srv "  # beagle tar
 # /etc /srv are annoying as they create too many little files, so left that to the 7-day rotation script
 
+##LOCAL_BACKUP_LIST="/etc /global/home "  # hima, these should be in crypt-hpcs-backup
+LOCAL_BACKUP_LIST="/etc /global/home /global/data/buddha /global/data/ccosemis /global/data/ccosemis-off /global/data/goddess /global/data/gpanda /global/data/home-gpanda /global/data/mariah /global/data/mariahdata /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup"  # hima
+##  a tar will be created, so it will be big.  but many many of those /global/data better off not encrypted
+## the list is from /etc/fstab
 
 # next would benefits from having versions
 #LOCAL_BACKUP_LIST="/dbbackup/mysql_backups /etc /home /clusterfs/gretadev/data"
