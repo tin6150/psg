@@ -1,5 +1,9 @@
 ## .bashrc ##
 
+SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
+SSH_AGENT_PID=22624; export SSH_AGENT_PID;
+echo Agent pid 22624;
+
 ##
 ##  it seems that .bashrc is NOT sourced when doing sudo su - username
 ##  or when ssh in.  (so, bashrc not sourced when exec as login shell)
@@ -310,6 +314,7 @@ defineAlias () {
 	# overwrite default behaviour, keep command name
 	#alias ssh='ssh -o StrictHostKeyChecking=no' # already done by some default cluster cf
 	alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
+	alias lrc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151" # login node 1
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
