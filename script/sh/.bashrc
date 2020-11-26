@@ -242,6 +242,7 @@ add_hpcs_module () {
 
 add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
+	AddtoString PATH /global/home/users/tin-bofh/rhel7/
 	AddtoString PATH /global/home/groups/scs/IB-tools 
 	AddtoString PATH /global/home/groups/scs/tin
 	AddtoString PATH /global/scratch/tin/meli           # osu_*
@@ -327,6 +328,7 @@ defineAlias () {
 	alias vncsvr19='vncserver -geometry 1860x1080 -depth 24'   #  1920x1200 display
 	alias vncsvr24='vncserver -geometry 2400x1420 -depth 24'   # actual 2560x1600
 	alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
+	alias vncsvrTl='vncserver -geometry  900x1060 -depth 24'   # tall and narrowish window for single browser window
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
 
@@ -457,6 +459,13 @@ export EDITOR=vi
 
 MAQUINA=$(hostname)
 
+if [[ x${MAQUINA} == x"zink" ]]; then
+	# testing rootless docker in Zink
+	# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
+	export PATH=/home/tin/bin:$PATH
+	export DOCKER_HOST=unix:///run/user/43143/docker.sock
+fi
+
 if [[ x${MAQUINA} == x"c7" ]]; then
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
 	#add_local_module
@@ -504,9 +513,6 @@ defineAliasMac
 ##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
 
 
-# testing rootless docker in Zink
-export PATH=/home/tin/bin:$PATH
-export DOCKER_HOST=unix:///run/user/43143/docker.sock
 
 
 
@@ -596,7 +602,7 @@ condaSetup4sn () {
 condaSetup4sn  # strange problem on bofh
 
 
-
+export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 ################################################################################
 # vim modeline, also see alias `vit`

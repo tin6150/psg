@@ -1399,7 +1399,8 @@ parted can manipulate some fs, should be able to resize FAT fs/partitions.
 <PRE>
 
 sudo parted /dev/sdb print		# show partition table
-sudo parted /dev/sdb mklabel gpt	# add some dos marker for large drive
+sudo parted /dev/sdb mklabel gpt	# initialize disk as gparted, erase all existing partition!  then add label
+sudo parted /dev/sdb mklabel msdos	# initialize partition using msdos mbr
 
 sudo parted /dev/sdb mkpart primary ext3 1 2048		# shoudl create a 2G partition
 sudo parted /dev/sdb mkpart primary amufs 1 100%	# create a primary part
@@ -1411,7 +1412,15 @@ sudo parted /dev/sdb set 1 LVM		# optional
 	## the LVM flag isn't likely relevant, but will be printed in output
 	## to help remind sys admin it is LVM and not say ext3 fs.
 
-# repartition disk, data seems untouched :)
+
+parted /dev/sdz mkpart primary linux-swap 32GiB 40GiB # type id 82 # use GiB instead of MB so that it align correctly
+parted /dev/sdz mkpart primary ext2 40GiB 52GiB       # type id 83
+parted /dev/sdz mkpart primary ext2 52GiB 98%         # 98% of remaining space.  leave a bit at the end for possible conversion to gpt
+parted /dev/sdz align-check optimal 1
+parted /dev/sdz align-check optimal 2	# need to check alignment of each partition one at a time
+
+
+# repartitioning disk carefully could leave data seems untouched :)
 # need partition number and end size.  
 # if omitted will prompt, can use size in GB or % in addition to sector.
 # -1 is last block on disk.  
@@ -2435,7 +2444,8 @@ numactl -H
 numactl ... cmd  # run command with specific memory config info (eg, restrict malloc to Phi MCDRAM?) 
 
 lstopo
-lstopo-no-graphics
+lstopo-no-graphics aka hwloc-ls
+
 
 lscpu
 

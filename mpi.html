@@ -249,6 +249,7 @@ mpirun -np 16 cpi
 	# run pi calculation test on 16 procs.
         # doesn't really start a serv_p4 process, so can't use to test sharing daemon b/w users.
 
+
 </PRE>
 
 
@@ -282,6 +283,12 @@ After these setup, can run parallel jaguar job like: <BR>
 <A NAME="openmpi"></A>
 <H1>OpenMPI</H1>
 
+<PRE>
+mpirun hostname
+mpirun -H n0301,n0302 hostname
+mpirun --hostfile myHostfile hostname
+</PRE>
+
 Example mpi host file
 <PRE class="code">
 n0000
@@ -304,6 +311,11 @@ If FQDN is needed, eg have multiple "domain"/cluster, use this setting:
 <PRE>
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 </PRE>
+
+ref: 
+<LI> https://docs.oracle.com/cd/E19708-01/821-1319-10/mca-params.html
+<LI> https://www.open-mpi.org/faq/?category=running
+
 
 
 <A NAME="pvm"></A>

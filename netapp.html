@@ -328,11 +328,57 @@ system configuration backup settings set-password # (Set the backup password for
 
 </PRE>
 
+<A ID="shut">
+<H2>
+Shutdown / Startup
+</H2>
+
+<H5>Cluster mode shutdown</H5>
+
+<PRE>
+
+# If on a 2-node cluster, run the following:
+cluster ha modify -configured false
+storage failover modify -node * -enabled false 
+
+# If on a 4+-node cluster, run the following:
+storage failover modify -node * -enabled false
+
+
+# Log in to all nodes, one at a time (preferably using serial console or RLM/SP) and run:
+halt local -inhibit-takeover true
+
+
+
+
+# Ensure all nodes are down before halting the last node:
+system node show
+	
+# Power off from Head:
+system power off
+
+</PRE>
+
+<A ID="start">
+<H5>Cluster mode startup</H5>
+
+<PRE>
+
+LOADER} boot_ontap     # (will boot node)    
+# above command maybe if head is in standby and so need to issue command to actually boot, but should be automatic if power is restored?
+
+
+# Re-enable HA cluster:
+cluster ha modify -configured true
+storage failover modify -node * -enabled true
+
+</PRE>
+
 
 <A NAME="svm_dr"></A>
 <A NAME="dr_setup_with_svm"></A>
 <H2>
-DR setup with SVM (OnTap 9.3)
+DR Setup with SVM (OnTap 9.3)
 </H2>
 
 <PRE>
@@ -1460,50 +1506,6 @@ pktt stop all
 # one file per interface.
 # files can be read by ethereal/wireshark
 
-
-</PRE>
-
-<H2>
-Shutdown / Startup
-</H2>
-
-<H5>Cluster mode shutdown</H5>
-
-<PRE>
-
-# If on a 2-node cluster, run the following:
-cluster ha modify -configured false
-storage failover modify -node * -enabled false 
-
-# If on a 4+-node cluster, run the following:
-storage failover modify -node * -enabled false
-
-
-# Log in to all nodes, one at a time (preferably using serial console or RLM/SP) and run:
-halt local -inhibit-takeover true
-
-
-
-
-# Ensure all nodes are down before halting the last node:
-system node show
-	
-# Power off from Head:
-system power off
-
-</PRE>
-
-<H5>Cluster mode startup</H5>
-
-<PRE>
-
-LOADER} boot_ontap     # (will boot node)    
-# above command maybe if head is in standby and so need to issue command to actually boot, but should be automatic if power is restored?
-
-
-# Re-enable HA cluster:
-cluster ha modify -configured true
-storage failover modify -node * -enabled true
 
 </PRE>
 
