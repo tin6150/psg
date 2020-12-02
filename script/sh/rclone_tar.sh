@@ -1,5 +1,8 @@
 #!/bin/sh
 
+exit 007
+## tmp hold till first run is completed ++
+
 ## run rclone sync to google share drive on a list of directories
 ## this version use  tar | rclone cat ...
 
@@ -23,7 +26,9 @@
 # /etc /srv are annoying as they create too many little files, so left that to the 7-day rotation script
 
 ##LOCAL_BACKUP_LIST="/etc /global/home "  # hima, these should be in crypt-hpcs-backup
-LOCAL_BACKUP_LIST="/etc /global/home /global/data/buddha /global/data/ccosemis /global/data/ccosemis-off /global/data/goddess /global/data/gpanda /global/data/home-gpanda /global/data/mariah /global/data/mariahdata /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup"  # hima
+#++LOCAL_BACKUP_LIST="/etc /global/home /global/data/buddha /global/data/ccosemis /global/data/ccosemis-off /global/data/goddess /global/data/gpanda /global/data/home-gpanda /global/data/mariah /global/data/mariahdata /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup"  # hima
+LOCAL_BACKUP_LIST="/global/data/gpanda /global/data/home-gpanda /global/data/mariah /global/data/mariahdata /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup     /etc /global/home /global/data/buddha /global/data/ccosemis /global/data/ccosemis-off /global/data/goddess"  # hima (alt ordering)
+
 ##  a tar will be created, so it will be big.  but many many of those /global/data better off not encrypted
 ## the list is from /etc/fstab
 
@@ -37,7 +42,8 @@ MAILTO="tin@lbl.gov"
 LOGFILE="/var/log/rclone_tar.log"
 
 
-REMOTE_NAME="crypt-hpcs-backup"
+##REMOTE_NAME="crypt-hpcs-backup"
+REMOTE_NAME="hpcs-backup"
 ROOT_FOLDER="/"
 #ROOT_FOLDER="rclone-crypt" # config file have this path embeded in it already
 
@@ -56,6 +62,8 @@ else
 	Mod="Odd"
 fi
 
+## TMP manual modifier  ++ CHANGE_ME ++
+Mod=Dec2020
 
 # tar this way seems to exclude .snapshot already, but better be safe.
 #TarExclude="--exclude='.snapshot'"
