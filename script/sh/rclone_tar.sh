@@ -79,15 +79,15 @@ echo "====================  rclone_tar - $CUR_DATE ============"
 
 run_rclone_push() {
 	for LOCAL_BACKUP in $LOCAL_BACKUP_LIST; do
-	BACKUPNAME=$( echo $LOCAL_BACKUP | sed 's^/^_^g' )
-	echo "-------- Processing $LOCAL_BACKUP at $(date) --------"
-	#--$RCLONE mkdir $REMOTE_NAME:$ROOT_FOLDER/$LOCAL_BACKUP ## > /dev/null 2>&1
-	# eg  crypt-hpcs-backup://global/oldhome 
-	$RCLONE mkdir $REMOTE_NAME:$ROOT_FOLDER/$Mod/$BACKUPNAME ## > /dev/null 2>&1
-	# eg   crypt-hpcs-backup://Even/global_oldhome 
-	# NOT  crypt-hpcs-backup://global_oldhome/Even # cuz then maybe lost among a dir with many files
+		BACKUPNAME=$( echo $LOCAL_BACKUP | sed 's^/^_^g' )
+		echo "-------- Processing $LOCAL_BACKUP at $(date) --------"
+		#--$RCLONE mkdir $REMOTE_NAME:$ROOT_FOLDER/$LOCAL_BACKUP ## > /dev/null 2>&1
+		# eg  crypt-hpcs-backup://global/oldhome 
+		$RCLONE mkdir $REMOTE_NAME:$ROOT_FOLDER/$Mod/$BACKUPNAME ## > /dev/null 2>&1
+		# eg   crypt-hpcs-backup://Even/global_oldhome 
+		# NOT  crypt-hpcs-backup://global_oldhome/Even # cuz then maybe lost among a dir with many files
 
-	#$RCLONE --transfers=$TRANSFER_COUNT --checkers=$CHECKER_COUNT sync $LOCAL_BACKUP  ${REMOTE_NAME}:${ROOT_FOLDER}/${LOCAL_BACKUP}
+		#$RCLONE --transfers=$TRANSFER_COUNT --checkers=$CHECKER_COUNT sync $LOCAL_BACKUP  ${REMOTE_NAME}:${ROOT_FOLDER}/${LOCAL_BACKUP}
 		# create loop for each SUB_ITEM_LIST
 		for SUB_ITEM_ENTRY in $( ls -1 $LOCAL_BACKUP ); do
 			#xx SUB_ITEM_ENTRY=tin
