@@ -1,6 +1,6 @@
 #!/bin/sh
 
-exit 007
+#--exit 007
 ## tmp hold till first run is completed ++
 
 ## run rclone sync to google share drive on a list of directories
@@ -42,15 +42,19 @@ LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle t
 
 ##MAILTO="hpcs-logs@lbl.gov"
 MAILTO="tin@lbl.gov"
+
+#LogPrefix="/var/log/rclone_sync_log"
+LogPrefix="/var/log/rclone_tar_log"
+
+
 PROG=rclone_tar
-#LOGFILE="/var/log/rclone_sync.log"
-LOGFILE="/var/log/rclone_tar.log"
+PidFile="/var/lock/$PROG"
 
 
+REMOTE_NAME_NoCrypt="hpcs-backup"   # for logs only
+#REMOTE_NAME="hpcs-backup"          # for machines not wanting encryption, eg hima
 REMOTE_NAME="crypt-hpcs-backup"
-#//REMOTE_NAME="hpcs-backup"      # hima only
-ROOT_FOLDER="/"
-#ROOT_FOLDER="rclone-crypt" # config file have this path embeded in it already
+ROOT_FOLDER="/"						# config file store in "/rclone-crypt" folder
 
 TRANSFER_COUNT=16
 CHECKER_COUNT=16
@@ -59,6 +63,7 @@ RCLONE="/bin/rclone -v --transfers=$TRANSFER_COUNT --checkers=$CHECKER_COUNT"
 ##RCLONE="/bin/rclone --syslog"
 SUM_EXIT_CODE=0
 CUR_DATE=`date +%Y%m%d`
+LOGFILE=$LogPrefix.$CUR_DATE.txt
 Month=`date +%m`
 #### path Infix for Even or Odd depending on month
 if [[ $(( $Month % 2 )) -eq 0 ]]; then
@@ -74,6 +79,8 @@ Mod=2020dec
 #TarExclude="--exclude='.snapshot'"
 TarExclude="--exclude='.snapshot' --exclude='.cache' --exclude 'SCRATCH'"
 
+MaxTry=60 # 57 tries 50 min apart will be 2 days
+RetryWait=3060 # 51 minutes
 
 echo "====================  rclone_tar - $CUR_DATE ============"
 
@@ -92,9 +99,19 @@ run_rclone_push() {
 		for SUB_ITEM_ENTRY in $( ls -1 $LOCAL_BACKUP ); do
 			#xx SUB_ITEM_ENTRY=tin
 			echo "-------- Processing $Mod/$BACKUPNAME/$SUB_ITEM_ENTRY at $(date) --------"
-			echo "running... cd $LOCAL_BACKUP; tar cfz - $TarExclude -- $SUB_ITEM_ENTRY | $RCLONE rcat ${REMOTE_NAME}:${ROOT_FOLDER}/$Mod/${BACKUPNAME}/${SUB_ITEM_ENTRY}.tgz"
-			cd $LOCAL_BACKUP; tar cfz - $TarExclude -- $SUB_ITEM_ENTRY | $RCLONE rcat ${REMOTE_NAME}:${ROOT_FOLDER}/$Mod/${BACKUPNAME}/${SUB_ITEM_ENTRY}.tgz
-			EXIT_CODE=$?
+			EXIT_CODE=1
+			TRIAL=1
+			while [[ $EXIT_CODE -ne 0 && $TRIAL -lt $MaxTry ]]; do
+				echo "running... cd $LOCAL_BACKUP; tar cfz - $TarExclude -- $SUB_ITEM_ENTRY | $RCLONE rcat ${REMOTE_NAME}:${ROOT_FOLDER}/$Mod/${BACKUPNAME}/${SUB_ITEM_ENTRY}.tgz"
+				cd $LOCAL_BACKUP; tar cfz - $TarExclude -- $SUB_ITEM_ENTRY | $RCLONE rcat ${REMOTE_NAME}:${ROOT_FOLDER}/$Mod/${BACKUPNAME}/${SUB_ITEM_ENTRY}.tgz
+				EXIT_CODE=$?
+				if [[ EXIT_CODE -ne 0 ]]; then
+					echo "Non 0 EXIT_CODE ($EXIT_CODE), sleeping $RetryWait before retry"
+					sleep $RetryWait
+					TRIAL=$((TRIAL + 1))
+				fi
+			done
+
 			echo "rclone of $Mod/$BACKUPNAME/$SUB_ITEM_ENTRY had exit code of $EXIT_CODE"
 			SUM_EXIT_CODE=$( expr $EXIT_CODE + $SUM_EXIT_CODE )
 		done
@@ -104,8 +121,20 @@ run_rclone_push() {
 	fi
 }
 
-run_rclone_push 2>&1 | tee -a $LOGFILE | mail -s "$HOSTNAME - rclone_tar/rcat monthly - $SUM_EXIT_CODE" "$MAILTO"
+if [[ -f $PidFile ]] ; then
+	echo "PID file $PidFile exist, exiting"
+	exit 1
+else
+	touch $PidFile
+	run_rclone_push 2>&1 | tee -a $LOGFILE | mail -s "$HOSTNAME - $SUM_EXIT_CODE - rclone_tar/rcat monthly" "$MAILTO"
+	RcloneExit=$?
+	$RCLONE mkdir ${REMOTE_NAME_NoCrypt}:/log
+	$RCLONE copy $LOGFILE ${REMOTE_NAME_NoCrypt}:/log
+	# rclone encounter // will create a "New Folder" in google drive
 
+	rm $PidFile
+	#rm $LOGFILE
+fi
 
 
 
