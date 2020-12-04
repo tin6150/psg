@@ -23,11 +23,9 @@
 
 ##LOCAL_BACKUP_LIST="/opt/gitlab/backups"       # greyhound
 
-#LOCAL_BACKUP_LIST="/dbbackup/mysql_backups"  # beagle
-
-LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
-#--LOCAL_BACKUP_LIST="/etc /global/home/users /clusterfs/gretadev/data /opt /srv "  # beagle tar
+# LOCAL_BACKUP_LIST="/dbbackup/mysql_backups"  # beagle - rclone in cron.daily
 # /etc /srv are annoying as they create too many little files, so left that to the 7-day rotation script
+LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
 
 ###LOCAL_BACKUP_LIST="/etc /global/home "  # hima, these should be in crypt-hpcs-backup
 #++LOCAL_BACKUP_LIST="/etc /global/home /global/data/buddha /global/data/ccosemis /global/data/ccosemis-off /global/data/goddess /global/data/gpanda /global/data/home-gpanda /global/data/mariah /global/data/mariahdata /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup"  # hima
@@ -72,8 +70,8 @@ else
 	Mod="Odd"
 fi
 
-## TMP manual modifier  ++ CHANGE_ME ++
-Mod=2020dec
+#-- TMP manual modifier  ++ CHANGE_ME ++
+#-- Mod=2020dec
 
 # tar this way seems to exclude .snapshot already, but better be safe.
 #TarExclude="--exclude='.snapshot'"
@@ -126,10 +124,20 @@ if [[ -f $PidFile ]] ; then
 	exit 1
 else
 	touch $PidFile
-	run_rclone_push 2>&1 | tee -a $LOGFILE | mail -s "$HOSTNAME - $SUM_EXIT_CODE - rclone_tar/rcat monthly" "$MAILTO"
+	date >> $PidFile
+	#run_rclone_push 2>&1 | tee -a $LOGFILE | mail -s "$HOSTNAME - rclone_tar/rcat monthly" "$MAILTO"
+	run_rclone_push 2>&1 | tee -a $LOGFILE
 	RcloneExit=$?
+	echo "RcloneExit is $RcloneExit" >> $PidFile
+	date >> $PidFile
+	echo "====================" >> $PidFile
+	if [[ $RcloneExit -ne 0 ]]; then
+		# only mail if non exit code
+		cat $PidFile $LOGFILE | mail -s "$HOSTNAME - $RcloneExit - rclone_tar/rcat monthly" "$MAILTO" 
+	fi
 	$RCLONE mkdir ${REMOTE_NAME_NoCrypt}:/log
 	$RCLONE copy $LOGFILE ${REMOTE_NAME_NoCrypt}:/log
+	$RCLONE copy $PidFile ${REMOTE_NAME_NoCrypt}:/log  # PidFile is overwritten every time, it is okay, don't want to keep too many
 	# rclone encounter // will create a "New Folder" in google drive
 
 	rm $PidFile
