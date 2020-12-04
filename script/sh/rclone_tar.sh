@@ -119,6 +119,13 @@ run_rclone_push() {
 	fi
 }
 
+
+########################################
+########################################
+#### "main"
+########################################
+########################################
+
 if [[ -f $PidFile ]] ; then
 	echo "PID file $PidFile exist, exiting"
 	exit 1
@@ -133,7 +140,7 @@ else
 	echo "====================" >> $PidFile
 	if [[ $RcloneExit -ne 0 ]]; then
 		# only mail if non exit code
-		cat $PidFile $LOGFILE | mail -s "$HOSTNAME - $RcloneExit - rclone_tar/rcat monthly" "$MAILTO" 
+		cat $PidFile $LOGFILE | mail -s "$HOSTNAME - nonzero WARN: $RcloneExit - rclone_tar/rcat monthly" "$MAILTO" 
 	fi
 	$RCLONE mkdir ${REMOTE_NAME_NoCrypt}:/log
 	$RCLONE copy $LOGFILE ${REMOTE_NAME_NoCrypt}:/log
