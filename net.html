@@ -602,6 +602,64 @@ connector 2 would be 2041 to 2048, etc
 
 (TBD: cisco*config sample config files after clean up and masking)
 
+
+<A ID="Arista"></A>
+<A ID="arista"></A>
+<H1>Arista</H1>
+<!-- https://mail.google.com/mail/u/1/#search/noshut/FFNDWMtXQwzFfHmkFlKSTBxmcLDGwrhS 
+CF_BK/gretadev arista100g/README.rst
+-->
+
+
+<LI> arista command line very similar to cisco ios
+<LI> port start at 1 (0 in cisco? or juniper?)
+
+<PRE>
+
+
+show runing interface eth1
+show runing interface eth51/1	# sfp28 port (ib/100g) can be a break out into 4 port, thus the blade syntax
+show runing interface eth1,7	# port list  1 and  7
+show runing interface eth1-7	# port range 1 thru 7
+
+
+switchport access vlan   # ie not tagged
+
+vs 
+trunk
+...
+
+
+show interface status  # brief table view of port, desc, link status, vlan
+show interface status  | egrep Et[23] 
+
+show mac address-table 				# arp table, vlan, mac, port 
+show mac address-table interface eth 24     # mac of remote host on that switch port
+
+
+# cycle a port
+config term
+interface ethernet 4
+  shutdown
+  no shutdown
+  show active
+
+
+</PRE>
+
+
+<PRE>
+
+show running-config > scp:tin@10.2.22.2/tmp/run.txt
+show startup-config > scp:tin@10.2.22.2/tmp/startup-config.txt
+
+
+<<**>> #### mask out the username ... sha  password entry near the beginning of the config file #### <<**>>  
+
+copy run start
+</PRE>
+
+
 <A ID="Foundry"></A>
 <A ID="foundry"></A>
 <H1>Foundry</H1>
@@ -1093,7 +1151,7 @@ prompt <NEW STRING>
   [Doc URL] 
 <A HREF="http://tiny.cc/NETWORK">tiny.cc/NETWORK</A><BR>
 <A HREF="https://tin6150.github.io/psg/tool.html">https://tin6150.github.io/psg/tool.html</A><BR>
-<A HREF="http://psg.ask-margo.com/net.html">http://psg.ask-margo.com/net.html</A> 
+<A HREF="http://tin6150.github.io/psg/net.html">http://tin6150.github.io/psg/net.html</A> 
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>

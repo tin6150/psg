@@ -496,6 +496,12 @@ docker run --help		# help specific to the sub command.
 
 </PRE>
 
+<!--
+eg of encoding which is why is not secure.
+echo "dGluOnXXXXXXXXXXXXXpbg=="  | base64 -d
+it is not hexdump, not uudecode, just convert text to base64 encode
+-->
+
 <A NAME="under_the_hood"></A>
 <H2>Under the hood</H2>
 
@@ -999,6 +1005,52 @@ eg Both examples of wordpress setup has reference to Docker Compose.
 	<LI></LI>
 </OL>
 
+<H3>Quay.io Registry</H3>
+From RedHat.  charge for hosting private repo.
+
+
+<A NAME="ghcr"></A>
+<H3>ghcr - GitHub Container Registry</H3>
+
+Free for Open source project.  
+longer longevity than Docker?
+Not sure if it allow for larger image size.
+hub.docker.com won't cloud build anything larger than 20G.
+But seems like could build locally and push a 25.1 GB image to docker.io.
+push to ghcr actually failed, so not sure if will continue to use it.
+
+
+<PRE>
+
+
+head -1 ~/.ssh/token | docker login ghcr.io  -u tin6150 --password-stdin
+docker tag 869b44021e4a ghcr.io/tin6150/metabolic:4.0
+docker push             ghcr.io/tin6150/metabolic:4.0
+
+# but failed, maybe due to size 
+
+Error: Error copying image to the remote destination: Error writing blob: Error uploading layer to https://ghcr.io/v2/tin6150/metabolic/blobs/upload/8a4c3f7f-1628-43e6-b9aa-0655fe6c1faa?digest=sha256%3A138bf1d88427d73721eb2b23281827e551e1fe7ec42ac63bd35da9859ff8d3ab: received unexpected HTTP status: 504 Gateway Time-out
+
+docker tag b982a301de32 ghcr.io/tin6150/r4envids
+docker push             ghcr.io/tin6150/r4envids
+
+</PRE>
+
+
+<PRE>
+
+github package registry, older way to support container, avoid use:
+
+head -1 ~/.ssh/token | docker login https://docker.pkg.github.com -u tin6150 --password-stdin
+
+docker tag IMAGE_ID docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION
+docker build     -t docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION PATH
+docker push         docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION
+
+</PRE>
+
+
+
 <H3>Reference</H3>
 
 <UL>
@@ -1172,7 +1224,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
             <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
             <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
             <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
-            <dc:source rdf:resource="http://psg.ask-margo.com/" />
+            <dc:source rdf:resource="http://tin6150.github.io/psg/" />
             </Work>
             <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
                                        <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
@@ -1226,7 +1278,7 @@ http://tin6150.github.io/psg/psg.html
 -->
 
 
-<A HREF="http://psg.ask-margo.com/psg.html">http://psg.ask-margo.com/psg.html</A> <BR>
+<A HREF="http://tin6150.github.io/psg/psg.html">http://tin6150.github.io/psg/psg.html</A> <BR>
 <A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
 
 </div>       

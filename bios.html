@@ -240,7 +240,7 @@ F12 boot from ...
 <PRE>
 del		run setup (AMI BIOS)
 alt+F2 - EzFlash
-F8 = BBS POPUP
+F8 = BBS POPUP # ie boot device menu
 
 
 ^B PXE prompt for Intel I350 on-board NIC
@@ -558,6 +558,8 @@ ref https://serverfault.com/questions/716467/cant-get-omsa-installed-on-dell-r61
 -->
 
 
+<H5>Ref</H5>
+<A HREF="https://www.intel.com/content/dam/support/us/en/documents/network/omni-adptr/sb/Intel_OP_Performance_Tuning_UG_H93143_v1_0.pdf">Intel E5 v3 (Hashwell) bios param tuning for Fabric</A>(Omnipath, Infiniband).
 
 
 
@@ -687,6 +689,7 @@ Redirection After BIOS POST=00          // *00 (Always Enable), 01 (BootLoader)
 
 </PRE>
 
+
 <H5>SMC IPMI</H5>
 
 Info from 
@@ -695,8 +698,35 @@ Info from
 <BR>
 <BR>
 
-Supermicro has an <A HREF="ftp://ftp.supermicro.com/utility/IPMICFG/">IPMICFG</A> 
-util that allows for commands like:
+Supermicro has an IPMICFG 
+util that allows for custom commands like below.
+Get tool from: 
+<A HREF="ftp://ftp.supermicro.com/utility/IPMICFG/">ftp</A> 
+<A HREF="https://drive.google.com/file/d/1Htsgax0VA_xZnPFkWD2AxCh_NlTY75JT/view?usp=sharing">Google Drive ver 1.31.1</A>
+
+<BR> 
+<BR> 
+
+To change vlan tagging:
+
+<PRE>
+./IPMICFG-Linux.x86_64  -vlan off
+</PRE>
+
+
+
+To reset the service processor:
+
+<PRE>
+run ipmicfg -fde to reset all settings back to factory default,
+then ipmicfg -r to do a BMC cold reset
+after reset,  ipmicfg -m to see what’s IP, try ping it.
+</PRE>
+
+
+
+
+To change which interface is used for IPMI:
 
 <PRE>
 sudo ipmiutil lan -e										# check config
@@ -712,12 +742,30 @@ It didn't look like SUM was able to change the IPMI interface settings.  <BR>
 <PRE>
 
 To get LAN mode:                ipmitool raw 0x30 0x70 0x0c 0
+		output (entry for [B] for set):
+		0x00 = Dedicated, 
+		0x01 = Onboard / Shared 
+		0x02 = Failover 
+		[A] = 0  is get
+		[A] = 1  is set
+.                                                           A B
 To set LAN mode dedicated:      ipmitool raw 0x30 0x70 0x0c 1 0
 To set LAN mode onboard/shared: ipmitool raw 0x30 0x70 0x0c 1 1
-To set LAN mode failover:       ipmitool raw 0x30 0x70 0x0c 1 2        # default? this settings worked as "shared"
+To set LAN mode failover:       ipmitool raw 0x30 0x70 0x0c 1 2        # this seems like default; this settings worked as "shared"
+
+
+
+some say hard reboot needed, other says work right away without reboot.
+Apparently default depends whether were is live rj45 connected to the dedicated ipmi port when power was connected to computer.  So some changes may need power disconnect for it to take effect?
+
+
 </PRE>
 
+Additional SMC IPMI raw commands in their 
+<A HREF="https://www.supermicro.com/support/faqs/faq.cfm?faq=15868">support faq 15868</A>.
+It is from 2003, and both X8 and X9, AMI or ATEN BIOS, seems to take the same set of commands.
 
+<<<<<<< HEAD
 <H5> Asus Raw </H5>
 
 <PRE>
@@ -736,9 +784,61 @@ ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed f
 
 
 <H5>Ref</H5>
+||||||| merged common ancestors
+<H5>Ref</H5>
+=======
+>>>>>>> 67aee15baaebb93d8b8ab79554c95432753882c4
 
-<A HREF="https://www.intel.com/content/dam/support/us/en/documents/network/omni-adptr/sb/Intel_OP_Performance_Tuning_UG_H93143_v1_0.pdf">Intel E5 v3 (Hashwell) bios param tuning for Fabric</A>(Omnipath, Infiniband).
+<!-- these should move to ipmi.html -->
+<H5>Asus IPMI raw</H5>
 
+<PRE>
+
+
+For Asus ESC4000 G4 series (Skylake/Cascadelake, maybe Epyc Naples/Rome 7xx2 series as well).
+As with all raw commands, use at your own risk! :-D
+
+ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed for channel 8
+
+# toggle on/off among the diff settings/interfaces should revive ipmi over lan
+
+# For Asus ESC4000 G4
+ipmitool raw 0x32 0x71 0x00 0x01 0x01 	# set ipmi/bmc to use shared nic		
+# For Asus ASMB7-iKVM (P9D-MV)
+ipmitool raw 0x32 0x71 0x00 0x01 0x03		#    activate ipmi/bmc  on lan1 (shared with host/os nic)
+ipmitool raw 0x32 0x71 0x00 0x01 0x00		# de-activate ipmi/bmc  on lan1 (shared with host/os nic)
+ipmitool raw 0x32 0x71 0x00 0x00 0x03	  #    activate ipmi/bmc  on dm_lan1 (dedicated management port)
+ipmitool raw 0x32 0x71 0x00 0x00 0x00   # de-activate ipmi/bmc  on dm_lan1 (dedicated management port)
+
+ref: https://www.thomas-krenn.com/de/wiki/IPMI_Netzwerkports_von_ASUS_Mainboards_konfigurieren
+
+</PRE>
+
+
+<H2>Asus Bios Tool</H2>
+
+
+<LI><A HREF="https://asuscontrolcenter.asus.com/#/us">Asus Controller</A> <BR>
+	<A HREF="https://dlcdnets.asus.com/pub/ASUS/server/ACC/E15395_ASUS_Control_Center_EM_CSM_V5_WEB.pdf">PDF manual</A> 
+<BR>
+	Compared to SuperMicro SUM, it’s more like a centralized management utility, not as compact, but has a lot of functions. Refer to the “BIOS setting” section.  <BR>
+	The bloody zip file is a .ova VirtualBox image :-\ 
+
+</LI>
+
+<BR>
+
+
+<LI><A HREF="https://www.asus.com/Commercial-Servers-Workstations/ESC4000-G4/HelpDesk_BIOS/">ESC4000 G4</A>(Intel) Bios firmware <BR>
+	.cab file, but once get into bios, have option that read the .cab file and update bios.  Windows/DOS NOT needed :)
+  
+</LI>
+<LI><A HREF="https://www.asus.com/Networking-IoT-Servers/Servers/GPU-Servers/ESC4000A-E10/HelpDesk_BIOS">ESC4000A E10</A>(AMD Epyc 7xx2 Rome) </LI>
+<LI><A HREF=""></A> </LI>
+
+
+
+<BR>
 
 <H1>Service Processor</H1>
 
@@ -787,7 +887,7 @@ Percent Complete=[100]
 </PRE>
 
 <A NAME="dsa"></A>
-<H2>Lenovo DSA</H2>
+<H2>IBM/Lenovo DSA</H2>
 
 Lenovo Dynamic System Analyst (DSA).  
 <BR>
@@ -813,7 +913,7 @@ sudo ./lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bin
 
 <!--
 
-**^ tin n0096.savio2 /global/home/groups/scs/tin/lenovo_dsa ^**>  sudo ./lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bin 
+**^ 096.savio2 /global/home/groups/scs/tin/lenovo_dsa ^**>  sudo ./lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bin 
 Lenovo Dynamic System Analysis
 (C) Copyright Lenovo Corp. 2014-2017.(C) Copyright IBM Corp. 2004-2014.  All Rights Reserved.
 This Program is licensed under the terms of the agreement available by invoking
@@ -937,6 +1037,9 @@ Please press ANY key to continue ...
 <!-- ################################################################## -->
 <!-- ################################################################## -->
 
+<BR>
+
+<H1> </H1>
 
 <div align="CENTER">
 <A HREF="http://comic.browserling.com/tag/bios">
@@ -968,7 +1071,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
             <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
             <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
             <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
-            <dc:source rdf:resource="http://psg.ask-margo.com/" />
+            <dc:source rdf:resource="http://tin6150.github.io/psg/" />
             </Work>
             <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
                                        <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
@@ -1020,7 +1123,7 @@ http://tin6150.github.io/psg/psg.html
 -->
 
 
-<A HREF="http://psg.ask-margo.com/psg.html">http://psg.ask-margo.com/psg.html</A> <BR>
+<A HREF="http://tin6150.github.io/psg/psg.html">http://tin6150.github.io/psg/psg.html</A> <BR>
 <A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
 
 </div>       

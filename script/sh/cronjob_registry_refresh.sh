@@ -1,8 +1,11 @@
-#!/bin/sh 
+#!/bin/bash 
 
 
 PATH=/usr/local/hb/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin
-MAILTO=bofh@example.com
+MAILTO=tin@berkeley.edu
+HOSTNAME=$(hostname)
+LOGFILE=/var/log/registry_refresh.log
+
 
 # Example of job definition:
 # .---------------- minute (0 - 59)
@@ -25,17 +28,23 @@ MAILTO=bofh@example.com
 PullCmd="docker pull"
 #PullCmd="sudo podman pull"
 
-ImgList="r4eta r4envids metabolic perl4metabolic base4metabolic bioperl bioperl-centos-8 adjoin cmaq os4cmaq lib4cmaq c7tools satools apache_psg_3a apache_psg3" 
-
-date
-
-for Img in $ImgList; do
-	echo Running : $PullCmd tin6150/$Img
-	$PullCmd tin6150/$Img
-	echo $?
-done
+run_docker_pull() {
 
 
-date
+	ImgList="r4eta r4envids metabolic METABOLIC-1 perl4metabolic base4metabolic bioperl bioperl-centos-8 adjoin cmaq os4cmaq lib4cmaq c7tools satools apache_psg_3a apache_psg3" 
 
+	date
+
+	for Img in $ImgList; do
+		echo Running : $PullCmd tin6150/$Img
+		$PullCmd tin6150/$Img
+		echo $?
+	done
+
+
+	date
+
+}
+
+run_docker_pull 2>&1 | tee -a $LOGFILE | mail -s "$HOSTNAME - docker_pull for refresh of tin6150" "$MAILTO"
 

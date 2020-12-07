@@ -253,6 +253,29 @@ result2=dbListTables( con )
 </PRE>
 
 
+<A NAME="gc"></A>
+<H2>GC: Garbage Collection</H2>
+
+<PRE>
+gc(verbose=TRUE) 	# explicitly call garbage collection
+ls() 			# list all vars
+object.size( get("myData") )	
+rm()
+rm(list=ls())  		# remove all var in memory # probably useful in rstudio when playing, but not in actual program!
+sort( sapply( ls(), function(x) { object.size(get(x))} ),decreasing=TRUE )	# list all vars and their sizes
+
+vars are out of scope at the end of function, and gc can happen to them automatically
+
+bigmemory leave data on file.  some packages are build using bigmemory
+
+file-backed big matrix -- https://ljdursi.github.io/beyond-single-core-R/#/132 
+data = read.big.matrix(...)
+
+csv is slow.
+HDF5 and netCDF recommended. 
+
+</PRE>
+ref: https://ljdursi.github.io/beyond-single-core-R/#/111
 
 <H1>R Programming</H1>
 
@@ -298,6 +321,18 @@ number or character string
 • strptime: change class from character to
 date-time (POSIX)
 
+
+?"%*%"  # get help on topic, quote it if it has "funny" symbols
+
+%*% # matrix multiply
+%/% # ?? partitioning data into partition for shipping to different nodes 
+
+%:% # compose or nest foreach objects - https://ljdursi.github.io/beyond-single-core-R/#/84
+
+$>% # like unix pipe, used a lot by dplyr 
+
+%%  # modulus, ie reminder.  eg 7%%3 is 1
+2^4 and 2**4 both seems to be power, get 16.  2^4 notation maybe preferred.
 
 </PRE>
 
@@ -463,6 +498,33 @@ a <- 5
 
 </PRE>
 
+<H4>Data Structures</H3>
+
+<A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R</A>
+
+<PRE>
+
+1D:
+vector: homegenoeus elements.  c()
+list:   heterogeneous elements.  list()
+
+2D:
+matrix:     homegenoeus elements.  matrix()
+dataframe:  heterogeneous elements, named columns. think table of data/spreadsheet :-D.  data.frame(), tidyverse
+
+3D, multi-dimention:
+array:     homogeneous elements.  1-indexed.  array(), dim()
+
+
+attribute()
+structure()
+
+factor() to store categorical data -- ie predefined values
+
+</PRE>
+
+
+
 
 <H5>vector, matrix</H5>
 <A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">R short primer (pdf)</A>
@@ -495,7 +557,37 @@ rbind 	# row    bind
 </PRE>
 
 
-<H5>dataframe, 1-indexed array</H5>
+
+
+<H5>array</H5>
+
+R is 1-indexed, so first entry of df is 1  <BR>
+A 1D array is a vector.  <BR>
+A 2D array is a matrix.  <BR>
+3D and higher dim structure is rarer in stats.  <BR>
+
+<PRE>
+
+dim()
+length()
+names()
+rownames()
+colnames()
+dimnames()
+t() - transpose
+
+c() generalizes to cbind() and rbind() for matrix
+abind() for arrays
+
+as.matrix()
+as.array()  -- for conversions
+
+</PRE>
+
+
+<H5>dataframe</H5>
+
+R is 1-indexed, so first entry of df is 1
 
 <PRE>
 
@@ -524,8 +616,24 @@ coord$x[2]  # table coord, column x, row 2
 [1] 12.33333
 
 
+typeof( t )
+calss( t )
+is.data.frame( t )
+
+cbind(t, data.frame( z = 3:1 )
+rbind(t, data.frame(...) )
+
+
+
 
 </PRE>
+
+
+It’s a common mistake to try and create a data frame by cbind()ing vectors together. This doesn’t work because cbind() will create a matrix unless one of the arguments is already a data frame. Instead use data.frame() directly
+<BR>
+Since a data frame is a list of vectors, it is possible for a data frame to have a column that is a list
+<BR>
+
 
 <H5>List</H5>
 
@@ -556,6 +664,16 @@ $five
 [1] 1.00 1.75 2.50 3.25 4.00
 
 
+[ ]   returns a list
+[[ ]] returns the object which is stored in list
+If it is a named list, then
+    List$name or List[["name"]] will return same as List[[ ]]
+While List["name"] returns a list
+
+ref: https://stackoverflow.com/questions/32819539/proper-way-to-access-list-elements-in-r
+
+for list returned by ans = mccollect( list(jobs...) )
+typically ans[[1]], ans[[2]] etc will contain the original answer desired.
 
 </PRE>
 
@@ -678,7 +796,7 @@ ploy(y ~ x^3)
 	
 </PRE>
 
-<A HREF="https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i/8055683#8055683">SO more extensive discussion on formula</A>
+<A HREF="https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i/8055683#8055683">StackOverflow more extensive discussion on formula</A>
 
 
 <A HREF="http://blog.rtwilson.com/regression-in-python-using-r-style-formula-its-easy/">Regression in Python usinr R-style formula</A> seems to discuss use of ~ and regression formula in R.
@@ -692,7 +810,7 @@ results = model.fit()
 </PRE>
 
 
-Y<A NAME="pipe"></A>
+<A NAME="pipe"></A>
 <H3>Pipe</H3>
 
 <A HREF="https://stackoverflow.com/questions/24536154/what-does-mean-in-r">stack overflow</A>
@@ -706,73 +824,31 @@ It is the equivalent of unix shell pipe.
 iris %>% head() %>% summary() is equiv to summary(head(iris))
 which one to use is a matter of preference.
 
-<PRE>
+</PRE>
+
+<H2>apply family of function</H2>
 
 
-
-<H2>Libraries</H2>
-
-<A NAME="doParallel"></A>
-<H3>doParallel</H3>
-
-One way to do parallel processing in R
+see <A HREF="https://www.r-bloggers.com/2016/03/apply-lapply-rapply-sapply-functions-in-r/">R-bloggers</A>
 
 <PRE>
-NumThread=15
-library(doParallel)
-cl = makeCluster( NumThread, outfile="mkcluster.out" )   ## create a cluster object
-registerDoParallel(cl)
-foreach(i=1:3) %dopar% sqrt(i)
-# the %dopar% says to run the foreach loop in parallel for each item
-# all console output inside cluster object will go to outfile 
-# there are eg combine=rbind to merge result
-stopCluster(cl)
+apply(t(beaver1),1,max) ## apply function max to data, 1=row-wise)
+lapply() returns a list
+sapply() returns a vector instead of a list
+tapply() does grouping before running summary function on them
+by() ... think of GROUP_BY in SQL
 
-.combine=rbind # row-bind, ie, each result becomes a row
-.combine=cbind # col-bind, ie, each result becomes a col
-.combine=c     # c() ?
-
-
-detectCores() ## return number of cores on machine
 
 </PRE>
 
-Ref: 
-<UL>
-<LI><A HREF="https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf">CRAN doParallel</A></LI>
-
-<LI><A HREF="https://www.rdocumentation.org/packages/doParallel/versions/1.0.15/topics/registerDoParallel">R Doc on doParallel</A></LI>
-<LI><A HREF="https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html"> Quick Intro to Parallel Computing in R</LI>
-<LI><A HREF="https://ljdursi.github.io/beyond-single-core-R/#/">Beyond Single-Core R</A> (and github source at https://github.com/ljdursi/beyond-single-core-R</LI>
-<LI></LI>
-<LI></LI>
-</UL>
 
 
-
-<A NAME="Nested Parallel"></A>
-<H3>nestedParallel</H3>
-
-https://stackoverflow.com/questions/21306027/nesting-parallel-functions-in-r
-
-<PRE>
-
-cl = makeCluster(2, type = "SOCK")
-clusterCall(cl, function() {
-  library(doSNOW)
-  registerDoSNOW(makeCluster(2, type = "SOCK"))
-  NULL
-})
-registerDoSNOW(cl)
-
-</PRE>
+<H1>Libraries</H1>
 
 <H3>lifkit</H3>
-
-
+tbd
 
 <H2>ModeSim</H2>
-
 
 <PRE>
 geoR::lifkit
@@ -815,13 +891,390 @@ registerDoParallel
 <LI></LI>
 </OL>
 
-<BR><HR><BR>
+
+
+<A NAME="Parallelization"></A>
+<H1>Parallelization in R</H1>
+
+6 main types of parallization:
+
+<LI> same host, FORK based, parent/child memory model with copy-on-write: mclapply, mcparallel, mccollect.
+<LI> Rdsm - shared memory within a single computer, so multiple PSOCK same-node processes can read/write to 1 single memory region.
+<LI> PSOCK based multi-node parallelization, without needing MPI (cluster): SNOW: parLapply, clusterApplyLB 
+<LI> MPI based -- SNOW cluster implement on this as well.
+<LI> pbdR, hiding some of the complexity of MPI
+<LI> Hardoop/SparkR but that's a platforms of its own.
+<LI> Packages that does parallelism under the hood.  eg BLAS, caret, many others 
+
+<LI> future_map(), purrr -- https://byuistats.github.io/M335/parallel_furrr.html
+
+<BR>
+
+
+<BR><BR>
+
+Tutorials <BR><BR>
+
+Chris Paciorek (UC Berkeley Stats Dept)
+<A HREF="https://htmlpreview.github.io/?https://github.com/berkeley-scf/tutorial-parallel-distributed/blob/master/parallel-dist.html">Parallel Processing for Distributed Computing</A> Cover R, Python, Matlab and C, as well as how to use them in a Slurm cluster.
+
+<BR><BR>
+Jonathan Dursi
+<A HREF="https://ljdursi.github.io/beyond-single-core-R/#/1">Beyond Single-Core R</A> a slide deck on Parallelization in R.  
+Summary slides: <BR>
+
+<LI> Packages that does parallelism under the hood -- https://ljdursi.github.io/beyond-single-core-R/#/22
+<LI> paralle/multicore with mc* -- https://ljdursi.github.io/beyond-single-core-R/#/51
+<LI> cluster* parLapply snow -- https://ljdursi.github.io/beyond-single-core-R/#/73
+<LI> foreach doParallel isplit %:% -- https://ljdursi.github.io/beyond-single-core-R/#/98
+<LI> Best Practices -- https://ljdursi.github.io/beyond-single-core-R/#/106
+<LI> bigmemory morder mpermute mwhich sub.big.matrix -- https://ljdursi.github.io/beyond-single-core-R/#/133
+<LI> Rdsm -- shared memory within node by multiple process -- https://ljdursi.github.io/beyond-single-core-R/#/142
 
 <BR>
 <BR>
+
+
+Dursi's github repo has data for running his example, and I wrapped that with a Jupyter Notebook container so everyone can try using this 
+<A HREF="https://hub.docker.com/repository/docker/tin6150/beyond-single-core-r/general">Docker Container with Jupyter notebook server</A>:
+
+<PRE>
+Start jupyter notebook web server (on specific port, eg 6997):
+
+docker run -p 6997:6997 -v "$PWD":/mnt -it --entrypoint=/opt/conda/bin/jupyter  tin6150/beyond-single-core-r  lab --allow-root  --no-browser --port=6997 --ip=0.0.0.0
+
+Point web browser to something like
+  http://127.0.0.1:6997/
+and paste the token URL link shown on the terminal console
+
+/mnt is a mount of the current dir (PWD) where you started the docker process, and files written there will persist after the container is terminated.  (Other files inside the container are ephemeral!)
+</PRE>
+
+
+
+<A NAME="mc"></A>
+<H2>Parallelization in R using mc* functions </H2>
+
+mclapply   <BR>
+mcparallel  (likely just called parallel in early days)   <BR>
+mccollect   <BR>
+mc.core   <BR>
+
+<BR>
+
+Ref: 
+<A HREF="https://ljdursi.github.io/beyond-single-core-R/#/26">Beyond single core R</A>
+<BR>
+
+<PRE>
+mc*        are multi-core routines
+mcparallel is good for parallel tasks
+mclapply   is good for data parallelism - easily replace lapply()
+mc.cores   really should represent number of tasks, core can be oversubscribed often with little perf degradation
+</PRE>
+
+
+<PRE>
+parallel::mclapply - multi-core lapply - https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html
+
+instead of 
+	result = lapply(starts, fx)
+use
+	result = mclapply(starts, fx, cores=4)
+mclapply gathers up the responses from each of these function calls, and returns a list of responses that is the same length as the list or vector of input data (one return per input item).
+
+starts is a variable holding data, eg rep(100, 40)
+fx is a custom function that lapply() runs
+
+pvec - for simple use case of applying func to each element of vector and return vector, pvec is easier to use
+# https://ljdursi.github.io/beyond-single-core-R/#/48
+
+
+
+https://ljdursi.github.io/beyond-single-core-R/#/30
+mcparallel  # fork a task , run in background
+mccollect   # wait and collect result.  so kinda like MPI scatter/gather
+
+
+library(multicore)                    ## functionality replaced by library('parallel') 
+fun1 = function() {Sys.sleep(10); 1}
+fun2 = function() {Sys.sleep(5);  2}
+f1 = parallel(fun1())                 ## new fn name is mcparallel()
+f2 = parallel(fun2())
+result = collect(list(f1, f2))
+
+result[[1]]  # would contain result of f1
+
+</PRE>
+
+<!-- ## hmm... maybe parallelize SimAnneal this way??  ++ -->
+
+Linear Regression Model fitting, in series vs parallel <BR>
+https://ljdursi.github.io/beyond-single-core-R/#/32 and slide 33
+
+
+<PRE>
+
+fit1 =  lm(DISTANCE  ~ AIR_TIME,  data=jan2010))
+fit2 =  lm(ARR_DELAY ~ DEP_DELAY, data=jan2010))
+
+-vs-
+
+parfits = function() {
+     pfit1 = mcparallel(lm(DISTANCE  ~ AIR_TIME,  data=jan2010))
+     pfit2 = mcparallel(lm(ARR_DELAY ~ DEP_DELAY, data=jan2010))
+     mccollect( list(pfit1, pfit2) )
+}
+parfits()
+
+Note that mcollect asked for the tasks output to be combined into a list.
+Some data structure maybe needed to extract more complex model result??
+
+</PRE>
+
+<A HREF="https://blog.dominodatalab.com/multicore-data-science-r-python/">domino data lab</A> on caret/doMC 
+<BR>
+
+<PRE>
+
+library(doMC)
+library(caret) # popular ML using foreach to parallelize CV-folds, etc.
+	fit.lda.ser vs
+	fit.lda.par
+
+</PRE>
+
+
+
+<A NAME="cluster"></A>
+<H2>Parallelization in R using cluster functions </H2>
+
+makeCluster()  <BR>
+stopCluster()  <BR>
+doParallel()   <BR>
+registerDoSEQ() <BR>
+
+snow <BR>
+
+foreach <BR>
+%do% <BR>
+%dopar% <BR>
+
+<PRE>
+
+for is run for its side effect
+foreach returns result, side effects maybe gone (when using parallel backend).
+foreach should be tought of lapply, not for loop
+
+
+%do% is serial
+Parallel libs: doParallel, doMC, doMPI
+  cl = parallel::makeCluster(4)
+  cl = parallel::makeCluster(4, type = "FORK")   # unix fork(), default?
+  cl = parallel::makeCluster(4, type = "PSOCK")  # Posix Sockets creates a brand new session in R, nothing inherited from parent.  if do this, may as well use MPI cluster and really scale it.
+  cl = parallel::makeForkCluster(4)
+
+use registerDoSEQ() if want to force foreach to run in serial 
+
+much of the parallelization is done using fork() in unix (may not work in windows).
+Also, fork() allow access to vars/memory from parent, but result not returned at the end.
+Need to do some special collection/return if need to save those data.
+Thus, "side-effects" such as those produced by `for` vanishes in parallelization.
+
+SNOW - like PSOCK, entirely new process, so ned to explicitly copy data.  but process can be on remote machine.
+
+
+https://ljdursi.github.io/beyond-single-core-R/#/55
+clusterCall()
+clusterEvalQ() # easier to use for tasks
+
+</PRE>
+
+<A NAME="doParallel"></A>
+<H3>doParallel</H3>
+
+One way to do parallel processing in R
+
+<PRE>
+NumThread=15
+library(doParallel)
+cl = makeCluster( NumThread, outfile="mkcluster.out" )   ## create a cluster object
+registerDoParallel(cl)
+foreach(i=1:3) %dopar% sqrt(i)
+# the %dopar% says to run the foreach loop in parallel for each item
+# all console output inside cluster object will go to outfile 
+# there are eg combine=rbind to merge result
+stopCluster(cl)
+
+.combine=rbind # row-bind, ie, each result becomes a row
+.combine=cbind # col-bind, ie, each result becomes a col
+.combine=c     # c() ?
+
+
+detectCores() ## return number of cores on machine
+
+</PRE>
+
+Ref: 
+<UL>
+<LI><A HREF="https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf">CRAN doParallel</A></LI>
+
+<LI><A HREF="https://www.rdocumentation.org/packages/doParallel/versions/1.0.15/topics/registerDoParallel">R Doc on doParallel</A></LI>
+<LI><A HREF="https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html"> Quick Intro to Parallel Computing in R</LI>
+<LI><A HREF="https://ljdursi.github.io/beyond-single-core-R/#/">Beyond Single-Core R</A> (and github source at https://github.com/ljdursi/beyond-single-core-R</LI>
+<LI></LI>
+<LI></LI>
+</UL>
+
+<A NAME="Rdsm"></A>
+<H3>Rdsm</H3>
+https://ljdursi.github.io/beyond-single-core-R/#/139
+<PRE>
+library(parallel)
+library(Rdsm)
+
+nrows = 7
+cl = makePSOCKcluster(3)       # form 3-process PSOCK (share-nothing) cluster
+init = mgrinit(cl)             # initialize Rdsm
+mgrmakevar(cl,"m",nrows,nrows)  # make a 7x7 shared matrix
+bar = makebarr(cl)
+
+clusterEvalQ(cl,myid = myinfo$id)
+
+clusterExport(cl,c("nrows"))
+dmy = clusterEvalQ(cl,myidxs = getidxs(nrows))
+dmy = clusterEvalQ(cl, m[myidxs,1:nrows] = myid)
+dmy = clusterEvalQ(cl,"barr()")
+
+print(m[,])
+
+
+</PRE>
+
+
+<A NAME="Clustering_on_Clusters"></A>
+<H3>Clustering on Clusters</H3>
+
+https://ljdursi.github.io/beyond-single-core-R/#/57
+
+<PRE>
+ship data to other nodes of the cluster:
+cl = makeCluster(8)
+clusterExport(cl, "jan2010")
+cares = clusterApply(cl, rep(5,4), do.n.kmeans)
+stopCluster(cl)
+mcres = mclapply(rep(5,4), do.n.kmeans, mc.cores=4)
+
+</PRE>
+
+https://ljdursi.github.io/beyond-single-core-R/#/59
+<BR>
+
+<PRE>
+# Running across machines:
+# 2 machine, each with 8 core of process?
+
+hosts = c( rep("localhost",8), rep("192.168.0.10", 8) )
+cl = makePSOCKcluster(names=hosts)
+clusterCall(cl, rnorm, 5)
+clusterCall(cl, system, "hostname")
+stopCluster(cl)
+
+</PRE>
+<!-- ++ check for SimAnneal , but need to ship data to node ++ -->
+
+
+<A NAME="snow"></A>
+<H3>Snow</H3>
+
+https://ljdursi.github.io/beyond-single-core-R/#/61
+<BR>
+
+<PRE>
+scheduling
+viz of run
+
+library(snow,quiet=TRUE)
+
+do.kmeans.nclusters <- function(n) { kmeans(jan2010, centers=n, nstart=10) }
+
+cl = makeCluster(2)
+clusterExport(cl,"jan2010")
+
+tm = snow.time( clusterApply(cl, 1:6, do.kmeans.nclusters) )
+plot(tm)
+
+# load balance, below is more like mc.preschedule=FALSE, kicking off task to worker only when needed
+tm.lb = snow.time(clusterApplyLB(cl, 1:6, do.kmeans.nclusters))
+plot(tm.lb)
+
+</PRE>
+
+https://ljdursi.github.io/beyond-single-core-R/#/73 - Summary for parallel/snow
+
+<LI> clusterExport good for for SIMD
+<LI> clusterApplyLB good for MIMD
+<LI> mcparallel is best for MIMD?
+<LI> parLapply
+<LI> makePSOCKcluster for small cluster
+<LI> makeMPIcluster for larger cluster -- but read up on pbdR first
+<LI> pdbR      -- https://ljdursi.github.io/beyond-single-core-R/#/143
+<LI> pdb*apply -- https://ljdursi.github.io/beyond-single-core-R/#/152
+<LI> using pdbR -- bring hpc distributed memory processing (SPMD) to R, see section 3.1.2 of <A HREF="https://htmlpreview.github.io/?https://github.com/berkeley-scf/tutorial-parallel-distributed/blob/master/parallel-dist.html">CPaciorek's Parallel Processing for Distributed Computing</A>
+<LI>
+<LI>
+
+https://ljdursi.github.io/beyond-single-core-R/#/83
+
+<PRE>
+foreach parallel
+.multicombine=TRUE
+
+%:% nest foreach object # slide 84
+
+
+</PRE>
+
+
+MPI cluster 
+
+<PRE>
+https://ljdursi.github.io/beyond-single-core-R/#/149
+
+init()
+rank = comm.rank()
+...
+allreduce(length(dta), op="sum")
+comm.print(data.min)
+
+finalize()
+</PRE>
+
+
+
+<A NAME="Nested Parallel"></A>
+<H3>nestedParallel</H3>
+
+https://stackoverflow.com/questions/21306027/nesting-parallel-functions-in-r
+
+<PRE>
+
+cl = makeCluster(2, type = "SOCK")
+clusterCall(cl, function() {
+  library(doSNOW)
+  registerDoSNOW(makeCluster(2, type = "SOCK"))
+  NULL
+})
+registerDoSNOW(cl)
+
+</PRE>
+
+
+<BR>
 <BR>
 
 
+<!--  ----------------------------------------------------------------------  -->
 <!--  ----------------------------------------------------------------------  -->
 <!--  ----------------------------------------------------------------------  -->
 <!--  ----------------------------------------------------------------------  -->
@@ -829,10 +1282,10 @@ registerDoParallel
 <BR><HR>
 <div align="CENTER">
   [Doc URL: <A HREF="http://tin6150.github.io/psg/R.html">
-http://tin6150.github.io/psg/R.html
-</A>] <BR>
-Last Updated: 2008-03-22
-  <!--[Doc URL: <A HREF="http://psg.ask-margo.com/">http://psg.ask-margo.com/</A>] <BR>-->
+http://tin6150.github.io/psg/R.html</A>] <BR>
+  [Doc URL: <A HREF="http://tin6150.gitlab.io/psg/R.html">
+http://tin6150.gitlab.io/psg/R.html</A>] <BR>
+Last Updated: 2020-10-28
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>
@@ -843,12 +1296,14 @@ Last Updated: 2008-03-22
 <div class="sig"><BR>
   psg101 sn50 tin6150<BR>
   hoti1<BR>
+  nSarCoV2<BR>
   bofh1</div>
-
 
 </body>
 
 <!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
 
 
+<!-- vim: paste tabstop=8 
+-->
 </html>

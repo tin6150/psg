@@ -75,51 +75,51 @@ run_git_clone()
 
 	cd $MyGitDir
 
-	git clone https://tin6150@github.com/tin6150/psg
+	#git clone https://tin6150@github.com/tin6150/psg
 	echo "may need password..."
 
-	git clone https://tin6150@github.com/tin6150/bofhbot
+	#git clone https://tin6150@github.com/tin6150/bofhbot
 
-	git clone https://tin6150@github.com/tin6150/singularity
+	#git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
-	git clone https://tin6150@github.com/tin6150/inet-dev-class
-	git clone https://tin6150@github.com/tin6150/smelly.git
-	git clone https://tin6150@github.com/tin6150/adjoin
-	git clone https://tin6150@github.com/tin6150/covid19_care_capacity_map
-	git clone https://tin6150@github.com/tin6150/a51		# private repo, encrypted content.  formerly area51
+	#git clone https://tin6150@github.com/tin6150/inet-dev-class
+	#git clone https://tin6150@github.com/tin6150/smelly.git
+	#git clone https://tin6150@github.com/tin6150/adjoin
+	#git clone https://tin6150@github.com/tin6150/covid19_care_capacity_map
+	#git clone https://tin6150@github.com/tin6150/a51		# private repo, encrypted content.  formerly area51
 
 	### VMware tools as ansible role fork (so as not get updte unless manually checked)
 	### actually trying to do subtree merging under CF_BK/Ansible/roles
 	### git clone https://github.com/tin6150/ansible-role-vmwaretools
 
 	### old projects
-	git clone https://tin6150@github.com/tin6150/db4cpa
-	git clone https://tin6150@github.com/tin6150/taxonomy_reporter
-	git clone https://tin6150@github.com/tin6150/pyspark
-	git clone https://tin6150@github.com/tin6150/taxo-spark
+	#git clone https://tin6150@github.com/tin6150/db4cpa
+	#git clone https://tin6150@github.com/tin6150/taxonomy_reporter
+	#git clone https://tin6150@github.com/tin6150/pyspark
+	#git clone https://tin6150@github.com/tin6150/taxo-spark
 
 	### singularity container dev or not posting to singularity-hub.org  (the one script install of singularity is in here)
-	git clone https://tin6150@github.com/tin6150/singhub      
+	#git clone https://tin6150@github.com/tin6150/singhub      
 
 	### contributed to singularityware web doc
 	git clone https://tin6150@github.com/tin6150/singularityware.github.io
 
 	### singularity-hub container definitions
-	git clone https://tin6150@github.com/tin6150/circos.git
-	git clone https://tin6150@github.com/tin6150/knime
+	#git clone https://tin6150@github.com/tin6150/circos.git
+	#git clone https://tin6150@github.com/tin6150/knime
 	git clone https://tin6150@github.com/tin6150/dell_idracadm
-	git clone https://tin6150@github.com/tin6150/biolab-orange/
+	#git clone https://tin6150@github.com/tin6150/biolab-orange/
 	git clone https://tin6150@github.com/tin6150/perf_tools
-	git clone https://tin6150@github.com/tin6150/cuda
-	git clone https://tin6150@github.com/tin6150/boinc-client.git
+	#git clone https://tin6150@github.com/tin6150/cuda
+	#git clone https://tin6150@github.com/tin6150/boinc-client.git
 	git clone https://tin6150@github.com/tin6150/cvs.git
-	git clone https://tin6150@github.com/tin6150/PGI-Singularity.git  # fork from Ryan, pgi compiler, netcdf lib
+	#git clone https://tin6150@github.com/tin6150/PGI-Singularity.git  # fork from Ryan, pgi compiler, netcdf lib
 
     ###########################################
 	#### private github repo ####
     ###########################################
 	#git clone https://tin6150@github.com/tin6150/cmaq-old # i created this and had copy of pre git-repo cmaq eg 4.5.1 but stopping development on that for now
-	git clone https://tin6150@github.com/tin6150/CMAQ.git # fork, using 5.2.1  Note it is ALL CAPS  (on bofh used lower case, it worked, but renamed it)
+	#git clone https://tin6150@github.com/tin6150/CMAQ.git # fork, using 5.2.1  Note it is ALL CAPS  (on bofh used lower case, it worked, but renamed it)
 
     ###########################################
 	### greta, formerly owned by greta-d, i became co-owner now ####
@@ -137,7 +137,7 @@ run_git_clone()
 	#-git clone https://tin6150@github.com/greta-sw/data-analysis
 	#-git clone https://tin6150@github.com/greta-sw/fpga
 	#-git clone https://tin6150@github.com/greta-sw/slow-control
-	git clone https://tin6150@github.com/greta-sw/config
+	#git clone https://tin6150@github.com/greta-sw/config
 
     #############################################
     #### stuff I forked, play/learn with,    ####
@@ -145,20 +145,20 @@ run_git_clone()
     #############################################
 
 	### boston housing price ML 
-	git clone https://tin6150@github.com/tin6150/machine-learning-nanodegree.git
+	#git clone https://tin6150@github.com/tin6150/machine-learning-nanodegree.git
 	### mapbox plugin, trying to get it to work on my map (ZWEDC collab with ETA)
 	### also avail as https://tin6150.github.io/mapbox-gl-controls
-	git clone https://github.com/tin6150/mapbox-gl-controls
+	#git clone https://github.com/tin6150/mapbox-gl-controls
 
 	### reading csv in javascript, D3js didnt work for me, so hoping this would.  but may need older release to find out what broke the example...
-	git clone https://github.com/tin6150/jquery-csv.git
+	#git clone https://github.com/tin6150/jquery-csv.git
 	
         ##############################
         #### tin6150@github gist  ####
         ##############################
 
-        git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
-		git clone https://gist.github.com/tin6150/a9041b900d3803d6d5f012af93704dbf.git # netapp_svm_root_vol_data_protection.txt # axiom
+        #git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
+	#	git clone https://gist.github.com/tin6150/a9041b900d3803d6d5f012af93704dbf.git # netapp_svm_root_vol_data_protection.txt # axiom
 
 
 
@@ -171,8 +171,8 @@ run_git_clone()
 	# cd ..
 	git clone https://tin6150@bitbucket.org/tin6150/blpriv
 	echo "may ask for password..."
-	git clone https://tin6150@bitbucket.org/tin6150/spark
-	git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
+	#git clone https://tin6150@bitbucket.org/tin6150/spark
+	#git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
 
 
 	###########################
@@ -181,10 +181,10 @@ run_git_clone()
 
 	# run from a parent dir eg ~/tin-bbb 
 	# cd ..
-	git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
-	git clone https://sn5050@bitbucket.org/berkeleylab/unified-vnfs.git
+	#git clone https://sn5050@bitbucket.org/sn5050/ansible-dev
+	#git clone https://sn5050@bitbucket.org/berkeleylab/unified-vnfs.git
 	#git clone https://sn5050@bitbucket.org/gimpbully/scg-ansible.git # ro, tmp?
-	git clone https://sn5050@bitbucket.org/berkeleylab/scg-ansible.git # probably rw now under bl
+	#git clone https://sn5050@bitbucket.org/berkeleylab/scg-ansible.git # probably rw now under bl
 
 	## biositting tool, collab with ETA Ling Jin, Tyler Huntington
 	# 1.1 GB repo , maybe data deleted.  
@@ -199,8 +199,8 @@ run_git_clone()
 	##########################
 	# git clone git@hpcs-cf.lbl.gov:/remote/ansible.git 
 	#cd ~/tin-gh; ssh-agent bash -c 'ssh-add ~/.ssh/id_rsa ; git clone git@hpcs-cf.lbl.gov:/remote/ansible.git' # this prompt for ssh-key pw then git@hpcs-cf pw :(
-	cd ~/tin-gh; ssh-agent bash -c 'ssh-add ~/.ssh/id_dsa ; git clone git@hpcs-cf.lbl.gov:/remote/ansible.git'
-	cd ~/tin-gh/ansible ; ssh-agent bash -c 'ssh-add ~/.ssh/id_dsa ; git pull' # somehow n0013.ares git 1.7 need this method
+	#cd ~/tin-gh; ssh-agent bash -c 'ssh-add ~/.ssh/id_dsa ; git clone git@hpcs-cf.lbl.gov:/remote/ansible.git'
+	#cd ~/tin-gh/ansible ; ssh-agent bash -c 'ssh-add ~/.ssh/id_dsa ; git pull' # somehow n0013.ares git 1.7 need this method
 
 
 	#  cuda is dup, can be ignored
@@ -213,13 +213,13 @@ run_git_clone()
 	#### especially with this centralized git clone file
 	#################################################################
 
-	git clone https://github.com/PySlurm/pyslurm.git # python interface for slurm...  not sure if can get sinfo...
+	#git clone https://github.com/PySlurm/pyslurm.git # python interface for slurm...  not sure if can get sinfo...
 
 	#git clone git://github.com/jonas/tig.git	# https://www.tecmint.com/tig-a-commandline-browser-for-git-repositories/ # in apt-get
-	git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
+	#git clone https://github.com/dlab-berkeley/machine-learning-in-R   # d-lab ML in R
 	# git clone https://github.com/mapbox/mapbox-sdk-py.git		   # mapbox uploader, just cuz i need to search for things inside it
 
-	git clone https://github.com/dlab-berkeley/introduction-to-pandas.git # d-lab Intro to Pandas
+	#git clone https://github.com/dlab-berkeley/introduction-to-pandas.git # d-lab Intro to Pandas
 
 	################################################
 	#### gitlab instead of github or bitbucket  ####
@@ -236,13 +236,13 @@ run_git_clone()
 	#-git clone https://lbl-eta@github.com/lbl-eta/smelly.git
 
 	## actually created an org lbnl-scienceit and placing smelly under it
-	[[ -d $MyGitDir/lbnl-scienceit ]] || mkdir $MyGitDir/lbnl-scienceit
-	cd $MyGitDir/lbnl-scienceit
-	git clone https://tin6150@github.com/lbnl-scienceit/smelly.git
+	#[[ -d $MyGitDir/lbnl-scienceit ]] || mkdir $MyGitDir/lbnl-scienceit
+	#cd $MyGitDir/lbnl-scienceit
+	#git clone https://tin6150@github.com/lbnl-scienceit/smelly.git
 	
-	[[ -d $MyGitDir/nick ]] || mkdir $MyGitDir/nick
-	cd $MyGitDir/nick
-	git clone https://github.com/nicolaschan/bofhbot.git
+	#[[ -d $MyGitDir/nick ]] || mkdir $MyGitDir/nick
+	#cd $MyGitDir/nick
+	#git clone https://github.com/nicolaschan/bofhbot.git
 
 
 
@@ -345,6 +345,7 @@ macOS_setup()
 
 	## analyze, but okay to try on new laptop :):
 	## My dotfiles are also installed into the current user's home directory, including the .osx dotfile for configuring many aspects of macOS for better performance and ease of use. You can disable dotfiles management by setting configure_dotfiles: no in your configuration.
+
 
 }
 
