@@ -718,6 +718,23 @@ To set LAN mode failover:       ipmitool raw 0x30 0x70 0x0c 1 2        # default
 </PRE>
 
 
+<H5> Asus Raw </H5>
+
+<PRE>
+use this carefully
+this was for a ESC 4000 2U GPU node
+reset bmc to be programmed via cli ipmitool.
+changing that thing on the bios is weird.
+
+
+asus in general just use channel 8.
+But for that one machine had to issue this raw ipmi command to get things reset/fixed:
+
+ipmitool raw 0x32 0x71 0x00 0x01 0x01 # set ipmi/bmc to use shared nic
+ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed for channel 8
+
+
+
 <H5>Ref</H5>
 
 <A HREF="https://www.intel.com/content/dam/support/us/en/documents/network/omni-adptr/sb/Intel_OP_Performance_Tuning_UG_H93143_v1_0.pdf">Intel E5 v3 (Hashwell) bios param tuning for Fabric</A>(Omnipath, Infiniband).
