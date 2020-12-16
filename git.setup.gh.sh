@@ -67,6 +67,8 @@ git config --global core.autocrlf false          # auto CR/LF conversion, if not
 
 #cd ..
 
+## these are the "core" repos, 
+## ie many have sym links created in home dir for easy navigation
 run_git_clone_core() 
 {
 
@@ -78,6 +80,7 @@ run_git_clone_core()
 
 	#git clone https://tin6150@github.com/tin6150/psg
 	echo "may need password..."
+	git clone https://tin6150@github.com/tin6150/bofhbot
 
 
 	############################
@@ -104,7 +107,6 @@ run_git_clone_extended()
 	#git clone https://tin6150@github.com/tin6150/psg
 	echo "may need password..."
 
-	#git clone https://tin6150@github.com/tin6150/bofhbot
 
 	#git clone https://tin6150@github.com/tin6150/singularity
 	### many random programming bits, eg knime, dataTables/panda, jQuery, mpi, etc
