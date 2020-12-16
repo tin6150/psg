@@ -1486,9 +1486,7 @@ iostat -x -k 1
 
 <LI><A HREF="https://www.percona.com/blog/2011/06/09/aligning-io-on-a-hard-disk-raid-the-theory/">Percona alignment theory</A>
 <LI><A HREF="https://sysadmincasts.com/episodes/27-lvm-linear-vs-striped-logical-volumes">SysAdmin Cast linear vs stripped LVM</A> (but not sure if it is necessary or modern lvm takes care of it automatically?)
-<LI><A HREF="http://www.beowulf.org/pipermail/beowulf/2010-January/027256.html">hardware RAID versus mdadm versus LVM-striping</A> (summary: sw raid tends to be more flexible and easier for most sys admin to manage.  hw raid offload load and let cpu do other work.  hybrid hw + sw may give convinient large fs, but then painful in recovery situations.
 <BR>
-More and more, driving me to like ZFS so that there is a single pane of config, management and recovery....
 
 
 
@@ -1613,16 +1611,115 @@ http://www.redhat.com/magazine/009jul05/features/lvm2/</A>
 
 <H2>Software Mirror Boot and/or OS volume</H2>
 
-There are several ways to setup software mirror for the OS volume and/or the /boot volume.
-All have their pain point and their advantages.  pick your own poison :)
+There are several ways to setup software mirror for the OS volume (eg /)  and/or the /boot volume.
+<BR>
+For simple server just needing mirror across two disks, best to let installer do the mirror during initial setup.  Then the fact that it is not using RAID controller is largely transparent in daily sys admin task.  Maybe RAID controller is warranted only when doing storage server with many disks, but then ZFS maybe a better choice there.   RAID is also useful  if want to keep CPU free.  
 
+
+Also see discussion in 
+<A HREF="http://www.beowulf.org/pipermail/beowulf/2010-January/027256.html">hardware RAID versus mdadm versus LVM-striping</A> 
+<BR>
+summary: <BR>
+<LI> sw raid tends to be more flexible and easier for most sys admin to manage.  
+<LI> hw raid offload load and let cpu do other work.  
+<LI> hybrid hw + sw may give convinient large fs, but then painful in recovery situations.  should avoid.
+<BR>
+<BR>
+
+
+
+<H5>Installer setup mdadm mirror for /boot FS and LVM volume for OS FS</H5>
+
+This is the easiest method, use when setting the machine from scratch 
+using the RedHat installer (anaconda).
+<BR>
+See 
+<A HREF="https://www.tuxfixer.com/centos-7-installation-with-lvm-raid-1-mirroring/">
+CentOS 7 Installation with LVM RAID 1 – Mirroring</A> by tuxfixer, with screenshots of interactive GUI install.
+<BR>
+or
+<A HREF="https://access.redhat.com/solutions/4361">How to create LVM on Software RAID (mirroring) during installation of Red Hat Enterprise Linux using kickstart file?</A>(RedHat, login req)
+
+<BR><BR>
+
+Overall, installer wiil:
+
+<OL>
+<LI> select two disks for mirror during disk selection step of install process.
+<LI> /boot is setup as RAID device (mdadm)
+<LI> swap is a LVM volume group of RAID 1 - create new "centos" VG -- LV is centos-swap
+<LI> /    is a LVM volume group of RAID 1 - re-utilize "centos" VG -- LV is centos-root
+</OL>
+<BR>
+
+OS update don't need special steps.  /boot is mirrored constantly by mdadm.  <BR>
+Check on grub.conf though. <BR>
+So other than initial setup, normal operation is oblivious whether a HW RAID controller doing the mirror or SW mdadm.
+Disk recovery would be different, and some pre-emptive health check using smartctl, lmsensors and disk scrubbing.
+<BR>
+<BR>
+<!-- i am liking this, maybe better than dealing with the LSI or Dell Perc raid controller, but this tax the CPU rather than offload to a RAID card -->
+
+Verify mirror setup after machine is build:
+
+<PRE>
+cat /proc/mdstat 	# should see two mdNNN device
+blkid | grep boot 	# see 2 /dev/sd* disk and 1 /dev/mdNNN mdadm dev
+pvdisplay		# see single PV on the /dev/mdNN  mdadm dev, so LVM don't need to know about mirroring.
+vgdisplay		# see single VG called "centos"
+lvdisplay  		# see typical LV setup for a RHEL machine.  again, these don't know they are mirrored by mdadm
+
+</PRE>
+
+
+<H5>mdadm mirror whole disk - manual config after OS had been setup </H5>
+
+See 
+<A HREF="https://access.redhat.com/solutions/2390831">
+How do I convert my root disk to RAID1 after installation of Red Hat Enterprise Linux 7?</A>
+(redhat, login req) <BR>
+
+The target result is essentially same as above done by the anaconda installer.
+However, since exinsting partition/volume/fs exist, some data movement dance is required, thus taking many tedious steps to do.
+
+<EM>Characterisitcs</EM>
+
+<OL>
+<LI> This method use mdadm and mirror the whole disk (actually, multiple partitions on each disk that are raid devices)
+<LI> quite a number of steps, to be done after initial OS is setup
+<LI> mdadm mirror for /boot using /dev/md* device
+<LI> Then run LVM on top of the /dev/md* mirrored disk.  so LVM doesn't know that it is mirrored.  /boot and whatever volume that is placed inside the LVM get the underlaying mirroring done transparently.
+<LI> still need to update grub manually
+</OL>
+
+
+<EM>Commands</EM>
+
+<PRE>
+mdadm --create /dev/md0 --level=1 --raid-disks=2 missing /dev/sdb1 --metadata=1.0
+...
+pvmove /dev/sda2 /dev/md1   # move VG from regular disk to md device (mirrored)
+...
+dracut -f --mdadmconf
+</PRE>
+
+<BR>
+<BR>
+<BR>
 
 <H5>LVM mirror only OS volume(s)</H5>
 
 See
 <A HREF="https://access.redhat.com/solutions/1324843">
 How do I convert my LVM root disk to LVM mirror after installation of Red Hat Enterprise Linux 7?</A>
+(redhat, login required) <BR>
 
+The mdadm methods above are likely better.
+But this does not need to use mdadm if doesn't want to deal with that.  But leave /boot non mirrored and need manual sync
+each time there is an update.  <BR>
+Also, if doing mirror after OS has been setup, LVM-only approach req less acrobatic on the existing data thus a bit easier to carry out.
+
+<BR>
 <BR>
 <BR>
 
@@ -1673,44 +1770,15 @@ dmsetup table
 work be for RHEL7
 </PRE>
 
+<H5>convert single disk EFI boot to sw raid AFTER OS install</H5>
 
-<H5>mdadm for /boot, PV mirror for OS volume(s)</H5>
+If using EFI, may have to check into this:
+< A HREF="https://access.redhat.com/solutions/4194011">How to convert single disk EFI boot to software RAID after installation
+</A> (redhat "solution in progress").
 
-Easiest doen with modern anaconda installer, select both disks during setup.
-See 
-<A HREF="https://www.tuxfixer.com/centos-7-installation-with-lvm-raid-1-mirroring/">
-CentOS 7 Installation with LVM RAID 1 – Mirroring</A>
-
-
-<H5>mdadm mirror whole disk</H5>
-
-
-<OL>
-<LI> This method use mdadm and mirror the whole disk (?)
-<LI> quite a number of steps, to be done after initial OS is setup
-<LI> mdadm mirror for /boot using /dev/md* device
-<LI> Then run LVM on top of the /dev/md* mirrored disk?  so LVM doesn't know that it is mirrored.  /boot and whatever volume that is placed inside the LVM get the underlaying mirroring done transparently.
-<LI> still need to update grub manually
-</OL>
-
-See 
-<A HREF="https://access.redhat.com/solutions/2390831">
-How do I convert my root disk to RAID1 after installation of Red Hat Enterprise Linux 7?</A>
-
-
-<EM>Commands</EM>
-
-<PRE>
-mdadm --create /dev/md0 --level=1 --raid-disks=2 missing /dev/sdb1 --metadata=1.0
-...
-pvmove /dev/sda2 /dev/md1   # move VG from regular disk to md device (mirrored)
-...
-dracut -f --mdadmconf
-</PRE>
 
 <BR>
-<BR>
-<BR>
+
 
 
 <H1>File System Related Command</H1>
@@ -1746,6 +1814,7 @@ du -kl		= local disk in solaris?
 df -kl 		= report fs space usage of local fs, solaris and linux
 
 </PRE>
+
 
 <A NAME="undelete"></A>
 <A NAME="undelete_xfs"></A>

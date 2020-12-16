@@ -533,7 +533,7 @@ for things that use IB directly like MPICH...  don't know....).
 
 <PRE>
 
-mst start
+/usr/bin/mst start
 mst status
 
 mlxvpd    -d /dev/mst/mt4119_pciconf0 	# show nic model part number, serial
@@ -541,7 +541,28 @@ mlxuptime -d /dev/mst/mt4119_pciconf0	# show dev cpu freq and uptime
 
 ibv_devinfo	# find firmware version
 
+/sbin/lspci -d 15b3:		# list only mellanox devices, get device id for use with mstflint
+
+mstflint -hh # detail help on burning firmware on mellanox device
+
+sudo /usr/bin/mstflint --device af:00.0 query 
+sudo /usr/bin/mstflint -d       af:00.0 q     full  # full query, but still no OPN info
+
+
+## burn .bin firmware (not .zip).  -ir burn does some image reactivation prior burning, which was what the example shows.
+sudo /usr/bin/mstflint --device af:00.0 --image fw-ConnectX5-rel-16_27_2008-MCX555A-ECA_Ax-UEFI-14.20.22-FlexBoot-3.5.901.bin -ir burn 
+## but that --ir thing wasn't accepted, so skiped, and end up doing:
+sudo /usr/bin/mstflint --device af:00.0 --image fw-ConnectX5-rel-16_28_2006-MCX555A-ECA_Ax_Bx-UEFI-14.21.17-FlexBoot-3.6.102.bin  burn 
+
+
+# can't verify again after firmware upgrade, unless do a reload of the module first.  easier to just reboot.
+sudo /usr/bin/mstflint --device af:00.0 verify
+
+
 </PRE>
+
+ref:
+<LI> <A HREF="https://www.mellanox.com/related-docs/firmware/mstflint_README.txt">mstflint</A> doc from mellanox.
 
 
 <A ID="ib2eth"></A>

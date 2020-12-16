@@ -67,7 +67,33 @@ git config --global core.autocrlf false          # auto CR/LF conversion, if not
 
 #cd ..
 
-run_git_clone() 
+run_git_clone_core() 
+{
+
+	########################
+	#### tin6150 github ####
+	########################
+
+	cd $MyGitDir
+
+	#git clone https://tin6150@github.com/tin6150/psg
+	echo "may need password..."
+
+
+	############################
+	#### formerly in tin-bb ####
+	############################
+
+	#~~ cd ~/tin-gh
+	echo "may ask for password..."
+	echo git clone https://tin6150@bitbucket.org/tin6150/blpriv
+	#git clone https://tin6150@bitbucket.org/tin6150/spark
+	#git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
+
+
+}
+
+run_git_clone_extended() 
 {
 	########################
 	#### tin6150 github ####
@@ -153,26 +179,14 @@ run_git_clone()
 	### reading csv in javascript, D3js didnt work for me, so hoping this would.  but may need older release to find out what broke the example...
 	#git clone https://github.com/tin6150/jquery-csv.git
 	
-        ##############################
-        #### tin6150@github gist  ####
-        ##############################
+	##############################
+	#### tin6150@github gist  ####
+	##############################
 
-        #git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
+	#git clone https://gist.github.com/e271e5d3bef6d93ebc6817170ddd2456.git # census2mapbox.rst
 	#	git clone https://gist.github.com/tin6150/a9041b900d3803d6d5f012af93704dbf.git # netapp_svm_root_vol_data_protection.txt # axiom
 
 
-
-
-	############################
-	#### formerly in tin-bb ####
-	############################
-
-	# run from a parent dir eg ~/tin-bb 
-	# cd ..
-	git clone https://tin6150@bitbucket.org/tin6150/blpriv
-	echo "may ask for password..."
-	#git clone https://tin6150@bitbucket.org/tin6150/spark
-	#git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
 
 
 	###########################
@@ -361,7 +375,8 @@ npm_package_install()
 
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
-run_git_clone
+run_git_clone_core
+#+run_git_clone_extended
 create_links
 #npm_package_install
 
