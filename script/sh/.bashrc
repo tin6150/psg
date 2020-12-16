@@ -1,8 +1,10 @@
 ## .bashrc ##
 
-SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
-SSH_AGENT_PID=22624; export SSH_AGENT_PID;
-echo Agent pid 22624;
+<<<<<<< HEAD
+## 2020.0917 t55
+SSH_AUTH_SOCK=/tmp/ssh-Kh0CqZjDV50Z/agent.126; export SSH_AUTH_SOCK;
+SSH_AGENT_PID=127; export SSH_AGENT_PID;
+echo Agent pid 127;
 
 ##
 ##  it seems that .bashrc is NOT sourced when doing sudo su - username

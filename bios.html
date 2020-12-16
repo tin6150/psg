@@ -765,6 +765,29 @@ Additional SMC IPMI raw commands in their
 <A HREF="https://www.supermicro.com/support/faqs/faq.cfm?faq=15868">support faq 15868</A>.
 It is from 2003, and both X8 and X9, AMI or ATEN BIOS, seems to take the same set of commands.
 
+<<<<<<< HEAD
+<H5> Asus Raw </H5>
+
+<PRE>
+use this carefully
+this was for a ESC 4000 2U GPU node
+reset bmc to be programmed via cli ipmitool.
+changing that thing on the bios is weird.
+
+
+asus in general just use channel 8.
+But for that one machine had to issue this raw ipmi command to get things reset/fixed:
+
+ipmitool raw 0x32 0x71 0x00 0x01 0x01 # set ipmi/bmc to use shared nic
+ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed for channel 8
+
+
+
+<H5>Ref</H5>
+||||||| merged common ancestors
+<H5>Ref</H5>
+=======
+>>>>>>> 67aee15baaebb93d8b8ab79554c95432753882c4
 
 <!-- these should move to ipmi.html -->
 <H5>Asus IPMI raw</H5>
