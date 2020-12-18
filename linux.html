@@ -2706,10 +2706,13 @@ append to boot argument to kernel: nouveau.modeset=0 		# this worked on exalearn
  
 <PRE>
 edit /etc/default/grub :: 
-GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  		
+GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  		# **ml4hep1 2020.1215**
 append to boot argument to kernel: nouveau.modeset=0 				# this worked on exalearn 2018.11
 (remove rhgb quiet for verbose text boot)
 grub2-mkconfig -o /boot/grub2/grub.cfg      # BIOS mode, UEFI need a diff config
+
+check with lsmod | grep nouveau
+cat /proc/cmdline
 
 
 sudo update-grub
