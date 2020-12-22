@@ -1,7 +1,7 @@
 ## .bashrc ##
 
-## 2020.0917 t55
-#SSH_AUTH_SOCK=/tmp/ssh-Kh0CqZjDV50Z/agent.126; export SSH_AUTH_SOCK;
+## 2020.1217 bofh
+SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
 #SSH_AGENT_PID=127; export SSH_AGENT_PID;
 #echo Agent pid 127;
 
