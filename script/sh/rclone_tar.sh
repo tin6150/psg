@@ -11,8 +11,9 @@
 ## but is NOT doing rotation in the sense move renaming old backup or removing them if they are more than 7 days old.
 
 ## Tin 2020.12.03, add:
-
 ## check for rcat status, if get error cuz hit g-drive daily limit, sleep and wait and loop
+## Tin 2020.12.23, add:
+## only retry on exit 403 which is rate exceeded, move on for other exit code
 
 
 
@@ -25,11 +26,11 @@
 
 # LOCAL_BACKUP_LIST="/dbbackup/mysql_backups"  # beagle - rclone in cron.daily
 # /etc /srv are annoying as they create too many little files, so left that to the 7-day rotation script
-LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
+#++LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
 
 ###LOCAL_BACKUP_LIST="/etc /global/home "  # hima, these should be in crypt-hpcs-backup
 #++LOCAL_BACKUP_LIST="/etc /global/home /global/data/buddha /global/data/ccosemis /global/data/ccosemis-off /global/data/goddess /global/data/gpanda /global/data/home-gpanda /global/data/mariah /global/data/mariahdata /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup"  # hima
-#~~LOCAL_BACKUP_LIST="/global/data/gpanda /global/data/home-gpanda /global/data/mariah /global/data/mariahdata /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup     /etc /global/home /global/data/buddha /global/data/ccosemis /global/data/ccosemis-off /global/data/goddess"  # hima (alt ordering)
+LOCAL_BACKUP_LIST="/global/data/gpanda /global/data/home-gpanda /global/data/mariah /global/data/mariahdata /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup     /etc /global/home /global/data/buddha /global/data/ccosemis /global/data/ccosemis-off /global/data/goddess"  # hima (alt ordering)
 
 ##  a tar will be created, so it will be big.  but many many of those /global/data better off not encrypted
 ## the list is from /etc/fstab
@@ -50,8 +51,8 @@ PidFile="/var/lock/$PROG"
 
 
 REMOTE_NAME_NoCrypt="hpcs-backup"   # for logs only
-#REMOTE_NAME="hpcs-backup"          # for machines not wanting encryption, eg hima
-REMOTE_NAME="crypt-hpcs-backup"
+REMOTE_NAME="hpcs-backup"          # for machines not wanting encryption, eg hima
+#++REMOTE_NAME="crypt-hpcs-backup"
 ROOT_FOLDER="/"						# config file store in "/rclone-crypt" folder
 
 TRANSFER_COUNT=16
@@ -71,7 +72,7 @@ else
 fi
 
 #-- TMP manual modifier  ++ CHANGE_ME ++
-#-- Mod=2020dec
+Mod=2020dec23
 
 # tar this way seems to exclude .snapshot already, but better be safe.
 #TarExclude="--exclude='.snapshot'"
@@ -103,10 +104,14 @@ run_rclone_push() {
 				echo "running... cd $LOCAL_BACKUP; tar cfz - $TarExclude -- $SUB_ITEM_ENTRY | $RCLONE rcat ${REMOTE_NAME}:${ROOT_FOLDER}/$Mod/${BACKUPNAME}/${SUB_ITEM_ENTRY}.tgz"
 				cd $LOCAL_BACKUP; tar cfz - $TarExclude -- $SUB_ITEM_ENTRY | $RCLONE rcat ${REMOTE_NAME}:${ROOT_FOLDER}/$Mod/${BACKUPNAME}/${SUB_ITEM_ENTRY}.tgz
 				EXIT_CODE=$?
-				if [[ EXIT_CODE -ne 0 ]]; then
-					echo "Non 0 EXIT_CODE ($EXIT_CODE), sleeping $RetryWait before retry"
+				if [[ EXIT_CODE -eq 403 ]]; then
+					# 403 is rate limit exceeded, so worth retrying
+					echo "Non 0 EXIT_CODE ($EXIT_CODE), sleeping $RetryWait before retry -- $(date)"
 					sleep $RetryWait
 					TRIAL=$((TRIAL + 1))
+				elif [[ EXIT_CODE -ne 0 ]]; then
+					echo "Non 0 EXIT_CODE ($EXIT_CODE), but not retrying -- $(date)"
+					TRIAL=${MaxTry} # set to last trial so that it would exit while loop and onto next item
 				fi
 			done
 
@@ -152,5 +157,24 @@ else
 fi
 
 
+exit
+
+
+##
+## rclone exit code
+## 
+
+## these can sleep and retry:
+##2020/12/14 20:21:17 Failed to rcat: googleapi: Error 403: User rate limit exceeded., userRateLimitExceeded
+
+
+
+## these need to move on instead of keep retrying:
+## running... cd /global/data/gpanda; tar cfz - --exclude='.snapshot' --exclude='.cache' --exclude 'SCRATCH' -- ljin | /bin/rclone -v --transfers=16 --checkers=16 rcat hpcs-backup://2020dec11/_global_data_gpanda/ljin.tgz
+## 2020/12/22 18:29:19 Failed to rcat: googleapi: Error 413: Request Too Large, uploadTooLarge
+
+
+
 
 ## vim: tabstop=4 paste background=dark noexpandtab
+
