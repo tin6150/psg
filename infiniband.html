@@ -539,6 +539,8 @@ mst status
 mlxvpd    -d /dev/mst/mt4119_pciconf0 	# show nic model part number, serial
 mlxuptime -d /dev/mst/mt4119_pciconf0	# show dev cpu freq and uptime
 
+
+
 ibv_devinfo	# find firmware version
 
 /sbin/lspci -d 15b3:		# list only mellanox devices, get device id for use with mstflint
@@ -558,6 +560,28 @@ sudo /usr/bin/mstflint --device af:00.0 --image fw-ConnectX5-rel-16_28_2006-MCX5
 # can't verify again after firmware upgrade, unless do a reload of the module first.  easier to just reboot.
 sudo /usr/bin/mstflint --device af:00.0 verify
 
+
+# to check for cable problem, connectivity with switch:
+lspci | grep Mellano # to get pci device number
+mlxlink -d af:00.0 -m -e -c --show_fec
+mlxlink -d af:00.0 --speeds 10G,25G,50G,100G
+
+mlxlink -d af:00.0 -a TG # Toggle link up and down (to reset speed)
+
+# find cable type via Part Number:
+mlxlink -d af:00.0 -m  | grep Part
+	Vendor Part Number  : MCP1600-C002	# EDR QSFP28 DAC ## n0002sav3 no FDR, only SDR (CX-5 HBA, FDR switch)
+	Vendor Part Number  : MCP1600-E002E30	# EDR QSFP+  DAC ## n0004sav3 works as FDR (CX5 HBA, FDR switch)
+	Vendor Part Number  : MC2207130-002	# FDR QSFP+  DAC VPI 56 Gbps IB/40 Gbps Eth ## n0150sav3 
+
+the C0002 version is an ethernet cable, in IB it will negotiate to 10Gb (or 100Gb, but NOT 56Gb).
+the E002E30 version is IB and can negotiate down to 56Gb and run at FDR rate!
+part matter!!
+
+ref: 
+https://www.mellanox.com/related-docs/prod_cables/PB_MCP1600-Cxxx_100GbE_QSFP28_DAC.pdf     - Cxxx = Ethernet
+https://www.mellanox.com/related-docs/prod_cables/PB_MCP1600-E0xxEyy_100Gbps_QSFP28_DAC.pdf - E0xxEyy = IB
+https://store.mellanox.com/products/nvidia-mc2207130-002-passive-copper-cable-vpi-up-to-56gb-s-qsfp-2m.html - FDR VPI
 
 </PRE>
 
