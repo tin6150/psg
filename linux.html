@@ -3833,19 +3833,30 @@ minicom -o -m	# -o = no modem init
 		#      which also use ^A for escape, thus req ^a, a, key combo.
 minicom -o -m  -D /dev/tty.usbserial -b 9600 --8bit 
 
+one anoying thing seems that minicom param change in ALT-O is not fully
+effective right away, especially on change of serial port.  Need to save it
+eg as default .dlf, then restart minicom for it to become effective!
+
+
+screen /dev/tty.usbserial 9600   # worked in mint 19
+	# ^a k 		: kill the connection (terminate screen and its use of /dev/tty...)
+	# ^a ^b    	: send break (for sun's go prompt)   (don't need ^B (upper case B))
+	# ^a b    	: send break (for sun's go prompt)   (after ^a, it is ^b OR just b, not a triplet of key seq to send the break)
+
+serial speed to try:
+9600
+19200
+38400
+115200
+Solaris, use 9600, 8n1, no flow control (hardware of software).
+Acopia seems to have required Flow Control DTS/DTR.
+NetApp now use 115200 ?
+
 dmesg | egrep --color -i serial\|tty # should determine serial port, eg ttyS0 ttyUSB0
 /dev/cu* are said to be obsolete circal kernel 2.x days.
 kernel 3.x and 4.x has build in driver for most of the usb-serial adapter?
 mint and wall-e has driver for the start-tech (blue) and belkin.  
 if usb dev removed, /dev/ttyUSB0 will be removed.
-
-
-one anoying thing seems that minicom param change in ALT-O is not fully
-effective right away, especially on change of serial port.  Need to save it
-eg as default .dlf, then restart minicom for it to become effective!
-
-Solaris, use 9600, 8n1, no flow control (hardware of software).
-Acopia seems to have required Flow Control DTS/DTR.
 
 </PRE>
 
