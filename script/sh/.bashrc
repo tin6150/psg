@@ -347,10 +347,10 @@ defineAlias () {
 	alias assoc="sacctmgr show associations -p"                    ##slurm
 	alias sevents="sacctmgr show events start=2020-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
 
-    alias sinfo-N='sinfo --Node --long --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
+    alias sinfo-N='sinfo --Node --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
     # -N is node centric, ie one node per line, has to be first arg
     # -p PARTNAME  # can add this after aliased command instead of using grep for specific queue
-	alias sinfo-f='sinfo --Node --long --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
+	alias sinfo-f='sinfo --Node --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
 
 
     alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # -Sorted by rEason (oper input reason=...) ##slurm

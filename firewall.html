@@ -429,6 +429,17 @@ ref:
 <A HREF="https://www.linode.com/docs/security/firewalls/introduction-to-firewalld-on-centos">
 Linode intro to firewallD on CentOS</A>
 
+<H5>XML</H5>
+
+Reading configuration of firewalld may actually be easier on the xml file than output of firewall-cmd or iptables. <BR>
+For CentOS 7, config files are stored in /etc/firewalld/zones. <BR>
+If using tools to insert rules into xml files, may need to delete them by hand.  afterwards, may need to run 
+<TT>ptables -X ; iptables -F; iptables -Z</TT>
+to truely reset/remove old entries that does not wish to be still allowed
+<BR>
+<BR>
+
+
 <H5>Precedence</H5>
 
 <OL>

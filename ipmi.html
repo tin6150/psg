@@ -290,6 +290,10 @@ ipmitool -I lanplus -U root -P ipmipw -H 172.10.0.128 sol activate instance=1	# 
 ipmitool -I lanplus -U root -P ipmipw -H 172.10.0.128 sol deactivate # if some old session was left running
 exit
 rm ~/.history
+
+# most ipmitool over lan uses tcp/623, test connectivity eg:
+telnet 172.10.0.128 623
+
 </PRE>
 
 

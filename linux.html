@@ -3833,8 +3833,11 @@ minicom -o -m	# -o = no modem init
 		#      which also use ^A for escape, thus req ^a, a, key combo.
 minicom -o -m  -D /dev/tty.usbserial -b 9600 --8bit 
 
-dmesg | egrep --color -i serial\|tty # should determine serial port, eg ttyS0
+dmesg | egrep --color -i serial\|tty # should determine serial port, eg ttyS0 ttyUSB0
 /dev/cu* are said to be obsolete circal kernel 2.x days.
+kernel 3.x and 4.x has build in driver for most of the usb-serial adapter?
+mint and wall-e has driver for the start-tech (blue) and belkin.  
+if usb dev removed, /dev/ttyUSB0 will be removed.
 
 
 one anoying thing seems that minicom param change in ALT-O is not fully

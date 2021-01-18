@@ -136,6 +136,18 @@ MAILTO=storage@bofh.net
 
 <PRE>
 
+centos 7 allow .sh files in 
+/etc/cron.daily
+/etc/cron.weekly
+/etc/cron.monthly/  which run 1 month after last run, with last run recorded in /var/spool/anacron/cron.monthly   eg 20201227
+
+They are driven by /etc/anacrontab # eg tweak what time job run, MAILTO, ENV, etc.
+
+</PRE>
+
+
+<PRE>
+
 anacron
 	/var/spool/anacron/cron.*
 
