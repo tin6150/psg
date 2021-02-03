@@ -557,6 +557,24 @@ mpirun -np 2 -H 10.0.7.144,10.0.7.145 -report-bindings -bind-to core  osu_bw
 4194304               12411.50    10024.22
 
 
+date ; time -p mpirun -np  2 -H 10.0.7.195,10.0.7.196 -report-bindings --bind-to core --cpu-set -0-15 osu_latency; date
+
+[n0195.savio3:42894] MCW rank 0 bound to socket 0[core 0[hwt 0]]: [B/././././././././././././././././././.][./././././././././././././././././././.]
+[n0196.savio3:43753] MCW rank 1 bound to socket 0[core 0[hwt 0]]: [B/././././././././././././././././././.][./././././././././././././././././././.]
+# OSU MPI Latency Test v5.4.0
+# Size          Latency (us)
+0                       2.46
+1                       2.54
+2                       2.32
+4                       2.32
+...
+2097152               327.63
+4194304               648.33
+real 4.07
+user 0.10
+sys 0.12
+
+
 </PRE>
 
 
