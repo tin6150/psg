@@ -222,8 +222,11 @@ what account I am in?  what partitions are there?  What QoS are there?
 
 sacctmgr show assoc user=USERNAME format=acc,part,qos	# list account, partition, QoS for the specified USERNAME
 sacctmgr show associations -p user=USERNAME	 	# see what associations a specified user has been granted, -p = "parsable"
-sacctmgr show qos -p format=name		    	# list QoS
 scontrol show partition					# list "queues"
+
+sacctmgr show qos -p format=name		    	# list QoS
+sacctmgr show qos    format=Priority%8,Preempt%18,PreemptMode,name%26,MaxWall,MaxTRESPU,MaxSubmitPU,GrpTRES%22,MinTRES%22,UsageFactor,GraceTime,Flags%4 
+sacctmgr show qos    format=Priority%8,Preempt%18,PreemptMode,MaxWall,name%26,GrpTRES%22,MaxTRES%22,MinTRES%16,MaxTRESPU,MaxSubmitPU
 
 
 </PRE>
@@ -410,6 +413,7 @@ sacctmgr show associations -p user=sn	# association for specified user
 					# -p use | to separate columns, reduce space usage.
 
 sacctmgr show qos	-p	# show all avail Quality of Service entitites 
+sacctmgr show qos    format=Name%32,Priority%8,Preempt%18,PreemptMode,UsageFactor,GrpTRES%22,MaxTRES%22,MinTRES%22
 
 # eg of qos:
 Name                     |Priority|GraceTime|Preempt      |PreemptMode|||UsageFactor|GrpTRES||||||MaxTRES||||||||||MinTRES|
@@ -508,6 +512,15 @@ sacct -a  -X -s F,NF,CA,S,PR,TO,BF -r lr5  -o job,start,end,partition,user,accou
 # specifying End time required even when not asked for it to be in output list (else get empty list)
 sacct -S 2019-12-21 -E 2020-01-01 -a -X -s F,NF,TO -p -o state,job,start,Elapsed,ExitCode,jobname,user,AllocNode,NodeList,SystemComment,Comment | sed 's/|/\t/g' | less
 
+
+
+# %n expand width of specific field.  submit time is when slurm create all the job log entries
+sacct -j 7441362 -S 2021-02-01 -E 2021-02-17 --format submit,start,end,Elapsed,jobid%18,state%16,ExitCode,user,account,partition,qos%15,timelimit,node%35
+
+-a = all
+-j or -u would limit to job id or user
+-X = dont include subjobs (default would include them)
+slurm exit state are known to be all over the place and may not represent true reason why a job ended.
 
 # what job ran on a given node
 ?? sacct -N n0[000-300].lr4

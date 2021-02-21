@@ -329,10 +329,7 @@ Micron Pro are Sequential Read optimized, Max are good for random access.  Max r
 Samsung HD501LJ 7200rpm  80-90 
 WD Caviar Green 5400rpm 223
 WD Red          5400rpm 368
-Seagate Barracu 7200rpm 410
-
-
-
+Seagate Barracu 7200rpm 410     150? 
 
 </PRE>
 
@@ -1400,7 +1397,12 @@ For single machine with display, consider
 <!-- ttcp.ref -->
 <H1>Network Tracing</H1>
 
-traceroute DESTINATION-HOST
+traceroute # some use icmp to trace, other use udp.
+
+traceroute --port=623 172.10.0.128   # potentially check rachability of ipmi udp port
+traceroute --port=33434 is the default, it is Destination UDP port that this pokes at.
+
+If host is reachable, even if destination udp port is not open/listen mode, traceroute will work.
 <BR> <BR>
 
 
@@ -1451,6 +1453,8 @@ tcpdump -u port 69 -i enp94s0f0		# tftp traffic on udp/69
 
 sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:bf -i enp94s0f0
 # -e add mac address to output
+
+sudo tcpdump  port 514 -i enp216s0f0 -S -X  # hex dump of syslog traffic on port 514, let it capture both tcp and udp (@@ vs @ in rsyslog.conf
 
 </PRE>
 
@@ -2051,6 +2055,8 @@ ping -c 3 -s 8970 -M do 10.11.12.201
 tracepath 10.11.12.201 
 	# use UDP to to traceroute, no root priv required
 	# discover MTU size between two hosts
+
+
 
 iptraf
   # TUI, statistical breakdown, by packet size, on a given interface

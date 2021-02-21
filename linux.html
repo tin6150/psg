@@ -3036,6 +3036,9 @@ sudo semanage login -a -s user_u tin
 			# hopefully will rid "Unable to get valid context for [USER]" in Mint when Gnome starts.
 
 
+semanage port -l | grep 514	# see if syslogd can use that port (@@ vs @ for tcp vs udp in rsyslog.conf)
+ps -eZ | grep syslog		# see process selinux context
+
 id -Z	# context of current user
 	# but not getting the info from $( semanage login -l ) ??!!
 	# user need to be in sysadm_t to be able to run sudo, su
