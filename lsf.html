@@ -270,11 +270,11 @@ sinfo -R -S %E		# output sorted/grouped by Reason
 sinfo -R -S %H		# output sorted by timestamp 
 sinfo -R -S %n		# output sorted by nodelist
 
-alias sinfo-N='sinfo --Node --long --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
+alias sinfo-N='sinfo --Node --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
     # -N is node centric, ie one node per line, has to be first arg
     # -p PARTNAME  # can add this after aliased command instead of using grep for specific queue
 
-alias sinfo-f='sinfo --Node --long --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
+alias sinfo-f='sinfo --Node  --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
     # %f = feature eg savio3_m1536, which is 16x more ram than savio3_m96
     # feature name change to ponder: 4x1080ti, 2xV100, 4x2080ti, 8xTitanRTX  (do we always get Ti version?) but may not want to change savio2, maybe only add to it
 
@@ -380,7 +380,7 @@ NF	Node_FAIL
 OOM	OUT_OF_MEMORY
 R	RUNNING
 ST	STOPPED
-TO	TIMEOUT
+TO	TIMEOUT	-- typically time limit exceeded, at the QoS for the partition, user or group level.
 
 
 </PRE>
@@ -415,7 +415,7 @@ sacctmgr show associations -p user=sn	# association for specified user
 sacctmgr show qos	-p	# show all avail Quality of Service entitites 
 sacctmgr show qos    format=Name%32,Priority%8,Preempt%18,PreemptMode,UsageFactor,GrpTRES%22,MaxTRES%22,MinTRES%22
 
-# eg of qos:
+# Example qos:
 Name                     |Priority|GraceTime|Preempt      |PreemptMode|||UsageFactor|GrpTRES||||||MaxTRES||||||||||MinTRES|
 genomicdata_savio3_bigmem| 1000000| 00:00:00|savio_lowprio|cluster    |||1.000000   |node=4 ||||||node=4 ||||||||||cpu=1  |
 genomicdata_savio3_xlmem | 1000000| 00:00:00|savio_lowprio|cluster    |||1.000000   |node=1 ||||||node=1 ||||||||||cpu=1|
@@ -474,7 +474,7 @@ sacct -j 11200077 		# info about specific job
 sacct -j 11200077 --long -p 	# long view, pipe seprated columns
 
 sacct --helpformat		# list fields that can be displayed
-				# --long ignores --format
+				# --long and --format are now mutually exclusive
 
 # PD = PENDING, see what resources has been requested
 sacct -u USERNAME -s PD  -p         --format jobid,jobname,acc,qos,state,Timelimit,ReqCPUS,ReqNodes,ReqMem,ReqGRES,ReqTres 	
@@ -559,6 +559,35 @@ for User in "scoggins kmuriki wfeinstein"; do
 done
 
 </PRE>
+
+
+
+<H4>Slurm QoS config </H4>
+
+use sacctmgr command, not editing slurm.conf
+<BR>
+
+<PRE>
+slurm.conf:
+change
+AccountingStorageTRES=Gres/gpu
+to
+AccountingStorageTRES=Gres/gpu,license/2080,license/3080,license/rtx,license/v100
+
+then add to qos so select user can use such gpu "license"
+GrpTRES=3080=4
+
+maybe something like
+sacctmgr modify qos yun_gpu3_normal set  GrpTRES=3080=4
+
+
+sacctmgr add qos savio_lowprio 
+sacctmgr add qos geforce_2080ti2_normal Preempt=savio_lowprio GrpTRES="cpu=32,gres/gpu:GTX2080TI=16" MinTRES="cpu2,gres/gpu=1" Priority=1000000
+</PRE>
+
+
+
+
 <!-- modify ENTITY set ...  -->
 
 <H4>MPI job in slurm </H4>
@@ -738,8 +767,8 @@ freezer/slurm/uid_43143/job_13272521/step_batch/tasks:15537
 <LI><A HREF=""></A>
 <LI><A HREF="https://slurm.schedmd.com/tutorials.html">SchedMD Slurm Admin Tutorial list</A>
 <LI><A HREF="https://www.youtube.com/watch?v=LJrY0AthLB8&feature=relmfu">Slurm Admin Tutorial videos in YouTube</A> (8 parts total)
-<LI> Help via email: slurm-dev@lists.llnl.gov .  Include <TT>scontrol show config</TT> a/o slurm.conf, slurm version, logs, etc.
-<LI><A HREF="https://slurm.schedmd.com/SLUG15/TRES.pdf">TRES</A> from SLUG'15
+<LI> (??) Help via email: slurm-dev@lists.llnl.gov .  Include <TT>scontrol show config</TT> a/o slurm.conf, slurm version, logs, etc.
+<LI><A HREF=""></A>
 <LI><A HREF="https://slurm.schedmd.com/publications.html">slurm publications</A>, include SLUG, PEARC, and other workshops
 <LI><A HREF="https://help.rc.ufl.edu/doc/Account_and_QOS_limits_under_SLURM">SLURM QoS</A> as configured by the gators
 <LI><A HREF="https://www.admin-magazine.com/HPC/Articles/real_world_hpc_setting_up_an_hpc_cluster">SysAdmin mag on slurm setup</A>
@@ -749,6 +778,13 @@ freezer/slurm/uid_43143/job_13272521/step_batch/tasks:15537
 <LI><A HREF=""></A>
 </UL>
 
+<H3>SLURM TRES Ref</H3>
+<UL>
+<LI><A HREF="https://slurm.schedmd.com/SC15/TRES.pdf">TRES presentation in SC'15</A>
+<LI><A HREF="https://slurm.schedmd.com/SLUG19/TRES.pdf">TRES</A> SLUG 19
+<LI><A HREF="https://slurm.schedmd.com/SLUG19/GPU_Scheduling_and_Cons_Tres.pdf">Consumable Tres</A> (SLUG 19)
+<LI><A HREF=""></A>
+</UL>
 
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
