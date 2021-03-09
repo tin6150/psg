@@ -41,7 +41,7 @@ CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/bios_cf
 #FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
 FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
 BiosBkDir=${CentralLogRepo}/bak${FECHA}
-test -d ${BiosBkDir} || mkdir ${BiosBkDir}
+test -d ${BiosBkDir} || mkdir ${BiosBkDir} > /dev/null 2>&1
 
 
 BIOSOUT=/tmp/bios.settings.out
@@ -70,7 +70,7 @@ record_bios_settings_supermicro () {
 
 	# create a backup of sm bios file before turnning off HY for new cf1 nodes.
 	MAQ=$(hostname)
-	cp $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
+	cp $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out  > /dev/null 2>&1
 	#ls -l       ${BiosBkDir}/${MAQ}.bios.settings.out
 
 } # end record_bios_settings_supermicro
@@ -78,7 +78,9 @@ record_bios_settings_supermicro () {
 
 record_bios_settings_dell () {
 	#RACIMG=/global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img
-	RACIMG=/global/home/users/tin/gs/singularity-repo/dirac1_dell_idracadm.img 
+	#XXRACIMG=/global/home/users/tin/gs/singularity-repo/dirac1_dell_idracadm.img 
+	#RACIMG=/global/scratch/tin/singularity-repo/dell_idracadm.img
+	RACIMG=/global/home/users/tin-bofh/singularity-repo/dell_idracadm.img
 
 	#BiosItemList=$(singularity exec -B /var/run    /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm get BIOS. | xargs)
 	BiosItemList=$(singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm get BIOS. | xargs)
@@ -91,7 +93,8 @@ record_bios_settings_dell () {
 	echo this is new file...
 	cat $BIOSOUT | egrep 'ProcEmbMemMode|SystemMemoryModel|DynamicCoreAllocation|ProcConfigTdp' | tee -a $BIOSHIGHLIGHT
 	MAQ=$(hostname)
-	cp $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out
+	cp $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out > /dev/null 2>&1
+	echo " record_bios_settings_dell done, output collected to /tmp and possibly ${BiosBkDir}"
 } # end record_bios_settings_dell fn
 
 

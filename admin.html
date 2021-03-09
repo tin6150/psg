@@ -50,30 +50,6 @@ flavors of Unix.
 not go to sol.html)
 <BR><BR>
 
-<H1>Config Files</H1>
-
-<PRE>
-/etc/passwd
-/etc/groups
-/etc/shadow
-/etc/group
-
-/etc/init.d/ (linux: /etc/rc.d/init.d/)
-
-/etc/inet/inetd.conf
-/etc/printcap  or /etc/printer.conf
-/etc/motd
-/etc/release            # see which os cd was used eg sol 8 01/00 for Jan 2000 build. 
-
-/etc/resolv.conf        # dns setup
-/etc/nsswitch.conf      # order of search for files/dns/nis
-/etc/init.d/            # list of programs that are configured for possible start up/shutdown automatically.
-                        # actual start in /etc/rc2.d and rc3.d
-
-
-</PRE>
-
-
 
 <H1>CMD</H1>
 <PRE>
@@ -196,6 +172,92 @@ cp -p /usr/lib/libmd5.so.1 	 $CHROOT_DIRECTORY/usr/lib
 cp -p /usr/local/lib/libgcc_s.so.1  $CHROOT_DIRECTORY/usr/local//lib
 # somehow not copied:
 cp -p /usr/local/ssl/lib/libcrypto.so.0.9.7 $CHROOT_DIRECTORY/usr/local/ssl/lib
+
+</PRE>
+
+<H1>Config Files</H1>
+
+<PRE>
+/etc/passwd
+/etc/groups
+/etc/shadow
+/etc/group
+
+/etc/init.d/ (linux: /etc/rc.d/init.d/)
+
+/etc/inet/inetd.conf
+/etc/printcap  or /etc/printer.conf
+/etc/motd
+/etc/release            # see which os cd was used eg sol 8 01/00 for Jan 2000 build. 
+
+/etc/resolv.conf        # dns setup
+/etc/nsswitch.conf      # order of search for files/dns/nis
+/etc/init.d/            # list of programs that are configured for possible start up/shutdown automatically.
+                        # actual start in /etc/rc2.d and rc3.d
+
+
+</PRE>
+
+<A NAME="syslog"></A>
+<H1>syslog</H1>
+
+<A HREF="https://docs.fedoraproject.org/en-US/fedora/rawhide/system-administrators-guide/monitoring-and-automation/Viewing_and_Managing_Log_Files/">rsyslog config</A> (Fedora doc) <BR>
+
+<PRE>
+rsyslogd.conf
+
+#### if acting as syslog server accepting logs, need:
+
+# Provides UDP syslog reception
+$ModLoad imudp
+$UDPServerRun 514
+# Provides TCP syslog reception
+$ModLoad imtcp
+$InputTCPServerRun 514
+
+$OmitLocalLogging off
+
+$ActionFileDefaultTemplate RSYSLOG_SyslogProtocol23Format
+# use ietf-syslog-protocol-23 : [pri]level 2021-02-09T13:19:43-08:00 prefix  
+
+
+</PRE>
+
+faciliy.levels traps
+<PRE>
+
+# facilities
+
+daemon.*  	# isc dhcpd send to this level by default, change eg 'log-facility local6;'
+authpriv.*	# sudo stuff goes here
+kern.*
+mail.*
+cron.*
+local0.*
+local7.*
+
+
+# levels, decreasing severity
+*.emerg
+*.alert
+*.crit
+*.err
+*.warning
+*.notice
+*.info
+*.debug
+
+*.none # ?? this is an exception rule, easier than using *.!warning , which doesn't exclude higher levels.
+
+
+# in theory, the below should split out the ISC DHCPD log to its own file
+# none were supposed to means exception for the specified facilities.
+# after changing dhcpd.conf with log-facility local6;
+# but ISC DHCPD is a PITA and insist in logging at daemon.info [PRI=30] :-\ )
+*.info;mail.none;authpriv.none;cron.none;local6.none    /var/log/messages
+local6.*                                                /var/log/dhcpd.log
+
+
 
 </PRE>
 
