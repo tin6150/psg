@@ -17,7 +17,7 @@
     <tr>
       <th colspan="4" align="center">
 	  
-<A HREF="http://psg.ask-margo.com/vnc.html">Sys Admin Pocket Survival Guide - VNC / X</A>
+<A HREF="http://tin6150.github.io/psg/vnc.html">Sys Admin Pocket Survival Guide - VNC / X</A>
       </th>
     </tr>
     <tr>
@@ -543,6 +543,8 @@ twm	# Most barebone windows manager, avail almost everywhere.
 	# Solaris, Linux is in /usr/X11R6/bin
 	# HP-UX don't seems to have it!
 
+vtwm	# some replacement/fork? of twm in Mint, as twm is no longer avail.
+
 fvwm2	# fvwm2 build on top of mwm, adding a config option to allow 
 	# win95 menu, if configured properly.
 	# Avail in:
@@ -554,6 +556,9 @@ icewm	# an open source light weight Windows Manager
 	# .xstartup recommended way to start icewm
 	# icewmtray &
 	# which icewm >/dev/null 2>&1 && exec icewm || exec xterm -bg red
+
+jwm	# joe wm, based on fvwm, very lightweight, win95 look.  
+	# some GNOME support, but gnome-manager didn't work
 
 If you want to try out the various windows manager, you can always lookup the 
 process number of your current windows manager, kill it, and then start a new one.
@@ -761,9 +766,6 @@ vncviewer -shared -hextile localhost:11
 # -hextile will not let machine think it is local and use raw.
 # actually, not sure if that is windows only.
 
-# for linux machine to vnc server on tin-u10, but i haven't gotten it to work yet.
-
-
 New vncclient (eg tigervnc, mobaXterm) support a -via option:
 
 vncviewer -via user@server:1
@@ -771,6 +773,7 @@ vncviewer -via user@server:1
 and the ssh tunnel will be created.  No need to manually run ssh and understand the whole tunnel business :)
 
 
+realvnc traffic is encrypted, use that and don't have to worry about wrapping with ssh.  but realvnc server need license.
 </PRE>
 
 
@@ -993,7 +996,7 @@ Rxvt*foreground:           Black
 
 <BR><HR>
 <div align="CENTER">
-  [Doc URL: <A HREF="http://psg.ask-margo.com/vnc.html">http://psg.ask-margo.com/vnc.html</A>] 
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/vnc.html">http://tin6150.github.io/psg/vnc.html</A>] 
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>

@@ -16,7 +16,7 @@
     <tr>
       <th colspan="4" align="center">
 	  
-<A HREF="http://psg.ask-margo.com/general_unix.html">Sys Admin Pocket Survival Guide - General Unix Commands</A>
+<A HREF="http://tin6150.github.io/psg/general_unix.html">Sys Admin Pocket Survival Guide - General Unix Commands</A>
       </th>
     </tr>
     <tr>
@@ -136,6 +136,18 @@ MAILTO=storage@bofh.net
 
 <PRE>
 
+centos 7 allow .sh files in 
+/etc/cron.daily
+/etc/cron.weekly
+/etc/cron.monthly/  which run 1 month after last run, with last run recorded in /var/spool/anacron/cron.monthly   eg 20201227
+
+They are driven by /etc/anacrontab # eg tweak what time job run, MAILTO, ENV, etc.
+
+</PRE>
+
+
+<PRE>
+
 anacron
 	/var/spool/anacron/cron.*
 
@@ -207,7 +219,30 @@ end of old wget internal notes
 <A ID="curl"></A>
 <H5>curl </H5>
 
-curl does many similar thing than wget...
+curl has more power than get, especially when need to use POST instead of GET
+
+<PRE>
+
+    Test if privately hosted docker registry (v2) is responding:
+
+    pass=ANotSoSecurePass
+    curl -k -L -XGET "https://tin:${mypass}@registry:443/v2/_catalog" 
+    # return a list of images as json
+    # -k skip check whether cert is valid/from known ca$
+
+
+    curl -k -L -XGET "https://tin:${pwd}@registry:443/v2/conductor/tags/list" 
+    # list all tags for container called "conductor"
+
+
+    Other examples to try if anonymous login to registry is allowed:
+
+    curl -k -L -XGET  "https://beagle/" -d "email=tin@place"            # do nothing?  no complain about auth either
+    curl -k -L -XGET  "https://beagle/v2/_catalog" -d "email=tin@place"
+    curl -k -L -XPOST "https://beagle/v2/_catalog" -d "email=tin@place"
+
+
+</PRE>
 
 
 <A name="rsync"></A>
@@ -817,7 +852,7 @@ xargs    	# grab a list of lines with single entry and turn it into a multi item
 
 <BR><HR>
 <div align="CENTER">
-  [Doc URL: <A HREF=http://psg.ask-margo.com/general_unix.html">http://psg.ask-margo.com/general_unix.html</A>] 
+  [Doc URL: <A HREF=http://tin6150.github.io/psg/general_unix.html">http://tin6150.github.io/psg/general_unix.html</A>] 
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html>main page</A>

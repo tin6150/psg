@@ -105,6 +105,8 @@ set clipboard=
 
 set background=dark     " comment will be more readable lighther color text
 
+set paste
+
 " something causing vim to want to connect to port 6010 in brc and thus wait a
 " long time before a timeout, 
 " dont think is below, but disabling just in case

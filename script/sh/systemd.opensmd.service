@@ -16,6 +16,8 @@ After=systemd-udev-settle.service
 
 [Service]
 Type=oneshot
+# Type oneshot allow sequential ExecStart
+# but  simple  allows  only *1* ExecStart  (so it can monitor the service)
 #ExecStart=/usr/sbin/opensm
 ExecStart=/etc/init.d/opensmd start
 ExecStop=/etc/init.d/opensmd stop

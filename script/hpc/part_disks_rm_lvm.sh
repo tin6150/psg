@@ -26,7 +26,7 @@ run_sanity_check()
 	# can't get regex to work as expected yet
 	if [[ x$MAQUINA =~ xn[0-9][0-9][0-9][0-9] ]]; then
 		echo "hostname pattern passes sanity test, running fdisk"
-		run_fdisk_cmd  # no () in bash fn call!
+		run_rm_lvm_cmd  # no () in bash fn call!
 		echo "Completed FDisk"
 		exit 0
 	fi
@@ -52,11 +52,6 @@ run_rm_lvm_cmd()
 
 	VG_NAME="vg0"
 	SD_NAME="/dev/sda"
-
-	#use lvm syntax
-	SWAP_SIZE="8G"
-	TMP_SIZE="8G"
-	LOCAL_SIZE="100%FREE"
 
 	LVMROOT="/sbin"
 	MKFS="/sbin/mkfs.ext4"
@@ -111,6 +106,6 @@ run_rm_lvm_cmd()
 ########################################
 ########################################
 
-run_sanity_check  # and if pass, that will call run_fdisk_cmd
+run_sanity_check  # and if pass, that will call run_rm_lvm_cmd
 
 

@@ -435,7 +435,7 @@ setenv PATH            "${PATH}:${AMGEN_HOME}/bin"
 
 ### /etc/csh.login do this to update path (in a loop actually)
 ### set path = ( ${path:q} /opt/openmpi/2.1.6/bin ) 
-### csh environment var qualifier :q may skip error when path was not declared or empty ??
+### csh environment var qualifier :q may skip error when path was not declared or empty ??   NOPE, :q is for quote list
 
 ### LD_LIBRARY_PATH seems to be okay with the setenv LD_LIBRARY_PATH 
 ### and colon separated list...

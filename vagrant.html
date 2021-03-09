@@ -83,6 +83,54 @@ VM creation use ansible in two places
 </PRE>
 
 
+<H2>Vagrant Annoyances</H2>
+
+<PRE>
+https://crysol.org/recipe/2015-11-17/vagrant-vdi-virtual-disk-for-virtualbox.html#.X1fWn8jYqUk
+confirmed my frustration, vagrant creation of vbox vm are always vmdk, even when vbox default to vdi.
+and even if Vagrantfile has ...
+
+ config.vm.disk :disk, name: "root", size: "29GB", disk_ext: "vdi", primary: true
+
+trying to tap into provider specific clause
+vb.customize ["modifyhd", :id, "--resize", "44"]
+didn't help, either :id resolve to uuid and not full path?  or, less likely, vmdk can't be resized by vbox via cmd vagrant fed to it...
+
+and the annoying part is that the error is not obvious, the documentation page
+https://www.vagrantup.com/docs/disks/configuration
+implies that vdi was supported (and actually default by vagrant for vbox vm).  LIE LIE LIE !!! :-\
+
+work around:
+tried using a two steps to create a vdi file for disk, then create vm with that disk, but that was full of pitfalls as well.
+Finally, the clause 
+    config.disksize.size = "60GB"
+worked and created vdi file, and sized disk correctly!
+ie, don't use config.vm.disk nor config.vm.diskside.size !!
+
+
+other annoying thing is
+unable to create a nic in vagrant when ip assigned is same as host.
+i wanted it to be bridge.
+it works, created vbox vm manually that way.
+but vagrant just stubbornly refuses.
+
+
+would be nice if their nic definition support defining default gateway, netmask, nameserver, maybe even vlan tag.
+
+vagrant is good for providing simple vm for simple use on desktop.
+or in cloud env with use case they thought of?
+or using VMware is better?  doubt this, since they are supposed to be provider agnostic and so many of the advanced feature are not exposed 
+
+overall, if not cuz don't want to deal with gui and want a cli, may not really want to use vagrant.
+</PRE>
+
+
+Vagrant gateway assignment is another headache.  eg see: 
+<A HREF="https://github.com/hashicorp/vagrant/issues/2389">vagrant github issue 2389</A>
+it was closed, without a proper solution.
+At least, there is still no way to specify a static default gateway to a bridge interface :-\ 
+<BR><BR>
+
 <H2>Vagrant 101</H2>
 
 <PRE>
@@ -184,6 +232,17 @@ $HOME/.vagrant.d/ ...
 
 VM images, if using VirtualBox, is in $HOME/VirtualBox VMs/VMNAME ie, a location virtual box always use, not dependent on Vagrantfile...
 see vboxmanage list vms --long
+
+
+Vagrantfile does not allow specifying location of the .vdi file (only for DVD iso)
+ie, clause like this doeesn't get heeded for the path:
+  config.vm.disk :disk, size: "112GB", primary: true, path: "/clusterfs/gretadev/data/VBoxVM/greyhound"
+
+https://stackoverflow.com/questions/36332996/store-vagrant-vm-in-custom-folder
+perhaps:
+
+VBoxManage setproperty machinefolder /clusterfs/gretadev/data/VBoxVM
+vagrant up
 	
 
 </PRE>
@@ -235,14 +294,109 @@ sudo hdiutil detach /Volumes/VirtualBox/
 
 <H1>Virtual Box</H1>
 
+
+<!-- ssh -Y beagle; sudo xterm; VirtualBox # work, albeit some stuff are slow, especially to load -->
+
 <PRE>
-/usr/bin/vboxmanage 
+
+/bin/VirtualBox # GUI
+
+/usr/bin/vboxmanage  # cli tool
 vboxmanage list vms
 vboxmanage list vms --long
-vboxmanage showvminfo
+
+vboxmanage list runningvms
+vboxmanage list vms --long   | egrep Name:\|State  # find out if VM is on or off
+
+vboxmanage showvminfo VMNAME
 
 /usr/bin/VBoxManage  startvm   "springer"           --type headless
 /usr/bin/VBoxManage  controlvm "springer"  poweroff --type headless
+/usr/bin/VBoxManage  startvm   "springer"  --type emergencystop      # sometime useful to get out of VBOX_E_INVALID_OBJECT_STATE
+
+
+
+
+# eg from https://www.oracle.com/technical-resources/articles/it-infrastructure/admin-manage-vbox-cli.html
+
+VBoxManage modifyvm OracleLinux6Test --cpus 2 --memory 2048 --vram 12 # most can be handled by vagrant
+VBoxManage modifyvm OracleLinux6Test --nic1 bridged --bridgeadapter1 eth0
+VBoxManage createhd --filename /path/to/hard_drive_image/OracleLinux6Test.vdi --size 5120 --variant Standard
+VBoxManage storagectl OracleLinux6Test --name "SATA Controller" --add sata --bootable on
+VBoxManage storageattach OracleLinux6Test --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium /path/to/hard_drive_image/OracleLinux6Test.vdi
+
+
+</PRE>
+
+
+<H2>create VM via cli and osboxes images</H2>
+
+Vagrant sucks if you need it to do any sort of things with network. 
+If it is not DHCP (or nat), if you need to manually set gateway or dns,
+maybe vagrant is not a good choice.
+I gave up on a machine needing two nics, public vs inside, using bridge connection.
+vagrant was like a ghost and keep making changes to my network settings.
+and it refuse to setup some network if the ip range "crash" with the vbox network.
+
+<BR><BR>
+better off setup vm manually.
+Get a .vdi file from osboxes.org, so that there is no need to install the os via iso.
+
+Command example below adapeted from 
+<A HREF="https://www.perkin.org.uk/posts/create-virtualbox-vm-from-the-command-line.html">this post</A>
+
+<PRE>
+
+VBoxManage setproperty machinefolder /clusterfs/data/VBoxVM
+VBoxManage list ostypes | grep RedHat
+
+VBoxManage createvm --name greyhound-c7 --ostype "RedHat_64" --register --basefolder /clusterfs/data/VBoxVM   # vm2
+
+wget file from osboxes
+7za e download.7z
+
+VM_NAME=greyhound-c7
+VMBaseFolder=/clusterfs/data/VBoxVM
+#eventually move this vdi file into the folder of the VM
+
+VBoxManage modifyvm $VM_NAME --ioapic on
+VBoxManage modifyvm $VM_NAME --memory 6100 --vram 128
+VBoxManage modifyvm $VM_NAME --nic1  nat # default
+VBoxManage modifyvm $VM_NAME --nic1 bridged
+VBoxManage modifyvm $VM_NAME --bridgeadapter1 eno2  #  pub , enp0s3
+VBoxManage modifyvm $VM_NAME --nic2 bridged
+VBoxManage modifyvm $VM_NAME --bridgeadapter2 enp94s0f0 # internal , enp0s8
+VBoxManage storagectl $VM_NAME --name "SATA Controller" --add sata --controller IntelAhci
+
+VBoxManage internalcommands sethduuid /clusterfs/data/VBoxVM/grey-c7/grey-c7_Disk.vdi # assign a new (random?)  uuid to the vdi.  does downloading agai from osboxes generate a new uuid?
+VBoxManage storageattach $VM_NAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  /clusterfs/data/VBoxVM/grey-c7/grey-c7_Disk.vdi
+
+
+---- add and resize hdd ----
+
+BoxManage createhd --filename /clusterfs/data/VBoxVM/grey/grey_Disk2.vdi  --size 64000 --format VDI
+
+vboxmanage list hdds
+VBoxManage modifymedium disk /clusterfs/gdata/VBoxVM/grey/grey_Disk2.vdi  --resize 538000 # size is in MBytes
+
+VBoxManage storageattach greyhound-c7 --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium  /clusterfs/data/VBoxVM/grey/grey_Disk2.vdi
+
+
+
+vboxmanage modifyvm grey --cpus 7
+# memory and ram change need VM to be off.
+
+
+
+
+VBoxHeadless -s ${VM_NAME}
+
+
+
+when using VirtualBox gui, console may launch with error.  It has some sort of xauth channel and may not work with X11 forward from another user, even when the main gui works :-\
+Safest way is to run vnc as the same user owning the virtual machines.
+SSH tunnel to vnc session if not using encrypted vnc like realvnc.
+eg ssh -L 5911:localhost:5901 vboxserver.example.com
 
 
 </PRE>
@@ -260,7 +414,7 @@ vboxmanage showvminfo
 http://tin6150.github.io/psg/vagrant.html
 </A>] <BR>
 Last Updated: 2017-10-09
-  <!--[Doc URL: <A HREF="http://psg.ask-margo.com/">http://psg.ask-margo.com/</A>] <BR>-->
+  <!--[Doc URL: <A HREF="http://tin6150.github.io/psg/">http://tin6150.github.io/psg/</A>] <BR>-->
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>

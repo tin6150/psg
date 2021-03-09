@@ -5,6 +5,11 @@
 # to make backup for all new dell cascadelake nodes:
 # run as root on master.brc:
 # pdsh -w n0[126-133,139-142].savio3 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell
+# pdsh      -w n0[150-157].savio3    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell
+# pdsh      -w n0[158-160].savio3    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh smc
+# -f 1 means serial, one node at a time.  for when racadm need to do lock.  
+
+# output in /tmp/bios.settings.* in each node
 
 # tring most new savio3  nodes that are up, some may not be dell...
 # pdsh -w n0[026-142].savio3 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell
@@ -104,7 +109,7 @@ record_bios_settings_dell () {
 # $1 is first argument
 
 case "$1" in
-	sm)
+	sm|smc)
 		record_bios_settings_supermicro
 		;;
 	dell)

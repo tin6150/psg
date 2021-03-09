@@ -127,8 +127,18 @@ ifconfig    enp94s0f1 up
 ethtool -S enp94s0f1  | egrep -i 'drop|col|err' # look for drop or collision, no report on pause frames
 ethtool -S enp216s0f1 | grep -v ': 0$'  | more  # look for anything with non zero counter
 
+ethtool -G enp180s0f0  rx 8192 tx 8192
+ethtool -g enp180s0f0  # lower case for query, upper case for set
+ethtool -C enp180s0f0  rx-usecs 100
+ethtool -c enp180s0f0  
+
 mlx5_core # mellanox 100G Ethernet (and IB?)
 
+
+
+
+
+ss -tulp		# check socket status
 
 </PRE>
 
@@ -319,10 +329,7 @@ Micron Pro are Sequential Read optimized, Max are good for random access.  Max r
 Samsung HD501LJ 7200rpm  80-90 
 WD Caviar Green 5400rpm 223
 WD Red          5400rpm 368
-Seagate Barracu 7200rpm 410
-
-
-
+Seagate Barracu 7200rpm 410     150? 
 
 </PRE>
 
@@ -547,6 +554,24 @@ mpirun -np 2 -H 10.0.7.144,10.0.7.145 -report-bindings -bind-to core  osu_bw
 4194304               12411.50    10024.22
 
 
+date ; time -p mpirun -np  2 -H 10.0.7.195,10.0.7.196 -report-bindings --bind-to core --cpu-set -0-15 osu_latency; date
+
+[n0195.savio3:42894] MCW rank 0 bound to socket 0[core 0[hwt 0]]: [B/././././././././././././././././././.][./././././././././././././././././././.]
+[n0196.savio3:43753] MCW rank 1 bound to socket 0[core 0[hwt 0]]: [B/././././././././././././././././././.][./././././././././././././././././././.]
+# OSU MPI Latency Test v5.4.0
+# Size          Latency (us)
+0                       2.46
+1                       2.54
+2                       2.32
+4                       2.32
+...
+2097152               327.63
+4194304               648.33
+real 4.07
+user 0.10
+sys 0.12
+
+
 </PRE>
 
 
@@ -651,6 +676,81 @@ Ref:
 	Summary of workflow profile and their configured Pstate info on Asus GPU nodes (AMI BIOS)</A>
 
 <LI> <A HREF="https://photos.google.com/album/AF1QipMqkSucnOzq757nZCUzjGlM3u6Ul3HFqKLlheae">many screenshot of BIOS settings for Asus</A>
+
+<BR>
+
+<A NAME="amd"></A>
+<A NAME="epyc"></A>
+<A NAME="rome"></A>
+<H5>AMD Epyc</H5>
+
+<BR>
+<PRE>
+7xx1 = 1st Gen Epyc Naples
+7xx2 = 2nd Gen Epyc Rome   ca 2019
+7xx3 = 3rd Gen Epyc Milan  ca 2020.11
+</PRE>
+
+
+<A ID="amd_tuning_guide"></A>
+
+<LI> <A HREF="https://developer.amd.com/resources/epyc-resources/epyc-tuning-guides/">Epyc tuning guides</A> from AMD dev site</LI>
+<LI> <A HREF="https://developer.amd.com/wp-content/resources/56420.pdf">HPC Tuning guide for AMD EPYC</A> (PDF Dec 2018)</LI>
+<LI> <A HREF="https://developer.amd.com/wp-content/resources/56827-1-0.pdf">HPC Tuning guide for AMD EPYC 7002</A> (PDF Jan 2020)</LI>
+<LI> <A HREF="https://developer.amd.com/wp-content/resources/56224_1.10.pdf">Linux Network Tuning Guide for AMD EPYC</A> (PDF May 2018)</LI>
+<LI> <A HREF="https://developer.amd.com/wordpress/media/2020/04/Compiler%20Options%20Quick%20Ref%20Guide%20for%20AMD%20EPYC%207xx2%20Series%20Processors.pdf">Compiler Options Quick Ref Guide for AMD EPYC 7xx2 Series Processors</A> (PDF Nov 2019)</LI>
+<LI> <A HREF=""></A></LI>
+<LI>Logical processor, Hyperthreading is called Simultaneous Multi-Threading (SMT)</LI>
+<LI>SEV = Secure Encrypted Virtualization (memory encryption per Virtual Machine</LI>
+<LI>SME = Secure Memory Encryption (encrypts all memory)</LI>
+
+
+<PRE>
+
+C-states should be left enabled in BIOS.
+C2 can be disabled for IB via cli.
+
+- C0: active, the active frequency while running an application/job.
+- C1: idle
+- C2: idle and power-gated. 
+      This is a deeper sleep state and will have a greater latency in getting to C0 
+      compared to when it idles in C1. 
+
+For a HPC cluster with a high performance low latency interconnect such as Mellanox
+disable the C2 idle state. Assuming a dual socket 2x32 core system
+cpupower -c 0-63 idle-set -d 2
+• Set the CPU governor to ‘performance’:
+cpupower frequency-set -g performance
+
+
+Use 
+hwloc-ls to find out which cpu id is closest to the IB
+then use
+numactl -C $CPUID osu_bibw
+to bind the MPI process (eg osu_* microbenchmark binary) to the cpuid closest to the IB
+for lowest latency.
+
+
+</PRE>
+
+
+
+Virtual Memory reclaim (good to run in epilog to free up cache)
+<PRE>
+/proc/sys/vm/zone_reclaim_mode
+
+echo 1 > /proc/sys/vm/drop_caches [frees page-cache]
+echo 2 > /proc/sys/vm/drop_caches [frees slab objects e.g. dentries, inodes]
+echo 3 > /proc/sys/vm/drop_caches [cleans page-cache and slab objects]
+
+</PRE>
+
+
+
+Max performance is to have most NUMA that can be supported.
+Each socket can do 1,2,4 NUMA (zone?).
+For NUMA=4 req all DIMM to be populated?
+But if use NUMA=2 or 1, how to run HPL with OpenMP?
 
 <BR><BR>
 
@@ -1297,7 +1397,12 @@ For single machine with display, consider
 <!-- ttcp.ref -->
 <H1>Network Tracing</H1>
 
-traceroute DESTINATION-HOST
+traceroute # some use icmp to trace, other use udp.
+
+traceroute --port=623 172.10.0.128   # potentially check rachability of ipmi udp port
+traceroute --port=33434 is the default, it is Destination UDP port that this pokes at.
+
+If host is reachable, even if destination udp port is not open/listen mode, traceroute will work.
 <BR> <BR>
 
 
@@ -1342,6 +1447,14 @@ tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump
 		# -w write output to file
 
 
+sudo tcpdump -v -n host 10.22.22.55 -i enp94s0f0
+
+tcpdump -u port 69 -i enp94s0f0		# tftp traffic on udp/69
+
+sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:bf -i enp94s0f0
+# -e add mac address to output
+
+sudo tcpdump  port 514 -i enp216s0f0 -S -X  # hex dump of syslog traffic on port 514, let it capture both tcp and udp (@@ vs @ in rsyslog.conf
 
 </PRE>
 
@@ -1672,6 +1785,17 @@ echo "GET / HTTP 1.1" | nc www.google.com 80; echo $?	# can test ability to conn
 
 telnet www.google.com 80 		# simple network connectivity test using the telnet tool
 GET / HTTP 1.1				
+
+
+telnet mta.server.com 25
+EHLO tin.example.com
+mail from:tin@lbl.gov
+rcpt to:tin@lbl.gov
+DATA
+Subject: manual telnet 25 smtp test
+additional body message here
+end test with a dot by itself
+.
 </PRE>
 
 
@@ -1932,6 +2056,8 @@ tracepath 10.11.12.201
 	# use UDP to to traceroute, no root priv required
 	# discover MTU size between two hosts
 
+
+
 iptraf
   # TUI, statistical breakdown, by packet size, on a given interface
 
@@ -2075,7 +2201,7 @@ using qsub script in cluster (mostly to generate random storage traffic):
   [Doc URL]<BR>
 <A HREF="http://tiny.cc/TOOL">tiny.cc/TOOL</A><BR>
 <A HREF="https://tin6150.github.io/psg/tool.html">https://tin6150.github.io/psg/tool.html</A><BR>
-<A HREF="http://psg.ask-margo.com/tool.html">http://psg.ask-margo.com/tool.html</A> 
+<A HREF="http://tin6150.github.io/psg/tool.html">http://tin6150.github.io/psg/tool.html</A> 
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html>main page</A>

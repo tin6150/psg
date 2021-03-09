@@ -19,20 +19,26 @@ browser render tab as 8 spaces for html PRE
     <tr>
       <th colspan="9" align="center">
 	  
-<A HREF="http://psg.ask-margo.com/">Sys Admin Pocket Survival Guide - Linux</A>
+<A HREF="http://tin6150.github.io/psg/linux.html">Sys Admin Pocket Survival Guide - Linux</A>
       </th>
     </tr>
     <tr>
-      <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
+      <td align="left"><a accesskey="H" href="psg.html">Home</a></td>
+      <td align="center"><a accesskey="F" href="Firewall.html">Firewall</a></td>
       <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
       <td align="center"><a accesskey="g" href="git.html">git</a></td>
       <td align="center"><a accesskey="t" href="tool.html">tool</a></td>
-      <td align="center"><a accesskey="x" href="sol.html">Solaris</a></td>
+      <td align="center"><a accesskey="I" href="Infiniband.html">infiniband</a></td>
+      <td align="center"><a accesskey="l" href="lsf.html">lsf/slurm</a></td>
+      <td align="center"><a accesskey="b" href="bios.html">BIOS</a></td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
       <td align="center"><a accesskey="a" href="aix.html">AIX</a></td>
       <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
-      <td align="center"><a accesskey="n" href="emc.html">EMC</a></td>
-      <td align="center"><a accesskey="f" href="firewall.html">Firewall</a></td>
-      <td align="right"><a accesskey="l" href="ldap.html">LDAP</a></td>
+      <td align="center"><a accesskey="e" href="emc.html">EMC</a></td>
+      <td align="center"><a accesskey="i" href="isilon.html">Isilon</a></td>
+      <td align="center"><a accesskey="L" href="ldap.html">LDAP</a></td>
+      <td align="right"><a accesskey="A" href="https://github.com/tin6150/inet-dev-class/tree/master/ansible">Ansible</a></td>
+      <!-- most accesskey defined in psg2.html and linux.html 2020.1218.  use alt+LETTER for quick link out -->
     </tr>
   </tbody>
 </table>
@@ -1108,6 +1114,13 @@ Info moved to <A HREF="infiniband.html">infiniband.html</A>
 <H1>RAID</H1>
 
 
+<PRE>
+cat /sys/block/sda/queue/rotational
+0 = ssd
+1 = hdd
+</PRE>
+
+
 <A NAME="mdadm"></A>
 <A NAME="mdraid"></A>
 <H2>mdRAID</H2>
@@ -1392,7 +1405,8 @@ parted can manipulate some fs, should be able to resize FAT fs/partitions.
 <PRE>
 
 sudo parted /dev/sdb print		# show partition table
-sudo parted /dev/sdb mklabel gpt	# add some dos marker for large drive
+sudo parted /dev/sdb mklabel gpt	# initialize disk as gparted, erase all existing partition!  then add label
+sudo parted /dev/sdb mklabel msdos	# initialize partition using msdos mbr
 
 sudo parted /dev/sdb mkpart primary ext3 1 2048		# shoudl create a 2G partition
 sudo parted /dev/sdb mkpart primary amufs 1 100%	# create a primary part
@@ -1404,7 +1418,15 @@ sudo parted /dev/sdb set 1 LVM		# optional
 	## the LVM flag isn't likely relevant, but will be printed in output
 	## to help remind sys admin it is LVM and not say ext3 fs.
 
-# repartition disk, data seems untouched :)
+
+parted /dev/sdz mkpart primary linux-swap 32GiB 40GiB # type id 82 # use GiB instead of MB so that it align correctly
+parted /dev/sdz mkpart primary ext2 40GiB 52GiB       # type id 83
+parted /dev/sdz mkpart primary ext2 52GiB 98%         # 98% of remaining space.  leave a bit at the end for possible conversion to gpt
+parted /dev/sdz align-check optimal 1
+parted /dev/sdz align-check optimal 2	# need to check alignment of each partition one at a time
+
+
+# repartitioning disk carefully could leave data seems untouched :)
 # need partition number and end size.  
 # if omitted will prompt, can use size in GB or % in addition to sector.
 # -1 is last block on disk.  
@@ -1470,9 +1492,7 @@ iostat -x -k 1
 
 <LI><A HREF="https://www.percona.com/blog/2011/06/09/aligning-io-on-a-hard-disk-raid-the-theory/">Percona alignment theory</A>
 <LI><A HREF="https://sysadmincasts.com/episodes/27-lvm-linear-vs-striped-logical-volumes">SysAdmin Cast linear vs stripped LVM</A> (but not sure if it is necessary or modern lvm takes care of it automatically?)
-<LI><A HREF="http://www.beowulf.org/pipermail/beowulf/2010-January/027256.html">hardware RAID versus mdadm versus LVM-striping</A> (summary: sw raid tends to be more flexible and easier for most sys admin to manage.  hw raid offload load and let cpu do other work.  hybrid hw + sw may give convinient large fs, but then painful in recovery situations.
 <BR>
-More and more, driving me to like ZFS so that there is a single pane of config, management and recovery....
 
 
 
@@ -1597,16 +1617,115 @@ http://www.redhat.com/magazine/009jul05/features/lvm2/</A>
 
 <H2>Software Mirror Boot and/or OS volume</H2>
 
-There are several ways to setup software mirror for the OS volume and/or the /boot volume.
-All have their pain point and their advantages.  pick your own poison :)
+There are several ways to setup software mirror for the OS volume (eg /)  and/or the /boot volume.
+<BR>
+For simple server just needing mirror across two disks, best to let installer do the mirror during initial setup.  Then the fact that it is not using RAID controller is largely transparent in daily sys admin task.  Maybe RAID controller is warranted only when doing storage server with many disks, but then ZFS maybe a better choice there.   RAID is also useful  if want to keep CPU free.  
 
+
+Also see discussion in 
+<A HREF="http://www.beowulf.org/pipermail/beowulf/2010-January/027256.html">hardware RAID versus mdadm versus LVM-striping</A> 
+<BR>
+summary: <BR>
+<LI> sw raid tends to be more flexible and easier for most sys admin to manage.  
+<LI> hw raid offload load and let cpu do other work.  
+<LI> hybrid hw + sw may give convinient large fs, but then painful in recovery situations.  should avoid.
+<BR>
+<BR>
+
+
+
+<H5>Installer setup mdadm mirror for /boot FS and LVM volume for OS FS</H5>
+
+This is the easiest method, use when setting the machine from scratch 
+using the RedHat installer (anaconda).
+<BR>
+See 
+<A HREF="https://www.tuxfixer.com/centos-7-installation-with-lvm-raid-1-mirroring/">
+CentOS 7 Installation with LVM RAID 1 – Mirroring</A> by tuxfixer, with screenshots of interactive GUI install.
+<BR>
+or
+<A HREF="https://access.redhat.com/solutions/4361">How to create LVM on Software RAID (mirroring) during installation of Red Hat Enterprise Linux using kickstart file?</A>(RedHat, login req)
+
+<BR><BR>
+
+Overall, installer wiil:
+
+<OL>
+<LI> select two disks for mirror during disk selection step of install process.
+<LI> /boot is setup as RAID device (mdadm)
+<LI> swap is a LVM volume group of RAID 1 - create new "centos" VG -- LV is centos-swap
+<LI> /    is a LVM volume group of RAID 1 - re-utilize "centos" VG -- LV is centos-root
+</OL>
+<BR>
+
+OS update don't need special steps.  /boot is mirrored constantly by mdadm.  <BR>
+Check on grub.conf though. <BR>
+So other than initial setup, normal operation is oblivious whether a HW RAID controller doing the mirror or SW mdadm.
+Disk recovery would be different, and some pre-emptive health check using smartctl, lmsensors and disk scrubbing.
+<BR>
+<BR>
+<!-- i am liking this, maybe better than dealing with the LSI or Dell Perc raid controller, but this tax the CPU rather than offload to a RAID card -->
+
+Verify mirror setup after machine is build:
+
+<PRE>
+cat /proc/mdstat 	# should see two mdNNN device
+blkid | grep boot 	# see 2 /dev/sd* disk and 1 /dev/mdNNN mdadm dev
+pvdisplay		# see single PV on the /dev/mdNN  mdadm dev, so LVM don't need to know about mirroring.
+vgdisplay		# see single VG called "centos"
+lvdisplay  		# see typical LV setup for a RHEL machine.  again, these don't know they are mirrored by mdadm
+
+</PRE>
+
+
+<H5>mdadm mirror whole disk - manual config after OS had been setup </H5>
+
+See 
+<A HREF="https://access.redhat.com/solutions/2390831">
+How do I convert my root disk to RAID1 after installation of Red Hat Enterprise Linux 7?</A>
+(redhat, login req) <BR>
+
+The target result is essentially same as above done by the anaconda installer.
+However, since exinsting partition/volume/fs exist, some data movement dance is required, thus taking many tedious steps to do.
+
+<EM>Characterisitcs</EM>
+
+<OL>
+<LI> This method use mdadm and mirror the whole disk (actually, multiple partitions on each disk that are raid devices)
+<LI> quite a number of steps, to be done after initial OS is setup
+<LI> mdadm mirror for /boot using /dev/md* device
+<LI> Then run LVM on top of the /dev/md* mirrored disk.  so LVM doesn't know that it is mirrored.  /boot and whatever volume that is placed inside the LVM get the underlaying mirroring done transparently.
+<LI> still need to update grub manually
+</OL>
+
+
+<EM>Commands</EM>
+
+<PRE>
+mdadm --create /dev/md0 --level=1 --raid-disks=2 missing /dev/sdb1 --metadata=1.0
+...
+pvmove /dev/sda2 /dev/md1   # move VG from regular disk to md device (mirrored)
+...
+dracut -f --mdadmconf
+</PRE>
+
+<BR>
+<BR>
+<BR>
 
 <H5>LVM mirror only OS volume(s)</H5>
 
 See
 <A HREF="https://access.redhat.com/solutions/1324843">
 How do I convert my LVM root disk to LVM mirror after installation of Red Hat Enterprise Linux 7?</A>
+(redhat, login required) <BR>
 
+The mdadm methods above are likely better.
+But this does not need to use mdadm if doesn't want to deal with that.  But leave /boot non mirrored and need manual sync
+each time there is an update.  <BR>
+Also, if doing mirror after OS has been setup, LVM-only approach req less acrobatic on the existing data thus a bit easier to carry out.
+
+<BR>
 <BR>
 <BR>
 
@@ -1657,44 +1776,15 @@ dmsetup table
 work be for RHEL7
 </PRE>
 
+<H5>convert single disk EFI boot to sw raid AFTER OS install</H5>
 
-<H5>mdadm for /boot, PV mirror for OS volume(s)</H5>
+If using EFI, may have to check into this:
+< A HREF="https://access.redhat.com/solutions/4194011">How to convert single disk EFI boot to software RAID after installation
+</A> (redhat "solution in progress").
 
-Easiest doen with modern anaconda installer, select both disks during setup.
-See 
-<A HREF="https://www.tuxfixer.com/centos-7-installation-with-lvm-raid-1-mirroring/">
-CentOS 7 Installation with LVM RAID 1 – Mirroring</A>
-
-
-<H5>mdadm mirror whole disk</H5>
-
-
-<OL>
-<LI> This method use mdadm and mirror the whole disk (?)
-<LI> quite a number of steps, to be done after initial OS is setup
-<LI> mdadm mirror for /boot using /dev/md* device
-<LI> Then run LVM on top of the /dev/md* mirrored disk?  so LVM doesn't know that it is mirrored.  /boot and whatever volume that is placed inside the LVM get the underlaying mirroring done transparently.
-<LI> still need to update grub manually
-</OL>
-
-See 
-<A HREF="https://access.redhat.com/solutions/2390831">
-How do I convert my root disk to RAID1 after installation of Red Hat Enterprise Linux 7?</A>
-
-
-<EM>Commands</EM>
-
-<PRE>
-mdadm --create /dev/md0 --level=1 --raid-disks=2 missing /dev/sdb1 --metadata=1.0
-...
-pvmove /dev/sda2 /dev/md1   # move VG from regular disk to md device (mirrored)
-...
-dracut -f --mdadmconf
-</PRE>
 
 <BR>
-<BR>
-<BR>
+
 
 
 <H1>File System Related Command</H1>
@@ -1730,6 +1820,7 @@ du -kl		= local disk in solaris?
 df -kl 		= report fs space usage of local fs, solaris and linux
 
 </PRE>
+
 
 <A NAME="undelete"></A>
 <A NAME="undelete_xfs"></A>
@@ -2428,7 +2519,8 @@ numactl -H
 numactl ... cmd  # run command with specific memory config info (eg, restrict malloc to Phi MCDRAM?) 
 
 lstopo
-lstopo-no-graphics
+lstopo-no-graphics aka hwloc-ls
+
 
 lscpu
 
@@ -2527,6 +2619,25 @@ vm.swappiness = 0
 
 </PRE>
 
+
+<H5>kargs</H5>
+
+<PRE>
+
+cat /proc/cmdline	# list of kargs passed to kernel at boot
+			# also reported in the first few lines of dmesg
+
+kargs are to be space separated.
+the comma used in some args are specific to that one arg, eg "console=ttyS1,115200n8"  are options for console, not kargs proper.
+
+"iommu=pt net.ifnames=0 biosdevname=0 acpi_irq_nobalance console=tty0 console=ttyS1,115200n8"
+
+iommu=pt is used by AMD for nic 
+net.ifnames=0 biosdevname=0 	# tell rhel 7 to use eth1, eth2 etc nic name rather than enp196s0f1 
+
+</PRE>
+
+
 <A NAME="sensors"></A>
 <H2>sensors</H2>
 
@@ -2601,10 +2712,13 @@ append to boot argument to kernel: nouveau.modeset=0 		# this worked on exalearn
  
 <PRE>
 edit /etc/default/grub :: 
-GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  		
+GRUB_CMDLINE_LINUX="[ . . . ] rhgb quiet rd.driver.blacklist=nouveau"  		# **ml4hep1 2020.1215**
 append to boot argument to kernel: nouveau.modeset=0 				# this worked on exalearn 2018.11
 (remove rhgb quiet for verbose text boot)
 grub2-mkconfig -o /boot/grub2/grub.cfg      # BIOS mode, UEFI need a diff config
+
+check with lsmod | grep nouveau
+cat /proc/cmdline
 
 
 sudo update-grub
@@ -2921,6 +3035,9 @@ sudo semanage login -l 	# list defined context for all users
 sudo semanage login -a -s user_u tin	
 			# hopefully will rid "Unable to get valid context for [USER]" in Mint when Gnome starts.
 
+
+semanage port -l | grep 514	# see if syslogd can use that port (@@ vs @ for tcp vs udp in rsyslog.conf)
+ps -eZ | grep syslog		# see process selinux context
 
 id -Z	# context of current user
 	# but not getting the info from $( semanage login -l ) ??!!
@@ -3320,6 +3437,7 @@ systemctl daemon-reload bruker_lmgr		# reload service after changes to init scri
 /etc/systemd/system				# dir where startup files are stored
 
 /etc/systemd/system/multi-user.target.wants	# expect sym link to /usr/lib/systemd/system
+/etc/systemd/system/                    	# can drop a file here and allow systemctl enable SVC_NAME ## preferred
 /etc/systemd/system/default.target.wants	# can drop a file here (uniq name that does not conflict with other service in /usr/lib/systemd/system) and it will be run on boot
 
 systemd-analyze blame						# time line of service starting, bottom = first service, top = last service
@@ -3348,7 +3466,8 @@ systemctl disable vncserver0			# remove sym link, but seems like service still l
 </PRE> 
 
 <PRE class="cf">
-# /etc/systemd/system/vncserver0.service
+# /etc/systemd/system/vncserver0.service  # ensure executable
+# systemctl daemon-reload
 # systemctl enable vncserver0			# add sym link to multi-user.target.wants to start the service
 [Unit]
 Description=Remote desktop service (VNC)
@@ -3611,8 +3730,17 @@ redhat-logiviewer	# GUI tool to parse many diff logs
 
 gqview			# acdsee like image viewer
 eog			# eyes of genome, graphics file viewer
+eom			# eyes of mate
 eeyes			# electric eyes
 gimp			# "photoshop"
+
+Oothers to ponder:
+sudo snap install irfanview # via wine
+gthumb			# thumbview, crop, resize (probably not resample)
+nomacs
+XnViewMP
+GwenView
+
 
 ethereal is replaced by wireshark
 but that only install text-based snooper called /usr/sbin/tshark
@@ -3708,16 +3836,30 @@ minicom -o -m	# -o = no modem init
 		#      which also use ^A for escape, thus req ^a, a, key combo.
 minicom -o -m  -D /dev/tty.usbserial -b 9600 --8bit 
 
-dmesg | egrep --color -i serial\|tty # should determine serial port, eg ttyS0
-/dev/cu* are said to be obsolete circal kernel 2.x days.
-
-
 one anoying thing seems that minicom param change in ALT-O is not fully
 effective right away, especially on change of serial port.  Need to save it
 eg as default .dlf, then restart minicom for it to become effective!
 
+
+screen /dev/tty.usbserial 9600   # worked in mint 19
+	# ^a k 		: kill the connection (terminate screen and its use of /dev/tty...)
+	# ^a ^b    	: send break (for sun's go prompt)   (don't need ^B (upper case B))
+	# ^a b    	: send break (for sun's go prompt)   (after ^a, it is ^b OR just b, not a triplet of key seq to send the break)
+
+serial speed to try:
+9600
+19200
+38400
+115200
 Solaris, use 9600, 8n1, no flow control (hardware of software).
 Acopia seems to have required Flow Control DTS/DTR.
+NetApp now use 115200 ?
+
+dmesg | egrep --color -i serial\|tty # should determine serial port, eg ttyS0 ttyUSB0
+/dev/cu* are said to be obsolete circal kernel 2.x days.
+kernel 3.x and 4.x has build in driver for most of the usb-serial adapter?
+mint and wall-e has driver for the start-tech (blue) and belkin.  
+if usb dev removed, /dev/ttyUSB0 will be removed.
 
 </PRE>
 
@@ -3971,11 +4113,12 @@ ctrl + alt + PrtScr ==> clipboard (current window)
 (cc) Tin Ho. See 
 <A HREF=psg.html>main page</A>
  for copyright info. <BR>
-Last updated: 2009-08-02
+Last updated: 2020-12-18
 <HR>
 <A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
 </div>
 <div class="sig"><BR>
+  sn50<BR>
   hoti1<BR>
   bofh1</div>
 

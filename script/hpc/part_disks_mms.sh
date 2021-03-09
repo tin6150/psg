@@ -1,18 +1,16 @@
 #!/bin/sh
 
-## script to fdisk a node with 3 ssd (sda:240g, sdb:240g, sdc:1900g) eg n0143.savio3 colfax gpu node
+## script to fdisk a node with 3 disk (sda:240g, sdb:240g, sdc:1900g) eg n0143.savio3, n0174.sav3 colfax gpu node
 ## Run script when node is first installed (or when hd has been replaced)
-## Originally by Bernard Li,
-## slightly modified, as there seems to be some typo... -Tin 2017.0711
-## This version from John that LVM mirror sda,sdb.  adapte on 2019.1204
-## 1st loc: psg/script/hpc/
-## 2nd loc: tin-bb/blpriv/hpcs_toolkit (TBD, since don't tend to run from that location)
 
 ## eg run
-## pdsh -w n0145.savio3 ~tin/PSG/script/hpc/part_disks_3ssd.sh
+## pdsh -w n0145.savio3 ~tin/PSG/script/hpc/part_disks_mms.sh # formerly part_disks_3ssd, but really 2 disks of small size + 1 larger disk.
+## whether ssd or not
 
 ## note that fstab should add "discard" clause for volume mounted on ssd (TRIM).
 ## lvm.conf should use issue_discards = 1
+## https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/managing_file_systems/discarding-unused-blocks_managing-file-systems
+## maybe as epilog action?
 
 ############################################################
 # sanity check make sure running fdisk on expected machine (ie nodes)

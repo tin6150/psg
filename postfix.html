@@ -243,9 +243,16 @@ sudo postmap /etc/postfix/sender-canonical
 
 Specify dbm instead of hash if your system uses dbm files instead of db files. To find out what lookup tables Postfix supports, use the command "postconf -m".
 
-Execute the command "postmap /etc/postfix/relay_recipients" whenever you change the relay_recipients table.
+Execute the command "postmap /etc/postfix/relay_recipient" whenever you change the relay_recipients table.
 	eg of relay-canonical (tailing x means "checked" to allow domain to relay):
 	@lbl.gov         x
+
+	# added additional domain on 2020.0718, 
+        # but not likely needed, as all email, even those to gmail.com, were forwarded to onward smtp server
+	@berkeley.edu    x
+	@es.net          x
+	@nersc.gov       x
+
 
 
 Execute the command "postmap /etc/postfix/transport" whenever you change the transport table.
@@ -319,7 +326,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
             <dc:creator><Agent><dc:title>Tin Ho</dc:title></Agent></dc:creator>
             <dc:rights><Agent><dc:title>Tin Ho</dc:title></Agent></dc:rights>
             <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
-            <dc:source rdf:resource="http://psg.ask-margo.com/" />
+            <dc:source rdf:resource="http://tin6150.github.io/psg/" />
             </Work>
             <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.5/"><permits rdf:resource="http://web.resource.org/cc/Reproduction"/>
                                        <permits rdf:resource="http://web.resource.org/cc/Distribution"/>
@@ -371,7 +378,7 @@ http://tin6150.github.io/psg/psg.html
 -->
 
 
-<A HREF="http://psg.ask-margo.com/psg.html">http://psg.ask-margo.com/psg.html</A> <BR>
+<A HREF="http://tin6150.github.io/psg/psg.html">http://tin6150.github.io/psg/psg.html</A> <BR>
 <A HREF="http://www.fiu.edu/~tho01/psg/psg.html">http://www.fiu.edu/~tho01/psg/psg.html</A> (no longer updated as of 2007-05)<BR>
 
 </div>       

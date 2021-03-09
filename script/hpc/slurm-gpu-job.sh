@@ -66,11 +66,12 @@
 
 LOGDIR=/global/scratch/tin/JUNK/
 MAQ=$(hostname)
-OUTFILE=$LOGDIR/$MAQ.out.rst
+TAG=$(hostname).$(date +%m%d.%H%M)
+OUTFILE=$LOGDIR/slurm-gpu-job.$TAG.out.rst
 
 hostname 
 
-# run whole thing in subshell to capture output to a file 
+# consider: run whole thing in subshell to capture output to a file 
 
 
 echo ----hostname-----------------------------------
@@ -111,11 +112,13 @@ module list    2>&1
 PRECISION=fp32 
 MODEL=inception3
 BATCH_SIZE=32 # --num_batches param, this  should take about 8 hours
-NUM_BATCHES=250000 # for V100 or colefax, need to change.
-#NUM_BATCHES=2500001 # for V100 or colefax, need to change.
+
+#NUM_BATCHES=250000 # for V100 or colefax, need to change.  # real    951m51.584s # user    6718m43.128s # sys     525m50.911s
+NUM_BATCHES=2500001 # for V100 or colefax, need to change.
 #NUM_GPU=4							
-#NUM_GPU=7							
-NUM_GPU=2							
+#NUM_GPU=2							
+#NUM_GPU=7 #8
+NUM_GPU=8
 
 echo "---about to start tf cnn benchmark  --------------------"
 
@@ -134,9 +137,13 @@ echo "---about to start tf cnn benchmark  --------------------"
 echo time python /global/scratch/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
 
 date > /global/scratch/tin/JUNK/test-gpu.start.LOG.$MAQ 
+date > /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.begin
 #~time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.log
-time python /global/scratch/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.LOG.$MAQ  # es1 path
+#/time python /global/scratch/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.LOG.$MAQ  # es1 path
+#/time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.log
+time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.log
 date > /global/scratch/tin/JUNK/test-gpu.end
+date > /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.end
 
 
 ( 

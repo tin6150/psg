@@ -1,0 +1,18 @@
+image: ruby:2.7
+
+pages:
+  script:
+    - date
+    - mkdir .public
+    - cp -r * .public
+    #- (tar cf - * ) | ( cd .public; tar xf - )
+    - mv .public public
+    - date
+    - find . 
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+
+## https://docs.gitlab.com/ee/user/project/pages/introduction.html#gitlab-pages-on-gitlabcom
