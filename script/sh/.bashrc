@@ -1,4 +1,5 @@
 ## .bashrc ##
+[ "$GROUPS" = "40046" ] || newgrp pc_adjoint
 
 ##
 ##  it seems that .bashrc is NOT sourced when doing sudo su - username
@@ -202,6 +203,9 @@ add_hpcs_module () {
 			#module load intel openmpi mkl
 			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
 			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
+			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
+			export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
+			#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/compiler/lib/intel64_lin
 			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
 			#//brc has different version number for hdf5... not needed there... 
 	
@@ -233,6 +237,15 @@ add_hpcs_module () {
 
 	fi
 
+	# below should allow use of n0001 (and fqdn will add .cm2 to mpi ssh)
+	export OMPI_MCA_orte_keep_fqdn_hostnames=t
+	export MKL_DEBUG_CPU_TYPE=5
+	#export HPL_LOG=2
+	#export I_MPI_DEBUG=4
+	#export OMP_DISPLAY_ENV=verbose
+	export OMP_NUM_THREADS=4
+	export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
+
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"
 } # end add_hpcs_module 
 
@@ -240,7 +253,8 @@ add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
 	AddtoString PATH /global/home/groups/scs/IB-tools 
 	AddtoString PATH /global/home/groups/scs/tin
-	AddtoString PATH /global/scratch/tin/meli           # osu_*
+	#AddtoString PATH /global/scratch/tin/meli           # osu_*
+	AddtoString PATH /global/home/groups/scs/meli/      # osu_*
 	AddtoString PATH /global/home/groups/scs/yqin		# stream
 	##--echo "Path after mocking: $PATH"
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
@@ -338,7 +352,7 @@ defineAlias () {
 	alias assoc="sacctmgr show associations -p"                    ##slurm
 	alias sevents="sacctmgr show events start=2018-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
 
-    alias sinfo-N='sinfo --Node --long --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
+    alias sinfo-N='sinfo --Node --format "%14P %N %.8t %E"' # better sinfo --Node; incl idle  ##slurm partition name first (though subject to repeat), then node
     # -N is node centric, ie one node per line, has to be first arg
     # -p PARTNAME  # can add this after aliased command instead of using grep for specific queue
 	alias sinfo-f='sinfo --Node --long --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
@@ -486,7 +500,7 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
 add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
-#add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
+add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
 add_personal_module 
 add_cosmic_module 
 
