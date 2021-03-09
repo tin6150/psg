@@ -162,3 +162,6 @@ exit 0
 #### example submission
 #### sbatch -w n0144.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:4 --time=05:40:59 --mail-type=NONE --job-name=n0144.savio3_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 
+#### sbatch -w n0145.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:8 --time=9-00:58:59 --mail-type=NONE --job-name=145savSlurmGpuTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh
+### or just invoke this script locally on a drained node!
+### ./slurm-gpu-job.sh | tee slurm-gpu-job.n0145-sav3.2021.0303.out
