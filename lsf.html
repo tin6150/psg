@@ -575,16 +575,61 @@ to
 AccountingStorageTRES=Gres/gpu,license/2080,license/3080,license/rtx,license/v100
 
 then add to qos so select user can use such gpu "license"
-GrpTRES=3080=4
-
-maybe something like
-sacctmgr modify qos yun_gpu3_normal set  GrpTRES=3080=4
 
 
 sacctmgr add qos savio_lowprio 
-sacctmgr add qos geforce_2080ti2_normal Preempt=savio_lowprio GrpTRES="cpu=32,gres/gpu:GTX2080TI=16" MinTRES="cpu2,gres/gpu=1" Priority=1000000
+sacctmgr add qos geforce_2080ti2_normal Preempt=savio_lowprio GrpTRES="cpu=32,gres/gpu:GTX2080TI=16" MinTRES="cpu=2,gres/gpu=1" Priority=1000000  # did not enforce job land on gtx2080ti 
+sacctmgr add qos geforce_2080ti2_normal Preempt=savio_lowprio GrpTRES="cpu=32,gres/gpu:GTX2080TI=16" MinTRES="cpu=2,gres/gpu:gtx2080ti=1" Priority=1000000  # seems to enforce
+
+sacctmgr add qos titan_2080ti3_normal Preempt=savio_lowprio GrpTRES="cpu=32,gres/gpu:TITAN=16" MinTRES="cpu=2,gres/gpu:titan=1" Priority=1000000  # seems to enforce, but must specify this MinTRES
+sacctmgr modify qos titan_2080ti3_normal set GrpTRES="cpu=32,gres/gpu:TITAN=16" MinTRES="cpu=2,gres/gpu:titan=1" Priority=1000000  # seems to enforce, but must specify this MinTRES
+
+sacctmgr add qos titanB_2080ti3_normal Preempt=savio_lowprio GrpTRES="cpu=32,gres/gpu:TITAN=16" MinTRES="cpu=2" Priority=1000000  # no MinTRES for gres
+sacctmgr add qos titanC_2080ti3_normal Preempt=savio_lowprio GrpTRES="cpu=32,gres/gpu:TITAN=16" Priority=1000000  # no MinTRES
+
+sacctmgr modify user tin set qos+=titanC_2080ti3_normal
+
+how to change MinTRES?  this dont work:
+sacctmgr modify qos titan_2080ti3_normal  set MinTRES="cpu=2"
+
+test with (repeat to see if land elsewhere, may have to create congestion):
+srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal -n 2 --gres=gpu:GTX2080TI:1 --time=00:30:00 bash
+srun --pty --partition=savio3_2080ti --account=scs --qos=titan_2080ti3_normal -n 2 --gres=gpu:TITAN:1 --time=00:30:00 bash
+
+but if don't specify subtype, the job will get stuck as PENDING QOSMinGRES
+ 
+
+per https://slurm.schedmd.com/resource_limits.html
+bottom section on "Specific Limits Over Gres", 
+slurm design limitation can't enforce subtypes are used.  A lua plugin script could help.  
+But then that create forced fragmentation and won't let user run on varying gpu types.
+
+An alternative is to use license to give user preferential access...
+
+sacctmgr add qos lic_titan_normal Preempt=savio_lowprio GrpTRES="cpu=192,gres/gpu:TITAN=96,license/titan=96" MinTRES="cpu=2,gres/gpu=1,license/titan=1" Priority=1000000
+sacctmgr add qos lic_titan_normal Preempt=savio_lowprio GrpTRES="cpu=192,gres/gpu:TITAN=96,license/titan=96" MinTRES="cpu=2,license/titan=1" Priority=1000000
+sacctmgr add qos lic_titan_normal Preempt=savio_lowprio GrpTRES="cpu=192,license/titan=96" MinTRES="cpu2,gres/gpu=1" Priority=1000000
+
+sacctmgr add qos lic_naomi_normal Preempt=savio_lowprio GrpTRES="cpu=8,gres/gpu:3080=8,license/3080=8" MinTRES="cpu=1,license/3080=1" Priority=1000000
+
+hmm... the partition need to be updated to say they require the license TRES...
+
 </PRE>
 
+
+Other places to restrict user access...
+
+<PRE>
+
+slurm.conf PartitionName def, has a AllowGroups, AllowAccounts, AllowQos that govern who can use this partition.
+Partition Qos.  
+
+(similar thing may exist for Node defintion, or is that only for "FrontEnd" nodes?  doc is not clear)
+
+sacctmgr show tres
+
+
+</PRE>
 
 
 
