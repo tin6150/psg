@@ -5,18 +5,18 @@
 
 
 
-        if [[ -f /global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img ]]; then
-                RACIMG=/global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img       ## 2021.03
-        elif [[ -f /global/home/users/tin-bofh/singularity-repo/dell_idracadm.img ]]; then
-                RACIMG=/global/home/users/tin-bofh/singularity-repo/dell_idracadm.img
-        elif [[ -f /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img ]]; then
-                RACIMG=/global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img
-        elif [[ -f RACIMG=/global/scratch/tin/singularity-repo/dell_idracadm.img ]]; then
-                RACIMG=/global/scratch/tin/singularity-repo/dell_idracadm.img
-        else
-                echo RACIMG not found, exiting
-                exit -1
-        fi
+if [[ -f /global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img ]]; then
+		RACIMG=/global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img       ## 2021.03
+elif [[ -f /global/home/users/tin-bofh/singularity-repo/dell_idracadm.img ]]; then
+		RACIMG=/global/home/users/tin-bofh/singularity-repo/dell_idracadm.img
+elif [[ -f /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img ]]; then
+		RACIMG=/global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img
+elif [[ -f RACIMG=/global/scratch/tin/singularity-repo/dell_idracadm.img ]]; then
+		RACIMG=/global/scratch/tin/singularity-repo/dell_idracadm.img
+else
+		echo RACIMG not found, exiting
+		exit -1
+fi
 
 
 #RacAdmCmd='singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm'
@@ -30,15 +30,15 @@ $RacAdmCmd set BIOS.ProcSettings.SubNumaCluster   Disabled #is default, only use
 #$RacAdmCmd set BIOS.SysProfileSettings.SysProfile PerfOptimized  # default
 #$RacAdmCmd set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedDapc       # said to save energy
 #$RacAdmCmd set BIOS.SysProfileSettings.SysProfile PerfPerWattOptimizedOs         # may save energy, seems to introduce clock/timing bug
-#// $RacAdmCmd set BIOS.SysProfileSettings.SysProfile Custom  ## 2021 bios has PerfOptimized
+#// $RacAdmCmd set BIOS.SysProfileSettings.SysProfile Custom  ## 2021 bios has PerfOptimized, use that config
 ## >> tweak >>
 $RacAdmCmd set BIOS.ProcSettings.ControlledTurbo  Disabled # was Enabled        # allow for external control of when to engage turbo?  Def: Disabled.
 
 
 ## tmp test>>
 ### leaving it as profile settings and not changing
-##$RacAdmCmd set BIOS.SysProfileSettings.ProcTurboMode  Enabled    # read-only unless in custom profile, def=Enabled. 
-#++$RacAdmCmd set BIOS.SysProfileSettings.ProcTurboMode  Disabled     # read-only unless in custom profile, def=Enabled. 
+##$RacAdmCmd set BIOS.SysProfileSettings.ProcTurboMode  Enabled    # read-only unless in custom profile, def=Enabled.     ## most system have profile that have this setting as Enabled.  
+#//$RacAdmCmd set BIOS.SysProfileSettings.ProcTurboMode  Disabled     # read-only unless in custom profile, def=Enabled. 
 
 $RacAdmCmd set BIOS.SysProfileSettings.ProcCStates Autonomous    # def: Disabled. alt: Enabled # to allow proc to operate in all avail power state
 $RacAdmCmd set BIOS.SysProfileSettings.UncoreFrequency DynamicUFS        # def: MaxUFS	# did not find setting for SM/KNL 
@@ -80,15 +80,22 @@ hostname > $BIOSOUT
 date    >> $BIOSOUT
 echo "" >> $BIOSOUT
 
-BiosItemList=$(singularity exec -B /var/run    /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm get BIOS. | xargs)
+#--BiosItemList=$(singularity exec -B /var/run    /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm get BIOS. | xargs)
+BiosItemList=$($RacAdmCmd get BIOS. | xargs)
 for Item in $BiosItemList; do
-        singularity exec -B /var/run    /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  get BIOS.$Item 
+        #singularity exec -B /var/run    /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  get BIOS.$Item 
+        $RacAdmCmd get BIOS.$Item 
 done >> $BIOSOUT
 
 cat $BIOSOUT | egrep '^n0|2018$|MemOpMode|SubNumaCluster|SysProfile|Turbo|NodeInterleave|LogicalProc|Virtual|CStates|Uncore|EnergyPerf|ProcC1E' | tee $BIOSHIGHLIGHT
 
 chown tin $BIOSOUT $BIOSHIGHLIGHT
 
+echo ""
+echo "====================================================="
+echo "Power cycle machine for bios changes to be effective:"
+echo "$RacAdmCmd serveraction powercycle"
+echo ""
 
 # use either of the cmd below to power cycle
 # $RacAdmCmd serveraction powercycle 
