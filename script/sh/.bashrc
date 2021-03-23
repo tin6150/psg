@@ -1,10 +1,19 @@
 ## .bashrc ##
-##~~[ "$GROUPS" = "40046" ] || newgrp pc_adjoint
 
-## 2020.1217 bofh
-##//SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
-#SSH_AGENT_PID=127; export SSH_AGENT_PID;
-#echo Agent pid 127;
+MAQUINA=$(hostname)  # repeated below... fix later
+
+# check if interactive shell, other stuff that break scp need to go in this block  , eg newgrp
+if [[ $- == *i* ]]; then
+
+	if [[ ${MAQUINA} == *lbl || ${MAQUINA} == *lr* ]]; then
+		echo "lrc machine, interactive shell, setting newgrp"
+    	[ "$GROUPS" = "40046" ] || newgrp pc_adjoint
+	fi
+	## 2020.1217 bofh
+	#SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
+	#SSH_AGENT_PID=127; export SSH_AGENT_PID;
+	#echo Agent pid 127;
+fi
 
 ##
 ##  it seems that .bashrc is NOT sourced when doing sudo su - username
@@ -521,14 +530,17 @@ add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to cod
 add_personal_module 
 add_cosmic_module 
 
-setPrompt 
-defineAlias
-defineAliasMac
-#defineAliasSge
-[[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
-##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
 
+# these should not be needed unless in interactive shell
+if [[ $- == *i* ]]; then
+	setPrompt 
+	defineAlias
+	defineAliasMac
+	#defineAliasSge
+	[[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
+	##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
 
+fi
 
 
 
