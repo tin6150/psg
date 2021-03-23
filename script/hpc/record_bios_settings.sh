@@ -79,8 +79,20 @@ record_bios_settings_supermicro () {
 record_bios_settings_dell () {
 	#RACIMG=/global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img
 	#XXRACIMG=/global/home/users/tin/gs/singularity-repo/dirac1_dell_idracadm.img 
-	#RACIMG=/global/scratch/tin/singularity-repo/dell_idracadm.img
-	RACIMG=/global/home/users/tin-bofh/singularity-repo/dell_idracadm.img
+
+	if [[ -f /global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img ]]; then
+		RACIMG=/global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img
+	elif [[ -f /global/home/users/tin-bofh/singularity-repo/dell_idracadm.img ]]; then
+		RACIMG=/global/home/users/tin-bofh/singularity-repo/dell_idracadm.img
+	elif [[ -f /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img ]]; then
+		RACIMG=/global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img
+	elif [[ -f RACIMG=/global/scratch/tin/singularity-repo/dell_idracadm.img ]]; then
+		RACIMG=/global/scratch/tin/singularity-repo/dell_idracadm.img
+	else
+		echo RACIMG not found, exiting
+		exit -1
+	fi
+
 
 	#BiosItemList=$(singularity exec -B /var/run    /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm get BIOS. | xargs)
 	BiosItemList=$(singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm get BIOS. | xargs)
