@@ -627,7 +627,12 @@ condaSetup4sn () {
 }
 
 
-condaSetup4sn  # strange problem on bofh
+if [[ x${MAQUINA} == x"bofh" ]]; then
+	if [[ $- == *i* ]]; then
+		echo "strange problem on bofh, disabled conda setup for now"
+	fi
+	#condaSetup4sn  # strange problem on bofh, disabled for now
+fi
 
 
 export OMPI_MCA_orte_keep_fqdn_hostnames=t

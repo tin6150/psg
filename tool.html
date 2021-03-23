@@ -324,12 +324,18 @@ Micron Pro are Sequential Read optimized, Max are good for random access.  Max r
 
 
 			Seq r/w Rnd r/w
-			MB/s	IOPS
----------------------	-------	-------	----	
+			MB/s	MB/s	    IOPS
+---------------------	-------	---------   ----	
 Samsung HD501LJ 7200rpm  80-90 
 WD Caviar Green 5400rpm 223
 WD Red          5400rpm 368
-Seagate Barracu 7200rpm 410     150? 
+Seagate Barracu 7200rpm 410      ?           120 is what NetApp use for calculations).  
+				
+
+For performance rule of thumb, 
+estimate 7200 RPM drive to give about 100 to 150 MB/s.
+This would be combination of sequential and random IO
+which would mean about 1MB per IO-operation for drive doing 100-150 IOPS.
 
 </PRE>
 
