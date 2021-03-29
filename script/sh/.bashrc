@@ -528,8 +528,9 @@ add_hpcs_bin
 add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
 if [[ -f ~/.FLAG_cmaq_test_yes ]]; then
 	add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
-else
-
+elif [[ -f ~/.FLAG_staging_test_yes ]]; then
+	# staging env for hpl maybe the default if not running cmaq env.... tbd
+	echo "tbd: place module load for run_staging_test script requiment here, maybe call one of the subroutine..."
 fi 
 add_personal_module 
 add_cosmic_module 
