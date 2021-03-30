@@ -7,7 +7,7 @@ if [[ $- == *i* ]]; then
 
 	if [[ ${MAQUINA} == *lbl || ${MAQUINA} == *lr* ]]; then
 		echo "lrc machine, interactive shell, setting newgrp"
-    	[ "$GROUPS" = "40046" ] || newgrp pc_adjoint
+    	#~ [ "$GROUPS" = "40046" ] || newgrp pc_adjoint
 	fi
 	## 2020.1217 bofh
 	#SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
@@ -158,7 +158,7 @@ add_cmaq_module () {
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
 		echo "noop" > /dev/null
-		module load git vim
+		module load git vim/7.4  # 8.2 was for nano only.
 		#if [[ -d /global/software/sl-7.x86_64/modules/gcc ]] ; then 
 		if [[ -d /global/software/sl-7.x86_64/modules/gcc && -d /global/software/sl-7.x86_64/modules/tools/tmux/ ]] ; then 
 				#> module list from pghuy
@@ -526,7 +526,12 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
 add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
-add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
+if [[ -f ~/.FLAG_cmaq_test_yes ]]; then
+	add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
+elif [[ -f ~/.FLAG_staging_test_yes ]]; then
+	# staging env for hpl maybe the default if not running cmaq env.... tbd
+	echo "tbd: place module load for run_staging_test script requiment here, maybe call one of the subroutine..."
+fi 
 add_personal_module 
 add_cosmic_module 
 
