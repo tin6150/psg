@@ -36,7 +36,7 @@
 #CentralLogRepo=/global/home/users/tin/CF_BK/cf1/sm_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/dell_bios_cf
-CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/bios_cf
+CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/BIOS_CF
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/savio2/sm_bios_cf
 #FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
 FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
@@ -45,6 +45,7 @@ test -d ${BiosBkDir} || mkdir ${BiosBkDir} > /dev/null 2>&1
 
 
 BIOSOUT=/tmp/bios.settings.out
+SysStateOUT=/tmp/sysState.out
 BIOSHIGHLIGHT=/tmp/bios.settings.highlight
 
 hostname > $BIOSOUT
@@ -100,12 +101,28 @@ record_bios_settings_dell () {
 		singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm  get BIOS.$Item 
 	done >> $BIOSOUT
 
+	# the *Historical data hopefully show info if there were abnormalities.  unproven at this point
+	BiosItemList2="System.ChassisInfo System.ThermalHistorical System.Power System.Power.RedundancyPolicy System.PowerHistorical System.ServerPwr iDRAC.Info iDRAC.WebServer iDRAC.VNCServer"
+	for Item in $BiosItemList2; do
+		singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm  get $Item  
+	done >> $BIOSOUT
+
+
+    printf "\n\n====dmidecode====\n\n" > $SysStateOUT
+    dmidecode >> $SysStateOUT
+	singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm  get -f /tmp/racadm.iDRAC.alert.log  ## -f redirection to file produce a much longer output than to console
+    printf "\n\n====/tmp/racadm.iDRAC.alert.log====\n\n" >> $SysStateOUT
+    cat /tmp/racadm.iDRAC.alert.log >> $SysStateOut
+	
+
 	cat $BIOSOUT | egrep '^n0|2018$|MemOpMode|SubNumaCluster|SysProfile|Turbo|NodeInterleave|LogicalProc|Virtual|CStates|Uncore|EnergyPerf|ProcC1E' | tee $BIOSHIGHLIGHT
 	#echo "----knl----" | tee -a $BIOSHIGHLIGHT
 	echo this is new file...
 	cat $BIOSOUT | egrep 'ProcEmbMemMode|SystemMemoryModel|DynamicCoreAllocation|ProcConfigTdp' | tee -a $BIOSHIGHLIGHT
 	MAQ=$(hostname)
-	cp $BIOSOUT  ${BiosBkDir}/${MAQ}.bios.settings.out > /dev/null 2>&1
+	cp $BIOSOUT        ${BiosBkDir}/${MAQ}.bios.settings.out   > /dev/null 2>&1
+	cp $BIOSHIGHLIGHT  ${BiosBkDir}/${MAQ}.bios.highlight.out  > /dev/null 2>&1
+	cp $SysStateOUT    ${BiosBkDir}/${MAQ}.SysState.out        > /dev/null 2>&1
 	echo " record_bios_settings_dell done, output collected to /tmp and possibly ${BiosBkDir}"
 } # end record_bios_settings_dell fn
 
