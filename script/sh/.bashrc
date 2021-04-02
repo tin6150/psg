@@ -20,6 +20,11 @@ if [[ $- == *i* ]]; then
 		SSH_AGENT_PID=93297; export SSH_AGENT_PID;
 		echo Agent pid 93297;
 	fi
+	if [[ ${MAQUINA} == Tin-T55* ]]; then
+SSH_AUTH_SOCK=/tmp/ssh-R5kxgEX4sK7K/agent.80; export SSH_AUTH_SOCK;
+SSH_AGENT_PID=81; export SSH_AGENT_PID;
+echo Agent pid 81;
+	fi
 fi
 
 ##
