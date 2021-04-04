@@ -258,14 +258,16 @@ To simplify life, settings are done per directory basis, but lustre apply to fil
 
 <H5>Check/Set striping</H5>
 
+<PRE>
 lfs getstripe -d .          # -d = --directory only
 lfs getstripe    . | less   # long listing include stripe setting for all files in the dir
 lfs getstripe my-file       # stripe setting for "my-file" only.  multiple obdidx would be stripping on such ost index number
 lfs setstripe -c -1 .       # -c = --stripe-count -1=use all ost
 
 changing stripe-count only affect future blocks it be appended to a file, does not restripe the existing blocks. 
+</PRE>
 
-<H5>Method Default</H5>
+<H5>Method 0: Default</H5>
 
 <PRE>
 
