@@ -13,6 +13,18 @@ if [[ $- == *i* ]]; then
 	#SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
 	#SSH_AGENT_PID=127; export SSH_AGENT_PID;
 	#echo Agent pid 127;
+
+	if [[ ${MAQUINA} == Tin-M02* ]]; then
+		echo "mac sh1t"
+		SSH_AUTH_SOCK=/var/folders/qk/t6l5_mw162q55y4fkm5_x8bm001_cn/T//ssh-P1ZcGWTe9SXO/agent.93295; export SSH_AUTH_SOCK;
+		SSH_AGENT_PID=93297; export SSH_AGENT_PID;
+		echo Agent pid 93297;
+	fi
+	if [[ ${MAQUINA} == Tin-T55* ]]; then
+SSH_AUTH_SOCK=/tmp/ssh-R5kxgEX4sK7K/agent.80; export SSH_AUTH_SOCK;
+SSH_AGENT_PID=81; export SSH_AGENT_PID;
+echo Agent pid 81;
+	fi
 fi
 
 ##
