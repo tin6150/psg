@@ -1,19 +1,18 @@
 ## .bashrc ##
 
-MAQUINA=$(hostname)  # repeated below... fix later
+MAQUINA=$(hostname)  
 
-# check if interactive shell, other stuff that break scp need to go in this block  , eg newgrp
+####
+#### begin messy ssh-agent block
+####
+
 if [[ $- == *i* ]]; then
-
-	if [[ ${MAQUINA} == *lbl || ${MAQUINA} == *lr* ]]; then
-		echo "lrc machine, interactive shell, setting newgrp"
-    	#~ [ "$GROUPS" = "40046" ] || newgrp pc_adjoint
+	if [[ ${MAQUINA} == bofh ]]; then
+		# 2021.0404 tmux
+		SSH_AUTH_SOCK=/tmp/ssh-8gkyQnCum7Fi/agent.28453; export SSH_AUTH_SOCK;
+		SSH_AGENT_PID=28454; export SSH_AGENT_PID;
+		echo Agent pid 28454;
 	fi
-	## 2020.1217 bofh
-	#SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
-	#SSH_AGENT_PID=127; export SSH_AGENT_PID;
-	#echo Agent pid 127;
-
 	if [[ ${MAQUINA} == Tin-M02* ]]; then
 		echo "mac sh1t"
 		SSH_AUTH_SOCK=/var/folders/qk/t6l5_mw162q55y4fkm5_x8bm001_cn/T//ssh-P1ZcGWTe9SXO/agent.93295; export SSH_AUTH_SOCK;
@@ -24,6 +23,19 @@ if [[ $- == *i* ]]; then
 SSH_AUTH_SOCK=/tmp/ssh-R5kxgEX4sK7K/agent.80; export SSH_AUTH_SOCK;
 SSH_AGENT_PID=81; export SSH_AGENT_PID;
 echo Agent pid 81;
+	fi
+fi
+
+####
+#### end messy ssh-agent block
+####
+
+##   could have lumped this into above if, but the ssh key will likely be a mess pesistently
+#    check if interactive shell, other stuff that break scp need to go in this block  , eg newgrp
+if [[ $- == *i* ]]; then
+	if [[ ${MAQUINA} == *lbl || ${MAQUINA} == *lr* ]]; then
+		echo "lrc machine, interactive shell, setting newgrp"
+    	#~ [ "$GROUPS" = "40046" ] || newgrp pc_adjoint
 	fi
 fi
 
@@ -494,7 +506,7 @@ export EDITOR=vi
 ### some check for host specific stuff
 ################################################################################
 
-MAQUINA=$(hostname)
+## MAQUINA=$(hostname)  ## now done at top
 
 if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
