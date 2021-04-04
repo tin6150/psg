@@ -37,7 +37,8 @@
 #SBATCH				--qos=savio_normal 
 #SBATCH				--account=scs
 
-#SBATCH				--partition=savio3
+#	#SBATCH				--partition=savio3_bigmem
+#	#SBATCH				--partition=savio3
 #	#SBATCH			--partition=cf1
 
 #### gpu gres request
@@ -148,8 +149,9 @@ singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr
 
 ) > $OUTFILE   # capture all cmd list into a file name I prefer, slurm -o is too limitig
 
-#exit 0			#### comment out if want to run more test!                       ####
-
+exit 0			#### comment out if want to run more test!                       ####
+exit 0
+exit 007
 
 ################################################################################
 ##### stress tool to spin cpu and check power usage
@@ -174,7 +176,7 @@ echo "==== stress test via singularity next ====================================
 #TIME=20660  ## ~5.6 hours
 TIME=60      ## 60 sec.  this stupid thing tends to hang when killed and may leave slurm with CG job status :/
 echo running... singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
-singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
+echo disabled... singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stress  --io 6 --hdd 2  --vm 64 -t $TIME
 
 ) >> $OUTFILE   # append/capture the whole thing into a file name I prefer, slurm -o is too limitig
 
@@ -271,14 +273,20 @@ exit 0
 
 
 #for T in $(seq -w 0279 0281); do
-for T in $(seq -w 0236 0237); do
-        sbatch -w n${T}.savio2 --job-name=N${T}_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
+for T in $(seq -w 0193 0196); do
+        sbatch -w n${T}.savio3 --job-name=N${T}_allNodeTest --partition=savio3 --reservation=tin_244 /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh 
 done
+## partition name has to be before the script or it will be ignored! oh, cuz then it think is param for the script
 
+	echo sbatch -w n0004.savio3 --job-name=N4_allNodeTest --partition=savio3_gpu --reservation=tin_243 /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh 
+
+for T in $(seq -w 0178 1 0192); do
+        sbatch -w n${T}.savio3 --job-name=N${T}_allNodeTest --partition=savio3_bigmem --reservation=tin_240 /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh 
+done
 
 ## example submit to idle nodes only
 ## see slurm-allIdle-brc.sh  for more elaborate test?
-NODELIST=$( sinfo --Node --long --format '%N %20P %.8t' | awk '/idle/ {print $1}' | tail -2 )
+NODELIST=$( sinfo --Node --format '%N %20P %.8t' | awk '/idle/ {print $1}' | tail -2 )
 for NODE in $NODELIST; do
 	echo sbatch -w ${NODE} --job-name=${NODE}_allNodeTest /global/scratch/tin/tin-gh/psg/script/hpc/slurm-allnodes-lr5.sh
 done

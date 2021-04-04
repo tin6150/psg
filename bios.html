@@ -422,6 +422,15 @@ When CPU doesn't perform, check these params (racadm):
 							# alt: BalancedPerformance, BalancedEfficiency, LowPower
 </PRE>
 
+Note: Lost of redundant power supply may cause system to clock down significantly, eg turbostat may report 800 MHz on a 2.1 GHz CascadeLake 6230.
+
+Checking the following may help to see if there is not enough power supplied to the system:
+racadm get System.ChassisInfo 
+System.Power System.Power.RedundancyPolicy System.PowerHistorical System.ServerPwr iDRAC.Info iDRAC.WebServer iDRAC.VNCServer
+omreport may have data, if can get it to work
+dmidecde -t chassis
+
+
 <!--
 singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
 
@@ -544,6 +553,25 @@ racadm fwupdate -s   # query update process
 
 # http://www.dell.com/support/home/vi/en/vibsdt1/drivers/driversdetails?driverId=278FC
 wget https://downloads.dell.com/FOLDER04457684M/1/iDRAC-with-Lifecycle-Controller_Firmware_278FC_LN_2.50.50.50_A00.BIN
+
+-->
+
+<!--
+
+bios update (not full lifecycle/idrac stuff??)
+BIOS_YP88M_WN64_2.9.3_01 as .bin .efi (uEFI uses DOS exec)  .exe   just run on host as root??
+	cp -pR /global/scratch/tin/Downloads/dell/  /local
+
+	bash BIOS_YP88M_LN_2.9.3_01.BIN
+	Collecting inventory...
+	Running validation...
+	PowerEdge BIOS
+	The version of this Update Package is newer than the currently installed version.
+	Software application name: BIOS
+	Package version: 2.9.3
+	Installed version: 2.5.4
+	Continue? Y/N:
+
 
 -->
 

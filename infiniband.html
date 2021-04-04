@@ -574,7 +574,7 @@ mlxlink -d af:00.0 -m  | grep Part
 	Vendor Part Number  : MCP1600-E002E30	# EDR QSFP+  DAC ## n0004sav3 works as FDR (CX5 HBA, FDR switch)
 	Vendor Part Number  : MC2207130-002	# FDR QSFP+  DAC VPI 56 Gbps IB/40 Gbps Eth ## n0150sav3 
 
-the C0002 version is an ethernet cable, in IB it will negotiate to 10Gb (or 100Gb, but NOT 56Gb).
+the C0002 version is an ethernet cable, in IB it will negotiate to 10Gb in FDR config, and not work at all for EDR config.  
 the E002E30 version is IB and can negotiate down to 56Gb and run at FDR rate!
 part matter!!
 

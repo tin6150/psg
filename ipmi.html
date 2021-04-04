@@ -104,7 +104,7 @@ ipmitool user list 1	# list users configured to use ipmi
 ipmitool chassis identify	# blink location becon (typically blue) to help find machine
 
 ipmitool chassis bootdev pxe options=persistent		# change to use pxe boot by default on every boot.
-ipmitool -l lan -U root -P calvin -H 10.8.1.76 chassis bootdev pxe options=persistent
+ipmitool -I lan -U root -P calvin -H 10.8.1.76 chassis bootdev pxe options=persistent
 		# issue the ipmi command remotely to a remote host using the remote iDRAC interface
 
 
@@ -291,8 +291,18 @@ ipmitool -I lanplus -U root -P ipmipw -H 172.10.0.128 sol deactivate # if some o
 exit
 rm ~/.history
 
-# most ipmitool over lan uses tcp/623, test connectivity eg:
+# most ipmitool over lan uses 623.
+# dell idrac says use UDP 623
+# but on SMC, can use telnet to port 623 and get connection established, so it is over TCP??!!
+# test connectivity eg:
 telnet 172.10.0.128 623
+
+possible test for connectivity:
+
+traceroute --port=623 172.10.0.128
+
+
+traceroute --port=33434 is the default, it is Destination UDP port that this pokes at.
 
 </PRE>
 
@@ -310,6 +320,10 @@ http://snarkybrill.blogspot.com/2015/08/mgetty-in-systemd-for-modem-dial-in.html
 #  https://www.symantec.com/connect/articles/how-do-sol-serial-over-lan-aka-console-redirection-dell-servers
 <BR>
 
+
+https://topics-cdn.dell.com/pdf/idrac9-lifecycle-controller-v3212121_users-guide_en-us.pdf
+page 31,32 discuss firewall req for iDRAC.  states UDP 623.
+Remote console need VNC on port TCP/5900 and 5901
 
 
 <H5>Remote Power Cycle using IPMI</H5>

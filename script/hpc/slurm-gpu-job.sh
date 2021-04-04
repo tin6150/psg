@@ -112,9 +112,11 @@ module list    2>&1
 PRECISION=fp32 
 MODEL=inception3
 BATCH_SIZE=32 # --num_batches param, this  should take about 8 hours
-NUM_BATCHES=250000 # for V100 or colefax, need to change.  # real    951m51.584s # user    6718m43.128s # sys     525m50.911s
-#NUM_BATCHES=2500001 # for V100 or colefax, need to change.
-#NUM_GPU=4
+
+#NUM_BATCHES=250000 # for V100 or colefax, need to change.  # real    951m51.584s # user    6718m43.128s # sys     525m50.911s
+NUM_BATCHES=2500001 # for V100 or colefax, need to change.
+#NUM_GPU=4							
+#NUM_GPU=2							
 #NUM_GPU=7 #8
 NUM_GPU=8
 
@@ -131,11 +133,16 @@ echo "---about to start tf cnn benchmark  --------------------"
 ##time python /global/home/users/wfeinstein/benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagene
 
 # now using files under my dir
-echo time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
+#~echo time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
+echo time python /global/scratch/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
 
-
+date > /global/scratch/tin/JUNK/test-gpu.start.LOG.$MAQ 
 date > /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.begin
+#~time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.log
+#/time python /global/scratch/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.LOG.$MAQ  # es1 path
+#/time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.log
 time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.log
+date > /global/scratch/tin/JUNK/test-gpu.end
 date > /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.end
 
 
@@ -155,3 +162,6 @@ exit 0
 #### example submission
 #### sbatch -w n0144.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:4 --time=05:40:59 --mail-type=NONE --job-name=n0144.savio3_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 
+#### sbatch -w n0145.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:8 --time=9-00:58:59 --mail-type=NONE --job-name=145savSlurmGpuTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh
+### or just invoke this script locally on a drained node!
+### ./slurm-gpu-job.sh | tee slurm-gpu-job.n0145-sav3.2021.0303.out

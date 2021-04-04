@@ -1,9 +1,43 @@
 ## .bashrc ##
 
-## 2020.1217 bofh
-SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
-#SSH_AGENT_PID=127; export SSH_AGENT_PID;
-#echo Agent pid 127;
+MAQUINA=$(hostname)  
+
+####
+#### begin messy ssh-agent block
+####
+
+if [[ $- == *i* ]]; then
+	if [[ ${MAQUINA} == bofh ]]; then
+		# 2021.0404 tmux
+		SSH_AUTH_SOCK=/tmp/ssh-8gkyQnCum7Fi/agent.28453; export SSH_AUTH_SOCK;
+		SSH_AGENT_PID=28454; export SSH_AGENT_PID;
+		echo Agent pid 28454;
+	fi
+	if [[ ${MAQUINA} == Tin-M02* ]]; then
+		echo "mac sh1t"
+		SSH_AUTH_SOCK=/var/folders/qk/t6l5_mw162q55y4fkm5_x8bm001_cn/T//ssh-P1ZcGWTe9SXO/agent.93295; export SSH_AUTH_SOCK;
+		SSH_AGENT_PID=93297; export SSH_AGENT_PID;
+		echo Agent pid 93297;
+	fi
+	if [[ ${MAQUINA} == Tin-T55* ]]; then
+SSH_AUTH_SOCK=/tmp/ssh-R5kxgEX4sK7K/agent.80; export SSH_AUTH_SOCK;
+SSH_AGENT_PID=81; export SSH_AGENT_PID;
+echo Agent pid 81;
+	fi
+fi
+
+####
+#### end messy ssh-agent block
+####
+
+##   could have lumped this into above if, but the ssh key will likely be a mess pesistently
+#    check if interactive shell, other stuff that break scp need to go in this block  , eg newgrp
+if [[ $- == *i* ]]; then
+	if [[ ${MAQUINA} == *lbl || ${MAQUINA} == *lr* ]]; then
+		echo "lrc machine, interactive shell, setting newgrp"
+    	#~ [ "$GROUPS" = "40046" ] || newgrp pc_adjoint
+	fi
+fi
 
 ##
 ##  it seems that .bashrc is NOT sourced when doing sudo su - username
@@ -148,7 +182,7 @@ add_cmaq_module () {
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
 		echo "noop" > /dev/null
-		module load git vim
+		module load git vim/7.4  # 8.2 was for nano only.
 		#if [[ -d /global/software/sl-7.x86_64/modules/gcc ]] ; then 
 		if [[ -d /global/software/sl-7.x86_64/modules/gcc && -d /global/software/sl-7.x86_64/modules/tools/tmux/ ]] ; then 
 				#> module list from pghuy
@@ -207,6 +241,9 @@ add_hpcs_module () {
 			#module load intel openmpi mkl
 			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
 			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
+			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
+			export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
+			#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/compiler/lib/intel64_lin
 			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
 			#//brc has different version number for hdf5... not needed there... 
 	
@@ -238,6 +275,15 @@ add_hpcs_module () {
 
 	fi
 
+	# below should allow use of n0001 (and fqdn will add .cm2 to mpi ssh)
+	export OMPI_MCA_orte_keep_fqdn_hostnames=t
+	export MKL_DEBUG_CPU_TYPE=5
+	#export HPL_LOG=2
+	#export I_MPI_DEBUG=4
+	#export OMP_DISPLAY_ENV=verbose
+	export OMP_NUM_THREADS=4
+	export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
+
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"
 } # end add_hpcs_module 
 
@@ -246,7 +292,8 @@ add_hpcs_bin () {
 	AddtoString PATH /global/home/users/tin-bofh/rhel7/
 	AddtoString PATH /global/home/groups/scs/IB-tools 
 	AddtoString PATH /global/home/groups/scs/tin
-	AddtoString PATH /global/scratch/tin/meli           # osu_*
+	#AddtoString PATH /global/scratch/tin/meli           # osu_*
+	AddtoString PATH /global/home/groups/scs/meli/      # osu_*
 	AddtoString PATH /global/home/groups/scs/yqin		# stream
 	##--echo "Path after mocking: $PATH"
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_group_bin_ends"
@@ -321,12 +368,12 @@ defineAlias () {
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
 	alias psr="ps -ALo pid,ppid,pcpu,wchan:16,psr,cmd:90,user --header | grep --color -C 200 PID.*USER"	# processor core number of ea pid
-
-	alias vncsvr12='vncserver -geometry 1280x800 -depth 32'   #  macbook full screen, native 2304x1440. said should scale to 1400 x 900 but did not find it to be doing that.
+	# vncserver -depth def 24, 8, 15, 16 can be used, anything else could crash.  32 apparently was a bad number to use!
+	alias vncsvr12='vncserver -geometry 1280x800 -depth 16'   #  macbook full screen, native 2304x1440. said should scale to 1400 x 900 but did not find it to be doing that.
 	alias vncsvr14='vncserver -geometry 1440x840 -depth 24'   #  macbook pro window, native 2880x1800 Retina.  y=860 causes gvncviewer to scroll, so not using
 
 	alias vncsvr16='vncserver -geometry 1540x760 -depth 24'    #  1600x900  m42
-	alias vncsvr19='vncserver -geometry 1860x1080 -depth 24'   #  1920x1200 display
+	alias vncsvr19='vncserver -geometry 1810x1010 -depth 24'   #  1920x1080 display mca
 	alias vncsvr24='vncserver -geometry 2400x1420 -depth 24'   # actual 2560x1600
 	alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
 	alias vncsvrTl='vncserver -geometry  900x1060 -depth 24'   # tall and narrowish window for single browser window
@@ -347,7 +394,8 @@ defineAlias () {
 	alias assoc="sacctmgr show associations -p"                    ##slurm
 	alias sevents="sacctmgr show events start=2020-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
 
-    alias sinfo-N='sinfo --Node --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
+    alias sinfo-N='sinfo --Node --format "%14P %N %.8t %E"' # better sinfo --Node; incl idle  ##slurm partition name first (though subject to repeat), then node
+    #//alias sinfo-N='sinfo --Node --format "%N %14P %.8t %E"' # better sinfo --Node; incl idle  ##slurm
     # -N is node centric, ie one node per line, has to be first arg
     # -p PARTNAME  # can add this after aliased command instead of using grep for specific queue
 	alias sinfo-f='sinfo --Node --format "%N %.8t %16E %f"' # Node centric info, with slurm feature 
@@ -458,7 +506,7 @@ export EDITOR=vi
 ### some check for host specific stuff
 ################################################################################
 
-MAQUINA=$(hostname)
+## MAQUINA=$(hostname)  ## now done at top
 
 if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
@@ -502,18 +550,26 @@ add_local_module	# runnable in c7, cueball, likely other, without presenting muc
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
 add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
-#add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # coded into sbatch script now
+if [[ -f ~/.FLAG_cmaq_test_yes ]]; then
+	add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
+elif [[ -f ~/.FLAG_staging_test_yes ]]; then
+	# staging env for hpl maybe the default if not running cmaq env.... tbd
+	echo "tbd: place module load for run_staging_test script requiment here, maybe call one of the subroutine..."
+fi 
 add_personal_module 
 add_cosmic_module 
 
-setPrompt 
-defineAlias
-defineAliasMac
-#defineAliasSge
-[[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
-##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
 
+# these should not be needed unless in interactive shell
+if [[ $- == *i* ]]; then
+	setPrompt 
+	defineAlias
+	defineAliasMac
+	#defineAliasSge
+	[[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
+	##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
 
+fi
 
 
 
@@ -600,7 +656,12 @@ condaSetup4sn () {
 }
 
 
-condaSetup4sn  # strange problem on bofh
+if [[ x${MAQUINA} == x"bofh" ]]; then
+	if [[ $- == *i* ]]; then
+		echo "strange problem on bofh, disabled conda setup for now"
+	fi
+	#condaSetup4sn  # strange problem on bofh, disabled for now
+fi
 
 
 export OMPI_MCA_orte_keep_fqdn_hostnames=t

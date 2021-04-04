@@ -125,6 +125,9 @@ git status			# show commit staatus within the local copy of repo only.
 				# it will NOT show up in the status command.  
 				# only another git fetch would get these changes.
 
+git status -uno 		# or --untracked-files=no  ##  dont show untracked files
+git status -s | grep "^ M "  	# short mode, untracked files prefixed with ??
+
 
 
 ## think these are still acting on local copy.  in fact, it is likely that 

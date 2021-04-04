@@ -324,15 +324,18 @@ Micron Pro are Sequential Read optimized, Max are good for random access.  Max r
 
 
 			Seq r/w Rnd r/w
-			MB/s	IOPS
----------------------	-------	-------	----	
+			MB/s	MB/s	    IOPS
+---------------------	-------	---------   ----	
 Samsung HD501LJ 7200rpm  80-90 
 WD Caviar Green 5400rpm 223
 WD Red          5400rpm 368
-Seagate Barracu 7200rpm 410
+Seagate Barracu 7200rpm 410      ?           120 is what NetApp use for calculations).  
+				
 
-
-
+For performance rule of thumb, 
+estimate 7200 RPM drive to give about 100 to 150 MB/s.
+This would be combination of sequential and random IO
+which would mean about 1MB per IO-operation for drive doing 100-150 IOPS.
 
 </PRE>
 
@@ -555,6 +558,24 @@ mpirun -np 2 -H 10.0.7.144,10.0.7.145 -report-bindings -bind-to core  osu_bw
 ...
 2097152               12403.11    10018.76
 4194304               12411.50    10024.22
+
+
+date ; time -p mpirun -np  2 -H 10.0.7.195,10.0.7.196 -report-bindings --bind-to core --cpu-set -0-15 osu_latency; date
+
+[n0195.savio3:42894] MCW rank 0 bound to socket 0[core 0[hwt 0]]: [B/././././././././././././././././././.][./././././././././././././././././././.]
+[n0196.savio3:43753] MCW rank 1 bound to socket 0[core 0[hwt 0]]: [B/././././././././././././././././././.][./././././././././././././././././././.]
+# OSU MPI Latency Test v5.4.0
+# Size          Latency (us)
+0                       2.46
+1                       2.54
+2                       2.32
+4                       2.32
+...
+2097152               327.63
+4194304               648.33
+real 4.07
+user 0.10
+sys 0.12
 
 
 </PRE>
@@ -1382,7 +1403,12 @@ For single machine with display, consider
 <!-- ttcp.ref -->
 <H1>Network Tracing</H1>
 
-traceroute DESTINATION-HOST
+traceroute # some use icmp to trace, other use udp.
+
+traceroute --port=623 172.10.0.128   # potentially check rachability of ipmi udp port
+traceroute --port=33434 is the default, it is Destination UDP port that this pokes at.
+
+If host is reachable, even if destination udp port is not open/listen mode, traceroute will work.
 <BR> <BR>
 
 
@@ -1433,6 +1459,8 @@ tcpdump -u port 69 -i enp94s0f0		# tftp traffic on udp/69
 
 sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:bf -i enp94s0f0
 # -e add mac address to output
+
+sudo tcpdump  port 514 -i enp216s0f0 -S -X  # hex dump of syslog traffic on port 514, let it capture both tcp and udp (@@ vs @ in rsyslog.conf
 
 </PRE>
 
@@ -2033,6 +2061,8 @@ ping -c 3 -s 8970 -M do 10.11.12.201
 tracepath 10.11.12.201 
 	# use UDP to to traceroute, no root priv required
 	# discover MTU size between two hosts
+
+
 
 iptraf
   # TUI, statistical breakdown, by packet size, on a given interface
