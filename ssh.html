@@ -63,7 +63,20 @@ sshExpect.pl</A>
 
 <H3>SSH Hostkey</H3>
 
-"Dealing" with it :)
+deleting / 
+removing host key that has been changed (eg host moved, os reinstalled, etc)
+
+<PRE>
+
+ssh-keygen -R greyhound
+ssh-keygen -R greyhound.fqdn.com
+ssh-keygen -R 123.3.32.87
+
+</PRE>
+
+"Dealing" with it :)  
+<BR>
+only if you absolutely trust the host and don't need to verify its identity.  eg in an HPC cluster env :-D
 
 <PRE>
 
@@ -75,6 +88,24 @@ alias ssh='ssh -o StrictHostKeyChecking=no'
 
 <BR>
 <BR>
+
+<H3>client config</H3>
+
+edit ~/.ssh/config for client side directive to ssh cli client
+<BR>
+eg use specific key for account@specific server, eg git client config.  
+<BR>
+ref
+https://docs.gitlab.com/ee/ssh/
+
+<PRE>
+Host gitlab.com
+  Preferredauthentications publickey
+  IdentityFile ~/.ssh/id_rsa
+Host *
+	ServerAliveInterval 240
+	ServerAliveCountMax 4
+</PRE>
 
 <H3>SSH Tunnel</H3>
 
@@ -165,19 +196,29 @@ drop it in server $HOME/.ssh/authorized_keys
 
 linux:
 ssh-keygen -t rsa1
+ssh-keygen -t rsa -b 4096 
 ssh-keygen -t dsa
+ssh-keygen -t ed25519
 cd .ssh
 cat identity.pub id_dsa.pub >> authorized_keys
 
+chmod 600 authorized_keys
 
->>> just really needed the dsa part for sshd v2
+key format of dsa acceptable for sshd v2
+rsa with at least 2048 bit recommended for gitlab.
+ed25519 is best in 2020.
+
+## RSA with 1024+ bit recommended since 2002
+## RSA with 3072+ bit recommended 2016 NSA
+## AES-128 ... ?
+## AES-256 is better than rsa-2048
 
 linux ssh is very pick nicky now.
 If parent dir is world writable, it will not accept the private key and insist on password :(
 It doesn't display error, it just keep on assking for password even when everything seems fine!!!
 
 perms should be:
-[ussf-phpc-mn001:.ssh] 172) ls -la
+[ussf:.ssh] $ ls -la
 total 88
 drwx------   2 tinh ack1  4096 Jan 23 14:44 .
 drwxr-xr-x  46 tinh ack1 36864 Jan 23 16:42 ..
@@ -187,8 +228,15 @@ drwxr-xr-x  46 tinh ack1 36864 Jan 23 16:42 ..
 -rw-------   1 tinh ack1   535 Nov  2 23:46 identity
 -rw-r-----   1 tinh ack1   339 Nov  2 23:46 identity.pub
 -rw-r--r--   1 tinh ack1 24689 Jan 23 14:31 known_hosts
-[ussf-phpc-mn001:.ssh] 173)
+[ussf:.ssh] $
 
+
+to change / rekey  password of existing keypair:
+
+ssh-keygen -p -f ~/.ssh/id_rsa
+
+EXPECT that existing key stored in remote allowed_hosts can remain functional. 
+man page implies this is not generating a brand new key pair, just changing the passphrase needed to access it.
 
 </PRE>
 

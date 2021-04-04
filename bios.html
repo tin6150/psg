@@ -422,6 +422,15 @@ When CPU doesn't perform, check these params (racadm):
 							# alt: BalancedPerformance, BalancedEfficiency, LowPower
 </PRE>
 
+Note: Lost of redundant power supply may cause system to clock down significantly, eg turbostat may report 800 MHz on a 2.1 GHz CascadeLake 6230.
+
+Checking the following may help to see if there is not enough power supplied to the system:
+racadm get System.ChassisInfo 
+System.Power System.Power.RedundancyPolicy System.PowerHistorical System.ServerPwr iDRAC.Info iDRAC.WebServer iDRAC.VNCServer
+omreport may have data, if can get it to work
+dmidecde -t chassis
+
+
 <!--
 singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm jobqueue create BIOS.Setup.1-1 
 
