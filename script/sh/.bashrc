@@ -513,6 +513,8 @@ if [[ x${MAQUINA} == x"zink" ]]; then
 	# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
 	export PATH=/home/tin/bin:$PATH
 	export DOCKER_HOST=unix:///run/user/43143/docker.sock
+	alias zoom='echo zoom messes up audio and/or video on zink'
+	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
 fi
 
 if [[ x${MAQUINA} == x"c7" ]]; then
