@@ -8,10 +8,11 @@ MAQUINA=$(hostname)
 
 if [[ $- == *i* ]]; then
 	if [[ ${MAQUINA} == bofh ]]; then
-		# 2021.0404 tmux
-		SSH_AUTH_SOCK=/tmp/ssh-8gkyQnCum7Fi/agent.28453; export SSH_AUTH_SOCK;
-		SSH_AGENT_PID=28454; export SSH_AGENT_PID;
-		echo Agent pid 28454;
+		# 2021.0411 tmux
+		SSH_AUTH_SOCK=/tmp/ssh-3eVd9mVzdSo3/agent.7928; export SSH_AUTH_SOCK;
+		SSH_AGENT_PID=7929; export SSH_AGENT_PID;
+		echo Agent pid 7929;
+
 	fi
 	if [[ ${MAQUINA} == Tin-M02* ]]; then
 		echo "mac sh1t"

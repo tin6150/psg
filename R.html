@@ -203,6 +203,19 @@ cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | g
 
 -->
 
+<H2>CSV example</H2>
+
+Simple example reading csv file and getting summary info about it.
+Utilizes magrittr from dplyr, which allow unix pipe-like operation using %&gt;%
+<PRE>
+library( 'magrittr')
+print(getwd())
+data <- read.csv("/mnt/CSV_adjoin/dacsjvnew_AVOC_07_All_Sp.csv")
+data %>% head() # like unix cat data | head
+# print(data)   # maybe big
+data %>% summary()  # summary stat for each column of data, eg min,median,quartilers
+
+</PRE>
 
 
 <H2>Misc</H2>
