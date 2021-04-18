@@ -355,7 +355,6 @@ defineAlias () {
 	alias chrome=chromium-browser 
 	alias hilite="grep --color -C100000"   # eg ip a | hilite inet
 	alias xt="lxterminal"	# mostly in wsl 
-	alias vscode="'/mnt/c/Program Files/Microsoft VS Code/bin/code'"
 	alias xlock="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlck="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlk="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
@@ -457,6 +456,16 @@ defineAliasMac () {
 
 } # end defineAliasMac 
 
+###
+### win alias, kludgy...
+###
+defineAliasWin () {
+	if [[ -f '/mnt/c/Program Files/Microsoft VS Code/bin/code' ]]; then
+		alias code="'/mnt/c/Program Files/Microsoft VS Code/bin/code'"
+		alias vscode="echo vscode binary is named code"
+	fi
+} # end defineAliasWin
+
 
 
 ###
@@ -508,6 +517,7 @@ export EDITOR=vi
 ################################################################################
 
 ## MAQUINA=$(hostname)  ## now done at top
+
 
 if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
@@ -568,9 +578,11 @@ if [[ $- == *i* ]]; then
 	setPrompt 
 	defineAlias
 	defineAliasMac
+	defineAliasWin 
 	#defineAliasSge
 	[[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
 	##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
+
 
 fi
 
