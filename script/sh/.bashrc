@@ -7,23 +7,14 @@ MAQUINA=$(hostname)
 ####
 
 if [[ $- == *i* ]]; then
-	if [[ ${MAQUINA} == bofh ]]; then
+	#if [[ ${MAQUINA} == bofh ]]; then
 		# 2021.0411 tmux
-		SSH_AUTH_SOCK=/tmp/ssh-3eVd9mVzdSo3/agent.7928; export SSH_AUTH_SOCK;
-		SSH_AGENT_PID=7929; export SSH_AGENT_PID;
-		echo Agent pid 7929;
-
-	fi
-	if [[ ${MAQUINA} == Tin-M02* ]]; then
-		echo "mac sh1t"
-		SSH_AUTH_SOCK=/var/folders/qk/t6l5_mw162q55y4fkm5_x8bm001_cn/T//ssh-P1ZcGWTe9SXO/agent.93295; export SSH_AUTH_SOCK;
-		SSH_AGENT_PID=93297; export SSH_AGENT_PID;
-		echo Agent pid 93297;
-	fi
-	if [[ ${MAQUINA} == Tin-T55* ]]; then
-SSH_AUTH_SOCK=/tmp/ssh-R5kxgEX4sK7K/agent.80; export SSH_AUTH_SOCK;
-SSH_AGENT_PID=81; export SSH_AGENT_PID;
-echo Agent pid 81;
+	#fi
+    # non X machine, start agent manually
+	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02* ]]; then
+		if [[ -f ~/.agent ]]; then
+			source ~/.agent
+		fi
 	fi
 fi
 

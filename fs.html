@@ -55,6 +55,11 @@
 <H1>Files, ACL, security</H1>
 
 
+- ext4 ? <BR>
+- xfs  ? <BR>
+ 
+
+
 <H4>setfacl/getfacl</H4>
 
 <PRE>
@@ -108,6 +113,27 @@ sudo chattr -i 	/path/to/file			# only CAP_LINUX_IMMUTABLE user can remove the i
 </PRE>
 
 <BR><BR>
+
+<H1>compatibility</H1>
+
+<PRE>
+FS on portable drives, eg thumbdrive
+or OS install, the mess of UEFI...
+
+
+parition type      mkfs          linux    win10    mac     notes
+---------------    ---------     -------  ------   ------  --------------------
+ c: fat32 (LBA)    -t vfat       yes      yes      yes     max file size 4GB
+ef: EFI FAT-12
+ 7: exFAT                        no       yes      ?
+ 7: NTFS           
+ 7: HPFS
+    BIOSboot                                              partition needed in BIOS mode boot for system with UEFI?
+    bios...                                               /boot      [debian use xfs]
+    efi...                                                /boot/efi  strictly FAT here
+
+</PRE>
+
 
 <H1>FS</H1>
 
