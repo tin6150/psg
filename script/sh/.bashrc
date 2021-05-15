@@ -7,9 +7,15 @@ MAQUINA=$(hostname)
 ####
 
 if [[ $- == *i* ]]; then
-	#if [[ ${MAQUINA} == bofh ]]; then
-		# 2021.0411 tmux
-	#fi
+	if [[ ${MAQUINA} == bofh ]]; then
+		# 2021 ... tmux
+		# for machine with X, should start ssh-agent stuff before starting tmux...
+		# else each screen need to source the agent config
+		# but if forgot already, enabling this should auto source on new window...
+		if [[ -f ~/.agent ]]; then
+			source ~/.agent
+		fi
+	fi
     # non X machine, start agent manually
 	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02* ]]; then
 		if [[ -f ~/.agent ]]; then

@@ -3544,6 +3544,35 @@ systemctl enable network
 
 </PRE>
 
+<H5>Network Manager surprises</H5>
+
+<PRE>
+Cannot remove /home?  can't rename it?  Get "Device or resource busy"?
+lsof, fuser don't report any process actually hogging /home ? 
+
+Have a look at 
+https://centosfaq.org/centos/cant-delete-or-move-home-on-73-install/
+
+Network Manager could have a `ProtectHome=read-only` which would prevent changes to HOME!
+
+Also check ProtectSystem=true
+
+Actually, lots of things in SystemD is doing this, eg:
+
+grep -r  ProtectHome /usr/lib/systemd
+/usr/lib/systemd/system/systemd-timedated.service:ProtectHome=yes
+/usr/lib/systemd/system/systemd-hostnamed.service:ProtectHome=yes
+/usr/lib/systemd/system/systemd-importd.service:ProtectHome=yes
+/usr/lib/systemd/system/systemd-localed.service:ProtectHome=yes
+/usr/lib/systemd/system/systemd-machined.service:ProtectHome=yes
+/usr/lib/systemd/system/chronyd.service:ProtectHome=yes
+/usr/lib/systemd/system/NetworkManager.service:ProtectHome=read-only
+/usr/lib/systemd/system/bluetooth.service:ProtectHome=true
+
+
+
+</PRE>
+
 
 <H5>Network Devices</H5>
 
