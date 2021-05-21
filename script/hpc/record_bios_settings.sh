@@ -7,8 +7,10 @@
 # pdsh -w n0[126-133,139-142].savio3 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell
 # pdsh      -w n0[150-157].savio3    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell
 # pdsh      -w n0[158-160].savio3    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh smc
-# -f 1 means serial, one node at a time.  for when racadm need to do lock.  
+# pdsh -w n0[162-169,177-178,197-204].savio3 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2021.0519
 
+
+# -f 1 means serial, one node at a time.  for when racadm need to do lock.  
 # output in /tmp/bios.settings.* in each node
 
 # tring most new savio3  nodes that are up, some may not be dell...
@@ -44,8 +46,9 @@ BiosBkDir=${CentralLogRepo}/bak${FECHA}
 test -d ${BiosBkDir} || mkdir ${BiosBkDir} > /dev/null 2>&1
 
 
-BIOSOUT=/tmp/bios.settings.out
 SysStateOUT=/tmp/sysState.out
+RacAdmOUT=/tmp/racadm.out
+BIOSOUT=/tmp/bios.settings.out
 BIOSHIGHLIGHT=/tmp/bios.settings.highlight
 
 hostname > $BIOSOUT
@@ -107,12 +110,12 @@ record_bios_settings_dell () {
 		singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm  get $Item  
 	done >> $BIOSOUT
 
-
     printf "\n\n====dmidecode====\n\n" > $SysStateOUT
     dmidecode >> $SysStateOUT
+
 	singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm  get -f /tmp/racadm.iDRAC.alert.log  ## -f redirection to file produce a much longer output than to console
-    printf "\n\n====/tmp/racadm.iDRAC.alert.log====\n\n" >> $SysStateOUT
-    cat /tmp/racadm.iDRAC.alert.log >> $SysStateOut
+    ##printf "\n\n====/tmp/racadm.iDRAC.alert.log====\n\n" >> $RacAdmOUT
+    cat /tmp/racadm.iDRAC.alert.log >> $RacAdmOUT
 	
 
 	cat $BIOSOUT | egrep '^n0|2018$|MemOpMode|SubNumaCluster|SysProfile|Turbo|NodeInterleave|LogicalProc|Virtual|CStates|Uncore|EnergyPerf|ProcC1E' | tee $BIOSHIGHLIGHT
@@ -123,6 +126,7 @@ record_bios_settings_dell () {
 	cp $BIOSOUT        ${BiosBkDir}/${MAQ}.bios.settings.out   > /dev/null 2>&1
 	cp $BIOSHIGHLIGHT  ${BiosBkDir}/${MAQ}.bios.highlight.out  > /dev/null 2>&1
 	cp $SysStateOUT    ${BiosBkDir}/${MAQ}.SysState.out        > /dev/null 2>&1
+	cp $RacAdmOUT      ${BiosBkDir}/${MAQ}.RacAdm.out          > /dev/null 2>&1
 	echo " record_bios_settings_dell done, output collected to /tmp and possibly ${BiosBkDir}"
 } # end record_bios_settings_dell fn
 

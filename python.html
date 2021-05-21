@@ -331,11 +331,15 @@ http://stackoverflow.com/questions/739993/how-can-i-get-a-list-of-locally-instal
 (Contrast this with Continuum's Conda, which do this and some more)
 
 <PRE>
+python3.6 -m venv ./venv 		# create a virtual env (python 3.6)
+source ./venv/bin/activate 
+pip install -r requirements.txt		# list all pip install packages in a requirement file
+
+## below are old school, obsolete way to create/invoke virtual env
 pyvenv ~/local_python_3.4		# create a virtual env (python 3.4)
 					# in python 2.7, use <TT>virtualenv ~/local_python_2.7</TT> instead
 					# create vir env once for each version of python being used
 source ~/local_python_3.4/bin/activate	# activate virt env (change path accordingly for diff version of python)
-
 pip install  scipy			# install module into virtual env using pip  (eg for installing scipy)
 easy_install scipy			# install module into virtual env using easy_install (alternate of pip, don't need to do both)
 
