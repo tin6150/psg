@@ -134,6 +134,25 @@ ef: EFI FAT-12
 
 </PRE>
 
+<H1>SystemD, NetworkManager</H1>
+
+SystemD has a ProtectHome clause, which NetworkManager set to read-only.   <BR>
+This results in /home cannot be renamed or deleted, as it will result in  
+"Device or resource busy"  <BR>
+lsof, fuser don't report any process actually hogging /home? 
+
+
+<PRE>
+
+grep -r  ProtectHome /usr/lib/systemd  
+/usr/lib/systemd/system/chronyd.service:ProtectHome=yes
+/usr/lib/systemd/system/NetworkManager.service:ProtectHome=read-only
+
+</PRE>
+
+also see ProtectSystem=true <BR>
+ref: https://centosfaq.org/centos/cant-delete-or-move-home-on-73-install/
+
 
 <H1>FS</H1>
 

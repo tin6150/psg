@@ -1408,7 +1408,9 @@ sudo parted /dev/sdb print		# show partition table
 sudo parted /dev/sdb mklabel gpt	# initialize disk as gparted, erase all existing partition!  then add label
 sudo parted /dev/sdb mklabel msdos	# initialize partition using msdos mbr
 
-sudo parted /dev/sdb mkpart primary ext3 1 2048		# shoudl create a 2G partition
+sudo parted /dev/sdb mkpart primary ext4 5 263092224cyl 
+
+sudo parted /dev/sdb mkpart primary ext3 1 2048		# shoudl create a 2G partition as ext3 start at 1 (MB) and end in 2048 (MB, the default unit).  cannot specify partition number, they will be sequentially created.
 sudo parted /dev/sdb mkpart primary amufs 1 100%	# create a primary part
 	# instead of 100%, can use:
 	# cyl eg 123456000cyl
@@ -1439,12 +1441,29 @@ sudo parted /dev/sda resizepart 1 100%
 sudo parted /dev/sdb rm 1		# remove partition 1
 
 
-Don't use fdisk on big drive where parted was needed to create partition table.
-fdisk will screw things up.
+Careful if using fdisk on big drive where parted was needed to create partition table.
+old versions of fdisk had screwed things up on gtp-partitioned disks.
 
 fdisk -l		# see list of drives
 fdisk /dev/sda		# modify a specific drive
 			# m for help
+
+example fdisk vs parted output below.
+fdisk allowd a gap in partition number, probably not doable with parted.
+Linux RAID is type "29"
+
+#         Start          End    Size  Type            Name
+ 1         2048       475135    231M  Linux RAID      
+ 2       475136    253263871  120.6G  Linux RAID      
+ 3    253263872    256542719    1.6G  Linux RAID      
+ 5    263092224    468862094   98.1G  Linux RAID     
+
+Number  Start   End    Size    File system  Name  Flags
+ 1      1049kB  243MB  242MB   fat16              raid
+ 2      243MB   130GB  129GB                      raid
+ 3      130GB   131GB  1679MB                     raid
+ 5      135GB   240GB  105GB                      raid
+
 
 </PRE>
 

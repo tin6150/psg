@@ -1,5 +1,8 @@
 ## .bashrc ##
 
+HISTCONTROL=ignorespace 
+# https://unix.stackexchange.com/questions/10922/temporarily-suspend-bash-history-on-a-given-shell
+
 MAQUINA=$(hostname)  
 
 ####

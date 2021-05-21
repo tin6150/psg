@@ -112,7 +112,7 @@ record_bios_settings_dell () {
     dmidecode >> $SysStateOUT
 	singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm  get -f /tmp/racadm.iDRAC.alert.log  ## -f redirection to file produce a much longer output than to console
     printf "\n\n====/tmp/racadm.iDRAC.alert.log====\n\n" >> $SysStateOUT
-    cat /tmp/racadm.iDRAC.alert.log >> $SysStateOut
+    cat /tmp/racadm.iDRAC.alert.log >> $SysStateOUT
 	
 
 	cat $BIOSOUT | egrep '^n0|2018$|MemOpMode|SubNumaCluster|SysProfile|Turbo|NodeInterleave|LogicalProc|Virtual|CStates|Uncore|EnergyPerf|ProcC1E' | tee $BIOSHIGHLIGHT
