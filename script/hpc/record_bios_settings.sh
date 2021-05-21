@@ -36,12 +36,13 @@
 #CentralLogRepo=/global/home/users/tin/CF_BK/cf1/sm_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/dell_bios_cf
-CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/BIOS_CF
+#CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/BIOS_CF
+CentralLogRepo=/global/scratch/tin/gsCF_BK/BIOS_CF                # so that it works in lrc as well
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/savio2/sm_bios_cf
 #FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
 FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
 BiosBkDir=${CentralLogRepo}/bak${FECHA}
-test -d ${BiosBkDir} || mkdir ${BiosBkDir} > /dev/null 2>&1
+test -d ${BiosBkDir} || mkdir -p ${BiosBkDir} > /dev/null 2>&1
 
 
 BIOSOUT=/tmp/bios.settings.out
@@ -112,7 +113,7 @@ record_bios_settings_dell () {
     dmidecode >> $SysStateOUT
 	singularity exec -B /var/run    $RACIMG /opt/dell/srvadmin/sbin/racadm  get -f /tmp/racadm.iDRAC.alert.log  ## -f redirection to file produce a much longer output than to console
     printf "\n\n====/tmp/racadm.iDRAC.alert.log====\n\n" >> $SysStateOUT
-    cat /tmp/racadm.iDRAC.alert.log >> $SysStateOut
+    cat /tmp/racadm.iDRAC.alert.log >> $SysStateOUT
 	
 
 	cat $BIOSOUT | egrep '^n0|2018$|MemOpMode|SubNumaCluster|SysProfile|Turbo|NodeInterleave|LogicalProc|Virtual|CStates|Uncore|EnergyPerf|ProcC1E' | tee $BIOSHIGHLIGHT

@@ -252,9 +252,13 @@ run_git_clone_extended()
 	#-git clone https://lbl-eta@github.com/lbl-eta/smelly.git
 
 	## actually created an org lbnl-scienceit and placing smelly under it
-	#[[ -d $MyGitDir/lbnl-scienceit ]] || mkdir $MyGitDir/lbnl-scienceit
-	#cd $MyGitDir/lbnl-scienceit
+	#[[ -d $MyGitDir/lbnl-science-it ]] || mkdir $MyGitDir/lbnl-science-it
+	#cd $MyGitDir/lbnl-science-it
 	#git clone https://tin6150@github.com/lbnl-scienceit/smelly.git
+	#git clone ://tin6150@github.com/lbnl-scienceit/smelly.git
+	git clone git@github.com:lbnl-science-it/adjoint.git
+	git clone git@github.com:lbnl-science-it/smelly.git
+	git clone git@github.com:lbnl-science-it/zwedc.git
 	
 	#[[ -d $MyGitDir/nick ]] || mkdir $MyGitDir/nick
 	#cd $MyGitDir/nick
