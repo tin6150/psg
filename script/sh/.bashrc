@@ -211,22 +211,8 @@ add_hpcs_module () {
 		# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
 		# MODULEPATH manual fix was needed in exalearn cuz still need to configure system-wide source of that  script...
 		echo "noop" > /dev/null
-		module load git vim
-
-	    	if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
-			#module load intel openmpi mkl
-			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
-			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
-			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
-			export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
-			#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/compiler/lib/intel64_lin
-			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
-			#//brc has different version number for hdf5... not needed there... 
-	
-
-		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
-			#module load intel/2018.1.163 mkl openmpi
- 	    	fi
+		module load git 
+		module load vim/7.4
 
 		# python dir is empty at /global/software/sl-7.x86_64/modules/python/3.6
 		if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
@@ -251,6 +237,30 @@ add_hpcs_module () {
 
 	fi
 
+	export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
+
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"
+} # end add_hpcs_module 
+
+#### pulled from add_hpcs_module, may need to have that loaded before loading this.
+add_hpl_staging_module () {
+
+	    	if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
+			#module load intel openmpi mkl
+			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
+			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
+			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
+			export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
+			#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/compiler/lib/intel64_lin
+			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
+			#//brc has different version number for hdf5... not needed there... 
+	
+
+		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
+			#module load intel/2018.1.163 mkl openmpi
+ 	    	fi
+
+
 	# below should allow use of n0001 (and fqdn will add .cm2 to mpi ssh)
 	export OMPI_MCA_orte_keep_fqdn_hostnames=t
 	export MKL_DEBUG_CPU_TYPE=5
@@ -258,10 +268,8 @@ add_hpcs_module () {
 	#export I_MPI_DEBUG=4
 	#export OMP_DISPLAY_ENV=verbose
 	export OMP_NUM_THREADS=4
-	export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
-
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"
-} # end add_hpcs_module 
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpl_staging_module"
+} # end add_hpl_staging_module 
 
 add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
@@ -528,9 +536,10 @@ add_hpcs_bin
 add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
 if [[ -f ~/.FLAG_cmaq_test_yes ]]; then
 	add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
-elif [[ -f ~/.FLAG_staging_test_yes ]]; then
+elif [[ -f ~/.FLAG_hpl_staging_test_yes ]]; then
 	# staging env for hpl maybe the default if not running cmaq env.... tbd
-	echo "tbd: place module load for run_staging_test script requiment here, maybe call one of the subroutine..."
+	echo "module load stuff for run_staging_test script requiment here"
+	add_hpl_staging_module
 fi 
 add_personal_module 
 add_cosmic_module 
