@@ -220,11 +220,24 @@ git status | grep 'deleted:' | awk '{print $2}' | xargs git checkout --		# recov
 
 </PRE>
 
+
+
+
+
 <H5>git against "origin" </H5>
+
+origin vs upstream?
+<BR>
 
 <TT>origin</TT> is typically the developer's central repo hosted on github, <BR>
 or the hosting location of a fork of a project. <BR>
 <BR> 
+For team, non forked project, <TT>origin</TT> is the central repo residing on github.com or bitbucket.com
+<BR>
+<BR>
+If fork is involved, see <TT>upstream</TT> below.
+<BR>
+
 
 <PRE>
 git push			# get local copy pushed into "central", or source of clone.  other will get the changes now.
@@ -274,14 +287,6 @@ git config --global alias.lol "log --oneline --graph --decorate"		# create alias
 
 </PRE>
 
-<H5>git against "origin"</H5>
-
-For team, non forked project, <TT>origin</TT> is the central repo residing on github.com or bitbucket.com
-<BR>
-origin vs upstream?
-<BR>
-
-
 <H5>git against "upstream"</H5>
 
 <TT>upstream</TT> usually refer to the "grand daddy" repo of an open source project, where <TT>Pull Requests</TT> are submitted to add one's contribution to the open source project.  <BR>
@@ -304,6 +309,7 @@ git commit ...
 # goal is to make any conflicting changes locally and 
 # address them before pushing it upstream 
 # where many other folks will see conflict and be affected by it
+# below refer to push directly to master, though most project probably should commit to a dev branch of sort.
 
 git pull upstream master		# resync upstream (grand daddy repo) to my master (what i forked)
 git pull --rebase upstream master	# (same as?) `git pull --rebase`

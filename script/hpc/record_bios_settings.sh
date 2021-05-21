@@ -38,12 +38,13 @@
 #CentralLogRepo=/global/home/users/tin/CF_BK/cf1/sm_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/dell_bios_cf
-CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/BIOS_CF
+#CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/BIOS_CF
+CentralLogRepo=/global/scratch/tin/gsCF_BK/BIOS_CF                # so that it works in lrc as well
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/savio2/sm_bios_cf
 #FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
 FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
 BiosBkDir=${CentralLogRepo}/bak${FECHA}
-test -d ${BiosBkDir} || mkdir ${BiosBkDir} > /dev/null 2>&1
+test -d ${BiosBkDir} || mkdir -p ${BiosBkDir} > /dev/null 2>&1
 
 
 SysStateOUT=/tmp/sysState.out

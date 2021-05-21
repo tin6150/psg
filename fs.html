@@ -55,6 +55,11 @@
 <H1>Files, ACL, security</H1>
 
 
+- ext4 ? <BR>
+- xfs  ? <BR>
+ 
+
+
 <H4>setfacl/getfacl</H4>
 
 <PRE>
@@ -108,6 +113,46 @@ sudo chattr -i 	/path/to/file			# only CAP_LINUX_IMMUTABLE user can remove the i
 </PRE>
 
 <BR><BR>
+
+<H1>compatibility</H1>
+
+<PRE>
+FS on portable drives, eg thumbdrive
+or OS install, the mess of UEFI...
+
+
+parition type      mkfs          linux    win10    mac     notes
+---------------    ---------     -------  ------   ------  --------------------
+ c: fat32 (LBA)    -t vfat       yes      yes      yes     max file size 4GB
+ef: EFI FAT-12
+ 7: exFAT                        no       yes      ?
+ 7: NTFS           
+ 7: HPFS
+    BIOSboot                                              partition needed in BIOS mode boot for system with UEFI?
+    bios...                                               /boot      [debian use xfs]
+    efi...                                                /boot/efi  strictly FAT here
+
+</PRE>
+
+<H1>SystemD, NetworkManager</H1>
+
+SystemD has a ProtectHome clause, which NetworkManager set to read-only.   <BR>
+This results in /home cannot be renamed or deleted, as it will result in  
+"Device or resource busy"  <BR>
+lsof, fuser don't report any process actually hogging /home? 
+
+
+<PRE>
+
+grep -r  ProtectHome /usr/lib/systemd  
+/usr/lib/systemd/system/chronyd.service:ProtectHome=yes
+/usr/lib/systemd/system/NetworkManager.service:ProtectHome=read-only
+
+</PRE>
+
+also see ProtectSystem=true <BR>
+ref: https://centosfaq.org/centos/cant-delete-or-move-home-on-73-install/
+
 
 <H1>FS</H1>
 
@@ -364,14 +409,21 @@ none                    /sys                    sysfs   defaults        0 0
 
 /dev/emcpowerc          /mnt/emcpowerc          ext3    defaults        0 0
 	
-	
-	
 nfsserver:/unixhome       /nfshome              nfs    rw,soft,intr,tcp,rsize=32768,wsize=32768,vers=3,timeo=4,retrans=9 0 0	# cambridge eg
 nfsserver:/unixhome       /nfshome              nfs bg,rw,hard,intr,udp,rsize=32768,wsize=32768,vers=3,timeo=4,retrans=9 0 0
 agami01:/export/agami  /nfsbackup/agami         nfs    rw,nfsvers=3,rsize=32768,wsize=32768,tcp,intr,soft			# RHEL 4.5
 
 /net/pollo/local/LINUX/SUSE/SUSE-10.0-CD-i386-GM-CD1.iso       /mnt/loopback/SUSE-10.0-CD-i386-GM-CD1   iso9660 loop,ro,noauto
 /export/repo/iso/RHEL4-U5-i386-WS-disc1.iso     /mnt/loopback/RHEL4-U5-i386-WS-disc1    iso9660 loop,ro,noauto
+
+
+## mount ordering number at the end doesn't seems to matter anymore
+## systemd for ordering sequence of mounts
+## ref: https://github.com/systemd/systemd/commit/3519d230c8bafe834b2dac26ace49fcfba139823
+
+ml4hep1:/global/home/users /global/home/users nfs  rw,bg,soft,intr,_netdev  0 1
+/global/home/users         /home              none _netdev,bind,-systemd.requires-mounts-for=/global/home/users  0 2
+
 </PRE>
 
 <H4>Solaris vfstab eg</H4>

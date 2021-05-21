@@ -848,6 +848,8 @@ Ubuntu: sudo dpkg-reconfigure gdm	# display a TUI to change Display Manager
 
 <LI> Gnome Shell - Replaces gnome-panel in GNOME3.
 
+<LI> gnome-classic-session - Still Gnome3, but without those pop out panels, so a closer feel to Gnome2, but with the modern icon looks.
+
 <LI> MATE - Fork of GNOME2 to keep it going.  Linux Mint has a MATE version.  Started from Argentina.  Yerba mate!!  If long for the good old GNOME2 days, MATE is the way to go.  (Should work with X2go?).  Seems to use LightDM.
 
 <LI> Cinnamon - Popularized with Linux Mint.  Fork of GNOME Shell, but without the gratuitous UI changes.  Cut-n-paste with mouse works like the good old days!  Quite pretty and very usable, I like it :)
@@ -866,6 +868,42 @@ At least with Ubuntu 18.04, forced to use alt-tab and alt-` which is what I hate
 <LI> FVWM, FVWM95.  I am dating myself here aren't I?
  
 </UL> 
+
+
+<H5>To change default desktop environment</H5>
+
+CentOS 7 per user: <BR> 
+<PRE>
+echo "mate-session" > ~/.Xclients
+chmod +x ~/.Xclients
+
+</PRE>
+ref: https://askubuntu.com/questions/135483/how-to-configure-xrdp-to-start-cinnamon-as-default-desktop-session
+<BR><BR>
+
+
+CentOS 7 system-wide: <BR> 
+<PRE>
+edit/create  /etc/sysconfig/desktop 
+	DESKTOP="KDE"
+or
+	DESKTOP="GNOME-Classic"
+	DISPLAYMANAGER="GNOME-Classic"
+
+anyway, double check that  /etc/X11/xinit/Xclients
+support the desired selection
+
+Also check:
+$HOME/.dmrc
+.desktop
+</PRE>
+
+Ref:
+<BR>
+https://support.citrix.com/article/CTX215682
+<BR>
+https://superuser.com/questions/685970/how-to-set-a-default-desktop-environment-at-system-start
+<BR>
 
 
 <A NAME="AppSwitcher"></A>
