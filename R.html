@@ -203,6 +203,19 @@ cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | g
 
 -->
 
+<H2>CSV example</H2>
+
+Simple example reading csv file and getting summary info about it.
+Utilizes magrittr from dplyr, which allow unix pipe-like operation using %&gt;%
+<PRE>
+library( 'magrittr')
+print(getwd())
+data <- read.csv("/mnt/CSV_adjoin/dacsjvnew_AVOC_07_All_Sp.csv")
+data %>% head() # like unix cat data | head
+# print(data)   # maybe big
+data %>% summary()  # summary stat for each column of data, eg min,median,quartilers
+
+</PRE>
 
 
 <H2>Misc</H2>
@@ -397,6 +410,7 @@ Result: vector without NAs.
 
 
 
+
 <H5>stat functions</H5>
 
 Ref: <BR>
@@ -479,6 +493,17 @@ pnorm(27.4, 50, 20)
 
 </PRE>
 
+<A NAME="distributions"></A>
+<BR>
+<div align="CENTER">
+<A HREF="https://loonylabs.org/2019/10/03/day45-365doa/">
+<IMG SRC="https://loonylabs.files.wordpress.com/2019/10/distribution-park-joke.gif?w=590" ALT='The Statistics Theme Park "Ride the Distributions!'></A>
+<BR>
+Source: <A HREF="https://loonylabs.org/2019/10/03/day45-365doa/">Loony Labs - Day 45</A> or <A HREF="https://eigenblogger.com/2012/05/">Claudia @ Eigenblogger</A>
+<BR>
+</div>
+<BR>
+<!-- img cached as fig/claudia.eigenblogger.distribution-theme-park.gif, formerly as fig/loonylabs.distribution-park-joke.gif , but code load directly from source web site -->
 
 
 <H5>assignment</H5>

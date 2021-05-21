@@ -1,18 +1,40 @@
 ## .bashrc ##
 
-MAQUINA=$(hostname)  # repeated below... fix later
+MAQUINA=$(hostname)  
 
-# check if interactive shell, other stuff that break scp need to go in this block  , eg newgrp
+####
+#### begin messy ssh-agent block
+####
+
 if [[ $- == *i* ]]; then
+	if [[ ${MAQUINA} == bofh ]]; then
+		# 2021 ... tmux
+		# for machine with X, should start ssh-agent stuff before starting tmux...
+		# else each screen need to source the agent config
+		# but if forgot already, enabling this should auto source on new window...
+		if [[ -f ~/.agent ]]; then
+			source ~/.agent
+		fi
+	fi
+    # non X machine, start agent manually
+	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02* ]]; then
+		if [[ -f ~/.agent ]]; then
+			source ~/.agent
+		fi
+	fi
+fi
 
+####
+#### end messy ssh-agent block
+####
+
+##   could have lumped this into above if, but the ssh key will likely be a mess pesistently
+#    check if interactive shell, other stuff that break scp need to go in this block  , eg newgrp
+if [[ $- == *i* ]]; then
 	if [[ ${MAQUINA} == *lbl || ${MAQUINA} == *lr* ]]; then
 		echo "lrc machine, interactive shell, setting newgrp"
     	#~ [ "$GROUPS" = "40046" ] || newgrp pc_adjoint
 	fi
-	## 2020.1217 bofh
-	#SSH_AUTH_SOCK=/tmp/ssh-ZAXhZx443qm7/agent.22623; export SSH_AUTH_SOCK;
-	#SSH_AGENT_PID=127; export SSH_AGENT_PID;
-	#echo Agent pid 127;
 fi
 
 ##
@@ -338,7 +360,6 @@ defineAlias () {
 	alias chrome=chromium-browser 
 	alias hilite="grep --color -C100000"   # eg ip a | hilite inet
 	alias xt="lxterminal"	# mostly in wsl 
-	alias vscode="'/mnt/c/Program Files/Microsoft VS Code/bin/code'"
 	alias xlock="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlck="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
 	alias xlk="gnome-screensaver-command -l"	# lock screen and prompt for password right away.
@@ -440,6 +461,16 @@ defineAliasMac () {
 
 } # end defineAliasMac 
 
+###
+### win alias, kludgy...
+###
+defineAliasWin () {
+	if [[ -f '/mnt/c/Program Files/Microsoft VS Code/bin/code' ]]; then
+		alias code="'/mnt/c/Program Files/Microsoft VS Code/bin/code'"
+		alias vscode="echo vscode binary is named code"
+	fi
+} # end defineAliasWin
+
 
 
 ###
@@ -490,13 +521,16 @@ export EDITOR=vi
 ### some check for host specific stuff
 ################################################################################
 
-MAQUINA=$(hostname)
+## MAQUINA=$(hostname)  ## now done at top
+
 
 if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
 	# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
 	export PATH=/home/tin/bin:$PATH
 	export DOCKER_HOST=unix:///run/user/43143/docker.sock
+	alias zoom='echo zoom messes up audio and/or video on zink'
+	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
 fi
 
 if [[ x${MAQUINA} == x"c7" ]]; then
@@ -550,9 +584,11 @@ if [[ $- == *i* ]]; then
 	setPrompt 
 	defineAlias
 	defineAliasMac
+	defineAliasWin 
 	#defineAliasSge
 	[[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
 	##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
+
 
 fi
 
