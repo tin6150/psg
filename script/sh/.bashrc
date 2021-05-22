@@ -1,5 +1,43 @@
 ## .bashrc ##
 
+
+## change record
+## 2021.0521a .bashrc fixed PATH to yield good hpl performance n0201sav3 1520 GFlop/s -- ffd739d
+## 2021.0521  .bashrc_bench version based on .bashrc @ 55625e3   # THIS version worked well for hpl on brc
+## 2021.0329  check ~/.FLAG* to decide which function group to load, for easy task switching  (29afa20) 
+
+
+####
+#### old notes, keep till sure problem fully resolved then can clean up
+####
+# ffd739d -- good HPL now. Fix:  MKL_DEBUG_CPU_TYPE and OMP_NUM_THREADS env flag moved to separate function, disabled for now
+# hpl benchmark fiasco, trying to find out problem
+# 55625e3  sav3 updated to this, then n0167 got good hpl 1.681e+03 hover ~1655 MHz .  similar for n0201
+# b543204  lr6  use, rome64 hpl worked well  #  n0132.lr6(Dell, 192 RAM)  1.684e+03 GFlop/s hoover ~1669 MHz likely avx512 instruction
+
+#  4ec21e0 brc nas.  record_bios output to RacAdm.out; python -m  venv  # this commit 0521, had this in add_hpcs_module: which may be a problem.  
+#       this version resulted in bad hpl perf, only 1151 on n0201sav3 ! 
+#       export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
+
+#  6dbe4f3 brc nas Merge branch 'master' of https://github.com/tin6150/psg
+#  eea266c (HEAD -> master, origin/master, origin/HEAD) fstab bind mount systemd ordering; other misc ## Zinc 0515
+#  577cca9 bashrc working lrc 202105 ## some big changes about module load...  prob what fixed brc hpl bench
+#  9b60ca9 brc nas ## newgrp pc_adjoint thing here?  or commented out?
+
+
+## summary: 
+## - avoid the intel parallel studeio xe path thing, 2019, may have conflicted with icc2018
+## - 55625e3 = goodBashrc4hpl
+## - 4ec21e0 = badBashrc4hpl
+## git tag -a goodBashrc4hpl 55625e3 -m "bashrc in this commit -> n0201sav3 hpl 1520 GFlop/s"
+## git tag -a badBashrc4hpl  4ec21e0 -m "bashrc in this commit -> n0201sav3 hpl 1102 GFlop/s"
+
+
+####
+#### begin code for .bashrc
+####
+
+
 HISTCONTROL=ignorespace 
 # https://unix.stackexchange.com/questions/10922/temporarily-suspend-bash-history-on-a-given-shell
 
