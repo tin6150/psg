@@ -263,6 +263,7 @@ add_hpcs_module () {
 	fi
 
 	export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
+	export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"
 } # end add_hpcs_module 
@@ -272,29 +273,54 @@ add_hpl_staging_module () {
 
 	    	if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
 			#module load intel openmpi mkl
-			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300 1080ti staging test
-			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3
+			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300sav2 1080ti staging test
+			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3 # ~1600 GFlop/s
 			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
+			### below path for Intel Parallel Studio XE Legacy is *might* affect hpl perf, best avoid (or maybe then dont use icc2018)  
+			### turned out to be ok after all, but don't remember why i needed it, so commenting out to avoid problem
+			### problem was really MKL_DEBUG_CPU_TYPE=5 and possibly OMP_NUM_THREADS=4
 			export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
 			#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/compiler/lib/intel64_lin
 			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
 			#//brc has different version number for hdf5... not needed there... 
-	
 
 		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
 			#module load intel/2018.1.163 mkl openmpi
  	    	fi
 
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpl_staging_module"
+} # end add_hpl_staging_module 
 
+
+## place holder, ponder having this to 
+## module load different set of env for hpl testing
+## but module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel 
+## is the one that works well for past couple of years. -2021.05
+add_alt_hpl_staging_module () {
+			echo "not currently implemented L299"
+			echo "a compact simple .bashrc maybe best for consistent benchmark"
+			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
+
+} # end add_alt_hpl_staging_module 
+
+
+## these were temporary used trying to run hpl on AMD Epyc Rome
+## using OpenMP + MPI
+## never got them to perform well either
+## and these settings are detrimental to to traditional MPI only HPL 
+## eg n0201sav3 went from 1520 to 1102 GFlop/s 
+## NOT currently used as of 2021.0521
+## change name as desired
+add_env4omp() {
 	# below should allow use of n0001 (and fqdn will add .cm2 to mpi ssh)
-	export OMPI_MCA_orte_keep_fqdn_hostnames=t
+	# but maybe cause of bad HPL performance (eg n0201sav3 drop from 1520 to 1102 GFlop/s)
 	export MKL_DEBUG_CPU_TYPE=5
 	#export HPL_LOG=2
 	#export I_MPI_DEBUG=4
 	#export OMP_DISPLAY_ENV=verbose
 	export OMP_NUM_THREADS=4
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpl_staging_module"
-} # end add_hpl_staging_module 
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_env4omp"
+} # end add_env4omp
 
 add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
@@ -575,7 +601,7 @@ if [[ -f ~/.FLAG_cmaq_test_yes ]]; then
 	add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
 elif [[ -f ~/.FLAG_hpl_staging_test_yes ]]; then
 	# staging env for hpl maybe the default if not running cmaq env.... tbd
-	echo "module load stuff for run_staging_test script requiment here"
+	#-- echo "module load stuff for run_staging_test script requiment here"
 	add_hpl_staging_module
 fi 
 add_personal_module 
