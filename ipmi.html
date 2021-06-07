@@ -49,6 +49,17 @@
 <H2>101</H2>
 
 <PRE>
+
+There are two modes.  
+- "ipmitool cmd" on the machine itself, which doesn't go thru the network, and always work.
+- "ipmitool -H bmc.ip.addr cmd"  to use the "lanplus" network interface, which will require working IP stack, and require for example for the bmc ip to be pingable and reachable via the IPMI protocol.  (port ??)
+
+</PRE>
+
+
+<H2>102</H2>
+
+<PRE>
 Dell DRAC and HP iLo are implementation of IPMI.
 Could use embeded NIC (shared with OS)? 
 Dedicated NIC provides more functionality.
@@ -213,6 +224,21 @@ ipmitool raw 0x2e 0xcc 0x5e 0x2b 0 0x0C 0x01 0x02 # set ipmi/bmc to use share ni
 </PRE>
 
 
+<H5>GNU freeipmi / ipmi-oem</H5>
+
+Ref: 
+<A HREF="https://www.gnu.org/software/freeipmi/manpages/man8/ipmi-oem.8.html">
+gnu freeipmi</A> aka ipmi-oem.
+
+<PRE>
+
+In CentOS 7 has freeipmi* rpm
+may provide oem commands to set ipmi 
+eg appro, which is/uses Intel S2600JF
+
+oem get-bmc-services
+</PRE>
+
 <H5>Serial over IPMI SoL </H5>
 
 This doesn't quite redirect grub login to serial yet.
@@ -267,7 +293,7 @@ Generic usage:
 <PRE>
 # using serial over lan (sol, ipmi 2.0)
 ipmitool -H hostname -U username -P pw list 				# see list of user
-ipmitool -H hostname -U username -P pw sol activate
+ipmitool -H hostname -U username -P pw sol activate			# initial sol connection
 ipmitool -I lan     -U $username -P $pass -H $nodename  sol activate		# activte serial over lan
 # should drop into console.  escape seq to control IPMI session:
 # ~. = exit
