@@ -188,7 +188,41 @@ ping6 fe80::ec4:7aff:fe75:c9b0%2        # works (same host or another host on sa
 https://askubuntu.com/questions/546405/ping-adress-ipv6
 
 
-lunaria, test-ipv6.com says no ipv6 access :
+####
+#### test cmd 2021.06
+####
+
+# ping6
+# ssh -6
+
+
+# https://serverfault.com/questions/1007184/how-to-check-ipv6-address-via-command-line
+# ip -6 addr show scope global
+# curl -6 https://ifconfig.co                    # return what web server see of my ip.  didnt work for bofh or casa
+
+# telnet -6 lunaria.dyn.berkeley.edu
+# telnet -6 2607:f140:1:0:18af:466c:c1e:c947 22  #  lunaria # try this for 2021.0608
+# ssh       2607:f140:1:0:18af:466c:c1e:c947     #  works w/in lunaria
+
+# dig -6 TXT +short o-o.myaddr.l.google.com @ns1.google.com
+# dig -t aaaa +short myip.opendns.com @resolver1.opendns.com
+
+
+2607:f140:1:0:357a:70dd:6b82:65ff       domingo # 2021.0603
+2607:f140:1:0:18af:466c:0c1e:c947       lunaria # 2021.0608
+                   0019:b919:0ffa       lunaria mac
+2607:f140:e000:1:9a03:9bff:fea2:b5f4    dtn.brc.berkeley.edu # 2021.0608
+
+2601:0641:0400:0261:0208f:9599:d1f4:233a      comcast  z
+                          0011:a300:c50b
+
+
+</PRE>
+
+
+<PRE>
+
+lunaria, test-ipv6.com says no ipv6 access, (below is old info from 2020):
 
                              0019:b919:0ffa mac
     inet6 2607:f140:1:4:149e:a69a:62d0:c507/64 scope global temporary deprecated dynamic 
