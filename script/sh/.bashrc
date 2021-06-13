@@ -202,7 +202,7 @@ add_local_module () {
 add_personal_module () {
 	# SMFdev aka personal module farm
 	SMFdev_MODULE_DIR=~tin/CF_BK/SMFdev/modfiles/
-	if [[ -d ~tin/CF_BK/SMFdev/modfiles ]] ; then 
+	if [[ -d ~tin/CF_BK/SMFdev/modfiles && x$MODULESHOME != x"" ]] ; then 
 		AddtoString MODULEPATH ${SMFdev_MODULE_DIR}
 		#module load langs/intel/2018.1.163_eval 
 		#module load intel/2018.1.163/mkl/2018.1.163_eval
