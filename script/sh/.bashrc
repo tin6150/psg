@@ -58,7 +58,7 @@ if [[ $- == *i* ]]; then
 		fi
 	fi
     # non X machine, start agent manually
-	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02* ]]; then
+	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == *l43826* ]]; then
 		if [[ -f ~/.agent ]]; then
 			source ~/.agent
 		fi
