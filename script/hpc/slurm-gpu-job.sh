@@ -142,8 +142,9 @@ date > /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.begin
 #/time python /global/scratch/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.LOG.$MAQ  # es1 path
 #/time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.log
 time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.log
-date > /global/scratch/tin/JUNK/test-gpu.end
-date > /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.end
+echo ----date-----------------------------------
+date | tee /global/scratch/tin/JUNK/test-gpu.end
+date >     /global/scratch/tin/JUNK/slurm-gpu-job.$TAG.end
 
 
 ( 

@@ -324,6 +324,7 @@ add_hpl_staging_module () {
 
 		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
 			#module load intel/2018.1.163 mkl openmpi
+			export PATH=~tin/HPCS_toolkit/benchmark/staging_sl7:${PATH} # mpi_nxnlatbw
  	    	fi
 
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpl_staging_module"
