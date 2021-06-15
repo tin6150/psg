@@ -791,6 +791,20 @@ Apparently default depends whether were is live rj45 connected to the dedicated 
 
 </PRE>
 
+<!--
+
+from google cache, maybe 
+
+
+
+ [root@freenas ~]# ipmitool raw 0x30 0x70 0x66 0x01 0x01 ... Intel S5500WB/Penguin Computing Relion 700, Intel S2600JF/Appro 512X, ...
+
+so vs smc:
+To get LAN mode:                
+  ipmitool raw 0x30 0x70 0x0c 0              # smc get
+  ipmitool raw 0x30 0x70 0x66 0x01 0x01      # ?  smc fan speed?  dont mess with ipmiraw unless sure what it does!
+-->
+
 Additional SMC IPMI raw commands in their 
 <A HREF="https://www.supermicro.com/support/faqs/faq.cfm?faq=15868">support faq 15868</A>.
 It is from 2003, and both X8 and X9, AMI or ATEN BIOS, seems to take the same set of commands.
