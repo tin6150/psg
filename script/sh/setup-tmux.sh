@@ -42,7 +42,8 @@ for MS in $META_SESSION_LIST; do
 done
 
 tmux set-option -g mouse off 
-
+## ^b :set -g mouse on             # mouse mode, allow resize pane w/ tmux 2.1+
+## ^b :set    allow-rename off     # prevent automatic renaming of pane/tab eg when want to manually name via ^b ,
 
 
 #tmux set-option status-style bg=magenta # immediately before get the color treatment

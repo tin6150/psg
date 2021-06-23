@@ -88,7 +88,7 @@ run_git_clone_core()
 	############################
 
 	#~~ cd ~/tin-gh
-	echo "may ask for password..."
+	echo "may ask for password... run the following cut-n-paste:"
 	echo git clone https://tin6150@bitbucket.org/tin6150/blpriv
 	#git clone https://tin6150@bitbucket.org/tin6150/spark
 	#git clone https://tin6150@bitbucket.org/tin6150/predpriv.git

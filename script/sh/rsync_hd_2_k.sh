@@ -9,6 +9,7 @@
 #              rsync -av /src/foo    /dest
 #              rsync -av /src/foo/   /dest/foo
 
+#              rsync -av /src/foo/   /dest/foo/ ???   recommended by jw/wf, works if destination foo/ already exist
 
 
 #SRC_BASE=/media/tin/b3fb993c-ce42-4567-9174-601b314ed7fb/
@@ -37,6 +38,23 @@ for I in $SRC_LIST; do
 	du -k  $DST | tee $DST/du-k-dst-$DST.out
 
 done
+
+
+
+#####
+
+# for old-scratch, jw recommended:
+# rsync -axHP /global/scratch-old/$USER/ /global/scratch/$USER/
+#         -a, --archive               archive mode; equals -rlptgoD (no -H,-A,-X)
+#         -x, --one-file-system       don't cross filesystem boundaries
+#         -H, --hard-links            preserve hard links
+#         -P                          same as --partial --progress
+
+# didn't have:
+#         -u, --update                skip files that are newer on the receiver
+#         -l, --links                 copy symlinks as symlinks (actually part of -a)
+
+
 
 
 

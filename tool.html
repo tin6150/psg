@@ -1312,6 +1312,8 @@ http://ganglia.sourceforge.net/</A>
 <H2>Stress test</H2>
 
 Burn in test, load machine up to see power utilization, etc.
+doesn't provide with a benchmark score, so only useful for stress/burn in test, 
+not comparison between different cpu.
 
 <PRE>
 
@@ -1356,6 +1358,15 @@ singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif stre
 	# -t 120 or -t 120s didn't stop process on savio1 :/
 	# process linger even after ^C .  kill -9 dont work either, had to reboot!
 
+</PRE>
+
+<A NAME="stress-ng"></A>
+<H2>stress-ng</H2>
+
+stress-ng is usable as stress for all components at once <BR>
+or a more targetting simple benchmark scoring tool
+
+<PRE>
 
 stress-ng --cpu 4 --all # --all = parallel run of all tests 
 
@@ -1373,7 +1384,30 @@ maybe --vm would use more power... i dont need the stats from it
 old stress dont leave files behind needing clean up ^_^
 
 
+as benchmark comparing diff cpu,
+stress-ng with specific cpu test can output bogo ops/sec metric:
+running as sudo get access to more counters, eg cache, branch miss
 
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /bin/stress-ng --cpu-method matrixprod  --metrics-brief --perf -t 100 --cpu 40
+
+stressor       bogo ops real time  usr time  sys time   bogo ops/s   bogo ops/s
+                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
+--------       --------  --------  --------  --------   ^^^^^^^^^^^ --------------
+cpu              883734    300.01   9587.01      0.01      2945.73        92.18   # amd 7302P 1x16 with hyperthreading (thus --cpu 32)  210sav3 
+cpu              297171    100.00   3197.30      0.00      2971.57        92.94   # amd 7302P 1x16 with hyperthreading ran as --cpu 32 -t 100
+cpu              292047    100.00   1599.19      0.00      2920.40       182.62   # amd 7302P 1x16 with hyperthreading ran as --cpu 16 -t 100
+cpu             1216396    300.00   5996.84      0.00      4054.61       202.84   # intel E5-2670 v2 @ 2.5 GHz 2x10 hyperthreading off (ran as --cpu 32) 152sav1 ivy bridge
+cpu             1384328    300.03   5996.58      0.13      4613.97       230.85   # intel E5-2670 v2 @ 2.5 GHz 2x10 hyperthreading off (ran as --cpu 20) 152sav1
+cpu             1555260    300.00  11965.20      0.05      5184.13       129.98   # intel 6230 cascadelake 2x20 2.1GHz --cpu 40 192sav3
+cpu              520460    100.00   3989.61      0.00      5204.38       130.45   # intel 6230 -t 100, so that bogo ops is mult of ops/s 
+
+
+</PRE>
+
+<A NAME="benchmark"></A>
+<H2>Simple benchmark</H2>
+
+<PRE>
 7z 
 	apt install p7zip-full  # 7z
 	yum install p7zip       # 7za
@@ -1389,6 +1423,16 @@ singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr
 mprime 
 	no ready yum package
 	finding prime was said to be good exercise for cpu/ram
+	but many sub-tasks, benchmark , need some effort to do benchmark result comparison.
+	xref CF_BK/sw/mprime.rst
+
+
+
+
+singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /bin/sysbench --threads=32 cpu   --cpu-max-prime=20000 run
+
+sysbench  --threads=32 cpu   run
+	output is events/second for cpu speed, not sure what to make of it.
 
 </PRE>
 
