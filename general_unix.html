@@ -84,6 +84,74 @@ setfacl -m d:g:admin:rw  dir1
 
 </PRE>
 
+<H1>find and exec</H1>
+
+<A name="find"></A>
+<H5>find</H5>
+<PRE>
+
+find /home -name myfile.txt -exec ls -ld {} \;
+
+find options
+-user UID		: find all files owned by user UID
+-exec CMD {} \;		: {} represent the matched entry (full path)
+			  CMD will be executed with {} as arg
+			  \; is required to end exec section
+
+eg
+
+finding files: 
+find . | grep 'FILENAME' 		# not 'correct' usage, but works :)
+or
+find . -name FILENAME -print
+
+find . -user root  -exec chown weblogic:weblogic {} \;
+	run in weblogic dir, replace all files owned by root to weblogic
+	(remember to change back to root the startWebLogic.sh back to root)
+
+find . -ctime +30 -exec mv -t OLD_LOG {} \;	# move files (eg logs) more than 30 days (creation time) old to a target dir named OLD_LOG   
+						# (-t in mv puts destination dir first, then take args for files to be moved)
+
+find . -perm -o+w -exec ls -l {} \;
+	long listing of all files whose permission is world writable
+
+find . ! -user tho01 -print
+	list all files whose owner is not tho01
+
+other cmd: ls -l, so to see full listing of file instead of just path, 
+but any entry that is a dir will return rather long listing...  (can use  type=file only to skip dir)
+
+find . -type f -ctime -5 -exec ls -l {} \;		# files modified less than 5 days ago. ie NEW file w/in past 5 days.   eg script looking for new files to backup
+find . -type f -ctime +5 -exec ls -l {} \;		# files modified more than 5 days ago. ie OLD files older than 5 days. eg use in auto delete script
+find . -type f -ctime  5 -exec ls -l {} \;		# files modified exactly   5 days ago. ie EXACTLY 5 days old (seldom use).
+
+find . -name ZQ\*DAT -type f -ctime +5 -exec rm {} \;	# rm ZQ*DAT older than 5 days.
+
+	
+find  /usr/local/jboss-6.0.0.Final/server/default/log -type f \! -name \*gz -ctime +4 -exec gzip --best {} \;
+find  /usr/local/jboss-6.0.0.Final/server/default/log -type f -ctime +30 -exec rm {} \;
+	# compress log files older than 4 days, delete everything more than 30 days old
+
+
+find /home/USERNAME -path /home/USERHOME/.snapshot -prune -o -print 
+	# find all files from the user home dir, but exclude .snapshot dir from NetApp
+	# find and .snapshot is strange, sometime it will enter .snapshot (typically full path
+	# to the "root" of the mount, other it won't (typically relative path from lower level of the tree) ??
+	# I guess it depends on how the dir was stat'd...
+
+find /nfshome -uid 501 -exec chown -h 8001 {} \;
+	# change UID of all files beloging to user with UID 501, change it to 8001
+	# -h option of chmod effectively leave destination of sym link with original owner
+
+chown -R 8001:2000 --from=501:201 .
+	# chown can do matching before it actually change ownership
+	# maybe able to archive similar result without the find command above.
+
+
+FECHA=$(date "+%Y.%m%d")
+</PRE>
+
+
 
 
 <A NAME="bla"></A>
@@ -258,14 +326,18 @@ tftp 10.15.4.30 69 -c  get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
 
 
 should download file, relative to server's docroot , eg /var/lib/tftproot
+
+file warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+warewulf/ipxe/bin-i386-pcbios/undionly.kpxe: pxelinux loader (version 3.70 or newer)
+
+
+netcat test for udp/69 tftp port connectivity
 tftp use udp port 69
 nc -u 10.15.4.30 69
 get bla
 more random text   # if port 69 not open, after enter get connection refused error.
 
-
-file warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
-warewulf/ipxe/bin-i386-pcbios/undionly.kpxe: pxelinux loader (version 3.70 or newer)
+Note that after initial connection, server reply back to client using an alternate high port
 
 
 </PRE>
@@ -605,72 +677,6 @@ set -g mouse on
 
 # but mouse highlight will go to tmux buffer, not X clipboard, which is usually not what I want :(
 
-</PRE>
-
-
-<A name="find"></A>
-<H5>find</H5>
-<PRE>
-
-find /home -name myfile.txt -exec ls -ld {} \;
-
-find options
--user UID		: find all files owned by user UID
--exec CMD {} \;		: {} represent the matched entry (full path)
-			  CMD will be executed with {} as arg
-			  \; is required to end exec section
-
-eg
-
-finding files: 
-find . | grep 'FILENAME' 		# not 'correct' usage, but works :)
-or
-find . -name FILENAME -print
-
-find . -user root  -exec chown weblogic:weblogic {} \;
-	run in weblogic dir, replace all files owned by root to weblogic
-	(remember to change back to root the startWebLogic.sh back to root)
-
-find . -ctime +30 -exec mv -t OLD_LOG {} \;	# move files (eg logs) more than 30 days (creation time) old to a target dir named OLD_LOG   
-						# (-t in mv puts destination dir first, then take args for files to be moved)
-
-find . -perm -o+w -exec ls -l {} \;
-	long listing of all files whose permission is world writable
-
-find . ! -user tho01 -print
-	list all files whose owner is not tho01
-
-other cmd: ls -l, so to see full listing of file instead of just path, 
-but any entry that is a dir will return rather long listing...  (can use  type=file only to skip dir)
-
-find . -type f -ctime -5 -exec ls -l {} \;		# files modified less than 5 days ago. ie NEW file w/in past 5 days.   eg script looking for new files to backup
-find . -type f -ctime +5 -exec ls -l {} \;		# files modified more than 5 days ago. ie OLD files older than 5 days. eg use in auto delete script
-find . -type f -ctime  5 -exec ls -l {} \;		# files modified exactly   5 days ago. ie EXACTLY 5 days old (seldom use).
-
-find . -name ZQ\*DAT -type f -ctime +5 -exec rm {} \;	# rm ZQ*DAT older than 5 days.
-
-	
-find  /usr/local/jboss-6.0.0.Final/server/default/log -type f \! -name \*gz -ctime +4 -exec gzip --best {} \;
-find  /usr/local/jboss-6.0.0.Final/server/default/log -type f -ctime +30 -exec rm {} \;
-	# compress log files older than 4 days, delete everything more than 30 days old
-
-
-find /home/USERNAME -path /home/USERHOME/.snapshot -prune -o -print 
-	# find all files from the user home dir, but exclude .snapshot dir from NetApp
-	# find and .snapshot is strange, sometime it will enter .snapshot (typically full path
-	# to the "root" of the mount, other it won't (typically relative path from lower level of the tree) ??
-	# I guess it depends on how the dir was stat'd...
-
-find /nfshome -uid 501 -exec chown -h 8001 {} \;
-	# change UID of all files beloging to user with UID 501, change it to 8001
-	# -h option of chmod effectively leave destination of sym link with original owner
-
-chown -R 8001:2000 --from=501:201 .
-	# chown can do matching before it actually change ownership
-	# maybe able to archive similar result without the find command above.
-
-
-FECHA=$(date "+%Y.%m%d")
 </PRE>
 
 
