@@ -809,15 +809,15 @@ Additional SMC IPMI raw commands in their
 <A HREF="https://www.supermicro.com/support/faqs/faq.cfm?faq=15868">support faq 15868</A>.
 It is from 2003, and both X8 and X9, AMI or ATEN BIOS, seems to take the same set of commands.
 
-<<<<<<< HEAD
 <H5> Asus Raw </H5>
 
 <PRE>
 use this carefully
-this was for a ESC 4000 2U GPU node
+this was for a ESC 4000 (G4?) 2U GPU node
 reset bmc to be programmed via cli ipmitool.
 changing that thing on the bios is weird.
 
+As with all raw commands, use at your own risk! :-D
 
 asus in general just use channel 8.
 But for that one machine had to issue this raw ipmi command to get things reset/fixed:
@@ -825,28 +825,26 @@ But for that one machine had to issue this raw ipmi command to get things reset/
 ipmitool raw 0x32 0x71 0x00 0x01 0x01 # set ipmi/bmc to use shared nic
 ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed for channel 8
 
+</PRE>
 
+For IPMI and OS to share NIC, it needs to support NCIS.  Otherwise, the BMC will need a dedicated connection for IPMI access.
+eg: Intel I350 has this support. https://www.gigabyte.com/us/Enterprise/Accessory/CLN4314-rev-10
 
-<H5>Ref</H5>
-||||||| merged common ancestors
-<H5>Ref</H5>
-=======
->>>>>>> 67aee15baaebb93d8b8ab79554c95432753882c4
 
 <!-- these should move to ipmi.html -->
 <H5>Asus IPMI raw</H5>
 
+As with all raw commands, 
+<B>
+use at your own risk! :-D</B>
+
 <PRE>
 
 
-For Asus ESC4000 G4 series (Skylake/Cascadelake, maybe Epyc Naples/Rome 7xx2 series as well).
-As with all raw commands, use at your own risk! :-D
-
-ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed for channel 8
-
 # toggle on/off among the diff settings/interfaces should revive ipmi over lan
 
-# For Asus ESC4000 G4
+# For Asus ESC4000 G4 series for Intel Skylake/Cascadelake
+# BMC likely ASpeed ast2500 
 ipmitool raw 0x32 0x71 0x00 0x01 0x01 	# set ipmi/bmc to use shared nic		
 # For Asus ASMB7-iKVM (P9D-MV)
 ipmitool raw 0x32 0x71 0x00 0x01 0x03		#    activate ipmi/bmc  on lan1 (shared with host/os nic)
@@ -855,6 +853,9 @@ ipmitool raw 0x32 0x71 0x00 0x00 0x03	  #    activate ipmi/bmc  on dm_lan1 (dedi
 ipmitool raw 0x32 0x71 0x00 0x00 0x00   # de-activate ipmi/bmc  on dm_lan1 (dedicated management port)
 
 ref: https://www.thomas-krenn.com/de/wiki/IPMI_Netzwerkports_von_ASUS_Mainboards_konfigurieren
+
+# Asus ESC4000 E10 is for AMD Epyc Naples/Rome 7xx2 series, 
+# BMC is ASMB10-iKVM, which Uses newer ASpeed ast2600 
 
 </PRE>
 

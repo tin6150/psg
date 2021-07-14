@@ -5,6 +5,7 @@
 ## 2021.0521a .bashrc fixed PATH to yield good hpl performance n0201sav3 1520 GFlop/s -- ffd739d
 ## 2021.0521  .bashrc_bench version based on .bashrc @ 55625e3   # THIS version worked well for hpl on brc
 ## 2021.0329  check ~/.FLAG* to decide which function group to load, for easy task switching  (29afa20) 
+#- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
 
 
 ####
@@ -598,6 +599,7 @@ if [[ x${MAQUINA} == x"zink" ]]; then
 	export DOCKER_HOST=unix:///run/user/43143/docker.sock
 	alias zoom='echo zoom messes up audio and/or video on zink'
 	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
+	alias reloj='xclock -digital' 
 fi
 
 if [[ x${MAQUINA} == x"c7" ]]; then

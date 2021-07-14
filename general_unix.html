@@ -244,6 +244,110 @@ curl has more power than get, especially when need to use POST instead of GET
 
 </PRE>
 
+<A name="tftp"></A>
+<H5>tftp</H5>
+<PRE>
+
+systemctl status tftp # should report active/running for rhel7,8
+/usr/sbin/in.tftpd -s /var/lib/tftpboot # ps should report process which dir is "root" (at least when client connecte)
+    add -vvv for more verbosity the tftp server
+    rhel7 cf: /etc/xinetd.d/tftp  server_args clause
+    rhel8 cf: /usr/lib/systemd/system/tftp.service  or /etc/systemd/system/tftp-server.service
+
+tftp 10.15.4.30 69 -c  get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+
+
+should download file, relative to server's docroot , eg /var/lib/tftproot
+tftp use udp port 69
+nc -u 10.15.4.30 69
+get bla
+more random text   # if port 69 not open, after enter get connection refused error.
+
+
+file warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+warewulf/ipxe/bin-i386-pcbios/undionly.kpxe: pxelinux loader (version 3.70 or newer)
+
+
+</PRE>
+
+<H6>firewall and tftp</H6>
+
+<PRE>
+
+Following info is from:
+
+10.15.4.30=server$ tcpdump -n -vv host 10.15.4.2 # snoop on tftp client ip
+10.15.4.2=client$  tftp 10.15.4.30 69 -c  get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+
+
+10.15.4.30=tftp server, listen on port udp 69 ::
+
+17:12:57.305387 IP (tos 0x0, ttl 64, id 2163, offset 0, flags [DF], proto UDP (17), length 77)
+    10.15.4.2.59374 > 10.15.4.30.tftp: [bad udp cksum 0x1c88 -> 0x7527!]  49 RRQ "/warewulf/ipxe/bin-x86_64-efi/snp.efi" netascii
+
+
+but tftpd send response back to client via a new port (so it doesn't hog udp/69)! 
+thus firewall on tftp-client side may block this.
+in.tftpd -vvv will log:
+... no route to client
+  wwulfd in.tftpd[13583]: RRQ from ::ffff:10.15.4.2 filename /warewulf/ipxe/bin-x86_64-efi/snp.efi
+  wwulfd in.tftpd[13583]: tftpd: read(ack): No route to host
+
+(cuz tftpd wait for an ACK and don't get it)
+
+ 
+disabling firewalld everywhere helped get verify  everything works for the test.
+VirtualBox VM to host RHEL8 in.tftpd was ok (Bridged mode NIC)
+the following have subsequent udp traffic chit-chat between tftpd:highPort and tftp-client:samePort  ::
+
+17:12:57.308283 IP (tos 0x0, ttl 64, id 53815, offset 0, flags [none], proto UDP (17), length 544)
+    10.15.4.30.56357 > 10.15.4.2.59374: [udp sum ok] UDP, length 516
+17:12:57.308306 IP (tos 0x0, ttl 64, id 2165, offset 0, flags [DF], proto UDP (17), length 32)
+    10.15.4.2.59374 > 10.15.4.30.56357: [bad udp cksum 0x1c5b -> 0x1f7f!] UDP, length 4             # firewall treat this as new incoming udp:high port as new connection.
+17:12:57.308798 IP (tos 0x0, ttl 64, id 53816, offset 0, flags [none], proto UDP (17), length 544)
+    10.15.4.30.56357 > 10.15.4.2.59374: [udp sum ok] UDP, length 516
+
+
+so, tftp traffic pretty much need to be on a trusted nic (or fancy firewall with protocol inspection)
+Host of VM (ie the VirtualBox server) can have firewall running, bridge mode traffic won't be filtered by it.
+
+
+After a successful tftp transfer (BIOS mode, client ip here is 10.15.4.50)
+the kpxe image run warewulf which request files via http
+warewulf default to /srv/warewulf for the httpd content
+
+wwulfd in.tftpd[13603]: RRQ from ::ffff:10.15.4.50 filename /warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+wwulfd in.tftpd[13603]: Client ::ffff:10.15.4.50 finished /warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+
+it switches over to use http : 
+
+    10.15.4.50.42228 > 10.15.4.30.http: Flags [P.], cksum 0x14e0 (correct), seq 1:125, ack 1, win 512, options [nop,nop,TS val 717
+87072 ecr 387507360], length 124: HTTP, length: 124
+        GET /WW/ipxe/cfg/b0%3A7b%3A25%3Aba%3A4f%3A7e HTTP/1.1   # these are per-client mac-address file
+
+	GET /WW/bootstrap/x86_64/505/initfs.gz  # rclone dump didn't include these...
+
+
+</PRE>
+
+
+Relevant to warewulf PXE boot only
+<BR>
+example content of /srv/warewulf/ipxe/cfg/b0:7b:25:ba:4f:7e 
+
+<PRE>
+
+#!ipxe
+# Configuration for Warewulf node: s00.greta
+# Warewulf data store ID: 886
+echo Now booting s00.greta with Warewulf bootstrap (3.10.0-1127.13.1.el7.x86_64-nv)
+set base http://10.15.4.30/WW/bootstrap
+initrd ${base}/x86_64/505/initfs.gz
+kernel ${base}/x86_64/505/kernel ro initrd=initfs.gz wwhostname=s00.greta.lbl.gov acpi_irq_nobalance console=tty0 console=ttyS1,115200n8 wwmaster=10.15.4.30 wwipaddr=10.15.4.50 wwnetmask=255.255.255.0 wwnetdev=eth2 wwhwaddr=b0:7b:25:ba:4f:7e wwgateway=10.15.14.1 
+boot
+
+
+</PRE>
 
 <A name="rsync"></A>
 <H5>rsync</H5>
@@ -277,6 +381,7 @@ rsync -avl -e ssh  --rsync-path=/usr/local/bin/rsync remote-svr:/dir/* ./local/s
 </PRE>
 
 
+<H1>text windows manager :)</H1>
 
 <A name="screen"></A>
 <H5>screen</H5>
