@@ -23,6 +23,7 @@
 ## June: changing to use specific cronjob that starts on 2nd of the month, cron.monthly is too unpredictable
 ##   0  1  2  *  *            /root/rclone_script/rclone_tar.sh 
 
+## Tin 2021.07.23, slight tewaks for backup dirs for beagle
 
 ##LOCAL_BACKUP_LIST="/home"       # beppic-filer
 ##LOCAL_BACKUP_LIST="/home /eda"    # beppic-filer
@@ -33,10 +34,11 @@
 
 # LOCAL_BACKUP_LIST="/dbbackup/mysql_backups"  # beagle - rclone in cron.daily
 # /etc /srv are annoying as they create too many little files, so left that to the 7-day rotation script
-#++LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
+#++LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar  
+LOCAL_BACKUP_LIST="/var/chroots /srv /global/home/users /clusterfs/gretadev/data /opt"  # beagle tar # include vnfs wwulf httpd content
 
 ## list updated 2021.0322
-LOCAL_BACKUP_LIST="/etc /global/home \
+HIMA_LOCAL_BACKUP_LIST="/etc /global/home \
   /global/data/goddess /global/data/home-gpanda /global/data/mariah /global/data/mariahdata \
   /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup \
     /global/data/gpanda/pghuy /global/data/gpanda/wzhou /global/data/gpanda/yhanw \
@@ -83,8 +85,8 @@ PidFile="/var/lock/$PROG"
 
 
 REMOTE_NAME_NoCrypt="hpcs-backup"   # for logs only
-REMOTE_NAME="hpcs-backup"          # for machines not wanting encryption, eg hima
-#++REMOTE_NAME="crypt-hpcs-backup"
+#REMOTE_NAME="hpcs-backup"          # for machines not wanting encryption, eg hima
+REMOTE_NAME="crypt-hpcs-backup"     # beagle
 ROOT_FOLDER="/"						# config file store in "/rclone-crypt" folder
 
 TRANSFER_COUNT=16
