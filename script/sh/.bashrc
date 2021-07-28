@@ -5,6 +5,7 @@
 ## 2021.0521a .bashrc fixed PATH to yield good hpl performance n0201sav3 1520 GFlop/s -- ffd739d
 ## 2021.0521  .bashrc_bench version based on .bashrc @ 55625e3   # THIS version worked well for hpl on brc
 ## 2021.0329  check ~/.FLAG* to decide which function group to load, for easy task switching  (29afa20) 
+#- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
 
 
 ####
@@ -209,6 +210,9 @@ add_personal_module () {
 		#module load intel/2018.1.163/openmpi/2.0.4-intel_eval
 		module load  tools/cvs/1.11.23
 	fi
+    if [[ -d /global/home/groups/scs/tin/rhel7/ ]]; then
+           AddtoString PATH /global/home/groups/scs/tin/rhel7/
+    fi
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
     export ANSIBLE_NOCOWS=1 # newline print just doesnt work in most places :/
 } # end add_personal_module
@@ -363,9 +367,10 @@ add_env4omp() {
 
 add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
-	AddtoString PATH /global/home/users/tin-bofh/rhel7/
+	#AddtoString PATH /global/home/users/tin-bofh/rhel7/
 	AddtoString PATH /global/home/groups/scs/IB-tools 
 	AddtoString PATH /global/home/groups/scs/tin
+	AddtoString PATH /global/home/groups/scs/tin/rhel7
 	#AddtoString PATH /global/scratch/tin/meli           # osu_*
 	AddtoString PATH /global/home/groups/scs/meli/      # osu_*
 	AddtoString PATH /global/home/groups/scs/yqin		# stream
@@ -599,6 +604,7 @@ if [[ x${MAQUINA} == x"zink" ]]; then
 	export DOCKER_HOST=unix:///run/user/43143/docker.sock
 	alias zoom='echo zoom messes up audio and/or video on zink'
 	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
+	alias reloj='xclock -digital' 
 fi
 
 if [[ x${MAQUINA} == x"c7" ]]; then

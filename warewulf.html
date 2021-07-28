@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP, PSG101, sn50, tin6150"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - Warewulf</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://tin6150.github.io/psg/">Sys Admin Pocket Survival Guide - Warewulf</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
+      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
+      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>warewulf</H1>
+
+baremetal provision tool.
+common in hpc environment
+pxe boot machine, most often run stateless nodes.
+
+
+<BR><HR><BR>
+
+<H2>Ref</H2>
+
+Good intro/overview
+https://warewulf.readthedocs.io/en/latest/about/architecture.html
+
+google group eg:
+https://groups.google.com/a/lbl.gov/g/warewulf/c/Yx9OMqkyJKU
+
+<H2>warewulf backup</H2>
+
+
+warewulf has a mysql db, running daily dbdump is recommended. <BR>
+This stores the node and provision config. <BR>
+MySQL/MariaDB config is stored in /etc/warewulf/database*conf <BR>
+<BR> <BR>
+
+<PRE>
+mysqldump --add-drop-database --opt $DB 
+Where $DB is one of 
+mysql 
+warewulf
+</PRE>
+
+
+/var/chroot contents for the vnfs is NOT in the db, and separate store for that is necessary <BR>
+(eg, vnfs build server, pullvnfs script presumed can run again to repopulate this). <BR>
+
+
+<H5>db restore</H5>
+
+<PRE>
+Restore command (run as root):
+
+bunzip2 -c mysql_backup_mysql_MMDD.sql.bz2    | mysql mysql
+bunzip2 -c mysql_backup_warewulf_MMDD.sql.bz2 | mysql warewulf
+
+
+A few commands to check the restored databases:
+
+mysql -e "describe host" mysql
+mysql -e "describe datastore" warewulf
+mysql -e "SELECT COUNT(*) FROM user" mysql
+mysql -e "SELECT COUNT(*) FROM datastore" warewulf
+
+<PRE>
+
+
+<H2>network troubleshooting</H2>
+
+<PRE>
+
+If nodes are not PXE booting:
+
+Jul  9 10:40:50 wwulf dhcpd[3849]: DHCPDISCOVER from ff:7b:25:fa:4f:7e via enp0s3: network 10.15.4.0/24: no free leases
+Jul  9 10:40:54 wwulf dhcpd[3849]: DHCPDISCOVER from ff:7b:25:fa:4f:7e via enp0s3: network 10.15.4.0/24: no free leases
+
+then try
+wwsh -v dhcp update
+wwsh dhcp restart
+wwsh pxe  update
+
+write to /etc/dhcp/dhpcd.conf
+if config has:
+
+   # Evaluating Warewulf node: c0000 (DB ID:887)
+   # Skipping c0000: Not on boot network (10.15.14.0)
+
+then:
+check /etc/warewulf/provision.conf
+the NIC device defined there need to have a network that is within the IP range defined by the wwulf nodes.
+
+Also see:
+https://groups.google.com/a/lbl.gov/g/warewulf/c/ERzlDkDw2tY/m/rg-fvAoOacQJ
+
+</PRE>
+
+<H2>config troubleshooting</H2>
+...
+
+<H2>tftp troubleshooting</H2>
+
+tftp (and dhcpd) needs to be running on the warewulf server.
+see <A HREF="general_unix.html#tftp">general_unix.html#tftp</A> for troubleshooting info.
+
+<H1>TBD int ref</H1>
+
+<!--
+~/CF_BK/sw/warewulf
+~/NOTE/node_provision.rst
+gretaDev/wwulf...
+greta/wwulf_vm/...
+-->
+
+<PRE>
+
+</PRE>
+
+
+<H2>httpd troubleshooting</H2>
+
+Once PXE boot complete via tftp, the image invoke HTTP GET to fetch files from the warewulf servers.
+these files are expected to be stored in:
+<font face=monospace>
+/srv/warewulf 
+</font>
+
+<BR><HR><BR>
+
+
+<BR>
+<TT>
+Typewriter monospaced fonts in here.
+This is another line.
+</TT>
+
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/warewulf.html">
+http://tin6150.github.io/psg/warewulf.html
+</A>] <BR>
+Last Updated: 2021-07-20
+  <!--[Doc URL: <A HREF="http://tin6150.github.io/psg/">http://tin6150.github.io/psg/</A>] <BR>-->
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  hoti1<BR>
+  sn5050<BR>
+  psg101 sn50 tin6150</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

@@ -69,7 +69,7 @@ For network-edge, dedicated firewall such as Check Point and Pix, see
 
 Linux kernel 2.2  - ipchains
 Linux kernel 2.4  - iptables 
-
+Linux kernel 4.18? - nftables (rhel8 anyway)
 
 /etc/sysconfig/iptables         # firewall rule config file
 
@@ -80,12 +80,13 @@ ufw				# UI for Ubuntu-land
 iptables		# CLI for RHEL6
 firewall-cmd	# CLI for RHEL7
 
-firewalld is the UI in RHEL7 and RHEL8.  But RHEL8 no longer use iptables, but ... instead (still netfilter at kernel level).
-</PRE>
+firewalld is the UI in RHEL7 and RHEL8.  But RHEL8 no longer use iptables, but instead use nftables (still netfilter at kernel level).
 
 ufw, iptables and firewalld typically manipulate the INPUT chain.  
 Docker mangle with iptables also, and typically does it at the PREROUTING chain, thus containerers could be inadvertendly open to the world, "above" firewalld control.  
 DOCKER-USER chain can be used, see below.
+
+</PRE>
 
 <BR><BR>
 
@@ -493,6 +494,34 @@ ref:
 
 </UL>
 
+<A ID="nftables"></A>
+<H2>nftables</H2>
+
+net filter tables
+<BR><BR>
+In RHEL8, iptables commands need to be translated to nftables. <BR>
+ref: <A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_networking/getting-started-with-nftables_configuring-and-managing-networking">RH Doc NFTables</A>
+
+<BR><BR>
+
+system with firewalld configured, <TT>systemctl status nftables</TT> can/should still be inactive/dead state.  config files would go to /etc/nftables . 
+
+<BR><BR>
+
+<TT>iptables -nvL</TT> on rhel8 machine configured with firewall-cmd will no longer show relevant info as it did in rhel7 system<BR>
+could try <TT>nft list ruleset</TT>
+
+<PRE>
+
+iptables-translate [iptables-chain-cmd]    	# generate nft equiv cmd (not always avail)
+
+nft list ruleset
+nft list table inet firewalld		# everything?
+nft list table ip   firewalld		# ipv4 only
+nft list table ip6  firewalld
+
+
+</PRE>
 
 <A ID="ufw"></A>
 <A ID="gufw"></A>
