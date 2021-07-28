@@ -210,6 +210,9 @@ add_personal_module () {
 		#module load intel/2018.1.163/openmpi/2.0.4-intel_eval
 		module load  tools/cvs/1.11.23
 	fi
+    if [[ -d /global/home/groups/scs/tin/rhel7/ ]]; then
+           AddtoString PATH /global/home/groups/scs/tin/rhel7/
+    fi
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
     export ANSIBLE_NOCOWS=1 # newline print just doesnt work in most places :/
 } # end add_personal_module
@@ -363,9 +366,10 @@ add_env4omp() {
 
 add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
-	AddtoString PATH /global/home/users/tin-bofh/rhel7/
+	#AddtoString PATH /global/home/users/tin-bofh/rhel7/
 	AddtoString PATH /global/home/groups/scs/IB-tools 
 	AddtoString PATH /global/home/groups/scs/tin
+	AddtoString PATH /global/home/groups/scs/tin/rhel7
 	#AddtoString PATH /global/scratch/tin/meli           # osu_*
 	AddtoString PATH /global/home/groups/scs/meli/      # osu_*
 	AddtoString PATH /global/home/groups/scs/yqin		# stream

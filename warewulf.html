@@ -61,6 +61,44 @@ https://warewulf.readthedocs.io/en/latest/about/architecture.html
 google group eg:
 https://groups.google.com/a/lbl.gov/g/warewulf/c/Yx9OMqkyJKU
 
+<H2>warewulf backup</H2>
+
+
+warewulf has a mysql db, running daily dbdump is recommended. <BR>
+This stores the node and provision config. <BR>
+MySQL/MariaDB config is stored in /etc/warewulf/database*conf <BR>
+<BR> <BR>
+
+<PRE>
+mysqldump --add-drop-database --opt $DB 
+Where $DB is one of 
+mysql 
+warewulf
+</PRE>
+
+
+/var/chroot contents for the vnfs is NOT in the db, and separate store for that is necessary <BR>
+(eg, vnfs build server, pullvnfs script presumed can run again to repopulate this). <BR>
+
+
+<H5>db restore</H5>
+
+<PRE>
+Restore command (run as root):
+
+bunzip2 -c mysql_backup_mysql_MMDD.sql.bz2    | mysql mysql
+bunzip2 -c mysql_backup_warewulf_MMDD.sql.bz2 | mysql warewulf
+
+
+A few commands to check the restored databases:
+
+mysql -e "describe host" mysql
+mysql -e "describe datastore" warewulf
+mysql -e "SELECT COUNT(*) FROM user" mysql
+mysql -e "SELECT COUNT(*) FROM datastore" warewulf
+
+<PRE>
+
 
 <H2>network troubleshooting</H2>
 
@@ -100,35 +138,30 @@ tftp (and dhcpd) needs to be running on the warewulf server.
 see <A HREF="general_unix.html#tftp">general_unix.html#tftp</A> for troubleshooting info.
 
 <H1>TBD int ref</H1>
+
+<!--
 ~/CF_BK/sw/warewulf
 ~/NOTE/node_provision.rst
 gretaDev/wwulf...
 greta/wwulf_vm/...
+-->
 
 <PRE>
 
 </PRE>
 
 
+<H2>httpd troubleshooting</H2>
+
+Once PXE boot complete via tftp, the image invoke HTTP GET to fetch files from the warewulf servers.
+these files are expected to be stored in:
+<font face=monospace>
+/srv/warewulf 
+</font>
+
 <BR><HR><BR>
 
-<h1>This is H1 text</h1>
-<h2>This is H2 text
-</h2>
-<h3>This is H3 text
-</h3>
-<h4>This is H4 text</h4>
-<h5>This is H5 text</h5>
-<h6>This is H6 text</h6>
 
-<EM>This is EM text</EM><BR>
-<STRONG>This is STRONG text</STRONG><BR>
-<BR>
-
-<font face=monospace>
-someple text here
-	line with tab indent	more tab		yet more tab.
-</font>
 <BR>
 <TT>
 Typewriter monospaced fonts in here.
@@ -143,10 +176,10 @@ This is another line.
 
 <BR><HR>
 <div align="CENTER">
-  [Doc URL: <A HREF="http://tin6150.github.io/psg/">
-http://tin6150.github.io/psg/
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/warewulf.html">
+http://tin6150.github.io/psg/warewulf.html
 </A>] <BR>
-Last Updated: 2008-03-22
+Last Updated: 2021-07-20
   <!--[Doc URL: <A HREF="http://tin6150.github.io/psg/">http://tin6150.github.io/psg/</A>] <BR>-->
 <BR>
 (cc) Tin Ho. See 

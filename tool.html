@@ -1627,6 +1627,7 @@ snoop -D -s 9000 -c 100000 -o jumpstartclient.snoop host jumpstartclient
 
 </PRE>
 
+<A NAME="wireshark"></A>
 <A NAME="ethereal"></A>
 <H2>Ethereal</H2>
 
@@ -1700,6 +1701,9 @@ some commonly used filter fields:
            tcp.port == 80 and ip.src == 192.168.2.1
 		   ip.addr is for both src or dest, these multiple ocurring field is a bit confusing for packet filtering.
 
+	ip.addr == 10.243.197.118 && tftp.opcode == 1   # tftp.opcode is Read Request (ie, the packet that ask for file)
+		
+
 for generic filter dealing with a specific host, but not necessary filtering by tcp/udp/icmp
 ip.dst
 ip.src
@@ -1761,9 +1765,19 @@ editcap can be used to trim captured file, or convert between formats
 
 </PRE>
 
+
+<LI>
 Good read on ethereal:
 <A HREF="http://www.ns.aus.com/ethereal/user-guide/ch03capfilt.html">
 http://www.ns.aus.com/ethereal/user-guide/ch03capfilt.html</A>
+  <BR>  <BR>
+
+<LI>
+wireshark filter commands <BR>
+https://www.wireshark.org/docs/dfref/f/ftp.html  =  ftp  <BR>
+https://www.wireshark.org/docs/dfref/t/tftp.html = tftp  <BR>
+  <BR>  <BR>
+
 
 <BR>
 
