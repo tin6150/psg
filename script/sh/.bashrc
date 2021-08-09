@@ -575,6 +575,11 @@ defineAliasSge () {
 
 umask 0002      # i do want file default group writable
 
+# https://sylabs.io/guides/3.5/user-guide/appendix.html
+[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_CACHEDIR=/global/scratch/tin/cacheDir
+[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_TMPDIR=/global/scratch/tin/cacheDir
+[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_WORKDIR=/global/scratch/tin/cacheDir
+
 
 # the following will not save .bash_history when exit bash, so no xfer b/w sessions
 # very useful when putting pw in env var 
