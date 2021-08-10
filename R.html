@@ -74,8 +74,8 @@ podman run  -it --entrypoint=/opt/conda/bin/jupyter  tin6150/r4envids lab --allo
 <A NAME="jupyter"></A>
 <H3>Jupyter Notebook IR Kernel Setup</H3>
 
+<PRE>
 conda install -c conda-forge jupyterlab
-
 
 IRkernel is R kernel for Jupyther Notebook.  Need to install as R package, then add kernel spec to Jupyter Notebook:
 
@@ -88,11 +88,11 @@ IRkernel::installspec(user = FALSE)
 Rscript --no-readline --slave -e "IRkernel::installspec(user = TRUE)"
 
 
-
 /home/tin/anaconda3/bin/jupyter lab 
 # expect to have browser launched with URL http://localhost:8888/lab
 # then click icon to create new R notebook
 
+</PRE>
 
 <H2>Environment</H2>
 

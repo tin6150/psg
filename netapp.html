@@ -452,6 +452,38 @@ Cluster-Mode Ref
 <BR>
 
 
+<H2>New NetApp cDOT planning questionaire</H2>
+
+<PRE>
+
+Each Netapp is an HA pair of 2 nodes.  Each node has 4-6 network interfaces, 
+for which LAG(s) are typically created for data and management traffic to flow.  
+There is also a service port that would best be connected to IPMI network.
+Each node should be treated like a VM host, and as many VM carved on them as desired.  
+
+- do we segregate backup traffic vs nfs data traffic to different vlan?    
+  - backup traffic may need to leave the cluster to external site
+
+- do we segregate management traffic vs nfs data traffic 
+  (eg CLI/GUI to manage node and VM could be on separate VLAN, 
+  not actually recommended by netapp, but see next point)
+
+- netapp has "call home" feature, where it sends weekly report and autosupport via http.  
+  This go out via management interface and well, would need to get to internet if we want to use this feature.  
+  So, management interface may need to reside in the "internet services VLAN" ?
+
+Which VLAN should the node perform NFS mounts against the netapp(s)?  
+- warewulf provision network would be on RJ45 1Gbps NIC.
+- the alternate high speed NIC that could be 10/100 Gbps?  
+
+- DTN traffic in a separate vlan?  or use the Internet Services vlan?
+
+Netapp suports VLAN tagging.  The number of LAGs and number of ports they use probably depends on how many VLAN we need the system to connect to?
+- MTU size ?
+
+</PRE>
+
+
 <!-- ############################################################ -->
 <!-- ############################################################ -->
 <!-- ############################################################ -->
