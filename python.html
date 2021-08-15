@@ -212,7 +212,22 @@ or
 <PRE>27/float(3) </PRE>
 
 
+
 <BR><BR>
+
+python3 can use _ as thousand separators in numbers (instead of comma), 
+and it doesn't have to be group of 3, it is for human reading and stripped by the interpreter.
+Also note that it is *NOT* a "decimal point" like cents and dollars when only two digits is in a group.
+(Why is Spanish and some other lang reverse role of comma and period?)
+eg:
+
+<PRE class="code">
+>>> print( 5_000_111_000_222_021 - 4_20010 )
+5000110999802011
+>>> print( 5_4321 + 100_00 )
+64321
+>>> 
+</PRE>
 
 
 <H2>Distributions of Python </H2>
@@ -1294,9 +1309,96 @@ sqlContext = SQLContext(sc)
 
 ## http://stackoverflow.com/questions/24996302/setting-sparkcontext-for-pyspark
 ## https://spark.apache.org/docs/1.5.0/configuration.html
-
-
 </PRE>
+
+<A name="parallel"></A>
+<A name="pp"></A>
+<A name="ppp"></A>
+<H1>
+Parallel Programming in python
+</H1>
+
+<OL>
+
+<LI> Python Global Interpreter Lock (GIL) enforces only 1 python instruction is run at a time, thus pythong program cannot be multi-threaded.  GIL release lock every 5 ms so OS scheduler can schedule other threads.
+NOTE: multiple process are completely independent (ie they have their own GIL).  </LI>
+
+<LI> Network IO function typically release the GIL while they xfer data</LI>
+
+<LI> Threads are still avail <TT>from threading import Thread, Event</TT> but suitable mostly for doing async io stuff.  Dealing with the GIL in the current implementation is hard to yield high perf parallel code </LI>
+
+<LI> Numpy?SciPy, zlib, bz2, and many high perf math libs  are natively parallel due to their native implementation in C.  The Python interface to them release the GIL while running.</LI>
+
+<LI> Parallelization for AI work: TensorFlow and PyTorch (SciKit-Learn?) are implemented in C++ as python extension, and code there does not depends on the GIL either.  multi-core CPU and GPU code works fine in this space.</LI>
+
+<LI> PySpark, but have to use the hardoom/spark framework</LI>
+
+<LI> mpi4py, async parallel paradigm of MPI </LI>
+
+<LI> Child process based approach: Process and Pool Class: <TT>import multiprocessing</TT>.  Cuz GIL, this tends to be higher performance.  But there are overhead of inter-process communication: serialize-deserialize,  (if fork()-based, then child share parent memory/data? </LI>
+
+<LI> </LI>
+<LI></LI>
+<LI></LI>
+<LI></LI>
+</OL>
+
+<BR>
+
+Fluent Python. Ch 20: Concurrency Models in Python
+<BR>
+https://learning.oreilly.com/library/view/fluent-python-2nd/9781492056348/ch20.html
+<BR> <BR>
+Concurrency is about keeping track of many things that are happening at the same time, structure is needed to keep track of this.  However, solution of this may not always be parallelizable.  Parallelism deals with execution.
+<BR> <BR>
+process share memory via pipe, which are raw bytes, so can be between diff languages 
+<BR> <BR>
+threads are within the same program, thus they share memory, thus language, data structure format, much easier to code for simpler tasks such as array sharing.
+<BR> <BR>
+
+<H5>Dask</H5>
+
+Dask is a parallel lib can farm out to a cluster of machines (think HPC).
+Offers API with routine that resemble (but not identical?) to NumPy, Pandas and Scikit-Learn.
+For large parallel program, especially at the start, Dask would be a good platform.
+<BR> <BR>
+
+Dask has a scheduler, while one can run in laptop, on HPC it need to invoke the pieces that tie as batch jobs.<BR>
+On user end, the dask/python code need to install the dask-jobqueue library.
+Write a declaration on how big the dask cluster job will be, and also write slurm job submit script requesting the desired resource (number of nodes, running time, etc).  Slurm would just run the job like any multi-node job.  
+ref:
+https://jobqueue.dask.org/en/latest/examples.html#slurm-deployment-providing-additional-arguments-to-the-dask-workers
+<BR><BR><BR>
+
+
+
+Dash with Jupyther lab: 
+SSH Tunneling was used to use web browser on laptop tunnel to cluster.
+Maybe can use OOD to circumvent same network requirements.  <BR>
+
+Interactive data analysis using Dask and HPC is possible, but heterogenous node job scheduling needs more work.
+<BR>
+
+See: https://blog.dask.org/2019/06/12/dask-on-hpc
+
+<BR> <BR>
+
+see: https://dask.org/
+<BR> <BR>
+
+
+
+<H5>concurrent.futures</H5>
+<PRE>
+</PRE>
+
+<H5>asyncio</H5>
+
+
+<PRE>
+</PRE>
+
+
 <!-- ######################################################################### -->
 
 <H1>Python vs your favorite language</H1>
