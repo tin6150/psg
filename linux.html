@@ -2583,6 +2583,10 @@ sudo dmidecode -t processor | grep Speed	# but "Current Speed" is from ACPI and 
 						# show max speed for SL7 (ie match /proc/cpuinfo MHz info) 
 
 
+dmidecode --string system-serial-number
+
+ipmitool sel list # find if there are error on the bmc
+
 ulimit
 
 /etc/security/limits.conf ::
