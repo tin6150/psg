@@ -923,9 +923,17 @@ registerDoParallel
 
 6 main types of parallization:
 
-<LI> same host, FORK based, parent/child memory model with copy-on-write: mclapply, mcparallel, mccollect.
+<LI> same host, FORK based, parent/child memory model with copy-on-write: mclapply, mcparallel, mccollect.  <TT>multicore</TT> is easy if code already use <TT>lapply</TT>.  Not usable in Windows natively as it does not support fork().
+
 <LI> Rdsm - shared memory within a single computer, so multiple PSOCK same-node processes can read/write to 1 single memory region.
+
 <LI> PSOCK based multi-node parallelization, without needing MPI (cluster): SNOW: parLapply, clusterApplyLB 
+<UL>
+	<LI>Socket based, can work on windoze.
+	<LI> Snow cluster is well suited for use in HPC env.   But better to use <EM><TT>parallel</TT></EM> rather than code using snow primitive, since it implent snow and multicore in a single library, as well as parallel random num generation.
+</UL>
+
+
 <LI> MPI based -- SNOW cluster implement on this as well.
 <LI> pbdR, hiding some of the complexity of MPI
 <LI> Hardoop/SparkR but that's a platforms of its own.
@@ -1093,10 +1101,11 @@ foreach should be tought of lapply, not for loop
 
 
 %do% is serial
+%dopar% is parallel, and need a backend.
 Parallel libs: doParallel, doMC, doMPI
   cl = parallel::makeCluster(4)
-  cl = parallel::makeCluster(4, type = "FORK")   # unix fork(), default?
-  cl = parallel::makeCluster(4, type = "PSOCK")  # Posix Sockets creates a brand new session in R, nothing inherited from parent.  if do this, may as well use MPI cluster and really scale it.
+  cl = parallel::makeCluster(4, type = "FORK")   # unix fork() based, not usable in windows natively.
+  cl = parallel::makeCluster(4, type = "PSOCK")  # default.  Parallel Sockets on a SNOW cluster with 4-node
   cl = parallel::makeForkCluster(4)
 
 use registerDoSEQ() if want to force foreach to run in serial 
@@ -1112,6 +1121,16 @@ SNOW - like PSOCK, entirely new process, so ned to explicitly copy data.  but pr
 https://ljdursi.github.io/beyond-single-core-R/#/55
 clusterCall()
 clusterEvalQ() # easier to use for tasks
+
+
+  cl = parallel::makeCluster(4, type = "PSOCK")  # Parallel Sockets creates a brand new session in each node, 
+						 # R copies data and .packages to each node, so more overhead than fork().  
+						 # 4 here indicate create a 4-node SNOW cluster, which are just cores in a SMP machine.   
+						 # for multinode, provide a vector of hostnames, which R need to ssh to (and run 1 core per machine?) 
+						 # https://stackoverflow.com/questions/36794063/r-foreach-from-single-machine-to-cluster
+  multinode foreach call would need to have param for .packages to copy to each node, as well as .export for variables  eg:
+  foreach(i = 1:nrow(data_frame_1), .packages = c("package_1","package_2"), .export = c("variable_1","variable_2"))  %dopar% { ... }     
+
 
 </PRE>
 
@@ -1133,7 +1152,7 @@ stopCluster(cl)
 
 .combine=rbind # row-bind, ie, each result becomes a row
 .combine=cbind # col-bind, ie, each result becomes a col
-.combine=c     # c() ?
+.combine=c     # c() ?  concatenate?
 
 
 detectCores() ## return number of cores on machine

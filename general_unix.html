@@ -693,6 +693,7 @@ gpg --symmetric myfile.txt		# symetric key, single password.
 gpg -e -r username myfile.txt		# encrypt using pgp public key stuff
 
 </PRE>
+
 <PRE>
 
 pgpe - Encrypts and signs messages
@@ -809,6 +810,29 @@ gpg -v --verify openvpn-install-2.4.6-I602.exe.asc	# check against data file of 
 
 </PRE>
 
+<H2>7zip</H2>
+
+<PRE>
+
+7zip for windows
+7z cli in linux
+
+sudo apt-get install p7zip-full -y
+
+7z a -p -mx=9 -mhe -t7z myLockedArchive.7z senstiveDocFolder/
+
+a: Add files to archive
+-p: Prompt for a password
+-mx=9: Level of compression (9 being ultra)
+-mhe: Encrypt file names
+-t7z: Generate a 7z archive
+
+</PRE>
+
+<!--
+cd Documenta/s
+7z a -p -mx=9 -mhe -t7z a51_2021_0828.7z a51/ 
+-->
 
 <H1>TBD</H1>
 
