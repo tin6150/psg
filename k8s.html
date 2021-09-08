@@ -142,9 +142,90 @@ kubeadm
 
 </PRE>
 
+<H5>kubeadm cluster</H5>
+
+2021.09 
+<A HREF="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/">
+instructions from Kubernetes.io instruction on installing a cluster</A>:
+
+Official setup
+<A HREF="https://kubernetes.io/docs/setup/">doc</A>
+
+<PRE>
+
+Kubectl
+-------
+
+This is command line tool to interact with cluster.  
+Should be easy to install, for Linux, etc.  
+https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+Kubelet
+-------
+
+This is the daemon process that run on the worker nodes.  
+Think slurmd on compute notes here.
+
+Inbound ports: 
+- 10250        kubelet API
+- 30000-32767  NodePort Services†
+
+There are version requirements:  
+- Kubelet can NOT be newer than KubeAdm.  
+- Kubelet can be 1 minor release behind KubeAdm.
+
+Kubeadm
+-------
+
+Control workers, create cluster.  the real orchestrator.
+Can get RHEL, Debian binaries.  Google host a yum repo for rpm.  
+Non-package manager binaries available via github.
+
+
+Etcd... API server...
+
+
+Network
+-------
+
+additional vlan creation manageable via kubeadm would be nice for growth.
+But for a small/static deployment, switch control by kubeAdm not needed.
+A private network still need to be setup and used by kubernetes.
+
+</PRE>
+
+
+<H5>
+Container runtimes
+</H5>
+
+<LI> Docker used to be the standard.  But in 2020.12, the "dockershim" is being deprecated by kubernetes.   <BR>
+Kubernetes 1.20 still supports it, with a warning. <BR>
+Kubernetes 1.22 (released 2021-08) maybe last version supporting dockershim.     <BR>
+Kubernetes 1.23? will only support CRI at that point? Will docker support CRI by this point? <BR>
+Another company will provide a dockershim-ed version of kubernetes, at support expense?   <BR>
+
+<LI> CRI-O maybe the new container substrate Google is pushing for.
+
+<LI> podman does not work with Kubernetes, so RHEL 8 maybe an issue. 
+  Should be able to install Docker via non OS provided rpm.
+
+<LI> containerd, supported.  Developed by Docker, use OCI image format, and supports CRI.  
+     Docker currently comes with this (in addition to docker), and it is the only "dual container" env that Kubeadm will support without erroring out during install.
+
+<LI> Singularity not mentioned in Kubernetes.io site.   <BR>
+<A HREF="https://sylabs.io/guides/cri/1.0/user-guide/k8s.html">Sylabs doc</A>
+says it support is via CRI standard interface.  See 
+
+
+<LI> See <A HREF="https://www.tutorialworks.com/difference-docker-containerd-runc-crio-oci/">Diff b/w Docker, containerD, CRI-O and runc</A> at Tutorial Works on the many nuance of the container stack.
+
+
+
 
 <H5>Ref</H5>
 
+2020:
 <OL>
 <LI> <A HREF="https://www.redhat.com/en/topics/containers/what-is-kubernetes">What is Kubernetes?</A> concise intro by RH 
 <LI> <A HREF="https://kubernetes.io/docs/setup/pick-right-solution/">Kubernetes clustering choices</A> <BR>
@@ -162,7 +243,8 @@ kubeadm
 <H2>Rancher</H2>
 
 <OL>
-<LI> Rancher is open source, premium for support service.
+<LI> Rancher is open source, Free to run, Premium for support service.
+     <A HREF="https://i.crn.com/sites/default/files/ckfinderimages/userfiles/images/crn/custom/2021/SUSE_Showcase_Q1_2021_NEWguide%20to%20Kubernetes%20with%20Rancher.pdf">A Guide to Kubernetes with Rancher</A> (sale brochure from 2011)  page 11 states: Commitment-Free Open Source.  No different binary for Free vs Enterprise.  Just pay for support.  (install over existing kubernetes cluster, so just provide GUI, view, management, but not an actual kubernetes cluster?
 <LI> RanchOS is a lightweight OS for hosting containers.
 <LI> Install trivially as a docker container.
 </OL>
