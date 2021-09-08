@@ -95,6 +95,16 @@ singularity exec myR bash
 singularity exec myR rstudio
 singularity exec shub://tin6150/r4eta rstudio
 
+# pull docker container, from github container repository
+singularity pull  docker://ghcr.io/tin6150/r4eta:master
+singularity shell docker://ghcr.io/tin6150/r4eta:master
+
+singularity pull  docker://ghcr.io/tin6150/r4eta:master  
+singularity shell docker://ghcr.io/tin6150/r4eta:master  # get bash prompt 
+singularity run   docker://ghcr.io/tin6150/r4eta:master  # get R    prompt
+
+singularity exec  docker://ghcr.io/tin6150/r4eta:master  Rscript ./drJin.R                    # R script in current working dir
+singularity exec  docker://ghcr.io/tin6150/r4eta:master  Rscript /opt/gitrepo/r4eta/drJin.R   # R script inside container
 
 
 </PRE>

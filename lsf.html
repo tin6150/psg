@@ -316,7 +316,8 @@ scontrol show partition		# view partition/queue info
 scontrol show nodes		# view nodes info (as specified to slurm.conf)
 scontrol show config		# view config of whole system (eg when asking mailing list for help)
 scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 min for the queue named "debug"
-scontrol update jobid=12345 TimeLimit=5-12	# change time limit of a specific job to 5.5 days
+scontrol show jobid -dd 1234567                 # see job detail, including end time
+scontrol update   jobid=1234567 TimeLimit=5-12	# change time limit of a specific job to 5.5 days (job runtime extension, but it is not adding time to existing, nor is it setting a new finish time, but change the original wall clock limit, so be sure that it is longer than previous setting, eg default of 3 days for some queue)
 
 sacct				# view accounting by individual job and job steps (more in troubleshooting below)
 
