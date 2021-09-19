@@ -225,8 +225,9 @@ sacctmgr show associations -p user=USERNAME	 	# see what associations a specifie
 scontrol show partition					# list "queues"
 
 sacctmgr show qos -p format=name		    	# list QoS
-sacctmgr show qos    format=Priority%8,Preempt%18,PreemptMode,name%26,MaxWall,MaxTRESPU,MaxSubmitPU,GrpTRES%22,MinTRES%22,UsageFactor,GraceTime,Flags%4 
-sacctmgr show qos    format=Priority%8,Preempt%18,PreemptMode,MaxWall,name%26,GrpTRES%22,MaxTRES%22,MinTRES%16,MaxTRESPU,MaxSubmitPU
+ sacctmgr show qos    format=Name%24,Priority%8,Preempt%18,PreemptMode,GrpTRES%22,MinTRES%26 # savio
+sacctmgr show qos    format=name%26,Priority%8,Preempt%18,PreemptMode,MaxWall,MaxTRESPU,MaxSubmitPU,GrpTRES%22,MinTRES%22,UsageFactor,GraceTime,Flags%4 
+sacctmgr show qos    format=name%26,Priority%8,Preempt%18,PreemptMode,MaxWall,GrpTRES%22,MaxTRES%22,MinTRES%26,MaxTRESPU,MaxSubmitPU
 
 
 </PRE>

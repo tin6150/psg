@@ -81,6 +81,11 @@ IRkernel is R kernel for Jupyther Notebook.  Need to install as R package, then 
 
 Rscript -e "install.packages('IRkernel')"
 
+# run multiple commands in Rscript by placing them inside {}, cmd separated by ;
+Rscript --quiet --no-readline --slave -e '{ print("Hello") ; print("hi") }'
+# p_load requires library(pacman) to be run first, so, try like this:
+Rscript --quiet --no-readline --slave -e '{library(pacman) ; p_load( ggplot2, scales ) ;  print("Hello") ; print("hi") }'
+
 # system wide
 IRkernel::installspec(user = FALSE)
 
@@ -921,7 +926,11 @@ registerDoParallel
 <A NAME="Parallelization"></A>
 <H1>Parallelization in R</H1>
 
-6 main types of parallization:
+2 categories of parallelization:
+- Shared memory: ie, multiple cores, single machine memory space.  typically fork-based.
+- distributed memory: multiple machines (multiple OS instances), using Socket, MPI, etc
+
+6 main types/bundles of parallization exist in R:
 
 <LI> same host, FORK based, parent/child memory model with copy-on-write: mclapply, mcparallel, mccollect.  <TT>multicore</TT> is easy if code already use <TT>lapply</TT>.  Not usable in Windows natively as it does not support fork().
 
@@ -1131,6 +1140,10 @@ clusterEvalQ() # easier to use for tasks
   multinode foreach call would need to have param for .packages to copy to each node, as well as .export for variables  eg:
   foreach(i = 1:nrow(data_frame_1), .packages = c("package_1","package_2"), .export = c("variable_1","variable_2"))  %dopar% { ... }     
 
+If the foreach loop is in the global environment, variables should be exported automatically. If not, you can use .export = ls(globalenv()) (or .GlobalEnv).
+per https://stackoverflow.com/questions/45767416/how-to-export-many-variables-and-functions-from-global-environment-to-foreach-lo
+
+
 
 </PRE>
 
@@ -1316,6 +1329,34 @@ registerDoSNOW(cl)
 
 <BR>
 <BR>
+
+<H1>Parallel R Baggage</H1>
+
+
+Some history of the R parallel back ends...
+<BR>
+
+see: https://stackoverflow.com/questions/28989855/the-difference-between-domc-and-doparallel-in-r
+
+<PRE>
+doParallel is essentially merge of multicore (doMC) and snow.
+
+multicore is w/in same machine, so faster than snow.  
+multicore is fork based.
+snow was intended to leverage HPC MPI stack.   so registerDoSNOW() has more overhead than registerDoParallel().  
+
+parallel is a merger of snow and multicore
+
+
+registerDoParallel vs registerDoSNOW
+registerDoParallel() could be invoking the multicore backend and use doMC/fork when on single node, thus less overhead than registerDoSNOW()
+
+registerDoSEQ() is run in serial, useful for debugging to test whether parallel code produce same result as sequential code.
+
+SNOW use PSOCK, easier to deal with than MPI.
+
+</PRE>
+
 
 
 <!--  ----------------------------------------------------------------------  -->
