@@ -304,7 +304,8 @@ add_hpcs_module () {
 
 	fi
 
-	export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
+	#--export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
+	export SIF=/global/home/groups/scs/tin/singularity-repo/perf_tools_latest.sif  # brc 2021.09
 	export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"

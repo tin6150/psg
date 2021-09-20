@@ -8,6 +8,7 @@
 # pdsh      -w n0[150-157].savio3    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell
 # pdsh      -w n0[158-160].savio3    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh smc
 # pdsh -w n0[162-169,177-178,197-204].savio3 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2021.0519
+# pdsh -w n0[218-229].savio3         /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2021.0519
 
 
 # -f 1 means serial, one node at a time.  for when racadm need to do lock.  
@@ -39,8 +40,9 @@
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/cf1/sm_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/dell_bios_cf
 #CentralLogRepo=/global/scratch/tin/gsCF_BK/savio3/BIOS_CF
-CentralLogRepo=/global/scratch/tin/gsCF_BK/BIOS_CF                # so that it works in lrc as well
-#CentralLogRepo=/global/scratch/tin/gsCF_BK/savio2/sm_bios_cf
+#CentralLogRepo=/global/scratch/users/tin/gsCF_BK/BIOS_CF                # so that it works in lrc as well
+[[ -d /global/scratch/users/tin/gsCF_BK/BIOS_CF ]] &&  CentralLogRepo=/global/scratch/tin/gsCF_BK/BIOS_CF        # lrc
+[[ -d /global/scratch/tin/gsCF_BK/BIOS_CF       ]] &&  CentralLogRepo=/global/scratch/users/tin/gsCF_BK/BIOS_CF  # brc new scratch ca 2021.08
 #FECHA=$(date "+%Y-%m%d-%H%M")          # eg 2018-0304-0333
 FECHA=$(date "+%Y-%m%d")                # eg 2018-0304
 BiosBkDir=${CentralLogRepo}/bak${FECHA}
