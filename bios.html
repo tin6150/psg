@@ -163,6 +163,16 @@ In that sequence, to be completed within 3 seconds.
 Do you prefer UEFI?   Really??  <BR>
 Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <BR>
 
+<H2>nVidia DGX A100</H2>
+
+DEL or F2 = setup
+F11 = boot menu
+F12 = PXE boot
+
+Epyc 7742 64-core x2 
+2TB RAM?
+
+
 <H2>Penguin Computing</H2>
 <PRE>
 F2 = Setup
@@ -367,13 +377,26 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 </PRE>
 
 <H3>Other BIOS param</H3>
+
+see  PSG/script/hpc/record_bios_settings.sh  
+<BR>
+<BR>
+
 <!-- 
 
-## better to use  PSG/script/hpc/record_bios_settings.sh 
+## ***** really >>> 
+## ***** better to use  PSG/script/hpc/record_bios_settings.sh 
 
 x singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img   /opt/dell/srvadmin/sbin/racadm \
 x singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img         /opt/dell/srvadmin/sbin/racadm \
-  singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm \
+x singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm \
+  singularity exec -B /var/run  /global/home/groups/scs/tin/singularity-repo/tin6150-dell_idracadm-master-latest.simg  /opt/dell/srvadmin/sbin/racadm \
+
+export SIFracadm=/global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img
+singularity exec -B /var/run  $SIFracadm /opt/dell/srvadmin/sbin/racadm \
+ get BIOS.ProcSettings.LogicalProc    
+
+#### just use pdsh -w n0[218-229].savio3 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2021.0920
 
 # singularity-hub build probably won't work cuz build machine don't have an iDRAC :(
 
