@@ -53,6 +53,62 @@
 
 <H1>R</H1>
 
+<A NAME="101"></A>
+<H2>101</H2>
+<PRE>
+R       # interactive cli
+Rstudio # gui
+
+# run single command in shell
+Rscript -e "print(system('hostname'))"   
+
+# run a list (set?) of commands by placing them in {}.  p_load() won't run unless the library is loaded explicity.
+Rscript --quiet --no-readline --slave -e '{ library(pacman); p_load( ggplot2, scales ) }'
+
+</PRE>
+
+See: <A HREF="#tilde">tilde operator and formula</A> is one of the weird thing in R.
+
+
+<A NAME="EpiStat"></A>
+<A NAME="epistat"></A>
+<H2>EpiStat </H2>
+Stat for Epidemiologist
+
+<PRE>
+library("EpiStat")
+
+
+# not sure if these all are from this library, but what I am learning in epi1.
+
+nhanes <- read.csv("ps7_nhanes.csv",header=TRUE)
+
+# converting a numeric 1, 2 to categorical male, female, but creating a new col (sec_cat) in existing table (nhanes)
+nhanes$sex_cat = ifelse(nhanes$sex==1, "Male", "Female") 
+
+tab1x2 <- table(nhanes$sex) # cmd to create table ... by counting freq of values in col sex
+
+table2x2 <- table(nhanes$dpq_bin, nhanes$vitd_def)  # create 2x2 epi table
+addmargins(table2x2)   # addmargins create total (row and col) 
+
+
+# express table "nhanes" entries as proportions
+prop.table(tab2)    
+# OR
+proportions(tab2)
+
+sum(tab2) # return a scalar containing total freq (ie count)  ## here think of count row by group
+
+help(CS) # Cohort Study measuring Risk
+CS( x,         "cases",   "exposure", full=FALSE)
+CS( tableName, "outcome", "exposure", full=FALSE)
+CS(nhanes,     "dpq_bin", "sex_cat",  full=FALSE) 
+
+</PRE>
+
+
+<BR><BR>
+
 <A NAME="container"></A>
 <A NAME="singularity"></A>
 <A NAME="docker"></A>
@@ -220,6 +276,8 @@ data %>% head() # like unix cat data | head
 # print(data)   # maybe big
 data %>% summary()  # summary stat for each column of data, eg min,median,quartilers
 
+str( data ) # see list of variables (column headers) 
+
 </PRE>
 
 
@@ -297,7 +355,8 @@ ref: https://ljdursi.github.io/beyond-single-core-R/#/111
 
 <H1>R Programming</H1>
 
-<H5>101</H5>
+<A NAME="101.2"></A>
+<H5>101.2</H5>
 
 <A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">R short primer (pdf)</A> (page 12)
 
@@ -353,6 +412,7 @@ $>% # like unix pipe, used a lot by dplyr
 2^4 and 2**4 both seems to be power, get 16.  2^4 notation maybe preferred.
 
 </PRE>
+
 
 
 <H5>R stuff - NA : Not available data</H5>
@@ -525,6 +585,13 @@ a <- 5
 # overall, for better readability of R code, 
 # it was suggested to only use <- for assignment and = for specifying named parameters.
 # But I was not convinced and will likely continue to use = 
+
+</PRE>
+
+<PRE>
+# converting a numeric 1, 2 to categorical male, female, but creating a new col (sec_cat) in existing table (nhanes)
+
+nhanes$sex_cat = ifelse(nhanes$sex==1, "Male", "Female") 
 
 </PRE>
 
@@ -711,6 +778,7 @@ typically ans[[1]], ans[[2]] etc will contain the original answer desired.
 <H2>Strange R stuff</H2>
 
 <A NAME="formula"></A>
+<A NAME="tilde"></A>
 <H3> Formula and tilde (~) operator</H3>
 
 Coming from a programming world, R's definition of formula and its use of the tilde (~) operator is one of the weirest sh-IT of R!! =)
