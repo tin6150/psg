@@ -556,7 +556,7 @@ clean up broadcast stuff
 default is too chatty
 broadcast-domain show
 
-sysbase::*> broadcast-domain remove-ports sysbase0:e0c
+broadcast-domain remove-ports sysbase0:e0c
 
 repeat for e0d e0e e0f and for sysbase1:e0c...
 
@@ -578,8 +578,8 @@ net route show
 # LIF assigned to SVM
 
 
-net interface create -vserver axiom -lif axiom-01_IC01 -role intercluster -home-node axiom-01 -home-port a1a -address 128.3.32.46 -netmask-length 22
-net interface create -vserver axiom -lif axiom-02_IC01 -role intercluster -home-node axiom-02 -home-port a1a -address 128.3.32.47 -netmask-length 22
+net interface create -vserver axiom -lif axiom-01_IC01 -role intercluster -home-node axiom-01 -home-port a1a -address 10.3.32.46 -netmask-length 22
+net interface create -vserver axiom -lif axiom-02_IC01 -role intercluster -home-node axiom-02 -home-port a1a -address 10.3.32.47 -netmask-length 22
 
 
 run -node sysbase0 sysconfig
@@ -593,23 +593,23 @@ firewall
 <PRE>
 
 
-firewall policy modify -vserver sysbase -policy mgmt     -service http  -allow-list 128.3.7.0/24,131.243.220.0/22,131.243.130.0/24,128.3.10.10/32
-firewall policy modify -vserver sysbase -policy mgmt-nfs -service http  -allow-list 128.3.7.0/24,131.243.220.0/22,131.243.130.0/24,128.3.10.10/32
+firewall policy modify -vserver sysbase -policy mgmt     -service http  -allow-list 10.3.7.0/24,131.243.220.0/22,131.243.130.0/24,10.3.10.10/32
+firewall policy modify -vserver sysbase -policy mgmt-nfs -service http  -allow-list 10.3.7.0/24,131.243.220.0/22,131.243.130.0/24,10.3.10.10/32
 firewall policy modify -vserver sysbase -policy mgmt     -service dns   -allow-list  131.243.5.1/32,131.243.5.2/32,131.243.121.21/32,131.243.64.2/32,8.8.8.8/32,8.8.4.4/32
 firewall policy modify -vserver sysbase -policy mgmt-nfs -service dns   -allow-list  131.243.5.1/32,131.243.5.2/32,131.243.121.21/32,131.243.64.2/32,8.8.8.8/32,8.8.4.4/32
 firewall policy modify -vserver sysbase -policy mgmt     -service ntp   -allow-list  131.243.64.12/24
-firewall policy modify -vserver sysbase -policy mgmt     -service ndmp  -allow-list  128.3.7.87/32
-firewall policy modify -vserver sysbase -policy mgmt     -service snmp  -allow-list  128.3.7.87/32
-firewall policy modify -vserver sysbase -policy mgmt-nfs -service snmp  -allow-list  128.3.7.87/32
+firewall policy modify -vserver sysbase -policy mgmt     -service ndmp  -allow-list  10.3.7.87/32
+firewall policy modify -vserver sysbase -policy mgmt     -service snmp  -allow-list  10.3.7.87/32
+firewall policy modify -vserver sysbase -policy mgmt-nfs -service snmp  -allow-list  10.3.7.87/32
 # ditto ndmps
 
-firewall policy modify -vserver sysbase -policy intercluster -service ndmp -allow-list 128.3.7.87/32 
+firewall policy modify -vserver sysbase -policy intercluster -service ndmp -allow-list 10.3.7.87/32 
 # ditto ndmps
 
 # ssh? https? 
 firewall policy modify -vserver sysbase -policy data -service dns      -allow-list  131.243.5.1/32,131.243.5.2/32,131.243.121.21/32,131.243.64.2/32,8.8.8.8/32,8.8.4.4/32
-firewall policy modify -vserver sysbase -policy data -service ndmp     -allow-list  128.3.7.87/32
-firewall policy modify -vserver sysbase -policy data -service portmap  -allow-list   128.3.7.87/32,128.3.32.58/32,128.3.32.56/32,128.3.10.10/32    # pending
+firewall policy modify -vserver sysbase -policy data -service ndmp     -allow-list  10.3.7.87/32
+firewall policy modify -vserver sysbase -policy data -service portmap  -allow-list   10.3.7.87/32,10.3.32.58/32,10.3.32.56/32,10.3.10.10/32    # pending
 
 
 # pending  -policy intercluster -service https ndmp ndmps
