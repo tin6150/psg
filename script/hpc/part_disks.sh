@@ -12,6 +12,7 @@
 ### slightly updated 2019.0916 
 ### from perceus:/global/home/groups/scs/disks/part_disks.sh 
 ### 2021.1105 added test for SD_NAME cuz cut-n-paste may miss it 
+### 2020.1027 slightly updated mkdir /local/log
 
 #### 2020.0810
 #### run as:
@@ -138,6 +139,9 @@ run_fdisk_cmd_single()
 	swapon -a
 	swapon -s
 	df -h /tmp
+  ## next 2 lines added 2021.1027
+  mkdir /local/log
+  ls -ld /var/log /local/log
 	echo "Fdisk on single disk ends.  Should reboot after fdisk partition disk..."
 
 	## tin addition 2021.1118
