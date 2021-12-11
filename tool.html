@@ -453,6 +453,7 @@ Below are high level summary info.  Diff CPU has diff numa arch and memory local
 
 
 
+<A NAME="cpupower"></A>
 <A NAME="cpu_tuning"></A>
 <H1>CPU tuning</H1>
 
@@ -513,12 +514,19 @@ cat /sys/module/intel_idle/parameters/max_cstate	# 9 is default.  0=disabled
 
 
 
+
 kargs not likely useful.  cmd should work, but need them installed and invoked on boot...
+	Intel Cascadelake, kargs="quiet nopti"                 ==> cpupower driver: intel_pstate  # n0229.sav3
+	Intel Cascadelake, kargs="nopti intel_pstate=disable"  ==> cpupower driver: no or unknown cpufreq driver is active on this CPU # n0138.sav3
+	AMD Epyc Rome,     kargs="quiet nopti"                 ==> cpupower driver: acpi-cpufreq  # n0209.sav3 Epyc 7302
+
+
 
 
 cpupower frequency-set -g performance
 # 800 or 1200 is low
 # 2600 would be more performant, though it does use more power.
+
 
 cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_min_freq
 cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq
@@ -595,6 +603,10 @@ but slurm epilog/prolog does not run as root, but as slurm, so may need to use s
 singularity exec /global/scratch/tin/singularity-repo/perf_tools7.simg cpupower frequency-info --policy <BR>
 # not really showing what policy is currently in use <BR>
 singularity exec /global/scratch/tin/singularity-repo/perf_tools7.simg cpupower frequency-set -g performance <BR>
+singularity exec /global/scratch/users/tin/singularity-repo/perf_tools7.simg cpupower frequency-info
+
+power utilization difference between performance vs powersave is not drastic (unlike intel_pstate=disable).  So wwulf object to set this at boot maybe good.  no need to mess with prolog/epilog.
+ <BR>
  <BR>
  <BR>
 

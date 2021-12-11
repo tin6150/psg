@@ -220,12 +220,15 @@ what account I am in?  what partitions are there?  What QoS are there?
 
 <PRE>
 
-sacctmgr show assoc user=USERNAME format=acc,part,qos	# list account, partition, QoS for the specified USERNAME
-sacctmgr show associations -p user=USERNAME	 	# see what associations a specified user has been granted, -p = "parsable"
+sacctmgr show associations -p user=tin                  # see what associations a specified user has been granted, -p = "parsable"
+sacctmgr show assoc user=tin    format=acc,part,qos        # list account, partition, QoS for the specified USERNAME
+sacctmgr show assoc user=tin    format=qos%58,acc%16,user%12,part%18,share%5,priority%16 
+sacctmgr show assoc user=tin -p format=acc,user,part,share,priority,qos  | sed "s/|/\t/g"
+
 scontrol show partition					# list "queues"
 
 sacctmgr show qos -p format=name		    	# list QoS
- sacctmgr show qos    format=Name%24,Priority%8,Preempt%18,PreemptMode,GrpTRES%22,MinTRES%26 # savio
+sacctmgr show qos    format=Name%24,Priority%8,Preempt%18,PreemptMode,GrpTRES%22,MinTRES%26 # savio
 sacctmgr show qos    format=name%26,Priority%8,Preempt%18,PreemptMode,MaxWall,MaxTRESPU,MaxSubmitPU,GrpTRES%22,MinTRES%22,UsageFactor,GraceTime,Flags%4 
 sacctmgr show qos    format=name%26,Priority%8,Preempt%18,PreemptMode,MaxWall,GrpTRES%22,MaxTRES%22,MinTRES%26,MaxTRESPU,MaxSubmitPU
 
