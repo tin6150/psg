@@ -362,10 +362,12 @@ SBATCH_PARTITION=default_q	# specify the given partition as the default queue
 
 State with asterisk (*) (eg idle*, draining*) means node is not reachable.
 
-?? - reported by sinfo
+state as reported by sinfo
 down*	Down, * = unreachable
-drng	draining? 
-comp	??
+down?	Down, ? = node reserved
+drng	draining - ie job still running, but no new job will land on node
+drain	drained  - ie all jobs has been cleared
+comp	completing??
 idle	online, waiting for action
 alloc	allocated, ie running job
 mix	some cpu running job, but has more resource avail to run more jobs (non exclusive mode).
@@ -389,6 +391,9 @@ TO	TIMEOUT	-- typically time limit exceeded, at the QoS for the partition, user 
 
 
 </PRE>
+
+ref: 
+<A HREF="https://slurm.schedmd.com/sinfo.html#lbAG">sinfo state code</A>
 
 
 <A NAME="slurm_troubleshooting"></A>
@@ -555,13 +560,20 @@ sacctmgr list = sacctmgr show
 
 # "create association" is
 # really updating user entry, adding parition it can use, qos, etc
-sacctmgr add user tin Account=scs  Partition=alice0 # if no qos is specified, all qos are added.
+sacctmgr add user tin Account=scs  Partition=alice0 qos=condo_gpu3_normal,savio_lowprio  # if no qos is specified, some default will be created?  dont tend to have desirable result
 sacctmgr delete user tin Account=scs Partition=savio3,savio3_bigmem
 sacctmgr add user tin Account=scs  Partition=savio3,savio3_bigmem qos=normal,savio_debug,savio_lowprio,savio_normal
 
 for User in "scoggins kmuriki wfeinstein"; do 
 	sacctmgr add user $User Account=scs  Partition=savio3,savio3_bigmem qos=normal,savio_debug,savio_lowprio,savio_normal
 done
+
+
+# if need to do changes, modify user dont seems to be very fine tuned.  
+# maybe better off removing the very specific association and recreate it
+# but be careful to specify all param of the delete least it delete more assoc entries than desired.
+sudo sacctmgr delete user where user=nat_ford account=co_dw partition=savio3_gpu
+sudo sacctmgr add user nat_ford account=co_dw partition=savio3_gpu QOS=dw_gpu3_normal,savio_lowprio DefaultQos=dw_gpu3_normal
 
 </PRE>
 

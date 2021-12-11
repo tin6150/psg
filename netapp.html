@@ -300,18 +300,6 @@ set
 
 </PRE>
 
-<H5>cDOT shutdown</H5>
-<PRE>
-
-
-snapmirror quiesce -destination-path als-filercl:*
-
-halt -node node01 -inhibit-takeover true -skip-lif-migration-before-shutdown true -reason test
-
-snapmirror resume ... 
-
-</PRE>
-
 <A NAME="cf_bk"></A>
 <H5>cDOT clustered-mode backup config</H5>
 
@@ -333,6 +321,18 @@ system configuration backup settings set-password # (Set the backup password for
 Shutdown / Startup
 </H2>
 
+<H5>cDOT stop snapmirror + shutdown</H5>
+
+<PRE>
+snapmirror quiesce -destination-path als-filercl:*
+
+# then can stop nodes here like:
+halt -node node01 -inhibit-takeover true -skip-lif-migration-before-shutdown true -reason test
+
+snapmirror resume ... 
+</PRE>
+
+
 <H5>Cluster mode shutdown</H5>
 
 <PRE>
@@ -345,11 +345,8 @@ storage failover modify -node * -enabled false
 storage failover modify -node * -enabled false
 
 
-# Log in to all nodes, one at a time (preferably using serial console or RLM/SP) and run:
+# Log in to each/every nodes, one at a time (preferably using serial console or RLM/SP) and run:
 halt local -inhibit-takeover true
-
-
-
 
 # Ensure all nodes are down before halting the last node:
 system node show
@@ -374,6 +371,28 @@ storage failover modify -node * -enabled true
 
 </PRE>
 
+
+<A NAME="hw_health"></A>
+<A NAME="health"></A>
+<H2>
+HW health check for cDOT 
+</H2>
+
+<PRE>
+
+system health alerts show -instance
+system health status show
+system health subsystem show
+system chassis fru show
+system controller environment show
+
+
+system controller environment show -node Nodename -fru-name "PSU4 FRU"    -instance   # iterate for PSU1 .. PSU4
+
+system node run -node * -command storage show fault -v
+storage shelf show -instance
+
+</PRE>
 
 <A NAME="svm_dr"></A>
 <A NAME="dr_setup_with_svm"></A>
@@ -585,9 +604,12 @@ net interface create -vserver axiom -lif axiom-02_IC01 -role intercluster -home-
 run -node sysbase0 sysconfig
 
 
+++TBD: OneNote.
+
 </PRE>
 
 firewall
+
 
 
 <PRE>

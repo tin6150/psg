@@ -331,6 +331,22 @@ file warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
 warewulf/ipxe/bin-i386-pcbios/undionly.kpxe: pxelinux loader (version 3.70 or newer)
 
 
+If server side has this in log:
+tftpd: read(ack): No route to host
+
+or see this in "tcpdump -vvv -u port 69 -i enp0s3" 4 times:
+
+  11:29:21.908388 IP (tos 0x0, ttl 64, id 2717, offset 0, flags [DF], proto UDP (17), length 75)
+    infra1.greta.local.47125 > wwulf.greta.local.tftp: [udp sum ok]  47 RRQ "/warewulf/ipxe/bin-i386-efi/snp.efi" netascii
+
+
+Cuz: server send ACK to client, but client not responding.  
+Check that client side firewall is off (or allow tftp-client service, which use diff port than udp 69)
+
+
+netstat -an | grep 69\    # should show UDP port in listen state once it is activated (by xinetd)
+
+
 netcat test for udp/69 tftp port connectivity
 tftp use udp port 69
 nc -u 10.15.4.30 69
@@ -545,6 +561,19 @@ ref:
 tmux plugins like tmux-continuum, resurrect and sensible could be useful to at least recover the history and windows/panes layout and reopening some programs like vim.
 <BR>
 <BR>
+
+tmux clipboard copy-n-paste to file, see:
+https://unix.stackexchange.com/questions/26548/write-all-tmux-scrollback-to-a-file
+essentially, 
+^b ^[ # enter clipboard mode
+space # start selection
+gg	# go to top of buffer (like vi)
+enter	# actually copy
+
+^]	# paste eg, into a vim session in a different pane/tab
+
+
+<BR>
 <BR>
 Key bindings that need to memorized for effective use of tmux <BR>
 
@@ -568,6 +597,8 @@ Key bindings that need to memorized for effective use of tmux <BR>
 ^b :    # command
 ^b :set -g mouse on		# mouse mode, allow resize pane w/ tmux 2.1+
 ^b :set    allow-rename off  	# prevent automatic renaming of pane/tab eg when want to manually name via ^b ,
+^b :pine-pane "cat > tin.txt"   # capture new content onward of the current pane to file.
+
 
 </PRE>
 

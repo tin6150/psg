@@ -767,6 +767,8 @@ fi
 
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
+HISTCONTROL=ignorespace 
+
 ################################################################################
 # vim modeline, also see alias `vit`
 # vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 

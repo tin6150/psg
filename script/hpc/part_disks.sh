@@ -11,6 +11,7 @@
 
 ### slightly updated 2019.0916 
 ### from perceus:/global/home/groups/scs/disks/part_disks.sh 
+### 2021.1105 added test for SD_NAME cuz cut-n-paste may miss it 
 
 #### 2020.0810
 #### run as:
@@ -97,6 +98,14 @@ run_fdisk_cmd_single()
 	### I had this at top, may not need to do that again here.
 	echo "" > /proc/sys/kernel/hotplug
 
+	#### ####
+	#### #### test added mostly cuz often cut-n-paste.  but be careful with the exit and not dd'ing another host!
+	#### ####
+	if [[ x"$SD_NAME" == x ]]; then 
+		echo "SD_NAME disk dev path not defined, exiting" 
+		exit -1
+	fi
+
 	#wipe the partition table (and then some)
 	/bin/dd if=/dev/zero of=$SD_NAME bs=1024k count=10
 
@@ -130,6 +139,11 @@ run_fdisk_cmd_single()
 	swapon -s
 	df -h /tmp
 	echo "Fdisk on single disk ends.  Should reboot after fdisk partition disk..."
+
+	## tin addition 2021.1118
+	mkdir /local/log/munge
+	chown munge:munge /local/log/munge
+	ls -ld /var/log  # expect link to /local/log
 
 }
 

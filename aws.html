@@ -336,9 +336,9 @@ Source:
 <H3>EC2 vs Google Compute Cloud pricing</H3>
 
 <PRE>
-Hard to do apple to apple comparison, especially if get into spot/preemptible instance prices.
+Hard to do apple to apple comparison, especially if get into spot/preemptible instance prices.  Info from pre historic era (ie pre COVID-19)
 
-AWS    bill in 1 hr  increment
+AWS    bill in 1 sec increment, min 10 sec.
 Google bill in 1 min increment, min 10 min.  automatic discount for sustained use (seesm to be 24%).
 
 prices are barebone VM, additional charges apply for OS needing license cost, app license, etc.
@@ -351,7 +351,7 @@ comparison done on Nov 8, 2015.
 1 cpu, 2.0/1.7 GB RAM, 				t2.small  $0.026/hr ($18.72/mo)		f1-small  $0.027/hr
 
 2 cpu, 8.0/7.5 GB RAM, 				m4.large   $0.126/hr ($  90/mo) 	n1-std-2  $0.100/hr ($  72/mo)
-32cpu, 108/120 GB RAM,				c3.8xlarge $1.680/hr ($1209/mo)	   	n1-std-32 $1.600/hr ($1152/mo)
+32cpu, 108/120 GB RAM,				c3.8xlarge $1.680/hr ($1209/mo)	  n1-std-32 $1.600/hr ($1152/mo)
 
 
 Additional charges:
@@ -452,6 +452,39 @@ Elastic File System - in Beta as of 2015.11 <BR>
 <LI>
 </OL>
 
+
+<H1>Cloud "VM"</H1>
+
+
+<!-- set tabstop=8
+1-----------------------------------------------------------------------------80
+12345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 -->
+<PRE>
+				aws		gcp		azure
+				---------------	---------------	----------------
+service name			ec2
+def username			ec2-user
+billing inc			1 sec
+billing min			10 sec ?
+
+</PRE>
+
+<H1>Cloud Container</H1>
+
+<!-- set tabstop=8
+1-----------------------------------------------------------------------------80
+12345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 -->
+<PRE>
+
+				aws		gcp		azure
+				---------------	---------------	----------------
+service name			eks
+def username			
+billing 
+
+
+
+</PRE>
 
 <H1>Using S3 to serve static-content web site</H1>
 
