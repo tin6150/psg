@@ -399,10 +399,62 @@ This time, it will print a message telling you which virtual session
 
 </PRE>
 
+<A ID="Mate4Vnc"></A>
+<A ID="ChangeVncDesktop"></A>
+<H3>
+Changing windows manager/desktop environment in VNC
+</H3>
+
+Gnome 3.0 takes a lot getting used to.  For users that want the older Gnome 2.0 from CentOS 6 days, could try:
+<BR>
+<LI> Gnome Classic - Still use Gnome 3.0, but a bit less annoying (bearable for me), but still too annoying for many. </LI> 
+<LI> MATE (a fork from Gnome 2.0, will feel at home for old timers like me).  Use Caja, Mozi.</LI> 
+<LI> /usr/share/switchdesk  is avail in CentOS 8 and maybe preferred over hand editing config files </LI> 
+
+<LI></LI> 
+
+Installing <TT>yum groupinstall "@MATE Desktop"</TT> in CentOS 7 should provide this old school real classic.
+But in VNC, may still need to do customization to force it.  Try these:
+
+<PRE>
+
+This seems to be startup sequence where customization could be "forced" :
+
+echo "exec /usr/bin/mate-session" >> ~/.xinitrc				# vnc don't heed this either
+echo "/usr/bin/mate-session" >> ~/.Xclients; chmod +x ~/.Xclients 	# maybe vnc heeded this
+
+~/.vnc/xstartup
+	## don't seems to be heeded for me
+	unset SESSION_MANAGER
+	unset DBUS_SESSION_ADDRESS
+	PREFERRED=/usr/bin/mate-session
+	/usr/bin/mate-session
+
+
+/etc/vnc/xstartup.custom
+	##--STARTUP="/usr/bin/gnome-session --session=$SESSION"; export STARTUP
+	STARTUP="/usr/bin/gnome-session --session=gnome-classic"; export STARTUP    # but still not same as MATE/Gnome 2.0
+
+	## for mate, changed
+	PREFERRED=/usr/bin/mate-session
+
+/etc/X11/xinit/Xsession
+	/etc/X11/xinit/gnome-classic-session
+
+/etc/X11/xinit/Xclients
+
+
+/etc/sysconfig/desktop
+	PREFERRED=/usr/bin/mate-session
+
+
+</PRE>
+
+
 
 <A ID="desktop"></A>
 <H3>
-Info for setting a a Desktop Environment inside VNC session.
+Info for setting a a Desktop Environment inside VNC session. (old)
 </H3>
 
 <PRE>
@@ -893,7 +945,7 @@ At least with Ubuntu 18.04, forced to use alt-tab and alt-` which is what I hate
 
 CentOS 7 per user: <BR> 
 <PRE>
-echo "mate-session" > ~/.Xclients
+echo "/usr/bin/mate-session" > ~/.Xclients
 chmod +x ~/.Xclients
 
 </PRE>
