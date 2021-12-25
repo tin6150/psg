@@ -483,6 +483,8 @@ defineAlias () {
     alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # -Sorted by rEason (oper input reason=...) ##slurm
     # %E is comment/reason, unrestricted in length.  
     # once -R is used, it preced -N, but this output is good for sorting by symptoms
+	export SACCT_FORMAT="JobID%20,JobName,User,Partition,NodeList,Elapsed,State,ExitCode,MaxRSS,MaxVMSize,AllocTRES%32"  # better def output for sacct -j ref: https://docs.ycrc.yale.edu/clusters-at-yale/job-scheduling/resource-usage/
+
 
 
 	alias grep='grep --color=auto'

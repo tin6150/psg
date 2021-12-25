@@ -499,6 +499,7 @@ wget http://apache/conf/yp.conf -O /etc/yp.conf
 RHEL 4.x  - Use up2date
 RHEL 5.x  - Use yum
 	    rhn_register # automatically prompt for root password when run as user, X-based.
+RHEL 8.x  - Use did not finish, i mean dnf (yum alias to it)
 SuSE      - Use rug
 
 </PRE>
@@ -1155,6 +1156,11 @@ Ref:
 
 storcli is the replacement for megacli, should be easier to use and script. <BR>
 eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
+<BR>
+
+For Dell PERC H730 controllers , 
+their perclci seems very much like the storcli, but they did some crap in there so storcli binary won't work, have to use the perccli tool from dell.  But same options.<BR>
+<!-- beppic2  -->
 <BR>
 
 Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
@@ -2277,6 +2283,9 @@ see
 <LI> <A HREF="http://www.freenas.org/freenas-certified-servers/">FreeNAS ZFS-based storage</A> Not an endorsement, but maybe worthwhile to check them out.
 <LI>
 <LI> <A HREF="https://www.howtogeek.com/175159/an-introduction-to-the-z-file-system-zfs-for-linux/">howto geek</A> install, pool creation and extension.
+<LI> <A HREF="https://icesquare.com/wordpress/centosrhel-7-no-zfs-after-updating-the-kernel/">icesquare</A> Rant about zfs breaking with yum update, and possible solutions<BR>
+<LI> <A HREF="https://www.symmcom.com/docs/how-tos/storages/how-to-install-zfs-on-centos-7">SymmCom</A> describe using kABI rather than DKMS, which tends to break with kernel update.
+
 <!-- 
 <LI> <A HREF=" 
 -->
@@ -2344,6 +2353,15 @@ up2date -i 			# install downloaded patches
 up2date --config		# run configuration (GUI or TUI), register machine, set exclusion, etc
 </PRE>
 
+
+<H4>DNF (Did Not Finish-- Fedora, centos/redhat 8.x )</H4>
+
+yum is alias to dnf.
+<PRE>
+dnf list --showduplicates perl-interpreter
+</PRE>
+
+
 <H4>YUM (yellow dog, fedora, centos, redhat)</H4>
 
 <PRE>
@@ -2374,6 +2392,10 @@ yum groupinfo "Development Tools" 		# cmake, cvs, and many other stuff is in the
 yum --setopt=group_package_types=optional groupinstall "@Development tools"
 
 </PRE>
+
+
+
+
 
 <H5>Creating YUM Repository</H5>
 
@@ -2468,6 +2490,19 @@ Open SuSE is the name for the former commercial SuSE that Novell ditched after i
 
 <PRE>
 yast			# TUI far-style
+
+</PRE>
+
+<H4>Snap, Flatpack, AppImages</H4>
+
+<PRE>
+AppImages is not same as Aptainer (formerly Singularity)
+
+Snap is popularized by Ubuntu.  It is also a distro build system.
+
+Flatpack is popularized by Fedora
+
+Ponder about using them rather than building software via EasyBuild, Spack, and the like.
 
 </PRE>
 

@@ -106,6 +106,33 @@ CS(nhanes,     "dpq_bin", "sex_cat",  full=FALSE)
 
 </PRE>
 
+<!-- PH 142 Stat 2021.1223 ## -->
+
+Much of the R code below are from the 
+<A HREF="https://ph142-ucb.github.io/sp20/course-schedule/">
+PH 142 stat class by Mi-Suk Kang Dufour</A>
+
+<BR><BR>
+
+<!-- Lecture 6 slide 43 -->
+<PRE>
+
+## read data from excel spreadsheet:
+library(readxl)
+spending_dat = read_xlsx("country-spending.xlsx", sheet = 2, range = "A7:D47" )
+
+
+library(dplyr)
+## back ticks must be used when variable name has space in them
+## thus use rename() to change the variable name (column heading)
+spending_dat = spending_dat %>%
+rename(country_code = Country.code,
+       health_expenditure = `Health expenditure per capita`, # back ticks
+       GDP = `GDP per capita`) # back ticks must be used when variable name has space in them
+
+
+</PRE>
+
 
 <BR><BR>
 
@@ -406,7 +433,9 @@ date-time (POSIX)
 
 %:% # compose or nest foreach objects - https://ljdursi.github.io/beyond-single-core-R/#/84
 
-$>% # like unix pipe, used a lot by dplyr 
+$>% # like unix pipe, used a lot by dplyr.  can be chained.
+
+%in%	# membership evaluation (may not need to be a true math set)
 
 %%  # modulus, ie reminder.  eg 7%%3 is 1
 2^4 and 2**4 both seems to be power, get 16.  2^4 notation maybe preferred.
@@ -578,13 +607,14 @@ a =  5
 a <- 5
 
 # both = and <- can be used for assignment
-# But <- is prefered by the R crowd.  it also screw with my html code here, so maybe R should go to .rst 
+# But <- is prefered by the R crowd.  it also screw with my html code here, so maybe this R.html should go have been done in .rst ...
 
 # there are some subtle differences, side effect, formula, etc.
 # see <A HREF="https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/">https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/</A>
 # overall, for better readability of R code, 
 # it was suggested to only use <- for assignment and = for specifying named parameters.
 # But I was not convinced and will likely continue to use = 
+# at least in this R.html doc.
 
 </PRE>
 
@@ -842,8 +872,15 @@ f_lhs(g)   # y
 <BR><BR>
 
 lm and glm are logistic regresion models.
+<BR>
+seed_mod <- lm( seed_weight ~ seed_count, data = seed_data )
+tidy( seed_mod ) 
 
+<!-- -->
+<BR>
+<BR>
 the form y ~ model is interpreted as a specification that the response y is modelled by a linear predictor specified symbolically by model. Such a model consists of a series of terms separated by + operators. 
+<BR>
 
 <BR><BR>
 
@@ -853,7 +890,7 @@ Model operators:
 : 		??
 * 		factor crossing: a*b interpreted as a+b+a:b
 ^ 		crossing to specific degree.  eg (a+b)^2 for crossing twice
-^in%    terms on the left are  nested within those on the right.
+%in%    terms on the left are  nested within those on the right.
 -      	remove dependence on the specified series
 
 I() - To avoid this confusion, the function I() can be used to bracket those portions of a model formula where the operators are used in their arithmetic sense
@@ -873,31 +910,37 @@ I() - To avoid this confusion, the function I() can be used to bracket those por
 <H3>Tilde operator</H3>
 
 
-Try to understand this:
+Try to understand these:
 
 <PRE>
-x <- c(1:100)
-y <- seq(0.1,10,0.1)
+# sequences 
+x <-   c(1:100)
+y <- seq(0.1, 10, 0.1)
 	
+</PRE>
+
+<PRE>
 	
 # all these 3 are the same:
-plot(y ~ I(x^3)) 
-plot(I(x^3), y) 
-plot(x^3, y)         # no need to use I() function as ~ operator never used.
+plot( y     ~ I(x^3) ) 
+plot( I(x^3), y      ) 
+plot( x^3,    y      )    # no need to use I() function as ~ operator never used.
 
 # note how ~ syntatically swapped the order of the independent and dependent variables x and y
 
 # but this below is very different:
 # ^ is interpreted as model operator for cross reference.  ( due to presence of ~ operator)
-ploy(y ~ x^3) 
+ploy( y ~ x^3 ) 
 
 	
 </PRE>
+<!-- -->
 
 <A HREF="https://stackoverflow.com/questions/8055508/in-r-formulas-why-do-i-have-to-use-the-i-function-on-power-terms-like-y-i/8055683#8055683">StackOverflow more extensive discussion on formula</A>
-
+<BR>
 
 <A HREF="http://blog.rtwilson.com/regression-in-python-using-r-style-formula-its-easy/">Regression in Python usinr R-style formula</A> seems to discuss use of ~ and regression formula in R.
+<BR>
 
 <PRE>
 import pandas as pd
@@ -922,7 +965,10 @@ It is the equivalent of unix shell pipe.
 iris %>% head() %>% summary() is equiv to summary(head(iris))
 which one to use is a matter of preference.
 
+Note: there is also %in%
+
 </PRE>
+<!-- -->
 
 <H2>apply family of function</H2>
 
@@ -972,7 +1018,8 @@ registerDoParallel
 <H2>Python using R</H2>
 
 <OL>
-<LI>https://towardsdatascience.com/from-r-vs-python-to-r-and-python-aa25db33ce17</LI>
+<LI>Quick hack: Just write to file, in /dev/shm so it is RAM based. </LI>
+<LI>https://towardsdatascience.com/from-r-vs-python-to-r-and-python-aa25db33ce17 </LI>
 <LI>PypeR - R within Python</LI>
 <LI>pyRserve - connect to a remote R server</LI>
 <LI>rpy2 - runs embedded R in a Python process </LI>
@@ -1438,7 +1485,7 @@ SNOW use PSOCK, easier to deal with than MPI.
 http://tin6150.github.io/psg/R.html</A>] <BR>
   [Doc URL: <A HREF="http://tin6150.gitlab.io/psg/R.html">
 http://tin6150.gitlab.io/psg/R.html</A>] <BR>
-Last Updated: 2020-10-28
+Last Updated: 2021-12-23
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>

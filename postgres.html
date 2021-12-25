@@ -95,11 +95,16 @@ Location of datbase files:
 
 <H5>Start the DB</H5>
 <PRE>
+su - postgres
+pg_ctl -D /var/lib/pgsql/13/data start
 
 </PRE>
 
 <H5>Shutdown DB</H5>
 <PRE>
+su - postgres
+pg_ctl -D /var/lib/pgsql/13/data status
+pg_ctl -D /var/lib/pgsql/13/data stop
 </PRE>
 
 
