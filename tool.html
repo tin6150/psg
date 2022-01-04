@@ -275,17 +275,20 @@ SATA II  has 300 MB/s
 SAS is 6 Gbps = 768 MB/s
 PCIe 3.1 x4 NVMe = ...
 
-NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
+NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015, show up as /dev/nvme*.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
 
 
 M.2 = replaces mSATA 
+  * typically on mboard, internal to machine, 3.3V only
+  * NOT hot swappable--often on laptop, but number of servers use them too :-\
   * typically bare chips, gumstick format
 
 U.2 (SFF-8639)
   * The U.2 connector is mechanically identical to the SATA Express device plug, but provides four PCI Express lanes through a different usage of available pins (wikipedia)
-  *	ie not to to use SATA controller...
-  *	support hot swap.
-  *	typically inside an enclosure, like traditional 2.5" HDD
+  * Some nvme drive support sata as well for backward compatibility, but at reduced bandwidth.
+  * ie does not use SATA controller, straight to the PCIe bus
+  * support hot swap, 3.3V or 12V.
+  * typically inside an enclosure, mounted on a hot swap disk tray, like traditional 2.5" HDD
 
 AIC
   * Add-In card format.  ie pci card.

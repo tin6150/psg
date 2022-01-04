@@ -1621,6 +1621,29 @@ mount -t ext3 /dev/to/fs /mnt/myfs	# mount the file system on the newly imported
 
 </PRE>
 
+<H5>Moving LVM volume/disk group to another system</H5>
+
+
+<A HREF="https://tldp.org/HOWTO/LVM-HOWTO/recipemovevgtonewsys.html">tldp</A>, 
+Essentially: 
+<BR>
+
+<PRE>
+umount   /mount/to/FS
+vgchange -an VGNAME
+vgexport     VGNAME
+
+# move disk
+
+pvscan
+
+vgimport     VGNAME
+vgchange -ay VGNAME	# activate the Volume Group
+
+mount ... 
+
+</PRE>
+
 <H5>Removing LVM stuff</H5>
 
 
