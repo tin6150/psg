@@ -223,6 +223,19 @@ ipmitool raw 0x2e 0xcc 0x5e 0x2b 0 0x0C 0x01 0x02 # set ipmi/bmc to use share ni
 # this was for the 4 nodes in 2U w/ intel E5-2640 v4 CPU
 </PRE>
 
+<H5>Dell ipmitool </H5>
+
+
+Dell maintain their <A HREF="https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=0992n">own version of ipmi</A> that handles complex situation that RHEL7 ipmitool didn't.
+eg: <BR>
+<BR>
+
+eg, this command is needed by some new Dell eg PE R7525 :
+<BR>
+<BR>
+/local/tin/dell_tool/iDRACTools/ipmitool/usr/bin/ipmitool delloem lan set shared with lom1
+
+<!-- c00.greta.local -->
 
 <H5>GNU freeipmi / ipmi-oem</H5>
 
