@@ -72,7 +72,7 @@ See: <A HREF="#tilde">tilde operator and formula</A> is one of the weird thing i
 
 <A NAME="EpiStat"></A>
 <A NAME="epistat"></A>
-<H2>EpiStat </H2>
+<H1>EpiStat </H1>
 Stat for Epidemiologist
 
 <PRE>
@@ -107,6 +107,9 @@ CS(nhanes,     "dpq_bin", "sex_cat",  full=FALSE)
 </PRE>
 
 <!-- PH 142 Stat 2021.1223 ## -->
+<A NAME="PH142"></A>
+<A NAME="ph142"></A>
+<H2>PH142 - Stats for Public Health</H2>
 
 Much of the R code below are from the 
 <A HREF="https://ph142-ucb.github.io/sp20/course-schedule/">
@@ -114,7 +117,136 @@ PH 142 stat class by Mi-Suk Kang Dufour</A>
 
 <BR><BR>
 
+<!-- Lecture 2 : https://r.datahub.berkeley.edu/user/tin/rstudio/  -->
+<H5>Lecture 2: Working with data in R</H5>
+
+<PRE>
+library(readr)
+lake_data = read_csv("mercury-lake.csv")		# read csv into an array (R is 1-indexed).
+
+head(lake_data)		# show first few lines
+lake_data %>% head	# same, using unix pipe style 
+dim(lake_data)		# dimension as num of rows, cols
+str(lake_data)		# structure, compact display of the kind of data in the array
+names(lake_data)	# aka colnames(lake_data), show column heading name  
+			# this eg has 6 cols:  lakes ph chlorophyll mercury number_fish age_data
+
+
+library(dplyr) 		# PH142 use dplyr extensively
+
+# rename column heading names, note first param is the array variable holding the data.
+# new_array    = rename(old_array,  new_col_name = old_col_name)
+lake_data_tidy = rename(lake_data,  name_of_lake = lakes       )
+#                                               ^^^ don't use <- here     <!> 
+
+# rename multiple cols at same time:
+lake_data_tidy = rename(lake_data,                  # array_name
+                           name_of_lake = lakes,    # new_name = old_name
+                           ph_level = ph)
+
+
+# using %>% pipe method.  think unix bash cli:
+lake_data_tidy = lake_data  %>% rename( new_name = old_name )
+
+
+# there are some nuances with pipe, if run like this, rename result NOT stored back into the array!
+# because there were no assignment operation where the rename() line ran
+new_lake_data_tidy = lake_data  
+new_lake_data_tidy              %>% rename( new_name = old_name )
+new_lake_data_tidy %>% head
+
+
+
+# selecting (choosing columns) to keep, think SQL
+# new_array  = select(old_array,  col1,  col2, col3       )   # first param for select() is source array/table
+smaller_data = select(lake_data,  lakes, ph,   chlorophyll)
+smaller_data %>% head(2)
+
+# Negative select, ie drop named columns, note the minus sign before the column name
+# new_array    = select(old_array,  - col_name_to_drop)
+smaller_data_2 = select(lake_data,  - age_data        )
+
+
+# drop multiple columns, using pipe operator syntax
+smaller_data_3 = lake_data %>% select(- age_data, ph)
+smaller_data_3 %>% head(2)
+
+View(lake_data)			# interactive table to view array data
+
+# arrange() = display data with sorting
+lake_data %>% arrange(ph)		# show data sorted by value in the ph column
+lake_data %>% arrange(age_data, - ph)	# can sort by mult cols, and ph in descending order
+
+
+# mutate() perform operation on a column, adding it as new col to a new array
+# new_array        = old_array %>% mutate(new_column_name     = old_col_name OPERATION )
+lake_data_new_fish = lake_data %>% mutate(actual_fish_sampled = number_fish    * 100   )
+
+
+# chain multiple operations together using pipe operator
+tidy_lake_data = lake_data %>% 
+  rename(lake_name = lakes) %>%
+  mutate(actual_fish_sampled = number_fish * 100) %>%
+  select(- age_data, - number_fish)
+
+tidy_lake_data %>% head(3)
+
+
+
+# filter() - this is like grep, keep record where col age_data has value "recent"
+# new_array        = old_array %>% filter(col_name  FILTER_CONDITION )
+lake_data_filtered = lake_data %>% filter(age_data   == 'recent'     )
+# != for not equal
+
+
+# filter() can also with math operations
+# eg: only keep records where math operation is satisfied (in col named ph, keep rows whose values s larger than 7)
+lake_data_filtered = lake_data %>% filter(ph > 7)	
+lake_data_filtered = lake_data %>% filter(age_data=`recent`)
+
+# use %in% operator
+# eg, filter (ie show) rows where lake (name) is Alligator or  Blue Cypress:
+#                               VVV--- c() is the concatenate function in R to create a list.
+lake_data %>% filter(lakes %in%  c("Alligator", "Blue Cypress")  ) 
+
+
+# multiple filters at once, comma or & separated:
+lake_data %>% filter(ph > 6 , chlorophyll > 30)
+lake_data %>% filter(ph > 6 & chlorophyll > 30)
+#                          ^^^--- use of & is optional, comma also implied to be an AND operation
+lake_data %>% filter(ph > 6 | chlorophyll > 30)
+#                          ^^^--- vertical bar is an OR operation
+
+
+
+
+# group_by() and summarize() can create new summary tables with aggregate data
+# mean() and sd() calculates the mean (average) and standard deviation of variables.
+
+lake_data %>% 
+  group_by(age_data) %>% 
+  summarize(mean_ph = mean(ph))
+
+# eg multiple summary operations
+lake_data %>% 
+  group_by(age_data) %>% 
+  summarize(mean_ph               = mean(ph),
+            standard_deviation_ph = sd(ph)     )
+
+</PRE>
+<BR>
+
+Reference material: <BR>
+
+- [15 min intro to dplyr](https://www.youtube.com/watch?v=aywFompr1F4)
+<BR>
+- [Data wrangling cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+<BR>
+
+<!-- completed lecture 2 Rmd on 2022.0108 -->
+
 <!-- Lecture 6 slide 43 -->
+<H5>Lecture 6</H5>
 <PRE>
 
 ## read data from excel spreadsheet:
@@ -135,6 +267,11 @@ rename(country_code = Country.code,
 
 
 <BR><BR>
+<HR>
+<BR>
+
+<H1>R</H1>
+
 
 <A NAME="container"></A>
 <A NAME="singularity"></A>
