@@ -107,6 +107,7 @@ CS(nhanes,     "dpq_bin", "sex_cat",  full=FALSE)
 </PRE>
 
 <!-- PH 142 Stat 2021.1223 ## -->
+<!-- once course is over, may move this section to the bottom of the page ++ -->
 <A NAME="PH142"></A>
 <A NAME="ph142"></A>
 <H2>PH142 - Stats for Public Health</H2>
@@ -242,8 +243,74 @@ Reference material: <BR>
 <BR>
 - [Data wrangling cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
 <BR>
+<BR>
 
 <!-- completed lecture 2 Rmd on 2022.0108 -->
+
+
+<H5>Lecture 3: Visualizing/plotting data</H5>
+<PRE>
+ - Visualization of categorical data: use `ggplot`'s `geom_bar()`
+ - Visualization of continuous  data: use `ggplot`'s `geom_histogram()`
+
+
+1. 'ggplot' to set up a canvas for graphics
+2. `geom_bar(stat = "identity")` to make a bar chart when you specify the y variable
+3. `geom_histogram()` to make a histogram for which ggplot needs to calculate the count
+4. `fct_reorder(var1, var2)` to reorder a categorical variable (`var1`) by a numeric variable (`var2`)
+    - from the `forcats` package
+5. `geom_point()` to make a plot with dots
+6. `geom_line()` to make a plot with lines
+
+
+
+id_data = read_csv("Ch01_ID-data.csv")
+library(ggplot2)
+ggplot(id_data, aes(x = disease, y = percent_cases)) 	+   # aes specify axis
+  geom_bar(stat = "identity")   +                           # geom_bar specify plotting bar chart
+  labs(y = "Percent", x = "")   +                           # label the axis
+  theme_minimal(base_size = 15)                             # font size for labels
+
+
+
+eg2: 
+fct_reorder()                    # order disease by decreasing percentage
+aes( fill=type )                 # aes in geom_bar: color bar graph according to disease type (one of the col in data table)
+theme(legend.position = "top")   # add legends of color vs types at top of plot
+
+id_data = id_data %>% 
+  mutate(disease_ordered = fct_reorder(disease,             percent_cases, .desc = T))
+#        ^^new_col_name^               ^^what to rearrange  ^^order by this field/col.
+
+ggplot(id_data, aes(x = disease_ordered, y = percent_cases)) + 
+  geom_bar(stat = "identity", aes(fill = type)) +
+  labs(y = "Percent", x = "")      +
+  theme_minimal(base_size = 15)    +
+  theme(legend.position = "top")
+
+
+eg3, geom_histogram()
+
+
+- Histograms look a lot like bar charts, except that the bars touch because the 
+underlying scale is continuous and the order of the bars matters
+- In order to make a histogram, the underlying data needs to be **binned** into 
+categories and the number or percent of data in each category becomes the height 
+of each bar. 
+- the **bins** devide the entire range of data into a series of intervals and counts
+the number of observations in each interval
+- the intervals must be consecutive and non-overlapping and are almost always chosen to be of equal size
+
+
+geom_point() produces an x-y sequence of points (but not connected by line).  
+kinda like a x-y scatter plot, but seems like 1 value per x entry.
+
+geom_line() is like geom_point(), but draws a continuous line instead of a series of points.
+
+
+
+</PRE>
+
 
 <!-- Lecture 6 slide 43 -->
 <H5>Lecture 6</H5>
@@ -255,13 +322,14 @@ spending_dat = read_xlsx("country-spending.xlsx", sheet = 2, range = "A7:D47" )
 
 
 library(dplyr)
+
 ## back ticks must be used when variable name has space in them
 ## thus use rename() to change the variable name (column heading)
 spending_dat = spending_dat %>%
 rename(country_code = Country.code,
        health_expenditure = `Health expenditure per capita`, # back ticks
        GDP = `GDP per capita`) # back ticks must be used when variable name has space in them
-
+# new_name =  old_col_name
 
 </PRE>
 
@@ -1622,7 +1690,7 @@ SNOW use PSOCK, easier to deal with than MPI.
 http://tin6150.github.io/psg/R.html</A>] <BR>
   [Doc URL: <A HREF="http://tin6150.gitlab.io/psg/R.html">
 http://tin6150.gitlab.io/psg/R.html</A>] <BR>
-Last Updated: 2021-12-23
+Last Updated: 2022-01-08
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>
