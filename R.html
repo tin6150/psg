@@ -65,9 +65,18 @@ Rscript -e "print(system('hostname'))"
 # run a list (set?) of commands by placing them in {}.  p_load() won't run unless the library is loaded explicity.
 Rscript --quiet --no-readline --slave -e '{ library(pacman); p_load( ggplot2, scales ) }'
 
+
+Special symbols
+
+^   power 
+$   separate table name and column name, eg nhanes$gender, opt$indir
+~   tilde operator, 
+
 </PRE>
 
-See: <A HREF="#tilde">tilde operator and formula</A> is one of the weird thing in R.
+See also: 
+<LI><A HREF="#tilde">tilde operator and formula</A> is one of the weird thing in R.
+<LI><A HREF="#model_operators">model operators</A> (below)
 
 
 <A NAME="EpiStat"></A>
@@ -828,6 +837,11 @@ a <- 5
 
 nhanes$sex_cat = ifelse(nhanes$sex==1, "Male", "Female") 
 
+
+string to integer conversion (search food: casting)
+myNumber = strtoi(myString, base = 10)
+
+
 </PRE>
 
 <H4>Data Structures</H3>
@@ -1089,6 +1103,7 @@ the form y ~ model is interpreted as a specification that the response y is mode
 
 <BR><BR>
 
+<A ID="model_operators"></A>
 Model operators:
 <PRE>
 + 		separate a series of terms that affect the model.

@@ -127,6 +127,16 @@ ipmitool dcmi asset_tag 	# retrieve asset tag info
 ipmitool dcmi get_temp_reading	# cpu temperature
 ipmitool sensor			# many sensor info, may include inlet temperature
 
+ipmitool sel			# system event log, overview
+ipmitool sel list		# get list of events and dates.  eg, PSU AC lost.  additional example output:
+
+	3 | 08/12/2021 | 16:49:18 | Unknown #0x2e |  | Asserted
+	4 | 08/12/2021 | 16:49:18 | Memory #0x45 | Redundancy Degraded from Fully Redundant | Asserted
+	1 | 10/22/2020 | 00:44:54 | Event Logging Disabled #0x72 | Log area reset/cleared | Asserted
+	2 | 01/25/2021 | 19:00:24 | Power Supply #0x18 | Fully Redundant | Asserted
+	3 | 09/11/2021 | 22:23:05 | Memory #0x1b | Monitor | Asserted
+	4 | 10/27/2021 | 17:32:09 | Memory #0x1b | Monitor | Asserted
+
 
 # if IPMI isn't working, in RHEL 6, it is a kernel module that need to be started
 # for machines with module:
