@@ -135,13 +135,51 @@ tinytex::install_tinytex()
 # http://socviz.co/gettingstarted.html = tutorial for Rmd and kinit
 
 ```{r code-chunk-desc, echo = FALSE}
-print("R code chunk goes between ``` ``` in Rmd")
+print("R code chunk goes between ```{r}  ``` in Rmd")
 ```
+
+```{r another-code-eg, eval = FALSE}
+# can use F or FALSE, T or TRUE
+# echo = F   # do not echo command into output by kinit
+# eval = F   # do NOT evaluate/interpret as code to run, just do verbatim text output [also for output of kinit]
+
+bad-var-name = 0  # dont use - in variable name, R treats it as math substraction!  use _
+```
+
+```{r}
+# this one below is example of invoking autograder to check this checkpoint
+. = ottr::check("tests/p1.R")
+```
+
 
 help("library")
 ?library
 ??histogram	# double ? for "topic" search
+
+functions/packages introducted in this lecture:
+- ggplot2, 
+- filter() aka stats::filter()
+
 </PRE>
+
+
+Resources:
+<BR>
+<BR>
+
+<LI>
+
+
+Hadley Wickham and Garrett Grolemund have written a helpful book about R that is freely available here:  
+<A HREF="https://r4ds.had.co.nz/"> https://r4ds.had.co.nz/ </A>
+</LI>
+
+<LI>
+UCLA has a website with many helpful examples here:  
+<A HREF="https://stats.idre.ucla.edu/r/"> https://stats.idre.ucla.edu/r/ </A>
+
+
+</LI>
 
 <BR><BR>
 
