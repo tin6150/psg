@@ -68,9 +68,14 @@ Rscript --quiet --no-readline --slave -e '{ library(pacman); p_load( ggplot2, sc
 
 Special symbols
 
-^   power 
+^   power. 2^8 
 $   separate table name and column name, eg nhanes$gender, opt$indir
 ~   tilde operator, 
+-   minus, substraction.  eg a-b . Just-dont-use-it-in-var-name, as it is treated as substraction of each terms listed!  
+
+log(100)           # Think ln() here!  By default, R log has base e!  Bunch of wackos! :P
+log(100, base=10)  # this is log with base 10
+log(100, 10)       # same as above
 
 </PRE>
 
@@ -187,7 +192,7 @@ UCLA has a website with many helpful examples here:
 <H5>Lecture 2: Working with data in R</H5>
 
 <PRE>
-library(readr)
+library(readr)                              # provides read_csv
 lake_data = read_csv("mercury-lake.csv")		# read csv into an array (R is 1-indexed).
 
 head(lake_data)		# show first few lines
@@ -240,7 +245,8 @@ smaller_data_3 %>% head(2)
 View(lake_data)			# interactive table to view array data
 
 # arrange() = display data with sorting
-lake_data %>% arrange(ph)		# show data sorted by value in the ph column
+lake_data %>% arrange(ph)		          # show data sorted by value in the ph column, ascending order is default
+lake_data %>% arrange(desc(ph))		    # show data sorted by value in the ph column, DESCending order
 lake_data %>% arrange(age_data, - ph)	# can sort by mult cols, and ph in descending order
 
 
@@ -287,6 +293,7 @@ lake_data %>% filter(ph > 6 | chlorophyll > 30)
 
 
 # group_by() and summarize() can create new summary tables with aggregate data
+# note fn name is summarize, summary() does a very different thing!
 # mean() and sd() calculates the mean (average) and standard deviation of variables.
 
 lake_data %>% 
