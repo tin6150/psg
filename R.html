@@ -242,7 +242,7 @@ smaller_data_2 = select(lake_data,  - age_data        )
 smaller_data_3 = lake_data %>% select(- age_data, ph)
 smaller_data_3 %>% head(2)
 
-View(lake_data)			# interactive table to view array data
+View(lake_data)			# interactive table to view array data, note it is uppercase V.  utils::View(df)
 
 # arrange() = display data with sorting
 lake_data %>% arrange(ph)		          # show data sorted by value in the ph column, ascending order is default
@@ -346,7 +346,7 @@ ggplot(id_data, aes(x = disease, y = percent_cases)) 	+   # aes specify axis
 
 
 eg2: 
-fct_reorder()                    # order disease by decreasing percentage
+fct_reorder()                    # order disease by decreasing percentage -- library(forcats) ?
 aes( fill=type )                 # aes in geom_bar: color bar graph according to disease type (one of the col in data table)
 theme(legend.position = "top")   # add legends of color vs types at top of plot
 
@@ -359,6 +359,7 @@ ggplot(id_data, aes(x = disease_ordered, y = percent_cases)) +
   labs(y = "Percent", x = "")      +
   theme_minimal(base_size = 15)    +
   theme(legend.position = "top")
+
 
 
 eg3, geom_histogram()
@@ -378,6 +379,83 @@ geom_point() produces an x-y sequence of points (but not connected by line).
 kinda like a x-y scatter plot, but seems like 1 value per x entry.
 
 geom_line() is like geom_point(), but draws a continuous line instead of a series of points.
+
+
+### Lab 2
+
+### df CS_data_raw is reassigned to itself!  
+### so think of this as appending column to existing df.
+
+CS_data_raw <- CS_data_raw %>% 
+  mutate(Income_Group_order = forcats::fct_relevel(Income_Group, "Low income", 
+                                              "Lower middle income", "Upper middle income", 
+                                              "High income: nonOECD", "High income: OECD"))
+
+### df CS_data_raw is reassigned to itself!
+### so think of this as appending column to existing df.
+### mutate end up adding new column,  named Income_Group_order
+### new col created using forcats::fct_relevel()
+### if one do:
+str(CS_data_raw)
+### it shows that the new column store "Factor" types data, albeit View() doesn't show any difference
+### Income_Group_order: Factor w/ 5 levels "Low income","Lower middle income
+
+
+Factor as variable type to store categorical data, 
+so that it is sortable.
+eg
+
+CS_data %>% pull(Income_Group_order) %>% levels()
+
+lab02 p6 eg:
+ggplot(CS_data, aes(x=Income_Group)) + geom_bar()
+  ### geom_bar() is the implicit y-axis,
+  ### here didn't specify stats="identity", so it counted the x axis var (Income_Group)
+  ### use x=Income_Group_order to use the Factor var.  
+
+
+p14 = ggplot(CS_data, aes(x=GDP_2006)) + geom_histogram( binwidth=8000)
+p14
+
+p14 = p14 + facet_wrap( ~ Income_Group_order )  # facet_wrap create a series of panel to ggplot, one per each variable entry in the  "~ var_class" Income_Group_order   ### hw02
+
+ggsave( "lab02_cs_plot.png", plot = last_plot())   # save plot to file
+
+## hw02
+
+### add a vertical line to indicate median.  lty=1 is solid line, 2 is dashed line, 3 is dotted.
+geom_vline(aes(xintercept = median(GDP_2006)),  lty=2)
+
+
+</PRE>
+
+<H5>Lecture 4/HW02</H5>
+<PRE>
+
+### manually calculate (Min, Q1, Median, Q3, Max)
+### and add them as yintercept line to a boxplot
+
+Min = min(CS_data$CS_rate_100)
+Q1 = quantile(CS_data$CS_rate_100, probs = 0.25)
+Median = median(CS_data$CS_rate_100)
+Q3 = quantile(CS_data$CS_rate_100, probs = 0.75)
+Max = max(CS_data$CS_rate_100)
+
+five_num_summary = CS_data %>% summarize( min = Min,
+                                          Q1 = Q1,
+                                          median = Median,
+                                          Q3 = Q3,
+                                          max = Max)
+fns2 = five_num_summary
+
+p14b =  ggplot(data = CS_data, aes(y = CS_rate_100)) +
+          geom_boxplot(col = 'black', fill = 'sienna2') +
+          theme_minimal() + 
+          geom_hline(aes(yintercept = fns2$min), col = 'green') +
+          geom_hline(aes(yintercept = fns2$Q1), col = 'green') +
+          geom_hline(aes(yintercept = fns2$median), col = 'green') +
+          geom_hline(aes(yintercept = fns2$Q3),     col = 'green') +
+          geom_hline(aes(yintercept = fns2$max),    col = 'green') 
 
 
 
@@ -685,7 +763,7 @@ true, do expr each run
 • x[c(k,m,n)]: specific elements
 • x[x&gt;m &amp; x&lt;n]: elements between m and n
 
-• x$n: element of list or data frame named n
+• x$n: element of list or data frame named n.  ie, x is a data frame, n is the column name
 
 • x[["n"]]: idem		# [[ ]] in R ... 
 
