@@ -22,9 +22,10 @@
     </tr>
     <tr>
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
-      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
+      <td align="center"><a accesskey="x" href="linux.html">Linux</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
       <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
     </tr>
   </tbody>
@@ -47,6 +48,23 @@ function googleTranslateElementInit() {
 
 
 
+<H1>LDAP, RADIUS, Diameter, FreeIPA, Free Beer?</H1>
+
+These are not exactly right, but think of them more or less this way :)
+<LI> LDAP is more the format to user user data.  So, a DB, and command/tools to query and manipulate the database.  Can be used as simple replacement to NIS for unix login and ssh.  </LI>
+<LI> RADIUS is a protocol that provies all the 3A's: authentication, authorization, and accounting.  LDAP , without extension, does not provide accounting, or support for One Time Password (OTP/MFA).  </LI>
+<LI> Diameter, it is the wacky world of unix, such a thing exist.  Google for it :D </LI>
+<LI> <A HREF="#FreeIPA">FreeIPA</A>: Integrated system that provides 389 Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  </LI>
+<LI>  </LI>
+
+<BR><BR>
+
+See Also:
+<LI> <A HREF="linux.html#authconfig">Linux.html#authconfig</A> </LI>
+<LI>  </LI>
+
+
+<A NAME=LDAP></A>
 <H1>LDAP</H1>
 
 LDAP is a user database, and it does in Unix what MS Active Directory does in Windows.
@@ -1437,6 +1455,71 @@ perl -e "print crypt('clear-text-password','salt');"
 			# {CRYPT}encrypted entry can be used in ldif file
 			# for password import into LDAP POSIX User account.
 </PRE>
+
+<A ID=freeipa></A>
+<A ID=FreeIPA></A>
+<H1>FreeIPA</H1>
+
+FreeIPA: An Integrated system that provides 389 Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  See 
+<A HREF="https://freeipa.org/page/About"</A>FreeIPA doc</A> for more details.
+<BR><BR> 
+
+FreeIPA comes with CentOS/Rocky etc, to the point it is branded together with the distro. <BR>
+It provides Radius, MFA/OTP, DNS, certificate signing, all integrated into one.
+<BR>
+
+
+systemctl start ipa
+<BR>
+systemctl start radiusd
+<BR>
+<BR>
+
+It uses apache httpd to host the web site, and it does make self RCP calls via the hostname URL, 
+it is said cannot change port 443,80 to something else cuz such RCP calls will break.
+I suppose if they are encoded in the URI of the code then changing /etc/services won't cut it.
+<BR>
+ssh port forward for 443 only won't cut it either.
+Would need to setup a SOCKS proxy (eg in Firefox) and also update local /etc/hosts file to have IP of the FreeIPA server. 
+Maybe easier just use command line tool :)
+<BR>
+
+<BR>
+
+Allowed radius clients list configured in 
+/etc/radius?/ client.conf
+/etc/ipa ?
+<BR>
+<BR>
+
+
+<H2>config files</H2>
+<PRE>
+/etc/ipa/default.conf
+	enable_ra 	# this has to do with certification ops on IPA replica, see https://www.freeipa.org/page/Howto/Promoting_a_self-signed_FreeIPA_CA#:~:text=Enable
+</PRE>
+
+
+
+<H2>User commands</H2>
+<PRE>
+ipa user-find 			# list all users in ipa db (think to getent passwd)
+ipa user-mod --password 	# ?? user can change password?
+ipa otptoken-add 		# add OTP/MFA. QR code can be displayed in most terminals these days.
+
+</PRE>
+
+<H2>Admin commands</H2>
+<PRE>
+kinit 	# initialize Kerberos system, restart timer
+
+ipa user-disable alice
+ipa user-mod --password alice
+
+radsniff -X
+
+</PRE>
+
 
 
 <A ID=link></A>

@@ -829,12 +829,14 @@ netstat -ta     show current intenet services/connections
         -k ce0 : lot of interface specific info, ce NIC will have duplex stat.
 
 netstat -tulpn	# list LISTEN port and process 
+netstat -pan 	# list process and ports it has open
 
-netstat -p	: print ip to mac address table known to host
+netstat -p	: print ip to mac address table known to host  (solaris?)
 netstat -k 	: print lot of kernel stat, among it hme0 is for the sun's build in 
 		  happy meal ethernet nic (see sunsolve infodoc 17416 for explanation of these 
 		  undocumented stats, good for trobleshooting network latency, comare agaist cisco stat.)
 netstat -s	: show high level packet send/receive/fragment info
+
 vmstat -a   : all 
        -n   : 
        -p   : process owning port

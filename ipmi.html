@@ -110,6 +110,11 @@ ipmitool delloem lan set dedicated	# disable use of shared IPMI.  set once iDRAC
 ipmitool delloem powermonitor	# display power usage info
 
 
+
+ipmi tag to vlan 20 (default is untagged):
+ipmitool lan set 1 vlan id 20
+
+
 ipmitool user list 1	# list users configured to use ipmi
 
 ipmitool chassis identify	# blink location becon (typically blue) to help find machine

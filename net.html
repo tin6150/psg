@@ -649,6 +649,12 @@ connector 2 would be 2041 to 2048, etc
 
 (TBD: cisco*config sample config files after clean up and masking)
 
+<A ID="Juniper"></A>
+<A ID="juniper"></A>
+<H1>Juniper</H1>
+
+<LI>Port starts at 0 ?</LI>
+<LI></LI>
 
 <A ID="Arista"></A>
 <A ID="arista"></A>
@@ -672,10 +678,84 @@ show runing interface eth1-7	# port range 1 thru 7
 
 switchport access vlan   # ie not tagged
 
-vs 
-trunk
+! example of "traditional" network port for host without vlan tagging
+interface Ethernet4
+   switchport access vlan 5
+   spanning-tree portfast
+!
+
+
+
+! example of network ports with vlan tag, also allow "untagged" as natively default to vlan 21
+interface Ethernet3
+   switchport trunk native vlan 21
+   switchport trunk allowed vlan 20-21
+   switchport mode trunk
+   spanning-tree portfast
+!
+
+# a switch to switch trunk would allow all vlan?
+
 ...
 
+
+int eth 29/1
+  description "100G link to core switch"
+  swich port mode trunk
+  switchj port trunk allowed vlan add 1000
+end
+
+
+# create static route
+ip route 10.21.0.0/16 10.8.23.1		
+ip route 10.22.0.0/16 10.8.23.1		
+
+vlan 1000
+  name bldg-A-to-bldg-B
+!
+end
+
+int vlan 1000
+  desc bldg-A-to-bldg-B
+  ip address 10.22.255.254/30
+end
+
+
+
+# brand new switch, disable zeroconfig
+zeroconf reset # or was it zeroconf clear ?  it reboots right away!
+
+
+# misc one time settings
+term length 50
+no log console		# disable sending log to the console
+
+# create admin acc so can ssh in
+username admin role network-admin secret sha512 $6$pl/qPWc8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.WI.kE.KXS5M7wsLubNZkBtC5nyj6ZF/S/LlUNeitL59I8KJ1
+
+
+
+
+
+
+
+</PRE>
+
+
+<PRE>
+
+show running-config > scp:tin@10.2.22.2/tmp/run.txt
+show startup-config > scp:tin@10.2.22.2/tmp/startup-config.txt
+
+
+<<**>> #### mask out the username ... sha  password entry near the beginning of the config file #### <<**>>  
+
+copy run start	# or write mem
+</PRE>
+
+<H5>Troubleshooting commands</H5>
+
+<PRE>
 
 show interface status  # brief table view of port, desc, link status, vlan
 show interface status  | egrep Et[23] 
@@ -690,22 +770,15 @@ interface ethernet 4
   shutdown
   no shutdown
   show active
+end
+
+
+# remember branding has to match!  
+show int eth29/1 transceiver properties
+
 
 
 </PRE>
-
-
-<PRE>
-
-show running-config > scp:tin@10.2.22.2/tmp/run.txt
-show startup-config > scp:tin@10.2.22.2/tmp/startup-config.txt
-
-
-<<**>> #### mask out the username ... sha  password entry near the beginning of the config file #### <<**>>  
-
-copy run start
-</PRE>
-
 
 <A ID="Foundry"></A>
 <A ID="foundry"></A>

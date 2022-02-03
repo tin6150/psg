@@ -696,6 +696,13 @@ authconfig --enablenis --nisdomain=research --nisserver=nis1,nis2 --disableldap 
 	# and affect final behavior :(
 	# run test a/o check the resulting config file to be sure.
 
+authselect 	# replaced authconfig in rhel8
+authselect list
+authselect show sssd	
+
+sss_cache -E		# flush all cache
+sss_cache -u bob	# flush entry for specific user
+
 </PRE>
 
 Ref: 
@@ -801,7 +808,57 @@ ifconfig hme0 dhcp		see purple book.  (Solaris?)
 irouted
 
 
+
 </PRE>
+
+<A NAME="vif"></A>
+<A NAME="vlan"></A>
+<A NAME="vlan_tag"></A>
+<A NAME="8021q"></A>
+<H5>Virtual Interface vs VLAN Tag</H5>
+
+<PRE>
+
+eth0  is plain old default interface
+eth0:1 eth0:2 are virtual interfaces, with "traditional" single layer 2 eth config (ie no VLAN TAG)
+eth0.20 eth0.911 are interfaces with VLAN TAQ as required by switch.
+
+(switch could have "native vlan" that allow for default untagged traffic (eth frame is different between tag vs non tag eth frames.)
+
+
+adding virtual interface:
+ifcfg-eth0:1 
+
+
+adding interface with vlan tag 
+ifcfg-eth0.20
+ifcfg-eth0.911
+(no need to make this virtual, it automatically allow for multiple tagged interface per physical NIC.
+ie, there is never a need for eth0:1.911 or eth0.911:1, eth0.911 will be an additional interface to eth0 with the vlan id set)
+
+systemctl restart network
+-or-
+systemctl restart NetworkManger
+
+manual commands:
+modprobe --first-time 8021q
+# modinfo 8021q
+ip link add link enp0s3 name enp0s3.20 type vlan id 20
+ifconfig enp0s3.20 10.8.20.22 netmask 255.255.255.0 up
+
+ifcfg-enp0s3.20 , no need to be both virtual interface and vlan tag. it is already virtual.
+
+No need for "systemctl restart NetworkManger", though it doesn't hurt
+
+
+# ref: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/sec-configure_802_1q_vlan_tagging_using_the_command_line
+
+
+ipmi tag to vlan 20 (default is untagged):
+ipmitool lan set 1 vlan id 20
+
+</PRE>
+
 
 <H5>Link Aggregation</H5>
 See <A HREF="http://www.cyberciti.biz/tips/linux-bond-or-team-multiple-network-interfaces-nic-into-single-interface.html">
@@ -2396,6 +2453,10 @@ yum			# yellow dog update modified, better rpm updated than up2date
 			# run cmd by itself will do all update automatically.
 			# not installed by default in RHEL 4, only in FC.
 yum update		# can be added to cronjob for auto update
+yum update  --security	# RHEL only, update rpm only if they are security related.
+yum update --cves  CVE-2021-4034	# update only rpm that fix the listed vulnerability (RHEL only)
+yum update polkit			# update specific rpm
+
 yum list		# list avail pkg and version number
 yum list  autofs	# list installed and avail pkg/ver for the pkg autofs
 yum info [pkgname]	# only display info of avail packages, opt followed by pkg name.
