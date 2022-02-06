@@ -547,18 +547,14 @@ two_way_data <- tribble(~ smoking, ~ lung_cancer, ~ percent, ~number,
 "smoker", "lung cancer", 4.8, 12,
 "smoker", "no lung cancer", 95.2,238)
 
-
-
 </PRE>
 
 
 
-<!-- hmm... maybe merge conflict... ph486 vs x10 -->
 <!-- Lecture 8 (wk3)-->
 <H5>Lecture 8</H5>
+
 <PRE>
-
-
 
 # SRS = Simple Random Sample, slide 33, 38
 set.seed(123)    # make future run repeatable
@@ -577,11 +573,7 @@ CS_10percent_grouped%>%group_by(HOSP_BEDSIZE) %>% tally()
 
 
 
-<BR><BR>
-<HR>
-<BR>
-
-<!-- merge pending from bombat , move up...-->
+<!-- merged from bombat -->
 <H5>HW03</H5>
 
 <PRE>
@@ -591,19 +583,15 @@ insure_data = insure_data %>%
   mutate(bmi_cat = case_when(bmi < 16 ~ "Underweight",
                              bmi >= 16 & bmi < 25 ~ "Normal",
                              bmi >= 25 & bmi < 30 ~ "Overweight",
-                             bmi >= 30 ~ "Obese")
-                  )
-;
+                             bmi >= 30 ~ "Obese"                   )  )
+#
 
+types of variables in stat:
 
-types of variables in R:
-
-
-p8 <- 'ordinal'
-# p8 <- 'nominal'
-# p8 <- 'continuous'
-# p8 <- 'discrete'
-
+- 'ordinal'
+- 'nominal'
+- 'continuous'
+- 'discrete'
 Note that integers are considered discrete!  thus num_of_child "int" is discrete
 continuous is only for floats
 
@@ -617,11 +605,14 @@ p20 = p16 + geom_abline(intercept=new_b,slope=new_m,lty=2,col="red")
 insure_model = lm(charges ~ age, data=insure_subset)    
 
 
-
-
-
 paused in line 387 ++FIXME++
 </PRE>
+
+
+<BR><BR>
+<HR>
+<BR>
+
 
 <H1>R</H1>
 
