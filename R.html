@@ -433,6 +433,7 @@ geom_vline(aes(xintercept = median(GDP_2006)),  lty=2)
 <PRE>
 
 ### manually calculate (Min, Q1, Median, Q3, Max)
+### (Note that R's calc method is very slightly different than textbook, unless add "type=2" as option to quantile() )
 ### and add them as yintercept line to a boxplot
 
 Min = min(CS_data$CS_rate_100)
@@ -487,6 +488,48 @@ rename(country_code = Country.code,
 <BR><BR>
 <HR>
 <BR>
+
+<!-- merge pending from bombat , move up...-->
+<H5>HW03</H5>
+
+<PRE>
+case_when() eg, also note use of ~ :
+
+insure_data = insure_data %>%
+  mutate(bmi_cat = case_when(bmi < 16 ~ "Underweight",
+                             bmi >= 16 & bmi < 25 ~ "Normal",
+                             bmi >= 25 & bmi < 30 ~ "Overweight",
+                             bmi >= 30 ~ "Obese")
+                  )
+;
+
+
+types of variables in R:
+
+
+p8 <- 'ordinal'
+# p8 <- 'nominal'
+# p8 <- 'continuous'
+# p8 <- 'discrete'
+
+Note that integers are considered discrete!  thus num_of_child "int" is discrete
+continuous is only for floats
+
+
+p11 = ggplot(insure_subset, aes(x=age,y=charges)) + geom_point() +
+  labs(title="age vs insurance charges for smoker with normal bmi")
+p16 = p11 + geom_abline(intercept=b,slope=m)
+p20 = p16 + geom_abline(intercept=new_b,slope=new_m,lty=2,col="red")
+# lty=2 means use dashed line
+
+insure_model = lm(charges ~ age, data=insure_subset)    
+
+
+
+
+
+paused in line 387 ++FIXME++
+</PRE>
 
 <H1>R</H1>
 
@@ -1233,8 +1276,18 @@ f_lhs(g)   # y
 
 lm and glm are logistic regresion models.
 <BR>
+## seed_weight is "Y", the response aka predicted value
+## seed_count  is "X", the exploratory ie input value to find prediction for
+##lm( y ~ x )
 seed_mod <- lm( seed_weight ~ seed_count, data = seed_data )
 tidy( seed_mod ) 
+seed_mod 
+seed_mod %>% str         
+# there are a lot more than just intercept and slope in the linear model, just not shown when just asked for it plainly.  tidy() is a decent compromise
+
+##  linear_mode = lm( y ~ x , data="someTable")
+m = linear_model$coefficients[2] # slope  (it is a "named number" in R)
+b = linear_model$coefficients[1] # intercept
 
 <!-- -->
 <BR>
@@ -1247,11 +1300,11 @@ the form y ~ model is interpreted as a specification that the response y is mode
 <A ID="model_operators"></A>
 Model operators:
 <PRE>
-+ 		separate a series of terms that affect the model.
-: 		??
-* 		factor crossing: a*b interpreted as a+b+a:b
-^ 		crossing to specific degree.  eg (a+b)^2 for crossing twice
-%in%    terms on the left are  nested within those on the right.
++ 	separate a series of terms that affect the model.
+: 	??
+* 	factor crossing: a*b interpreted as a+b+a:b
+^ 	crossing to specific degree.  eg (a+b)^2 for crossing twice
+%in%   	terms on the left are  nested within those on the right.
 -      	remove dependence on the specified series
 
 I() - To avoid this confusion, the function I() can be used to bracket those portions of a model formula where the operators are used in their arithmetic sense
