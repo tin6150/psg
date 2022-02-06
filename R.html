@@ -266,9 +266,11 @@ tidy_lake_data %>% head(3)
 
 
 # filter() - this is like grep, keep record where col age_data has value "recent"
-# new_array        = old_array %>% filter(col_name  FILTER_CONDITION )
-lake_data_filtered = lake_data %>% filter(age_data   == 'recent'     )
-# != for not equal
+# new_array        = old_array %>% filter(col_name  FILTER_CONDITION             )
+lake_data_filtered = lake_data %>% filter(age_data   ==     'recent'             )
+lake_data_filtered = lake_data %>% filter(age_data   %in% c('recent','str2')     )
+# %in% with a concat set of strings allow multiple == conditions to be specified.  eg match one of the listed string in the c() set.
+# use != for not equal
 
 
 # filter() can also with math operations
@@ -331,7 +333,7 @@ Reference material: <BR>
 3. `geom_histogram()` to make a histogram for which ggplot needs to calculate the count
 4. `fct_reorder(var1, var2)` to reorder a categorical variable (`var1`) by a numeric variable (`var2`)
     - from the `forcats` package
-5. `geom_point()` to make a plot with dots
+5. `geom_point()` to make a plot with dots  (scatter plots also use this)
 6. `geom_line()` to make a plot with lines
 
 
@@ -385,7 +387,7 @@ geom_line() is like geom_point(), but draws a continuous line instead of a serie
 
 ### df CS_data_raw is reassigned to itself!  
 ### so think of this as appending column to existing df.
-
+### fct_relevel affects plot output (ordering of categories), but does NOT change the data in the source table (df)
 CS_data_raw <- CS_data_raw %>% 
   mutate(Income_Group_order = forcats::fct_relevel(Income_Group, "Low income", 
                                               "Lower middle income", "Upper middle income", 
@@ -481,7 +483,97 @@ rename(country_code = Country.code,
        GDP = `GDP per capita`) # back ticks must be used when variable name has space in them
 # new_name =  old_col_name
 
+
+tidy(data_table)		# fit data per tidyverse convention?
+
+lin_model =  lm ( y ~ x ) 	# lm() is linear regression fit model, for y ~ x (x is predictor)
+glance( lin_model )		# provide data like r^2, etc
+cor( x, y ) 			# correlation 
+
+# ? correlation vs R^2 ??    correlation is r, but calc often return r^2 (R-squared)?  ## slide 25
+
+
+glance( lin_model ) %>% pull( r.squared )  	# this return the r^2 value.  # slide 25
+
+# is pull() like awk, grabbing column?  ++ ??
+# or does it return a 1x1 only?
+
+geom_abline() add the fitting line.   it need intercept and slope)
+geom_abline(intercept = c, slope = m)
+geom_abline( -46.75, 0.1358)
+
+geom_text_repel()	# repel text, ie, don't render them with overlap. 	# slide 46
+
+
+# stuff about prediction in p28, review++
+
+
+## scatter plot: geom_point()
+mana_death1 = ggplot(mana_data, aes(x = powerboats, y = deaths)) +
+  geom_point() +
+  theme_minimal(base_size = 15)
+
+## + line plot
+tmp1 = ggplot(CS_data, aes( x=CS_rate_100, y=GDP_2006) ) + geom_point() +  geom_line() 
+tmp2 = tmp1 + geom_smooth()  # add smooth line best curve fit
+
+# next, colour the points by income_group
+# note that the aes() is placed inside geom_point         -----------VVVVVVV
+tmp6  = ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point(    aes(col=Income_Group) )   + geom_smooth() 
+ugly6 = ggplot(CS_data_log, aes( y=log_CS, x=log_GDP) ) + geom_point() + aes(col=Income_Group)     + geom_smooth() 
+# if aes of coloring by income_group is tackled onto the parent plot object, it would make geom_smooth() interrupted by Income_Group rather than span across these categories, as seen in ugly6 above
+
+
+
+
 </PRE>
+
+<!-- Lecture 7 (wk3)-->
+<H5>Lecture 7</H5>
+<PRE>
+
+lecture topic summary:
+1. geom_bar(aes(col = var), stat = "identity", position = "dodge")
+2. geom_bar(aes(col = var), stat = "identity", position = "stack")
+     fct_relevel() to reorder grouping w/in bar charts
+3. Marginal vs conditional distributions
+4. Simpson’s Paradox
+
+
+# slide 14, some crazy multiple ~ operator thing
+
+two_way_data <- tribble(~ smoking, ~ lung_cancer, ~ percent, ~number,
+"smoker", "lung cancer", 4.8, 12,
+"smoker", "no lung cancer", 95.2,238)
+
+
+
+</PRE>
+
+
+
+<!-- hmm... maybe merge conflict... ph486 vs x10 -->
+<!-- Lecture 8 (wk3)-->
+<H5>Lecture 8</H5>
+<PRE>
+
+
+
+# SRS = Simple Random Sample, slide 33, 38
+set.seed(123)    # make future run repeatable
+CS_100_1 = CS_data %>% smaple_n(100)        # pick n=100 rnd sample from data source
+CS_100_1 = CS_data %>%  sample_frac(0.05)   # do 5% rather than static n size
+
+# Proprtionate Stratified Sampling , slide 40
+# group them , then sample, this provide stratum equal size proportions (eg for epi group randomized study)
+CS_10percent_grouped <- CS_data %>%
+  group_by(HOSP_BEDSIZE) %>%
+  sample_frac(0.1)
+dim(CS_10percent_grouped)
+CS_10percent_grouped%>%group_by(HOSP_BEDSIZE) %>% tally()
+
+</PRE>
+
 
 
 <BR><BR>
@@ -1231,7 +1323,7 @@ f_lhs(g)   # y
 <A HREF="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/formula">R Doc</A>
 <BR><BR>
 
-lm and glm are logistic regresion models.
+lm and glm are logistic regresion models (ie linear line of best fit).
 <BR>
 seed_mod <- lm( seed_weight ~ seed_count, data = seed_data )
 tidy( seed_mod ) 
