@@ -493,11 +493,23 @@ tidy(data_table)		# fit data per tidyverse convention?
 
 lin_model =  lm ( y ~ x ) 	# lm() is linear regression fit model, for y ~ x (x is predictor)
 glance( lin_model )		# provide data like r^2, etc
-cor( x, y ) 			# correlation 
+cor( x, y ) 			# Pearson's correlation = r // xref correlation-squared aka r^2, r2, r-squared [wk02 L05 slide 51]
+				# x and y are column names of table/dataframe, thus use inside summarize()
+mana_cor = mana_data %>% summarize(corr_mana = cor(powerboats, deaths))
 
-# ? correlation vs R^2 ??    correlation is r, but calc often return r^2 (R-squared)?  ## slide 25
+
+# ? correlation vs R^2 ??    
+# correlation is r, but calc often return r^2 (R-squared) ## slide 25
+# so would need sqrt() if ask for correlation r  
+
+# wk03 L06 slide 13
+# correlation r is related to slope b.  In linear model y = a + bx, b aka beta, in algebra often as m
+# b = r( Sy/Sx )
+# r is the correlation variable
+# pull( r.squared ) returns r^2, so take sqrt() to get r
 
 
+library(broom)
 glance( lin_model ) %>% pull( r.squared )  	# this return the r^2 value.  # slide 25
 
 # is pull() like awk, grabbing column?  ++ ??
@@ -542,6 +554,11 @@ lecture topic summary:
 2. geom_bar(aes(col = var), stat = "identity", position = "stack")
      fct_relevel() to reorder grouping w/in bar charts
 3. Marginal vs conditional distributions
+     Margins are the row and col totals
+     conditional distribution is conditional probabilities, eg P(LungCancer|Smoker), 
+     	look at row value and totals only, eg A/(A+B)
+	rather than whole 2x2 table.
+	English + Math interpretation should make sense.
 4. Simpson’s Paradox
 
 
@@ -578,7 +595,7 @@ CS_10percent_grouped%>%group_by(HOSP_BEDSIZE) %>% tally()
 
 
 <!-- merged from bombat -->
-<H5>HW03</H5>
+<H5>Lab/HW03</H5>
 
 <PRE>
 case_when() eg, also note use of ~ :
@@ -1373,8 +1390,9 @@ seed_mod %>% str
 # there are a lot more than just intercept and slope in the linear model, just not shown when just asked for it plainly.  tidy() is a decent compromise
 
 ##  linear_mode = lm( y ~ x , data="someTable")
-m = linear_model$coefficients[2] # slope  (it is a "named number" in R)
-b = linear_model$coefficients[1] # intercept
+m = linear_model$coefficients[2]   # slope  (it is a "named number" in R)
+m = linear_model$coefficients[[2]] # slope ( [[]] returns a number )
+b = linear_model$coefficients[[1]] # intercept
 
 <!-- -->
 <BR>
@@ -1533,7 +1551,7 @@ registerDoParallel
 <LI>rPython</LI>
 <LI>SnakeCharmR - fork, more modern ver of rPython</LI>
 <LI>PythonInR</LI>
-<LI>reticulate</LI>
+<LI>Reticulate [<A HREF="cheatsheet https://raw.githubusercontent.com/rstudio/cheatsheets/main/reticulate.pdf">cheatsheet</A>] </LI>
 <LI></LI>
 </OL>
 
