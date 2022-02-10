@@ -499,6 +499,7 @@ defineAlias () {
 	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
 	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
+	alias sanePaste='printf "\e[?2004l"'  # ie disable bracketed paste mode, do this before invoking tmux
 
 	###
 	### stuff for ETA/CMAQ

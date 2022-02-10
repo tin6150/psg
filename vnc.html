@@ -49,10 +49,35 @@ Memory footprint: 1. XFCE (300MB), 2. Plasma (410-500MB) 3. Gnome (450-500MB).  
 <LI>
 
 <LI> A Desktop Environment (DE) anything on the desktop or initialization of the window manager that is reboot persistent.
-
 <LI>
-
 </OL>
+
+
+
+<A ID="bracketed_paste_mode"</A>
+<H5>bracketed paste mode</H5>
+
+funny/strange character in the terminal when pasting?  It is from bracketed-paste mode, and likely have to deal with readline libraries.  
+see: 
+<A HREF="https://cirw.in/blog/bracketed-paste">post in cirw</A>.  Supposedly entering 
+<TT>printf "\e[?2004l"</TT> should disable the bracked paste mode, but at least one machine (viz) didn't work.
+small little thing, but agravating as heck! :-\ <BR>
+If running tmux, the printf trick needs to be done before tmux is invoked, eg before <TT>tmux a</TT>
+<BR>
+See also: <A HREF="https://stackoverflow.com/questions/42212099/how-do-i-disable-the-weird-characters-from-bracketed-paste-mode-on-the-mac-os">stack overflow post</A>
+<BR>
+<BR>
+.inputrc could have code in there to enable/disable this?
+<BR>
+
+<PRE>
+# disable bracketed paste mode:
+printf "\e[?2004l"
+
+# enable bracketed paste mode:
+printf "\e[?2004h"
+</PRE>
+
 
 <H1>Running X-based apps in a remote Unix machine</H1>
 

@@ -95,6 +95,8 @@ ipmitool lan print 1	# iDRAC interface (could be shared if set so).  1 refer to 
 ipmitool lan set   1 ipaddr  10.10.58.140 		# set iDRAC interface IP (should be, need to verify it works)
 ipmitool lan set   1 defgw ipaddr  10.10.58.1		# set default gateway
 
+ipmitool lan set   1 vlan id 20				# if in network require vlan id tagging, set to use the correct id (eg: 20)
+
 ipmitool sdr		# print environment statistics
 ipmitool fru	
 
@@ -142,6 +144,9 @@ ipmitool sel list		# get list of events and dates.  eg, PSU AC lost.  additional
 	3 | 09/11/2021 | 22:23:05 | Memory #0x1b | Monitor | Asserted
 	4 | 10/27/2021 | 17:32:09 | Memory #0x1b | Monitor | Asserted
 
+ipmitool sensor | grep Current # on Dell C6400 see output like this, and 1 PSU likely dont have AC power:
+Current 1        | 0.000      | Amps       | ok    | na        | na        | na        | na        | na        | na
+Current 2        | 2.400      | Amps       | ok    | na        | na        | na        | na        | na        | na
 
 # if IPMI isn't working, in RHEL 6, it is a kernel module that need to be started
 # for machines with module:

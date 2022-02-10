@@ -1502,10 +1502,42 @@ Allowed radius clients list configured in
 
 
 <H2>User commands</H2>
+<!-- most cmd tested on vpn-gr -->
 <PRE>
+
+ipa user-show  sn50		# show info of specific user, exact spell, by userlogin 
+ipa user-show      		# no argument will get a prompt
 ipa user-find 			# list all users in ipa db (think to getent passwd)
-ipa user-mod --password 	# ?? user can change password?
+ipa user-find  tin		# find any account containing specified patter "tin" in userlogin, first and last name.  case insensitive search
+
+ipa user-find --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
+
+
+ipa user-mod --password 	# user can change password their own password
 ipa otptoken-add 		# add OTP/MFA. QR code can be displayed in most terminals these days.
+ipa otptoken-add --type=totp --owner=jansengr --desc="My soft token1"
+
+# once OTP is added, ssh login prompt change from password to First Factor/Seconf Factor
+# and must use both password and token to login
+# User can run "otptoken-add" multiple times and have more than one token, can use either to login
+
+
+
+
+ipa group-find
+
+ipa pwpolicy-show
+ipa pwpolicy-show --user=sn50
+ipa pwpolicy-mod --minlife=1 --maxlife=90 --history=3	# modify system default pw policy, minlife=1 maybe bad, user can't change password if they set a bad one till a day later...
+ipa user-show sn50 --all | grep expiration 
+
+ipa pwpolicy-mod ... to have differing password complexity requirements (for everyone)  --minlength --charclasses
+
+# not sure about password complexity.  
+# especially if have OTP, then first token for password is acceptable to be a simple PIN.  
+# How to do this?  ++
+
+radtest alice password freeipa.greta.local 1812 badsecret
 
 </PRE>
 
@@ -1516,10 +1548,25 @@ kinit 	# initialize Kerberos system, restart timer
 ipa user-disable alice
 ipa user-mod --password alice
 
+
+ipa user-add	# interactive prompted user addition, but only ask for first, last, and username.  
+
 radsniff -X
+
+
+## How to remove the "change password on first login" ?    esp using cli
+## How to remove password expiration ?  or change expiration in cli ?
+## how to change uid/gid ?   maybe ipa user-mod ... 
+
 
 </PRE>
 
+<H2>IPA install commands</H2>
+
+<PRE>
+ipa-server-install 
+ipa-server-install --uninstall
+</PRE>
 
 
 <A ID=link></A>
