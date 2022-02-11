@@ -491,6 +491,8 @@ Q1 = quantile(CS_data$CS_rate_100, probs = 0.25)
 Median = median(CS_data$CS_rate_100)
 Q3 = quantile(CS_data$CS_rate_100, probs = 0.75)
 Max = max(CS_data$CS_rate_100)
+Outliers: any data point more than 1.5*IQR away from median.
+IQR: InterQuartile Range: Q1-Median or Q3-Median
 
 five_num_summary = CS_data %>% summarize( min = Min,
                                           Q1 = Q1,
@@ -658,8 +660,8 @@ types of variables in stat:
 
 - 'ordinal'
 - 'nominal'
-- 'continuous'
-- 'discrete'
+- 'continuous'	# measured
+- 'discrete'	# counting
 Note that integers are considered discrete!  thus num_of_child "int" is discrete
 continuous is only for floats
 
