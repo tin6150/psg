@@ -1568,6 +1568,60 @@ ipa-server-install
 ipa-server-install --uninstall
 </PRE>
 
+<A ID=cert></A>
+<H1>FreeIPA for signing certs</H1>
+
+The DogTAg project for signing cert is bundled into FreeIPA, see 
+<A HREF="https://www.freeipa.org/page/PKI">FreeIPA PKI</A>
+<BR><BR>
+
+This post on 
+<A HREF="https://blog.christophersmart.com/2014/08/24/creating-certs-and-keys-for-services-using-freeipa-dogtag/">
+Creating certs and keys for services using FreeIPA (Dogtag)</A> 
+ has a good overview of the process. 
+<BR><BR>
+
+And 
+<A HREF="https://rcritten.wordpress.com/2018/11/26/how-do-i-get-a-certificate-for-my-web-site-with-ipa/">
+HOW DO I GET A CERTIFICATE FOR MY WEB SITE WITH IPA?</A> 
+list some useful relevant ipa commands
+
+<BR><BR>
+
+<A HREF="https://gist.github.com/rechner/c6b9133b7816445b5850f8e22e16aa60">FreeIPA for OpenVPN gist</A>
+<BR><BR>
+
+<!-- CF_BK...vpn-greta -->
+<PRE>
+
+kinit admin
+ipa dnsrecord-find  hulk.local		# list all dns record for the named zone hulk.local
+ipa dnsrecord-add   domain      hostname
+ipa dnsrecord-add   hulk.local  www
+ipa dnsrecord-add   hulk.local  vpn
+
+ipa dnsrecord-add hulk.local  vpn  --a-rec 192.8.17.19
+ipa dnsrecord-add 17.8.192.in-addr.arpa. 19 --ptr-rec vpn
+
+ipa host-add  www.hulk.local
+ipa host-add  vpn.hulk.local
+
+ipa service-add    openvpn/vpn.hulk.local
+ipa service-add    HTTP/www.hulk.local
+
+ipa service-add-host --hosts=ipa-server.test.lan HTTP/www.test.lan
+
+ipa-getcert request -r -f /etc/pki/tls/certs/vpn.hulk.local.crt -k /etc/pki/tls/private/vpn.hulk.local.key -N CN=vpn.hulk.local -D vpn.hulk.local -K openvpn/vpn.hulk.local
+
+copy .crt and .key files to www/vpn server
+
+getcert stop-tracking -i 20220211224159	# remove if need to redo eg cuz typo
+
+ipa service-find  | grep Principal\ na
+
+
+</PRE>
+
 
 <A ID=link></A>
 <H1>Reference</H1>
