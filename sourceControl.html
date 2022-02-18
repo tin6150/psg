@@ -182,7 +182,8 @@ RCS is pretty old school.  It does work out of a simple directory on the file sy
 
 <PRE>
 co -l {filename} check out file (with lock) from rcs sys
-co -r {filename} check out revision <N> or the latest verstion,
+co -r1.123 {filename} check out revision 1.123 
+co -r      {filename} check out latest verstion,
                  will prompt to overwrite co -l files (at least then when you do ci, it will say file not changed
                  and effectively reversed to original content)
 ci    {filename} put file back into rcs
@@ -196,6 +197,8 @@ rcs -aUID FILE  add access for user UID to the FILE (but didn't work, maybe file
 </PRE>
 
 
+ref: http://pages.cs.wisc.edu/~plonka/sysadmin/article.html <BR>
+or ch 39.5 of Unix Power Tools 3rd Ed. <BR>
 
 <A NAME="perforce"></A>
 <A NAME="p4"></A>

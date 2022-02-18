@@ -18,7 +18,7 @@
 <table summary="Navigation header" width="100%">
   <tbody>
     <tr>
-      <th colspan="4" align="center">
+      <th colspan="16" align="center">
 	<A HREF="http://tiny.cc/TOOL">Sys Admin Pocket Survival Guide</A>
       </th>
     </tr>
@@ -27,6 +27,7 @@
 	  <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
 	  <td align="center"><a accesskey="g" href="git.html">git</a></td>
 	  <td align="center"><a accesskey="f" href="firewall.html">firewall</a></td>
+      <td align="center"><a accesskey="l" href="linux.html">Solaris</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
       <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
@@ -147,6 +148,7 @@ ss -tulp		# check socket status
 <LI> iostat -xz 1	# -x = extended stats; -z = ommit zero / idle entries
 <LI> iostat -xn 1	# NFS stats only
 <LI> iotop		# iostat in top-like fashion, show top process using disk.  from iostat rpm
+<LI> nmon 		# d for disk util.  N for NFS system calls
 <LI> swapon -s
 <LI>
 <LI> hdparam
@@ -257,6 +259,18 @@ So, these things will help finding a decent number for memory request.
 
 <H2>Disks</H2>
 
+<A ID="sata_vs_sas_vs_nvme">
+<A ID="sata_sas_nvme">
+SATA vs SAS vs NVME, connector diagram: <BR>
+<IMG SRC=fig/nvme_09072704740l.jpg ALT="diagram of sata vs nvme">
+<BR>
+Source and more details: 
+<A HREF="https://overclock3d.net/">overclock3d.net</A> 
+<A HREF="https://overclock3d.net/news/storage/what_is_the_new_u_2_ssd_connection/1">SATA vs SAS vs NVME</A>
+<BR>
+<BR>
+
+
 <!-- :set tabstop=8 shiftwidth=8  # which is what browser render as -->
 <PRE>
 
@@ -265,17 +279,20 @@ SATA II  has 300 MB/s
 SAS is 6 Gbps = 768 MB/s
 PCIe 3.1 x4 NVMe = ...
 
-NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
+NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015, show up as /dev/nvme*.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
 
 
 M.2 = replaces mSATA 
+  * typically on mboard, internal to machine, 3.3V only
+  * NOT hot swappable--often on laptop, but number of servers use them too :-\
   * typically bare chips, gumstick format
 
 U.2 (SFF-8639)
   * The U.2 connector is mechanically identical to the SATA Express device plug, but provides four PCI Express lanes through a different usage of available pins (wikipedia)
-  *	ie not to to use SATA controller...
-  *	support hot swap.
-  *	typically inside an enclosure, like traditional 2.5" HDD
+  * Some nvme drive support sata as well for backward compatibility, but at reduced bandwidth.
+  * ie does not use SATA controller, straight to the PCIe bus
+  * support hot swap, 3.3V or 12V.
+  * typically inside an enclosure, mounted on a hot swap disk tray, like traditional 2.5" HDD
 
 AIC
   * Add-In card format.  ie pci card.
@@ -453,6 +470,7 @@ Below are high level summary info.  Diff CPU has diff numa arch and memory local
 
 
 
+<A NAME="cpupower"></A>
 <A NAME="cpu_tuning"></A>
 <H1>CPU tuning</H1>
 
@@ -513,12 +531,19 @@ cat /sys/module/intel_idle/parameters/max_cstate	# 9 is default.  0=disabled
 
 
 
+
 kargs not likely useful.  cmd should work, but need them installed and invoked on boot...
+	Intel Cascadelake, kargs="quiet nopti"                 ==> cpupower driver: intel_pstate  # n0229.sav3
+	Intel Cascadelake, kargs="nopti intel_pstate=disable"  ==> cpupower driver: no or unknown cpufreq driver is active on this CPU # n0138.sav3
+	AMD Epyc Rome,     kargs="quiet nopti"                 ==> cpupower driver: acpi-cpufreq  # n0209.sav3 Epyc 7302
+
+
 
 
 cpupower frequency-set -g performance
 # 800 or 1200 is low
 # 2600 would be more performant, though it does use more power.
+
 
 cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_min_freq
 cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq
@@ -595,6 +620,10 @@ but slurm epilog/prolog does not run as root, but as slurm, so may need to use s
 singularity exec /global/scratch/tin/singularity-repo/perf_tools7.simg cpupower frequency-info --policy <BR>
 # not really showing what policy is currently in use <BR>
 singularity exec /global/scratch/tin/singularity-repo/perf_tools7.simg cpupower frequency-set -g performance <BR>
+singularity exec /global/scratch/users/tin/singularity-repo/perf_tools7.simg cpupower frequency-info
+
+power utilization difference between performance vs powersave is not drastic (unlike intel_pstate=disable).  So wwulf object to set this at boot maybe good.  no need to mess with prolog/epilog.
+ <BR>
  <BR>
  <BR>
 
@@ -800,12 +829,14 @@ netstat -ta     show current intenet services/connections
         -k ce0 : lot of interface specific info, ce NIC will have duplex stat.
 
 netstat -tulpn	# list LISTEN port and process 
+netstat -pan 	# list process and ports it has open
 
-netstat -p	: print ip to mac address table known to host
+netstat -p	: print ip to mac address table known to host  (solaris?)
 netstat -k 	: print lot of kernel stat, among it hme0 is for the sun's build in 
 		  happy meal ethernet nic (see sunsolve infodoc 17416 for explanation of these 
 		  undocumented stats, good for trobleshooting network latency, comare agaist cisco stat.)
 netstat -s	: show high level packet send/receive/fragment info
+
 vmstat -a   : all 
        -n   : 
        -p   : process owning port

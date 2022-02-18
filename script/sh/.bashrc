@@ -304,7 +304,8 @@ add_hpcs_module () {
 
 	fi
 
-	export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
+	#--export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
+	export SIF=/global/home/groups/scs/tin/singularity-repo/perf_tools_latest.sif  # brc 2021.09
 	export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"
@@ -482,6 +483,8 @@ defineAlias () {
     alias sinfo-R='sinfo -R -S %E --format="%9u %19H %6t %N %E"'   # -Sorted by rEason (oper input reason=...) ##slurm
     # %E is comment/reason, unrestricted in length.  
     # once -R is used, it preced -N, but this output is good for sorting by symptoms
+	export SACCT_FORMAT="JobID%20,JobName,User,Partition,NodeList,Elapsed,State,ExitCode,MaxRSS,MaxVMSize,AllocTRES%32"  # better def output for sacct -j ref: https://docs.ycrc.yale.edu/clusters-at-yale/job-scheduling/resource-usage/
+
 
 
 	alias grep='grep --color=auto'
@@ -496,6 +499,7 @@ defineAlias () {
 	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
 	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
+	alias sanePaste='printf "\e[?2004l"'  # ie disable bracketed paste mode, do this before invoking tmux
 
 	###
 	### stuff for ETA/CMAQ
@@ -765,6 +769,8 @@ fi
 
 
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
+
+HISTCONTROL=ignorespace 
 
 ################################################################################
 # vim modeline, also see alias `vit`

@@ -1,0 +1,81 @@
+
+
+ciq
+k8s-dev-1
+
+fuzzball context   # can suport multiple fuzzball cluster, and change via context.  # think lrc vs brc
+
+# recorded 12:22pm 1.18
+fuzzall context create default api....nip..io https://  Fuzzball
+
+
+fuzzball context list
+fz context login
+
+# on a separate terminal, login via browser (text browser w3m can work, albeit bit clunky)
+w3m # text based browser
+w3m https://auth.192.168...
+1 # to accept self-signed cert
+login as fuzzball-admin
+
+
+workload, pipeline, like job that runs in hpc cluster
+
+fz workflow 
+fz workflow start # use yaml file 
+# can also use template, client or server side
+# pseudo cli interface
+
+
+
+have 3 control plane node and 1 worker node in the dev env
+
+container will be started with uid 0
+use ldap to map known user id
+
+port-forward... eg used to run jupyther notebook on compute node and have browser usable from a client
+# utilize geopc api for this?
+# user don't need to ssh to anything
+# mostly a gui 
+# install cli (on laptop) and use that cli for all work (no need to ssh to server, that's the design goal)
+
+# John concern about NFS port forward, below 1024, then get send to client... don't want client to NFS mount from using fuzzball cli/api
+
+DSL - some job descrition language
+define the workflow
+
+12:38 list sample dsl
+
+container, can do docker, github registry, can do private with username/pass
+
+
+fz workflow start --name printer-test printer.yaml  # 12:46pm
+fz workflow status --watch  --name printer-test hexid
+
+fz workflow log -f -name printer-test hexid
+# -f = follow, grap std out/err and display them (with some mark up)
+
+## the hexid is returned once a workflow is returned.  like docker instance id?
+## IMHO, this hexid is really annoying.  i submit 10 jobs and want to check their status.  now have to find all such hexid, rather than have 10 sequential job id.
+
+
+
+fz schedule hosts
+
+${{ }} server side template													# 12:55pm
+%{{ }} client side template
+${{ secrtet "users/user/aws/AccessKeyId" }}
+${{ secrtet "users/user/aws/AccessKeySecret" }}
+
+
+egres:
+	move data out of the volume created
+
+
+fz workflow exec --ty --namme printer-test hexid printer /bin/sh
+# so really just wrapper around docker
+# but why they need both name and hexid?  so redundant
+# container run as root
+# not in username space
+# integration with ldap... run under correct context (inside the container), need id provier for this to work
+

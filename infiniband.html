@@ -101,7 +101,7 @@ opensm 	# open fabric subnet manager.  run on one of the host.
 	# update /etc/init.d/opensm and start TWO instance of opensmd
 	# use -g GUID to specify which port each instance use.  this would overwrite config in /etc/opensm/opensm.conf. eg 
  	# /usr/sbin/opensm --daemon 
- 	# /usr/sbin/opensm --daemon -g 0x506b4b03007c00c2
+ 	# /usr/sbin/opensm --daemon -g 0x506b4b03007c00c2  --logfile /var/log/opensm_c2.log
 
 OFED has ib driver and opensm
 Mellanox compiled their own version and provide support for it, MLNX_OFED, aka MOFED.  has driver and opensm.  No more support for ConnectX-2 cards in 2018.

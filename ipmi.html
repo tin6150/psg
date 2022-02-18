@@ -95,6 +95,8 @@ ipmitool lan print 1	# iDRAC interface (could be shared if set so).  1 refer to 
 ipmitool lan set   1 ipaddr  10.10.58.140 		# set iDRAC interface IP (should be, need to verify it works)
 ipmitool lan set   1 defgw ipaddr  10.10.58.1		# set default gateway
 
+ipmitool lan set   1 vlan id 20				# if in network require vlan id tagging, set to use the correct id (eg: 20)
+
 ipmitool sdr		# print environment statistics
 ipmitool fru	
 
@@ -108,6 +110,11 @@ ipmitool delloem lan 	# dell specific command.  lan section set whether to use d
 ipmitool delloem lan set dedicated	# disable use of shared IPMI.  set once iDRAC enterprise module is installed.
 
 ipmitool delloem powermonitor	# display power usage info
+
+
+
+ipmi tag to vlan 20 (default is untagged):
+ipmitool lan set 1 vlan id 20
 
 
 ipmitool user list 1	# list users configured to use ipmi
@@ -127,6 +134,19 @@ ipmitool dcmi asset_tag 	# retrieve asset tag info
 ipmitool dcmi get_temp_reading	# cpu temperature
 ipmitool sensor			# many sensor info, may include inlet temperature
 
+ipmitool sel			# system event log, overview
+ipmitool sel list		# get list of events and dates.  eg, PSU AC lost.  additional example output:
+
+	3 | 08/12/2021 | 16:49:18 | Unknown #0x2e |  | Asserted
+	4 | 08/12/2021 | 16:49:18 | Memory #0x45 | Redundancy Degraded from Fully Redundant | Asserted
+	1 | 10/22/2020 | 00:44:54 | Event Logging Disabled #0x72 | Log area reset/cleared | Asserted
+	2 | 01/25/2021 | 19:00:24 | Power Supply #0x18 | Fully Redundant | Asserted
+	3 | 09/11/2021 | 22:23:05 | Memory #0x1b | Monitor | Asserted
+	4 | 10/27/2021 | 17:32:09 | Memory #0x1b | Monitor | Asserted
+
+ipmitool sensor | grep Current # on Dell C6400 see output like this, and 1 PSU likely dont have AC power:
+Current 1        | 0.000      | Amps       | ok    | na        | na        | na        | na        | na        | na
+Current 2        | 2.400      | Amps       | ok    | na        | na        | na        | na        | na        | na
 
 # if IPMI isn't working, in RHEL 6, it is a kernel module that need to be started
 # for machines with module:
@@ -223,6 +243,19 @@ ipmitool raw 0x2e 0xcc 0x5e 0x2b 0 0x0C 0x01 0x02 # set ipmi/bmc to use share ni
 # this was for the 4 nodes in 2U w/ intel E5-2640 v4 CPU
 </PRE>
 
+<H5>Dell ipmitool </H5>
+
+
+Dell maintain their <A HREF="https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=0992n">own version of ipmi</A> that handles complex situation that RHEL7 ipmitool didn't.
+eg: <BR>
+<BR>
+
+eg, this command is needed by some new Dell eg PE R7525 :
+<BR>
+<BR>
+/local/tin/dell_tool/iDRACTools/ipmitool/usr/bin/ipmitool delloem lan set shared with lom1
+
+<!-- c00.greta.local -->
 
 <H5>GNU freeipmi / ipmi-oem</H5>
 

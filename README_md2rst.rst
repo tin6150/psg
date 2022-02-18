@@ -81,4 +81,14 @@ stackoverflow pretty much use all the markdown syntax (except for code highlight
 and its summary is more concise than the markdown project doc.
 See: http://stackoverflow.com/editing-help
 
+think below should work.  See atlas.git README.md
+
+``` bash
+bash code here
+# no longer big title?
+```
+
+```
+just code
+```
 

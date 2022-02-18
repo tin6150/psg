@@ -17,7 +17,7 @@ browser render tab as 8 spaces for html PRE
 <table summary="Navigation header" width="100%">
   <tbody>
     <tr>
-      <th colspan="9" align="center">
+      <th colspan="16" align="center">
 	  
 <A HREF="http://tin6150.github.io/psg/linux.html">Sys Admin Pocket Survival Guide - Linux</A>
       </th>
@@ -37,6 +37,7 @@ browser render tab as 8 spaces for html PRE
       <td align="center"><a accesskey="e" href="emc.html">EMC</a></td>
       <td align="center"><a accesskey="i" href="isilon.html">Isilon</a></td>
       <td align="center"><a accesskey="L" href="ldap.html">LDAP</a></td>
+      <td align="center"><a accesskey="v" href="vagrant.html">vagrant</a>(VirtualBox)</td>
       <td align="right"><a accesskey="A" href="https://github.com/tin6150/inet-dev-class/tree/master/ansible">Ansible</a></td>
       <!-- most accesskey defined in psg2.html and linux.html 2020.1218.  use alt+LETTER for quick link out -->
     </tr>
@@ -63,6 +64,12 @@ documents that I have found on the internet. It is RedHat centric. <BR>
 <A HREF="centos.org">CentOS</A> is supposed to be a "rebadged/un-commercialized" version of RHEL, keeping binary-level compatibilities at major release level, thus the discussion should apply equally to CentOS and Scientifi Linux.
 <BR>
 Ubuntu is conquering the world now, so there are some Debian things here and there.  What is Linux anyway? :)
+<BR>
+<BR>
+
+funny/ugly/stupid chars when pasting?  See 
+<A HREF="vnc.html#bracketed_paste_mode">bracketed_paste_mode</A>
+<BR>
 <BR>
 
 <H1>HOW-TO</H1>
@@ -499,6 +506,7 @@ wget http://apache/conf/yp.conf -O /etc/yp.conf
 RHEL 4.x  - Use up2date
 RHEL 5.x  - Use yum
 	    rhn_register # automatically prompt for root password when run as user, X-based.
+RHEL 8.x  - Use did not finish, i mean dnf (yum alias to it)
 SuSE      - Use rug
 
 </PRE>
@@ -695,6 +703,13 @@ authconfig --enablenis --nisdomain=research --nisserver=nis1,nis2 --disableldap 
 	# and affect final behavior :(
 	# run test a/o check the resulting config file to be sure.
 
+authselect 	# replaced authconfig in rhel8
+authselect list
+authselect show sssd	
+
+sss_cache -E		# flush all cache
+sss_cache -u bob	# flush entry for specific user
+
 </PRE>
 
 Ref: 
@@ -800,7 +815,57 @@ ifconfig hme0 dhcp		see purple book.  (Solaris?)
 irouted
 
 
+
 </PRE>
+
+<A NAME="vif"></A>
+<A NAME="vlan"></A>
+<A NAME="vlan_tag"></A>
+<A NAME="8021q"></A>
+<H5>Virtual Interface vs VLAN Tag</H5>
+
+<PRE>
+
+eth0  is plain old default interface
+eth0:1 eth0:2 are virtual interfaces, with "traditional" single layer 2 eth config (ie no VLAN TAG)
+eth0.20 eth0.911 are interfaces with VLAN TAQ as required by switch.
+
+(switch could have "native vlan" that allow for default untagged traffic (eth frame is different between tag vs non tag eth frames.)
+
+
+adding virtual interface:
+ifcfg-eth0:1 
+
+
+adding interface with vlan tag 
+ifcfg-eth0.20
+ifcfg-eth0.911
+(no need to make this virtual, it automatically allow for multiple tagged interface per physical NIC.
+ie, there is never a need for eth0:1.911 or eth0.911:1, eth0.911 will be an additional interface to eth0 with the vlan id set)
+
+systemctl restart network
+-or-
+systemctl restart NetworkManger
+
+manual commands:
+modprobe --first-time 8021q
+# modinfo 8021q
+ip link add link enp0s3 name enp0s3.20 type vlan id 20
+ifconfig enp0s3.20 10.8.20.22 netmask 255.255.255.0 up
+
+ifcfg-enp0s3.20 , no need to be both virtual interface and vlan tag. it is already virtual.
+
+No need for "systemctl restart NetworkManger", though it doesn't hurt
+
+
+# ref: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/sec-configure_802_1q_vlan_tagging_using_the_command_line
+
+
+ipmi tag to vlan 20 (default is untagged):
+ipmitool lan set 1 vlan id 20
+
+</PRE>
+
 
 <H5>Link Aggregation</H5>
 See <A HREF="http://www.cyberciti.biz/tips/linux-bond-or-team-multiple-network-interfaces-nic-into-single-interface.html">
@@ -1155,6 +1220,11 @@ Ref:
 
 storcli is the replacement for megacli, should be easier to use and script. <BR>
 eg use for LSI Logic / Symbios Logic MegaRAID SAS-3 3108 <BR>
+<BR>
+
+For Dell PERC H730 controllers , 
+their perclci seems very much like the storcli, but they did some crap in there so storcli binary won't work, have to use the perccli tool from dell.  But same options.<BR>
+<!-- beppic2  -->
 <BR>
 
 Virtual Disk should be the center of gravity for work to present a "LUN" from the raid controller to the host OS.  <BR>
@@ -1615,6 +1685,29 @@ mount -t ext3 /dev/to/fs /mnt/myfs	# mount the file system on the newly imported
 
 </PRE>
 
+<H5>Moving LVM volume/disk group to another system</H5>
+
+
+See: <A HREF="https://tldp.org/HOWTO/LVM-HOWTO/recipemovevgtonewsys.html">tldp</A>.  
+Essentially: 
+<BR>
+
+<PRE>
+umount   /mount/to/FS
+vgchange -an VGNAME
+vgexport     VGNAME
+
+# move disk
+
+pvscan
+
+vgimport     VGNAME
+vgchange -ay VGNAME	# activate the Volume Group
+
+mount ... 
+
+</PRE>
+
 <H5>Removing LVM stuff</H5>
 
 
@@ -1837,6 +1930,10 @@ du -kxS * 	= display space usage Summary for only (x) one file sys (ie local)
 du -kl		= local disk in solaris?
 
 df -kl 		= report fs space usage of local fs, solaris and linux
+
+ncdu		= enhanced du, but  like du, still doesn't store/cache result, so take long time to scan.  but at least interactive drill down helps while program is not closed.
+
+
 
 </PRE>
 
@@ -2277,6 +2374,9 @@ see
 <LI> <A HREF="http://www.freenas.org/freenas-certified-servers/">FreeNAS ZFS-based storage</A> Not an endorsement, but maybe worthwhile to check them out.
 <LI>
 <LI> <A HREF="https://www.howtogeek.com/175159/an-introduction-to-the-z-file-system-zfs-for-linux/">howto geek</A> install, pool creation and extension.
+<LI> <A HREF="https://icesquare.com/wordpress/centosrhel-7-no-zfs-after-updating-the-kernel/">icesquare</A> Rant about zfs breaking with yum update, and possible solutions<BR>
+<LI> <A HREF="https://www.symmcom.com/docs/how-tos/storages/how-to-install-zfs-on-centos-7">SymmCom</A> describe using kABI rather than DKMS, which tends to break with kernel update.
+
 <!-- 
 <LI> <A HREF=" 
 -->
@@ -2344,6 +2444,15 @@ up2date -i 			# install downloaded patches
 up2date --config		# run configuration (GUI or TUI), register machine, set exclusion, etc
 </PRE>
 
+
+<H4>DNF (Did Not Finish-- Fedora, centos/redhat 8.x )</H4>
+
+yum is alias to dnf.
+<PRE>
+dnf list --showduplicates perl-interpreter
+</PRE>
+
+
 <H4>YUM (yellow dog, fedora, centos, redhat)</H4>
 
 <PRE>
@@ -2351,6 +2460,10 @@ yum			# yellow dog update modified, better rpm updated than up2date
 			# run cmd by itself will do all update automatically.
 			# not installed by default in RHEL 4, only in FC.
 yum update		# can be added to cronjob for auto update
+yum update  --security	# RHEL only, update rpm only if they are security related.
+yum update --cves  CVE-2021-4034	# update only rpm that fix the listed vulnerability (RHEL only)
+yum update polkit			# update specific rpm
+
 yum list		# list avail pkg and version number
 yum list  autofs	# list installed and avail pkg/ver for the pkg autofs
 yum info [pkgname]	# only display info of avail packages, opt followed by pkg name.
@@ -2374,6 +2487,10 @@ yum groupinfo "Development Tools" 		# cmake, cvs, and many other stuff is in the
 yum --setopt=group_package_types=optional groupinstall "@Development tools"
 
 </PRE>
+
+
+
+
 
 <H5>Creating YUM Repository</H5>
 
@@ -2471,6 +2588,19 @@ yast			# TUI far-style
 
 </PRE>
 
+<H4>Snap, Flatpack, AppImages</H4>
+
+<PRE>
+AppImages is not same as Aptainer (formerly Singularity)
+
+Snap is popularized by Ubuntu.  It is also a distro build system.
+
+Flatpack is popularized by Fedora
+
+Ponder about using them rather than building software via EasyBuild, Spack, and the like.
+
+</PRE>
+
 
 <A NAME="system_services"></A>
 <H2>System Services</H2>
@@ -2531,7 +2661,8 @@ chkconfig --level 345 SuSEfirewall2_setup  off	# turn off firewall
 <A NAME="perf"></A>
 <H1>Perforamnce</H1>
 
-see also <A HREF="#hwcmd">hw cmd</A>
+see also <A HREF="#hwcmd">hw cmd</A><BR>
+see also <A HREF="tool.html#cpupower">cpu_tuning</A><BR>
 <PRE>
 
 numactl -H
@@ -3902,6 +4033,8 @@ screen /dev/tty.usbserial 9600   # worked in mint 19
 	# ^a k 		: kill the connection (terminate screen and its use of /dev/tty...)
 	# ^a ^b    	: send break (for sun's go prompt)   (don't need ^B (upper case B))
 	# ^a b    	: send break (for sun's go prompt)   (after ^a, it is ^b OR just b, not a triplet of key seq to send the break)
+	# ^a H    	: beging/end loging to file screen.n  ie toggle capture to file.  capture output, non print password won't be captured
+	
 
 serial speed to try:
 9600
@@ -4157,7 +4290,8 @@ ctrl + alt + PrtScr ==> clipboard (current window)
 <HR>
 
 <div align="CENTER">
-<A HREF="https://twitter.com/Linux/status/822544617761603584"><IMG SRC="fig/knowYourPenguins_@Linux.jpg" ALT="Know Your Penguins - From @Linux Tweeter feed" WIDTH="96%"></A><BR>
+<A HREF="https://twitter.com/Linux/status/822544617761603584"><IMG SRC="fig/knowYourPenguins_@Linux.jpg" ALT="Know Your Penguins - From @Linux Tweeter feed" ><!--WIDTH="96%"--></A><BR> 
+Credit: <A HREF="https://twitter.com/Linux/status/822544617761603584">@Linux</A><BR>
 </div>
 
 

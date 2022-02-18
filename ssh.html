@@ -26,6 +26,7 @@
     <tr>
       <td align="left">  <a accesskey="h" href="psg2.html">Home</a>                     </td>
       <td align="center"><a accesskey="m" href="mrf.html">Modified RAID 5</a>           </td>
+      <td align="center"><a accesskey="x" href="linux.html">Linux</a>    	          </td>
       <td align="center"><a accesskey="d" href="docker.html">Docker</a>                 </td>
       <td align="center"><a accesskey="a" href="aws.html">AWS</a>                       </td>
       <td align="center"><a accesskey="l" href="lsf.html">HPC/Batch System</a>          </td>
@@ -53,6 +54,21 @@
 
 
 <H1>SSH, Tunnel, Port Forward</H1>
+
+<H3>Ponder</H3>
+
+<LI>PermitTunnel is disabled by default on openssh, it poses lots of serucrity problems for TCP ports, cuz sshd runs as root</LI>
+<LI>Stunnel: create tunnel wrapper to secure otherwise non encrypted TCP traffic</LI>
+<LI>sshuttle: mount NFS from ssh connection.  NFS server should only allow priviledged ports to mounts to mitigate this problem.  <BR>
+	sShuttle is amazing, but it also creates lots of security complications <BR>
+	Ref: <A HREF="https://etherarp.net/sshuttle-a-vpn-for-the-lazy/">SSHUTTLE - A VPN for the Lazy</A><BR>
+</LI>
+<LI>ssh agent forwarding.  with git not allowing password, this is increasingly a necessity.  But there are security risks.  SSH_AUTH_SOCK can be read by root, and hijack the session to impersonate the user running the agent foward.  There are mitigations, see <BR>
+	<A HREF="https://smallstep.com/blog/ssh-agent-explained/#:~:text=Agent%20forwarding%20comes%20with%20a,other%20machines%20on%20the%20network.">SSH Agent Explained</A>  <BR>
+	In sshd.conf, AllowAgentForward is independent of AllowTcpForwarding (and X11Forwarding).  <BR>
+</LI>
+<LI></LI>
+<LI></LI>
 
 <H3>Scripting SSH Login</H3>
 
@@ -299,22 +315,83 @@ This is another line.
 -->
 
 
+<A NAME="cert"></A>
+<A NAME="openssl"></A>
 <H1>OpenSSL</H1>
 
 certs, and stuff
+<BR>
+
+<PRE>
+# citrix method https://support.citrix.com/article/CTX135602
+openssl req -x509 -nodes -days 3285 -newkey rsa:2048 -keyout domain.key -out domain.crt -config san.conf -extensions 'v3_req'
+
+# human readable parse of a domain cert:
+openssl x509 -text -noout -in domain.crt 
+
+
+cp -pi      domain.crt /clusterfs/gretadev/data/registry_certs
+chmod 0400  domain.key                                           # secure private key
+mv -i       domain.key /clusterfs/gretadev/data/registry_certs   # secure private key
+chown 771              /clusterfs/gretadev/data/registry_certs/domain.key
+# docker registry seems to be internally using uid 771 in the container (v2.0)
+
+</PRE>
+
+<PRE class="cf">
+# cat san.conf 
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = v3_req
+prompt = no
+[ req_distinguished_name ]
+C = US
+ST = California
+L = Berkeley
+O = Lawrence Berkeley National Laboratory
+OU = GRETA
+CN = registry:443
+[ v3_req ]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1   = registry
+DNS.2   = registry:443
+DNS.3   = registry.gretadev
+DNS.4   = registry.gretadev:443
+DNS.5   = registry.gretadev.lbl.gov
+DNS.6   = registry.gretadev.lbl.gov:443
+</PRE>
 
 <PRE>
 
-# git only take .pem certs, convert .crt to .pem as:
+# docker registry cert for internally hosting ref: https://docs.docker.com/registry/insecure/#use-self-signed-certificates
+openssl req \
+  -newkey rsa:4096 -nodes -sha256 -keyout certs/domain.key \
+  -addext "subjectAltName = DNS:myregistry.domain.com" \
+  -x509 -days 365 -out certs/domain.crt
 
+# git only take .pem certs, convert .crt to .pem as:
 openssl x509 -in greyhound.crt -out greyhound.pem -outform PEM
 
 
 # check expiration date of a .pem file:
-
 openssl x509 -enddate -noout -in greyhound.pem
 
+
+# cli connect to a server (eg internal docker registry) and display cert it is using:
+openssl s_client -showcerts -connect registry:443
+
+
+
+# signing a new cert request with a SAN (Subject Alternate Name)
+openssl req -new -out greyhound_lbl_gov.csr -newkey rsa:2048 -nodes -sha256 -keyout greyhound_lbl_gov.key.temp -config san.cnf
+
 </PRE>
+
+
 
 <H5>certs for grafana container w/ ssl</H5>
 
@@ -335,6 +412,14 @@ mkdir CERTS_PRIV
 #   openssl req -newkey rsa:4096 -nodes -sha256 -keyout CERTS_PRIV/key.pem     -x509 -days 865 -out CERTS_PRIV/cert.pem
 
 
+</PRE>
+
+
+Other ssl cert testing commands
+
+<PRE>
+
+openssl s_client -connect freeipa.greta.gov:443 -showcerts
 </PRE>
 
 Ref:

@@ -163,6 +163,16 @@ In that sequence, to be completed within 3 seconds.
 Do you prefer UEFI?   Really??  <BR>
 Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <BR>
 
+<H2>nVidia DGX A100</H2>
+
+DEL or F2 = setup
+F11 = boot menu
+F12 = PXE boot
+
+Epyc 7742 64-core x2 
+2TB RAM?
+
+
 <H2>Penguin Computing</H2>
 <PRE>
 F2 = Setup
@@ -367,13 +377,26 @@ racadm help BIOS.SysProfileSettings.SysProfile  # list available modes (and depe
 </PRE>
 
 <H3>Other BIOS param</H3>
+
+see  PSG/script/hpc/record_bios_settings.sh  
+<BR>
+<BR>
+
 <!-- 
 
-## better to use  PSG/script/hpc/record_bios_settings.sh 
+## ***** really >>> 
+## ***** better to use  PSG/script/hpc/record_bios_settings.sh 
 
 x singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img   /opt/dell/srvadmin/sbin/racadm \
 x singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dell_idracadm.img         /opt/dell/srvadmin/sbin/racadm \
-  singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm \
+x singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm \
+  singularity exec -B /var/run  /global/home/groups/scs/tin/singularity-repo/tin6150-dell_idracadm-master-latest.simg  /opt/dell/srvadmin/sbin/racadm \
+
+export SIFracadm=/global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img
+singularity exec -B /var/run  $SIFracadm /opt/dell/srvadmin/sbin/racadm \
+ get BIOS.ProcSettings.LogicalProc    
+
+#### just use pdsh -w n0[218-229].savio3 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2021.0920
 
 # singularity-hub build probably won't work cuz build machine don't have an iDRAC :(
 
@@ -473,6 +496,10 @@ BIOS.ProcSettings
 DynamicCoreAllocation=Disabled 	-- This field enables or disables the OS capability to put logical processors in the idling state in order to reduce power consumption.
 ProcConfigTdp=Nominal 		-- This field allows reconfiguration of TDP (Thermal Design Power) to lower levels.
 
+
+AMD can't call Hyperthreading, they call it SMT, disabling it need to go to some obscure meny in BIOS, accept some waiver stuff, before can set thread per core.
+(at least in Asus)
+
 </PRE>
 
 
@@ -507,9 +534,11 @@ racadm racreset		# restart rac, like power cycling the service processor, but no
 
 Dell maintain their <A HREF="https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=0992n">own version of ipmi</A> that handles complex situation that RHEL7 ipmitool didn't.
 eg: <BR>
+<BR>
 ./ipmitool delloem lan set shared with lom1
 <!-- 
 ~tin/sw/dell_ipmi/ipmitool delloem lan set shared with lom1
+c00: /local/tin/dell_tool/iDRACTools/ipmitool/usr/bin/ipmitool delloem lan set shared with lom1
 -->
 
 <BR>

@@ -30,16 +30,17 @@
 <table summary="Navigation header" width="100%">
   <tbody>
     <tr>
-      <th colspan="4" align="center">
+      <th colspan="14" align="center">
 	  
 <A HREF="http://tin6150.github.io/psg/lsf.html">Sys Admin Pocket Survival Guide - HPC Batch System</A>
       </th>
     </tr>
     <tr>
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
-      <td align="center"><a accesskey="s" href="docker.html">Docker</a></td>
-      <td align="center"><a accesskey="p" href="aws.html">Amazon AWS</a></td>
-      <td align="right"><a accesskey="a" href="mpi.html">MPI</a></td>
+      <td align="center"><a accesskey="d" href="docker.html">Docker</a></td>
+      <td align="center"><a accesskey="a" href="aws.html">Amazon AWS</a></td>
+      <td align="center"><a accesskey="m" href="mpi.html">MPI</a></td>
+      <td align="right"><a accesskey="g" href="git.html">Git</a></td>
     </tr>
   </tbody>
 </table>
@@ -220,13 +221,17 @@ what account I am in?  what partitions are there?  What QoS are there?
 
 <PRE>
 
-sacctmgr show assoc user=USERNAME format=acc,part,qos	# list account, partition, QoS for the specified USERNAME
-sacctmgr show associations -p user=USERNAME	 	# see what associations a specified user has been granted, -p = "parsable"
+sacctmgr show associations -p user=tin                  # see what associations a specified user has been granted, -p = "parsable"
+sacctmgr show assoc user=tin    format=acc,part,qos        # list account, partition, QoS for the specified USERNAME
+sacctmgr show assoc user=tin    format=qos%58,acc%16,user%12,part%18,share%5,priority%16 
+sacctmgr show assoc user=tin -p format=acc,user,part,share,priority,qos  | sed "s/|/\t/g"
+
 scontrol show partition					# list "queues"
 
 sacctmgr show qos -p format=name		    	# list QoS
-sacctmgr show qos    format=Priority%8,Preempt%18,PreemptMode,name%26,MaxWall,MaxTRESPU,MaxSubmitPU,GrpTRES%22,MinTRES%22,UsageFactor,GraceTime,Flags%4 
-sacctmgr show qos    format=Priority%8,Preempt%18,PreemptMode,MaxWall,name%26,GrpTRES%22,MaxTRES%22,MinTRES%16,MaxTRESPU,MaxSubmitPU
+sacctmgr show qos    format=Name%24,Priority%8,Preempt%18,PreemptMode,GrpTRES%22,MinTRES%26 # savio
+sacctmgr show qos    format=name%26,Priority%8,Preempt%18,PreemptMode,MaxWall,MaxTRESPU,MaxSubmitPU,GrpTRES%22,MinTRES%22,UsageFactor,GraceTime,Flags%4 
+sacctmgr show qos    format=name%26,Priority%8,Preempt%18,PreemptMode,MaxWall,GrpTRES%22,MaxTRES%22,MinTRES%26,MaxTRESPU,MaxSubmitPU
 
 
 </PRE>
@@ -316,7 +321,8 @@ scontrol show partition		# view partition/queue info
 scontrol show nodes		# view nodes info (as specified to slurm.conf)
 scontrol show config		# view config of whole system (eg when asking mailing list for help)
 scontrol update PartitionName=debug MaxTime=60	# change the MaxTime limit to 60 min for the queue named "debug"
-scontrol update jobid=12345 TimeLimit=5-12	# change time limit of a specific job to 5.5 days
+scontrol show jobid -dd 1234567                 # see job detail, including end time
+scontrol update   jobid=1234567 TimeLimit=5-12	# change time limit of a specific job to 5.5 days (job runtime extension, but it is not adding time to existing, nor is it setting a new finish time, but change the original wall clock limit, so be sure that it is longer than previous setting, eg default of 3 days for some queue)
 
 sacct				# view accounting by individual job and job steps (more in troubleshooting below)
 
@@ -357,10 +363,12 @@ SBATCH_PARTITION=default_q	# specify the given partition as the default queue
 
 State with asterisk (*) (eg idle*, draining*) means node is not reachable.
 
-?? - reported by sinfo
+state as reported by sinfo
 down*	Down, * = unreachable
-drng	draining? 
-comp	??
+down?	Down, ? = node reserved
+drng	draining - ie job still running, but no new job will land on node
+drain	drained  - ie all jobs has been cleared
+comp	completing??
 idle	online, waiting for action
 alloc	allocated, ie running job
 mix	some cpu running job, but has more resource avail to run more jobs (non exclusive mode).
@@ -384,6 +392,9 @@ TO	TIMEOUT	-- typically time limit exceeded, at the QoS for the partition, user 
 
 
 </PRE>
+
+ref: 
+<A HREF="https://slurm.schedmd.com/sinfo.html#lbAG">sinfo state code</A>
 
 
 <A NAME="slurm_troubleshooting"></A>
@@ -489,7 +500,17 @@ sacct -u USERNAME --partition QNAME --format jobid,jobname,acc,qos,state,Derived
 sacct -u USERNAME -r QNAME -p       --format jobid,jobname,acc,qos,state,AllocNodes,AllocTRES,Elapsed,Timelimit,NNodes		
 
 # no data on these max ...
-sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask   
+sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask,MaxVMSize,MaxRSS
+
+# MaxRSS will be collected when slurm.conf has clause 'JobAcctGatherType=jobacct_gather/cgroup' 
+# ref: https://slurm.schedmd.com/cgroups.html
+# seff script likely depend on this as well 
+export SACCT_FORMAT="JobID%20,JobName,User,Partition,NodeList,Elapsed,State,ExitCode,MaxRSS,AllocTRES%32,MaxVMSize"
+sacct -j $JOBID		# would report max memory usage under MaxRSS, when configured
+
+# what node a specific job ran on:
+sacct -o job,user,jobname,NodeList,AllocNode,AllocTRES,DerivedExitCode,state,CPUTime,Elapsed  -j 10660573,10666276,10666277,10666278
+
 
 
 # example of querying jobs ran in a certain time frame:
@@ -550,13 +571,20 @@ sacctmgr list = sacctmgr show
 
 # "create association" is
 # really updating user entry, adding parition it can use, qos, etc
-sacctmgr add user tin Account=scs  Partition=alice0 # if no qos is specified, all qos are added.
+sacctmgr add user tin Account=scs  Partition=alice0 qos=condo_gpu3_normal,savio_lowprio  # if no qos is specified, some default will be created?  dont tend to have desirable result
 sacctmgr delete user tin Account=scs Partition=savio3,savio3_bigmem
 sacctmgr add user tin Account=scs  Partition=savio3,savio3_bigmem qos=normal,savio_debug,savio_lowprio,savio_normal
 
 for User in "scoggins kmuriki wfeinstein"; do 
 	sacctmgr add user $User Account=scs  Partition=savio3,savio3_bigmem qos=normal,savio_debug,savio_lowprio,savio_normal
 done
+
+
+# if need to do changes, modify user dont seems to be very fine tuned.  
+# maybe better off removing the very specific association and recreate it
+# but be careful to specify all param of the delete least it delete more assoc entries than desired.
+sudo sacctmgr delete user where user=nat_ford account=co_dw partition=savio3_gpu
+sudo sacctmgr add user nat_ford account=co_dw partition=savio3_gpu QOS=dw_gpu3_normal,savio_lowprio DefaultQos=dw_gpu3_normal
 
 </PRE>
 
@@ -656,6 +684,7 @@ slurmd		# node daemon, one per compute node
 		# launch and manage task
 		# optionally, the node daemon can use hierarchical tree (multi-levels), where
 		# leaf nodes does not connect directly to slurmctld, for better scalability.
+slurmd -C 	# print out RealMemory, cpu/core config, etc needed for slurm.conf
 
 
 slurm*d -c	# clear previous state, purge all job, step, partition state

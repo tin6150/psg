@@ -440,6 +440,10 @@ to truely reset/remove old entries that does not wish to be still allowed
 <BR>
 <BR>
 
+Example config snipplet, which include "rich rules" (iptables rules within a firewalld zone)
+<A HREF="conf/firewalld_public.xml">conf/firewalld_public.xml</A>
+<BR>
+<BR>
 
 <H5>Precedence</H5>
 
@@ -465,6 +469,26 @@ ref:
 	<A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/security_guide/sec-working_with_zones">RHEL7 firewallD Zones</A>
 
 </UL>
+
+
+<PRE>
+tmp
+public.xml firewalld direct edit of
+
+
+  <rule family="ipv4">
+    <source address="169.229.192.0/24" />
+    <service name="ssh" />
+    <accept/>
+  </rule>
+
+  <rule family="ipv4">
+    <source address="169.229.192.0/24" />
+    <to-port="104" />
+    <accept/>
+  </rule>
+
+</PRE>
 
 <H5>Masquerade/NAT</H5>
 
