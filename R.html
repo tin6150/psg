@@ -142,6 +142,19 @@ PH 142 stat class by Mi-Suk Kang Dufour</A>
 <H6>dplyr</H6>
 <PRE>
 
+PPDAC = Problem, Plan, Data, Analyze, Conclusion.
+
+3 main poblem types for stat using PPDAC model:
+● Descriptive: learning about some particular attribute of a population
+● Causative/Etiologic: do changes in an _explanatory_ variable cause changes in a response variable?
+  eg: study the whole scatter plot of how x relates to y
+● Predictive: how can we best predict the value of the response variable for an individual
+  eg: laser focus on individual, how to use all the stat knowledge and figure out what will happen to 1 person
+
+
+Note it is explaNAtory, not exploRAtory, for the x vs y axis interpretation!
+
+
 col operation
 select() 	# awk picking column
 mutate() 	# add computed column
@@ -550,7 +563,8 @@ library(readxl)
 spending_dat = read_xlsx("country-spending.xlsx", sheet = 2, range = "A7:D47" )
 
 
-library(dplyr)
+library(tidyverse)  # provides tidy
+library(dplyr)      # provides %>%
 
 ## back ticks must be used when variable name has space in them
 ## thus use rename() to change the variable name (column heading)
@@ -711,6 +725,68 @@ insure_model = lm(charges ~ age, data=insure_subset)
 paused in line 387 ++FIXME++
 </PRE>
 
+
+<H5>Lecture 11-13 - Probability (week 5, post Midterm 1)</H5>
+
+<PRE>
+
+dplyr::sample_n( tbl=cold_data, size=5 )    # reader p24
+geom_density    # reader p50
+
+
+## Lab04 ?    HW04 
+round( 123.4567, digits=1 )   # round to 1 decimal place
+
+uncount()
+library(janitor)
+janitor.tibyl    # tabulate
+janitor.adorn_
+
+
+# lab04 video ~[19:00]
+# Try using uncount() and tabyl() here!
+chd_dat_exp = chd_dat %>% uncount(n)     # n is the col for number of individual  uncount()expands to individual row, end up with long table!
+#chd_dat_exp
+
+chd_dat_exp %>%
+  tabyl(Smoking, CHD,  Age) %>%
+        ^^rows   ^col  ^stratified tables
+
+eg output:
+$old            #CHD=        #CHD=
+ Smoking           no          yes
+  +->  no 70.00% (490) 30.00% (210) <-- cell b: smoke=no,CHD=yes (age=old)
+  \-> yes 40.00% (120) 60.00% (180)
+          ^^^^^^^^^^^^
+          cell c is smoke=ye
+                    CHD=no
+
+
+chd_dat_exp %>% janitor::tabyl(Smoking, CHD, Age) %>%
+  janitor::adorn_percentages("row") %>%
+  janitor::adorn_pct_formatting(digits=2) %>%
+  janitor::adorn_ns()    # give n values in parenthesis
+
+</PRE>
+
+<H5>Lecture 14 - Normal Distribution (week 6)</H5>
+
+HW04 seems to need material from here.
+
+<PRE>
+
+mean is value on x-axis where peak of curve is
+sd, standard deviation, is reflected on how tall and fat the curve of the CDF is.
+
+# need to elaborate, is it really x,y for p,q?
+pnorm( q=x,    mean=m. sd=sigma)  : provide q as input, get p as output, which is probability (ie area of the CDF)
+	x is a cut off point, up to this value.  area on left is the probility
+	eg P( x<1.2) 
+qnorm( p=area, mean=m, sd=sigma)  : provide p as input, get q as output, which is x axis 
+
+rnorm( )
+
+</PRE>
 
 <BR><BR>
 <HR>
