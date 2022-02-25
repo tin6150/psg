@@ -792,6 +792,69 @@ rnorm( )
 <HR>
 <BR>
 
+<!-- merge marker 0224 -->
+
+<H5>Lecture 15</H5>
+<PRE>
+
+qqplot ...
+quantile-quantile ploto
+
+quantile = row_number() / n()
+z_score = qnorm(quantile, mean=m,sd=sigma)
+
+can let R do this for us.
+ggplot( ex_data, aes( sample=y ) ) + stat_qq() + stat_qq_line() + theme_minimal( base_size=15 )  # L15 slide 10
+
+
+## ah, go back to lecture Rmd to get data and play with these code?  eg with seed count vs weight data.
+
+
+Gaussian  == Normal
+Bernoulli == Binomial
+
+params for normal: 
+	mean, std dev
+
+params for binomial: 
+  number of trials
+  prob of success  (ie, how frequent get yes, head, true, etc)
+  need independent outcomes.
+
+dbinom(1,size=2,prob=0.29)
+discrete binomial
+# need to formulate better notes ++
+
+slide 41, [~35:20]
+simulate data... pop size of 10,000 containers , 10% contaminated
+container.id = 1:10000
+benzene = c( rep(0,9000), rep(1, 1000) )     # this create random placement of 0 (failure) and 1 "success" in the indicated total freq (9k and 1k, respectively)
+pop_data = data.frame(container.id, benzene)
+
+set.seed(1)
+
+# provide whole pop stat: ??
+pop_stats  = pop_data %>% summarize( pop_num_success = sum(benzene), pop_mean = mean(benzene) )
+# draw a sample of 10 and see which one has beneze...
+sample_dat = pop_data %>% sample_n(10)  %>% summarize(...) 
+
+# these are more like simulation code, creating a hypothetical data set and seeing the distribution stat.
+
+
+head(many.sample.stats) ##??
+
+## pop is 20x larger than sample size, then generally considered selection not affecting the next outcome, cuz it is a tiny diff, won't affect conclusion.
+
+# this seems to be what HW04 was asking for.
+
+
+[42:00]
+X big x is 
+little x ... 
+P(X=x)  number of success equal to some value...
+
+
+</PRE>
 
 <H1>R</H1>
 
