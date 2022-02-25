@@ -771,26 +771,66 @@ chd_dat_exp %>% janitor::tabyl(Smoking, CHD, Age) %>%
 
 <H5>Lecture 14 - Normal Distribution (week 6)</H5>
 
-HW04 seems to need material from here.
+
+
+<LI> rnorm(n = 100, mean = 2, sd = 0.4), to generate Normally distributed
+data from the specified distribution
+<LI> pnorm(q = 1.2, mean = 0, sd = 2), to calculate the cumulative
+probability below a given value
+<LI> qnorm(p = 0.75, mean = 0, sd = 1) to calculate the x-value for which
+some percent of the data lies below it
+<LI> stat_qq() and stat_qq_line() to make a QQplot. Notice that
+aes(sample = var1) is neede
+
+
+<BR>
+
+(HW04 seems to need material from here.)
+
+
+<H6>Finding Normal *Probabilities* - pnorm</H6>
+
+calc probability using pnorm( q=x ) given specific value of x
 
 <PRE>
+
+pnorm( q=x, mean=0, sd=1, lower.tail=T )  # last 3 params are defaults in R
 
 mean is value on x-axis where peak of curve is
 sd, standard deviation, is reflected on how tall and fat the curve of the CDF is.
 
-# need to elaborate, is it really x,y for p,q?
-pnorm( q=x,    mean=m. sd=sigma)  : provide q as input, get p as output, which is probability (ie area of the CDF)
-	x is a cut off point, up to this value.  area on left is the probility
-	eg P( x<1.2) 
-qnorm( p=area, mean=m, sd=sigma)  : provide p as input, get q as output, which is x axis 
-
-rnorm( )
+pnorm( q=x,    mean=m. sd=sigma)  : provide q as input, get probability as output, which is AUC up to the cut off point q=x)
+	x is a cut off point, up to this value.  area on left is the probility (CDF)
+	eg P( x<1.2)  --->  prob with x as cut off at 1.2.  in r is:
+	pnorm( q=1.2 ) # default mean=0, sd=1
+	the result is the AUC up to the cut off point q of x=1.2.  # slide 35
 
 </PRE>
 
-<BR><BR>
-<HR>
-<BR>
+<H6>Finding Normal *Percentiles* - qnorm</H6>
+
+<PRE>
+Finding Normal Prob is calc probability using pnorm( q=x ) given specific value of x
+Here is the inverse:
+Given the probability, find the corresponding x-value.
+qnorm() is the function for this task.
+(slide 43)
+
+the percentile given is the area under the curve, thus:
+
+qnorm( p=area, mean=mu, sd=sigma)  : provide p as input, get q as output, which is on the x axis .  
+
+eg, given a N(mu,sigma), want to know the 75%, what x value that corresponds to.  qnorm(0.75) provides the answer.
+
+</PRE>
+
+<H6>Standard Normal and z-score </H6>
+
+<PRE>
+(slide 48)
+</PRE>
+
+rnorm( )
 
 <!-- merge marker 0224 -->
 
@@ -855,6 +895,14 @@ P(X=x)  number of success equal to some value...
 
 
 </PRE>
+
+<!-- merge marker abcd -->
+
+<BR><BR>
+<HR>
+<BR>
+
+<!-- merge marker xyz  -->
 
 <H1>R</H1>
 
@@ -1282,7 +1330,7 @@ d for "density", the density function (p.f. or p.d.f.)
 
 r for "random", a random variable having the specified distribution
 	Generating random numbers from a standard normal distribution
-	N(miu=0,sigma=1)  # N cursive, miu=mean of 0, sigma=standard deviation of 1
+	N(mu=0,sigma=1)  # N cursive, mu=mean of 0, sigma=standard deviation of 1
 	rnorm(n=1, mean=0, sd=1 )
 	Python: scipy.stats.norm.rvs( loc=0, scale=1, size=1, random_state=123 ) # random_state is optional, use seed for repeatable/determinsistic result
 	If n or size > 1 get a vector.
