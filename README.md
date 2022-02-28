@@ -95,8 +95,21 @@ See: http://stackoverflow.com/editing-help
 # Rmd only
 
 // see stat 142 Lab 04 for detail
+// Tex rendering in Rmd doc by enclosing expression in $tex cmd$
+
+// single $ before and after
+// render to final output eg PDF (or html)
 $P(+ \mid D)$   
 renders as P(+|D)
 the dollar sign delimiter some rendering.  Tex?  Rstudio, hoover them will render the human friendly "graphics"
 \mid is midbar?  it is the pipe symbol.
+
+// double $ before and after
+// render in preview doc as well.
+$$P(0\cup 1)= P(0)+P(1)=1$$
+\cup is likely the Union symbol
+
+$\dot\sim$ is read as "approximately distributed as".
+when feeling lazy, can use use \sim
+
 
