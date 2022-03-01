@@ -965,6 +965,22 @@ P(X=x)  number of success equal to some value...
 
 <!-- merge marker abcd -->
 
+<PRE>
+HW04
+(R quirkyness, though undertandable if understand the underneath mechanics)
+
+    these two are slightly different
+output_01 = sim_01 %>% as.data.frame() 
+output_01 =            as.data.frame(sim_01) 
+    as.data.frame() with "piped input" don't get a name of the source variable
+    and as a result, subsequent rename will not find it.
+    thus, only the latter of the next two line works:
+output_01 = sim_01 %>% as.data.frame()       %>% rename(birth_defect = sim_01)   # rename fails!
+output_01 =            as.data.frame(sim_01) %>% rename(birth_defect = sim_01)   # rename works
+
+</PRE>
+
+
 <BR><BR>
 <HR>
 <BR>
