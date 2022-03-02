@@ -983,24 +983,34 @@ template tree diagram for bayes in ascii, potential paste for lab or exam:
 ref: Lect 13 wk5 reader p131
 study (pop) = medicare enrolled heavy smokers
 
-         /-- C+
-       T+
-     /   \-- C-
+         /-- T+
+       D+
+     /   \-- T-
 study
-     \    /---- C+
-       T-
-          \---- C-
+     \    /---- T+
+       D-
+          \---- T-
 
+lecture example:
+first layer for disease state D+/D-
+second layer for test result  T+/T-
 
 Rmd ascii 2x2 contingency table:
 
 
-2x2   | C+       | C-  | margin |
+2x2   | D+       | D-  | margin |
 ------|----------|-----|--------|
 T+    |   26.7   | 67.9|  94.6  |
 T-    |    3.3   |902.1| 905.4  |
 margin|   30     |970  |1000    |
 
+
+|            |   Diease     | Disease     | (Margin)     |
+|            |   True +     |  True -     |  Sum         |
+|------------|--------------|-------------|--------------|
+| test +     |        TP    |    FP       | denom of PPV |
+| test -     |        FP    |    TN       | denom of PPN |
+| sum        | denom of Se  | denom of Sp | pop tot      |
 
 </PRE>
 
