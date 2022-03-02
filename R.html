@@ -978,6 +978,30 @@ output_01 =            as.data.frame(sim_01)
 output_01 = sim_01 %>% as.data.frame()       %>% rename(birth_defect = sim_01)   # rename fails!
 output_01 =            as.data.frame(sim_01) %>% rename(birth_defect = sim_01)   # rename works
 
+
+template tree diagram for bayes in ascii, potential paste for lab or exam:
+ref: Lect 13 wk5 reader p131
+study (pop) = medicare enrolled heavy smokers
+
+         /-- C+
+       T+
+     /   \-- C-
+study
+     \    /---- C+
+       T-
+          \---- C-
+
+
+Rmd ascii 2x2 contingency table:
+
+
+2x2   | C+       | C-  | margin |
+------|----------|-----|--------|
+T+    |   26.7   | 67.9|  94.6  |
+T-    |    3.3   |902.1| 905.4  |
+margin|   30     |970  |1000    |
+
+
 </PRE>
 
 
