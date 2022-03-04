@@ -775,18 +775,28 @@ chd_dat_exp %>% janitor::tabyl(Smoking, CHD, Age) %>%
 
 
 <LI> rnorm(n = 100, mean = 2, sd = 0.4), to generate Normally distributed data from the specified distribution
+<LI>
 <LI> pnorm(q = 1.2, mean = 0, sd = 2), to calculate the cumulative probability below a given value
 <LI> qnorm(p = 0.75, mean = 0, sd = 1) to calculate the x-value for which some percent of the data lies below it
 <LI> stat_qq() and stat_qq_line() to make a QQplot. Notice that aes(sample = var1) is neede
 <LI>
-<LI> dbinom(x=1, size=2,prob=0.29) binomial is weired, use the d- class density function instead.  [Lect 15 slide 39]  <BR>
+<LI> dbinom(x=3, size=10,prob=0.29) binomial, exactly X=x    [Lect 15 slide 39]  <BR>
+<LI> pbinom(k=3, size=10,prob=0.29) binomial, CUMULATIVE prob, X <= k.   [Lect 16 slide 35]  <BR>
      dbinom(#success,size,prob of success)  <BR>
-     dbinom is referred as discrte prob of binom...
+     dbinom is referred as discrte prob of binomial, (it is not the density fn as when applied to normal dist?)
+<LI>
 <LI> sim_01 = rbinom(n=200,size=1,prob=0.3030)  # think of the rbinom as "200 choose 1, with prob of 30.30%"  but not quite?
+<LI>
+<LI> pois = poisson dist, similar to binomial, but no upper bound.  typically for rare events, eg Infect Disease. [Lec 17 wk7]
+<LI> dpois(x=?, lambda=?)  discrete prob,   when x=exact number.  lambda (aka mu, ie average)  is the sole param in poisson.
+<LI> ppois(x=?, lambda=?)  continuous prob, for x up to value specified.  up to and including.  X<=k  **if do lower.tail=FALSE then decrement k by 1 to properly account for the discrete unit change.  [Lect 17 slide 18].  eg:
+    1-ppois(q=3,lambda=0.1)   # ans: [1] 3.846834e-06 <BR>
+      ppois(q=3,lambda=0.1,lower.tail=FALSE) <BR>
+<LI>
+
 
 <BR> <BR>
 
-(HW04 seems to need material from here.)
 
 <BR> <BR>
 
@@ -893,8 +903,6 @@ obj:
   - discuss exact vs. cummulative probabilities for the binomial 
   - introduce some R code for binomial distributions
 
-#mergemarker 0227
-
 
 QQplot ...
 quantile-quantile plot
@@ -916,14 +924,25 @@ Bernoulli == Binomial
 params for normal: 
 	mean, std dev
 
-params for binomial: 
-  number of trials
-  prob of success  (ie, how frequent get yes, head, true, etc)
-  need independent outcomes.
+params for binomial, these 2 params are enough to tell shape of the distribution graph: 
+  1. number of trials, number of samples to pick.  eg n=10 for sampling 10 bottles.  size param in R dbinom/pbinom
+  2. prob of success  (ie, how frequent get yes, head, true, contaminated by benzene, etc)
 
-dbinom(1,size=2,prob=0.29)
-discrete binomial
-# need to formulate better notes ++
+Binomial need independent outcomes.  sample picking must be from a large batch, pop size >> sample size.  at least 20x was good?
+  
+Also needed for calculations:
+  * k, like "n choose k", k is the number of success being sought for (eg k = 3 bottles contaminated by benzene)
+
+dbinom(k,n,p)   X=x   exact, (k is standin for x, fuzzy when to use which)
+pbinom(k,n,p)   X<=k  cumulative, up to 
+
+dbinom(x=3, size=10,prob=0.29) binomial, DISCRETE prob,    X=x exactly. param name is x in R [Lect 15 slide 39]
+pbinom(q=3, size=10,prob=0.29) binomial, CUMULATIVE prob,  X<=k.        param name is q in R [Lect 16 slide 35] 
+
+can still calculate:
+mean: mu = n*p
+std dev: sigma = sqrt( n*p*(1-p) )
+
 
 # rep() = replicate elements of Vectors and Lists
 # sequentially placed, ie NOT randomized placement
@@ -978,6 +997,11 @@ output_01 =            as.data.frame(sim_01)
 output_01 = sim_01 %>% as.data.frame()       %>% rename(birth_defect = sim_01)   # rename fails!
 output_01 =            as.data.frame(sim_01) %>% rename(birth_defect = sim_01)   # rename works
 
+</PRE>
+
+ascii diagram , ascii arts =P
+
+<PRE>
 
 template tree diagram for bayes in ascii, potential paste for lab or exam:
 ref: Lect 13 wk5 reader p131
@@ -1014,6 +1038,43 @@ margin|   30     |970  |1000    |
 
 </PRE>
 
+
+<H2>Lecture 17: Poisson Dist</H2>
+
+<LI> pois = poisson dist, similar to binomial, but no upper bound.  typically for rare events, eg Infect Disease. [Lec 17 wk7]
+<LI> dpois(x=?, lambda=?)  discrete prob,   when x=exact number.  lambda (aka mu, ie average)  is the sole param in poisson.
+<LI> ppois(x=?, lambda=?)  continuous prob, for x up to value specified.  up to and including.  X<=k  **if do lower.tail=FALSE then decrement k by 1 to properly account for the discrete unit change.  [Lect 17 slide 18].  eg:
+    1-ppois(q=3,lambda=0.1)   # ans: [1] 3.846834e-06 <BR>
+      ppois(q=3,lambda=0.1,lower.tail=FALSE) <BR>
+<LI>
+
+<PRE>
+simulation  for 5 years  see reader page 50
+
+rpois( n=12*5, lambda=0.536 )
+
+vs manual simulation
+
+set.seed(200)
+polydactyly=(rpois(n = 12*5, lambda = 0.536))
+polydactyly
+
+mean(polydactyly)  # 0.45,       randomness and small sample made our number differ from theoretical of 1/500*268 = 0.536  [27:45]
+sd(polydacttyly)   # 0.64
+
+
+when to use poisson vs binomial...
+[33:08]
+mean of binomial outcome 
+vs
+how many success of failure from larger size (poisson).
+
+(hmm... fuzzy... real diff i hear is that binom has a cap, a finite size, vs poisson is infinite)
+
+
+</PRE>
+
+<!-- merge marker 0303  -->
 
 <BR><BR>
 <HR>
@@ -1447,6 +1508,8 @@ q for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha; 
 
    	
 d for "density", the density function (p.f. or p.d.f.)
+	or more often discrete?  eg dbinom, dpois
+  
    		
 
 r for "random", a random variable having the specified distribution
@@ -1457,7 +1520,7 @@ r for "random", a random variable having the specified distribution
 	If n or size > 1 get a vector.
 	Excel:  norm.s.inv( rand() )
 
-pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution
+pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution.  [d- and p- are typically grouped as they are often for discrte vs continuous dist, ie X=exact vs X<=up-to a specific value ]
 
 pbinom  qbinom  dbinom  rbinom - for binomial distribution
 pchisq	qchisq	dchisq	rchisq - for Chi-Square   scipy.stats.chi2.cdf() etc
