@@ -793,6 +793,8 @@ chd_dat_exp %>% janitor::tabyl(Smoking, CHD, Age) %>%
     1-ppois(q=3,lambda=0.1)   # ans: [1] 3.846834e-06 <BR>
       ppois(q=3,lambda=0.1,lower.tail=FALSE) <BR>
 <LI>
+<LI> r____(n=?, param) : r-class is always for generating random number of entries for simulation, according to parameters necessary for the stat dist (so Normal vs Binom vs Poisson would take different number of params).
+<LI>
 
 
 <BR> <BR>
@@ -1015,6 +1017,18 @@ study
        D-
           \---- T-
 
+
+HIV status:
+
+         /-- Test+     0.9985
+       Ab+
+     /   \-- Test-     0.0015
+root  
+     \    /---- Test+  0.0060
+       Ab-
+          \---- Test-  0.9940 
+
+
 lecture example:
 first layer for disease state D+/D-
 second layer for test result  T+/T-
@@ -1033,7 +1047,7 @@ margin|   30     |970  |1000    |
 |            |   True +     |  True -     |  Sum         |
 |------------|--------------|-------------|--------------|
 | test +     |        TP    |    FP       | denom of PPV |
-| test -     |        FP    |    TN       | denom of PPN |
+| test -     |        FN    |    TN       | denom of PPN |
 | sum        | denom of Se  | denom of Sp | pop tot      |
 
 </PRE>
