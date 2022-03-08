@@ -137,6 +137,34 @@ Much of the R code below are from the
 PH 142 stat class by Mi-Suk Kang Dufour</A>
 
 
+<H2>course core concepts - ccc</H2>
+
+<PRE>
+in: x-axis value.  out: AUC, which is prob of event x
+	d- (density) and p- (distribution) class of function.  eg dnorm, dpois , pbinom,
+in: AUC, a probability of event.  out: x-axis value.  eg, have 60% chance of event, what is the expected value.
+	q- (quantile) class of function.  eg qpois, qbinom,
+generate a list of possible values according to a distribution.
+	r- (random) class.  eg rnorm(n,mean,sd)
+eg: sim_01 = rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
+
+
+	• dnorm(x=…, mean = 0, sd = 1 )    density .  (in dbinom is exact value, but for Norm dist of continuous var, this does not usually make sense (?)
+	• pnorm(q = 1.2, mean = 0, sd = 2), to calculate the cumulative probability below a given x-axis value
+	• qnorm(p = 0.75, mean = 0, sd = 1) to calculate the x-value for which some percent of the data lies below it (ie input is AUC, a probability value, thus named p=… in first input argument)
+
+	• dbinom(x=#success,size,prob of success)    k=number of successful event desired, exact match.
+	• pbinom(q=k, size=10,prob=0.29) binomial, CUMULATIVE prob, X <= k. [Lect 16 slide 35]
+	• qbinom(p, size, prob, lower.tail=T)
+	• rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
+
+	• dpois(x=…, lambda=mu) : discrete prob, X=x exact value.
+ppois(q=k, lambda=mu)  : cumulative, up to X<=k
+
+
+
+</PRE>
+
 
 <H2>Exam 1: Review</H2>
 
@@ -904,6 +932,7 @@ obj:
   - What is the theoretical distribution for binomials 
   - discuss exact vs. cummulative probabilities for the binomial 
   - introduce some R code for binomial distributions
+  - choose(n,k) is the R fn for C(n,k) aka "n choose k"
 
 
 QQplot ...
@@ -912,12 +941,10 @@ quantile-quantile plot
 quantile = row_number() / n()
 z_score = qnorm(quantile, mean=m,sd=sigma)
 
-can let R do this for us.
-ggplot( ex_data, aes( sample=y ) ) + stat_qq() + stat_qq_line() + theme_minimal( base_size=15 )  # L15 slide 10
-
-
-## hmm, go back to lecture Rmd to get data and play with these code?  eg with seed count vs weight data.
-## did not find any lecture Rmd file with stat_qq :-\
+R can do the qq plot automatically, instead of doing the manual calc with z-score and stuff.
+counts = c(18, 4, 22, 15, 18, 19, 22, 12, 12)     # number of trees in 9 plots as vector
+tree_data = data.frame(counts)                    # convert to df, as that's what ggplot (?stat_qq) needs
+ggplot(tree_data, aes(sample=counts)) + stat_qq() + stat_qq_line()   # L15 slide 10, hw05 wk07
 
 
 Gaussian  == Normal
@@ -1057,7 +1084,7 @@ margin|   30     |970  |1000    |
 
 <LI> pois = poisson dist, similar to binomial, but no upper bound.  typically for rare events, eg Infect Disease. [Lec 17 wk7]
 <LI> dpois(x=?, lambda=?)  discrete prob,   when x=exact number.  lambda (aka mu, ie average)  is the sole param in poisson.
-<LI> ppois(x=?, lambda=?)  continuous prob, for x up to value specified.  up to and including.  X<=k  **if do lower.tail=FALSE then decrement k by 1 to properly account for the discrete unit change.  [Lect 17 slide 18].  eg:
+<LI> ppois(q=?, lambda=?)  continuous prob, for x up to value specified.  up to and including.  X<=k  **if do lower.tail=FALSE then decrement k by 1 to properly account for the discrete unit change.  [Lect 17 slide 18].  eg:
     1-ppois(q=3,lambda=0.1)   # ans: [1] 3.846834e-06 <BR>
       ppois(q=3,lambda=0.1,lower.tail=FALSE) <BR>
 <LI>
@@ -1472,7 +1499,7 @@ Result: vector without NAs.
 <H5>stat functions</H5>
 
 Ref: <BR>
-- <A HREF="https://www.stat.umn.edu/geyer/old/5101/rlook.html#:~:text=dnorm%20is%20the%20R%20function,standard%20deviation%20of%20the%20distribution.">"UNM Stat 5101"</A>
+- <A HREF="https://www.stat.umn.edu/geyer/old/5101/rlook.html">"UNM Stat 5101"</A>
 <BR>
 
 - <A HREF="http://eric.univ-lyon2.fr/~ricco/tanagra/fichiers/en_Tanagra_Calcul_P_Value.pdf">CDF and PPF in Excel, R and Python</A> (good graphical guide covering what the p, q, d, r functions cover.)
@@ -1507,7 +1534,7 @@ p for "probability", the cumulative distribution function (c.d.f.)
 	scipy.stats.norm.sf( 27.4, 50, 20 )     # sf = 1 - cdf
 
 
-q for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha; )
+q- for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha; )
 	Have AUC (ie probability or p-value, typically alpha=0.05), get value of x (aka q, quantile)
    	p = F(x)
 	x = F-inv(p)
@@ -1521,12 +1548,12 @@ q for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha; 
    	Excel: norm.inv( 0.95, 100, 15 ) .  Excel has a norm.s.inv(0.05), but only take mean=0 sd=1.
 
    	
-d for "density", the density function (p.f. or p.d.f.)
+d- for "density", the density function (p.f. or p.d.f.)
 	or more often discrete?  eg dbinom, dpois
   
    		
 
-r for "random", a random variable having the specified distribution
+r- for "random", a random variable having the specified distribution
 	Generating random numbers from a standard normal distribution
 	N(mu=0,sigma=1)  # N cursive, mu=mean of 0, sigma=standard deviation of 1
 	rnorm(n=1, mean=0, sd=1 )
