@@ -797,12 +797,15 @@ adding route:
 
 route add default gw 192.168.1.1
 
-route delete -net 172.16.16.0 netmask 255.255.255.0 eth3
-route add -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1 eth2
-(but going out from first interface)
-route add -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1
-metric 1 dev eth2
-route add -net 172.16.16.0 netmask 255.255.255.0 dev eth3
+sudo route add    -net 10.8.0.0/16  gw 10.8.17.1 metric 1 dev enp0s9
+sudo route delete -net 10.8.0.0/16  gw 10.8.17.1              enp0s9
+
+
+could try these if error above
+route add      -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1 eth2  # (but going out from first interface)
+route add      -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1 metric 1 dev eth2
+route add      -net 172.16.16.0 netmask 255.255.255.0 dev eth3
+route delete   -net 172.16.16.0 netmask 255.255.255.0 eth3
 
 
 dhclient	= get dhcp address from server for current client.
@@ -4121,23 +4124,30 @@ To reserve space for data persistence use option --overlay-size-mb:
 livecd-iso-to-disk --overlay-size-mb 1024 SL-64-i386-2013-04-17-LiveCD.iso /dev/sdb1
 
 
-
-
-
-
-windoze tools
-=============
-
-* LiLi, was old favorite, but stopped working for CentOS 7 or 8 iso.  maybe okay for ubuntu/debian.
-  lili writes to existing FAT32 partition, so could use the usb for regular storage as well.
-* UNetbootin (win/linux/mac).  Write to existing FAT32, make it bootable.
-  Seems a bit slow?  http://unetbootin.github.io/
-  Cant work for Centos 7 iso.
-* PS.  DVD sizes are: 4.7, 8.5, 9.4, 17.08 GB.  So, maybe create a partition of 18GB for hosting such boot media.
-
-
-
 </PRE>
+
+
+
+
+<H5>windoze tools</H5>
+
+<LI> LiLi, was old favorite, but stopped working for CentOS 7 or 8 iso.  maybe okay for ubuntu/debian.
+  lili writes to existing FAT32 partition, so could use the usb for regular storage as well.
+<LI> UNetbootin (win/linux/mac).  Write to existing FAT32, make it bootable.  <BR>
+  Seems a bit slow?     <BR>
+   Support "preserve files across reboot, for Ubuntu only.  <BR>
+<BR> Download and run, no install needed.
+  <A HREF="http://unetbootin.github.io/">http://unetbootin.github.io/</A>
+  Cant work for Centos 7 iso.
+<LI> Rufus, referred by Ubuntu.  Actually has more features than UNetbootin.  Can format thumbdirve to FAT32 (harder to get these days in Win10).  <BR>
+Also allow for persistent partition.  <BR>
+MBR, UEFI, BIOS.  It download Syslinux files during the burn process as needed.    
+<BR> Download and run, no install needed.
+<A HREF="https://rufus.ie/en/">https://rufus.ie/en/</A>
+<LI> PS.  DVD sizes are: 4.7, 8.5, 9.4, 17.08 GB.  So, maybe create a partition of 18GB for hosting such boot media.
+
+
+
 
 
 <BR> <BR>
