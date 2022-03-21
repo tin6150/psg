@@ -74,9 +74,15 @@ $   separate table name and column name, eg nhanes$gender, opt$indir
 ~   tilde operator, 
 -   minus, substraction.  eg a-b . Just-dont-use-it-in-var-name, as it is treated as substraction of each terms listed!  
 
-log(100)           # Think ln() here!  By default, R log has base e!  Bunch of wackos! :P
-log(100, base=10)  # this is log with base 10
-log(100, 10)       # same as above
+log(100)           # Think ln() here!  By default, R log has base e!  same as bc's l(), python math.log(), matlab too?    calculator is the only place log is base 10, and use ln for base e??
+log(1000, base=10) # this is log with base 10
+log(1000, 10)      # same as above
+log10(1000)        # ok, it is used often enough they do have a fn name for log base 10!
+
+exp(1)             # expoent of natual log.  same as bc's e(), python math.exp()
+
+log(exp(1))        # identity
+exp(log(1))        # identity
 
 
 </PRE>
@@ -237,7 +243,9 @@ labs(title = “Main”, x = “Type x-axis here”, y = “Type y-axis here”)
 facet_wrap(      ~ var1 )	# cretae series of ggplot based on single var1
 facet_grid( var1 ~ var2 )	# create a n*m grids of graph for var1 vs var2  [review page 61]
 
-stat="identity" # when y is specified
+stat="identity" # when y is specified  # arg of geom_histogram() (and geom_bar?)  
+# eg lab06 line 300
+p16 = ggplot(data=obs_data,aes(x=x_vals,y=probs)) + geom_histogram( binwidth = 1, stat="identity" )
 
 geom_bar( ... ) params: 
 position="dodge"	# side by side grouping in barchart
