@@ -174,7 +174,9 @@ git push --tags  origin master
 git tag -a         2018_0901_wsl -m "wsl git hopefully not creating cr/lf chaos"  	# create a release 
 git push -u origin 2018_0901_wsl							# push the tag to github
 
-
+git tag				# list all tags
+git tag show v0.5 		# show description of the specified tag
+git tag show --tags		# long output with tag desc and commit diff
 
 # https://stackoverflow.com/questions/16329776/how-to-keep-a-git-branch-in-sync-with-master
 # resync a branch from master (ie master is ahead, have changes that should be incorporated into the branch)

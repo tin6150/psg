@@ -449,7 +449,7 @@ echo "exec /usr/bin/mate-session" >> ~/.xinitrc				# vnc don't heed this either
 echo "/usr/bin/mate-session" >> ~/.Xclients; chmod +x ~/.Xclients 	# maybe vnc heeded this
 
 ~/.vnc/xstartup
-	## don't seems to be heeded for me
+	## don't seems to be heeded for me 
 	unset SESSION_MANAGER
 	unset DBUS_SESSION_ADDRESS
 	PREFERRED=/usr/bin/mate-session
@@ -471,6 +471,41 @@ echo "/usr/bin/mate-session" >> ~/.Xclients; chmod +x ~/.Xclients 	# maybe vnc h
 
 /etc/sysconfig/desktop
 	PREFERRED=/usr/bin/mate-session
+
+
+</PRE>
+
+<A ID="xfce4vnc"></A>
+<H3>
+Changing windows manager/desktop environment in realVNC to use xfce4
+</H3>
+
+actually no luck yet.  partial notes of what tried so far:
+<BR>
+
+don't edit ~/.vnc/xstartup <BR>
+
+realvnc certainly exec /etc/vnc/xstartup  <BR>
+might heed             /etc/vnc/xstartup.custom
+
+<PRE>
+
+## ~/.vnc/xstartup not heeded for me or steve
+## realvnc always use /etc/vnc/xstartup
+## firefox doesn't run there though ...
+## but xterm never ran.  this this doesn't work.
+## ~/.vnc/xstart.custom is not mentioned , so unlikely to be looking for that.
+  #!/bin/sh
+DESKTOP_SESSION=xfce
+export DESKTOP_SESSION
+startxfce4
+vncserver-virtual -kill $DISPLAY
+
+## config per
+## https://help.realvnc.com/hc/en-us/articles/360003474792-Why-does-VNC-Server-in-Virtual-Mode-on-Linux-appear-to-hang-show-a-gray-screen-or-not-start-at-all-#using-vnc-5-x-or-vnc-connect-6-0-6-1-or-on-a-different-version-of-linux--0-1
+## said not to put startxfce4 in background via &
+## seems like line run sequentially... when session ends is when -kill happens...
+## but xfce isn't starting even after the -extension RENDER
 
 
 </PRE>

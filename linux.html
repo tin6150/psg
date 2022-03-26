@@ -24,7 +24,7 @@ browser render tab as 8 spaces for html PRE
     </tr>
     <tr>
       <td align="left"><a accesskey="H" href="psg.html">Home</a></td>
-      <td align="center"><a accesskey="F" href="Firewall.html">Firewall</a></td>
+      <td align="center"><a accesskey="F" href="firewall.html">Firewall</a></td>
       <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
       <td align="center"><a accesskey="g" href="git.html">git</a></td>
       <td align="center"><a accesskey="t" href="tool.html">tool</a></td>
@@ -797,6 +797,9 @@ adding route:
 
 route add default gw 192.168.1.1
 
+sudo route add    -net 10.8.0.0/16  gw 10.8.21.1  # this worked, no need to add metric or dev, since machine is in local network of 10.8.21.x
+
+sudo route add    -net 10.0.0.0/16 dev eno1   # add local broadcast domain eg dual home machine w/ priv net
 sudo route add    -net 10.8.0.0/16  gw 10.8.17.1 metric 1 dev enp0s9
 sudo route delete -net 10.8.0.0/16  gw 10.8.17.1              enp0s9
 
