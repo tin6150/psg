@@ -310,12 +310,17 @@ UCLA has a website with many helpful examples here:
 library(readr)                              # provides read_csv
 lake_data = read_csv("mercury-lake.csv")		# read csv into an array (R is 1-indexed).
 
+
 head(lake_data)		# show first few lines
 lake_data %>% head	# same, using unix pipe style 
 dim(lake_data)		# dimension as num of rows, cols
 str(lake_data)		# structure, compact display of the kind of data in the array
 names(lake_data)	# aka colnames(lake_data), show column heading name  
 			# this eg has 6 cols:  lakes ph chlorophyll mercury number_fish age_data
+
+# becareful with space in csv, no space allowed after comma, or R will read the space into the data structure, no automatic stripping.
+# foo,TRUE will be logical operator, but "foo, TRUE" will just be string.
+# TSV, tab delimited, maybe better...
 
 
 library(dplyr) 		# PH142 use dplyr extensively
@@ -1115,6 +1120,38 @@ how many success of failure from larger size (poisson).
 
 </PRE>
 
+
+<H2>Lab06</H2>
+<!-- lab06 is mostly about wk 6 lecture: normal, binom, poisson dist-->
+
+<PRE>
+
+# test and install a package as needed
+if (!require("MASS")){
+  install.packages("MASS")
+}
+
+
+# unload functions loaded by package MASS (as they clobber with fn of same name from dplyr):
+detach("package:MASS", unload = T)		
+
+
+# binomial sample data generation, individually create each sample point
+# lab06 line 280
+# This is just the range of values x can take
+x_vals = 0:812
+
+# This generates the probabilities
+probs = dbinom(0:812, size = 812, prob = 0.27)
+
+# This combines the range of values with the probabilities as a dataframe with 2 columns: x_vals and probs.
+# View(obs_data) in your console to see what this dataframe looks like
+obs_data = as.data.frame(cbind(x_vals, probs))
+
+
+
+</PRE>
+
 <!-- merge marker 0303  -->
 
 <BR><BR>
@@ -1122,6 +1159,8 @@ how many success of failure from larger size (poisson).
 <BR>
 
 <!-- merge marker xyz  -->
+
+<!-- @end stat 142 notes -->
 
 <H1>R</H1>
 
@@ -1515,7 +1554,7 @@ prefix: p, q, d, r ::
 
 p for "probability", the cumulative distribution function (c.d.f.)
 	return the AUC for X<=x, ie the probability  (when lower.tail=TRUE)
-     	return the p-value                           (when lower.tail=RALSE)
+     	return the p-value                           (when lower.tail=FALSE)
 
 	F(x) = P(X <= x)
    	Answer What is  P(X < 27.4) when X has Normal distribution with mean 50 and standard deviation of 20 aka N(50,20).  N often styled as cursive cap N.
