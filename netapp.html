@@ -300,6 +300,16 @@ set
 
 </PRE>
 
+Arista switch config for LACP/LAG
+
+<PRE>
+
+channel group NUMBER mode on       # "hard coded" mode, switch to switch tend to use this.
+channel group NUMBER mode active   # auto negotiation mode via daemon for LAGP, cisco "etherchannel", netapp and old sgi need this mode
+
+</PRE>
+
+
 <A NAME="cf_bk"></A>
 <H5>cDOT clustered-mode backup config</H5>
 
