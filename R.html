@@ -240,8 +240,8 @@ geom_point(aes(col = var3)) +
 facet_wrap(~ var4) +
 labs(title = “Main”, x = “Type x-axis here”, y = “Type y-axis here”)
 
-facet_wrap(      ~ var1 )	# cretae series of ggplot based on single var1
-facet_grid( var1 ~ var2 )	# create a n*m grids of graph for var1 vs var2  [review page 61]
+facet_wrap(      ~ var1, nrow=3 )	# cretae series of ggplot based on single var1
+facet_grid( var1 ~ var2 )        	# create a n*m grids of graph for var1 vs var2  [review page 61]
 
 stat="identity" # when y is specified  # arg of geom_histogram() (and geom_bar?)  
 # eg lab06 line 300
@@ -250,6 +250,21 @@ p16 = ggplot(data=obs_data,aes(x=x_vals,y=probs)) + geom_histogram( binwidth = 1
 geom_bar( ... ) params: 
 position="dodge"	# side by side grouping in barchart
 position="stack"  	# on top of, less liked by stat wanting to do comparison.
+
+</PRE>
+
+<H2>Exam 1: Review</H2>
+<PRE>
+slide 65
+food = read.csv("food_supply.csv")  # food is a df
+
+# convert select columns to vector, for easier average calc
+vector_of_alcohol_supply = food$alc.beverages
+sum(vector_of_alcohol_supply) / length (vector_of_alcohol_supply)
+
+# dplyr finding average and created as df
+food %>% summarize( mu=mean(vector_of_alcohol_supply) )
+
 
 </PRE>
 
@@ -567,7 +582,9 @@ geom_vline(aes(xintercept = median(GDP_2006)),  lty=2)
 ### (Note that R's calc method is very slightly different than textbook, unless add "type=2" as option to quantile() )
 ### and add them as yintercept line to a boxplot
 
-Min = min(CS_data$CS_rate_100)
+### most R stat fn has na.rm=F as default, which is not to drop empty value/cell, but may return an error about NaN when it hit such cell
+
+Min = min(CS_data$CS_rate_100, na.rm=T)
 Q1 = quantile(CS_data$CS_rate_100, probs = 0.25)
 Median = median(CS_data$CS_rate_100)
 Q3 = quantile(CS_data$CS_rate_100, probs = 0.75)
@@ -773,7 +790,7 @@ paused in line 387 ++FIXME++
 <PRE>
 
 dplyr::sample_n( tbl=cold_data, size=5 )    # reader p24
-geom_density    # reader p50
+geom_density    # reader p50  like smothened histogram.
 
 
 ## Lab04 ?    HW04 
@@ -1160,6 +1177,99 @@ obs_data = as.data.frame(cbind(x_vals, probs))
 
 </PRE>
 
+
+<!-- wk 11 -->
+
+<H2>Lecture 24: T and paired T test</H2>
+
+<PRE>
+[ wk 11 reader p 50 - Lect 24 (Topic 1, video 2, toward the end of the video)   ]
+
+coding notes
+
+A one sample t- test will take the form:
+t.test(x = x_variable, alternative = greater, less or two.sided, mu = null_hypothesis_value)
+
+
+
+A two sample t-test will take the form:
+t.test(first_sample_data, second_sample_data, alternative = greater, less or two.sided)
+
+	t.test( df$col1   ~ df$col2 , alternative="two.sided") # 2 vars, independent # w11 reader p11
+	t.test( df$wegith ~ df$sex  , alternative="two.sided") # note use of ~ and 2nd var would have been the group_by filter
+
+A paired t-test will take the form:
+t.test(first_data_points, second_data_points, alternative = greater, less or two.sided, paired=TRUE)
+
+</PRE>
+<!-- #0401 -->
+
+<H2>Lecture 25: ANOVA: Comparing 3 or more means</H2>
+
+
+First mostly about visualizing multi column data (eg think multiple treatment method being teest for cancer, some are combination of treatments).
+
+<PRE>
+
+<!-- Su21 L20 Line 103 -->
+grp1 = rnorm( n=2, mean=15, sd=3 )   # # each rnorm() produce a vector as a result
+grp2 = rnorm( n=2, mean=15, sd=3 )
+
+egSame = data.frame( grp1, grp2 ) 
+# construct dataframe, each vector becomes a column, which also insert the original variable name as column heading!!
+# output looks like this
+      grp1     grp2
+1 19.07604 16.16301
+2 14.69164 14.83858
+
+
+egSameNarrow = egSame %>% gather( key="Grp", value="Measure", grp1:grp2 )
+# gather() is interesting…  it produced a new data.frame() with a pivoted arrangement of the data, maybe formatting it into the tidyverse way.
+# the main cells of the data.frame() becomes the value part, which  gather() also give a header
+# the "key" is the first col, which get the value from the header of the original data.frame() cols
+# output looks like this
+   Grp  Measure
+1 grp1 19.07604
+2 grp1 14.69164
+3 grp2 16.16301
+4 grp2 14.83858
+
+
+# ah, so geom_point would be xy scatter plot when fed with continuous variables on both axis
+# but when one var is categorical, it produce the data points of a box plot, w/o the box
+ggplot(egSameNarrow, aes(x = Grp, y = Measure)) + geom_point()
+
++ geom_boxplot()    # to get box, add geom_boxplot()   // order matter, last one is top layer
+
+
+# density plot in [wk11 reader p80]
+ggplot(egSameNarrow, aes(x = Measure))  + geom_density(aes(fill=Grp), alpha=0.4)
+
+
+# Lecture 26: ANOVA Part 2.  (Su21 L20 Line 510)
+ggplot(egSameNarrow, aes(x = Grp, y = Measure)) +
+  geom_jitter(pch = 4, width = 0.1)                            # like geom_point, but wiggle points randomly within "width" so points can be seen when they overlap
+
+ggplot(cancer_data, aes(x = trt_order, y = tumor_volume)) +
+  geom_jitter(pch = 4, width = 0.1)                            # like geom_point, but wiggle points randomly within "width" so points can be seen when they overlap
+
+# pch ???
+
+</PRE>
+
+test stat anova with aov()
+<BR>
+(Su21 L20 Line 520)
+
+<PRE>
+
+library(broom)
+cancer_anova = aov(formula = tumor_volume ~ treatment, data = cancer_data)
+tidy(cancer_anova)
+
+</PRE>
+
+
 <!-- merge marker 0303  -->
 
 <BR><BR>
@@ -1249,7 +1359,7 @@ print(system( 'uptime', intern=TRUE ))
 
 
 library(data.table)
-fread( "cat /proc/loadavg", check.names=TRUE ) ## run system command and read result into data frame
+fread( "cat /proc/loadavg", check.names=TRUE ) ## run system command and read result into data.frame
 
 
 </PRE>
@@ -1445,7 +1555,7 @@ true, do expr each run
 • x[c(k,m,n)]: specific elements
 • x[x&gt;m &amp; x&lt;n]: elements between m and n
 
-• x$n: element of list or data frame named n.  ie, x is a data frame, n is the column name
+• x$n: element of list or data.frame named n.  ie, x is a data.frame, n is the column name
 
 • x[["n"]]: idem		# [[ ]] in R ... 
 
@@ -1770,7 +1880,7 @@ R is 1-indexed, so first entry of df is 1
 coord = data.frame(x = runif(n.total), y = runif(n.total), sampled = 0) 
 coord.sampled = coord[coord$sampled == 1,]   # initial sites
 
-data.frame (coord) is like a table
+data.frame( coord ) is like a table  # convert a vector into a data.frame()
 and $ separate the table name and the column name.
 Thus, the above eg has 
 coord$x
@@ -1807,7 +1917,7 @@ rbind(t, data.frame(...) )
 
 It’s a common mistake to try and create a data frame by cbind()ing vectors together. This doesn’t work because cbind() will create a matrix unless one of the arguments is already a data frame. Instead use data.frame() directly
 <BR>
-Since a data frame is a list of vectors, it is possible for a data frame to have a column that is a list
+Since a data frame is a list of vectors, then each vector represents a column, and the data.frame() becomes a list of columns.  
 <BR>
 
 
