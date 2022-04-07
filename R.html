@@ -450,7 +450,10 @@ lake_data %>%
 lake_data %>% 
   group_by(age_data) %>% 
   summarize(mean_ph               = mean(ph),
-            standard_deviation_ph = sd(ph)     )
+            standard_deviation_ph = sd(ph),
+	    length                = length(ph) )   # this count number of item in the group  # wk11 reader p8
+
+length()    # length( any_col_name ) to get number of rows, typically can provide count for sample size n.
 
 </PRE>
 <BR>
@@ -658,7 +661,7 @@ mana_cor = mana_data %>% summarize(corr_mana = cor(powerboats, deaths))
 library(broom)
 glance( lin_model ) %>% pull( r.squared )  	# this return the r^2 value.  # slide 25
 
-# is pull() like awk, grabbing column?  ++ ??
+# is pull() like awk, grabbing column from data.frame?  ++ ??   select() pick columns from list (those with named entries)
 # or does it return a 1x1 only?
 
 geom_abline() add the fitting line.   it need intercept and slope)
@@ -1183,6 +1186,15 @@ obs_data = as.data.frame(cbind(x_vals, probs))
 <H2>Lecture 24: T and paired T test</H2>
 
 <PRE>
+
+[wk 9 reader p20]
+for t-distribution (dist of t-scores?)
+very much like pnorm and qnorm.
+pt(q = , df = , lower.tail = ) 
+qt(p = , df = , lower.tail = )
+
+
+
 [ wk 11 reader p 50 - Lect 24 (Topic 1, video 2, toward the end of the video)   ]
 
 coding notes
@@ -1199,7 +1211,9 @@ t.test(first_sample_data, second_sample_data, alternative = greater, less or two
 	t.test( df$wegith ~ df$sex  , alternative="two.sided") # note use of ~ and 2nd var would have been the group_by filter
 
 A paired t-test will take the form:
-t.test(first_data_points, second_data_points, alternative = greater, less or two.sided, paired=TRUE)
+t_stat = t.test(first_data_points, second_data_points, alternative = greater, less or two.sided, paired=TRUE)
+t_stat$statistics # contain the actual t-score
+t_stat$p.value    # contain the p-value
 
 </PRE>
 <!-- #0401 -->
@@ -1209,6 +1223,8 @@ t.test(first_data_points, second_data_points, alternative = greater, less or two
 
 First mostly about visualizing multi column data (eg think multiple treatment method being teest for cancer, some are combination of treatments).
 
+
+Background, how are 3 groups of data need to be structured for comparison
 <PRE>
 
 <!-- Su21 L20 Line 103 -->
@@ -1257,15 +1273,50 @@ ggplot(cancer_data, aes(x = trt_order, y = tumor_volume)) +
 
 </PRE>
 
-test stat anova with aov()
-<BR>
-(Su21 L20 Line 520)
+ANOVA test:
 
 <PRE>
 
-library(broom)
+library(broom)   # wk12 reader p12
 cancer_anova = aov(formula = tumor_volume ~ treatment, data = cancer_data)
 tidy(cancer_anova)
+
+# for aov(), the var after ~ is column containing the grouping.
+
+		cancer_data data.frame looks like this
+		     treatment          tumor_volume
+		1  Irradiation           30
+		2  Irradiation           46
+		...
+		5 Cannabinoids           12
+		^^
+		row number added by R
+
+pf() would find the p-value, but aov() already provides it, so maybe seldom need to call this explicitly?
+
+after finding stat sig anova, need to run multiple pairwise t-test, or use TukeyHSD() wrapper, wk12 p29
+
+Bonferroni Correction wk12 p22
+
+
+diffs = TukeyHSD( cancer_anova, conf.level=0.05, )  %>% tidy()
+diffs %>% select(contrast, adj.p.value)		# select() pick columns from list (with named col),  vs pull(), for data.frame ? 
+
+TukeyHSD() provides an adj p.value, correcting for multiple tests.  this adj prevent it from use in CI.  [wk12 reader 31]
+
+Bonferroni vs TukeyHSD produce slightly different result.  [wk12 p33]
+	
+
+</PRE>
+
+
+<!-- wk12 Topic 2 -->
+<H2>Lecture 27: non parametrics </H2>
+
+<BR>
+
+<PRE>
+
 
 </PRE>
 
@@ -1855,7 +1906,7 @@ A 2D array is a matrix.  <BR>
 <PRE>
 
 dim()
-length()
+length()    # length( any_col_name ) to get number of rows, typically can provide count for sample size n.
 names()
 rownames()
 colnames()
