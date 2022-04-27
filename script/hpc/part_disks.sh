@@ -151,9 +151,11 @@ run_fdisk_cmd_single()
 	ls -ld /var/log  # expect link to /local/log
 
 	## tin addition 2022.0426  - cuz greta vnfs has /var/lib/docker -> /local/docker
-	mkdir /local/docker
-	#chown 
-	ls -ld /local/docker /var/lib/docker
+	mkdir     /local/docker
+	chmod 755 /local/docker
+	ls -ld    /local/docker  /var/lib/docker
+	mkdir     /local/rsyslog  # apparently new config in /etc/rsyslog.conf write here, no sym link in dir
+	chmod 755 /local/rsyslog
 }
 
 
