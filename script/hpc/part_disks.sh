@@ -43,6 +43,9 @@ run_sanity_check()
 		#run_fdisk_cmd  # no () in bash fn call!
 		#echo "Completed FDisk"
 		#exit 0
+	elif [[ x$MAQUINA =~ x[ncswbdt][0-9][0-9] ]]; then
+		# greta prod is n00, d00 2 digits only
+		echo "hostname pattern passes sanity test, continuting..." # ie not causing an abort/exit
 	else
 		echo "hostname pattern sanity test FAILED. NOT running fdisk!  Exiting."
 		exit 007
@@ -140,15 +143,13 @@ run_fdisk_cmd_single()
 	swapon -a
 	swapon -s
 	df -h /tmp
-  ## next 2 lines added 2021.1027
-  mkdir /local/log
-  ls -ld /var/log /local/log
-	echo "Fdisk on single disk ends.  Should reboot after fdisk partition disk..."
 
-	## tin addition 2021.1118
-	mkdir /local/log/munge
-	chown munge:munge /local/log/munge
-	ls -ld /var/log  # expect link to /local/log
+	sleep 5 # n00 machines in greta didn't get these created... adding a sleep delay to see if it help
+
+	## next 2 lines added 2021.1027
+	mkdir /local/log
+	ls -ld /var/log /local/log
+	echo "Fdisk on single disk ends.  Should reboot after fdisk partition disk..."
 
 	## tin addition 2022.0426  - cuz greta vnfs has /var/lib/docker -> /local/docker
 	mkdir     /local/docker
@@ -156,6 +157,13 @@ run_fdisk_cmd_single()
 	ls -ld    /local/docker  /var/lib/docker
 	mkdir     /local/rsyslog  # apparently new config in /etc/rsyslog.conf write here, no sym link in dir
 	chmod 755 /local/rsyslog
+
+	## tin addition 2021.1118
+	mkdir /local/log/munge
+	#chown munge:munge /local/log/munge
+	chown 998:998      /local/log/munge           # munge user not defined in greta, so hard coding it :P
+	ls -ld /var/log  # expect link to /local/log
+
 }
 
 
