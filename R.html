@@ -132,6 +132,41 @@ CS(nhanes,     "dpq_bin", "sex_cat",  full=FALSE)
 <A HREF="https://www.rstudio.com/resources/cheatsheets/">R studio cheatsheets</A> eg on data viz using ggplot, dplyr, etc. 
 <BR>
 
+<!-- 2022.0421 -->
+<H3>Rnd tidbits</H3>
+
+shortcuts:  R allow abreviating option names when things can be uniquely identified.
+eg:
+<PRE>
+Both of these accepted by R:
+
+Result = t.test(Data, mu=8, alternatives="two.sided", conf.level=0.95)
+Result = t.test(Data, mu=8, alt="two.sided",          conf=0.95)
+
+This is why col='Red' and color='Red' are both allowed in ggplot.
+
+PS. alternative refers to the alternate hypothesis (vs null hypothesis).
+
+
+</PRE>
+
+
+attributes
+<PRE>
+Fn like t.test(), binom.test() return a sizable list of things.  They are internally separated by "attributes" and can be retrieved directly.  eg
+attributes( Result )
+
+Result$conf.int
+Result$p.value
+Result$parameter    # only df is returned as "parameter" 
+
+</PRE>
+
+ref: 
+<A HREF="https://youtu.be/kvmSAXhX9Hs?t=235">R tutorial on Student t Test</A>
+
+<BR><BR>
+
 <!-- PH 142 Stat 2021.1223 ## -->
 <!-- once course is over, may move this section to the bottom of the page ++ -->
 <A NAME="PH142"></A>
@@ -140,7 +175,7 @@ CS(nhanes,     "dpq_bin", "sex_cat",  full=FALSE)
 
 Much of the R code below are from the 
 <A HREF="https://ph142-ucb.github.io/sp20/course-schedule/">
-PH 142 stat class by Mi-Suk Kang Dufour</A>
+PH 142 stat class by Prof Dr Mi-Suk Kang Dufour</A>
 
 
 <H2>course core concepts - ccc</H2>
@@ -170,7 +205,7 @@ ppois(q=k, lambda=mu)  : cumulative, up to X<=k
 
 
 </PRE>
-
+<BR><BR>
 
 <H2>Exam 1: Review</H2>
 
@@ -450,7 +485,11 @@ lake_data %>%
 lake_data %>% 
   group_by(age_data) %>% 
   summarize(mean_ph               = mean(ph),
-            standard_deviation_ph = sd(ph)     )
+            standard_deviation_ph = sd(ph),
+	    length                = length(ph) )   # this count number of item in the group  # wk11 reader p8
+
+length()    # length( any_col_name ) to get number of rows, typically can provide count for sample size n.
+nrow( nhanes %>% filter( hs=='No' )   # this count number of rows, only those where hs=no.  $ Lab09wk12
 
 </PRE>
 <BR>
@@ -477,9 +516,14 @@ Reference material: <BR>
 3. `geom_histogram()` to make a histogram for which ggplot needs to calculate the count
 4. `fct_reorder(var1, var2)` to reorder a categorical variable (`var1`) by a numeric variable (`var2`)
     - from the `forcats` package
+4a.`fct_relevel( apgar5Cat, "Low", "Med")` to reorder a categorical variable by hand  # Lect 5, Prj 3
 5. `geom_point()` to make a plot with dots  (scatter plots also use this)
 6. `geom_line()` to make a plot with lines
+7. `geom_boxplot()` to make a box and whisker plot 
+8. `geom_jitter(width=.1)` to add points with jittering to boxplot
 
+
+color() # return the color name that R has "build-in"
 
 
 id_data = read_csv("Ch01_ID-data.csv")
@@ -499,6 +543,17 @@ theme(legend.position = "top")   # add legends of color vs types at top of plot
 id_data = id_data %>% 
   mutate(disease_ordered = fct_reorder(disease,             percent_cases, .desc = T))
 #        ^^new_col_name^               ^^what to rearrange  ^^order by this field/col.
+
+
+# used in group project part 3
+cord_clamp_song_ext = na.omit(song) %>%
+  mutate(  apgar5Cat  =   case_when(       apgar5==0  ~ "Low" ,
+                                           apgar5==6  ~ "Low" ,
+                                           apgar5==7  ~ "Med" ,
+                                           apgar5==9  ~ "High" 
+                                           ) ) %>%
+  mutate( apgar5Cat = fct_relevel( apgar5Cat, "Low", "Med", "High" ))
+
 
 ggplot(id_data, aes(x = disease_ordered, y = percent_cases)) + 
   geom_bar(stat = "identity", aes(fill = type)) +
@@ -658,17 +713,22 @@ mana_cor = mana_data %>% summarize(corr_mana = cor(powerboats, deaths))
 library(broom)
 glance( lin_model ) %>% pull( r.squared )  	# this return the r^2 value.  # slide 25
 
-# is pull() like awk, grabbing column?  ++ ??
-# or does it return a 1x1 only?
+# is pull() like awk, grabbing column from data.frame?  ++ ??   select() pick columns from list (those with named entries)
+# pull() is from dplyr.  returns a vector (the same str as one returned by concat cmd c() )
 
-geom_abline() add the fitting line.   it need intercept and slope)
-geom_abline(intercept = c, slope = m)
+geom_abline() add the fitting/trend line.   it need intercept and slope)
+geom_abline(intercept = b, slope = m)
 geom_abline( -46.75, 0.1358)
 
 geom_text_repel()	# repel text, ie, don't render them with overlap. 	# slide 46
 
+m = linear_model$coefficients[2]   # slope  (it is a "named number" in R)
+m = linear_model$coefficients[[2]] # slope ( [[]] returns a number )
+b = linear_model$coefficients[[1]] # intercept
 
 
+geom_smooth( method="lm", se=FALSE)  # R automatic way to have trend line from lm()  ## Lab10 wk13
+geom_abline( slope=0, intercept=mean(boston2$medv), col="red" )  # horizontal line indicating mean value
 
 # stuff about prediction in p28, review++
 
@@ -1183,6 +1243,15 @@ obs_data = as.data.frame(cbind(x_vals, probs))
 <H2>Lecture 24: T and paired T test</H2>
 
 <PRE>
+
+[wk 9 reader p20]
+for t-distribution (dist of t-scores?)
+very much like pnorm and qnorm.
+pt(q = , df = , lower.tail = ) 
+qt(p = , df = , lower.tail = )
+
+
+
 [ wk 11 reader p 50 - Lect 24 (Topic 1, video 2, toward the end of the video)   ]
 
 coding notes
@@ -1199,7 +1268,9 @@ t.test(first_sample_data, second_sample_data, alternative = greater, less or two
 	t.test( df$wegith ~ df$sex  , alternative="two.sided") # note use of ~ and 2nd var would have been the group_by filter
 
 A paired t-test will take the form:
-t.test(first_data_points, second_data_points, alternative = greater, less or two.sided, paired=TRUE)
+t_stat = t.test(first_data_points, second_data_points, alternative = greater, less or two.sided, paired=TRUE)
+t_stat$statistics # contain the actual t-score
+t_stat$p.value    # contain the p-value
 
 </PRE>
 <!-- #0401 -->
@@ -1209,6 +1280,8 @@ t.test(first_data_points, second_data_points, alternative = greater, less or two
 
 First mostly about visualizing multi column data (eg think multiple treatment method being teest for cancer, some are combination of treatments).
 
+
+Background, how are 3 groups of data need to be structured for comparison
 <PRE>
 
 <!-- Su21 L20 Line 103 -->
@@ -1257,15 +1330,62 @@ ggplot(cancer_data, aes(x = trt_order, y = tumor_volume)) +
 
 </PRE>
 
-test stat anova with aov()
-<BR>
-(Su21 L20 Line 520)
+ANOVA test:
 
 <PRE>
 
-library(broom)
+library(broom)   # wk12 reader p12
 cancer_anova = aov(formula = tumor_volume ~ treatment, data = cancer_data)
 tidy(cancer_anova)
+
+# for aov(), the var after ~ is column containing the grouping.
+
+		cancer_data data.frame looks like this
+		     treatment          tumor_volume
+		1  Irradiation           30
+		2  Irradiation           46
+		...
+		5 Cannabinoids           12
+		^^
+		row number added by R
+
+pf() would find the p-value, but aov() already provides it, so maybe seldom need to call this explicitly?
+
+after finding stat sig anova, need to run multiple pairwise t-test, or use TukeyHSD() wrapper, wk12 p29
+
+Bonferroni Correction wk12 p22
+
+
+diffs = TukeyHSD( cancer_anova, conf.level=0.05, )  %>% tidy()
+diffs %>% select(contrast, adj.p.value)		# select() pick columns from list (with named col),  vs pull(), for data.frame ? 
+
+TukeyHSD() provides an adj p.value, correcting for multiple tests.  this adj prevent it from use in CI.  [wk12 reader 31]
+
+Bonferroni vs TukeyHSD produce slightly different result.  [wk12 p33]
+	
+
+</PRE>
+
+
+<!-- wk12 Topic 2 -->
+<H2>Lecture 27: non parametrics </H2>
+
+<BR>
+
+<PRE>
+
+
+</PRE>
+
+
+
+<H2>Lab10</H2>
+<PRE>
+# maybe move...
+
+library(MASS)           # load it to import the data set
+detach(package:MASS)	# remove the select() fn which would conflict with dplyr 
+
 
 </PRE>
 
@@ -1278,7 +1398,22 @@ tidy(cancer_anova)
 
 <!-- merge marker xyz  -->
 
+
+<H2>Missing Data</H2>
+
+<PRE>
+na.rm=T   # many function take this as option to drop entries with missing data, ie, where data is "na"
+nhanes = read_csv("nhanes.csv")
+nhanes = na.omit( nhanes )       # remove row that has missing values.
+
+</PRE>
+
+
+
 <!-- @end stat 142 notes -->
+
+
+
 
 <H1>R</H1>
 
@@ -1855,7 +1990,7 @@ A 2D array is a matrix.  <BR>
 <PRE>
 
 dim()
-length()
+length()    # length( any_col_name ) to get number of rows, typically can provide count for sample size n.
 names()
 rownames()
 colnames()
@@ -2642,6 +2777,77 @@ registerDoSEQ() is run in serial, useful for debugging to test whether parallel 
 SNOW use PSOCK, easier to deal with than MPI.
 
 </PRE>
+
+<A NAME="ascii">
+<A NAME="symbols">
+<A NAME="ascii_symbols">
+<H6>ascii/unicode symbols</H6>
+for easy cut-n-paste
+
+<PRE>
+
+↑ ↓ → ←
+« » 
+• bullet
+· middle dot 
+◆ diamond
+◇
+♢
+▶
+better bullet for table▶yes?
+▶  ▶
+
+√¯¯¯  sqrt
+≈  approx
+≥  >= maybe better to be more obvious
+≠ !=
+±
+¬    not
+∪ ∩  union intersect
+×    multiply
+÷    divide
+Ø    empty set
+
+λ - lambda - eigenvalue
+Λ - Lamda - eigenvector
+
+ε - epsilon
+Ε - Epsilon
+
+χ² - chi-squared
+σ² - sigma squared = variance
+μ  - mu mean average
+
+αβ∑Δ
+
+αβκδεφγηξκλμνοπκρστύβωχυζ
+ΑΒΚΔΕΦΓΗΞΚΛΜΝΟΠΚΡΣΤΎΒΩΧΥΖ
+
+¶ pi new paragraph
+
+Symbols
+
+° degree ascii 176
+º 
+¹ first
+² square
+³ cube
+ª primera
+‰ per mill
+
+§ section
+¤ currency
+€
+¢ cent
+Ð Latin Eth
+Ñ ñ
+¡ ¿ 
+
+</PRE>
+
+
+https://www.ascii-code.com/?msclkid=fada967ec20611ec82769a8bbf923192
+has an ascii table that is text based, can copy-n-paste, quite a bit of ads at top, but at least no pop ups
 
 
 
