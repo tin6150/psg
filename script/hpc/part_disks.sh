@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "expect part_disks_v3.sh for single disk to work as well, use that.  Sn 2022.04.27"
+exit 008 
 
 ## script to fdisk sda of a node 
 ## when it is first installed (or when hd has been replaced)
@@ -67,6 +69,10 @@ run_fdisk_cmd_single()
 			;;
 		ssd)
 			SD_NAME="/dev/nvme0n1"
+			;;
+		mirror)
+			echo "use part_disks_v3.sh nvme01 ...  exiting"
+			exit 007
 			;;
 		*)
 			echo "must specify one of sda or ssd.  exiting"
