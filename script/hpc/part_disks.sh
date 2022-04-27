@@ -9,10 +9,11 @@
 ## 1st loc: psg/script/hpc/
 ## 2nd loc: tin-bb/blpriv/hpcs_toolkit
 
-### slightly updated 2019.0916 
+### slightly updated 2022.0426
 ### from perceus:/global/home/groups/scs/disks/part_disks.sh 
 ### 2021.1105 added test for SD_NAME cuz cut-n-paste may miss it 
 ### 2020.1027 slightly updated mkdir /local/log
+### 2022.0426 for greta vnfs has /var/lib/docker -> /local/docker
 
 #### 2020.0810
 #### run as:
@@ -149,6 +150,10 @@ run_fdisk_cmd_single()
 	chown munge:munge /local/log/munge
 	ls -ld /var/log  # expect link to /local/log
 
+	## tin addition 2022.0426  - cuz greta vnfs has /var/lib/docker -> /local/docker
+	mkdir /local/docker
+	#chown 
+	ls -ld /local/docker /var/lib/docker
 }
 
 

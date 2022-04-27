@@ -28,7 +28,7 @@ browser render tab as 8 spaces for html PRE
       <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
       <td align="center"><a accesskey="g" href="git.html">git</a></td>
       <td align="center"><a accesskey="t" href="tool.html">tool</a></td>
-      <td align="center"><a accesskey="I" href="Infiniband.html">infiniband</a></td>
+      <td align="center"><a accesskey="I" href="infiniband.html">Infiniband</a></td>
       <td align="center"><a accesskey="l" href="lsf.html">lsf/slurm</a></td>
       <td align="center"><a accesskey="b" href="bios.html">BIOS</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
@@ -361,13 +361,22 @@ So, in short -- you can remove what you don't need :)
 
 </PRE>
 
+<BR>
+<A ID=RHEL_vs_glibc"></A>
 <A ID="compatibility"></A>
 <H3>Compatibility</H3>
 
-The Linux community embraces the source code, and compatibility between different release is to recompile the code.  Binary compatibility is not maintained between different (minor) releases of the glibc.  So, be careful not to update the libraries, kernels, and gcc compiler unless you are ready to recompile everything in the system! (And if you have 3rd party libraries dependencies, then really think twice before changing the system library level). <BR>
-If using up2date for RHEL, it would be safe as only compatible updates are listed in the channel.  I would assume the same is true for yum.
+Torvals ensure linux kernel update does not break user space.  glibc, which make lots of system calls, has to be kept very stable.
+Let the distro manage upgrade of kernel and glibc.  <BR>
+gcc does NOT come with glibc! :)  <BR>
+gcc and g++ come and use libstdc++ , which provide fn like new and delete, which maps to C API system calls like malloc(), thus only glibc need to be very stable, whereas compiler and libstdc++ can upgrade and have multiple versions.
 <BR>
-
+Useful info in this 
+<A HREF="https://www.reddit.com/r/linuxquestions/comments/1tghjd/what_is_the_relationship_between_gcc_libstdc/">reddit post</A>
+<BR>
+<BR>
+<!-- app that need specific version of glibc cannot be resolved by loading a new Software Module Farm with newer gcc version
+     but potentially one can compile an ADDITIONAL glibc in alternate path and set LD_LIBRARY_PATH ? -->
 <PRE>
 
 System Release			kernel		glibc		gcc			compat-glibc
@@ -384,7 +393,9 @@ Fedora Core 3                   2.6.9
 Fedora Core 6			2.6.19-1	2.5-10.fc6	4.1.1-51.fc6		
 Fedora 8                        2.6.23
 
+RHEL 7.9                        3.10.0-1160.49  2.17-325        4.8.5                  n/a?
 RHEL 8.1			4.18.0-147.3.1  2.28-72		8.3.1-4.5
+
 
 
 RHEL 2.1, 3, 4.  Increasing support cost: WS,                    WS HPC, 		ES (2 socket max),      AS
@@ -393,6 +404,12 @@ RHEL 2.1, 3, 4.  Increasing support cost: WS,                    WS HPC, 		ES (2
 </PRE>
 For RH, each category has separation of basic, std, premium.  HPC has a 4 socket version.
 See <A HREF="http://www.redhat.com/rhel/compare/">comparison chat</A>.
+
+
+<BR>
+Compatibility table of GCC vs binutils (but NOT glibc) 
+from 
+<A HREF="https://wiki.osdev.org/Cross-Compiler_Successful_Builds">osdev</A>
 
 
 <BR>
@@ -820,9 +837,26 @@ ifconfig hme0 dhcp		see purple book.  (Solaris?)
 
 irouted
 
+</PRE>
 
+persistent static route, 
+from: 
+<A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/deployment_guide/sec-configuring_static_routes_in_ifcfg_files#sec-networkscripts-static-routes-ip-command">RH Doc permanent static route config for RedHat</A>: 
+
+<PRE>
+
+/etc/sysconfig/network-scripts/route-ens3f0 ::
+
+10.8.0.0/16 via 10.8.17.1 dev ens3f0
 
 </PRE>
+
+or /etc/sysconfig/network  <BR>
+but NO mention of /etc/sysconfig/static-routes  in the RH doc.
+(it was only mentioned here https://webhostinggeeks.com/howto/three-ways-to-configure-persistent-static-routes-on-linux-centos/ but unverified)
+
+<BR>
+<BR>
 
 <A NAME="vif"></A>
 <A NAME="vlan"></A>
@@ -3841,11 +3875,19 @@ firewall-config		# GUI tool.  DONT use system-config-firewall
 </PRE>
 
 
-<H1>RHEL8 New STuff</H1>
+<A ID="RHEL8"></A>
+<H1>RHEL 8 New STuff</H1>
 
 <PRE>
 default, no /usr/bin/python , which may break things like ansible (unless otherwise configured to explicityly use python3)
 alternatives --set python /usr/bin/python3
+
+journalctl -no-pager -f -u postfix    	# see systemctl output for (service) unit file "postfix"
+					# -no-pager is to rid the annoying def of no word wrapping 
+					# -f is follow, like tail -f
+journalctl -xe ...
+
+
 </PRE>
 
 <A NAME="progies"></A>

@@ -25,6 +25,7 @@
     </tr>
     <tr>
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="x" href="linux.html">linUx</a>	</td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
       <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
@@ -129,8 +130,38 @@ https://groups.google.com/a/lbl.gov/g/warewulf/c/ERzlDkDw2tY/m/rg-fvAoOacQJ
 
 </PRE>
 
+<H2>special object config</H2>
+
+custom object
+<PRE>
+
+
+wwsh object modify -s LASTOCTET=5   s00
+wwsh object modify -s LASTOCTET=100 n00
+wwsh object modify -s LASTOCTET=101 n01
+
+wwsh object print -p :all | egrep 'node|name|LASTOCTET'
+
+wwsh --debug file sync # debug mode pring lot of perl code state. eg grep ERROR or WARNING
+</PRE>
+
 <H2>config troubleshooting</H2>
-...
+
+<PRE>
+wwsh file sync barf like:
+WARNING in Warewulf::DataStore::SQL::BaseClass->persist()/861:  Unable to execute set lookup query: Data too long for column 'value' at row 1
+
+or
+
+wwsh file import  /etc/warewulf/files/node_exporter.service --mode=0644 --path=/etc/systemd/system/multi-user.target.wants/node_Exporter.service
+wwsh file set node_exporter.service --path=/etc/systemd/system/multi-user.target.wants/node_Exporter.service
+
+WARNING:  Unable to execute set lookup query: Data too long for column 'value' at row 1
+
+it is cuz Destination PATH is limited to at most 65 chars!  use a shorter PATH :-\
+
+</PRE>
+
 
 <H2>tftp troubleshooting</H2>
 

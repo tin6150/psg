@@ -106,7 +106,7 @@ qtree is still supported by mostly for legacy migration, little need for it when
 
 <LI> cDOT OnTap 9.x ? Exports are done via policy.  but apparently each export can only have 1 policy.  it seems to create an extra layer and not getting much in return.  maybe same client list can be placed in single export whence be used in multiple exports, since each qtree have its own exports
 
-<LI> export policy at SVM is hierarchical.  top level / root export need to open wide, then vol-level export a bit narrower, then qtree-level export with the exact specific.    ie hierarchy of subsets need to be unioned to higher lever export policy.  PITA.
+<LI> export policy at SVM is hierarchical.  top level / root export need to open wide, then vol-level export a bit narrower, then qtree-level export with the exact specific.    ie hierarchy of subsets need to be unioned to higher lever export policy.  PITA.  Furthermore, the policy is per svm, though there is a copy command
 
 
 </OL>
@@ -228,6 +228,9 @@ export-policy rule create -policyname vm_backup-export -clientmatch 131.243.73.0
 
 ## verify a specific client have access to a volume:
 vserver export-policy check-access -vserver svmA -client-ip 10.3.33.89 -volume data -authentication-method sys -protocol nfs3 -access-type read-write 
+
+## export-policy is per svm, can duplicate policy via copy:
+export-policy copy -vserver svm0 -policyname 10_8_x_x -newvserver svm1 -newpolicyname 10_8_x_x
 
 
 snapmirror show			# snapmirror status - approx from 8.x 

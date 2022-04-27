@@ -181,6 +181,15 @@ vncviewer localhost:11
    this connect to local port 5911, wrap by ssh, then into the remote vncserver port 5901, ie :1
 
 
+
+ssh port forward tunnel chaining 
+
+ssh chaining
+ssh -L 5907:localhost:5907 tin@gt1
+ssh -L 5907:localhost:5907 tin@a1
+vncserver -geometry 1280x800  :7
+vncviewer localhost:7
+
 ---
 
 copy file from remote place, though only 1 file at a time

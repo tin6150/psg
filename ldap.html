@@ -1499,6 +1499,14 @@ Allowed radius clients list configured in
 	enable_ra 	# this has to do with certification ops on IPA replica, see https://www.freeipa.org/page/Howto/Promoting_a_self-signed_FreeIPA_CA#:~:text=Enable
 </PRE>
 
+Logs:
+
+<PRE>
+/var/named/data/query.log
+/var/named/data/query_errors.log
+/var/named/data/named.log
+
+</PRE>
 
 
 <H2>User commands</H2>
@@ -1511,9 +1519,13 @@ ipa user-find 			# list all users in ipa db (think to getent passwd)
 ipa user-find  tin		# find any account containing specified patter "tin" in userlogin, first and last name.  case insensitive search
 
 ipa user-find --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
-
+[ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/pwd-expiration.html ]
 
 ipa user-mod --password 	# user can change password their own password
+
+# change when password expires                    yyyyMMddHHmm??Z  last few maybe timezone
+ipa user-mod sn50 --setattr=krbPasswordExpiration=20121231011529Z
+
 ipa otptoken-add 		# add OTP/MFA. QR code can be displayed in most terminals these days.
 ipa otptoken-add --type=totp --owner=jansengr --desc="My soft token1"
 
@@ -1526,12 +1538,15 @@ ipa otptoken-add --type=totp --owner=jansengr --desc="My soft token1"
 
 ipa group-find
 
-ipa pwpolicy-show
+ipa pwpolicy-show                     # there is a default global policy if no group policy is defined
 ipa pwpolicy-show --user=sn50
 ipa pwpolicy-mod --minlife=1 --maxlife=90 --history=3	# modify system default pw policy, minlife=1 maybe bad, user can't change password if they set a bad one till a day later...
 ipa user-show sn50 --all | grep expiration 
 
 ipa pwpolicy-mod ... to have differing password complexity requirements (for everyone)  --minlength --charclasses
+
+ipa pwpolicy-add exampleGroup --minlife=7 --maxlife=49 --history= --priority=1 
+[ ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/Setting_Different_Password_Policies_for_Different_User_Groups.html ]
 
 # not sure about password complexity.  
 # especially if have OTP, then first token for password is acceptable to be a simple PIN.  
@@ -1566,14 +1581,73 @@ radsniff -X
 <PRE>
 ipa-server-install 
 ipa-server-install --uninstall
+
+systemctl status really just call 
+/usr/sbin/ipactl 
+
+
+systemctl status reporting "active (exited)" is fine.
+running processes:
+
+[root@freeipa data]# ps -ef | grep ipa
+ipaapi     91875   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91876   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91877   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91878   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+root       91887       1  0 12:45 ?        00:00:00 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
+ods        92359       1  1 12:45 ?        00:00:01 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-dnskeysyncd
+
+journalctl -u ipa
+
 </PRE>
 
 <A ID=dns></A>
 <H1>FreeIPA DNS server</H1>
+
+The DNS in FreeIPA is wrapper around bind-dyndb-ldap, which is based on bind.
+so, config and doc for bind would apply.
+
 <PRE>
 
 ipa dnsrecord-find	
 ipa dnsrecord-find greta.local		# list all dns record for the named zone
+
+</PRE>
+
+DNS forwarding, recursive query problem:
+see
+<A HREF="https://access.redhat.com/solutions/5753431">RH solution doc</A>
+
+<PRE>
+forwarding is not working, check as:
+dig @freeipa.local  google.com
+# WARNING: recursion requested but not available
+
+Fix:
+On webUI, Network Service, DNS Global Config, 
+Forward policy: 
+- Forward first (most permissive)
+- Forward only
+- Forwarding disabled (no outside name resolution then).
+
+Use ACL to restrict which client can query the local DNS server:
+
+<PRE>
+on freeipa server, edit 
+/etc/named/ipa-options-ext.conf
+	// allow recursion per https://access.redhat.com/solutions/5753431
+	allow-recursion { trusted_network; };
+	allow-query-cache  { trusted_network; };
+
+/etc/named/ipa-options-ext.conf
+
+	acl "trusted_network" {
+	 localnets;
+	 localhost;
+	 192.168.0.0/16;
+	};
+
+systemctl restart named-pkcs11
 
 </PRE>
 

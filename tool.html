@@ -1548,6 +1548,16 @@ sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:
 
 sudo tcpdump  port 514 -i enp216s0f0 -S -X  # hex dump of syslog traffic on port 514, let it capture both tcp and udp (@@ vs @ in rsyslog.conf
 
+
+tcpdump  ip6 -i enp0s8                 # monitor IPv6 traffic only
+tcpdump  -i enp0s8 ip6 and port 25     # IPv6 and mail port  
+
+wireshark display filter
+
+tcp.port==25 
+ref: https://wiki.wireshark.org/DisplayFilters
+
+
 </PRE>
 
 
@@ -1894,9 +1904,9 @@ GET / HTTP 1.1
 
 
 telnet mta.server.com 25
-EHLO tin.example.com
-mail from:tin@lbl.gov
-rcpt to:tin@lbl.gov
+EHLO example.com
+MAIL FROM:<tin@eg.gov>
+RCPT TO:<tin@eg.gov>
 DATA
 Subject: manual telnet 25 smtp test
 additional body message here
