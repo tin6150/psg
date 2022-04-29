@@ -195,17 +195,116 @@ eg: sim_01 = rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choo
 	• qnorm(p = 0.75, mean = 0, sd = 1) to calculate the x-value for which some percent of the data lies below it (ie input is AUC, a probability value, thus named p=… in first input argument)
 
 	• dbinom(x=#success,size,prob of success)    k=number of successful event desired, exact match.
-	• pbinom(q=k, size=10,prob=0.29) binomial, CUMULATIVE prob, X <= k. [Lect 16 slide 35]
+	• pbinom(q=k, size=10,prob=0.29) binomial, CUMULATIVE prob, X ≤ k. [Lect 16 slide 35]
 	• qbinom(p, size, prob, lower.tail=T)
 	• rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
 
 	• dpois(x=…, lambda=mu) : discrete prob, X=x exact value.
-ppois(q=k, lambda=mu)  : cumulative, up to X<=k
+ppois(q=k, lambda=mu)  : cumulative, up to X ≤ k
 
+
+calculating critical cut-off values of z.  [wk8 p119]
+eg z* for 90 or 95% Confidence Intervarl
+z.star95 = qnorm(0.025, lower.tail=F)  #1.96
+z.star90 = qnorm(0.05,  lower.tail=F)  #1.64
 
 
 </PRE>
 <BR><BR>
+
+<H2>Exam 1: Review</H2>
+
+<H6>Constructing 2x2 or RxC contingency table</H6>
+<PRE>
+# Lab 11 [wk14] video @ 30:15
+# easiest way to generate 2x2 table out of raw data!
+d.frame %>% group_by(exploratoryVarColumn) %>% count(ResponseVarColumn)
+
+# manually
+# wk14 Lect 32 slide 33
+two_way_tibble = tribble( ~disease, ~ noDisease, # header create col for response vars
+                             16,      84,        # treatment grp / exploratory var 1 
+                              3,      97)        # treatment grp / exploratory var 2 
+
+</PRE>
+
+<!-- 2022.0428-->
+<H2>Course: Review</H2>
+
+<PRE>
+
+What test to use?  Decision tree: CONTINUOUS variables as OUTCOME, 
+eg experiment/sample has an new x.bar as result.
+essentially, non True/False binomial output.
+[wk15 video@28:45 p16]
+ch 25 of text does decision tree a bit differently.
+
+Num of (input) Group/Categories
+  |
+  +----- One ---know sigma? --+--→  Z-test (know sigma)
+  |                           \--→  t-test (unknown sigma)  Both are parametric, assume Normal distribution
+  |
+  +----- Two ---+--- Independent? --+-- Non-parametric -→ Wilcoxon Rank Sum 
+  |             |                   \-----  param      -→ two-sample T test
+  |             |
+  |             \--- Non-Indep    --+-- Non-parametric -- Wilcoxon Signed Rank
+  |                                 \------ param      -- paired T test
+  |
+  +--- Three+ --+--- non-parametric ---Kruskal-Wallis
+  |             \------  parametric -- ANOVA  ----- if support H_a , subsequent post-hoc test, eg Tukey HSD or Bonf... tests
+  |
+  \--- continuous --→ Linear Regression  lm()
+
+t-test can be used when data is large enough, 
+from Central Limit Theorem that when data is large enough --→ approx Normal dist.
+
+~~~~
+
+Categorical variables (as input and output)
+Input:  exposure Yes/No
+Output: disease  Yes/No
+The underlaying data has binomial distribution., we are counting "number of Yes(sucess)"
+And still need #sucess ≥ 10 ; #failure ≥ 10 (so that binomial appox Normal)
+Common with 2x2 or RxC contingency tables.
+
+
+Num of Group/Categories
+  |
+  +----- One --- --+---- binary (2 groups) ----→  1 sample proportion (Z based)
+  |                |
+  |                \--→  mult cat of outcome --→  chi-sq Goodness of Fit (non parametric)
+  |
+  +----- two --- --+---- binary   -------------→  2 sample proportion (Z based)
+  |                |
+  |                \--→  mult cat of outcome --→  chi-sq test of Independence (non param)
+  |                                                   ^
+  |                                                   |
+  \---- Mult -----------------------------------------/
+
+
+Chi-squared test requirements:
+Ei ≥ 5 for 80% of the cells (in a RxC contingency table)
+        2x2 table then need to have each cell ≥ 5
+Ei ≥ 1 in all cells (here used ≥ rather than a strictly gretater!) [video @34:56]
+        10x2 table, then some small cell can be ≥ 1 (but NOT zero success)
+
+
+Testing method:
+
+Null hypothesis:  
+
+signal
+------- = mu   compare to some distribution
+noise  
+
+CI:
+
+signal estimate -/+ theoretical dist * (noise)
+
+
+
+
+</PRE>
 
 <H2>Exam 1: Review</H2>
 
@@ -1174,7 +1273,7 @@ margin|   30     |970  |1000    |
 
 <LI> pois = poisson dist, similar to binomial, but no upper bound.  typically for rare events, eg Infect Disease. [Lec 17 wk7]
 <LI> dpois(x=?, lambda=?)  discrete prob,   when x=exact number.  lambda (aka mu, ie average)  is the sole param in poisson.
-<LI> ppois(q=?, lambda=?)  continuous prob, for x up to value specified.  up to and including.  X<=k  **if do lower.tail=FALSE then decrement k by 1 to properly account for the discrete unit change.  [Lect 17 slide 18].  eg:
+<LI> ppois(q=?, lambda=?)  continuous prob, for x up to value specified.  up to and including.  X≤k  **if do lower.tail=FALSE then decrement k by 1 to properly account for the discrete unit change.  [Lect 17 slide 18].  eg:
     1-ppois(q=3,lambda=0.1)   # ans: [1] 3.846834e-06 <BR>
       ppois(q=3,lambda=0.1,lower.tail=FALSE) <BR>
 <LI>
@@ -1409,8 +1508,34 @@ nhanes = na.omit( nhanes )       # remove row that has missing values.
 </PRE>
 
 
+<H2>Constructing 2x2 or RxC contingency table using tibble, chi-squared test</H5>
+<!-- wk14 -->
 
-<!-- @end stat 142 notes -->
+<PRE>
+
+|Group        | Sandwich     | No Sandwich   | Row total |
+|-------------|--------------|---------------|-----------|
+|Ill          | 109          |  4            | 113       |
+|Not Ill      | 116          | 34            | 150       |
+|Column total | 225          | 38            | 263       |
+
+
+
+# the library it tibble, but the contruction fn is "tribble"
+library(tibble)
+two_way = tribble(~ sandwich, ~ nosandwich,
+                     109,        4,   #row for Illness
+                     116,        34)  #row for no Illness
+
+chisq.test(two_way, correct = F) # correct = F means not using Yates' correction for continuity, so that it can match calc "by hand".
+
+</PRE>
+
+
+
+
+<!-- #end stat 142 notes -->
+
 
 
 
@@ -1809,7 +1934,7 @@ p for "probability", the cumulative distribution function (c.d.f.)
 	return the AUC for X<=x, ie the probability  (when lower.tail=TRUE)
      	return the p-value                           (when lower.tail=FALSE)
 
-	F(x) = P(X <= x)
+	F(x) = P(X ≤  x)
    	Answer What is  P(X < 27.4) when X has Normal distribution with mean 50 and standard deviation of 20 aka N(50,20).  N often styled as cursive cap N.
    	if variance (&sigma;) is given, use the relation s.d. = sqrt(sigma) 
    	pnorm( q=27.4, mean=50, sd=20, lower.tail=TRUE )
@@ -1853,7 +1978,10 @@ r- for "random", a random variable having the specified distribution
 	If n or size > 1 get a vector.
 	Excel:  norm.s.inv( rand() )
 
-pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution.  [d- and p- are typically grouped as they are often for discrte vs continuous dist, ie X=exact vs X<=up-to a specific value ]
+     [d- and p- are typically grouped as they are often for discrte vs continuous dist, ie X=exact vs X≤up-to a specific value ]
+
+pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution.  
+     
 
 pbinom  qbinom  dbinom  rbinom - for binomial distribution
 pchisq	qchisq	dchisq	rchisq - for Chi-Square   scipy.stats.chi2.cdf() etc
@@ -1864,7 +1992,7 @@ ppois	qpois	dpois	rpois  - for Poisson
 pt	qt	dt	rt     - for Student t    scipy.stats.t.cdf() etc
 punif	qunif	dunif	runif  - for Uniform
 
-Note that for continuous distribution, some of these fn are defined using integrals, and R doesn't do integrations!
+Note that for continuous distribution, some of these fn are defined using integrals, and R doesnt do integrations!
 
 
 All function take option mean and standard deviation.  If omitted, default mean=0, sd=1.  
@@ -2026,14 +2154,14 @@ coord$x[1]  # table coord, column x, row 1  # R is 1-indexed.  (unlike python 0-
 coord$x[2]  # table coord, column x, row 2
 
 
-> t = data.frame(x = c(11,12,14), y = c(19,20,21), z = c(10,9,7))
-> t
+› t = data.frame(x = c(11,12,14), y = c(19,20,21), z = c(10,9,7))
+› t
    x  y  z
 1 11 19 10
 2 12 20  9
 3 14 21  7
 
-> mean(t$x)
+› mean(t$x)
 [1] 12.33333
 
 
@@ -2778,16 +2906,21 @@ SNOW use PSOCK, easier to deal with than MPI.
 
 </PRE>
 
-<A NAME="ascii">
-<A NAME="symbols">
-<A NAME="ascii_symbols">
+<A NAME="ascii"></A>
+<A NAME="symbols"></A>
+<A NAME="ascii_symbols"></A>
+
 <H6>ascii/unicode symbols</H6>
+
 for easy cut-n-paste
 
 <PRE>
 
 ↑ ↓ → ←
 « » 
+⟨ ⟩ ‹ ›   angle brackets not parsed by HTML code, but may create confusion with cut-n-paste .  
+          useful to replace R› prompt
+
 • bullet
 · middle dot 
 ◆ diamond
@@ -2797,10 +2930,12 @@ for easy cut-n-paste
 better bullet for table▶yes?
 ▶  ▶
 
+
 √¯¯¯  sqrt
 ≈  approx
-≥  >= maybe better to be more obvious
-≠ !=
+≤  <=   combined less than equal to.  
+≥  >=   useful when dont want to be parsed by HTML 
+≠  !=   not equal, R Knit LaTeX barf at this symbol :-\
 ±
 ¬    not
 ∪ ∩  union intersect
@@ -2827,12 +2962,12 @@ better bullet for table▶yes?
 
 Symbols
 
-° degree ascii 176
-º 
+° zeroth :P degree ascii 176
 ¹ first
 ² square
 ³ cube
 ª primera
+º primero
 ‰ per mill
 
 § section
