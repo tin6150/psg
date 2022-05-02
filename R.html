@@ -231,9 +231,22 @@ two_way_tibble = tribble( ~disease, ~ noDisease, # header create col for respons
 <!-- 2022.0428-->
 <H2>Course: Review</H2>
 
+What test to use?  Decision tree 
+
 <PRE>
 
-What test to use?  Decision tree: CONTINUOUS variables as OUTCOME, 
+
+input:  continuous
+output: continuous
+Test:   lm(), scatter plot with linear fit.  [or convert to log scale first, or quadratic, etc]
+
+~~~~~
+
+What test to use?  Decision tree: 
+
+output: CONTINUOUS variables as OUTCOME, 
+input:  1 , 2 or more categories, form basis of decision tree.
+
 eg experiment/sample has an new x.bar as result.
 essentially, non True/False binomial output.
 [wk15 video@28:45 p16]
@@ -241,8 +254,9 @@ ch 25 of text does decision tree a bit differently.
 
 Num of (input) Group/Categories
   |
-  +----- One ---know sigma? --+--→  Z-test (know sigma)
-  |                           \--→  t-test (unknown sigma)  Both are parametric, assume Normal distribution
+  +----- One ---know sigma? --+--→  Z-test (know sigma)     parametric, definition of Normal dist
+  |                           +--→  t-test (unknown sigma)  still parametric, assume  Normal distribution
+  |                           \--→  bootstrap (non parametric)
   |
   +----- Two ---+--- Independent? --+-- Non-parametric -→ Wilcoxon Rank Sum 
   |             |                   \-----  param      -→ two-sample T test
@@ -251,7 +265,7 @@ Num of (input) Group/Categories
   |                                 \------ param      -- paired T test
   |
   +--- Three+ --+--- non-parametric ---Kruskal-Wallis
-  |             \------  parametric -- ANOVA  ----- if support H_a , subsequent post-hoc test, eg Tukey HSD or Bonf... tests
+  |             \------  parametric -- anova  ----- if support H_a , subsequent post-hoc test, eg Tukey HSD or Bonf... tests
   |
   \--- continuous --→ Linear Regression  lm()
 
@@ -261,22 +275,23 @@ from Central Limit Theorem that when data is large enough --→ approx Normal di
 ~~~~
 
 Categorical variables (as input and output)
-Input:  exposure Yes/No
-Output: disease  Yes/No
+Input:  exposure Yes/No  (Categorical, proportions of Yes in explanatory [input] var).  calc p.hat1 vs p.hat2 w/in each of these groups!
+Output: disease  Yes/No  (Categorical, proportions of Yes as response)
 The underlaying data has binomial distribution., we are counting "number of Yes(sucess)"
 And still need #sucess ≥ 10 ; #failure ≥ 10 (so that binomial appox Normal)
-Common with 2x2 or RxC contingency tables.
+ONE group/cat:   eg juror by race distribution, COVID deaths by race dist, does the count match their pop% for each race (chisq GOP)
+TWO groups/cats: Common with 2x2 or RxC contingency tables.
 
 
 Num of Group/Categories
   |
   +----- One --- --+---- binary (2 groups) ----→  1 sample proportion (Z based)
   |                |
-  |                \--→  mult cat of outcome --→  chi-sq Goodness of Fit (non parametric)
+  |                \--→  mult cat of outcome --→  chi-sq Goodness of Fit GOF (non parametric)
   |
   +----- two --- --+---- binary   -------------→  2 sample proportion (Z based)
   |                |
-  |                \--→  mult cat of outcome --→  chi-sq test of Independence (non param)
+  |                \--→  mult cat of outcome --→  chi-sq test of Independence (non param)  [or Rnd Permutation]
   |                                                   ^
   |                                                   |
   \---- Mult -----------------------------------------/
@@ -302,6 +317,13 @@ CI:
 signal estimate -/+ theoretical dist * (noise)
 
 
+
+Final review slide by GSI, p91.
+Cover a case of 
+input: categorical var
+output: continuous var
+Use Linear Regression with Categorical Vars.
+(not covered in lecture of Stat142?)
 
 
 </PRE>
@@ -1251,12 +1273,18 @@ second layer for test result  T+/T-
 
 Rmd ascii 2x2 contingency table:
 
+      |--response vars-|
 
 2x2   | D+       | D-  | margin |
 ------|----------|-----|--------|
 T+    |   26.7   | 67.9|  94.6  |
 T-    |    3.3   |902.1| 905.4  |
 margin|   30     |970  |1000    |
+
+↑
+explanatory input, 
+researcher controlled vars
+
 
 
 |            |   Diease     | Disease     | (Margin)     |
@@ -1513,13 +1541,19 @@ nhanes = na.omit( nhanes )       # remove row that has missing values.
 
 <PRE>
 
+              Exposure+        Exposure-       ←- explanatory var as input
+
 |Group        | Sandwich     | No Sandwich   | Row total |
 |-------------|--------------|---------------|-----------|
 |Ill          | 109          |  4            | 113       |
 |Not Ill      | 116          | 34            | 150       |
 |Column total | 225          | 38            | 263       |
 
-
+↑
+response
+output
+D+ vs D-
+(this is a more unusual layout of 2x2... )
 
 # the library it tibble, but the contruction fn is "tribble"
 library(tibble)
@@ -2910,7 +2944,7 @@ SNOW use PSOCK, easier to deal with than MPI.
 <A NAME="symbols"></A>
 <A NAME="ascii_symbols"></A>
 
-<H6>ascii/unicode symbols</H6>
+<H1>ascii/unicode symbols</H1>
 
 for easy cut-n-paste
 
