@@ -22,9 +22,10 @@
     </tr>
     <tr>
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
-      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
+      <td align="center"><a accesskey="x" href="linux.html">Linux</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
       <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
     </tr>
   </tbody>
@@ -47,6 +48,23 @@ function googleTranslateElementInit() {
 
 
 
+<H1>LDAP, RADIUS, Diameter, FreeIPA, Free Beer?</H1>
+
+These are not exactly right, but think of them more or less this way :)
+<LI> LDAP is more the format to user user data.  So, a DB, and command/tools to query and manipulate the database.  Can be used as simple replacement to NIS for unix login and ssh.  </LI>
+<LI> RADIUS is a protocol that provies all the 3A's: authentication, authorization, and accounting.  LDAP , without extension, does not provide accounting, or support for One Time Password (OTP/MFA).  </LI>
+<LI> Diameter, it is the wacky world of unix, such a thing exist.  Google for it :D </LI>
+<LI> <A HREF="#FreeIPA">FreeIPA</A>: Integrated system that provides 389 Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  </LI>
+<LI>  </LI>
+
+<BR><BR>
+
+See Also:
+<LI> <A HREF="linux.html#authconfig">Linux.html#authconfig</A> </LI>
+<LI>  </LI>
+
+
+<A NAME=LDAP></A>
 <H1>LDAP</H1>
 
 LDAP is a user database, and it does in Unix what MS Active Directory does in Windows.
@@ -1436,6 +1454,255 @@ perl -e "print crypt('clear-text-password','salt');"
 			# for solaris /etc/shadow and many other unices.
 			# {CRYPT}encrypted entry can be used in ldif file
 			# for password import into LDAP POSIX User account.
+</PRE>
+
+<A ID=freeipa></A>
+<A ID=FreeIPA></A>
+<H1>FreeIPA</H1>
+
+FreeIPA: An Integrated system that provides 389 Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  See 
+<A HREF="https://freeipa.org/page/About"</A>FreeIPA doc</A> for more details.
+<BR><BR> 
+
+FreeIPA comes with CentOS/Rocky etc, to the point it is branded together with the distro. <BR>
+It provides Radius, MFA/OTP, DNS, certificate signing, all integrated into one.
+<BR>
+
+
+systemctl start ipa
+<BR>
+systemctl start radiusd
+<BR>
+<BR>
+
+It uses apache httpd to host the web site, and it does make self RCP calls via the hostname URL, 
+it is said cannot change port 443,80 to something else cuz such RCP calls will break.
+I suppose if they are encoded in the URI of the code then changing /etc/services won't cut it.
+<BR>
+ssh port forward for 443 only won't cut it either.
+Would need to setup a SOCKS proxy (eg in Firefox) and also update local /etc/hosts file to have IP of the FreeIPA server. 
+Maybe easier just use command line tool :)
+<BR>
+
+<BR>
+
+Allowed radius clients list configured in 
+/etc/radius?/ client.conf
+/etc/ipa ?
+<BR>
+<BR>
+
+
+<H2>config files</H2>
+<PRE>
+/etc/ipa/default.conf
+	enable_ra 	# this has to do with certification ops on IPA replica, see https://www.freeipa.org/page/Howto/Promoting_a_self-signed_FreeIPA_CA#:~:text=Enable
+</PRE>
+
+Logs:
+
+<PRE>
+/var/named/data/query.log
+/var/named/data/query_errors.log
+/var/named/data/named.log
+
+</PRE>
+
+
+<H2>User commands</H2>
+<!-- most cmd tested on vpn-gr -->
+<PRE>
+
+ipa user-show  sn50		# show info of specific user, exact spell, by userlogin 
+ipa user-show      		# no argument will get a prompt
+ipa user-find 			# list all users in ipa db (think to getent passwd)
+ipa user-find  tin		# find any account containing specified patter "tin" in userlogin, first and last name.  case insensitive search
+
+ipa user-find --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
+[ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/pwd-expiration.html ]
+
+ipa user-mod --password 	# user can change password their own password
+
+# change when password expires                    yyyyMMddHHmm??Z  last few maybe timezone
+ipa user-mod sn50 --setattr=krbPasswordExpiration=20121231011529Z
+
+ipa otptoken-add 		# add OTP/MFA. QR code can be displayed in most terminals these days.
+ipa otptoken-add --type=totp --owner=jansengr --desc="My soft token1"
+
+# once OTP is added, ssh login prompt change from password to First Factor/Seconf Factor
+# and must use both password and token to login
+# User can run "otptoken-add" multiple times and have more than one token, can use either to login
+
+
+
+
+ipa group-find
+
+ipa pwpolicy-show                     # there is a default global policy if no group policy is defined
+ipa pwpolicy-show --user=sn50
+ipa pwpolicy-mod --minlife=1 --maxlife=90 --history=3	# modify system default pw policy, minlife=1 maybe bad, user can't change password if they set a bad one till a day later...
+ipa user-show sn50 --all | grep expiration 
+
+ipa pwpolicy-mod ... to have differing password complexity requirements (for everyone)  --minlength --charclasses
+
+ipa pwpolicy-add exampleGroup --minlife=7 --maxlife=49 --history= --priority=1 
+[ ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/Setting_Different_Password_Policies_for_Different_User_Groups.html ]
+
+# not sure about password complexity.  
+# especially if have OTP, then first token for password is acceptable to be a simple PIN.  
+# How to do this?  ++
+
+radtest alice password freeipa.greta.local 1812 badsecret
+
+</PRE>
+
+<H2>Admin commands</H2>
+<PRE>
+kinit 	# initialize Kerberos system, restart timer
+
+ipa user-disable alice
+ipa user-mod --password alice
+
+
+ipa user-add	# interactive prompted user addition, but only ask for first, last, and username.  
+
+radsniff -X
+
+
+## How to remove the "change password on first login" ?    esp using cli
+## How to remove password expiration ?  or change expiration in cli ?
+## how to change uid/gid ?   maybe ipa user-mod ... 
+
+
+</PRE>
+
+<H2>IPA install commands</H2>
+
+<PRE>
+ipa-server-install 
+ipa-server-install --uninstall
+
+systemctl status really just call 
+/usr/sbin/ipactl 
+
+
+systemctl status reporting "active (exited)" is fine.
+running processes:
+
+[root@freeipa data]# ps -ef | grep ipa
+ipaapi     91875   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91876   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91877   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91878   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+root       91887       1  0 12:45 ?        00:00:00 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
+ods        92359       1  1 12:45 ?        00:00:01 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-dnskeysyncd
+
+journalctl -u ipa
+
+</PRE>
+
+<A ID=dns></A>
+<H1>FreeIPA DNS server</H1>
+
+The DNS in FreeIPA is wrapper around bind-dyndb-ldap, which is based on bind.
+so, config and doc for bind would apply.
+
+<PRE>
+
+ipa dnsrecord-find	
+ipa dnsrecord-find greta.local		# list all dns record for the named zone
+
+</PRE>
+
+DNS forwarding, recursive query problem:
+see
+<A HREF="https://access.redhat.com/solutions/5753431">RH solution doc</A>
+
+<PRE>
+forwarding is not working, check as:
+dig @freeipa.local  google.com
+# WARNING: recursion requested but not available
+
+Fix:
+On webUI, Network Service, DNS Global Config, 
+Forward policy: 
+- Forward first (most permissive)
+- Forward only
+- Forwarding disabled (no outside name resolution then).
+
+Use ACL to restrict which client can query the local DNS server:
+
+<PRE>
+on freeipa server, edit 
+/etc/named/ipa-options-ext.conf
+	// allow recursion per https://access.redhat.com/solutions/5753431
+	allow-recursion { trusted_network; };
+	allow-query-cache  { trusted_network; };
+
+/etc/named/ipa-options-ext.conf
+
+	acl "trusted_network" {
+	 localnets;
+	 localhost;
+	 192.168.0.0/16;
+	};
+
+systemctl restart named-pkcs11
+
+</PRE>
+
+<A ID=cert></A>
+<H1>FreeIPA for signing certs</H1>
+
+The DogTag project for signing cert is bundled into FreeIPA, see 
+<A HREF="https://www.freeipa.org/page/PKI">FreeIPA PKI</A>
+<BR><BR>
+
+This post on 
+<A HREF="https://blog.christophersmart.com/2014/08/24/creating-certs-and-keys-for-services-using-freeipa-dogtag/">
+Creating certs and keys for services using FreeIPA (Dogtag)</A> 
+ has a good overview of the process. 
+<BR><BR>
+
+And 
+<A HREF="https://rcritten.wordpress.com/2018/11/26/how-do-i-get-a-certificate-for-my-web-site-with-ipa/">
+HOW DO I GET A CERTIFICATE FOR MY WEB SITE WITH IPA?</A> 
+list some useful relevant ipa commands
+
+<BR><BR>
+
+<A HREF="https://gist.github.com/rechner/c6b9133b7816445b5850f8e22e16aa60">FreeIPA for OpenVPN gist</A>
+<BR><BR>
+
+<!-- CF_BK...vpn-greta -->
+<PRE>
+
+kinit admin
+ipa dnsrecord-find  hulk.local		# list all dns record for the named zone hulk.local
+ipa dnsrecord-add   domain      hostname
+ipa dnsrecord-add   hulk.local  www
+ipa dnsrecord-add   hulk.local  vpn
+
+ipa dnsrecord-add hulk.local  vpn  --a-rec 192.8.17.19
+ipa dnsrecord-add 17.8.192.in-addr.arpa. 19 --ptr-rec vpn
+
+ipa host-add  www.hulk.local
+ipa host-add  vpn.hulk.local
+
+ipa service-add    openvpn/vpn.hulk.local
+ipa service-add    HTTP/www.hulk.local
+
+ipa service-add-host --hosts=ipa-server.test.lan HTTP/www.test.lan
+
+ipa-getcert request -r -f /etc/pki/tls/certs/vpn.hulk.local.crt -k /etc/pki/tls/private/vpn.hulk.local.key -N CN=vpn.hulk.local -D vpn.hulk.local -K openvpn/vpn.hulk.local
+
+copy .crt and .key files to www/vpn server
+
+getcert stop-tracking -i 20220211224159	# remove if need to redo eg cuz typo
+
+ipa service-find  | grep Principal\ na
+
+
 </PRE>
 
 

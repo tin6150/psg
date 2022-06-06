@@ -429,6 +429,8 @@ firewall-cmd --zone=trusted  --remove-source 128.3.7.87                # rm runn
 ref:
 <A HREF="https://www.linode.com/docs/security/firewalls/introduction-to-firewalld-on-centos">
 Linode intro to firewallD on CentOS</A>
+<BR>
+<BR>
 
 <H5>XML</H5>
 
@@ -475,20 +477,46 @@ ref:
 tmp
 public.xml firewalld direct edit of
 
+  {rule family="ipv4"}
+    {source address="10.229.192.0/24" /}
+    {service name="ssh" /}
+    {accept/}
+  {/rule}
 
-  <rule family="ipv4">
-    <source address="169.229.192.0/24" />
-    <service name="ssh" />
-    <accept/>
-  </rule>
-
-  <rule family="ipv4">
-    <source address="169.229.192.0/24" />
-    <to-port="104" />
-    <accept/>
-  </rule>
+  {rule family="ipv4"}
+    {source address="10.229.192.0/24" /}
+    {to-port="104" /}
+    {accept/}
+  {/rule}
 
 </PRE>
+
+firewall-cmd --list-all-zones </TT> output, clauses are mostly AND conditions for traffic to flow.   <BR>
+ie IP list, ports.  These are AND condition.  <BR>
+services, ports.  These are OR coditions.  so equiv to 22 or HTTPS for below example.  <BR>
+   If interfaces are listed, it will be  AND condition with IP ranges? <BR>
+eg below only allow traffic to port 443 for ip of 10.15.x.x and 192.168.1.x  <BR>
+*sigh* this is why I am not a huge fan of firewalld... <BR>
+
+
+<PRE>
+internal (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces:
+  sources: 10.15.0.0/16 192.168.1.0/24
+  services: ssh
+  ports: 443/tcp
+  protocols:
+  forward: no
+  masquerade: no
+  forward-ports:
+  source-ports:
+  icmp-blocks:
+  rich rules:
+</PRE>
+
+
 
 <H5>Masquerade/NAT</H5>
 

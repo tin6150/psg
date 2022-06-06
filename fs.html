@@ -40,7 +40,8 @@
       <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
       <td align="center"><a accesskey="e" href="emc.html">EMC</a>	</td>
       <td align="center"><a accesskey="n" href="emcCelerra.html">EMC(NAS)</a></td>
-      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+      <td align="right"> <a accesskey="l" href="linux.html">Linux</a>	</td>
+      <td align="right"> <a accesskey="d" href="ldap.html">LDAP</a>	</td>
     </tr>
   </tbody>
 </table>
@@ -51,6 +52,12 @@
 </div>
 </div>
 
+xref:  <BR>
+<A HREF="netapp.html">Netapp</A> <BR>
+<A HREF="isilon.html">Isilon</A> <BR>
+<A HREF="#synology">Synology</A> (see below) <BR>
+
+<BR>
 
 <H1>Files, ACL, security</H1>
 
@@ -889,6 +896,61 @@ the net idmap command operates locally and is covered in the UID to SID mapping 
 <BR><HR><BR>
 <BR>
 
+See also: <BR>
+<A HREF="netapp.html">Netapp</A> <BR>
+<A HREF="isilon.html">Isilon</A> <BR>
+<BR><BR>
+
+
+<A ID="synology"></A>
+<A ID="Synology"></A>
+<H2>Synology</H2>
+
+
+<A HREF="https://global.download.synology.com/download/Document/Software/DeveloperGuide/Firmware/DSM/All/enu/Synology_DiskStation_Administration_CLI_Guide.pdf">Synology NAS Admin cmd</A> CLI ref, 
+covers: synouser, synogroup, synoshare, synonet, synoservice, synowin (ADS domain settings).
+<BR><BR>
+
+<BR>
+GUI:
+<BR>
+
+DSM 6.2: Control panel, info, General.  See model and serial.  CPU, number of expansion unit attached, etc.
+<BR>
+<BR>
+
+
+
+<A HREF=https://kb.synology.com/en-global/DSM/help/DSM/StorageManager/storage_pool_repair?version=6">DSM 6 storage pool repair</A>.  When no hot spare is available, (but a disk is available as unused), go to Action, Repair, and drag an available drive/slot into the desired array that has a place holder "require disk", then the RAID rebuild process will kick on.    This allow specifiying which disk to use as replacement drive (hopefully fail back to the original source once the drive has been replaced, this is so all disks for a RAID group is in same enclosure, and not subceptable to the single link failure (1 IB-like cable is used between head and expansion shelf).
+<BR>
+<BR>
+
+
+<A HREF=https://kb.synology.com/en-global/DSM/help/DSM/StorageManager/hotspare?version=6">DSM 6 hotspare</A>.
+When a hotspare has been removed, after reinstall, it will no longer be hotspare anymore (just becomes an available drive, unused, in the system.  Reassign as hotspare is a manual process.  Once done, then drive failure in any RAID gropu in any shelf can use the hotspare automagically.
+
+<BR>
+<BR>
+
+<PRE>
+
+syn_[tab][tab]
+
+</PRE>
+
+
+<A HREF=https://global.download.synology.com/download/Document/Hardware/HIG/RackStation/17-year/RS4017xs+/enu/Syno_HIG_RS4017xs_Plus_enu.pdf">RackStation RS4017xs+ HW Install Guide</A>
+page 8 has 
+drives are numbers horizontally first, then down.  <BR>
+<TT>
+[ 1][ 2][ 3][ 4]  <BR>
+[ 5][ 6][ 7][ 8]  <BR>
+[ 9][10][11][12]  <BR>
+[13][14][15][16]  <BR>
+</TT>
+<BR><BR>
+
+from support, it like /dev/sd* are assigned somewhat randomly, it scan order at system boot.
 
 <BR><HR>
 <div align="CENTER">

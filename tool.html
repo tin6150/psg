@@ -18,7 +18,7 @@
 <table summary="Navigation header" width="100%">
   <tbody>
     <tr>
-      <th colspan="4" align="center">
+      <th colspan="16" align="center">
 	<A HREF="http://tiny.cc/TOOL">Sys Admin Pocket Survival Guide</A>
       </th>
     </tr>
@@ -27,6 +27,7 @@
 	  <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
 	  <td align="center"><a accesskey="g" href="git.html">git</a></td>
 	  <td align="center"><a accesskey="f" href="firewall.html">firewall</a></td>
+      <td align="center"><a accesskey="l" href="linux.html">Solaris</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
       <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
@@ -147,6 +148,7 @@ ss -tulp		# check socket status
 <LI> iostat -xz 1	# -x = extended stats; -z = ommit zero / idle entries
 <LI> iostat -xn 1	# NFS stats only
 <LI> iotop		# iostat in top-like fashion, show top process using disk.  from iostat rpm
+<LI> nmon 		# d for disk util.  N for NFS system calls
 <LI> swapon -s
 <LI>
 <LI> hdparam
@@ -257,6 +259,18 @@ So, these things will help finding a decent number for memory request.
 
 <H2>Disks</H2>
 
+<A ID="sata_vs_sas_vs_nvme">
+<A ID="sata_sas_nvme">
+SATA vs SAS vs NVME, connector diagram: <BR>
+<IMG SRC=fig/nvme_09072704740l.jpg ALT="diagram of sata vs nvme">
+<BR>
+Source and more details: 
+<A HREF="https://overclock3d.net/">overclock3d.net</A> 
+<A HREF="https://overclock3d.net/news/storage/what_is_the_new_u_2_ssd_connection/1">SATA vs SAS vs NVME</A>
+<BR>
+<BR>
+
+
 <!-- :set tabstop=8 shiftwidth=8  # which is what browser render as -->
 <PRE>
 
@@ -265,17 +279,20 @@ SATA II  has 300 MB/s
 SAS is 6 Gbps = 768 MB/s
 PCIe 3.1 x4 NVMe = ...
 
-NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
+NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015, show up as /dev/nvme*.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
 
 
 M.2 = replaces mSATA 
+  * typically on mboard, internal to machine, 3.3V only
+  * NOT hot swappable--often on laptop, but number of servers use them too :-\
   * typically bare chips, gumstick format
 
 U.2 (SFF-8639)
   * The U.2 connector is mechanically identical to the SATA Express device plug, but provides four PCI Express lanes through a different usage of available pins (wikipedia)
-  *	ie not to to use SATA controller...
-  *	support hot swap.
-  *	typically inside an enclosure, like traditional 2.5" HDD
+  * Some nvme drive support sata as well for backward compatibility, but at reduced bandwidth.
+  * ie does not use SATA controller, straight to the PCIe bus
+  * support hot swap, 3.3V or 12V.
+  * typically inside an enclosure, mounted on a hot swap disk tray, like traditional 2.5" HDD
 
 AIC
   * Add-In card format.  ie pci card.
@@ -812,12 +829,14 @@ netstat -ta     show current intenet services/connections
         -k ce0 : lot of interface specific info, ce NIC will have duplex stat.
 
 netstat -tulpn	# list LISTEN port and process 
+netstat -pan 	# list process and ports it has open
 
-netstat -p	: print ip to mac address table known to host
+netstat -p	: print ip to mac address table known to host  (solaris?)
 netstat -k 	: print lot of kernel stat, among it hme0 is for the sun's build in 
 		  happy meal ethernet nic (see sunsolve infodoc 17416 for explanation of these 
 		  undocumented stats, good for trobleshooting network latency, comare agaist cisco stat.)
 netstat -s	: show high level packet send/receive/fragment info
+
 vmstat -a   : all 
        -n   : 
        -p   : process owning port
@@ -1468,12 +1487,14 @@ and support cpu, GPU OpenCL runtime from even AMD/ROCm.
 <!-- ttcp.ref -->
 <H1>Network Tracing</H1>
 
+<PRE>
 traceroute # some use icmp to trace, other use udp.
 
 traceroute --port=623 172.10.0.128   # potentially check rachability of ipmi udp port
 traceroute --port=33434 is the default, it is Destination UDP port that this pokes at.
 
 If host is reachable, even if destination udp port is not open/listen mode, traceroute will work.
+</PRE>
 <BR> <BR>
 
 
@@ -1526,6 +1547,16 @@ sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:
 # -e add mac address to output
 
 sudo tcpdump  port 514 -i enp216s0f0 -S -X  # hex dump of syslog traffic on port 514, let it capture both tcp and udp (@@ vs @ in rsyslog.conf
+
+
+tcpdump  ip6 -i enp0s8                 # monitor IPv6 traffic only
+tcpdump  -i enp0s8 ip6 and port 25     # IPv6 and mail port  
+
+wireshark display filter
+
+tcp.port==25 
+ref: https://wiki.wireshark.org/DisplayFilters
+
 
 </PRE>
 
@@ -1873,9 +1904,9 @@ GET / HTTP 1.1
 
 
 telnet mta.server.com 25
-EHLO tin.example.com
-mail from:tin@lbl.gov
-rcpt to:tin@lbl.gov
+EHLO example.com
+MAIL FROM:<tin@eg.gov>
+RCPT TO:<tin@eg.gov>
 DATA
 Subject: manual telnet 25 smtp test
 additional body message here

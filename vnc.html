@@ -49,10 +49,35 @@ Memory footprint: 1. XFCE (300MB), 2. Plasma (410-500MB) 3. Gnome (450-500MB).  
 <LI>
 
 <LI> A Desktop Environment (DE) anything on the desktop or initialization of the window manager that is reboot persistent.
-
 <LI>
-
 </OL>
+
+
+
+<A ID="bracketed_paste_mode"</A>
+<H5>bracketed paste mode</H5>
+
+funny/strange character in the terminal when pasting?  It is from bracketed-paste mode, and likely have to deal with readline libraries.  
+see: 
+<A HREF="https://cirw.in/blog/bracketed-paste">post in cirw</A>.  Supposedly entering 
+<TT>printf "\e[?2004l"</TT> should disable the bracked paste mode, but at least one machine (viz) didn't work.
+small little thing, but agravating as heck! :-\ <BR>
+If running tmux, the printf trick needs to be done before tmux is invoked, eg before <TT>tmux a</TT>
+<BR>
+See also: <A HREF="https://stackoverflow.com/questions/42212099/how-do-i-disable-the-weird-characters-from-bracketed-paste-mode-on-the-mac-os">stack overflow post</A>
+<BR>
+<BR>
+.inputrc could have code in there to enable/disable this?
+<BR>
+
+<PRE>
+# disable bracketed paste mode:
+printf "\e[?2004l"
+
+# enable bracketed paste mode:
+printf "\e[?2004h"
+</PRE>
+
 
 <H1>Running X-based apps in a remote Unix machine</H1>
 
@@ -399,10 +424,97 @@ This time, it will print a message telling you which virtual session
 
 </PRE>
 
+<A ID="mate4vnc"></A>
+<A ID="ChangeVncDesktop"></A>
+<H3>
+Changing windows manager/desktop environment in VNC
+</H3>
+
+Gnome 3.0 takes a lot getting used to.  For users that want the older Gnome 2.0 from CentOS 6 days, could try:
+<BR>
+<LI> Gnome Classic - Still use Gnome 3.0, but a bit less annoying (bearable for me), but still too annoying for many. </LI> 
+<LI> MATE (a fork from Gnome 2.0, will feel at home for old timers like me).  Use Caja, Mozi.</LI> 
+<LI> /usr/share/switchdesk  is avail in CentOS 8 and maybe preferred over hand editing config files </LI> 
+
+<LI></LI> 
+
+Installing <TT>yum groupinstall "@MATE Desktop"</TT> in CentOS 7 should provide this old school real classic.
+But in VNC, may still need to do customization to force it.  Try these:
+
+<PRE>
+
+This seems to be startup sequence where customization could be "forced" :
+
+echo "exec /usr/bin/mate-session" >> ~/.xinitrc				# vnc don't heed this either
+echo "/usr/bin/mate-session" >> ~/.Xclients; chmod +x ~/.Xclients 	# maybe vnc heeded this
+
+~/.vnc/xstartup
+	## don't seems to be heeded for me 
+	unset SESSION_MANAGER
+	unset DBUS_SESSION_ADDRESS
+	PREFERRED=/usr/bin/mate-session
+	/usr/bin/mate-session
+
+
+/etc/vnc/xstartup.custom
+	##--STARTUP="/usr/bin/gnome-session --session=$SESSION"; export STARTUP
+	STARTUP="/usr/bin/gnome-session --session=gnome-classic"; export STARTUP    # but still not same as MATE/Gnome 2.0
+
+	## for mate, changed
+	PREFERRED=/usr/bin/mate-session
+
+/etc/X11/xinit/Xsession
+	/etc/X11/xinit/gnome-classic-session
+
+/etc/X11/xinit/Xclients
+
+
+/etc/sysconfig/desktop
+	PREFERRED=/usr/bin/mate-session
+
+
+</PRE>
+
+<A ID="xfce4vnc"></A>
+<H3>
+Changing windows manager/desktop environment in realVNC to use xfce4
+</H3>
+
+actually no luck yet.  partial notes of what tried so far:
+<BR>
+
+don't edit ~/.vnc/xstartup <BR>
+
+realvnc certainly exec /etc/vnc/xstartup  <BR>
+might heed             /etc/vnc/xstartup.custom
+
+<PRE>
+
+## ~/.vnc/xstartup not heeded for me or steve
+## realvnc always use /etc/vnc/xstartup
+## firefox doesn't run there though ...
+## but xterm never ran.  this this doesn't work.
+## ~/.vnc/xstart.custom is not mentioned , so unlikely to be looking for that.
+  #!/bin/sh
+DESKTOP_SESSION=xfce
+export DESKTOP_SESSION
+startxfce4
+vncserver-virtual -kill $DISPLAY
+
+## config per
+## https://help.realvnc.com/hc/en-us/articles/360003474792-Why-does-VNC-Server-in-Virtual-Mode-on-Linux-appear-to-hang-show-a-gray-screen-or-not-start-at-all-#using-vnc-5-x-or-vnc-connect-6-0-6-1-or-on-a-different-version-of-linux--0-1
+## said not to put startxfce4 in background via &
+## seems like line run sequentially... when session ends is when -kill happens...
+## but xfce isn't starting even after the -extension RENDER
+
+
+</PRE>
+
+
 
 <A ID="desktop"></A>
 <H3>
-Info for setting a a Desktop Environment inside VNC session.
+Info for setting a a Desktop Environment inside VNC session. (old)
 </H3>
 
 <PRE>
@@ -767,6 +879,7 @@ solaris version req perl which may not be installed.  the vncserver script may n
 -----
 
 encapsulating vnc with ssh, all command run on localhost:
+ssh -L localPort:localhost:remoteHost  user@remoteHost 
 
 ssh -L 5911:localhost:5901 tin-u10 
          ^            ^^^^^^^^^^^^
@@ -893,7 +1006,7 @@ At least with Ubuntu 18.04, forced to use alt-tab and alt-` which is what I hate
 
 CentOS 7 per user: <BR> 
 <PRE>
-echo "mate-session" > ~/.Xclients
+echo "/usr/bin/mate-session" > ~/.Xclients
 chmod +x ~/.Xclients
 
 </PRE>

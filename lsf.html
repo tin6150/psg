@@ -30,16 +30,18 @@
 <table summary="Navigation header" width="100%">
   <tbody>
     <tr>
-      <th colspan="4" align="center">
+      <th colspan="14" align="center">
 	  
 <A HREF="http://tin6150.github.io/psg/lsf.html">Sys Admin Pocket Survival Guide - HPC Batch System</A>
       </th>
     </tr>
     <tr>
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
-      <td align="center"><a accesskey="s" href="docker.html">Docker</a></td>
-      <td align="center"><a accesskey="p" href="aws.html">Amazon AWS</a></td>
-      <td align="right"><a accesskey="a" href="mpi.html">MPI</a></td>
+      <td align="center"><a accesskey="d" href="docker.html">Docker</a></td>
+      <td align="center"><a accesskey="x" href="linux.html">linuX</a></td>
+      <td align="center"><a accesskey="a" href="aws.html">Amazon AWS</a></td>
+      <td align="center"><a accesskey="m" href="mpi.html">MPI</a></td>
+      <td align="right"><a accesskey="g" href="git.html">Git</a></td>
     </tr>
   </tbody>
 </table>
@@ -499,7 +501,17 @@ sacct -u USERNAME --partition QNAME --format jobid,jobname,acc,qos,state,Derived
 sacct -u USERNAME -r QNAME -p       --format jobid,jobname,acc,qos,state,AllocNodes,AllocTRES,Elapsed,Timelimit,NNodes		
 
 # no data on these max ...
-sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxVMSize,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask   
+sacct -X -r QNAME -o jobid,User,Acc,qos,state,MaxDiskWriteNode,MaxDiskReadNode,MaxPagesNode,MaxDiskWriteTask,MaxVMSize,MaxRSS
+
+# MaxRSS will be collected when slurm.conf has clause 'JobAcctGatherType=jobacct_gather/cgroup' 
+# ref: https://slurm.schedmd.com/cgroups.html
+# seff script likely depend on this as well 
+export SACCT_FORMAT="JobID%20,JobName,User,Partition,NodeList,Elapsed,State,ExitCode,MaxRSS,AllocTRES%32,MaxVMSize"
+sacct -j $JOBID		# would report max memory usage under MaxRSS, when configured
+
+# what node a specific job ran on:
+sacct -o job,user,jobname,NodeList,AllocNode,AllocTRES,DerivedExitCode,state,CPUTime,Elapsed  -j 10660573,10666276,10666277,10666278
+
 
 
 # example of querying jobs ran in a certain time frame:

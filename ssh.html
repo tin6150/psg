@@ -26,6 +26,7 @@
     <tr>
       <td align="left">  <a accesskey="h" href="psg2.html">Home</a>                     </td>
       <td align="center"><a accesskey="m" href="mrf.html">Modified RAID 5</a>           </td>
+      <td align="center"><a accesskey="x" href="linux.html">Linux</a>    	          </td>
       <td align="center"><a accesskey="d" href="docker.html">Docker</a>                 </td>
       <td align="center"><a accesskey="a" href="aws.html">AWS</a>                       </td>
       <td align="center"><a accesskey="l" href="lsf.html">HPC/Batch System</a>          </td>
@@ -53,6 +54,21 @@
 
 
 <H1>SSH, Tunnel, Port Forward</H1>
+
+<H3>Ponder</H3>
+
+<LI>PermitTunnel is disabled by default on openssh, it poses lots of serucrity problems for TCP ports, cuz sshd runs as root</LI>
+<LI>Stunnel: create tunnel wrapper to secure otherwise non encrypted TCP traffic</LI>
+<LI>sshuttle: mount NFS from ssh connection.  NFS server should only allow priviledged ports to mounts to mitigate this problem.  <BR>
+	sShuttle is amazing, but it also creates lots of security complications <BR>
+	Ref: <A HREF="https://etherarp.net/sshuttle-a-vpn-for-the-lazy/">SSHUTTLE - A VPN for the Lazy</A><BR>
+</LI>
+<LI>ssh agent forwarding.  with git not allowing password, this is increasingly a necessity.  But there are security risks.  SSH_AUTH_SOCK can be read by root, and hijack the session to impersonate the user running the agent foward.  There are mitigations, see <BR>
+	<A HREF="https://smallstep.com/blog/ssh-agent-explained/#:~:text=Agent%20forwarding%20comes%20with%20a,other%20machines%20on%20the%20network.">SSH Agent Explained</A>  <BR>
+	In sshd.conf, AllowAgentForward is independent of AllowTcpForwarding (and X11Forwarding).  <BR>
+</LI>
+<LI></LI>
+<LI></LI>
 
 <H3>Scripting SSH Login</H3>
 
@@ -164,6 +180,15 @@ ssh -L 5911:localhost:5901  remoteVncSvr
 vncviewer localhost:11
    this connect to local port 5911, wrap by ssh, then into the remote vncserver port 5901, ie :1
 
+
+
+ssh port forward tunnel chaining 
+
+ssh chaining
+ssh -L 5907:localhost:5907 tin@gt1
+ssh -L 5907:localhost:5907 tin@a1
+vncserver -geometry 1280x800  :7
+vncviewer localhost:7
 
 ---
 
@@ -299,8 +324,8 @@ This is another line.
 -->
 
 
-<A NAME="cert">
-<A NAME="openssl">
+<A NAME="cert"></A>
+<A NAME="openssl"></A>
 <H1>OpenSSL</H1>
 
 certs, and stuff
