@@ -13,6 +13,8 @@
 ### from perceus:/global/home/groups/scs/disks/part_disks.sh 
 ### 2021.1105 added test for SD_NAME cuz cut-n-paste may miss it 
 ### 2020.1027 slightly updated mkdir /local/log
+### 2022.0328 slightly updated mkdir /local/log/slurm 
+### 2022.0606 found bug; added mount /local in line 144
 
 #### 2020.0810
 #### run as:
@@ -140,6 +142,7 @@ run_fdisk_cmd_single()
 	swapon -s
 	df -h /tmp
   ## next 2 lines added 2021.1027
+  mount /local
   mkdir /local/log
   ls -ld /var/log /local/log
 	echo "Fdisk on single disk ends.  Should reboot after fdisk partition disk..."
@@ -147,8 +150,13 @@ run_fdisk_cmd_single()
 	## tin addition 2021.1118
 	mkdir /local/log/munge
 	chown munge:munge /local/log/munge
-	ls -ld /var/log  # expect link to /local/log
+	ls -ld /var/log  # expect link to /local/log // 2022.06.06 no longer the case?
 
+	## tin addition 2022.0328
+	mkdir /local/log/slurm
+	chown slurm:slurm /local/log/slurm
+	chmod g+w         /local/log/slurm
+    ls -ld /local/log/slurm 
 }
 
 

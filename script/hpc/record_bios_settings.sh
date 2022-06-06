@@ -9,6 +9,7 @@
 # pdsh      -w n0[158-160].savio3    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh smc
 # pdsh -w n0[162-169,177-178,197-204].savio3 /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2021.0519
 # pdsh -w n0[218-229].savio3         /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2021.0519
+# pdsh -w n0[230-256].savio3         /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2022.0201
 
 
 # -f 1 means serial, one node at a time.  for when racadm need to do lock.  
@@ -163,6 +164,7 @@ chown tin $BIOSOUT $BIOSHIGHLIGHT
 ################################################################################
 # performance check notes
 # cd /global/scratch/tin/gsCF_BK/savio3/dell_bios_cf/bak2020-0331
+# cd /global/scratch/users/tin/gsCF_BK/BIOS_CF/bak2022-0201
 # grep SysProfile=PerfPerWattOptimizedDapc *
 # Skylake/Cascadelake Dell factory now is MaxPower
 # BalancedPerformance was done for n0[141-142].savio3

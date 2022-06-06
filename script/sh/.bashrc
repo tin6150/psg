@@ -497,6 +497,8 @@ defineAlias () {
 	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
 	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
+	alias lsRotational='ls -l /sys/block/*/queue/rotational'
+	alias catRotational='cat /sys/block/*/queue/rotational'
 
 	###
 	### stuff for ETA/CMAQ
