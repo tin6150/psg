@@ -1608,13 +1608,58 @@ The DNS in FreeIPA is wrapper around bind-dyndb-ldap, which is based on bind.
 so, config and doc for bind would apply.
 
 <PRE>
+ipa dnszone-find 			# list all dns zones managed by this server
 
-ipa dnsrecord-find	
-ipa dnsrecord-find greta.local		# list all dns record for the named zone
+ipa dnsrecord-find greta.local		# list all dns record for the dnsZone named greta.local
+ipa dnsrecord-find greta.local | grep "Record name"
+ipa dnsrecord-find 16.8.10.in-addr.arpa.	# reverse PTR zone
 
 </PRE>
 
+<H5>Adding DNS zone</H5>
+<PRE>
+ipa dnszone-add 16.8.10.in-addr.arpa.
+</PRE>
+
+<H5>Adding DNS host record</H5>
+
+ref: <BR>
+
+<LI> https://www.freeipa.org/page/Howto/DNS_classless_IN-ADDR.ARPA_delegation#
+<LI> https://blog.khmersite.net/2020/12/freeipa-adding-new-dns-record/?msclkid=234a796acfcc11ec9a6b232e7b9ac9bf
+
+<BR>
+
+Ensure reverse dnszone exist or reverse record addition will fail.  (but forward record still added)
+
+<PRE>
+ipa dnsrecord-add greta.local  n00 --a-rec 10.8.16.100 --a-create-reverse  # "forward" A record
+ipa dnsrecord-add greta.local  n01 --a-rec 10.8.16.101 --a-create-reverse 
+
+ipa dnsrecord-add greta.local  alias00     --cname-rec=n00      # CNAME alias record
+</PRE>
+
+
+add missing reverse PTR records:
+<PRE>
+
+ipa dnsrecord-add 16.8.10.in-addr.arpa.  128  --ptr-rec c00.greta.local.   # ie add 10.8.16.128
+ipa dnsrecord-add 16.8.10.in-addr.arpa.  100  --ptr-rec n00.greta.local.  
+#                                        ^^^-------- last octet
+
+</PRE>
+
+
+deleting record, try things like:
+<PRE>
+ipa dnsrecord-del lab.ex.com. badhost --a-rec 192.168.250.254
+</PRE>
+
+
+<H5>
 DNS forwarding, recursive query problem:
+</H5>
+
 see
 <A HREF="https://access.redhat.com/solutions/5753431">RH solution doc</A>
 

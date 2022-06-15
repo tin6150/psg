@@ -658,7 +658,19 @@ restart X:
 - init 3; init 5	# This may work
 - reboot		# :)
 
+
+xorg pci BusID when multiple GPU is present and want to specify which one to use to accelearate video (virtual, VNC)
+nvidia-xconfig --query-gpu-info 
+returned pci BusID for each GPU card.
 </PRE>
+
+<!--
+nvidia-xconfig - -query-gpu-info 
+to figure out which pci-{blah} to use.  
+The query will give you the BusIDs, the {blah} part of the pci-{blah} file to provision corresponds to those GPU busids
+wwsh provision set ... 
+-->
+
 
 <BR><BR>
 
