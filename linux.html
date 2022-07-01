@@ -702,11 +702,23 @@ gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults
 
 </PRE>
 
-<!-- pam.d stuff somehow previously placed in firewall.html -->
 <A ID="pam.d"></A>
 <A ID="pamd"></A>
 <A ID="pam"></A>
 <H1>pam.d</H1>
+
+Ref:
+<UL>
+
+<LI><A HREF="https://www.redhat.com/sysadmin/pluggable-authentication-modules-pam">PAM intro</A> From RedHat articles</LI>
+<LI><A HREF="https://www.linuxjournal.com/article/2120">The orig article about PAM</A> from Linux journal, some 20 years ago.  arch and basic working remains the same.</LI>
+<LI><A HREF="https://aplawrence.com/Basics/understandingpam.html">Understanding PAM</A> with eg of adding time module governing ssh and local login</LI>
+<LI></LI>
+<LI><A HREF="https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file">
+https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file</A></LI>
+<LI></LI>
+</UL>
+
 
 Check to allow user login is really a convoluted matrix of many different combinations. 
 All the different "if ssh, if user is foo, login in from bar, etc etc" is typically some sort of modules and config in pam.
@@ -737,14 +749,21 @@ Each file correspond to configuration used for that specific service.
 <PRE>
 sshd	# used when ssh in to the machine
 login	# used to /bin/login (eg, login in the terminal?  Also in local X11?)
-
+          when physically in front of machine (? ie GUI, text login, and also su once logged in)
 
 su	# when running su command
 sudo 	# when running sudo command
 
 system-auth	# often refered by other config file to use it.  think of this as C's #include.
+password-auth
+
 config-util	# refered by many system config tools, such as system-config-network
+
+clause:
+pam_stack.so service=system-auth   # this is like "import" system-auth.
+
 </PRE>
+
 
 
 <H2>AAA</H2>
@@ -763,7 +782,6 @@ session
 <H2>Levels</H2>
 
 In increasing mandatory necessity:
-
 
 <PRE>
 
@@ -818,32 +836,6 @@ pam_unix.so
 
 </PRE>
 
-
-Ref:
-<UL>
-<LI><A HREF="https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file">
-https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file</A>
-</LI>
-<!-- end of pam.d stuff somehow previously placed in firewall.html -->
-
-<LI><A HREF="https://www.redhat.com/sysadmin/pluggable-authentication-modules-pam">PAM intro</A> From RedHat articles</LI>
-<LI><A HREF="https://www.linuxjournal.com/article/2120">The orig article about PAM</A> from Linux journal, some 20 years ago.  arch and basic working remains the same.</LI>
-<LI><A HREF="https://aplawrence.com/Basics/understandingpam.html">Understanding PAM</A> with eg of adding time module governing ssh and local login</LI>
-<LI></LI>
-</UL>
-
-<PRE>
-/etc/pam.d
-ssh	- used by sshd 
-login	- when physically in front of machine (? ie GUI, text login, and also su once logged in)
-
-system-auth	- 
-password-auth
-
-clause:
-pam_stack.so service=system-auth   # this means "include" system-auth.
-
-</PRE>
 
 
 <PRE>
