@@ -700,15 +700,54 @@ gconftool-2 --direct --config-source xml:read:/etc/gconf/gconf.xml.defaults --ge
 # set global settings as root, to source login when term opens.
 gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true		
 
+</PRE>
+
+
+<A NAME="pam"></A>
+<H2>pam: pluggable authentication module</H2>
+
+pam.d/ config really governs how things are done.
+<BR>
+authconfig, authselect and other tools make changes to pam.
+<BR>
+/etc/nsswitch.conf is high level director
+<BR>
+/etc/sssd/sssd.conf  is backend for the "sss" clause in nsswitch.conf, it is a cache daemon.
+<BR>
+<BR>
 
 
 
+Ref:
+<UL>
+<LI><A HREF="https://www.redhat.com/sysadmin/pluggable-authentication-modules-pam">PAM intro</A> From RedHat articles</LI>
+<LI><A HREF="https://www.linuxjournal.com/article/2120">The orig article about PAM</A> from Linux journal, some 20 years ago.  arch and basic working remains the same.</LI>
+<LI><A HREF="https://aplawrence.com/Basics/understandingpam.html">Understanding PAM</A> with eg of adding time module governing ssh and local login</LI>
+<LI></LI>
+</UL>
+
+<PRE>
+/etc/pam.d
+ssh	- used by sshd 
+login	- when physically in front of machine (? ie GUI, text login, and also su once logged in)
+
+system-auth	- 
+password-auth
+
+clause:
+pam_stack.so service=system-auth   # this means "include" system-auth.
+
+</PRE>
+
+
+<PRE>
+/etc/security
 
 </PRE>
 
 <A NAME="authconfig"></A>
 <A NAME="authentication_configuration"></A>
-<H2>authentication configuration</H2>
+<H2>authconfig -- RHEL 7 authentication configuration</H2>
 
 <TT>authconfig</TT> is the tool to use to configure authentication services in RHEL7/CentOS7.  Manually changing nsswtich.conf isn't enough.  There are pam.d, selinux, firewall updates.  <BR>
 
@@ -745,7 +784,19 @@ Ref:
 <UL>
 <LI><A HREF="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System-Level_Authentication_Guide/authconfig-install.html#tips-for-authconfig">RHEL7 authentication</A>
 <LI><A HREF="https://www.certdepot.net/sys-understand-authconfig/">certdepot authentication</A>
-<LI><A HREF="https://fedorahosted.org/sssd/">https://fedorahosted.org/sssd/</A>
+</UL>
+
+<A NAME="authselect"></A>
+<H2>authselect -- RHEL 8 authentication configuration</H2>
+
+<PRE>
+authselect show		# show current profile
+/etc/authselect		# config files loc      (/etc/sssd/ is largely empty now)
+</PRE>
+
+Ref: 
+<UL>
+<LI><A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/configuring_authentication_and_authorization_in_rhel/index">https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/configuring_authentication_and_authorization_in_rhel/index</A>
 </UL>
 
 

@@ -624,7 +624,7 @@ nsAccountLock: true
 
 
 
-  <PRE class=cf>
+<PRE class=cf>
 
 #
 # Change a group definition: add a user to its membership list
@@ -633,7 +633,8 @@ dn: cn=sysadmin,ou=Groups,ou=sc,ou=ca,ou=na,dc=hypbridauto,dc=com
 changetype: modify
 add: memberUid
 memberUid: tho
-memberUid: mlee</PRE>
+memberUid: mlee
+</PRE>
 
 
 <A ID="import"></A> 
@@ -1676,6 +1677,7 @@ Forward policy:
 - Forwarding disabled (no outside name resolution then).
 
 Use ACL to restrict which client can query the local DNS server:
+</PRE>
 
 <PRE>
 on freeipa server, edit 
