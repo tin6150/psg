@@ -84,6 +84,10 @@ exp(1)             # expoent of natual log.  same as bc's e(), python math.exp()
 log(exp(1))        # identity
 exp(log(1))        # identity
 
+Note, R doesn't treat dot differently.  it is often used as part of variable name or function name, like chisq.test() or p.hat.
+However, neither Python nor bc likes dot in the variable name, so cut-n-paste simple calculator lines with variables with dots in them result in error.  May try to avoid use of dot in variable names for code portability.  (eg pasting from R to jupyther notebook with python kernel)
+
+
 
 </PRE>
 
@@ -265,7 +269,7 @@ Num of (input) Group/Categories
   |                                 \------ param      -- paired T test
   |
   +--- Three+ --+--- non-parametric ---Kruskal-Wallis
-  |             \------  parametric -- anova  ----- if support H_a , subsequent post-hoc test, eg Tukey HSD or Bonf... tests
+  |             \------  parametric -- anova  ----- if support H_a , subsequent post-hoc test, eg Tukey HSD or Bonferroni correction tests
   |
   \--- continuous --→ Linear Regression  lm()
 
@@ -1754,15 +1758,26 @@ str( data ) # see list of variables (column headers)
 
 <PRE>
 capabilities() 		# see if support X11, etc
-system("id;pwd")	# run OS commands
-
-setwd("dirname")	# cd to dirname, most useful in interactive R session.
 source("myFuncList.R")	# import function list from file
 
+system("id;pwd")	# run OS commands
+setwd("dirname")	# cd to dirname, most useful in interactive R session.
+
+# loading files in Rstudio 
+
+spatial_paths = loadPaths(fileName = normalizePath("C:/Users/tin61/tin-gh-inet-class-only/inet-dev-class/epi_info/travHistProtocol/files/Protocol4/EPI_ISL_412975_MJhist.csv") )
+
+# note that in windoze, C: is assumed and added by system at run time if not specified
+
+# these might be helpful with knitting
+setwd("c:")
+setwd("/Users/tin61/tin-gh-inet-class-only/inet-dev-class/epi_info/travHistProtocol/files/Protocol4/")
+
+# Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks.
+knitr::opts_chunk$set(root.dir = normalizePath("/Users/tin61/tin-gh-inet-class-only/inet-dev-class/epi_info/travHistProtocol/files/Protocol4/"))
+
 .libPaths()		# list path used to scan for R libs 
-
 .libPaths(  c( ./libPaths(), '/home/tin/R/x86_64-pc-linux-gnu-library/3.4' ) )   # add path to library 
-
 
 
 rm(list=ls())  		# remove all var in memory
@@ -2976,6 +2991,7 @@ better bullet for table▶yes?
 ×    multiply
 ÷    divide
 Ø    empty set
+↓↑   arrow up down
 
 λ - lambda - eigenvalue
 Λ - Lamda - eigenvector
