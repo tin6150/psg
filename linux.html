@@ -702,11 +702,14 @@ gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults
 
 </PRE>
 
+<!-- pam.d stuff somehow previously placed in firewall.html -->
+<A ID="pam.d"></A>
+<A ID="pamd"></A>
+<A ID="pam"></A>
+<H1>pam.d</H1>
 
-<A NAME="pam"></A>
-<H2>pam: pluggable authentication module</H2>
-
-pam.d/ config really governs how things are done.
+Check to allow user login is really a convoluted matrix of many different combinations. 
+All the different "if ssh, if user is foo, login in from bar, etc etc" is typically some sort of modules and config in pam.
 <BR>
 authconfig, authselect and other tools make changes to pam.
 <BR>
@@ -717,9 +720,112 @@ authconfig, authselect and other tools make changes to pam.
 <BR>
 
 
+<BR>
+Whether ssh keys are allowed as authentication source is set in:   		<BR>
+- sshd.conf (if certain users are allowed to use ssh key, others are not)		<BR>
+- pam sshd config (forcing interactive login?) (if config is same for all users) ??	<BR>
+<BR>
+
+
+<H2>/etc/pam.d/ Files</H2>
+pam.d/ config really governs how things are done.
+<BR>
+
+Each file correspond to configuration used for that specific service.
+<BR>
+
+<PRE>
+sshd	# used when ssh in to the machine
+login	# used to /bin/login (eg, login in the terminal?  Also in local X11?)
+
+
+su	# when running su command
+sudo 	# when running sudo command
+
+system-auth	# often refered by other config file to use it.  think of this as C's #include.
+config-util	# refered by many system config tools, such as system-config-network
+</PRE>
+
+
+<H2>AAA</H2>
+
+??
+
+<PRE>
+auth
+account
+password
+session 
+</PRE>
+
+
+
+<H2>Levels</H2>
+
+In increasing mandatory necessity:
+
+
+<PRE>
+
+optional ?
+
+sufficient ??
+
+
+include
+	use content of another config file (eg system-auth, config-util)
+	think of #include of C
+
+
+required
+	Failure also results in denial of authentication, 
+	although PAM will still call all the other modules listed for this service 
+	before denying authentication. 
+	*** think of it as mandatory but keep checking anyway ??!! ***
+
+requisite
+	Failure to authenticate via this module results in immediate denial of authentication. 
+	*** think of as mandatory, waste no more time, fail right away ***
+
+</PRE>
+
+<H2>modules</H2>
+
+<PRE>
+# Use a radius authentication server listed in a config file
+auth       required     pam_radius_auth.so conf=/etc/raddb/server	
+	
+
+# When SELinux operates in Permissive mode, 
+# disable linux user login for users listed in /etc/security/sepermit.conf
+# If user not listed, would still be allowed to login when selinux is disabled or in permissive mode
+auth       required     pam_sepermit.so
+	
+
+
+
+# if file /etc/nologin exist, user not allowed to login
+account    required     pam_nologin.so
+
+
+# use/allow for system password auth  ??
+account    include      password-auth
+
+
+# traditional unix auth, usually /etc/passwd, /etc/shadow
+pam_unix.so
+
+
+</PRE>
+
 
 Ref:
 <UL>
+<LI><A HREF="https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file">
+https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file</A>
+</LI>
+<!-- end of pam.d stuff somehow previously placed in firewall.html -->
+
 <LI><A HREF="https://www.redhat.com/sysadmin/pluggable-authentication-modules-pam">PAM intro</A> From RedHat articles</LI>
 <LI><A HREF="https://www.linuxjournal.com/article/2120">The orig article about PAM</A> from Linux journal, some 20 years ago.  arch and basic working remains the same.</LI>
 <LI><A HREF="https://aplawrence.com/Basics/understandingpam.html">Understanding PAM</A> with eg of adding time module governing ssh and local login</LI>
