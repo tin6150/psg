@@ -54,7 +54,7 @@ These are not exactly right, but think of them more or less this way :)
 <LI> LDAP is more the format to user user data.  So, a DB, and command/tools to query and manipulate the database.  Can be used as simple replacement to NIS for unix login and ssh.  </LI>
 <LI> RADIUS is a protocol that provies all the 3A's: authentication, authorization, and accounting.  LDAP , without extension, does not provide accounting, or support for One Time Password (OTP/MFA).  </LI>
 <LI> Diameter, it is the wacky world of unix, such a thing exist.  Google for it :D </LI>
-<LI> <A HREF="#FreeIPA">FreeIPA</A>: Integrated system that provides 389 Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  </LI>
+<LI> <A HREF="#FreeIPA">FreeIPA</A>: Integrated system that provides Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  </LI>
 <LI>  </LI>
 
 <BR><BR>
@@ -68,11 +68,11 @@ See Also:
 <H1>LDAP</H1>
 
 LDAP is a user database, and it does in Unix what MS Active Directory does in Windows.
-From Operating System Admin perspective, LDAP would typically be used to replace NIS (or NIS+ or scattered local passwd files).  If you are pondering if you should migrate to LDAP, you'll wish the answer was 'NO' :)  
+From Operating System Admin perspective, LDAP would typically be used to replace NIS (or NIS+ or scattered local passwd files).  If you are pondering if you should migrate to LDAP, you'll wish the answer was 'NO' :)    [cuz of the headache, but it is much better in term of security]
 <BR>
-LDAP is much more complex than NIS, and OS support is still not rock solid as in NIS [this was written back in 2006].  Automount maps retrieval from LDAP is quite complex and not well supported.  Older OS LDAP support is rather spotty, and forget about OS that have been EOL-ed by the vendor!
+LDAP is much more complex than NIS, and OS support wasn't rock solid as in NIS back in 2006, but it is used everywhere now.  Automount maps retrieval from LDAP is quite complex and not well supported.  Older OS LDAP support is rather spotty, and forget about OS that have been EOL-ed by the vendor!
 <BR>
-So, in short, unless you know you need LDAP, stay away from it :)  And if you do use it, hopefully this page has some useful info for you.
+LDAP itself is not too bad, but configuring system to use it, especially with automount maps, radius, kerberos, etc can get convoluted quickly :)  This cheatsheet doesn't covere everything, maybe not even 10% of it. but hopefully there is some useful info for you.
 <BR><BR>
 
 <div align="CENTER">
@@ -86,9 +86,9 @@ So, in short, unless you know you need LDAP, stay away from it :)  And if you do
 While LDAP is a user "database" repository, do not think of it as a Relational Database.  It has no resemblance to RDBMS.  The only thing that bear resemblance from RDBMS is the "key" and maybe "attributes", other than that, forget everything you learned about Relational DB when working with LDAP.  Definately forget about those Boyce-Codd Normal Form!!
 
 <H5>File Cabinet Numbering</H5>
-...
+TBD...
 <H5>Special File System Tree</H5>
-...
+TBD...
 
 <BR><BR>
 
@@ -195,8 +195,10 @@ smart referal automount maps.
 <BR>
 
 <H5>RSH vs REXEC</H5>
-The protocol definition for RSH vs REXEC and other similar command:
+[This was back in 2006] <BR>
 
+The protocol definition for RSH vs REXEC and other similar command:
+<BR>
 (a) rsh use the Berkeley rcmd(3) library,  and requires the binary to be setuid root 
     so that it run in priviledged ports and scan for .rhosts in remote server.<BR>
 (b) rexec use the rexec(3) library.  It does not scan .rhosts so no need to run as root.  Instead,
@@ -1461,7 +1463,7 @@ perl -e "print crypt('clear-text-password','salt');"
 <A ID=FreeIPA></A>
 <H1>FreeIPA</H1>
 
-FreeIPA: An Integrated system that provides 389 Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  See 
+FreeIPA: An Integrated system that provides Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  See 
 <A HREF="https://freeipa.org/page/About"</A>FreeIPA doc</A> for more details.
 <BR><BR> 
 
@@ -1509,18 +1511,34 @@ Logs:
 
 </PRE>
 
+<H2>Ports and Firewall</H2>
+
+<OL>
+<LI>1812 udp is default : radius (if not running, rever to use ldap protocol?)  radtest command use this.  firewall to allow local network clients</LI>
+<LI>1813 udp is default : added by freeipa, firewall to allow local network clients only </LI>
+<LI>389:  ldap protocol </LI>
+<LI>8080: there is a tomcat server running, block this from external access is ok</LI>
+<LI>443, 80: hard coded RCP calls, dont change them.  firewall them (only allow localhost?)</LI>
+<LI>8443? </LI>
+<LI>53 tcp/udp: open if have DNS server running. firewall to allow desired clients to connect.</LI>
+<LI> </LI>
+<LI> </LI>
+<LI> </LI>
+</OL>
 
 <H2>User commands</H2>
 <!-- most cmd tested on vpn-gr -->
 <PRE>
+# sn50 is an example LOGIN (username), think alice, bob, carol
 
 ipa user-show  sn50		# show info of specific user, exact spell, by userlogin 
 ipa user-show      		# no argument will get a prompt
 ipa user-find 			# list all users in ipa db (think to getent passwd)
 ipa user-find  tin		# find any account containing specified patter "tin" in userlogin, first and last name.  case insensitive search
 
-ipa user-find --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
+ipa user-find   --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
 [ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/pwd-expiration.html ]
+ipa group-find  --all | egrep name:\|GID:\|users:       # display groups
 
 ipa user-mod --password 	# user can change password their own password
 
@@ -1553,7 +1571,43 @@ ipa pwpolicy-add exampleGroup --minlife=7 --maxlife=49 --history= --priority=1
 # especially if have OTP, then first token for password is acceptable to be a simple PIN.  
 # How to do this?  ++
 
-radtest alice password freeipa.greta.local 1812 badsecret
+
+# add/change user to ipa DB
+     ipa help user-mod  # much better than the man page!
+sudo ipa user-add jsmith --first=John --last=Smith --manager=bjensen --email=johnls@example.com --homedir=/home/work/johns 
+sudo ipa user-mod sn50 --uid=6666  --gidnumber=6666  # group entry for new gid is auto added
+sudo ipa user-mod sn50 --shell=/bin/bash 
+sudo ipa user-mod sn50 --password                    # prmopt to enter new password
+
+ --user-auth-type=['password', 'radius', 'otp', 'pkinit', 'hardened']
+                        Types of supported user authentication
+
+
+ipa group-add  docker                  # create new group "docker", get assigned random gid
+ipa group-mod  docker     --gid=396
+ipa group-add  dockerroot --gid=397
+ipa group-show dockerroot 
+
+# add add as secondary group membership, ie
+# modify group entry, add user to group
+ipa help group-add-member
+ipa group-add-member    docker     --users=sn50 --users=tin   # add multiple users to existing group
+ipa group-add-member    dockerroot --group=docker             # support "indirect member", id -a seems to report things correctly.
+ipa group-remove-member dockerroot --users=sn50               # remove member, but not if it is from a nested/indirect group
+
+ipa group-find --user=sn50    # find groups that user sn50 is a member of
+
+
+ipt user-mod --setattr=key=value?   # for custom ldap attributes? fuzzy about syntax.  POSIX attrib can just use build in support for --uid --gidnumber etc
+
+
+sss_cache -E  		# clear --everything  in sss cache
+getent passwd sn50
+id -a sn50
+
+radtest sn50 password freeipa.greta.local 1812 badsecret
+
+
 
 </PRE>
 
@@ -1561,7 +1615,9 @@ radtest alice password freeipa.greta.local 1812 badsecret
 <PRE>
 kinit 	# initialize Kerberos system, restart timer
 
-ipa user-disable alice
+sudo ipa user-disable User_LoginName
+sudo ipa user-enable  User_LoginName
+
 ipa user-mod --password alice
 
 
@@ -1573,6 +1629,9 @@ radsniff -X
 ## How to remove the "change password on first login" ?    esp using cli
 ## How to remove password expiration ?  or change expiration in cli ?
 ## how to change uid/gid ?   maybe ipa user-mod ... 
+
+
+ipa group-del docker	# delete group named docker
 
 
 </PRE>
