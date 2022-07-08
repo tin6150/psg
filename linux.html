@@ -705,7 +705,7 @@ gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults
 <A ID="pam.d"></A>
 <A ID="pamd"></A>
 <A ID="pam"></A>
-<H1>pam.d</H1>
+<H1>pam</H1>
 
 Ref:
 <UL>
@@ -749,8 +749,10 @@ Each file correspond to configuration used for that specific service.
 
 <PRE>
 sshd	# used when ssh in to the machine
-login	# used to /bin/login (eg, login in the terminal?  Also in local X11?)
+login	# used to /bin/login (eg, local console login as dumb terminal?)
         # when physically in front of machine (? ie GUI, text login, and also su once logged in)
+
+gdm-password  # gdm based Display Manager use this pam.d config ?
 
 su	# when running su command
 sudo 	# when running sudo command
