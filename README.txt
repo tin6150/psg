@@ -11,9 +11,10 @@ psg.ask-margo.com is hosted in aws as s3.  sometime ago may have synced using ap
 	bofh has the aws cli toolkit installed.  or run these commands manually:
 
 	cd ~/PSG
-	aws s3 sync . s3://psg.ask-margo.com --acl public-read  # serves http://psg.ask-margo.com
-	aws s3 sync . s3://tin6150           --acl public-read  # serves http://tin6150.s3-website-us-west-1.amazonaws.com/ # can drop
-
+	aws s3 sync . s3://psg.ask-margo.com --acl public-read --excluce ".git/*" # serves http://psg.ask-margo.com
+	aws s3 sync . s3://tin6150           --acl public-read --excluce ".git/*" # serves http://tin6150.s3-website-us-west-1.amazonaws.com/ # can drop
+                                                                            # exclude .git DB files
+  aws s3 cp   fig s3://tin6150/    --acl public-read  --recursive         # cp -R  fig folder copied and folder created in dest bucket
 
 	these buckets not likely serving any web sites, just old sync tests:
 

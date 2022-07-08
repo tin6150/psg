@@ -540,6 +540,12 @@ aws s3 sync conf     s3://nibr/conf   --acl public-read		# conf is name of a dir
 aws s3 sync conf     s3://ask-margo   --acl public-read		# the dirname must be stated in the destination too, or all files in the script/* dir will be placed at one level higher!
 aws s3 sync conf/    s3://nibr        --acl public-read		# whether / is added to explicity state src is a dir.
 
+
+aws s3 sync .   s3://tin6150     --acl public-read  --exclude ".git/*"  # exclude .git DB files
+aws s3 cp   fig s3://tin6150/    --acl public-read  --recursive         # cp -R  fig folder copied and folder created in dest bucket
+
+# note, it is possible to cp/sync between two s3 buckets
+
 </PRE>
 <BR>
 ref: <A HREF="http://docs.aws.amazon.com/cli/latest/userguide/using-s3-commands.html">S3 commands</A>
