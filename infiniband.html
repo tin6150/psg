@@ -96,17 +96,23 @@ Modulation
 
 <PRE>
 
-SDR - Single Data Rate
-DDR
-QDR - Quad Data Rate.       QSFP    4x10 =  40 Gbps.  CX-2 ??
-FDR - Fith? Data Rate.      QSFP?,          56 Gbps.  CX-3
+SDR - Single Data Rate              4x2.5 = 10 Gbps  (8 Gbps accounting for bit encoding overhead)
+DDR - Double Data Rate              4x 5  = 20 Gbps
+QDR - Quad Data Rate.       QSFP,   4x10 =  40 Gbps.  CX-2 ??
+FDR - Fith? Data Rate.      QSFP,   4x14 =  56 Gbps.  CX-3
 EDR - Enhanced Data Rate.   QSFP28, 4x25 = 100 Gbps.  CX-4 ?  CX-5?  NRZ modulation.    Backward compatible with FDR.
-HDR - High?/Hyper? DR.      QSFP56, 4x50 = 200 Gbps.  CX-6 can do HDR200.  PAM4 modulation.  2018.
+HDR - High?/Hyper? DR.      QSFP56, 4x50 = 200 Gbps.  CX-6 can do HDR200i or Y-split 2x HDR100.  PAM4 modulation.  2018.
 NDR -  QSFP-DD?  8x50?
 XDR -  OSFP ?    8x50? 
 
-Arista 7280R2 - 25 Gbps SERDES?  QSFP28 ports, Max out at 100Gbps?
-Arista 7280R3 - 50 Gbps SERDES?  QSFP56 ports, Capable of 200Gbps?
+modulation (think encoding):
+NRZ:  Non-Return-to-Zero: traditional binary, on/off 1 bit per cycle.
+PAM4: 2 bits per PAM4 symbol encoded by 4 mean voltages: VA, VB,VC, VD.
+
+Arista 7280R2 - 25 Gbps SERDES?  QSFP28 ports, Max out at 100Gbps?  only do NRZ?
+Arista 7280R3 - 50 Gbps SERDES?  QSFP56 ports, Capable of 200Gbps?  Capable of PAM4 ?
+
+Still don't understand why HDR cables have IB version vs Ethernet version (they are not interchangeable).
 
 </PRE>
 
@@ -117,7 +123,7 @@ Ref:
 </OL>
 
 <PRE>
-MCX556A-EDAT
+MCX556A-EDAT -- decyphering this model number:
 First 5 = CX-5
 The 6   = dual port
 The D   = PCIe 4.0
