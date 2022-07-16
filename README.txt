@@ -1,8 +1,8 @@
 # psg/README.txt 
 
 git is now primarly storage for pocket sysadmin survival guide
-- github
-- gitlab
+- github # git push 
+- gitlab # git push gitlab
 
 
 skinforum.org vm in arv

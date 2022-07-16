@@ -1526,6 +1526,25 @@ Logs:
 <LI> </LI>
 </OL>
 
+<PRE>
+TBD
+/etc/krb5.conf has
+
+[realms]
+  G.LOCAL = {
+    kdc = freeipa.g.local:88
+    master_kdc = freeipa.g.local:88
+    admin_server = freeipa.g.local:749
+    kpasswd_server = freeipa.g.local:464
+    default_domain = g.local
+    pkinit_anchors = FILE:/var/lib/ipa-client/pki/kdc-ca-bundle.pem
+    pkinit_pool = FILE:/var/lib/ipa-client/pki/ca-bundle.pem
+  }
+
+</PRE>
+
+
+
 <H2>User commands</H2>
 <!-- most cmd tested on vpn-gr -->
 <PRE>
