@@ -524,6 +524,8 @@ Be forwarned that each little file retrieval add to the cost.  A web site may ha
 # S3 buckets are accessible globally, so while hosted in a region, I/O commands can work w/o specifying any region.
 
 aws s3 ls					# list buckets
+aws s3 mb s3://sapsg				# make bucket (name has to be GLOBALLY unique)
+aws s3 rb ...					# remove bucket 
 aws s3 ls sn-s3-bucket-oregon-webhosting	# list content of bucket named "sn-s3-bucket-oregon-webhosting"		## cat@grumpy
 aws s3 ls sn-s3-bucket-oregon-webhosting/fig/	# it is more like "ls -ld", add tailing / to see content inside a dir
 aws s3 ls s3://sn-s3-bucket-oregon-webhosting	# prefixing bucket name with s3:// is req with older awscli
@@ -551,6 +553,35 @@ aws s3 cp   fig s3://tin6150/    --acl public-read  --recursive         # cp -R 
 ref: <A HREF="http://docs.aws.amazon.com/cli/latest/userguide/using-s3-commands.html">S3 commands</A>
 <BR>
 <BR>
+
+<H1>Security Stuff</H1>
+
+ec2 key pair is the one that is related to ssh to ec2 instance, 
+the key that is injected when an instance is spun up.
+<BR>
+In GUI, under EC2 section, should see "key pair" on the left navigation pane.
+imported or create via GUI  (there maybe cli way to do this). 
+<BR>
+Anyway, EC2 key pairs can be listed by:
+
+<PRE>
+aws ec2 describe-key-pairs
+aws ec2 describe-key-pairs --key-names tin@aws2208blactam.withPass
+
+</PRE>
+
+
+the ssh key maybe is for some code checking stuff (aws' git?)
+so effing confusing!
+
+when key is imported/created under <BR>
+username, Security Credentials, AWS CodeCommit credentials.
+It is NOT usable as EC2 key-pair to ssh in to an instance.
+it shows up by:
+<PRE>
+aws iam list-ssh-public-keys
+</PRE>
+
 
 <H1>HPC in EC2</H1>
 
@@ -662,6 +693,33 @@ Other eg of NoSQL DB includes: Hadoop, MongoDB.  <BR>
 BigTable-based, rather than schema-less: Cassandra, HBase.
 <BR><BR>
 
+<H1>Terraform</H1>
+
+I am not a huge fan of terraform, it doesn't provide enough abstraction to be platform independent.
+The resulting .tf file is full of aws riddle (or gcp), as it is tied to the provider.
+No simple swapping (as Ansible can do for much function of the OSes).
+<BR><BR>
+
+but here are some commands anyway. <BR>
+example setup in github cloudseed4lbl
+
+<PRE>
+terraform init
+terraform fmt		# format all .tf files (for indentation), in place, so consider backup before running this.
+			# returned filenames are files that it changed.  none if no changes.
+
+terraform validate
+terraform plan
+terraform apply
+terraform destroy	# will terminate instance, remove any created security group.
+
+# terraform has no way to restart an instance, nor to just stop or start it.
+# use the aws cli tool for that
+
+aws ec2 stop-instances --region us-east-2 --instance-ids i-0123456789abcdef
+
+
+</PRE>
 
 <H1>Reference, see also...</H1>
 
@@ -792,4 +850,6 @@ http://tin6150.github.io/psg/psg.html
   
 </div> <!-- closes wrapper --> 
 </body>
+<!-- vim: tabstop=8 
+-->
 </html>

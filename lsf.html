@@ -141,8 +141,11 @@ GUI									qmon			sview
 
 <A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
 <BR>
+Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/flux-framework/flux-core</A>
+<BR>
 
 <A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018.
+<BR>
 
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
@@ -188,7 +191,7 @@ sattach			# connect to the stdin, stdout and stderr of a job or job step
 
 
 
-Options commont to most/all job submission commands:
+Options common to most/all job submission commands:
 
 sbatch/salloc/srun
 	--ntasks=100	# number of tasks to 100 (ie array job) (-n 100)
@@ -210,6 +213,12 @@ sbatch/salloc/srun
 
 	--licenses=foo:2,bar:4		# allocate license with the job.
 	-J jobname
+
+
+example job submission with constrains (features in slurm.conf)
+
+srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal -n 2 --gres=gpu:GTX2080TI:1 --constrain=ssd --time=00:30:00 bash
+srun --pty --partition=savio3_2080ti --account=scs --qos=titan_2080ti3_normal -n 2 --gres=gpu:TITAN:1       --constrain=8rtx --time=00:30:00 bash
 
 </PRE>
 
@@ -626,6 +635,7 @@ srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal 
 srun --pty --partition=savio3_2080ti --account=scs --qos=titan_2080ti3_normal -n 2 --gres=gpu:TITAN:1 --time=00:30:00 bash
 
 but if don't specify subtype, the job will get stuck as PENDING QOSMinGRES
+
  
 
 per https://slurm.schedmd.com/resource_limits.html

@@ -105,6 +105,11 @@ mysql -e "SELECT COUNT(*) FROM datastore" warewulf
 
 </PRE>
 
+if the wwroot and wwuser somehow disapears from the warewulf database, 
+<TT>wwinit DATABASE</TT>
+could fix this.
+the command is somewhat of a misnomer.  It will NOT wipe the database to a clean state, so all previuosly defined objects will still remain intact.  It just really recreate the users and credenntials so that wwsh commands can interact with the MySQL/MariaDB.
+
 
 <H2>network troubleshooting</H2>
 
@@ -135,6 +140,10 @@ https://groups.google.com/a/lbl.gov/g/warewulf/c/ERzlDkDw2tY/m/rg-fvAoOacQJ
 
 wwsh bootstrap rebuild
 	# recreate files needed by pxe boot, stored in /srv/warewulf/bootstrap
+
+
+Manual bootstrap build cmd? 
+wwbootstrap --config=/etc/warewulf/bootstrap-sl7.conf --chroot=/var/chroots/sl7-nvidia --name 3.10.0-1127.13.1.el7.x86_64-nvnew 3.10.0-1127.13.1.el7.x86_64
 
 </PRE>
 
@@ -227,6 +236,12 @@ it is cuz Destination PATH is limited to at most 65 chars!  use a shorter PATH :
 
 tftp (and dhcpd) needs to be running on the warewulf server.
 see <A HREF="general_unix.html#tftp">general_unix.html#tftp</A> for troubleshooting info.
+
+<H2>PXE vs warewulf boot</H2>
+
+The first part of the boot is network pxe boot, where the bootstrap image is transferred and the machine booted from.
+Stage 2 is a swap to warewulf that utilize VNFS, where the OS is hybridized between ram and /var/chroots NFS mount.
+
 
 <H1>TBD int ref</H1>
 

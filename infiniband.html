@@ -101,18 +101,21 @@ DDR - Double Data Rate              4x 5  = 20 Gbps
 QDR - Quad Data Rate.       QSFP,   4x10 =  40 Gbps.  CX-2 ??
 FDR - Fith? Data Rate.      QSFP,   4x14 =  56 Gbps.  CX-3
 EDR - Enhanced Data Rate.   QSFP28, 4x25 = 100 Gbps.  CX-4 ?  CX-5?  NRZ modulation.    Backward compatible with FDR.
-HDR - High?/Hyper? DR.      QSFP56, 4x50 = 200 Gbps.  CX-6 can do HDR200i or Y-split 2x HDR100.  PAM4 modulation.  2018.
+HDR - High?/Hyper? DR.      QSFP56, 4x50 = 200 Gbps.  CX-6 can do HDR200 or Y-split 2x HDR100.  PAM4 modulation.  2018.  Backward compatible at 10/25/40/50/100/200G, but matching cables would be needed.
 NDR -  QSFP-DD?  8x50?
 XDR -  OSFP ?    8x50? 
 
 modulation (think encoding):
-NRZ:  Non-Return-to-Zero: traditional binary, on/off 1 bit per cycle.
-PAM4: 2 bits per PAM4 symbol encoded by 4 mean voltages: VA, VB,VC, VD.
+NRZ:   Non-Return-to-Zero: traditional binary, on/off 1 bit per cycle.  Is this same as PAM-2? 
+PAM-4: Pulse Amplitude Modulation-4: 2 bits per PAM4 symbol, encoded via 4 mean voltages: VA, VB,VC, VD.
 
 Arista 7280R2 - 25 Gbps SERDES?  QSFP28 ports, Max out at 100Gbps?  only do NRZ?
 Arista 7280R3 - 50 Gbps SERDES?  QSFP56 ports, Capable of 200Gbps?  Capable of PAM4 ?
 
+ConnectX-6 can connect to slower equipment, but note that HDR cable will negotiage PAM4.  EDR cable would be needed to have it negotiate to NRZ.
+In practice, used ConnectX-6 HBA, HDR100 cable, connected to EDR switch, and it worked.  ibstat reports Rate: 100, so presumably did negotiate NRZ cuz of the EDR switch and use 4x25.
 Still don't understand why HDR cables have IB version vs Ethernet version (they are not interchangeable).
+
 
 </PRE>
 
@@ -120,6 +123,8 @@ Ref:
 <OL>
 <LI><A HREF="https://en.wikipedia.org/wiki/InfiniBand#Performance">wikipedia EDR vs HDR table</A><BR>
 <LI><A HREF="https://www.servethehome.com/mellanox-connectx-5-vpi-100gbe-and-edr-ib-review/">Review of ConnectX-5 by STH</A><BR>
+<LI><A HREF="https://www.nvidia.com/content/dam/en-zz/Solutions/networking/ethernet-adapters/connectX-6-dx-datasheet.pdf">Mellanox CX-6 spec sheet</A></LI>
+<LI></LI>
 </OL>
 
 <PRE>
@@ -130,6 +135,45 @@ The D   = PCIe 4.0
 
 Note: Model with Lx designation run at lower speed than the max allowed by the protocol.  eg 50 Gbps instead of 100. (cuz not using all the lanes?)
 </PRE>
+
+
+<H2>Generation cross compatibility</H2>
+
+The following note is from wonderful colleage Chris from Mellanox/Nvidia:
+<BR><BR>
+
+Each product (Adapters/Eth Switches/IB switches) has its own firmware compatibility lists.
+The firmware notes for each product will have compatibility cross maps.
+<BR><BR>
+
+FDR Adapters and Switches using FDR cables are compatible with QDR/FDR/FDR10/EDR/HDR*  (*HDR firmware has notes about specific ports)
+<BR><BR>
+
+EDR Adapters and Switches  using EDR cables  are compatible with EDR/HDR/FDR**  (** FDR does not officially support EDR cables due to the higher wattage and may not work in some cases)  
+<BR>
+[If a HDR cable is used in EDR environment, the HDR cable will try to negotiate PAM4, which EDR does NOT understand (it only supports NRZ modulelation)].  
+<BR><BR>
+
+HDR Adapters and Switches using HDR cables  are compatible with HDR only.  HDR – PAM4 encoding and will assume PAM4 when an HDR cable is used (EEPROM is read).
+<BR><BR>
+
+ConnextX-6 dual port adapters will support 1/10/40/25/50/100/200 FDR/EDR/HDR when the correct cables/port adapter is used, <EM>AND ONLY 1 port is used</EM>.
+<BR><BR>
+
+If both ports are enabled on the dual port card, some internal clocks will be limited to 25/50/100/200 EDR/HDR only   
+<BR><BR>
+
+
+<EM>
+The basic rule I tell customers is to always use the cable that is compatible with the lowest speed of the 2 devices. The higher speed cables require higher power at the port, and also have an EEPROM letting the port know what speed to start the negotiation.  
+</EM>
+<BR><BR>
+<BR><BR>
+ 
+
+Ethernet it gets very complicated, you will need to know if the Adapter or switch is PAM4, and make sure you are using the compatible cables. Mellanox/NVIDIA equipment will also use the EEPROM in the cables to establish the correct negotiation (PAM4 or NRZ). I would also reference the firmware notes of each product to determine cross compatibilities. When using 3rd party equipment it is not a guarantee they are backwards/forwards compatible.
+<BR><BR>
+
 
 <H2>InfiniBand 103 </H2>
 

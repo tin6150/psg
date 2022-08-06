@@ -75,6 +75,18 @@
 Example Perl/Expect script to ssh to a host (eg iDRAC interface) with interactive password and issue command interactively: 
 <A HREF="https://github.com/tin6150/psg/blob/master/script/perl/sshExpect.pl">
 sshExpect.pl</A>
+This is obviously insecure since the script has clear text password in it.
+it would be better to have ssh key pair created so that the client can login without password so this scripting doesn't have to use clear text password.
+
+<H3>Legacy cipher</H3>
+
+to login to old netapp needing 3des-cbc (which is now disabled cuz it is subject to attack), try one of these:
+<BR>
+ssh -c 3des-cbc old-netapp-filer  
+<BR>
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 old-netapp-filer
+<BR>
+
 
 
 <H3>SSH Hostkey</H3>
