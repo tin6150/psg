@@ -51,10 +51,9 @@
 
 
 
-<H1>R</H1>
 
 <A NAME="101"></A>
-<H2>101</H2>
+<H1>R 101</H1>
 <PRE>
 R       # interactive cli
 Rstudio # gui
@@ -92,12 +91,14 @@ However, neither Python nor bc likes dot in the variable name, so cut-n-paste si
 </PRE>
 
 See also: 
+<OL>
 <LI><A HREF="#tilde">tilde operator and formula</A> is one of the weird thing in R.
 <LI><A HREF="#model_operators">model operators</A> (below)
+</OL>
 
 
 
-<H1>R</H1>
+<H1>R, Try before S :-P</H1>
 
 
 <A NAME="container"></A>
@@ -620,7 +621,7 @@ myNumber = strtoi(myString, base = 10)
 <A NAME="comparison"></A> <!-- R PHW251-->
 <A NAME="comparison_operator"></A> <!-- R PHW251-->
 <!-- R PHW251 w1p29 -->
-<H6>Comparison operators</H6>
+<H5>Comparison operators</H5>
 
 
 Boolean
@@ -963,8 +964,6 @@ I() - To avoid this confusion, the function I() can be used to bracket those por
 <LI>	The lattice package uses them to <A HREF="https://www.rdocumentation.org/packages/lattice/topics/B_00_xyplot">specify the variables to plot.</A></LI>
 <LI>	The ggplot2 package uses them to <A HREF="https://www.rdocumentation.org/packages/ggplot2/topics/facet_wrap">specify panels for plotting.</A></LI>
 <LI>	The dplyr package uses them for <A HREF="https://cran.r-project.org/web/packages/lazyeval/vignettes/lazyeval.html">non-standard evaulation.</A></LI>
-
-
 </OL>
 
 <H3>Tilde operator</H3>
@@ -1444,6 +1443,8 @@ plot(tm.lb)
 
 https://ljdursi.github.io/beyond-single-core-R/#/73 - Summary for parallel/snow
 
+<OL>
+
 <LI> clusterExport good for for SIMD
 <LI> clusterApplyLB good for MIMD
 <LI> mcparallel is best for MIMD?
@@ -1455,6 +1456,7 @@ https://ljdursi.github.io/beyond-single-core-R/#/73 - Summary for parallel/snow
 <LI> using pdbR -- bring hpc distributed memory processing (SPMD) to R, see section 3.1.2 of <A HREF="https://htmlpreview.github.io/?https://github.com/berkeley-scf/tutorial-parallel-distributed/blob/master/parallel-dist.html">CPaciorek's Parallel Processing for Distributed Computing</A>
 <LI>
 <LI>
+</OL>
 
 https://ljdursi.github.io/beyond-single-core-R/#/83
 
@@ -1865,14 +1867,21 @@ food %>% summarize( mu=mean(vector_of_alcohol_supply) )
 
 </PRE>
 
-<H2>Lecture 1: Intro to R</H2>
-<PRE>
+<H2>rmd - R MarkDown</H2>
+
+<PRE class="code">
+---
+title: "play_R_PHW251"
+output: html_document
+date: "2022-08-21"
+# optional YAML header
 # File menu, new, R Markdown doc = will generate a new doc with basic example in it
 # kinit button in toolbar will render the doc for web view
 # To speed up knit, one time run in console.
 tinytex::install_tinytex()
 # http://rmarkdown.rstudio.com = Rmd info
 # http://socviz.co/gettingstarted.html = tutorial for Rmd and kinit
+---
 
 ```{r code-chunk-desc, echo = FALSE}
 print("R code chunk goes between ```{r}  ``` in Rmd")
@@ -1890,7 +1899,50 @@ bad-var-name = 0  # dont use - in variable name, R treats it as math substractio
 # this one below is example of invoking autograder to check this checkpoint
 . = ottr::check("tests/p1.R")
 ```
+</PRE>
 
+Basic text formatting.
+From: <A HREF="http://rmarkdown.rstudio.com">R4DS ch 27.3</A>
+
+<PRE class="code">
+
+*italic* or _italic_
+**bold** __bold__
+`code`
+superscript^2^ and subscript~2
+
+# 1st Level Header.  use of # for header is #1 reason I hate MarkDown.  could have used !   I like .rst use of dashed lines.
+## 2nd Level Header.  
+### 3rd Level Header
+
+Lists
+------------------------------------------------------------
+
+*   Bulleted list item 1
+*   Item 2
+    * Item 2a
+    * Item 2b.  I hope there is no need for empty lines between them, but that empty line can be used.  
+    * Item 2c.  Presense of a single blank line in here will create all of the sub-items to have blank lines between them.  Having a preview would still be nice, both .md and .rst always have cases that don't format the way i hoped them to :-X
+    * Item 2d
+
+1.  Numbered list item 1
+1.  Item 2. The numbers are incremented automatically in the output.
+
+Links and images
+------------------------------------------------------------
+
+<http://example.com>
+
+[linked phrase](http://example.com)
+
+![optional caption text](path/to/img.png)
+
+</PRE>
+
+See below for 2x2 contingency table formatting in Rmd.
+
+<H2>Lecture 1: Intro to R</H2>
+<PRE>
 
 help("library")
 ?library
@@ -3096,6 +3148,14 @@ https://www.ascii-code.com/?msclkid=fada967ec20611ec82769a8bbf923192
 has an ascii table that is text based, can copy-n-paste, quite a bit of ads at top, but at least no pop ups
 
 
+<H1>References</H1>
+
+<UL>
+  <LI><A HREF="https://r4ds.had.co.nz/data-visualisation.html">R for Data Science</A> Free O'Reilly book</LI>
+  <LI></LI>
+  <LI></LI>
+</UL>
+
 
 <!--  ----------------------------------------------------------------------  -->
 <!--  ----------------------------------------------------------------------  -->
@@ -3108,7 +3168,7 @@ has an ascii table that is text based, can copy-n-paste, quite a bit of ads at t
 http://tin6150.github.io/psg/R.html</A>] <BR>
   [Doc URL: <A HREF="http://tin6150.gitlab.io/psg/R.html">
 http://tin6150.gitlab.io/psg/R.html</A>] <BR>
-Last Updated: 2022-07-07
+Last Updated: 2022-08-21
 <BR>
 (cc) Tin Ho. See 
 <A HREF=psg.html#cc>main page</A>
