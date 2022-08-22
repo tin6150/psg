@@ -416,8 +416,20 @@ $>% # like unix pipe, used a lot by dplyr.  can be chained.
 </PRE>
 
 
+Definiting a function called "comma" (not std in R), so that it format numbers as human readable  <BR>
+ref: https://r4ds.had.co.nz/r-markdown.html#caching
+<PRE>
 
-<H5>R stuff - NA : Not available data</H5>
+comma = function(x) format(x, digits = 2, big.mark = ",")
+
+comma(.12358124331) #  [1] "0.12"
+comma(9234567)      #  [1] "9,234,567"
+comma(12345678) # pff, 8 digit still print as 1.2e+07 WTH!
+
+</PRE>
+
+
+<H5>R stuff - NA : Not Available data</H5>
 
 <PRE>
 
@@ -444,6 +456,17 @@ add the argument na.rm=TRUE
 
 
 </PRE>
+
+<!-- Missing data #Rstat? Epi1? --> 
+<H5>Handling Missing Data</H5>
+
+<PRE>
+na.rm=T   # many function take this as option to drop entries with missing data, ie, where data is "na"
+nhanes = read_csv("nhanes.csv")
+nhanes = na.omit( nhanes )       # remove row that has missing values.
+
+</PRE>
+
 
 <H5>R stuff - stat stuff</H5>
 
@@ -1874,7 +1897,7 @@ food %>% summarize( mu=mean(vector_of_alcohol_supply) )
 title: "play_R_PHW251"
 output: html_document
 date: "2022-08-21"
-# optional YAML header
+# optional YAML header - https://r4ds.had.co.nz/r-markdown.html#yaml-header
 # File menu, new, R Markdown doc = will generate a new doc with basic example in it
 # kinit button in toolbar will render the doc for web view
 # To speed up knit, one time run in console.
@@ -3019,15 +3042,6 @@ detach(package:MASS)	# remove the select() fn which would conflict with dplyr
 <!-- merge marker xyz  -->
 
 
-<H2>Missing Data</H2>
-
-<PRE>
-na.rm=T   # many function take this as option to drop entries with missing data, ie, where data is "na"
-nhanes = read_csv("nhanes.csv")
-nhanes = na.omit( nhanes )       # remove row that has missing values.
-
-</PRE>
-
 
 <H2>Constructing 2x2 or RxC contingency table using tibble, chi-squared test</H5>
 <!-- wk14 -->
@@ -3151,7 +3165,14 @@ has an ascii table that is text based, can copy-n-paste, quite a bit of ads at t
 <H1>References</H1>
 
 <UL>
-  <LI><A HREF="https://r4ds.had.co.nz/data-visualisation.html">R for Data Science</A> Free O'Reilly book</LI>
+  <LI><A HREF="https://r4ds.had.co.nz/data-visualisation.html">R for Data Science</A> Free O'Reilly book</LI> (Textbook #1 for PHW251)
+  <LI><A HREF=“http://happygitwithr.com">
+		  Happy Git with R”</A>: a user friendly introduction to Git and GitHub from R users, by Jenny Bryan. (Textbook #2 for PHW251)
+  </LI>
+  <LI><A HREF="http://r-pkgs.had.co.nz/git.html">
+		  The “Git and GitHub” chapter of R Packages</A>
+, by Hadley. 
+  </LI>
   <LI></LI>
   <LI></LI>
 </UL>
