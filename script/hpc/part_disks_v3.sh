@@ -16,7 +16,7 @@
 
 #### 2022.0427
 #### run as, single disk config:
-#### ./part_disks_v3.sh sda       # single sda, traditional setup
+#### ./part_disks_v3.sh sda       # single sda, traditional setup.  
 #### ./part_disks_v3.sh ssd       # single /dev/nvme0n1, otherwise same setup as sda
 ####
 #### run as, two disks mirror config:

@@ -117,9 +117,9 @@ NUM_BATCHES=2500 # quick sanity test
 #NUM_BATCHES=250000 # for V100 or colefax, need to change.  # real    951m51.584s # user    6718m43.128s # sys     525m50.911s
 #NUM_BATCHES=2500001 # for V100 or colefax, need to change.
 #NUM_GPU=4							
-NUM_GPU=2							
+#NUM_GPU=2							
 #NUM_GPU=7 #8
-#NUM_GPU=8
+NUM_GPU=8
 
 echo "---about to start tf cnn benchmark  --------------------"
 
