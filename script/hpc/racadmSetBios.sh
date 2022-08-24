@@ -3,6 +3,9 @@
 # script to make BIOS settings to desired HPL optmized settings
 # this version is for skylake cpu on Dell C6420 circa 2018.02
 
+## eg commands run by this script:
+## pdsh -w n00[28-35].savio4 
+## singularity exec -B /var/run /global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img /opt/dell/srvadmin/sbin/racadm set BIOS.ProcSettings.ProcVirtualization Enabled
 
 
 if [[ -f /global/home/groups/scs/tin/singularity-repo/dirac1_dell_idracadm.img ]]; then
@@ -100,5 +103,6 @@ echo ""
 # use either of the cmd below to power cycle
 # $RacAdmCmd serveraction powercycle 
 # singularity exec -B /var/run  /global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img /opt/dell/srvadmin/sbin/racadm  serveraction powercycle 
-# ipmitool power cycle   # is this right?
+# wwsh ipmi powercycle n99[00-01].savio9
+# ipmitool powercycle   nXXXX.savioN 
 
