@@ -234,7 +234,7 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 ^P		pause		(disk scanning?)
 ^V		skip
 
-^H 		WebBIOS
+^H 		WebBIOS       -- ctrl-h load RAID sw to configure virtual drives
 ^Y		preboot CLI
 
 </PRE>
@@ -518,6 +518,22 @@ CBS = ??
 </PRE>
 
 More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hexcode">ipmi</A>
+
+<H3>Enter F10 LifeCycle Controller</H3>
+
+https://serverfault.com/questions/866657/racadm-reboot-to-lifecycle-controller
+says that one time boot setting to do equiv of pressing F10 is to do:
+<PRE>
+# racadm set iDRAC.ServerBoot.BootOnce Enabled
+# racadm set iDRAC.ServerBoot.FirstBootDevice F10
+
+to get back to normal:
+
+# racadm set iDRAC.ServerBoot.FirstBootDevice Normal
+# racadm set iDRAC.ServerBoot.BootOnce Disabled
+</PRE>
+
+
 
 <H3>Misc</H3>
 

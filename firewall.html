@@ -246,6 +246,21 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 
 -A INPUT -i lo -j ACCEPT
 
+# NFS.  
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/storage_administration_guide/s2-nfs-nfs-firewall-config
+# edit /etc/sysconfig/nfs 
+#MOUNTD_PORT=2049   # Controls which TCP and UDP port mountd (rpc.mountd) uses.  # must be specified
+#STATD_PORT=port    # Controls which TCP and UDP port status (rpc.statd) uses.   # can live without
+#LOCKD_TCPPORT=port # Controls which TCP port nlockmgr (lockd) uses.   		# can live without
+#LOCKD_UDPPORT=port # Controls which UDP port nlockmgr (lockd) uses.   		# can live without
+# systemctl restart nfs-config # rhel 7 only
+# rpcinfo -p nfsserver shows:
+#    100005    3   udp  20048  mountd          # /etc/services specify port 20048
+#    100005    3   tcp  20048  mountd
+#    100003    3   tcp   2049  nfs
+# 2049 was historically needed by nfs, but needed to allow 20048 for rocky 8.6, it also allows showmount  # xref exa5
+-A INPUT -s 123.4.7.196          -p tcp -m multiport --dports 22,111,2049,20048  -j ACCEPT -m comment --comment "RPC and NFS for ex5"
+
 #### Port 22 allows inbound ssh 
 #### NIS uses multiple ports: 111 (portmapper), 837-837 (set YP* args in /etc/default/nis for ubuntu.  /etc/sysconfig/network for centos)
 #### seems like can live with just TCP version of these ports, may not need to allow udp for newer clients.
@@ -257,6 +272,7 @@ Other packets are rejected with ICMP message, rather silently dropped.  Log goes
 #### Can use a comma separated of source IP, or just add one host IP per line for easy removal
 #### /var/yp/securenets need to list nis client ip if securenet is configured.  restart ypserv.
 #### netstat -tulpn
+
 -A INPUT -s 123.4.7.25          -p tcp -m multiport --dports 22,111,834,835,836,837  -j ACCEPT
 -A INPUT -s 123.4.7.25          -p udp -m multiport --dports    111,834,835,836,837  -j ACCEPT
 
@@ -964,119 +980,6 @@ Older IPFW cli tool from FreeBSD is from 10.2 days.  <BR>
 See <A HREF="apple.html#firewall">apple.html#firewall</A>
 <BR>
 
-<A ID="pam.d"></A>
-<A ID="pamd"></A>
-<A ID="pam"></A>
-<H1>pam.d</H1>
-
-Check to allow user login is really a convoluted matrix of many different combinations. 
-All the different "if ssh, if user is foo, login in from bar, etc etc" is now coded in pam.d.
-<BR>
-Very often, new authentication source is configured via nsswitch.conf
-<BR>
-Whether ssh keys are allowed as authentication source is set in:   		<BR>
-- sshd.conf (if certain users are allowed to use ssh key, others are not)		<BR>
-- pam sshd config (forcing interactive login?) (if config is same for all users) ??	<BR>
-<BR>
-
-
-<H2>Files</H2>
-
-Each file correspond to configuration used for that specific service.
-
-<PRE>
-sshd	# used when ssh in to the machine
-login	# used to /bin/login (eg, login in the terminal?  Also in local X11?)
-
-
-su	# when running su command
-sudo 	# when running sudo command
-
-system-auth	# often refered by other config file to use it.  think of this as C's #include.
-config-util	# refered by many system config tools, such as system-config-network
-</PRE>
-
-
-<H2>AAA</H2>
-
-??
-
-<PRE>
-auth
-account
-password
-session 
-</PRE>
-
-
-
-<H2>Levels</H2>
-
-In increasing mandatory necessity:
-
-
-<PRE>
-
-optional ?
-
-sufficient ??
-
-
-include
-	use content of another config file (eg system-auth, config-util)
-	think of #include of C
-
-
-required
-	Failure also results in denial of authentication, 
-	although PAM will still call all the other modules listed for this service 
-	before denying authentication. 
-	*** think of it as mandatory but keep checking anyway ??!! ***
-
-requisite
-	Failure to authenticate via this module results in immediate denial of authentication. 
-	*** think of as mandatory, waste no more time, fail right away ***
-
-</PRE>
-
-<H2>modules</H2>
-
-<PRE>
-# Use a radius authentication server listed in a config file
-auth       required     pam_radius_auth.so conf=/etc/raddb/server	
-	
-
-# When SELinux operates in Permissive mode, 
-# disable linux user login for users listed in /etc/security/sepermit.conf
-# If user not listed, would still be allowed to login when selinux is disabled or in permissive mode
-auth       required     pam_sepermit.so
-	
-
-
-
-# if file /etc/nologin exist, user not allowed to login
-account    required     pam_nologin.so
-
-
-# use/allow for system password auth  ??
-account    include      password-auth
-
-
-# traditional unix auth, usually /etc/passwd, /etc/shadow
-pam_unix.so
-
-
-</PRE>
-
-
-Ref:
-<UL>
-<LI><A HREF="https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file">
-https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file</A>
-<LI>
-</UL>
-
-
 
 <!-- #################################################################### -->
 <!-- #################################################################### -->
@@ -1124,4 +1027,6 @@ Last Updated: 2017-06-08
 <!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
 
 
+<!-- vim: tabstop=8
+-->
 </html>

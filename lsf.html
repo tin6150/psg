@@ -141,8 +141,11 @@ GUI									qmon			sview
 
 <A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
 <BR>
+Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/flux-framework/flux-core</A>
+<BR>
 
 <A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018.
+<BR>
 
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
@@ -188,7 +191,7 @@ sattach			# connect to the stdin, stdout and stderr of a job or job step
 
 
 
-Options commont to most/all job submission commands:
+Options common to most/all job submission commands:
 
 sbatch/salloc/srun
 	--ntasks=100	# number of tasks to 100 (ie array job) (-n 100)
@@ -210,6 +213,12 @@ sbatch/salloc/srun
 
 	--licenses=foo:2,bar:4		# allocate license with the job.
 	-J jobname
+
+
+example job submission with constrains (features in slurm.conf)
+
+srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal -n 2 --gres=gpu:GTX2080TI:1 --constrain=ssd --time=00:30:00 bash
+srun --pty --partition=savio3_2080ti --account=scs --qos=titan_2080ti3_normal -n 2 --gres=gpu:TITAN:1       --constrain=8rtx --time=00:30:00 bash
 
 </PRE>
 
@@ -626,6 +635,7 @@ srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal 
 srun --pty --partition=savio3_2080ti --account=scs --qos=titan_2080ti3_normal -n 2 --gres=gpu:TITAN:1 --time=00:30:00 bash
 
 but if don't specify subtype, the job will get stuck as PENDING QOSMinGRES
+
  
 
 per https://slurm.schedmd.com/resource_limits.html
@@ -659,8 +669,6 @@ sacctmgr show tres
 
 
 </PRE>
-
-
 
 <!-- modify ENTITY set ...  -->
 
@@ -728,9 +736,35 @@ sacctmgr		# add/delete clusters, account, user
 			# Many slurm db update done via this cmd
 			# updates pushed out live to slurmd (or slurmctld?)
 			# hierarchical banks: Division, each with diff groups, which in term has its own set of users.
+
+Root = ? whole site, supercluster spanning all partitions.  
+Division = Partitions?  (eg lr5, dirac1, cf1, etc)    QOS??
+Group = association level.  eg Group Beta gets GrpCPUs, GrpJobs, GrpMemory.
+User = specific user account.
+
+They mention Hierarchical, does this means associations can be nested?  Never seen example of that, maybe not.
+
 </PRE>
 
-<IMG SRC="fig/slurm_hierarchical_bank.png" TITLE="SLURM Hierarchical Bank Example (from SchedMD youtube)">
+<A HREF="https://slurm.schedmd.com/slurm_ug_2012/SUG_Oct2012_DBD.pdf">Slurm Hierarchical bank example from SUG 2012 (page 7, 13)</A>
+
+<A HREF="https://slurm.schedmd.com/slurm_ug_2012/SUG_Oct2012_DBD.pdf"><IMG SRC="fig/slurm_hierarchical_bank.png" TITLE="SLURM Hierarchical Bank Example (from SchedMD youtube)" alt="Slurm Hierarchical bank example diagram"></A>
+
+The order in which limits are enforeced is:
+
+<OL>
+
+<LI>Partition QOS limit
+<LI>Job QOS limit
+<LI>User association
+<LI>Account association(s), ascending the hierarchy
+<LI>Root/Cluster association
+<LI>Partition limit
+
+</OL>
+
+ref: 
+<A HREF="https://support.ceci-hpc.be/doc/_contents/SubmittingJobs/SlurmLimits.html#precedence">ceci-hpc</A>
 
 
 

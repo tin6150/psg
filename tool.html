@@ -1538,6 +1538,13 @@ tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump
 		# -s 64000, max packet capture size.  64k is probably bigger than needed, but works well
 		# -w write output to file
 
+tcpdump -vv -i eno1  'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
+tcpdump     -i eno1 'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
+tcpdump -e  -i eno1 'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00' 
+		# -e would capture eth frame instead of ip packet ?
+
+sudo tcpdump -i eno1 'dst 10.22.4.200 || dst 10.22.22.200 || dst 10.22.44.200'
+
 
 sudo tcpdump -v -n host 10.22.22.55 -i enp94s0f0
 

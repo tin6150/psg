@@ -42,14 +42,28 @@
 
 <OL>
 <LI> CFP - Probably the old big double square SC sized module on (cisco) swtiches, low port density per blade
-<LI> SPF+ (10g Twinax, ethenet "GBIC" to fiber optic module).  nearly square rectangle
-<LI> QSFP: Infiniband (QDR, FDR, EDR).  40-gbps Ethenet.  Wider rectangle than SFP
+<LI>
+<LI> SFP   = Small Form Factor Pluggable, two lanes.
+<LI> SFP+    (10g Twinax, ethenet "GBIC" to fiber optic module).  nearly square rectangle
+<LI> SFP28 = SFP up to 25G
+<LI> QSFP:   Qaud SFP.  Infiniband QDR, FDR, EDR.  40-gbps Ethenet.  Wider rectangle than SFP
 <LI> QSFP+: 
-<LI> QSFP28: same size as QSFP.  Can use 100GBASE-SR4 
+<LI> QSFP28: same size as QSFP.  Can use 100GBASE-SR4.  EDR - 4 lanes of 25.78 Gbps
+<LI> QSFP56: same size as QSFP.  Can use 200GBASE-SR4.  HDR - 4 lanes of 50    Gbps
 <LI> 
-<LI> ??: even wider than QSFP.  (on 2nd port of a Mellanox IB card) [really?]
+<LI> QSFP-DD: even wider than QSFP.  8 lanes of 200/400 (eg on 2nd port of a Mellanox IB card) 
+<LI> OSFP   : octal SFP - 8 lanes of 400 
 <LI> 
 </OL>
+
+<OL>
+<LI> 
+<LI> 
+</OL>
+
+Ref: 
+<A HREF="https://docs.nvidia.com/networking/display/CABLEMANAGFAQ/Cable+and+Connector+Definitions">Nvidia/Mellanox Connector definittion</A> <BR>
+<BR>
 
 <A HREF="https://twitter.com/kwf/status/1470508119725805570?s=21">This thread by Kenneth Finnegan breaks down the 100G-LR4 showing 4 prisms to split the wavelength :)</A>
 <BR><BR>
@@ -66,6 +80,9 @@
 <LI> MPO/MTP-8,   
 <LI> MPO/MTP-12 - the oversized-RJ45 looking connector that has 8 or 12 fibers in it for the QSFP sized optic transceiver ?
 <LI> MTP : more freq use as trunk cables ?
+<LI> 
+<LI> DAC - Direct Attach Copper
+<LI> AOC - Active Optical Cable.  eg fiber fused to QSFP adapter
 <LI> 
 </OL>
 
@@ -90,10 +107,10 @@
 
 <OL>
 <LI> Single-mode: For Long Range eg between buildings
-<LI> Multi-mode: for Short Range
+<LI> Multi-mode: for Short Range. 
 <LI> 
-<LI> SR - Short Range.  max 100 meter.
-<LI> LR - Long  Range
+<LI> SR - Short Range.  max 100 meter.  often 850nm ?
+<LI> LR - Long  Range.  
 <LI> 
 </OL>
 
@@ -276,12 +293,16 @@ The conductor size is independent of voltage.  If voltage is increased, eg to 40
   </TR>
 </THEAD>
   <tr>
-    <td>IEC C13</td>
+    <td>IEC C13 (10A) vs UL/CSA C13 (15A)</td>
     <td>
       <p>115V or 220V, 10 Amp.</p>
-      <p>Standard computer power cord. This plug connects to C13. </p>
+      <p>Standard computer power cord. This plug connects to C14. </p>
       <p>A power cord would have a <U>p</U>lug on it (left picture). <BR>
         A socket/<U>r</U>eceptacle version is used on the surge bars (right picture).</p>
+      <BR>
+	US use newer UL/CSA standard.  Rest of world use originall IEC standard.  both use the number 60320-1.   <BR>
+	15 Amp rating per UL 498.  ref: 
+	<A HREF="https://www.interpower.com/ic/InfoPower/How-Can-One-Connector-Have-Two-Different-Amp-Ratings.html#:~:text=Take%2C%20for%20example%2C%20the%20common%20IEC%2060320%20C13,and%20rate%20the%20connector%20at%2010%20amps%20maximum.">Interpower post</A>
       </td>
     <td><img src="iec-C13-cord.gif" title="IEC C13 Plug"><img src="iec-C13-pdu.gif" title="IEC C13 Socket"></td>
   </tr>
@@ -315,7 +336,7 @@ The conductor size is independent of voltage.  If voltage is increased, eg to 40
   
   <tr>
     <td>IEC C19</td>
-    <td>Typically used in large servers and chassis for modular/blade server</td>
+    <td>Typically used in large servers and chassis for modular/blade server.<BR> Rated 16A Max</td>
     <td><img src="iec-C19-cord.gif"><img src="iec-C19-pdu.gif"></td>
   </tr>
   <tr>
@@ -531,6 +552,7 @@ Electrical Unit Conversion</A>(formulas for converting between W and VA).
   [Doc URL: <A HREF="http://tiny.cc/plug">tiny.cc/plugs</A>]<BR> 
   [Doc URL: <A HREF="http://tin6150.github.io/psg/plug/plug.html">http://tin6150.github.io/psg/plug/plug.html</A>]<BR> 
 <BR>
+Last updated: 2022-07-07<BR>
 (cc) Tin Ho. See 
 <A HREF=../psg.html>main page</A>
  for copyright info. <BR>

@@ -658,7 +658,19 @@ restart X:
 - init 3; init 5	# This may work
 - reboot		# :)
 
+
+xorg pci BusID when multiple GPU is present and want to specify which one to use to accelearate video (virtual, VNC)
+nvidia-xconfig --query-gpu-info 
+returned pci BusID for each GPU card.
 </PRE>
+
+<!--
+nvidia-xconfig - -query-gpu-info 
+to figure out which pci-{blah} to use.  
+The query will give you the BusIDs, the {blah} part of the pci-{blah} file to provision corresponds to those GPU busids
+wwsh provision set ... 
+-->
+
 
 <BR><BR>
 
@@ -688,15 +700,163 @@ gconftool-2 --direct --config-source xml:read:/etc/gconf/gconf.xml.defaults --ge
 # set global settings as root, to source login when term opens.
 gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true		
 
+</PRE>
+
+<A ID="pam.d"></A>
+<A ID="pamd"></A>
+<A ID="pam"></A>
+<H1>pam</H1>
+
+Ref:
+<UL>
+
+<LI><A HREF="https://www.redhat.com/sysadmin/pluggable-authentication-modules-pam">PAM intro</A> From RedHat articles</LI>
+<LI><A HREF="https://www.linuxjournal.com/article/2120">The orig article about PAM</A> from Linux journal, some 20 years ago.  arch and basic working remains the same.</LI>
+<LI><A HREF="https://aplawrence.com/Basics/understandingpam.html">Understanding PAM</A> with eg of adding time module governing ssh and local login</LI>
+<LI></LI>
+<LI><A HREF="https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file">
+https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file</A></LI>
+<LI></LI>
+</UL>
 
 
+Check to allow user login is really a convoluted matrix of many different combinations. 
+All the different "if ssh, if user is foo, login in from bar, etc etc" is typically some sort of modules and config in pam.
+<BR>
+authconfig, authselect and other tools make changes to pam.
+<BR>
+/etc/nsswitch.conf is high level director
+<BR>
+/etc/sssd/sssd.conf  is backend for the "sss" clause in nsswitch.conf, it is a cache daemon.
+<BR>
+/etc/security
+<BR>
+
+
+<BR>
+Whether ssh keys are allowed as authentication source is set in:   		<BR>
+- sshd.conf (if certain users are allowed to use ssh key, others are not)		<BR>
+- pam sshd config (forcing interactive login?) (if config is same for all users) ??	<BR>
+<BR>
+
+
+<H2>/etc/pam.d/ Files</H2>
+pam.d/ config really governs how things are done.
+<BR>
+
+Each file correspond to configuration used for that specific service.
+<BR>
+
+<PRE>
+sshd	# used when ssh in to the machine
+login	# used to /bin/login (eg, local console login as dumb terminal?)
+        # when physically in front of machine (? ie GUI, text login, and also su once logged in)
+
+gdm-password  # gdm based Display Manager use this pam.d config ?
+
+su	# when running su command
+sudo 	# when running sudo command
+
+system-auth	# often refered by other config file to use it.  think of this as C's #include.
+password-auth
+
+config-util	# refered by many system config tools, such as system-config-network
+
+clause:
+pam_stack.so service=system-auth   # this is like "import" system-auth.
+
+
+??
+vnc	# most vnc use a local .vncpasswd, not relying on amp
+realvnc	# 
+screensaver lock?
 
 
 </PRE>
 
+
+
+<H2>AAA</H2>
+
+<PRE>
+
+aaa = 
+authentication  -- you are who you claim you are
+authorization   -- you are in the allowed-list for access
+accounting      -- log that you have accessed the system, duration, etc.
+
+pam.d/ files have these configurable controls 
+
+auth      - verify user credentials.  ? so here talk to ldap, nis, or sssd/local passwd 
+account   - user allowed to connect, password not expired?
+password  - ? write to shadow file about last login info
+session   - long duration session info, update wtmp, write when logout too
+
+</PRE>
+
+
+
+<H2>Levels</H2>
+
+In increasing mandatory necessity:
+
+<PRE>
+
+optional ?
+
+sufficient - eg login or su, allow use of radius credentials for login in console
+	auth       sufficient   pam_radius_auth.so conf=/etc/raddb/server
+
+substack ? like import?
+	auth       substack     password-auth
+
+include
+	use content of another config file (eg system-auth, config-util)
+	think of #include of C
+
+required
+	Failure also results in denial of authentication, 
+	although PAM will still call all the other modules listed for this service 
+	before denying authentication. 
+	*** think of it as mandatory but keep checking anyway ??!! ***
+
+requisite
+	Failure to authenticate via this module results in immediate denial of authentication. 
+	*** think of as mandatory, waste no more time, fail right away ***
+
+</PRE>
+
+<H2>modules</H2>
+
+<PRE>
+# Use a radius authentication server listed in a config file
+auth       required     pam_radius_auth.so conf=/etc/raddb/server	
+	
+
+# When SELinux operates in Permissive mode, 
+# disable linux user login for users listed in /etc/security/sepermit.conf
+# If user not listed, would still be allowed to login when selinux is disabled or in permissive mode
+auth       required     pam_sepermit.so
+
+
+# if file /etc/nologin exist, user not allowed to login
+account    required     pam_nologin.so
+
+
+# use/allow for system password auth  ??
+account    include      password-auth
+
+
+# traditional unix auth, usually /etc/passwd, /etc/shadow
+pam_unix.so
+
+
+</PRE>
+
+
 <A NAME="authconfig"></A>
 <A NAME="authentication_configuration"></A>
-<H2>authentication configuration</H2>
+<H2>authconfig -- RHEL 7 authentication configuration tool</H2>
 
 <TT>authconfig</TT> is the tool to use to configure authentication services in RHEL7/CentOS7.  Manually changing nsswtich.conf isn't enough.  There are pam.d, selinux, firewall updates.  <BR>
 
@@ -733,7 +893,19 @@ Ref:
 <UL>
 <LI><A HREF="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System-Level_Authentication_Guide/authconfig-install.html#tips-for-authconfig">RHEL7 authentication</A>
 <LI><A HREF="https://www.certdepot.net/sys-understand-authconfig/">certdepot authentication</A>
-<LI><A HREF="https://fedorahosted.org/sssd/">https://fedorahosted.org/sssd/</A>
+</UL>
+
+<A NAME="authselect"></A>
+<H2>authselect -- RHEL 8 authentication configuration</H2>
+
+<PRE>
+authselect show		# show current profile
+/etc/authselect		# config files loc      (/etc/sssd/ is largely empty now)
+</PRE>
+
+Ref: 
+<UL>
+<LI><A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/configuring_authentication_and_authorization_in_rhel/index">https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/configuring_authentication_and_authorization_in_rhel/index</A>
 </UL>
 
 
@@ -2684,6 +2856,7 @@ ntsysv 				# TUI of serviceconf (vsftp/telnet/rlogin, etc)
 RHEL7, some newer ubuntu?
 <PRE>
 systemctl status firewalld
+SYSTEMD_LOG_LEVEL=debug systemctl start lightdm   # as close as "verbose" mode for systemctl
 </PRE>
 
 <H4>SuSE</H4>

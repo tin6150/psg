@@ -75,6 +75,18 @@
 Example Perl/Expect script to ssh to a host (eg iDRAC interface) with interactive password and issue command interactively: 
 <A HREF="https://github.com/tin6150/psg/blob/master/script/perl/sshExpect.pl">
 sshExpect.pl</A>
+This is obviously insecure since the script has clear text password in it.
+it would be better to have ssh key pair created so that the client can login without password so this scripting doesn't have to use clear text password.
+
+<H3>Legacy cipher</H3>
+
+to login to old netapp needing 3des-cbc (which is now disabled cuz it is subject to attack), try one of these:
+<BR>
+ssh -c 3des-cbc old-netapp-filer  
+<BR>
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 old-netapp-filer
+<BR>
+
 
 
 <H3>SSH Hostkey</H3>
@@ -331,6 +343,73 @@ This is another line.
 certs, and stuff
 <BR>
 
+<H2>test/eyeball certs</H2>
+
+<PRE>
+
+# human readable parse of a domain cert:
+openssl x509 -text -noout -in domain.crt 
+
+# check expiration date of a .pem file:
+openssl x509 -enddate -noout -in greyhound.pem
+
+# cli connect to a server (eg internal docker registry) and display cert it is using:
+openssl s_client -showcerts -connect registry:443
+
+# wget --no-cert-check ...
+
+</PRE>
+
+<H2>generating self-signed certs</H2>
+
+<PRE>
+
+openssl req -new -x509 -sha256 -newkey rsa:2048 -nodes -sha256 \
+    -keyout domain.key -out domain.crt  -days 4650 \
+    -subj "/C=US/ST=CA/L=Berkeley/O=LBNL/OU=GRETA/CN=registry.greta.local:443" \
+    -config self-signed.conf
+
+# -sha256 is for domain.crt domain.key format ?
+# omitting it generate pem format?
+</PRE>
+
+<H5>self-signed conf</H5>
+
+(haven't figure out how to do multiple DNS name SAN req in cli, so have to use this config file)
+<BR>
+the req is like "main"
+then it tell what other sections to parse
+
+<PRE>
+
+[ req ]
+x509_extensions = x509_ext
+distinguished_name = dn
+
+[dn]
+C = US
+ST = California
+L = Berkeley
+O = Lawrence Berkeley National Laboratory
+OU = GRETA
+CN = registry.greta.local:443
+
+
+[x509_ext]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1   = registry.greta.local
+DNS.2   = registry:443
+DNS.3   = registry
+DNS.4   = registry.greta.local:443
+
+</PRE>
+
+<H5>other commands to try if above dont work</H5>
+
 <PRE>
 # citrix method https://support.citrix.com/article/CTX135602
 openssl req -x509 -nodes -days 3285 -newkey rsa:2048 -keyout domain.key -out domain.crt -config san.conf -extensions 'v3_req'
@@ -338,12 +417,34 @@ openssl req -x509 -nodes -days 3285 -newkey rsa:2048 -keyout domain.key -out dom
 # human readable parse of a domain cert:
 openssl x509 -text -noout -in domain.crt 
 
-
 cp -pi      domain.crt /clusterfs/gretadev/data/registry_certs
 chmod 0400  domain.key                                           # secure private key
 mv -i       domain.key /clusterfs/gretadev/data/registry_certs   # secure private key
 chown 771              /clusterfs/gretadev/data/registry_certs/domain.key
 # docker registry seems to be internally using uid 771 in the container (v2.0)
+
+</PRE>
+
+<PRE>
+
+# docker registry cert for internally hosting ref: https://docs.docker.com/registry/insecure/#use-self-signed-certificates
+openssl req \
+  -newkey rsa:4096 -nodes -sha256 -keyout certs/domain.key \
+  -addext "subjectAltName = DNS:myregistry.domain.com" \
+  -x509 -days 365 -out certs/domain.crt
+
+# git only take .pem certs, convert .crt to .pem as:
+openssl x509 -in greyhound.crt -out greyhound.pem -outform PEM
+
+
+
+
+Cert Request (for CA signing, eg lets encrypt)
+
+<PRE>
+
+# signing a new cert request with a SAN (Subject Alternate Name)
+openssl req -new -out greyhound_lbl_gov.csr -newkey rsa:2048 -nodes -sha256 -keyout greyhound_lbl_gov.key.temp -config san.cnf
 
 </PRE>
 
@@ -372,32 +473,6 @@ DNS.3   = registry.gretadev
 DNS.4   = registry.gretadev:443
 DNS.5   = registry.gretadev.lbl.gov
 DNS.6   = registry.gretadev.lbl.gov:443
-</PRE>
-
-<PRE>
-
-# docker registry cert for internally hosting ref: https://docs.docker.com/registry/insecure/#use-self-signed-certificates
-openssl req \
-  -newkey rsa:4096 -nodes -sha256 -keyout certs/domain.key \
-  -addext "subjectAltName = DNS:myregistry.domain.com" \
-  -x509 -days 365 -out certs/domain.crt
-
-# git only take .pem certs, convert .crt to .pem as:
-openssl x509 -in greyhound.crt -out greyhound.pem -outform PEM
-
-
-# check expiration date of a .pem file:
-openssl x509 -enddate -noout -in greyhound.pem
-
-
-# cli connect to a server (eg internal docker registry) and display cert it is using:
-openssl s_client -showcerts -connect registry:443
-
-
-
-# signing a new cert request with a SAN (Subject Alternate Name)
-openssl req -new -out greyhound_lbl_gov.csr -newkey rsa:2048 -nodes -sha256 -keyout greyhound_lbl_gov.key.temp -config san.cnf
-
 </PRE>
 
 

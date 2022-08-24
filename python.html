@@ -117,8 +117,24 @@
 
 <H2>Python 101</H2>
 
-<OL>
+Getting error when running pip search, like this?
+<PRE>
+pip search yaml
+ERROR: XMLRPC request failed [code: -32500]
+RuntimeError: PyPI's XMLRPC API is currently disabled due to unmanageable load and will be deprecated in the near future. See https://status.python.org/ for more information.
+</PRE>
 
+It is a real tragedy.  pip search is banned cuz of abuse.  so can only do web based search at
+<A HREF="https://pypi.org/search/">pypi.org</A>.
+For for info and alternatives, see 
+<A HREF="https://www.dev2qa.com/how-to-fix-error-pypis-xmlrpc-api-is-currently-disabled-due-to-unmanageable-load-and-will-be-deprecated-in-the-near-future/">dev2qa</A>
+<BR>
+Note that <TT>pip install -r requirements.txt</TT> would still work if the package is listed with the correct name(s).
+<BR>
+<BR>
+<BR>
+
+<OL>
 <LI>Python, a programming language, where space matters!!  With that, files portability between Windows and Unix becomes a huge problem, due to the use of CR/LF vs LF in these platforms.
 <LI>Python3 is a new language that supersedes Python 2, it adds additional construct, so program written in Python3 won't necessarily run in Python 2.x
 <LI>; is largely uneeded.  lines ends with LF.  ; can be used to separate commands when trying to write one-liner in the interactive shell.
@@ -358,7 +374,17 @@ source ~/local_python_3.4/bin/activate	# activate virt env (change path accordin
 pip install  scipy			# install module into virtual env using pip  (eg for installing scipy)
 easy_install scipy			# install module into virtual env using easy_install (alternate of pip, don't need to do both)
 
+</PRE>
 
+example requirements.txt
+<PRE class=code>
+docker
+#re
+regex
+shutils
+argparse # version 1.1
+#logging # version 0.5.1.2  # neither of these logging worked for pip 21.3.1 (python3.6, in 2022-007-10)
+#logging==0.4.9.6
 </PRE>
 
 <H2>Python Module</H2>
