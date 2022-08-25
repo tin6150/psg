@@ -175,7 +175,6 @@ print(system( 'uptime', intern=TRUE ))
 library(data.table)
 fread( "cat /proc/loadavg", check.names=TRUE ) ## run system command and read result into data.frame
 
-
 </PRE>
 
 <H2>Setting dir for user package install</H2>
@@ -380,14 +379,27 @@ if( cond ) {
 }
 print( "this is outside the if_statement_block" )
 
+# there is an elseif ...
 
 • for(var in vec) {expr}: 
 for-loop: the counter var runs through the vector vec 
 and does expr each run
 
+vec = 1:5
+print(vec)    # whole vector, 1 object
+
+for( i in vec ) {
+  print( i )      # break vector into individual elements, result in 5 objects
+}
+
 • while(cond){expr}: while-loop: while cond is
 true, do expr each run
 
+i=0
+while( i <= 3 ) {
+  print( i )
+  i = i + 1     # no i++ :->
+}
 
 • x[n]: the n-th element   # R index starts at 1
 • x[m:n]: the m-th to n-th element
@@ -411,7 +423,17 @@ number or character string
 • strptime: change class from character to
 date-time (POSIX)
 
-• data types: lgl (logical: TRUE FALSE; T F are auto parsed as well, but NOT True False), int (Integer), dbl (Double), chr (characters, for strings), bytes (bytes!)  ref: https://cran.r-project.org/web/packages/readxl/vignettes/cell-and-column-types.html
+• data types: 
+lgl (logical: TRUE FALSE; T F are auto parsed as well, but NOT True False),   TRUE==T returns TRUE
+int (Integer),   eg 7L is to explicitly say integer 7.  as.integer(7)
+dbl (Double),    what R reports as "num" is internally a double.   7L == as.double(7) returns TRUE
+chr (characters, for strings), 
+bytes (bytes!)  
+ref: https://cran.r-project.org/web/packages/readxl/vignettes/cell-and-column-types.html
+
+list, vector (which is a simple list)
+matrix
+
 
 ?"%*%"  # get help on topic, quote it if it has "funny" symbols
 
@@ -441,6 +463,7 @@ comma(9234567)      #  [1] "9,234,567"
 comma(12345678) # pff, 8 digit still print as 1.2e+07 WTH!
 
 </PRE>
+
 
 
 <H5>R stuff - NA : Not Available data</H5>
@@ -684,10 +707,35 @@ Comparison Operators
 week = c( "Mon", "Tue", "Wed" )
 "Tue" %in% week   # returns TRUE
 
-matrix1 == matrix2  # is an element wise comparison, returning another matrix.  Somewhat unexpected!
+           7L == as.double(7) # returns TRUE.  ie R will compare numbers across data type in a human desirable way.
+as.integer(7) == as.double(7) # returns TRUE, it is same as above.
+
+matrix1 == matrix2  	# is an element wise comparison, returning another matrix.  Somewhat unexpected!
+c(1,2,3) == c(4,2,3)	# vector, list comparisons are also elementwise, it is said to be useful in the R world.
 </PRE>
 
-<H4>Data Structures</H3>
+
+<H3>data type conversion</H3>
+<PRE>
+
+num1=8L; str(num1)    # int
+num2=8;  str(num2)    # num (ie double)
+
+num3=as.double(8) ; str(num3)   # int
+num4=as.integer(8); str(num4)   # num
+
+(as.character(1:4))   # get [1] "1" "2" "3" "4"
+
+</PRE>
+
+<H3>String manipulations</H3>
+<!-- PHW251 wk2 reader p35 -->
+<PRE>
+native
+</PRE>
+tidy
+
+<H3>Data Structures</H3>
 
 <A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R</A>
 
