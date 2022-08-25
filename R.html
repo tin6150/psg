@@ -359,6 +359,8 @@ ref: https://ljdursi.github.io/beyond-single-core-R/#/111
 
 <A HREF="https://storage.googleapis.com/kaggle-forum-message-attachments/8467/Very%20Short%20Intro%20to%20R.pdf">R short primer (pdf)</A> (page 12)
 
+<!-- some material from PHW251 wk2 reader p17 -->
+
 <PRE>
 
 • function(arglist){expr}: 
@@ -366,6 +368,18 @@ function definition: do expr with list of arguments arglist
 
 • if(cond){expr1}else{expr2}: if-statement:
 if cond is true, then expr1, else expr2
+
+if( cond ) {
+    expr1
+} else if( cond | another_cond ) {
+    expr2
+} else if( cond & another_cond ) {
+    expr3
+} else {
+    expr3
+}
+print( "this is outside the if_statement_block" )
+
 
 • for(var in vec) {expr}: 
 for-loop: the counter var runs through the vector vec 
@@ -613,6 +627,7 @@ a <- 5
 
 # both = and <- can be used for assignment
 # But <- is prefered by the R crowd.  it also screw with my html code here, so maybe this R.html should go have been done in .rst ...
+# <- create a new object... not sure if = acts differently in subtle cases?  so far have not found any problem. :->
 
 # there are some subtle differences, side effect, formula, etc.
 # see <A HREF="https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/">https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/</A>
@@ -625,7 +640,7 @@ a <- 5
 # but wrapping the assignment in parenthesis.  eg:
 ( a = abs(-5) )
 
-# in this case, don't have to type "a" at R prompt to find its value
+# in this case, dont have to type "a" at R prompt to find its value
 
 </PRE>
 
@@ -644,7 +659,7 @@ myNumber = strtoi(myString, base = 10)
 <A NAME="comparison"></A> <!-- R PHW251-->
 <A NAME="comparison_operator"></A> <!-- R PHW251-->
 <!-- R PHW251 w1p29 -->
-<H5>Comparison operators</H5>
+<H5>Comparison, operators</H5>
 
 
 Boolean
@@ -653,11 +668,21 @@ TRUE
 FALSE
 </PRE>
 
-Operators
+Logical Operator
+<PRE>
+&	# And
+|	# Or
+!	# Not
+</PRE>
+
+Comparison Operators
 <PRE>
 "dog"=="cat"      # equality, FALSE in this case
 5==5              # equality,  for number or strings
 !=                # not equal, for number or strings
+%in%              # is value in object (vector/list/table)
+week = c( "Mon", "Tue", "Wed" )
+"Tue" %in% week   # returns TRUE
 
 matrix1 == matrix2  # is an element wise comparison, returning another matrix.  Somewhat unexpected!
 </PRE>
