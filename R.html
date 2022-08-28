@@ -468,7 +468,15 @@ comma(12345678) # pff, 8 digit still print as 1.2e+07 WTH!
 
 <H5>R stuff - NA : Not Available data</H5>
 
+Basic data types 
 <PRE>
+numbers, don't check for them using ==, but instead use fn:
+-Inf	negative infinity eg -1/0  is.finite()
+ Inf	Infinity          eg  1/0  is.infinite()
+ NaN 	Not a Number      eg  0/0  is.nan()
+
+Boolean: TRUE (T), FALSE (F), NA
+  use is.na() to check for NA (when logical comparison fails)
 
 NA is the token to indicate a value that is not availabe.  Kinda like UNDEF.  
 It is not a string, and it is not NULL.
@@ -480,7 +488,13 @@ It is spelled exactly as NA , both caps.
 > bar=na
 Error: object 'na' not found
 
-• is.na: test if variable is NA
+• is.na(): test if variable is NA
+
+each type of atomic vector has its own missing value:
+NA		# logical 
+NA_real_	# double
+NA_integer_
+NA_character_ 	# character/string
 
 R by default will not compute on dataset that contain NA.
 If you don’t mind about the missing data and
@@ -490,7 +504,6 @@ add the argument na.rm=TRUE
 
 > max(j, na.rm=TRUE)
 [1] 2
-
 
 </PRE>
 
@@ -689,6 +702,7 @@ Boolean
 <PRE>
 TRUE
 FALSE
+NA        # when logical comparison cannot be done (eg in vector pairwise comparison)
 </PRE>
 
 Logical Operator
@@ -707,15 +721,24 @@ Comparison Operators
 week = c( "Mon", "Tue", "Wed" )
 "Tue" %in% week   # returns TRUE
 
+
+
            7L == as.double(7) # returns TRUE.  ie R will compare numbers across data type in a human desirable way.
 as.integer(7) == as.double(7) # returns TRUE, it is same as above.
 
+sqrt(2)^2 == 2                 # FALSE cuz float approx rounding error
+dplyr::near( sqrt(2)^2, 2  )   # TRUE, has build-in tolerance
+
+
 matrix1 == matrix2  	# is an element wise comparison, returning another matrix.  Somewhat unexpected!
 c(1,2,3) == c(4,2,3)	# vector, list comparisons are also elementwise, it is said to be useful in the R world.
+
+
 </PRE>
 
 
 <H3>data type conversion</H3>
+aka cohersion, type casting
 <PRE>
 
 num1=8L; str(num1)    # int
@@ -728,14 +751,51 @@ num4=as.integer(8); str(num4)   # num
 
 </PRE>
 
+testing data types
+<PRE>
+is_logical()
+is_integer()
+is_double()
+is_numeric()
+is_atomic()
+is_list()
+is_vector()
+
+myVector = 1:5		# create a vector using the sequence operator (:)
+typeof(myVector) 
+length(myVector)
+
+</PRE>
+
 <H3>String manipulations</H3>
 <!-- PHW251 wk2 reader p35 -->
-<PRE>
-native
-</PRE>
-tidy
 
-<H3>Data Structures</H3>
+
+<PRE>
+aString="this is a string"
+start_position = 1  # R index start from 1
+end_position   = 4
+substr(aString, start_position, end_position)  # result is "this"
+
+# substitution, think unix s/patter/replace/g
+pattern="this"
+replace="that"
+gsub(pattern,replace, aString)  # result is "that is a string"
+
+</PRE>
+
+tidyverse vs native 
+
+<PRE>
+library(stringr)      # tidyverse package
+str_to_upper(aString) # same as toupper(aString)
+str_to_lower(aString)
+str_to_title(aString) # result in "This Is A String"
+
+word_bag = c("apple", "mango", "pineapple")
+str_detect( word_bag, "ap")  # get T F T (ie a vector of boolean)
+
+</PRE>
 
 <A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R</A>
 
@@ -757,8 +817,21 @@ attribute()
 structure()
 
 factor() to store categorical data -- ie predefined values.
-    Stored as int, displays as char with fixed order.  
+    Stored as int, displays as char with fixed order (eg ggplot displays data according to order defined by Factor).  
     (? think Pascal's enum data structure for named element)
+    characters are unicode in R, so each char takes 2 bytes.
+    Factor is integer, take 4 bytes.  Recent RStudio converts to Factor automagically.
+
+# PHW251 wk2 reader p42
+# creating Factor, by letting R find out what is unique and define levels automatically:
+f1 = factor( c("apple", "orange", "apricot", "apple"))  
+
+f2 = factor( c("apple", "orange", "apricot", "apple"), levels = c("apple","orange")  )
+# For f2, explicitly code what levels is allowed for FACTOR, note result below, including NA for non matchable
+# this will help tremendously in identifying data join problems.
+[1] apple  orange {NA}   apple 
+Levels: apple orange
+
 
 For data set in 10-100 GB, may want to learn to use data.table .  
     But it has a concise interface with fewer clues for beginners.
@@ -807,7 +880,47 @@ mat1 == mat2 # matrix list of TRUE elements, but not a single value.
 </PRE>
 
 
+<H5>Vector deep dive</H5>
 
+Above description of vector is an oversimplification.
+<A HREF="https://r4ds.had.co.nz/vectors.html#vector-basics">R for Data Science</A> has a much more detailed explanations: <BR>
+
+<PRE>
+
+- Atomic vectors: homogeneous, single data type, mostly "number", but also logical, character, complex, raw, etc
+- list (aka recursive vector): heterogeneous data types
+- augmented vectors: those that have additional attributes to serve as metadata
+
+Factors are built on top of integer vectors.
+Dates and date-times are built on top of numeric vectors.
+Data frames and tibbles are built on top of lists.
+
+egAtomicVectOfLogicals = c( TRUE, TRUE, FALSE, NA )  # yes, NA is the third logical data type
+
+</PRE>
+
+Naming vectors
+
+<PRE>
+# Naming vectors
+# ie, namving each of the element in a vector
+
+namedVect = c( x=1, y=2, z=4 )
+namedVect
+
+# or after the fact 
+myVect = c(1,2,4)         # results is [1] 1 2 4
+
+postNameingVect = purrr::set_names( myVect, c("x","y","z"))
+# result is (same for namedVect):
+x y z
+1 2 4
+
+</PRE>
+
+There is also subsetting, see detail at
+<A HREF="https://r4ds.had.co.nz/vectors.html#vector-subsetting">https://r4ds.had.co.nz/vectors.html#vector-subsetting</A>
+<BR>
 
 <H5>array</H5>
 
@@ -937,6 +1050,22 @@ ref: https://stackoverflow.com/questions/32819539/proper-way-to-access-list-elem
 
 for list returned by ans = mccollect( list(jobs...) )
 typically ans[[1]], ans[[2]] etc will contain the original answer desired.
+
+</PRE>
+
+<H3>Creating sample data for testing</H3>
+
+<PRE>
+myVector = 1:5		# vector [1] 1 2 3 4 5
+typeof(myVector) 
+length(myVector)
+
+sample(5)		# sample is a vector containing 5 random numbers
+runif(10) 		# random uniform dist [0..1] as a vector of length=10 elements
+
+# Most R operations/functions can operate on vectors natively (elementwise operations), eg:
+sample(5) + 100		# add 100 to each of the entry in the sample vector
+runif(5)  + 100		# same as above, just to make it obvious what R is doing.
 
 </PRE>
 
