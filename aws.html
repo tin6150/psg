@@ -545,7 +545,10 @@ aws s3 sync . s3://sapsg    --acl public-read	# xfer-in is free, so okay to test
 
 aws s3 sync conf     s3://nibr/conf   --acl public-read		# conf is name of a dir in this eg
 aws s3 sync conf     s3://ask-margo   --acl public-read		# the dirname must be stated in the destination too, or all files in the script/* dir will be placed at one level higher!
-aws s3 sync conf/    s3://nibr        --acl public-read		# whether / is added to explicity state src is a dir.
+aws s3 sync conf/    s3://nibr        --acl public-read		# whether / is added to explicity state src is a dir.  This was likely aws cli 1.0 behavior
+
+aws s3 sync my_data_dir s3://bild-aq-tin6150-data/my_data_dir          # aws cli 2.0 need to specify a destination dir 
+aws s3 sync my_data_dir s3://bild-aq-tin6150-data/two-folder/deep-ok/  # and s3 will automagically do the "mkdir -p" for any necessary folder path
 
 
 aws s3 sync .   s3://tin6150     --acl public-read  --exclude ".git/*"  # exclude .git DB files
