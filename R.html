@@ -751,6 +751,30 @@ c(1,2,3) == c(4,2,3)	# vector, list comparisons are also elementwise, it is said
 
 </PRE>
 
+<H5>computing on dates/time</H5>
+From: <A HREF="https://github.com/PHW290/PHW251_Fall2022/blob/main/weekly%20material/week_2/nb_dates.Rmd">PHW251 week 2</A> git repo by David and Lauren
+
+</PRE>
+# another method of determining days between two dates, but also the option for other measures
+as.numeric(difftime(Sys.Date(), as.Date("2020-09-03"), units = "days"))
+as.numeric(difftime(Sys.Date(), as.Date("2020-09-03"), units = "hours"))
+
+# If you need to extract a date part out of a date object:
+test = as_date("1999-04-02")
+day(test)	## extract the day, 2 in this example
+month(test)	## extra month, return an number (double): 4
+year(test)
+
+# day of the week
+wday(test, label = TRUE, abbr = TRUE)
+
+# day of the year (julian day) ## Factor - Levels: Sun < Mon < Tue < Wed < Thu < Fri < Sat   #<formatfood>
+yday(test)
+
+# key time measure for public health built into lubridate!  ## 53 weeks in a year
+epiweek(test)
+</PRE>
+
 
 
 <H3>data type conversion</H3>
@@ -764,6 +788,26 @@ num3=as.double(8) ; str(num3)   # int
 num4=as.integer(8); str(num4)   # num
 
 (as.character(1:4))   # get [1] "1" "2" "3" "4"
+
+
+# manipulating date, internally stored as number (double)
+# time, internally stored as number of seconds since unix epoch
+sn50dob = as.Date("1970-01-01")	# this is the unix epoch which R also use
+sn50dob %>% as.integer()	# return 0 :D
+
+sn51dob = as.Date( "12/25/1969", "%m/%d/%Y" )	# specify format unless it is YYYY-mm-dd
+as.integer(sn51dob)		# return -7, dates before epoch stored as -ve
+
+
+library(lubridate)		# from tidyverse, but need explicit loading
+lubridate::as_date(18239)	# get 2019-12-09
+
+sn50dob + months(6) + 28	# months() do what's expected.  no years() ?
+
+( Sys.Date() )			# get current date
+with_tz(Sys.time(), tzone = "America/Los_Angeles")
+
+
 
 </PRE>
 
