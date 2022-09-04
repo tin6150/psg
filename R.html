@@ -60,6 +60,8 @@ Rstudio # gui
 
 # run single command in shell
 Rscript -e "print(system('hostname'))"   
+Rscript -e 'cat( "Hello \n World.  R print() does not take \\n, need to use cat() to parse \\n!" )'
+
 Rscript --quiet -e 'install.packages("pacman",    repos = "http://cran.us.r-project.org")'    
 
 # run a list (set?) of commands by placing them in {}.  p_load() won't run unless the library is loaded explicity.
@@ -996,7 +998,7 @@ Ref:
 R internals: list is a recursive vector
 list can contain heterogeneous elements, thus it gets more complicated.
 list can be arbitrary number of object, each having different length.
-thus, list ,ndexing, naming has to deal with [] vs [[]].
+thus, list indexing, naming has to deal with [] vs [[]].
 
 my_vector = c(1,2,3)
 my_list   = list(2,4,6)
@@ -1154,6 +1156,50 @@ runif(5)  + 100		# same as above, just to make it obvious what R is doing.
 
 </PRE>
 
+<H3>reprex - reproducible example</H3>
+Ref: PHW251_Fall2022/weekly materials/week_3/nb_reprex.rmd
+<BR>
+<BR>
+
+MRE = 
+<BR>
+<BR>
+
+<PRE>
+
+data()		# list of build-in datasets in R
+		# well known ones: mtcars, iris, airlines, airquality
+
+
+# read_csv directly from file avail via https, read the first 200 rows:
+ds_url = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
+read_csv(ds_url, n_max = 200)
+
+# dput returns a structure function with all the code that is needed to rebuild the shrunken data frame.
+# iris example of a data frame?
+dput(iris[1:10,])
+reconstructed_from_dput_output = structure(list(mpg = c(21, 22), cyl = c(6, 4)), row.names = c("rName1", "rName2"), class = "data.frame")
+
+
+sample_data = data.frame(first_name = c("Leslie", "Ron", "April", "Donna", "Greg"), last_name = c("Knope", "Swanson", "Ludgate", "Meagle", "Pikitis"), age = c(36, 42, 24, 26, 16), occupation=c("Deputy Director", "Director", "Assistant", "Boss", "Student"))
+
+result <- sample_data[age > 17, c(1, 3:4)]
+#                     ^^^^1^^^  ^^^^2^^^^
+# 1 = filter: rows where age older than 17 
+# 2 = picking column 1 AND 3 to 4.
+
+</PRE>
+
+reprex::reprex
+
+reprex::reprex({
+	# original R code
+	# which reprex will format nicely 
+	# for pasting to stackoverflow 
+	# help helper help me :D
+	cat( "\tMuchas gracias!\n\n" )
+})
+
 <H6>OOP</H6>
 
 fuzzy stuff, look up later
@@ -1232,10 +1278,11 @@ f_lhs(g)   # y
 
 lm and glm are logistic regresion models (ie linear line of best fit).
 <BR>
+<PRE>
 ## seed_weight is "Y", the response aka predicted value
 ## seed_count  is "X", the exploratory ie input value to find prediction for
 ##lm( y ~ x )
-seed_mod <- lm( seed_weight ~ seed_count, data = seed_data )
+seed_mod = lm( seed_weight ~ seed_count, data = seed_data )
 tidy( seed_mod ) 
 seed_mod 
 seed_mod %>% str         
@@ -1245,6 +1292,7 @@ seed_mod %>% str
 m = linear_model$coefficients[2]   # slope  (it is a "named number" in R)
 m = linear_model$coefficients[[2]] # slope ( [[]] returns a number )
 b = linear_model$coefficients[[1]] # intercept
+</PRE>
 
 <!-- -->
 <BR>
