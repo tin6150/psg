@@ -1120,12 +1120,14 @@ coord$x[2]  # table coord, column x, row 2
 2 12 20  9
 3 14 21  7
 
-› mean(t$x)
+› mean( t$x )       # alt synatx: mean( t[["x]] )
 [1] 12.33333
 
 
+
+
 typeof( t )
-calss( t )
+class( t )
 is.data.frame( t )
 
 cbind(t, data.frame( z = 3:1 )
@@ -1161,7 +1163,7 @@ Ref: PHW251_Fall2022/weekly materials/week_3/nb_reprex.rmd
 <BR>
 <BR>
 
-MRE = 
+MRE =  ??
 <BR>
 <BR>
 
@@ -1192,6 +1194,14 @@ result <- sample_data[age > 17, c(1, 3:4)]
 
 reprex::reprex
 
+<BR>
+Ref: <A HREF="https://reprex.tidyverse.org/">reprex.tidyverse.org</A>
+<BR>
+<BR>
+
+<PRE>
+install.packages("reprex")
+
 reprex::reprex({
 	# original R code
 	# which reprex will format nicely 
@@ -1199,6 +1209,24 @@ reprex::reprex({
 	# help helper help me :D
 	cat( "\tMuchas gracias!\n\n" )
 })
+</PRE>
+
+Will produce the gitHub-flavored Markdown of the enclosed ({ code }) ready for pasting as GitHub issue.
+Use
+<PRE>
+venue = "so" # for StackOveverflow format
+venue = "ds" # Discourse.
+venue = "gh" # GitHub, default, and above are really just aliases for now!
+</PRE>
+
+if helping other, use these to run their code inside a sandbox (in case there are malicious or really badly behaving code)
+
+<PRE>
+reprex_invert()	# opposite of reprex()
+reprex_clean()	# 
+reprex_rescue()	# 
+</PRE>
+
 
 <H6>OOP</H6>
 
