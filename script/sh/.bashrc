@@ -582,9 +582,12 @@ defineAliasSge () {
 umask 0002      # i do want file default group writable
 
 # https://sylabs.io/guides/3.5/user-guide/appendix.html
-[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_CACHEDIR=/global/scratch/tin/cacheDir
-[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_TMPDIR=/global/scratch/tin/cacheDir
-[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_WORKDIR=/global/scratch/tin/cacheDir
+#// export cacheDir=/tmp  # keep it undefined if no need to redirecto to scratch in non quota controller env
+[[ -d /global/scratch/tin/cacheDir       ]] && export cacheDir==/global/scratch/users/cacheDir
+[[ -d /global/scratch/users/tin/cacheDir ]] && export cacheDir==/global/scratch/users/tin/cacheDir
+[[ -d $cacheDir ]] && export SINGULARITY_CACHEDIR=$cacheDir
+[[ -d $cacheDir ]] && export SINGULARITY_TMPDIR=$cacheDir
+[[ -d $cacheDir ]] && export SINGULARITY_WORKDIR=$cacheDir
 
 
 # the following will not save .bash_history when exit bash, so no xfer b/w sessions
