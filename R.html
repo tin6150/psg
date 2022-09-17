@@ -1095,6 +1095,13 @@ as.array()  -- for conversions
 
 <H5>dataframe</H5>
 
+dataframe is a common data structure to hold a table.
+Underneath the hood, it is a list of COLUMN vectors.
+The implication shows up in how to append columns, rows, access specific element of the df.
+
+<BR>
+<BR>
+
 R is 1-indexed, so first entry of df is 1
 
 <PRE>
@@ -1129,18 +1136,21 @@ coord$x[2]  # table coord, column x, row 2
 typeof( t )
 class( t )
 is.data.frame( t )
-
-cbind(t, data.frame( z = 3:1 )
-rbind(t, data.frame(...) )
-
-
 </PRE>
 
 
 It’s a common mistake to try and create a data frame by cbind()ing vectors together. This doesn’t work because cbind() will create a matrix unless one of the arguments is already a data frame. Instead use data.frame() directly
 <BR>
-Since a data frame is a list of vectors, then each vector represents a column, and the data.frame() becomes a list of columns.  
+Since a data frame is a list of COLUMN vectors, (ie each vector represents a column), and the data.frame() becomes a list of columns.  
 <BR>
+
+<PRE>
+
+Be very careful with these kind of constructs!!  may not work as desired!!
+cbind(t, data.frame( z = 3:1 )
+rbind(t, data.frame(...) )
+
+</PRE>
 
 <H3>Creating sample data for testing</H3>
 
@@ -1156,6 +1166,185 @@ runif(10) 		# random uniform dist [0..1] as a vector of length=10 elements
 sample(5) + 100		# add 100 to each of the entry in the sample vector
 runif(5)  + 100		# same as above, just to make it obvious what R is doing.
 
+</PRE>
+
+<H5>DF from scratch, its vector elements</H5>
+
+From PHW251 week 4
+
+<PRE>
+	
+#defaults for data.frame() for reference
+
+testing = data.frame(
+  county 	= c("Ala","CCosta","Marin"),   ## this is column vector [[1]] aka testing[["county"]] aka testing$county
+  total_tests 	= c(500,745,832),              ## this is column vector [[2]]
+  pos_tests 	= c(43, 32, 30),
+    row.names = NULL,
+    check.rows = FALSE,
+    check.names = TRUE,
+    fix.empty.names = TRUE,
+    stringsAsFactors = default.stringsAsFactors()   # this seems to be FALSE for me, but TRUE for other system?
+)
+
+default.stringsAsFactors() can be used to query what's the default on how data.frame() treat strings, 
+it seems that the default is FALSE
+
+
+#assign the vector to an object
+county_vector = testing[["county"]]
+
+#output a dataframe of the values in a column
+county_df   = testing["county"]
+county_df2  = testing[1]
+
+
+#subset rows
+#using the row number - can be 1:2 or c(1,2)
+testing[1:2,]
+#based on a specified data elements
+testing[which(testing$total_tests>500),]
+
+#subset columns based on column name or number
+testing[,c("total_tests","pos_tests")]
+testing[,c(2,3)]
+
+#subset rows and columns
+testing[c(1,2),c("total_tests","pos_tests")]
+
+#Reassign a value of a cell
+testing[2,1] = "Yolo"         # row 2, column 1   ## maybe counter-intuitive, but first number is on thd col vector.
+
+
+#Reassign column values
+testing$pos_tests = c(52,61,89)
+
+</PRE>
+
+rbind and cbind... use carefully to add rows and columns to df:
+
+<PRE>
+#add a row using rbind()
+#create list that includes an element for each column - using a list is important since there 
+#are data of different types in the data frame
+add_county <- list("San Diego", 1200, 73)
+
+#use row bind - will combine in the order given
+testing <- rbind(testing,add_county)
+
+#row bind can also be used to combine two compatible data frames 
+#(compatible meaning they have the same columns and data types)
+testing2 <- data.frame(
+  county = c("Imperial","Riverside"),
+  total_tests = c(410,760),
+  pos_tests = c(84,57),
+  stringsAsFactors = FALSE
+)
+
+#combine the two data frames
+#note: calling this new data frame 'testing' will save over our previous data 
+#frame named 'testing'
+testing <- rbind(testing,testing2)
+
+
+
+### Adding columns
+#add a column
+#create a new column called 'id'
+testing$id <- 1:6
+
+#another way to do this is to create a vector of column values
+id <- 1:6
+
+#and add in using column bind
+testing_id2 <- cbind(testing,id)
+
+#adding a column based on other columns
+testing$pct_pos <- round(100*testing$pos_tests/testing$total_tests,1)
+
+</PRE>
+
+Restructuring
+
+<PRE>
+
+#reorder columns, note POSITION of comma!
+testing_reordered_col <- testing[,c(4,1,2,3,5)]           ## this is reorder by col index!
+testing_4_cols = testing[,1:4]                            ## get subset of columns in new df
+
+
+#reorder rows based on values in a specified column
+testing_reordered_rows <- testing[order(testing$county),]  ## note position of comma!
+
+#create a new df without the county column
+#option 1: list columns by order or name
+testing_nocounty <- testing[,c(1,3,4,5)]
+
+#option 2: use the "-" to indicate which columns to exclude
+testing_nocounty2 <- testing[,c(-2)]
+
+#testing_nocounty will be the same as testing_nocounty2
+
+</PRE>
+
+named rows for data frame.
+Note that it offset the column index!!
+
+<PRE>
+
+#row names: create data frame which utilizes the row.names option and set the row name to
+testing_named_rows = data.frame(
+  county 	= c("Ala","CCosta","Marin"),   ## this WOULD have been col vector [[1]] if it wasn't cuz of row.names clause below.
+  total_tests 	= c(500,745,832),              ## this now becomes col vector [[1]]
+  pos_tests 	= c(43, 32, 30),
+  row.names 	= "county"                     ## this no longer treated as a general column/variable
+)
+
+
+testing_named_rows[[1]]
+testing_named_rows$total_tests
+testing_named_rows[["total_tests"]]
+
+
+</PRE>
+
+<H5>tidyverse tibbles</H5>
+
+<PRE>
+
+### Data frames vs. tibbles
+Tibbles are a type of dataframe that are used within the tidyverse. They were essentially created to be a bit more flexible and user friendly. Key differences:
+
+* No row names
+* Column names can have spaces, start with characters, as long as within back-ticks
+* When a tibble is printed to the console, it will automatically only include 10 lines, and will also include the data types
+* Can handle a vector of length 1 (will assign value to all rows)
+* Can create columns by calculating on others
+
+testing_tib = tibble(
+  county = c("Alameda","Contra Costa","Marin"),
+  state = "CA",
+  total_tests = c(500,745,832),
+  pos_tests = c(43, 32, 30),
+  `Percent Positive Tests` = round(100*(pos_tests/total_tests),1)    ## I probably hate space
+)
+
+my_tib = tibble(
+  v = c("dog","cat","mouse"),
+  x = 1:3,
+  y = 2,
+  z = x^2*y
+)
+
+
+</PRE>
+
+<H3>build-in data in RStudio</H3>
+
+<PRE>
+data() 			# see list of build in dataset
+library(nycflights13)
+data("fligihts")       # load specific dataset, large set is auto lazy load as "promise"
 </PRE>
 
 <H3>reprex - reproducible example</H3>
