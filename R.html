@@ -1096,7 +1096,7 @@ as.array()  -- for conversions
 <H5>dataframe</H5>
 
 dataframe is a common data structure to hold a table.
-Underneath the hood, it is a list of COLUMN vectors.
+Underneath the hood, a DF is a List of COLUMN vectors.
 The implication shows up in how to append columns, rows, access specific element of the df.
 
 <BR>
@@ -1346,6 +1346,85 @@ data() 			# see list of build in dataset
 library(nycflights13)
 data("fligihts")       # load specific dataset, large set is auto lazy load as "promise"
 </PRE>
+
+<H3>file IO</H3>
+
+PHW251 week 4 Part 2
+<BR>
+https://github.com/PHW290/PHW251_Fall2022
+<BR>
+
+<H5>Tydiverse readr::read_csv</H5>
+
+<PRE>
+# read_csv(file,
+#          col_names = TRUE,
+#          col_types = NULL,
+#          locale = default_locale(),
+#          na = c("", "NA"),            # how to handle missing values
+#          quoted_na = TRUE,
+#          quote = "\"",
+#          comment = "", 
+#          trim_ws = TRUE, 
+#          skip = 0,
+#          n_max = Inf, 
+#          guess_max = min(1000, n_max),  # max # of rec to use for guessing col types
+#          progress = show_progress(), 
+#          skip_empty_rows = TRUE)
+
+
+file_path_csv <- "https://data.chhs.ca.gov/dataset/8eb8839f-52a1-410b-8c4a-5b1c1678bbc2/resource/21fec3a1-ae82-49f4-ae97-fd8c78ca22ee/download/retail-availability-of-electronic-smoking-devices-by-county.csv"
+
+esd_coltypes <- read_csv(
+  file_path_csv,
+  col_names = c("county","yr","pct","ci_l","ci_u"),   # optional, force col name 
+  skip = 1,   # since original csv had column name that we forced to something else, this skip that header line
+  # col_types = cols(col_character(), col_double(), col_number(), col_number(), col_number()),
+  # col_types = cols_only(county = col_character(), yr = col_double(), pct = col_number()),
+  col_types = "cdnnn",   # oh, this is the abreviated char, double, num, num, num !
+  na = c("", "NA","*","n/a"),   # handling 
+)
+
+str(esd_coltypes)
+
+</PRE>
+
+Import from Excel xlsx
+<BR>
+Include support such as sheet, cell ranges 
+<BR>
+
+<PRE>
+how read_excel handle col_types:
+  + NULL to guess all from the spreadsheet
+  + character vector containing one entry per column from these options: "skip", "guess", "logical", "numeric", "date", "text" or "list".
+
+getwd()
+file_path_excel <- "tb_in_ca.xlsx"
+
+#clear warnings due to values = .; set to missing using the na argument
+tb_cleanest <- read_excel(
+  file_path_excel,
+  col_types = c("numeric","text","text","numeric","numeric","skip"), #specify column types
+  na = c(".") #specify values to be considered missing
+)
+</PRE>
+
+Data export
+
+
+<PRE>
+#export csv - good if needing flexibility for other analytic programs
+readr::write_csv(esd_clean,"esd_clean.csv")
+
+#export to excel - good if others want to look at it in excel (not R)
+openxlsx::write.xlsx(esd_clean,"esd_clean.xslx")
+
+#export RDS - good if you will want to pick it back up in R
+saveRDS(esd_clean,"esd_clean_saved.RDS")
+</PRE>
+
+
 
 <H3>reprex - reproducible example</H3>
 Ref: PHW251_Fall2022/weekly materials/week_3/nb_reprex.rmd
