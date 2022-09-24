@@ -88,8 +88,6 @@ exp(log(1))        # identity
 Note, R doesn't treat dot differently.  it is often used as part of variable name or function name, like chisq.test() or p.hat.
 However, neither Python nor bc likes dot in the variable name, so cut-n-paste simple calculator lines with variables with dots in them result in error.  May try to avoid use of dot in variable names for code portability.  (eg pasting from R to jupyther notebook with python kernel)
 
-
-
 </PRE>
 
 See also: 
@@ -97,6 +95,92 @@ See also:
 <LI><A HREF="#tilde">tilde operator and formula</A> is one of the weird thing in R.
 <LI><A HREF="#model_operators">model operators</A> (below)
 </OL>
+
+<!-- move 2022.09 -->
+<H5>assignment</H5>
+
+<PRE>
+a =  5
+a <- 5
+
+# both = and <- can be used for assignment
+# But <- is prefered by the R crowd.  it also screw with my html code here, so maybe this R.html should go have been done in .rst ...
+# <- create a new object... not sure if = acts differently in subtle cases?  so far have not found any problem. :->
+
+# there are some subtle differences, side effect, formula, etc.
+# see <A HREF="https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/">https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/</A>
+# overall, for better readability of R code, 
+# it was suggested to only use <- for assignment and = for specifying named parameters.
+# But I was not convinced and will likely continue to use = 
+# at least in this R.html doc.
+
+# shortcut for assignment and print to screen immediately
+# but wrapping the assignment in parenthesis.  eg:
+( a = abs(-5) )
+
+# in this case, dont have to type "a" at R prompt to find its value
+
+</PRE>
+
+<PRE>
+# converting a numeric 1, 2 to categorical male, female, but creating a new col (sec_cat) in existing table (nhanes)
+
+nhanes$sex_cat = ifelse(nhanes$sex==1, "Male", "Female") 
+
+
+string to integer conversion (search food: casting)
+myNumber = strtoi(myString, base = 10)
+
+
+</PRE>
+
+<A NAME="comparison"></A> <!-- R PHW251-->
+<A NAME="comparison_operator"></A> <!-- R PHW251-->
+<!-- R PHW251 w1p29 -->
+<H5>Comparison, operators</H5>
+
+
+Boolean
+<PRE>
+TRUE
+FALSE
+NA        # when logical comparison cannot be done (eg in vector pairwise comparison)
+</PRE>
+
+Logical Operator
+<PRE>
+&	# And
+|	# Or
+!	# Not
+</PRE>
+
+Comparison Operators
+<PRE>
+"dog"=="cat"      # equality, FALSE in this case
+5==5              # equality,  for number or strings
+!=                # not equal, for number or strings
+%in%              # is value in object (vector/list/table)
+week = c( "Mon", "Tue", "Wed" )
+"Tue" %in% week   # returns TRUE
+
+ %in%             # in (think math set)
+!%in%             # NOT in 
+between()         # dplyr
+between(Year,2017,2020)         # Year is a column with numeric values, so it is a math <= and >= range
+near()
+
+           7L == as.double(7) # returns TRUE.  ie R will compare numbers across data type in a human desirable way.
+as.integer(7) == as.double(7) # returns TRUE, it is same as above.
+
+sqrt(2)^2 == 2                 # FALSE cuz float approx rounding error
+dplyr::near( sqrt(2)^2, 2  )   # TRUE, has build-in tolerance
+
+
+matrix1 == matrix2  	# is an element wise comparison, returning another matrix.  Somewhat unexpected!
+c(1,2,3) == c(4,2,3)	# vector, list comparisons are also elementwise, it is said to be useful in the R world.
+
+
+</PRE>
 
 
 
@@ -672,91 +756,10 @@ Source: <A HREF="https://loonylabs.org/2019/10/03/day45-365doa/">Loony Labs - Da
 <!-- img cached as fig/claudia.eigenblogger.distribution-theme-park.gif, formerly as fig/loonylabs.distribution-park-joke.gif , but code load directly from source web site -->
 
 
-<H5>assignment</H5>
-
-<PRE>
-a =  5
-a <- 5
-
-# both = and <- can be used for assignment
-# But <- is prefered by the R crowd.  it also screw with my html code here, so maybe this R.html should go have been done in .rst ...
-# <- create a new object... not sure if = acts differently in subtle cases?  so far have not found any problem. :->
-
-# there are some subtle differences, side effect, formula, etc.
-# see <A HREF="https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/">https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/</A>
-# overall, for better readability of R code, 
-# it was suggested to only use <- for assignment and = for specifying named parameters.
-# But I was not convinced and will likely continue to use = 
-# at least in this R.html doc.
-
-# shortcut for assignment and print to screen immediately
-# but wrapping the assignment in parenthesis.  eg:
-( a = abs(-5) )
-
-# in this case, dont have to type "a" at R prompt to find its value
-
-</PRE>
-
-<PRE>
-# converting a numeric 1, 2 to categorical male, female, but creating a new col (sec_cat) in existing table (nhanes)
-
-nhanes$sex_cat = ifelse(nhanes$sex==1, "Male", "Female") 
-
-
-string to integer conversion (search food: casting)
-myNumber = strtoi(myString, base = 10)
-
-
-</PRE>
-
-<A NAME="comparison"></A> <!-- R PHW251-->
-<A NAME="comparison_operator"></A> <!-- R PHW251-->
-<!-- R PHW251 w1p29 -->
-<H5>Comparison, operators</H5>
-
-
-Boolean
-<PRE>
-TRUE
-FALSE
-NA        # when logical comparison cannot be done (eg in vector pairwise comparison)
-</PRE>
-
-Logical Operator
-<PRE>
-&	# And
-|	# Or
-!	# Not
-</PRE>
-
-Comparison Operators
-<PRE>
-"dog"=="cat"      # equality, FALSE in this case
-5==5              # equality,  for number or strings
-!=                # not equal, for number or strings
-%in%              # is value in object (vector/list/table)
-week = c( "Mon", "Tue", "Wed" )
-"Tue" %in% week   # returns TRUE
-
-
-
-           7L == as.double(7) # returns TRUE.  ie R will compare numbers across data type in a human desirable way.
-as.integer(7) == as.double(7) # returns TRUE, it is same as above.
-
-sqrt(2)^2 == 2                 # FALSE cuz float approx rounding error
-dplyr::near( sqrt(2)^2, 2  )   # TRUE, has build-in tolerance
-
-
-matrix1 == matrix2  	# is an element wise comparison, returning another matrix.  Somewhat unexpected!
-c(1,2,3) == c(4,2,3)	# vector, list comparisons are also elementwise, it is said to be useful in the R world.
-
-
-</PRE>
-
 <H5>computing on dates/time</H5>
 From: <A HREF="https://github.com/PHW290/PHW251_Fall2022/blob/main/weekly%20material/week_2/nb_dates.Rmd">PHW251 week 2</A> git repo by David and Lauren
 
-</PRE>
+<PRE>
 # another method of determining days between two dates, but also the option for other measures
 as.numeric(difftime(Sys.Date(), as.Date("2020-09-03"), units = "days"))
 as.numeric(difftime(Sys.Date(), as.Date("2020-09-03"), units = "hours"))
@@ -1203,7 +1206,12 @@ county_df2  = testing[1]
 #using the row number - can be 1:2 or c(1,2)
 testing[1:2,]
 #based on a specified data elements
-testing[which(testing$total_tests>500),]
+testing[ which(testing$total_tests>500), ]                 # note sq bracket and tailing comma
+stds_Ala = stds[ which(stds[["County"]] == "Alameda"), ] 
+
+# unique() , though this eg only create a new vector, not preserving original df
+unique_counties = unique( stds[["County"]]) 
+
 
 #subset columns based on column name or number
 testing[,c("total_tests","pos_tests")]
@@ -1212,8 +1220,10 @@ testing[,c(2,3)]
 #subset rows and columns
 testing[c(1,2),c("total_tests","pos_tests")]
 
+
 #Reassign a value of a cell
 testing[2,1] = "Yolo"         # row 2, column 1   ## maybe counter-intuitive, but first number is on thd col vector.
+# alt syntax should be testing[[1]][[2]]   # ie [[col_index]][[row_index]] cuz df is list of COL vect
 
 
 #Reassign column values
@@ -1260,7 +1270,11 @@ id <- 1:6
 testing_id2 <- cbind(testing,id)
 
 #adding a column based on other columns
-testing$pct_pos <- round(100*testing$pos_tests/testing$total_tests,1)
+   testing$pct_pos <- round(100*testing$pos_tests/testing$total_tests,1)   # >
+
+stds_Ala$Rate = ( stds_Ala$Cases / stds_Ala$Population ) * 100000
+
+
 
 </PRE>
 
@@ -1336,8 +1350,151 @@ my_tib = tibble(
   z = x^2*y
 )
 
+</PRE>
+
+
+<H5>filter-ing data by row</H5>
+[ref: 
+<A HREF="https://github.com/PHW290/PHW251_Fall2022">PHW251 week 5 (Fall 2022 git repo)</A>]
+<BR>
+<BR>
+
+filter() is like unix grep, picking up only rows that match certain pattern.
+
+<PRE>
+ids_file_path = "https://data.chhs.ca.gov/dataset/03e61434-7db8-4a53-a3e2-1d4d36d6848d/resource/75019f89-b349-4d5e-825d-8b5960fc028c/download/idb_odp_2001-2018.csv"
+tbl = read_csv( ids_file_path )
+
+bay_area = c("ALAMEDA","CONTRA COSTA","SAN FRANCISCO", "MARIN", "SAN MATEO", "SONOMA", "NAPA", "SOLANO","SANTA CLARA")
+lister_2018 = filter( tbl, County %in% bay_area & !is.na(Rate) )
 
 </PRE>
+
+slice() is selecting rows by position (row number)
+<BR>
+<PRE>
+
+# both of these pick a slice of the table lister_2018, picking the first 10 rows
+lister_head  = slice_head(lister_2018,n=10)     # slice() is from dplyr
+lister_head2 = head(lister_2018,10)             # head is base R
+
+lister_2018a = slice(lister_2018, 15:n())       # pick row 15 till end of table, where n() is total num of row.  think count() of SQL
+
+lister_2018b = slice(lister_2018, c(5,20,25))   # pick rows 5,20,25.  ~ df_steps[ c(5,20,25),]  # note tailing comma
+
+
+#slice_max: rows with highest value.  
+# with_ties=F will enforce only n rows returned (but which row that made to the tie maybe undeterministic)
+# order_by is required so tidy knows how to sort
+lister_max =  slice_max(lister_2018, order_by=Cases, n=10, with_ties = FALSE)
+
+#slice_min: rows with lowest value.  with_ties=T means may end up with larger than specified n num of rows.
+lister_min =  slice_min(lister_2018, order_by=Cases, n=3, with_ties = TRUE)
+
+</PRE>
+
+<PRE>
+sample_frac(tbl, size=10,replace=F)	# randomly select fraction , exact count for size; replace=F means row cannot be used again
+sample_n(tbl, size=.1,replace=F)	# randomly select number of rows, 0.1 = 10%
+distint(tbl, County, Disease)		# select unique rows (dedup), keyed by the listed column(s)
+
+# base R way to add row:  ## is there way to add to existing object?
+new_row = list( Disease="E. Coli", County="San Diego" )
+id_add2 = rbind( tbl, new_row )
+
+tibble::add_row()	# add row to a tibble, na added automagically as needed, can append to existing object
+add_row(tbl, Disease = "E. Coli", County = "San Diego")
+
+arrange(tbl, Disease, desc(Cases))	# arrange row in specific order -- i think it then affects the row number used by slice() 
+					# desc() meands descending order
+</PRE>
+
+<H5>select-ing data by col</H5>
+select() is like awk picking up desired columns only, ie working with select variables of a table
+
+<PRE>
+
+select(df, county)			# df["county"]
+select(df, c(county,cases) )		# df[ c("county","cases") ]
+
+id_sub =  select( tbl,Disease:Population )	# take col from Disease to Population ## : is range operator!
+
+new_tbl = select( tbl, !Rate )		# both ! and - prefix remove column
+new_tbl = select( tbl, -Rate )		# df[ -c("Rate") ]
+
+id_sub =  select(tbl,-contains("CI"))	# remove column with string CI in it
+id_sub =  select(tbl,!ends_with("CI")) 	# remove column name end with CI
+
+</PRE>
+
+
+pull() extract col as a new vector
+
+<PRE>
+diseases =  id_sub %>%
+  distinct(Disease) %>%
+  pull(Disease)			# Disease is column name, if there is only 1 column in data, this is optional
+
+# base R way to select column from data.frame , by name or col index (start with 1)
+df_steps$names
+df_steps[["names"]]
+df_steps[[2]]
+</PRE>
+
+rename
+
+<PRE>
+
+ids_rename = rename(ids, disease=Disease)		# renaming column 
+ids_rename = rename(ids, disease=Dis, county=Cty) 	# rename multiple columns
+
+# base R
+col.names( df_steps ) = c(new_name1, new_name2)		# PHW251 wk 5 reader page 18
+
+#rename all - this line will rename all variables as lower and replace spaces with _
+#the .x is used as a placeholder for column names since this will be applied to all columns
+ids_rename =  rename_with(ids, ~ tolower(gsub(" ","_",.x,fixed=TRUE)))
+</PRE>
+
+<BR>
+
+other ways to add columns:
+<PRE>
+
+dplyr::add_column(...)	# dplyr has a add_column() fn -- for tibbles only?
+
+cbind( df_steps, ... )	# base R use cbind -- column bind
+
+mutate()		# create new column, could be calculated col
+
+id_campy_la = ids %>%
+  mutate(county=str_to_title(county),
+         state = "CA",
+         county_small = if_else(population<100000,"small","not small"),
+         county_cat = case_when(
+           population<100000 ~ "small",
+           population<1000000 ~ "med",
+           TRUE ~ "large"
+         ),
+         ci = paste0("(",`lower_95__ci`,", ",`upper_95__ci`,")")
+         ) 
+
+#>>>"syntax-parser-food""
+</PRE>
+
+<PRE>
+
+id_campy_la = ids %>%
+  mutate(cumulative_cases = cumsum(cases),
+         cumulative_mean_cases = cummean(cases),
+         cases_last_year = lag(cases),
+         cases_change = cases - cases_last_year
+         )
+
+</PRE>
+
+
+group_by()
 
 <H3>build-in data in RStudio</H3>
 
@@ -1361,7 +1518,7 @@ https://github.com/PHW290/PHW251_Fall2022
 #          col_names = TRUE,
 #          col_types = NULL,
 #          locale = default_locale(),
-#          na = c("", "NA"),            # how to handle missing values
+#          na = c("", "NA", "-"),            # how to handle missing values
 #          quoted_na = TRUE,
 #          quote = "\"",
 #          comment = "", 
@@ -1422,6 +1579,11 @@ openxlsx::write.xlsx(esd_clean,"esd_clean.xslx")
 
 #export RDS - good if you will want to pick it back up in R
 saveRDS(esd_clean,"esd_clean_saved.RDS")
+
+
+# note, R base has fn haved with dot, eg:
+write.csv(), write.xlsx()
+
 </PRE>
 
 
@@ -1457,6 +1619,8 @@ result <- sample_data[age > 17, c(1, 3:4)]
 #                     ^^^^1^^^  ^^^^2^^^^
 # 1 = filter: rows where age older than 17 
 # 2 = picking column 1 AND 3 to 4.
+
+result2 = filter( sample_data, !is.na(age) )   # this one only pick rows where age is defined (ie not missing)
 
 </PRE>
 
@@ -2729,6 +2893,9 @@ lake_data_filtered = lake_data %>% filter(age_data=`recent`)
 # eg, filter (ie show) rows where lake (name) is Alligator or  Blue Cypress:
 #                               VVV--- c() is the concatenate function in R to create a list.
 lake_data %>% filter(lakes %in%  c("Alligator", "Blue Cypress")  ) 
+
+mySet = c("Alligator", "Blue Cypress")        
+lake_data %>% filter( lakes %in%  mySet )    # pre-define the set to look for %in% to make it more readable/compact
 
 
 # multiple filters at once, comma or & separated:
