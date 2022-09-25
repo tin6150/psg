@@ -86,6 +86,7 @@ record_bios_settings_supermicro () {
 
 
 record_bios_settings_dell () {
+	#RACIMG=/tin/tin-gh/dell_idracadm/dell_idracadm.img
 	#RACIMG=/global/home/users/tin/sn-gh/dell_idracadm/dell_idracadm.img
 	#XXRACIMG=/global/home/users/tin/gs/singularity-repo/dirac1_dell_idracadm.img 
 

@@ -468,7 +468,7 @@ defineAlias () {
 	alias ef='ps -ef'
 	alias lt="ls -latr"
 	alias ltr="ls -latr"
-	alias sq="squeue"          ##slurm
+	alias squ="squeue"          ##slurm
 	alias sqt="squeue -u tin"  ##slurm
 	alias assoc="sacctmgr show associations -p"                    ##slurm
 	alias sevents="sacctmgr show events start=2020-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
