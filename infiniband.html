@@ -395,7 +395,32 @@ Ref:
 <LI>
 <A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/sec-Configuring_IPoIB#sec-Understanding_IPoIB_communication_modes">RH IPoIB</A>
 
+<H2>IB switch Config</H2>
 
+<PRE>
+
+docker login abcd 1234
+</PRE>
+
+TO use Y-split cable, the switch port has to set to split profile.
+p 387 of  nvidia mlnx-os user manual rev 6.6 for sw v 3.9.3124
+<BR>
+admin/admin
+<PRE>
+
+config
+interface ib 1/4
+shutdown   ! shutdown the specific switch port
+
+module-type qsfp-split-2   ! set to split mode for use with Y-split cable
+module-type qsfp           ! revert, back to normal 1:1 cable
+
+
+show interfaces ib status
+</PRE>
+
+
+<A name=iboip></A>
 <H2>IBoIP with Bonding Config</H2>
 
 

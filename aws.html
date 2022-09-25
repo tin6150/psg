@@ -272,6 +272,8 @@ aws ec2 describe-subnets --output=table
 
 aws --region us-west-2 --output=table ec2 describe-instances | egrep  '(Value|PrivateIp|\ Name)'
 
+aws ec2 describe-instances |  egrep 'Instance|PublicDnsName|stop|terminate|running'
+aws ec2 describe-instances |  egrep 'InstanceId|InstanceType|PublicDnsName|stop|terminate|running'
 
 aws --region us-east-1 ec2 describe-subnets --query 'Subnets[*].[SubnetId,CidrBlock,AvailabilityZone,Tags[?Key==`Name`] | [0].Value]' --filters "Name=vpc-id,Values=vpc-abcd1234" "Name=tag-value,Values=\*HPC\*"
 
@@ -291,6 +293,12 @@ aws ec2 describe-instances	# list all instances and their info
 aws ec2 describe-instances --instance-id i-30d27590 --output=table
 aws ec2 stop-instances     --instance-id i-30d27590
 aws ec2 start-instances    --instance-id i-30d27590
+
+
+
+# finding interchangeable Architecture 
+aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=x86_64 --query "InstanceTypes[*].InstanceType" --output text
+aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=arm64  --query "InstanceTypes[*].InstanceType" --output text
 
 
 </PRE>
@@ -332,8 +340,12 @@ wget -q -O - http://169.254.169.254/latest/meta-data/instance-id	# 169.254.169.2
 <li>Look at free software in Amazon Marketplace is a easy way to see prices for all different types of instances.  eg.  <A HREF="https://aws.amazon.com/marketplace/pp/B00N44P7L6/ref=dtl_recsim_B00EQE493U_B00N44P7L6_2">NCBI Blast AMI</A></li>
 </ol>
 
-Source: 
-<A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A>
+Source and Ref: 
+<A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A> <BR>
+<A HREF="https://www.cloudzero.com/blog/aws-instance-types">instance type guide</A> (By cloud zero, mediocre) <BR>
+
+
+
 
 <BR><BR>
 
@@ -489,6 +501,32 @@ billing
 
 
 </PRE>
+<H1>AWS Region</H1>
+
+<PRE>
+us-east-1 = Virginia     ###
+us-east-2 = Ohio
+us-west-1 = California
+us-west-2 = Oregon       #
+
+</PRE>
+
+These resources are region specific:
+
+<UL>
+<LI>AMI-id.  ie, TF script that create EC2 instance must use ami-nnnnn from the same region, or get vague "resource unavailable" error.  Permission are also not copied when AMI is copied across region</LI>
+<LI>EC2 key pair.  These ssh key to login to machine (needed during instance creation) are listed under EC2, not under user security.  </LI>
+<LI>Security Groups.  But TF create them and will track them.</LI>
+<LI>EC2 instance.  the i-nnnn is region specific.</LI>
+<LI></LI>
+</UL>
+
+These are globally unique
+<UL>
+<LI>S3</LI>
+<LI>IAM user</LI>
+<LI></LI>
+</UL>
 
 <H1>Using S3 to serve static-content web site</H1>
 
@@ -555,6 +593,10 @@ aws s3 sync .   s3://tin6150     --acl public-read  --exclude ".git/*"  # exclud
 aws s3 cp   fig s3://tin6150/    --acl public-read  --recursive         # cp -R  fig folder copied and folder created in dest bucket
 
 # note, it is possible to cp/sync between two s3 buckets
+
+# remove all files in bucket before removing the bucket.  It cannot be renamed nor change region.
+ aws s3 rm --recursive s3://old-junk
+ aws s3 rb             s3://old-junk
 
 </PRE>
 <BR>

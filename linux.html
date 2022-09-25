@@ -91,6 +91,8 @@ results in a noop on CentOS machines.  Lack of action in output does NOT mean se
 <LI> Scientific Linux has 'fastbugs' and 'security' updates.   Security updates are enabled by default.  
 See <A HREF="https://www.scientificlinux.org/documentation/faq/faq-updates/">SL FAQ from Fermilab</A> and 
 <A HREF="https://serverfault.com/questions/369833/automatically-check-for-security-updates-on-centos-or-scientific-linux">serverfault</A>
+<LI>
+<LI> Amazon Linux is based on RHEL/CentOS 7, but have their own tweaks.  eg for EPEL, has aws cli pre-installed.
 </UL>
 
 <H2>Linux Admin 101</H2>
@@ -361,6 +363,37 @@ So, in short -- you can remove what you don't need :)
 
 </PRE>
 
+<A ID="endian"></A>
+<A ID="endianness"></A>
+<H3>Endianness</H3>
+
+
+<PRE>
+
+network byte order: big-endian
+intel: little-endian    (just think of intel being an @$$)
+most RISC were big-endian?
+new POWER is configurable.  
+arm is said to be either, but not sure if it was a silicon level or firmware level change.
+
+amazon linux using aarch64 is apparently little endian
+
+To determine byte order, use one of:
+
+python:
+from sys import byteorder
+print(byteorder)
+
+perl:
+perl -e 'use Config; print $Config{byteorder}'
+
+
+</PRE>
+
+for the purist, there is a C/C++ code in this
+<A HREF="https://stackoverflow.com/questions/4181951/how-to-check-whether-a-system-is-big-endian-or-little-endian">stack overflow post</A>.  I was just too lazy to compile things.  Perl one liner was just perfect for this :D
+
+
 <BR>
 <A ID=RHEL_vs_glibc"></A>
 <A ID="compatibility"></A>
@@ -379,8 +412,8 @@ Useful info in this
      but potentially one can compile an ADDITIONAL glibc in alternate path and set LD_LIBRARY_PATH ? -->
 <PRE>
 
-System Release			kernel		glibc		gcc			compat-glibc
-----------------------------	-------------	-------------	-------------		-------------
+System Release                  kernel          glibc           gcc                    compat-glibc
+----------------------------    -------------   -------------	-----------------      -------------
 SuSE SLUS  9 (patch  3)		2.6.11.7	2.3.3-98.94	3.3.3-43.54		
 SuSE SLUS 10 (patch 10)		2.6.16.27-0.9	2.4-31.5	4.1.2_20070115-0.11	
 
@@ -394,7 +427,8 @@ Fedora Core 6			2.6.19-1	2.5-10.fc6	4.1.1-51.fc6
 Fedora 8                        2.6.23
 
 RHEL 7.9                        3.10.0-1160.49  2.17-325        4.8.5                  n/a?
-RHEL 8.1			4.18.0-147.3.1  2.28-72		8.3.1-4.5
+Amazon Linux 2.3                4.14.281-212    2.26-60		7.3.1
+RHEL 8.1                        4.18.0-147.3.1  2.28-72		8.3.1-4.5
 
 
 

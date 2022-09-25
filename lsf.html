@@ -194,7 +194,7 @@ sattach			# connect to the stdin, stdout and stderr of a job or job step
 Options common to most/all job submission commands:
 
 sbatch/salloc/srun
-	--ntasks=100	# number of tasks to 100 (ie array job) (-n 100)
+	--ntasks=100	# set number of tasks to 100 (-n 100)
 	--nodes=x --ntasks-per-node=y	# less recommended way to run large MPI job
 	--time=10	# time limit in minutes (wall clock after job starts)   (also help scheduler do backfill)
 	--depend=JOBID	# job dependency, like qhold until a parent job has finished before starting this.
@@ -221,6 +221,14 @@ srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal 
 srun --pty --partition=savio3_2080ti --account=scs --qos=titan_2080ti3_normal -n 2 --gres=gpu:TITAN:1       --constrain=8rtx --time=00:30:00 bash
 
 </PRE>
+
+Example with slurm array jobs:
+<A HREF="https://hpcf.umbc.edu/ada/slurm/array-jobs/">UMBC</A>
+though if input file are not named sequentially, may not have a easy way to match them,
+and 
+<A HREF="general_unix#gnu-parallel">gnu-parallel</A> with task file as input would be more flexible, albeit a bit more complicated.
+<BR>
+
 
 <H4>What/Where</H4>
 
@@ -356,6 +364,12 @@ sreport			# usabe by cluster, partition, user, account
 
 SLURM will read environment variables to help it determin behavior. <BR>
 CLI argument(s) will overwrite env var definitions. <BR>
+<BR>
+
+See:
+
+<LI><A HREF="https://hpcf.umbc.edu/ada/slurm/environment-variables/#">UMBC for most used vars</A>
+<LI><A HREF="https://slurm.schedmd.com/sbatch.html#SECTION_INPUT-ENVIRONMENT-VARIABLES">schedmd reference</A>
 <BR>
 
 <PRE>
@@ -883,7 +897,7 @@ freezer/slurm/uid_43143/job_13272521/step_batch/tasks:15537
 <LI><A HREF="https://www.admin-magazine.com/HPC/Articles/real_world_hpc_setting_up_an_hpc_cluster">SysAdmin mag on slurm setup</A>
 <LI><A HREF="https://cdn.vanderbilt.edu/vu-wp0/wp-content/uploads/sites/157/2019/03/28204601/intro_to_slurm.pdf">Vanderbilt accre intro to slurm</A> (very nice slide deck for users)
 <LI><A HREF="http://www.softpanorama.org/HPC/PBS_and_derivatives/Reference/pbs_command_vs_sge_commands.shtml">SoftPanorama PBS vs Slurm commands</A>
-<LI><A HREF="https://docs.google.com/presentation/d/1__ODaquZgYygaNJJ6UsKS1qHV6ja3Ud974N4kH7xxPM/edit?usp=sharing">Labtech 2018 Slurm Quick Start</A> Presentation for LBL Lawrencium (mostly usable for UC Berkeley Savio).
+<LI><A HREF="https://docs.google.com/presentation/d/1__ODaquZgYygaNJJ6UsKS1qHV6ja3Ud974N4kH7xxPM/edit?usp=sharing">Labtech 2018 Slurm Quick Start</A> Slides for Presentation on LBL Lawrencium (mostly usable for UC Berkeley Savio as well).
 <LI><A HREF=""></A>
 </UL>
 
