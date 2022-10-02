@@ -2802,8 +2802,9 @@ cat/var/lib/dpkg/info/genome-music.list # list files installed by a given packag
 
 dselect
 dpkg -l					# list installed packages (.dpkg) = rpm -qa
-dpkg -i file.deb		# rpm -ivh
-apt-get install ./file.deb	# probably better, solve dependencies
+dpkg -L	pkgname				# list files installed by named package
+dpkg -i file.deb			# rpm -ivh
+apt-get install ./file.deb		# probably better, solve dependencies
 
 dpkg  --search file			# find which package has file
 rpm    -qif    file

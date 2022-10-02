@@ -340,6 +340,45 @@ wget -q -O - http://169.254.169.254/latest/meta-data/instance-id	# 169.254.169.2
 <li>Look at free software in Amazon Marketplace is a easy way to see prices for all different types of instances.  eg.  <A HREF="https://aws.amazon.com/marketplace/pp/B00N44P7L6/ref=dtl_recsim_B00EQE493U_B00N44P7L6_2">NCBI Blast AMI</A></li>
 </ol>
 
+<PRE>
+
+c5a
+c5ad - essentially same as C5a, but has nvme ephemeral instance storage (eg for use as swap, which need to be setup each time instance is powered on)
+
+ragd.12xlarge - the "g" is for gravitron, arm-based architecture, AMI not interchangeable with x86.
+
+some pricing info as of 2022.09 for some of the instance I was using:
+
+c5a.16xlarge  is $2.46/hour      no ephemeral NVME 
+c5ad.16xlarge is $2.75/hour      2 nvme ephemeral instance storage
+r6gd.12xlarge is $2.76/hour      the "g" is for gravitron arm based 
+r5ad.12xlarge is $3.14/hour      384G RAM 48 core.
+r6id.12xlarge is $3.63/hour                
+r6id.16xlarge is $4.84/hour
+
+API Name	Instance Memory		vCPUs	Instance Storage	Network Performance	Linux On Demand cost
+r5ad.16xlarge	512.0 GiB	64 vCPUs	2400 GB (4 * 600 GB NVMe SSD)	12 Gigabit	$4.192000 hourly
+m5ad.24xlarge	384.0 GiB	96 vCPUs	3600 GB (4 * 900 GB NVMe SSD)	20 Gigabit	$4.944000 hourly
+r5ad.24xlarge	768.0 GiB	96 vCPUs	3600 GB (4 * 900 GB NVMe SSD)	20 Gigabit	$6.288000 hourly
+m6id.32xlarge	512.0 GiB	128 vCPUs	7600 GB (4 * 1900 GB NVMe SSD)	50 Gigabit	$7.593600 hourly
+r6id.32xlarge	1024.0 GiB	128 vCPUs	7600 GB (4 * 1900 GB NVMe SSD)	50 Gigabit	$9.676800 hourly
+x2iedn.16xlarge	2048.0 GiB	64 vCPUs	1900 GB NVMe SSD		50 Gigabit	$13.338000 hourly
+x2iedn.32xlarge	4096.0 GiB	128 vCPUs	3800 GB (2 * 1900 GB NVMe SSD)	100 Gigabit	$26.676000 hourly
+
+
+  #instance_type = "t2.micro"   # $0.020/hr  1 vCPU  0.6G RAM
+  #instance_type = "t2.small"   # $0.023/hr  1 vCPU  2G
+  #instance_type = "t2.medium"  # $0.046     2 vCPU  4G                # tested work for us-west-2
+  #instance_type = "t3.large"   # $0.083     2 vCPU  8G
+  #instance_type = "t3.xlarge"   # $0.166     4 vCPU 16G
+  instance_type = "c5a.16xlarge"  # $2.464       64 vCPU 128G
+  #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
+  #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
+  #-instance_type = "x2gd.2xlarge"  # $0.668        8 vCPU 128G  arm64
+
+
+</PRE>
+
 Source and Ref: 
 <A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A> <BR>
 <A HREF="https://www.cloudzero.com/blog/aws-instance-types">instance type guide</A> (By cloud zero, mediocre) <BR>
@@ -783,6 +822,28 @@ aws ec2 stop-instances --region us-east-2 --instance-ids i-0123456789abcdef
 
 </UL>
 
+<H1>Useful links</H1>
+
+
+<UL>
+<LI><A HREF="https://instances.vantage.sh/?min_memory=384&min_storage=100&region=us-east-2&selected=r5ad.12xlarge">
+vantage.sh AWS EC2 pricing and instance comparison</A>
+<LI> <A HREF="https://www.instance-pricing.com/provider=aws-ec2/instance=c5ad.16xlarge/">instance-pricing.com</A> useful, but not as friendly as vantage.sh above.
+
+<LI>
+
+</UL>
+
+
+<H1>Random tidbits to be sorted</H1>
+
+<PRE>
+
+finding pricing info on ec2
+
+aws pricing get-products --service-code AmazonEC2 --filters "Type=TERM_MATCH,Field=instanceType,Value=c5ad.16xlarge" "Type=TERM_MATCH,Field=location,Value=US East (N. Virginia)" --region us-east-1 | jq -rc '.PriceList[]' | jq -r '[ .product.attributes.servicecode, .product.attributes.location, .product.attributes.instancesku?, .product.attributes.instanceType, .product.attributes.usagetype, .product.attributes.operatingSystem, .product.attributes.memory, .product.attributes.physicalProcessor, .product.attributes.processorArchitecture, .product.attributes.vcpu, .product.attributes.currentGeneration, .terms.OnDemand[].priceDimensions[].unit, .terms.OnDemand[].priceDimensions[].pricePerUnit.USD, .terms.OnDemand[].priceDimensions[].description] ' | less
+
+</PRE>
 
 <BR><BR>
 <HR>
