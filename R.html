@@ -616,6 +616,7 @@ na.rm=T   # many function take this as option to drop entries with missing data,
 nhanes = read_csv("nhanes.csv")
 nhanes = na.omit( nhanes )       # remove row that has missing values.
 
+
 </PRE>
 
 
@@ -1155,6 +1156,32 @@ rbind(t, data.frame(...) )
 
 </PRE>
 
+<H3>Pivot longer (vs wider)</H3>
+
+PIVOT  … it is the longer vs wider approach of data collection
+
+<BR>
+
+the tidyverse way of organizing data... 
+<BR>
+overall, tidy don't want wide tables (suitable for human for reading)
+<BR>
+but long tables (think SQL, RDBM that avoid null and need to operate on data using JOIN)
+<BR>
+
+
+# really better off reading p47 of week 6 pdf (tidyverse book)
+
+Ref:
+<A HREF="https://r4ds.had.co.nz/tidy-data.html#pivoting">R for Data Science Ch 12.3 - Tidy Data: Pivoting</A>
+<BR>
+
+<PRE>
+pivot_longer( … names_to = "new_col_name", value_to = "col__with_data" )
+pivot_wider( names_from="col_that_becomes_header", value_from="col_with_data" )
+</PRE>
+
+
 <H3>Creating sample data for testing</H3>
 
 <PRE>
@@ -1543,6 +1570,13 @@ esd_coltypes <- read_csv(
 )
 
 str(esd_coltypes)
+
+# missing value handling: replace na with 0, into the data frame
+# dyplyr hybridized options to replace na with 0	
+esd_coltypes = esd_coltypes %>% mutate_all( ~replace( ., is.na(.), 0 ) )
+# orig R way, slower:
+d[is.na(d)] = 0
+
 
 </PRE>
 
@@ -2928,6 +2962,20 @@ nrow( nhanes %>% filter( hs=='No' )   # this count number of rows, only those wh
 
 </PRE>
 <BR>
+
+Another group_by() example from PHW251 wk 6
+<PRE>
+
+library(nycflights13)
+library(dplyr)
+
+flights_mean_delay <- flights %>%
+  group_by(carrier, month, .add = F) %>%
+  summarize(count = n(), avg_delay = mean(arr_delay, na.rm = TRUE)) %>%
+  mutate(pct_of_max = avg_delay/max(avg_delay))
+
+</PRE>
+
 
 Reference material: <BR>
 
