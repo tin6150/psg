@@ -1716,6 +1716,14 @@ ipa dnsrecord-add greta.local  n00 --a-rec 10.8.16.100 --a-create-reverse  # "fo
 ipa dnsrecord-add greta.local  n01 --a-rec 10.8.16.101 --a-create-reverse 
 
 ipa dnsrecord-add greta.local  alias00     --cname-rec=n00      # CNAME alias record
+
+round-robin recods for load balancing
+
+ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.50
+ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.57
+
+# change TLS?
+
 </PRE>
 
 
@@ -1728,10 +1736,20 @@ ipa dnsrecord-add 16.8.10.in-addr.arpa.  100  --ptr-rec n00.greta.local.
 
 </PRE>
 
+modifying renaming record
+</PRE>
+ipa dnsrecord-mod example.com www --a-rec 10.1.1.1 --ip-address 10.1.1.2
 
-deleting record, try things like:
+changing ttl
+ipa dnsrecord-mod greta.local vasttest --ttl=3600
 <PRE>
-ipa dnsrecord-del lab.ex.com. badhost --a-rec 192.168.250.254
+
+
+
+deleting record
+<PRE>
+ipa dnsrecord-del greta.local  vasttest --a-rec 10.8.16.50 
+ipa dnsrecord-del 16.8.10.in-addr.arpa.  58  --ptr-rec vasttest.greta.local.   # ie del 10.8.16.58 which has hostname vasttest.greta.local
 </PRE>
 
 
