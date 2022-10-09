@@ -281,8 +281,59 @@ STENEX - diagnostic tool for CMAQ
 <LI>
 </UL>
 
+<A id="aln"></A> 
+<H4>sequence alignment</H4>
+
 <PRE>
+
+Pearson/FASTA
+
+FASTA default breaks seq to 80 chars, eg first 3 lines of a DNA seq 
+
+>NODE_1_length_227998_cov_13.115952_pilon
+ATATAACTGATATCCCTGAAGGTTATTAACTTGAATTATGACGCACTGATATTATTCATCAAATAATAACAAAATAGCCA
+TTGCACCGGGTTGAACAATTTACAAAAGAAAGATATTCCATATCGTATAATGCGATTAAATACGCCGTCTTATAGAAAAT
+
+BEAST2 expect alignment where each seq is just 1 long line for the whole seq 
+
+
+
+ClustalW
+GCC MSF
+Phylip interleaved
+Phylip sequential
+
+
 </PRE>
+
+Nexus tree format eg
+
+<PRE class="code">
+#NEXUS
+
+Begin taxa;
+        Dimensions ntax=71;
+        Taxlabels
+                1940_AF369693_M112_4_Sudan
+                1946_U52403_Nigeria46_Nigeria
+                1948_AF369694_A709_4_A2_Uganda
+                1953_AH005112_RENDU_Senegal
+		[...]
+                ;
+End;
+
+Begin trees;
+        Translate
+                1 1940_AF369693_M112_4_Sudan,
+                2 1946_U52403_Nigeria46_Nigeria,
+                3 1948_AF369694_A709_4_A2_Uganda,
+		[...]
+                71 2009_TVP11767_Trinidad
+                ;
+tree TREE1 = [&R] ((((4[&length_range={20.114391506501633,217.16984306215267},height_95%_HPD={55.99999999999977,56.00000000000023},rate_95%_HPD={2.0089799481037352E-4,6.327035462243147E-4},length_95%_HPD={38.79833130234596,169.78101583683446},rate=3.2336282842901544E-4,length=112.03265216906932,rate_median=2.660354276765452E-4,length_median=117.72025942197638,height_median=56.0,rate_range={1.8617778258136157E-4,0.001075846428088821},height_range={55.99...
+End;
+</PRE>
+
 
 <H1>ChemInformatics File Format</H1>
 
