@@ -12,7 +12,8 @@
 ## 1st loc: psg/script/hpc/
 ## 2nd loc: tin-bb/blpriv/hpcs_toolkit
 
-### update lot (future)
+### update log (future)
+### 2022.1010  SWAP=1024 cuz some bioinfo apps need it (OOM kicks in)
 
 #### 2022.0427
 #### run as, single disk config:
@@ -289,7 +290,8 @@ make_dir_tree()
 # ++ parameters for partitions, tweak as desired
 #    essentially global vars used by run_fdisk_* functions
 # use lvm syntax
-SWAP_SIZE="-L 8G"
+##SWAP_SIZE="-L 8G"
+SWAP_SIZE="-L 1024G"
 TMP_SIZE="-L 8G"
 LOCAL_SIZE="-l 100%FREE"  # % format need -l, thus embedding the flag as part of the argument
 
