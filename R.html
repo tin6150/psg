@@ -184,7 +184,70 @@ c(1,2,3) == c(4,2,3)	# vector, list comparisons are also elementwise, it is said
 
 </PRE>
 
+<H1>R Stuff that is weird</H1>
 
+aka: stuff that might bite you in the @$$ :-\
+
+<PRE>
+for-loop is uncommon in R.
+sapply() may do most of the things a for loop would, 
+but there is no way to specify the variable name.
+
+but for-loop has optimization, side-effect only may not be executed by R?
+eg need the following construct to work (coming from say python/C world of thinking):
+
+for( i in colnames(df) ) {
+  x = sum( is.na( df[i] ) )
+  msg = sprintf( "column %s has %d NAs", i, x )
+  print( msg )
+}
+
+## the for loop optimization in R is skipping execution for things that only produce "side effects"
+## sum( is.na( df[i] ))   by itself produce no output inside a for loop
+## ditto, sprintf() produce no output
+## thankfully print() does!
+
+
+## i wish could have used sapply for above, but no way to stand in for "i" in the is.na(df[i])
+
+sapply( df, is.na )   # apply is.na for each cell of df, not a column
+
+total_na_count = sum( sapply( df, is.na ) )	# but no easy way to do per column count of na using sapply (??)
+
+
+</PRE>
+
+careful with %>% , especially when chaining... 
+
+</PRE>
+%>% is awsome, like unix pipe, but sequentially chaining them
+if involving the same variable, may not be updated...
+don't specify the df (table) name again, 
+this below is BAD!
+
+df_step2 = df %>%
+  mutate( state = str_remove_all( df$state, "[^[:alpha:]]" ) ) %>%   # remove space and _
+  mutate( state = str_to_upper( df$state ) )                   %>%   # convert state to upper case
+  mutate( orientation = na_if( df$orientation, -999 ))         %>%
+  mutate( orientation = na_if( df$orientation, -1   ))               # BAD! previous step overwritten, df$ has orig value!
+
+
+## if not creating new column, no need for mutate()
+## replacing them "in-place" has a cleaner syntax :D
+df$gender = na_if( df$gender, -999 )
+df$gender = na_if( df$gender, -1 )
+
+
+## but if creating new column, or really want to use mutate, then be sure NOT to specify the df name, just column name, ie
+## do this instead, then work as desired:
+
+df_step2 = df %>%
+  mutate( state = str_remove_all( state, "[^[:alpha:]]" ) ) %>%   # df$ not used
+  mutate( state = str_to_upper( state ) )                   %>%   # just use the colunm name, then chaining works 
+  mutate( orientation = na_if( orientation, -999 ))         %>%
+  mutate( orientation = na_if( orientation, -1   ))               # this chaining step works.
+
+</PRE>
 
 <H1>R, Try before S :-P</H1>
 
@@ -1010,7 +1073,10 @@ length(myVector)
 aString="this is a string"
 start_position = 1  # R index start from 1
 end_position   = 4
-substr(aString, start_position, end_position)  # result is "this"
+substr(aString,  start_position, end_position)  # result is "this"
+
+str_sub(aString, start_position, end_position)  # same as above, in tidyverse's stringr str_ fn family 
+str_sub(aString,   14                        )  # no end position, match till end.  this result in ing
 
 # substitution, think unix s/patter/replace/g
 pattern="this"
@@ -1025,7 +1091,10 @@ funding_data = funding_data %>%
 
 </PRE>
 
-tidyverse vs native 
+tidyverse Stringr vs native 
+<BR>
+
+Aside from a consisten family of functions, stringr interface with C lib and thus is noticeably faster when manipulating large data set.
 
 <PRE>
 library(stringr)      # tidyverse package
@@ -1033,12 +1102,116 @@ str_to_upper(aString) # same as toupper(aString)
 str_to_lower(aString)
 str_to_title(aString) # result in "This Is A String"
 
-word_bag = c("apple", "mango", "pineapple")
+word_bag = c("apple", "mango", "pineapple")		# word_bag is a list
 str_detect( word_bag, "ap")  # get T F T (ie a vector of boolean)
+
+str_detect( word_bag, "a|e")  # search by regular expression syntax: a or e
+
+word_bag[ str_detect(word_bag, "ap") ]  	# return a list with matching elements from original list instead of vector of boolean
+
+# construct a new dataframe col called "fav", populated conditionally using ifelse() whether `e` appears on the fruit name:
+fruit_df =  data.frame( fruit_name = word_bag )
+fruit_df$fav =  ifelse(
+			str_detect( fruit_df$fruit_name, "e") == T, 
+								"Yes", 
+								"Not")
+
 
 </PRE>
 
-<A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R</A>
+matching |
+<BR>
+The pipe symbols is special, cuz regex use it to mean OR.
+<BR>
+So, to match a literal | in a string, need to escape it (in R) with forward slash!  ie: /|
+
+<PRE>
+for	use
+|	/|
+/	//
+
+[[:punct:]]
+[[:alpha:]]
+[[:ASCII:]]		# ascii chars (7 bit?, ie the 127 chars set)
+[^[:digit:]]		# everything but numerals  ^ means complement in reqgex, 
+
+\0 				NULL
+\nnn				octal code char, 1-3 digits
+\xnn				hex   code char, 1-2 digits
+\unnn		\u{nnnn}	unicode char, 1-4 digits
+\unnnnnnn	\u{nnnnnnnn}	unicode char, 1-8 digits
+
+r"(...)"			C++ syntax also usable (mostly)
+
+use ?"'" to see list of escape for quotes, non print and unicode sequences.
+
+R allows quotes with:
+""		# 
+''
+``		# backticks is (?preferred), essential when used in formula
+
+# a variable with space in it need to be enclosed in backticks!
+`x y` = 3
+
+# more likely, as column names in df from read_csv or the like
+d =  data.frame(`1st column`=3, check.names=FALSE)
+d$`1st column`
+
+
+# escape \" to treat it as literal, rather than as end of quote marker
+# R does not use paired quoting eg `string'
+identical('"It\'s alive!", he screamed.',
+          "\"It's alive!\", he screamed.") # same
+
+</PRE>
+
+
+
+<PRE>
+odd_list =  c("2394|Yes", "129390|No", "1986602|Sometimes", "99854229|Disagree", "12|Carrots")
+str_locate(odd_list, "[/|]")
+# locate the char index where the | pipe symbol is located in the string
+
+# pulls out only the starting location
+str_locate(odd_list, "[/|]")[,1]		# PHW251 wk8 stringer_toolbox.nb.Rmd
+</PRE>
+
+
+replacing string, instead of gsub() ...
+
+<PRE>
+
+# replace all space with underscore:
+str_replace_all("Lab test Result COLUMN", " ", "_")
+
+# replace multiple chars: space and hash,  with empty, ie remove them
+str_replace_all("Lab test Result COLUMN#5", "[ |#]", "")
+
+"[[:punct:]]|[[:alpha:]]"	# all punctiation symbols or alpha characters
+
+^ means complement in reqgex, 
+
+str_remove_all( data, "[^[:digit:]]" )		# remove everything but digits
+str_remove_all( data, "[^[:ASCII:]]" )		# everything but ascii chars (7 bit?, ie the 127 chars set)
+
+</PRE>
+
+
+<BR>
+
+Ref:
+<UL>
+<LI> Tidyverse's <A HREF="https://stringr.tidyverse.org/#compared-to-base-r">stringr vs base R</A>
+<LI> Tidyverse's <A HREF="https://github.com/rstudio/cheatsheets/blob/main/strings.pdf">stringr cheat sheet</A> 
+(include R's Regular Expression).
+<BR>
+
+
+</UL>
+
+<H3>R Data Structure</H3>
+
+Ref: <A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R Data Structure</A>
 
 <PRE>
 
@@ -2351,6 +2524,8 @@ foreach <BR>
 %do% <BR>
 %dopar% <BR>
 
+#ref for-loop <BR>
+
 <PRE>
 
 for is run for its side effect
@@ -2400,6 +2575,8 @@ per https://stackoverflow.com/questions/45767416/how-to-export-many-variables-an
 <H3>doParallel</H3>
 
 One way to do parallel processing in R
+
+<BR>#ref "for-loop" <BR>
 
 <PRE>
 NumThread=15
