@@ -54,7 +54,12 @@
 
 <A NAME="101"></A>
 <H1>R 101</H1>
+
+Ref: 
+<A HREF="https://www.rstudio.com/resources/cheatsheets/">list of R cheatsheets</A>
+
 <PRE>
+
 R       # interactive cli
 Rstudio # gui
 
@@ -166,10 +171,13 @@ week = c( "Mon", "Tue", "Wed" )
 "Tue" %in% week   # returns TRUE
 
  %in%             # in (think math set)
-!%in%             # NOT in 
 between()         # dplyr
 between(Year,2017,2020)         # Year is a column with numeric values, so it is a math <= and >= range
 near()
+
+# there is no build-in NOT in operator in R, so define one as (note the use of backtick around whole operator name):
+# https://stackoverflow.com/questions/38351820/negation-of-in-in-r
+`%nin%` = Negate(`%in%`)
 
            7L == as.double(7) # returns TRUE.  ie R will compare numbers across data type in a human desirable way.
 as.integer(7) == as.double(7) # returns TRUE, it is same as above.
@@ -248,6 +256,11 @@ df_step2 = df %>%
   mutate( orientation = na_if( orientation, -1   ))               # this chaining step works.
 
 </PRE>
+
+<UL>
+<LI> Try as much as possible make code-block idempotent, eg if action will permanently change things, give it a new name, or make a backup of the old table/data frame first.  So repeated run does not have result that depends on some intermediary code/variable state in the middle of some debugging session.
+<LI>
+</UL>
 
 <H1>R, Try before S :-P</H1>
 
@@ -1037,6 +1050,10 @@ sn50dob + months(6) + 28	# months() do what's expected.  no years() ?
 ( Sys.Date() )			# get current date
 with_tz(Sys.time(), tzone = "America/Los_Angeles")
 
+# add a DATE_FIX column by parsing a variety of date input
+placebo_df = placebo_df %>%
+  mutate( DATE_FIX = parse_date_time( DATE, c("mdy","dmy") ) )
+
 
 as.numeric(var)
 as.character(var)
@@ -1106,6 +1123,9 @@ word_bag = c("apple", "mango", "pineapple")		# word_bag is a list
 str_detect( word_bag, "ap")  # get T F T (ie a vector of boolean)
 
 str_detect( word_bag, "a|e")  # search by regular expression syntax: a or e
+
+str_detect(word_bag, regex("APP", ignore_case=T) )	# case insensitive search, 
+# PATTERN need to spell out use of regex() fn, or coll(), fixed() dealing with end of line boundaries
 
 word_bag[ str_detect(word_bag, "ap") ]  	# return a list with matching elements from original list instead of vector of boolean
 
@@ -2839,7 +2859,13 @@ knitr::include_graphics('data/question_1_table.png')
 
 </PRE>
 
-<H2>ggplot - geom_ribbon </H2>
+<H2>ggplot</H2>
+
+<A HREF="https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf">ggplot cheatsheet</A>
+<BR>
+(much of ggplot notes is under EpiStat)
+
+<H5>ggplot - geom_ribbon </H5>
 
 geom_ribbon add a thick bar to represent "error bar".
 it is overlay over geom_line
