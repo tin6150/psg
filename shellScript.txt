@@ -176,7 +176,7 @@ exec 0</dev/null
 
 -----
 
-if syntax:
+if-statement syntax:
 
 if [ cond ]; then
 	cmd
@@ -191,6 +191,31 @@ if [[ `echo $OUTPUT1 | wc -l` != 0 || `echo $OUTPUT2 | wc -l` != 0 ]]; then
 
 eg sh:
 if [ `echo $OUTPUT1 | wc -l` != 0 -o `echo $OUTPUT2 | wc -l` != 0 ]; then
+
+
+case-statement eg (from https://github.com/NVIDIA/nvidia-docker/blob/main/nvidia-docker):
+
+while [ $# -gt 0 ]; do
+    arg=$1
+    shift
+    DOCKER_ARGS+=("$arg")
+    case $arg in
+        run|create)
+            NV_DOCKER_ARGS+=("--runtime=nvidia")
+            if [ ! -z "${NV_GPU}" ]; then
+                NV_DOCKER_ARGS+=(-e NVIDIA_VISIBLE_DEVICES="${NV_GPU// /,}")
+            fi
+            break
+        ;;
+        version)
+            printf "NVIDIA Docker: 2.11.0\n"
+            break
+        ;;
+        --)
+            break
+        ;;
+    esac
+done
 
 
 ----

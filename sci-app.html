@@ -59,16 +59,61 @@
 <LI> MAFFT (C) <BR>
      mafft --thread -1 --nomemsave gisaid_selection.fasta > gisaid_aln.fasta
 <LI> ROARY ?
+<LI> Lagan?  http://lagan.stanford.edu/lagan_web/index.shtml  MSA for WGS of human? 2006.
 <LI> RC Edgar, MUSCLE: Multiple sequence alignment with high accuracy and high throughput. Nucleic Acids Res 32, 1792–1797 (2004).
 <LI> Muscle 
 <A HREF="https://petrov.stanford.edu/software/src/muscle3.6/muscle3.6.html">User Guide</A> <BR>
      muscle -in seqs.fa -out seqs.afa
+	<BR>
+	cant handle long sequences (eg whole e.coli genome) 3 seq
+
 <LI> Muscle Parallel
+<LI> Mauve.  Simple to use, but may have some compatibility problem?
+<LI> LastZ = improved version of blastz
+<LI> MUMmer http://mummer.sourceforge.net/ version 3.20 from 2007
 <LI>
+<LI>
+
+<H2>Whole Genome Alignment (WGA)</H2>
+
+<LI> Local vs global genomic alignment, Ortholgy mapping, Hierarchical WGA
+<LI> Homology, Orthology, Toporthology, paralogy, colinear homology.
+
+<LI> MUMmer 
+<LI> UCSC Genome Browser
+
+<LI>
+<LI> Phylo
+<LI> Cactus
+<LI>
+
+
+<A HREF="https://link.springer.com/protocol/10.1007/978-1-61779-582-4_8">Evolutionary Genomics book, a chapter covers WGA (2012) [Springer paywall]</A>
+<BR>
+<A HREF="https://link.springer.com/protocol/10.1007/978-1-61779-582-4_8/tables/1">Table 1 - List of WGA methods [Spinter paywall]</A>
+<BR>
+
+<PRE>
+Global Genomic alignment:
+MAVID
+LAGAN/Multi-LAGAN
+DIALIGN
+SeqAn::T-Coffee
+FSA
+Pecan
+
+Hirarchical WGA:
+progressiveMauve
+MUGSY
+
+</PRE>
 
 <H2>Sequence Alignment and Tree Viewer GUI </H2>
 
 <LI> Aliview (alignment editor)
+<LI> Seaview (Unix/X)
+<LI> IGB - Integrated Genomic Browser (Java)
+<LI> GenBeans (Java, NetBeans recast, 2000s?) 
 <LI> FigTree
 <LI> DensiTree (cladogram)
 <LI>
@@ -123,7 +168,6 @@
 <LI> SamTools 
 <LI> SantaCruz genomic browser
 <LI> BROAD ...
-<LI> IGI
 <LI> ParallelStructure (R)
 <LI> Migrate-N (C)
 <LI> ModelTest-NG
