@@ -262,7 +262,10 @@ add_cmaq_module () {
 
 
 
-
+add_brc_module () {
+	# for now, just for notes, never activated
+	export MODULEPATH=$MODULEPATH:/global/software/vector/sl-7.x86_64/modfiles
+}
 
 
 add_hpcs_module () {
