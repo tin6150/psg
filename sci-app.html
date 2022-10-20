@@ -52,13 +52,21 @@
 <LI> Price - Fast De novo assembly - UCSF Peter Skewes-Cox 
 <LI> ablab/spades: SPAdes Genome Assembler (github.com, maybe old)
 <LI> 
+<LI>  Roary is a high speed stand alone pan genome pipeline, which takes annotated assemblies in GFF3 format (produced by Prokka). <BR>
+         128 samples with 1GB RAM desktop computer <BR>
+https://sanger-pathogens.github.io/Roary/ 
 
 <H2>Sequence Alignment </H2>
 
 <LI> Clustal, ClustalW  (serial)
 <LI> MAFFT (C) <BR>
      mafft --thread -1 --nomemsave gisaid_selection.fasta > gisaid_aln.fasta
-<LI> ROARY ?
+<LI> ROARY - assemble gff into single MSA alignment file (fasta format)
+<PRE>
+roary -e -mafft -p 28 *.gff
+# -p 28 = 28 threads
+</PRE>
+
 <LI> Lagan?  http://lagan.stanford.edu/lagan_web/index.shtml  MSA for WGS of human? 2006.
 <LI> RC Edgar, MUSCLE: Multiple sequence alignment with high accuracy and high throughput. Nucleic Acids Res 32, 1792–1797 (2004).
 <LI> Muscle 
@@ -129,14 +137,24 @@ MUGSY
 	<BR>
      java -cp beast.jar dr.app.tools.TaxaMarkovJumpHistoryAnalyzer -taxaToProcess "hCoV-19/Brazil/SP-02/2020/EPI_ISL_413016|2020-02-28" -stateAnnotation location -burnin 100 -mrsd 2020.174
 	<BR>
-<LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.
+<LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
+<PRE>
+raxmlHPC-PTHREADS-AVX -s 16s_filtered.phy  -n 16s_filtered.out  -m GTRCAT -f a -x 123 -N autoMRE -p 456
+-x 123 is random number seed
+-p 456 is rnd seed for parsimony inference
+-s input.phy # seems want .phy as input, get from snp-sites -p
+</PRE>
+
 <LI> RAxML-NG
 <LI> Dendogram/cladogram
 <LI> K Tamura, et al., MEGA5: Molecular evolutionary genetics analysis using maximum likelihood, evolutionary distance, and maximum parsimony methods. Mol Biol Evol 28, 2731–2739 (2011).
 <LI> BAli-Phy
 <LI> FastTree
 <LI>
-<LI>
+<LI> GUBBINS - Genealogies Unbiased By recomBinations In Nucleotide Sequences - alignment and tree generation.  <BR>
+     https://github.com/nickjcroucher/gubbins
+<LI> iqtree
+<LI> rapidNJ - RapidNJ is an algorithmic engineered implementation of canonical neighbour-joinin - (needed by Gubbins)  https://github.com/johnlees/rapidnj
 <LI>
 
 <H2> Genomic characterization </H2>
@@ -149,18 +167,42 @@ MUGSY
 <LI> MLST - Multi-Locus sequence typing (for bacteria)
 <LI> PubMLST typing scheme
 <LI> cgMLST
-<LI>
+<LI> 
 
 <H2>Gene Annotation</H2>
 
-<LI> PROKKA
+<LI> prokka - https://github.com/tseemann/prokka - genome annotation (bacterial, archaeal and viral genomes), output std compliant files.  annotation = blast for gene info
+<PRE>
+prokka --outdir mydir      --prefix mygenome contigs.fa
+prokka --outdir prokka_K1  --prefix genome_K1 --centre _pilon --compliant K1.fasta
+# --centre [X]       Sequencing centre ID. (default '')
+# --centre NAME get stripped
+# --compliant        Force Genbank/ENA/DDJB compliance: --addgenes --mincontiglen 200 --centre XXX (default OFF)
+# --prefix           filename for result, get .gff, .tsv, etc.  so 1 prefix per isolate should be good for PRISA.
+# should give a better prefix name, it will be filename and FASTA header in .gff and other downstreap
+# but not too long, 37 chars limit
+# --force            prokka wants to create the output dir, but prefix will keep files apart.
+prokka --outdir PROKKA  --prefix genome_rabbit_R21 --centre _pilon --compliant --force R21.fasta
+## input:  fasta file with many fragments (contigs, nodes)
+## output: lot of stuff, .gff is suitable for downstream alignment and phy tree generation.  
+##         txt, tsv = table of annotated genes
+</PRE>
+
+
 <LI> blast, blastn, blastp
 <LI> 
 <LI> 
 
 <H2> SNP </H2>
 
-<LI> SNP-sites
+<LI> snp-sites  <BR>
+snp-sites -p  -o rabbit_K1_R21.phy core_gene_alignment.aln   <BR>
+input:   MSA alignment <BR>
+output:  phy  <BR>
+
+<LI> snippy - rapid haploid variant calling and core genome alignment <BR>
+     https://github.com/tseemann/snippy
+<LI> snippy-vcf_report - look at variants from vcf -- text or html file output
 <LI>
 
 <H2> TBD </H2>
@@ -177,6 +219,10 @@ MUGSY
 <LI> EPA-NG
 <LI> ASTRAL (CPU, GPU) Java/C++ 
 <LI> MASCOT
+<LI>
+<LI> art (artemis) - view gff3 files (master genome annotation, eg from prokka)
+<LI> sequin 
+<LI> exonerate
 <LI>
 
 <BR><HR><BR>
@@ -1019,6 +1065,20 @@ MOPAC
 
 <!-- end Dropbox/ref.gg/sciapp.html -->
 
+<H1>Terms</H1>
+
+<PRE>
+
+1800 1000 taxa = ??  taxa = 1 nucleotide in an alignment (eg for tree generation would be length of sequence?)
+
+col ?  column?  taxa would then be species?  isolates?
+
+CDS = ?
+
+
+
+
+</PRE>
 <BR><HR><BR>
 <BR>
 

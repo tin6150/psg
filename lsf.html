@@ -537,8 +537,17 @@ sacct -o job,user,jobname,NodeList,AllocNode,AllocTRES,DerivedExitCode,state,CPU
 
 
 
-# example of querying jobs ran in a certain time frame:
-sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2019-12-18T00:00:00 --end=2018-01-01T23:59:59
+# example of querying jobs ran in a certain time frame, in a specific partition (-r or --partition= )
+sacct -p -X -a -r savio3_gpu  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2021-12-28T23:59:59 --end=2023-01-01T23:59:59
+
+# find jobs on a specific node.   
+# -N == --nodelist   man page says can take node range, but n0[258-261] didn't work
+sacct -p  -a --nodelist=n0176.savio3  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2022-10-11T23:59:59 --end=2023-01-31T23:59:59
+
+# find jobs on a specific node with some sort of fail state
+sacct -p  -a -s F,NF,CA,S,PR,TO,BF --nodelist=n0176.savio3  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2022-10-11T23:59:59 --end=2023-01-31T23:59:59
+
+
 
 # all users, failure states, in a certain time frame (hung job not listed here; end time required or get no output):
 sacct -a -X -s F,NF -r lr5  -S 2019-12-16  -E 2019-12-18
