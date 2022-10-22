@@ -55,18 +55,18 @@
 <LI>  Roary is a high speed stand alone pan genome pipeline, which takes annotated assemblies in GFF3 format (produced by Prokka). <BR>
          128 samples with 1GB RAM desktop computer <BR>
 https://sanger-pathogens.github.io/Roary/ 
+<PRE>
+assemble gff into single MSA alignment file (fasta format):
+roary -e -mafft -p 28 *.gff
+# -p 28 = 28 threads
+</PRE>
+
 
 <H2>Sequence Alignment </H2>
 
 <LI> Clustal, ClustalW  (serial)
 <LI> MAFFT (C) <BR>
      mafft --thread -1 --nomemsave gisaid_selection.fasta > gisaid_aln.fasta
-<LI> ROARY - assemble gff into single MSA alignment file (fasta format)
-<PRE>
-roary -e -mafft -p 28 *.gff
-# -p 28 = 28 threads
-</PRE>
-
 <LI> Lagan?  http://lagan.stanford.edu/lagan_web/index.shtml  MSA for WGS of human? 2006.
 <LI> RC Edgar, MUSCLE: Multiple sequence alignment with high accuracy and high throughput. Nucleic Acids Res 32, 1792–1797 (2004).
 <LI> Muscle 
@@ -79,7 +79,6 @@ roary -e -mafft -p 28 *.gff
 <LI> Mauve.  Simple to use, but may have some compatibility problem?
 <LI> LastZ = improved version of blastz
 <LI> MUMmer http://mummer.sourceforge.net/ version 3.20 from 2007
-<LI>
 <LI>
 
 <H2>Whole Genome Alignment (WGA)</H2>
@@ -116,14 +115,15 @@ MUGSY
 
 </PRE>
 
-<H2>Sequence Alignment and Tree Viewer GUI </H2>
+<H2>Sequence Alignment and Tree Viewer</H2>
 
-<LI> Aliview (alignment editor)
+<LI> Aliview (alignment editor, GUI)
 <LI> Seaview (Unix/X)
 <LI> IGB - Integrated Genomic Browser (Java)
 <LI> GenBeans (Java, NetBeans recast, 2000s?) 
-<LI> FigTree
+<LI> FigTree - open RAxML .tre output (java GUI)
 <LI> DensiTree (cladogram)
+<LI> Other tree view sw: https://en.wikipedia.org/wiki/List_of_phylogenetic_tree_visualization_software
 <LI>
 
 <H2>Phylogenetic Tree</H2>
@@ -139,10 +139,12 @@ MUGSY
 	<BR>
 <LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
 <PRE>
-raxmlHPC-PTHREADS-AVX -s 16s_filtered.phy  -n 16s_filtered.out  -m GTRCAT -f a -x 123 -N autoMRE -p 456
+raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456
 -x 123 is random number seed
 -p 456 is rnd seed for parsimony inference
--s input.phy # seems want .phy as input, get from snp-sites -p
+-s input.phy #  .phy  get from snp-sites -p
+output file actually prefixed as RAxML_bestTree.
+figtree can open the RAxML_bestTree.*.tre file
 </PRE>
 
 <LI> RAxML-NG
@@ -1069,11 +1071,14 @@ MOPAC
 
 <PRE>
 
-1800 1000 taxa = ??  taxa = 1 nucleotide in an alignment (eg for tree generation would be length of sequence?)
+1800 1000 taxa = number of species, sample, isolate, etc.  
+(tends to be lined up vertically)
 
-col ?  column?  taxa would then be species?  isolates?
+sequences lined up horizontally.  simply columns?
 
-CDS = ?
+CDS = Coding Sequence  (exclude 5' and 3' UTR), include introns?
+
+UTR - UnTraslated Region
 
 
 

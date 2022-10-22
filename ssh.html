@@ -335,6 +335,18 @@ This is another line.
 </TT>
 -->
 
+<H1>sshfs</H1>
+
+<PRE>
+sshfs  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin   ~/mnt/brc-gs
+sshfs  -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
+
+works even in wsl :D
+
+if using vscode, there maybe some nuance, see
+https://askubuntu.com/questions/1385124/unable-to-open-visual-studio-code-when-inside-sshfs-mounted-drive-ubuntu-wsl
+</PRE>
+
 
 <A NAME="cert"></A>
 <A NAME="openssl"></A>
