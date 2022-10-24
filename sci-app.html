@@ -62,6 +62,14 @@ https://sanger-pathogens.github.io/Roary/
 assemble gff into single MSA alignment file (fasta format):
 roary -e -mafft -p 28 *.gff
 # -p 28 = 28 threads
+# input: *.gff file, 1 per taxa, from prokka
+# output: 
+#  - core_gene_alignment.aln    # aln for gff above, msa?
+#  - pan_genome_reference.fa    # non core genome eg e.coli
+
+# plot for viz
+roary_plots.py name_of_your_newick_tree_file.tre gene_presence_absence.csv
+
 </PRE>
 
 
@@ -124,7 +132,7 @@ MUGSY
 <LI> Seaview (Unix/X)
 <LI> IGB - Integrated Genomic Browser (Java)
 <LI> GenBeans (Java, NetBeans recast, 2000s?) 
-<LI> FigTree - open RAxML .tre output (java GUI)
+<LI> FigTree - open .tre from RAxML output (java GUI)
 <LI> DensiTree (cladogram)
 <LI> Other tree view sw: https://en.wikipedia.org/wiki/List_of_phylogenetic_tree_visualization_software
 <LI>
@@ -132,9 +140,27 @@ MUGSY
 <H2>Phylogenetic Tree</H2>
 
 <LI> MrBayes (+ Beagle gpu lib)
+<PRE>
+mb>  TBD
+</PRE>
 <LI> RevBayes
 <LI> ExaBayes
 <LI> PAUP*
+<PRE>
+paup> exe primate-mtDNA.nex # to load file, it is "exe" cuz nexus file can contain command as to what to do.
+paup> log file=paup_primates.log
+paup> alltrees
+paup> showtrees all               # AllTree only retain (2) trees, show them
+paup> showtrees 1
+paup> showtree 2 / taxLabels=truncate semiGraph=yes userBrLens=yes showTaxNum=yes
+#                / indicate options , cmds and options arent case sensitive
+
+paup> toNexus ?
+paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex 
+paup> exe paup_ggqrs9.nex
+</PRE>
+<!-- toNexus didnt produce loadable/exe-able file, error, see devNotes.paup.md -->
+
 <LI> BEAST (v1 and v2)  <BR>
      java -cp beast.jar dr.app.beast.BeastMain -seed 2020 -beagle_double -beagle_gpu -save_every 1000000 -save_state travelHist.checkpoint  ../files/Protocol3/282_GISAID_sarscov2_travelHist_masked.xml
 	<BR>
@@ -142,12 +168,16 @@ MUGSY
 	<BR>
 <LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
 <PRE>
-raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456
+raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456  -T 28
 -x 123 is random number seed
 -p 456 is rnd seed for parsimony inference
+-T 28 # number of threads
 -s input.phy #  .phy  get from snp-sites -p
-output file actually prefixed as RAxML_bestTree.
-figtree can open the RAxML_bestTree.*.tre file
+-n output fileS actually series prefixed with RAxML_
+figtree can open the RAxML_*Tree.*.tre file
+
+# 
+## could input be .aln from roary? (skip snp-sites?)
 </PRE>
 
 <LI> RAxML-NG
@@ -202,8 +232,22 @@ prokka --outdir PROKKA  --prefix genome_rabbit_R21 --centre _pilon --compliant -
 
 <LI> snp-sites  <BR>
 snp-sites -p  -o rabbit_K1_R21.phy core_gene_alignment.aln   <BR>
-input:   MSA alignment <BR>
-output:  phy  <BR>
+input:   MSA alignment eg core_gene_alignment.aln from roary <BR>
+output:  phy  - phylip file, no gaps?  used by RAxML <BR>
+
+Usage: snp-sites [-mvph] [-o output_filename] {file}
+This program finds snp sites from a multi fasta alignment file.
+ -r     output internal pseudo reference sequence
+ -m     output a multi fasta alignment file (default)
+ -v     output a VCF file                                           ##
+ -p     output a phylip file
+ -o STR specify an output filename [STDOUT]
+ -c     only output columns containing exclusively ACGT             ## removed gaps?!
+ -b     output monomorphic sites, used for BEAST                    ##
+ {file} input alignment file which can optionally be gzipped
+
+snp-sites -cb -o outputfile.aln   inputfile.aln.gz
+
 
 <LI> snippy - rapid haploid variant calling and core genome alignment <BR>
      https://github.com/tseemann/snippy
@@ -211,6 +255,16 @@ output:  phy  <BR>
 <LI>
 
 <H2> TBD </H2>
+
+<LI> Phylip - infer phylogenies.  methods: parsimony, distance matrix, likelihood
+<LI> squizz  - convert or check format
+<PRE>
+squizz -l # list supported format
+squizz     core_gene_alignment_ggqrs9.aln -c NEXUS        > core_gene_alignment_ggqrs9.nex
+# convert  ^^^^^input file aln FASTA^^^^^ ^^to format^^   ^^ output is to stdout
+squizz -A core_gene_alignment_ggqrs9.nex   # check/validate named file
+</PRE>
+
 
 <LI> SamTools 
 <LI> SantaCruz genomic browser
