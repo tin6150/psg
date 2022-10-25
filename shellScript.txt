@@ -176,7 +176,7 @@ exec 0</dev/null
 
 -----
 
-if syntax:
+if-statement syntax:
 
 if [ cond ]; then
 	cmd
@@ -192,6 +192,32 @@ if [[ `echo $OUTPUT1 | wc -l` != 0 || `echo $OUTPUT2 | wc -l` != 0 ]]; then
 eg sh:
 if [ `echo $OUTPUT1 | wc -l` != 0 -o `echo $OUTPUT2 | wc -l` != 0 ]; then
 
+
+case-statement eg (from https://github.com/NVIDIA/nvidia-docker/blob/main/nvidia-docker):
+
+while [ $# -gt 0 ]; do
+    arg=$1
+    shift
+    DOCKER_ARGS+=("$arg")
+    case $arg in
+        run|create)
+            NV_DOCKER_ARGS+=("--runtime=nvidia")
+            if [ ! -z "${NV_GPU}" ]; then
+                NV_DOCKER_ARGS+=(-e NVIDIA_VISIBLE_DEVICES="${NV_GPU// /,}")
+            fi
+            break
+        ;;
+        version)
+            printf "NVIDIA Docker: 2.11.0\n"
+            break
+        ;;
+        --)
+            break
+        ;;
+    esac
+done
+
+# the break is probably not required.  ;; indicate end of case.
 
 ----
 
@@ -248,6 +274,17 @@ qhostTot() {
    qhost | awk '/[KMG0-9]$/ {h+=1; c+=$3; m+=8; print $0} END {print "host="h " core="c " mem="m}'  
 }  
 
+
+---
+
+bash variables
+
+$? 	exit code of previous command
+$0	current command name
+$*	all args passed to script, as single string
+$@	all args passed to script, as array. ref: https://unix.stackexchange.com/questions/129072/whats-the-difference-between-and
+
+docker ENTRYPOINT use "$@" ??
 
 ---
 

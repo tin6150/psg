@@ -761,6 +761,8 @@ show interface status  | egrep Et[23]
 show mac address-table 				# arp table, vlan, mac, port 
 show mac address-table interface eth 24     # mac of remote host on that switch port
 
+show mac  address-table | include Et3		# port 3
+show mac  address-table | include ac1f.6b	# search which port has a given mac
 
 # cycle a port
 config term

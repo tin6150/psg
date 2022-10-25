@@ -38,6 +38,7 @@
     <tr>
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
       <td align="center"><a accesskey="d" href="docker.html">Docker</a></td>
+      <td align="center"><a accesskey="x" href="linux.html">linuX</a></td>
       <td align="center"><a accesskey="a" href="aws.html">Amazon AWS</a></td>
       <td align="center"><a accesskey="m" href="mpi.html">MPI</a></td>
       <td align="right"><a accesskey="g" href="git.html">Git</a></td>
@@ -140,8 +141,11 @@ GUI									qmon			sview
 
 <A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
 <BR>
+Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/flux-framework/flux-core</A>
+<BR>
 
 <A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018.
+<BR>
 
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
@@ -187,10 +191,10 @@ sattach			# connect to the stdin, stdout and stderr of a job or job step
 
 
 
-Options commont to most/all job submission commands:
+Options common to most/all job submission commands:
 
 sbatch/salloc/srun
-	--ntasks=100	# number of tasks to 100 (ie array job) (-n 100)
+	--ntasks=100	# set number of tasks to 100 (-n 100)
 	--nodes=x --ntasks-per-node=y	# less recommended way to run large MPI job
 	--time=10	# time limit in minutes (wall clock after job starts)   (also help scheduler do backfill)
 	--depend=JOBID	# job dependency, like qhold until a parent job has finished before starting this.
@@ -210,7 +214,21 @@ sbatch/salloc/srun
 	--licenses=foo:2,bar:4		# allocate license with the job.
 	-J jobname
 
+
+example job submission with constrains (features in slurm.conf)
+
+srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal -n 2 --gres=gpu:GTX2080TI:1 --constrain=ssd --time=00:30:00 bash
+srun --pty --partition=savio3_2080ti --account=scs --qos=titan_2080ti3_normal -n 2 --gres=gpu:TITAN:1       --constrain=8rtx --time=00:30:00 bash
+
 </PRE>
+
+Example with slurm array jobs:
+<A HREF="https://hpcf.umbc.edu/ada/slurm/array-jobs/">UMBC</A>
+though if input file are not named sequentially, may not have a easy way to match them,
+and 
+<A HREF="general_unix#gnu-parallel">gnu-parallel</A> with task file as input would be more flexible, albeit a bit more complicated.
+<BR>
+
 
 <H4>What/Where</H4>
 
@@ -346,6 +364,12 @@ sreport			# usabe by cluster, partition, user, account
 
 SLURM will read environment variables to help it determin behavior. <BR>
 CLI argument(s) will overwrite env var definitions. <BR>
+<BR>
+
+See:
+
+<LI><A HREF="https://hpcf.umbc.edu/ada/slurm/environment-variables/#">UMBC for most used vars</A>
+<LI><A HREF="https://slurm.schedmd.com/sbatch.html#SECTION_INPUT-ENVIRONMENT-VARIABLES">schedmd reference</A>
 <BR>
 
 <PRE>
@@ -513,8 +537,17 @@ sacct -o job,user,jobname,NodeList,AllocNode,AllocTRES,DerivedExitCode,state,CPU
 
 
 
-# example of querying jobs ran in a certain time frame:
-sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2019-12-18T00:00:00 --end=2018-01-01T23:59:59
+# example of querying jobs ran in a certain time frame, in a specific partition (-r or --partition= )
+sacct -p -X -a -r savio3_gpu  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2021-12-28T23:59:59 --end=2023-01-01T23:59:59
+
+# find jobs on a specific node.   
+# -N == --nodelist   man page says can take node range, but n0[258-261] didn't work
+sacct -p  -a --nodelist=n0176.savio3  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2022-10-11T23:59:59 --end=2023-01-31T23:59:59
+
+# find jobs on a specific node with some sort of fail state
+sacct -p  -a -s F,NF,CA,S,PR,TO,BF --nodelist=n0176.savio3  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2022-10-11T23:59:59 --end=2023-01-31T23:59:59
+
+
 
 # all users, failure states, in a certain time frame (hung job not listed here; end time required or get no output):
 sacct -a -X -s F,NF -r lr5  -S 2019-12-16  -E 2019-12-18
@@ -625,6 +658,7 @@ srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal 
 srun --pty --partition=savio3_2080ti --account=scs --qos=titan_2080ti3_normal -n 2 --gres=gpu:TITAN:1 --time=00:30:00 bash
 
 but if don't specify subtype, the job will get stuck as PENDING QOSMinGRES
+
  
 
 per https://slurm.schedmd.com/resource_limits.html
@@ -658,8 +692,6 @@ sacctmgr show tres
 
 
 </PRE>
-
-
 
 <!-- modify ENTITY set ...  -->
 
@@ -727,9 +759,35 @@ sacctmgr		# add/delete clusters, account, user
 			# Many slurm db update done via this cmd
 			# updates pushed out live to slurmd (or slurmctld?)
 			# hierarchical banks: Division, each with diff groups, which in term has its own set of users.
+
+Root = ? whole site, supercluster spanning all partitions.  
+Division = Partitions?  (eg lr5, dirac1, cf1, etc)    QOS??
+Group = association level.  eg Group Beta gets GrpCPUs, GrpJobs, GrpMemory.
+User = specific user account.
+
+They mention Hierarchical, does this means associations can be nested?  Never seen example of that, maybe not.
+
 </PRE>
 
-<IMG SRC="fig/slurm_hierarchical_bank.png" TITLE="SLURM Hierarchical Bank Example (from SchedMD youtube)">
+<A HREF="https://slurm.schedmd.com/slurm_ug_2012/SUG_Oct2012_DBD.pdf">Slurm Hierarchical bank example from SUG 2012 (page 7, 13)</A>
+
+<A HREF="https://slurm.schedmd.com/slurm_ug_2012/SUG_Oct2012_DBD.pdf"><IMG SRC="fig/slurm_hierarchical_bank.png" TITLE="SLURM Hierarchical Bank Example (from SchedMD youtube)" alt="Slurm Hierarchical bank example diagram"></A>
+
+The order in which limits are enforeced is:
+
+<OL>
+
+<LI>Partition QOS limit
+<LI>Job QOS limit
+<LI>User association
+<LI>Account association(s), ascending the hierarchy
+<LI>Root/Cluster association
+<LI>Partition limit
+
+</OL>
+
+ref: 
+<A HREF="https://support.ceci-hpc.be/doc/_contents/SubmittingJobs/SlurmLimits.html#precedence">ceci-hpc</A>
 
 
 
@@ -848,7 +906,7 @@ freezer/slurm/uid_43143/job_13272521/step_batch/tasks:15537
 <LI><A HREF="https://www.admin-magazine.com/HPC/Articles/real_world_hpc_setting_up_an_hpc_cluster">SysAdmin mag on slurm setup</A>
 <LI><A HREF="https://cdn.vanderbilt.edu/vu-wp0/wp-content/uploads/sites/157/2019/03/28204601/intro_to_slurm.pdf">Vanderbilt accre intro to slurm</A> (very nice slide deck for users)
 <LI><A HREF="http://www.softpanorama.org/HPC/PBS_and_derivatives/Reference/pbs_command_vs_sge_commands.shtml">SoftPanorama PBS vs Slurm commands</A>
-<LI><A HREF="https://docs.google.com/presentation/d/1__ODaquZgYygaNJJ6UsKS1qHV6ja3Ud974N4kH7xxPM/edit?usp=sharing">Labtech 2018 Slurm Quick Start</A> Presentation for LBL Lawrencium (mostly usable for UC Berkeley Savio).
+<LI><A HREF="https://docs.google.com/presentation/d/1__ODaquZgYygaNJJ6UsKS1qHV6ja3Ud974N4kH7xxPM/edit?usp=sharing">Labtech 2018 Slurm Quick Start</A> Slides for Presentation on LBL Lawrencium (mostly usable for UC Berkeley Savio as well).
 <LI><A HREF=""></A>
 </UL>
 

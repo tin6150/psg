@@ -774,9 +774,12 @@ Virtual Memory reclaim (good to run in epilog to free up cache)
 <PRE>
 /proc/sys/vm/zone_reclaim_mode
 
+sync
+
 echo 1 > /proc/sys/vm/drop_caches [frees page-cache]
 echo 2 > /proc/sys/vm/drop_caches [frees slab objects e.g. dentries, inodes]
 echo 3 > /proc/sys/vm/drop_caches [cleans page-cache and slab objects]
+
 
 </PRE>
 
@@ -884,6 +887,12 @@ performance problems would help.
 
 date; mkfile 1000m test; date			 	# create a 1 GB file (filled with 0)
 date; dd if=/dev/urandom of=test bs=1024 count=100000 	# same, file has random data.
+
+# encrypt /dev/zero, so that data will be kinda random.  
+# good speed for cpu with aes instruction 
+# eg could get 1.1 GB/s on a flash storage
+dd if=<(openssl enc -aes-256-ctr -pass pass:"Hello" -nosalt < /dev/zero) of=/dev/null bs=1M count=500000 iflag=fullblock
+
 </PRE>
 
 <H5>NIC tuning</H5>
@@ -1247,73 +1256,12 @@ pkgadd -d . RICHPse.331
 <H2>Solaris Build-In tools</H2>
                                                                                                       
 <!-- cmd.admin.ref.tr -->
+<!-- trimmer cuz much duplicated at top -->
 
 <PRE>
-netstat -ta     show current intenet services/connections
-        -a  : show (a)ll  (include listening port process)
-        -n  : ip (n)umber only (no dns lookup)
-        -r  : (r)outing table   (change with route cmd)
-        -i  : show stat for diff nic (i)nterfaces
-        -k ce0 : lot of interface specific info, ce NIC will have duplex stat.
-
-netstat -p	: print ip to mac address table known to host
-netstat -k 	: print lot of kernel stat, among it hme0 is for the sun's build in 
-		  happy meal ethernet nic (see sunsolve infodoc 17416 for explanation of these 
-		  undocumented stats, good for trobleshooting network latency, comare agaist cisco stat.)
-netstat -s	: show high level packet send/receive/fragment info
-
-
-
-vmstat -a   : all 
-       -n   : 
-       -p   : process owning port
-
-iostat -xn 30	: check for disk activity, anything more than 5% busy and avg resp time > 30 ms is bad.
-
-nfsstat
-
-mpstat	10	: processor stats, repeat every 10 seconds
-		: In Solaris, it reports context switch, interrupt, mutex spin, xcal, etc
-		: see http://sunsite.uakom.sk/sunworldonline/swol-08-1998/swol-08-perf.html
-
-cpustat		: find out what cpu is doing...
-
 lockstat sleep 5	: gather kernel lock stats during the sleep period (5 sec)
 			: solaris, run as root
 
-truss -c -p PID		: find number of system call and usr time for a process (sol).  ??
-
-top
-protocol
-sysmon
-
-trapstat, thread list, kmastat, kmausers
-
-
-GUDS
-
-Guds is a script to gather performance stats for Solaris.
-Sample usage is
-./guds_2.4.5
-./guds_2.4.5 -qX -H3 -s65040465
-
--qX is for quite mode
--H3 is for running it for 3 hours
--sNNNNN is the sun case number (info embeded in dirs created by guds to
-store the files).
-
-It collects lots of info in /var/tmp/CASEID/guds-DATE-TIME/...
-
-May need lot of know how to analyze data.
-Having a baseline when things is good and when there are 
-performance problems would help.
-
-
-
-
-
-date; mkfile 1000m test; date			 	# create a 1 GB file (filled with 0)
-date; dd if=/dev/urandom of=test bs=1024 count=100000 	# same, file has random data.
 </PRE>
 
 <H5>Performance Tunning</H5>
@@ -1487,12 +1435,14 @@ and support cpu, GPU OpenCL runtime from even AMD/ROCm.
 <!-- ttcp.ref -->
 <H1>Network Tracing</H1>
 
+<PRE>
 traceroute # some use icmp to trace, other use udp.
 
 traceroute --port=623 172.10.0.128   # potentially check rachability of ipmi udp port
 traceroute --port=33434 is the default, it is Destination UDP port that this pokes at.
 
 If host is reachable, even if destination udp port is not open/listen mode, traceroute will work.
+</PRE>
 <BR> <BR>
 
 
@@ -1536,6 +1486,13 @@ tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump
 		# -s 64000, max packet capture size.  64k is probably bigger than needed, but works well
 		# -w write output to file
 
+tcpdump -vv -i eno1  'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
+tcpdump     -i eno1 'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
+tcpdump -e  -i eno1 'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00' 
+		# -e would capture eth frame instead of ip packet ?
+
+sudo tcpdump -i eno1 'dst 10.22.4.200 || dst 10.22.22.200 || dst 10.22.44.200'
+
 
 sudo tcpdump -v -n host 10.22.22.55 -i enp94s0f0
 
@@ -1545,6 +1502,16 @@ sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:
 # -e add mac address to output
 
 sudo tcpdump  port 514 -i enp216s0f0 -S -X  # hex dump of syslog traffic on port 514, let it capture both tcp and udp (@@ vs @ in rsyslog.conf
+
+
+tcpdump  ip6 -i enp0s8                 # monitor IPv6 traffic only
+tcpdump  -i enp0s8 ip6 and port 25     # IPv6 and mail port  
+
+wireshark display filter
+
+tcp.port==25 
+ref: https://wiki.wireshark.org/DisplayFilters
+
 
 </PRE>
 
@@ -1892,9 +1859,9 @@ GET / HTTP 1.1
 
 
 telnet mta.server.com 25
-EHLO tin.example.com
-mail from:tin@lbl.gov
-rcpt to:tin@lbl.gov
+EHLO example.com
+MAIL FROM:<tin@eg.gov>
+RCPT TO:<tin@eg.gov>
 DATA
 Subject: manual telnet 25 smtp test
 additional body message here

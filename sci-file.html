@@ -32,6 +32,8 @@ vim: syntax=html tabstop=8 noexpandtab nosmarttab noautoindent nosmartindent
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>		</td>
       <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>	</td>
       <td align="center"><a accesskey="a" href="sci-app.html">Sci-App</a>	</td>
+            <td align="center"><a accesskey="s" href="python.html">python</a> </td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a>     </td>
       <td align="center"><a accesskey="m" href="mpi.html">mpi</a>	        </td>
       <td align="right"><a accesskey="n" href="lsf.html">lsf</a>		</td>
     </tr>
@@ -281,8 +283,79 @@ STENEX - diagnostic tool for CMAQ
 <LI>
 </UL>
 
+<A id="aln"></A> 
+<H4>sequence alignment</H4>
+
 <PRE>
+
+Pearson/FASTA
+
+FASTA default breaks seq to 80 chars, eg first 3 lines of a DNA seq 
+
+>NODE_1_length_227998_cov_13.115952_pilon
+ATATAACTGATATCCCTGAAGGTTATTAACTTGAATTATGACGCACTGATATTATTCATCAAATAATAACAAAATAGCCA
+TTGCACCGGGTTGAACAATTTACAAAAGAAAGATATTCCATATCGTATAATGCGATTAAATACGCCGTCTTATAGAAAAT
+
+BEAST2 expect alignment where each seq is just 1 long line for the whole seq 
+
+
+FASTQ = fasta + quality values (from instrument)
+
+ClustalW
+GCC MSF
+Phylip interleaved
+Phylip sequential
+
+
 </PRE>
+
+prokka genome annotation related - https://github.com/tseemann/prokka
+
+<PRE>
+Extension	Description
+.gff	This is the master annotation in GFF3 format, containing both sequences and annotations. It can be viewed directly in Artemis or IGV.
+.gbk	This is a standard Genbank file derived from the master .gff. If the input to prokka was a multi-FASTA, then this will be a multi-Genbank, with one record for each sequence.
+.fna	Nucleotide FASTA file of the input contig sequences.
+.faa	Protein FASTA file of the translated CDS sequences.
+.ffn	Nucleotide FASTA file of all the prediction transcripts (CDS, rRNA, tRNA, tmRNA, misc_RNA)
+.sqn	An ASN1 format "Sequin" file for submission to Genbank. It needs to be edited to set the correct taxonomy, authors, related publication etc.
+.fsa	Nucleotide FASTA file of the input contig sequences, used by "tbl2asn" to create the .sqn file. It is mostly the same as the .fna file, but with extra Sequin tags in the sequence description lines.
+.tbl	Feature Table file, used by "tbl2asn" to create the .sqn file.
+.tsv	Tab-separated file of all features: locus_tag,ftype,len_bp,gene,EC_number,COG,product
+
+</PRE>
+
+.nex = Nexus tree format aka PAUP format!
+<BR>
+.nex eg
+<BR>
+
+<PRE class="code">
+#NEXUS
+
+Begin taxa;
+        Dimensions ntax=71;
+        Taxlabels
+                1940_AF369693_M112_4_Sudan
+                1946_U52403_Nigeria46_Nigeria
+                1948_AF369694_A709_4_A2_Uganda
+                1953_AH005112_RENDU_Senegal
+		[...]
+                ;
+End;
+
+Begin trees;
+        Translate
+                1 1940_AF369693_M112_4_Sudan,
+                2 1946_U52403_Nigeria46_Nigeria,
+                3 1948_AF369694_A709_4_A2_Uganda,
+		[...]
+                71 2009_TVP11767_Trinidad
+                ;
+tree TREE1 = [&R] ((((4[&length_range={20.114391506501633,217.16984306215267},height_95%_HPD={55.99999999999977,56.00000000000023},rate_95%_HPD={2.0089799481037352E-4,6.327035462243147E-4},length_95%_HPD={38.79833130234596,169.78101583683446},rate=3.2336282842901544E-4,length=112.03265216906932,rate_median=2.660354276765452E-4,length_median=117.72025942197638,height_median=56.0,rate_range={1.8617778258136157E-4,0.001075846428088821},height_range={55.99...
+End;
+</PRE>
+
 
 <H1>ChemInformatics File Format</H1>
 

@@ -24,11 +24,11 @@ browser render tab as 8 spaces for html PRE
     </tr>
     <tr>
       <td align="left"><a accesskey="H" href="psg.html">Home</a></td>
-      <td align="center"><a accesskey="F" href="Firewall.html">Firewall</a></td>
+      <td align="center"><a accesskey="F" href="firewall.html">Firewall</a></td>
       <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
       <td align="center"><a accesskey="g" href="git.html">git</a></td>
       <td align="center"><a accesskey="t" href="tool.html">tool</a></td>
-      <td align="center"><a accesskey="I" href="Infiniband.html">infiniband</a></td>
+      <td align="center"><a accesskey="I" href="infiniband.html">Infiniband</a></td>
       <td align="center"><a accesskey="l" href="lsf.html">lsf/slurm</a></td>
       <td align="center"><a accesskey="b" href="bios.html">BIOS</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
@@ -91,6 +91,8 @@ results in a noop on CentOS machines.  Lack of action in output does NOT mean se
 <LI> Scientific Linux has 'fastbugs' and 'security' updates.   Security updates are enabled by default.  
 See <A HREF="https://www.scientificlinux.org/documentation/faq/faq-updates/">SL FAQ from Fermilab</A> and 
 <A HREF="https://serverfault.com/questions/369833/automatically-check-for-security-updates-on-centos-or-scientific-linux">serverfault</A>
+<LI>
+<LI> Amazon Linux is based on RHEL/CentOS 7, but have their own tweaks.  eg for EPEL, has aws cli pre-installed.
 </UL>
 
 <H2>Linux Admin 101</H2>
@@ -361,17 +363,57 @@ So, in short -- you can remove what you don't need :)
 
 </PRE>
 
-<A ID="compatibility"></A>
-<H3>Compatibility</H3>
+<A ID="endian"></A>
+<A ID="endianness"></A>
+<H3>Endianness</H3>
 
-The Linux community embraces the source code, and compatibility between different release is to recompile the code.  Binary compatibility is not maintained between different (minor) releases of the glibc.  So, be careful not to update the libraries, kernels, and gcc compiler unless you are ready to recompile everything in the system! (And if you have 3rd party libraries dependencies, then really think twice before changing the system library level). <BR>
-If using up2date for RHEL, it would be safe as only compatible updates are listed in the channel.  I would assume the same is true for yum.
-<BR>
 
 <PRE>
 
-System Release			kernel		glibc		gcc			compat-glibc
-----------------------------	-------------	-------------	-------------		-------------
+network byte order: big-endian
+intel: little-endian    (just think of intel being an @$$)
+most RISC were big-endian?
+new POWER is configurable.  
+arm is said to be either, but not sure if it was a silicon level or firmware level change.
+
+amazon linux using aarch64 is apparently little endian
+
+To determine byte order, use one of:
+
+python:
+from sys import byteorder
+print(byteorder)
+
+perl:
+perl -e 'use Config; print $Config{byteorder}'
+
+
+</PRE>
+
+for the purist, there is a C/C++ code in this
+<A HREF="https://stackoverflow.com/questions/4181951/how-to-check-whether-a-system-is-big-endian-or-little-endian">stack overflow post</A>.  I was just too lazy to compile things.  Perl one liner was just perfect for this :D
+
+
+<BR>
+<A ID=RHEL_vs_glibc"></A>
+<A ID="compatibility"></A>
+<H3>Compatibility</H3>
+
+Torvals ensure linux kernel update does not break user space.  glibc, which make lots of system calls, has to be kept very stable.
+Let the distro manage upgrade of kernel and glibc.  <BR>
+gcc does NOT come with glibc! :)  <BR>
+gcc and g++ come and use libstdc++ , which provide fn like new and delete, which maps to C API system calls like malloc(), thus only glibc need to be very stable, whereas compiler and libstdc++ can upgrade and have multiple versions.
+<BR>
+Useful info in this 
+<A HREF="https://www.reddit.com/r/linuxquestions/comments/1tghjd/what_is_the_relationship_between_gcc_libstdc/">reddit post</A>
+<BR>
+<BR>
+<!-- app that need specific version of glibc cannot be resolved by loading a new Software Module Farm with newer gcc version
+     but potentially one can compile an ADDITIONAL glibc in alternate path and set LD_LIBRARY_PATH ? -->
+<PRE>
+
+System Release                  kernel          glibc           gcc                    compat-glibc
+----------------------------    -------------   -------------	-----------------      -------------
 SuSE SLUS  9 (patch  3)		2.6.11.7	2.3.3-98.94	3.3.3-43.54		
 SuSE SLUS 10 (patch 10)		2.6.16.27-0.9	2.4-31.5	4.1.2_20070115-0.11	
 
@@ -384,7 +426,10 @@ Fedora Core 3                   2.6.9
 Fedora Core 6			2.6.19-1	2.5-10.fc6	4.1.1-51.fc6		
 Fedora 8                        2.6.23
 
-RHEL 8.1			4.18.0-147.3.1  2.28-72		8.3.1-4.5
+RHEL 7.9                        3.10.0-1160.49  2.17-325        4.8.5                  n/a?
+Amazon Linux 2.3                4.14.281-212    2.26-60		7.3.1
+RHEL 8.1                        4.18.0-147.3.1  2.28-72		8.3.1-4.5
+
 
 
 RHEL 2.1, 3, 4.  Increasing support cost: WS,                    WS HPC, 		ES (2 socket max),      AS
@@ -393,6 +438,12 @@ RHEL 2.1, 3, 4.  Increasing support cost: WS,                    WS HPC, 		ES (2
 </PRE>
 For RH, each category has separation of basic, std, premium.  HPC has a 4 socket version.
 See <A HREF="http://www.redhat.com/rhel/compare/">comparison chat</A>.
+
+
+<BR>
+Compatibility table of GCC vs binutils (but NOT glibc) 
+from 
+<A HREF="https://wiki.osdev.org/Cross-Compiler_Successful_Builds">osdev</A>
 
 
 <BR>
@@ -641,7 +692,19 @@ restart X:
 - init 3; init 5	# This may work
 - reboot		# :)
 
+
+xorg pci BusID when multiple GPU is present and want to specify which one to use to accelearate video (virtual, VNC)
+nvidia-xconfig --query-gpu-info 
+returned pci BusID for each GPU card.
 </PRE>
+
+<!--
+nvidia-xconfig - -query-gpu-info 
+to figure out which pci-{blah} to use.  
+The query will give you the BusIDs, the {blah} part of the pci-{blah} file to provision corresponds to those GPU busids
+wwsh provision set ... 
+-->
+
 
 <BR><BR>
 
@@ -671,15 +734,163 @@ gconftool-2 --direct --config-source xml:read:/etc/gconf/gconf.xml.defaults --ge
 # set global settings as root, to source login when term opens.
 gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.defaults --type boolean --set /apps/gnome-terminal/profiles/Default/login_shell true		
 
+</PRE>
+
+<A ID="pam.d"></A>
+<A ID="pamd"></A>
+<A ID="pam"></A>
+<H1>pam</H1>
+
+Ref:
+<UL>
+
+<LI><A HREF="https://www.redhat.com/sysadmin/pluggable-authentication-modules-pam">PAM intro</A> From RedHat articles</LI>
+<LI><A HREF="https://www.linuxjournal.com/article/2120">The orig article about PAM</A> from Linux journal, some 20 years ago.  arch and basic working remains the same.</LI>
+<LI><A HREF="https://aplawrence.com/Basics/understandingpam.html">Understanding PAM</A> with eg of adding time module governing ssh and local login</LI>
+<LI></LI>
+<LI><A HREF="https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file">
+https://superuser.com/questions/881815/how-to-control-users-login-on-linux-machine-according-to-configuration-file</A></LI>
+<LI></LI>
+</UL>
 
 
+Check to allow user login is really a convoluted matrix of many different combinations. 
+All the different "if ssh, if user is foo, login in from bar, etc etc" is typically some sort of modules and config in pam.
+<BR>
+authconfig, authselect and other tools make changes to pam.
+<BR>
+/etc/nsswitch.conf is high level director
+<BR>
+/etc/sssd/sssd.conf  is backend for the "sss" clause in nsswitch.conf, it is a cache daemon.
+<BR>
+/etc/security
+<BR>
+
+
+<BR>
+Whether ssh keys are allowed as authentication source is set in:   		<BR>
+- sshd.conf (if certain users are allowed to use ssh key, others are not)		<BR>
+- pam sshd config (forcing interactive login?) (if config is same for all users) ??	<BR>
+<BR>
+
+
+<H2>/etc/pam.d/ Files</H2>
+pam.d/ config really governs how things are done.
+<BR>
+
+Each file correspond to configuration used for that specific service.
+<BR>
+
+<PRE>
+sshd	# used when ssh in to the machine
+login	# used to /bin/login (eg, local console login as dumb terminal?)
+        # when physically in front of machine (? ie GUI, text login, and also su once logged in)
+
+gdm-password  # gdm based Display Manager use this pam.d config ?
+
+su	# when running su command
+sudo 	# when running sudo command
+
+system-auth	# often refered by other config file to use it.  think of this as C's #include.
+password-auth
+
+config-util	# refered by many system config tools, such as system-config-network
+
+clause:
+pam_stack.so service=system-auth   # this is like "import" system-auth.
+
+
+??
+vnc	# most vnc use a local .vncpasswd, not relying on amp
+realvnc	# 
+screensaver lock?
 
 
 </PRE>
 
+
+
+<H2>AAA</H2>
+
+<PRE>
+
+aaa = 
+authentication  -- you are who you claim you are
+authorization   -- you are in the allowed-list for access
+accounting      -- log that you have accessed the system, duration, etc.
+
+pam.d/ files have these configurable controls 
+
+auth      - verify user credentials.  ? so here talk to ldap, nis, or sssd/local passwd 
+account   - user allowed to connect, password not expired?
+password  - ? write to shadow file about last login info
+session   - long duration session info, update wtmp, write when logout too
+
+</PRE>
+
+
+
+<H2>Levels</H2>
+
+In increasing mandatory necessity:
+
+<PRE>
+
+optional ?
+
+sufficient - eg login or su, allow use of radius credentials for login in console
+	auth       sufficient   pam_radius_auth.so conf=/etc/raddb/server
+
+substack ? like import?
+	auth       substack     password-auth
+
+include
+	use content of another config file (eg system-auth, config-util)
+	think of #include of C
+
+required
+	Failure also results in denial of authentication, 
+	although PAM will still call all the other modules listed for this service 
+	before denying authentication. 
+	*** think of it as mandatory but keep checking anyway ??!! ***
+
+requisite
+	Failure to authenticate via this module results in immediate denial of authentication. 
+	*** think of as mandatory, waste no more time, fail right away ***
+
+</PRE>
+
+<H2>modules</H2>
+
+<PRE>
+# Use a radius authentication server listed in a config file
+auth       required     pam_radius_auth.so conf=/etc/raddb/server	
+	
+
+# When SELinux operates in Permissive mode, 
+# disable linux user login for users listed in /etc/security/sepermit.conf
+# If user not listed, would still be allowed to login when selinux is disabled or in permissive mode
+auth       required     pam_sepermit.so
+
+
+# if file /etc/nologin exist, user not allowed to login
+account    required     pam_nologin.so
+
+
+# use/allow for system password auth  ??
+account    include      password-auth
+
+
+# traditional unix auth, usually /etc/passwd, /etc/shadow
+pam_unix.so
+
+
+</PRE>
+
+
 <A NAME="authconfig"></A>
 <A NAME="authentication_configuration"></A>
-<H2>authentication configuration</H2>
+<H2>authconfig -- RHEL 7 authentication configuration tool</H2>
 
 <TT>authconfig</TT> is the tool to use to configure authentication services in RHEL7/CentOS7.  Manually changing nsswtich.conf isn't enough.  There are pam.d, selinux, firewall updates.  <BR>
 
@@ -716,7 +927,19 @@ Ref:
 <UL>
 <LI><A HREF="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System-Level_Authentication_Guide/authconfig-install.html#tips-for-authconfig">RHEL7 authentication</A>
 <LI><A HREF="https://www.certdepot.net/sys-understand-authconfig/">certdepot authentication</A>
-<LI><A HREF="https://fedorahosted.org/sssd/">https://fedorahosted.org/sssd/</A>
+</UL>
+
+<A NAME="authselect"></A>
+<H2>authselect -- RHEL 8 authentication configuration</H2>
+
+<PRE>
+authselect show		# show current profile
+/etc/authselect		# config files loc      (/etc/sssd/ is largely empty now)
+</PRE>
+
+Ref: 
+<UL>
+<LI><A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/configuring_authentication_and_authorization_in_rhel/index">https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/configuring_authentication_and_authorization_in_rhel/index</A>
 </UL>
 
 
@@ -797,12 +1020,18 @@ adding route:
 
 route add default gw 192.168.1.1
 
-route delete -net 172.16.16.0 netmask 255.255.255.0 eth3
-route add -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1 eth2
-(but going out from first interface)
-route add -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1
-metric 1 dev eth2
-route add -net 172.16.16.0 netmask 255.255.255.0 dev eth3
+sudo route add    -net 10.8.0.0/16  gw 10.8.21.1  # this worked, no need to add metric or dev, since machine is in local network of 10.8.21.x
+
+sudo route add    -net 10.0.0.0/16 dev eno1   # add local broadcast domain eg dual home machine w/ priv net
+sudo route add    -net 10.8.0.0/16  gw 10.8.17.1 metric 1 dev enp0s9
+sudo route delete -net 10.8.0.0/16  gw 10.8.17.1              enp0s9
+
+
+could try these if error above
+route add      -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1 eth2  # (but going out from first interface)
+route add      -net 172.16.16.0 netmask 255.255.255.0 gw 172.16.0.1 metric 1 dev eth2
+route add      -net 172.16.16.0 netmask 255.255.255.0 dev eth3
+route delete   -net 172.16.16.0 netmask 255.255.255.0 eth3
 
 
 dhclient	= get dhcp address from server for current client.
@@ -814,9 +1043,26 @@ ifconfig hme0 dhcp		see purple book.  (Solaris?)
 
 irouted
 
+</PRE>
 
+persistent static route, 
+from: 
+<A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/deployment_guide/sec-configuring_static_routes_in_ifcfg_files#sec-networkscripts-static-routes-ip-command">RH Doc permanent static route config for RedHat</A>: 
+
+<PRE>
+
+/etc/sysconfig/network-scripts/route-ens3f0 ::
+
+10.8.0.0/16 via 10.8.17.1 dev ens3f0
 
 </PRE>
+
+or /etc/sysconfig/network  <BR>
+but NO mention of /etc/sysconfig/static-routes  in the RH doc.
+(it was only mentioned here https://webhostinggeeks.com/howto/three-ways-to-configure-persistent-static-routes-on-linux-centos/ but unverified)
+
+<BR>
+<BR>
 
 <A NAME="vif"></A>
 <A NAME="vlan"></A>
@@ -2556,8 +2802,9 @@ cat/var/lib/dpkg/info/genome-music.list # list files installed by a given packag
 
 dselect
 dpkg -l					# list installed packages (.dpkg) = rpm -qa
-dpkg -i file.deb		# rpm -ivh
-apt-get install ./file.deb	# probably better, solve dependencies
+dpkg -L	pkgname				# list files installed by named package
+dpkg -i file.deb			# rpm -ivh
+apt-get install ./file.deb		# probably better, solve dependencies
 
 dpkg  --search file			# find which package has file
 rpm    -qif    file
@@ -2644,6 +2891,7 @@ ntsysv 				# TUI of serviceconf (vsftp/telnet/rlogin, etc)
 RHEL7, some newer ubuntu?
 <PRE>
 systemctl status firewalld
+SYSTEMD_LOG_LEVEL=debug systemctl start lightdm   # as close as "verbose" mode for systemctl
 </PRE>
 
 <H4>SuSE</H4>
@@ -3839,11 +4087,19 @@ firewall-config		# GUI tool.  DONT use system-config-firewall
 </PRE>
 
 
-<H1>RHEL8 New STuff</H1>
+<A ID="RHEL8"></A>
+<H1>RHEL 8 New STuff</H1>
 
 <PRE>
 default, no /usr/bin/python , which may break things like ansible (unless otherwise configured to explicityly use python3)
 alternatives --set python /usr/bin/python3
+
+journalctl -no-pager -f -u postfix    	# see systemctl output for (service) unit file "postfix"
+					# -no-pager is to rid the annoying def of no word wrapping 
+					# -f is follow, like tail -f
+journalctl -xe ...
+
+
 </PRE>
 
 <A NAME="progies"></A>
@@ -4125,23 +4381,30 @@ To reserve space for data persistence use option --overlay-size-mb:
 livecd-iso-to-disk --overlay-size-mb 1024 SL-64-i386-2013-04-17-LiveCD.iso /dev/sdb1
 
 
-
-
-
-
-windoze tools
-=============
-
-* LiLi, was old favorite, but stopped working for CentOS 7 or 8 iso.  maybe okay for ubuntu/debian.
-  lili writes to existing FAT32 partition, so could use the usb for regular storage as well.
-* UNetbootin (win/linux/mac).  Write to existing FAT32, make it bootable.
-  Seems a bit slow?  http://unetbootin.github.io/
-  Cant work for Centos 7 iso.
-* PS.  DVD sizes are: 4.7, 8.5, 9.4, 17.08 GB.  So, maybe create a partition of 18GB for hosting such boot media.
-
-
-
 </PRE>
+
+
+
+
+<H5>windoze tools</H5>
+
+<LI> LiLi, was old favorite, but stopped working for CentOS 7 or 8 iso.  maybe okay for ubuntu/debian.
+  lili writes to existing FAT32 partition, so could use the usb for regular storage as well.
+<LI> UNetbootin (win/linux/mac).  Write to existing FAT32, make it bootable.  <BR>
+  Seems a bit slow?     <BR>
+   Support "preserve files across reboot, for Ubuntu only.  <BR>
+<BR> Download and run, no install needed.
+  <A HREF="http://unetbootin.github.io/">http://unetbootin.github.io/</A>
+  Cant work for Centos 7 iso.
+<LI> Rufus, referred by Ubuntu.  Actually has more features than UNetbootin.  Can format thumbdirve to FAT32 (harder to get these days in Win10).  <BR>
+Also allow for persistent partition.  <BR>
+MBR, UEFI, BIOS.  It download Syslinux files during the burn process as needed.    
+<BR> Download and run, no install needed.
+<A HREF="https://rufus.ie/en/">https://rufus.ie/en/</A>
+<LI> PS.  DVD sizes are: 4.7, 8.5, 9.4, 17.08 GB.  So, maybe create a partition of 18GB for hosting such boot media.
+
+
+
 
 
 <BR> <BR>

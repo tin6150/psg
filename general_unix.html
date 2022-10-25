@@ -471,6 +471,43 @@ rsync -avl -e ssh  --rsync-path=/usr/local/bin/rsync remote-svr:/dir/* ./local/s
 
 </PRE>
 
+<A ID="parallel"></A>
+<A ID="gnuparallel"></A>
+<A ID="gnu-parallel"></A>
+<A ID="gnu_parallel"></A>
+<H1>gnu parallel</H1>
+
+ref: 
+<A HREF="https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/running-your-jobs/gnu-parallel/">
+savio gnu parallel doc</A>
+
+<PRE>
+
+::: is parsed by gnu parallel
+
+parallel -j 2 wc file{}.in file{}.out ::: 1 2 3
+parallel -j 2 wc file{}.in file{}.out ::: `seq 1 3`
+parallel -j 2 cp file{}.in file{}.out ::: 1 2 3 :: a b c
+
+
+basename -s .fasta -a Z*.fasta > task.lst
+parallel -j 56 -a task.lst  echo  abricating {}.fasta to  result.{}.out
+
+but {} won't be expanded beyond shell redirect like | or >  
+so would need to put such comand inside single quote, eg:
+
+parallel -j 56 -a task.lst  'wc {}.fasta > /global/scratch/users/tin/pub/TEST/result.{}.out'
+
+parallel -j 56 -a task.lst  'abricate --db ecoli_vf {}.fasta >  /global/scratch/users/tin/pub/TEST/vf_reads/vf.{}.txt'
+
+</PRE>
+
+Tricks, but do remember to cite... they are vocal about this:
+<PRE>
+module load gnu-parallel/2019.03.22
+## mkdir -p ~/.parallel/
+## touch ~/.parallel/will-cite
+</PRE>
 
 <H1>text windows manager :)</H1>
 

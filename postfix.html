@@ -171,7 +171,7 @@ HTML validator: http://validator.w3.org/
 <pre>
 config files in /etc/postfix
 	main.cf
-logs in /var/log/maillot
+logs in /var/log/maillog
 
 postfix reload		# after doing changes to config files
 postfix flush 		# churn thru the mail backlog ==? postqueue -f
@@ -185,8 +185,9 @@ postconf -d    # show default param for postfix
 postconf -d  | grep mydomain
 postconf -d  | grep myhost 
 
-postconf -n 		# to find out what settings are overruled by your main.cf. , show what postfix parsed/took out of config file
-postconf mail_version	# To find out what Postfix version you have, execute the command 
+postconf -n             # to find out what settings are overruled by your main.cf. , 
+                        # show what postfix parsed/took out of config file
+postconf mail_version   # To find out what Postfix version you have, execute the command 
 
 </pre>
 
@@ -241,9 +242,13 @@ eg strip na.nova.com to nova.com
 after update to the file, recreate hash (or dbm) as:
 sudo postmap /etc/postfix/sender-canonical
 
-Specify dbm instead of hash if your system uses dbm files instead of db files. To find out what lookup tables Postfix supports, use the command "postconf -m".
+Specify dbm instead of hash if your system uses dbm files instead of db files. 
+To find out what lookup tables Postfix supports, use the command 
+"postconf -m".
+But more importantly, see whether main.cf refer to hash:/etc/postfix/filename or dbm
 
-Execute the command "postmap /etc/postfix/relay_recipient" whenever you change the relay_recipients table.
+Execute the command "postmap /etc/postfix/relay_recipient" 
+whenever you change the relay_recipients table.
 	eg of relay-canonical (tailing x means "checked" to allow domain to relay):
 	@lbl.gov         x
 

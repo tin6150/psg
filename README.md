@@ -72,6 +72,7 @@ that spans many lines
 ###this is my biggest gripe about .md !!
 I want to de-emphasize lines marked as # comment, not emphasize them!
 Thus, places where i want to use # as comment, has to delineate it as a code block
+// well, change to use // or ; as comment in md? :P
 
 **bold are two asterisks**
 __or two underlines, but remember no spaces after the symbols__
@@ -89,5 +90,26 @@ no way to make text underlined?!  as web assume that's a link??!!
 stackoverflow pretty much use all the markdown syntax (except for code highlight block).
 and its summary is more concise than the markdown project doc.
 See: http://stackoverflow.com/editing-help
+
+
+# Rmd only
+
+// see stat 142 Lab 04 for detail
+// Tex rendering in Rmd doc by enclosing expression in $tex cmd$
+
+// single $ before and after
+// render to final output eg PDF (or html)
+$P(+ \mid D)$   
+renders as P(+|D)
+the dollar sign delimiter some rendering.  Tex?  Rstudio, hoover them will render the human friendly "graphics"
+\mid is midbar?  it is the pipe symbol.
+
+// double $ before and after
+// render in preview doc as well.
+$$P(0\cup 1)= P(0)+P(1)=1$$
+\cup is likely the Union symbol
+
+$\dot\sim$ is read as "approximately distributed as".
+when feeling lazy, can use use \sim
 
 

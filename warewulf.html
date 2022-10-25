@@ -25,6 +25,7 @@
     </tr>
     <tr>
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="x" href="linux.html">linUx</a>	</td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
       <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
@@ -55,11 +56,15 @@ pxe boot machine, most often run stateless nodes.
 
 <H2>Ref</H2>
 
-Good intro/overview
+
+Good intro/overview <BR>
 https://warewulf.readthedocs.io/en/latest/about/architecture.html
+<BR><BR>
 
 google group eg:
+<BR>
 https://groups.google.com/a/lbl.gov/g/warewulf/c/Yx9OMqkyJKU
+<BR><BR>
 
 <H2>warewulf backup</H2>
 
@@ -79,6 +84,7 @@ warewulf
 
 /var/chroot contents for the vnfs is NOT in the db, and separate store for that is necessary <BR>
 (eg, vnfs build server, pullvnfs script presumed can run again to repopulate this). <BR>
+(alt, tar up the existing chroot, xfer the file and untar) <BR>
 
 
 <H5>db restore</H5>
@@ -97,7 +103,12 @@ mysql -e "describe datastore" warewulf
 mysql -e "SELECT COUNT(*) FROM user" mysql
 mysql -e "SELECT COUNT(*) FROM datastore" warewulf
 
-<PRE>
+</PRE>
+
+if the wwroot and wwuser somehow disapears from the warewulf database, 
+<TT>wwinit DATABASE</TT>
+could fix this.
+the command is somewhat of a misnomer.  It will NOT wipe the database to a clean state, so all previuosly defined objects will still remain intact.  It just really recreate the users and credenntials so that wwsh commands can interact with the MySQL/MariaDB.
 
 
 <H2>network troubleshooting</H2>
@@ -127,15 +138,110 @@ the NIC device defined there need to have a network that is within the IP range 
 Also see:
 https://groups.google.com/a/lbl.gov/g/warewulf/c/ERzlDkDw2tY/m/rg-fvAoOacQJ
 
+wwsh bootstrap rebuild
+	# recreate files needed by pxe boot, stored in /srv/warewulf/bootstrap
+
+
+Manual bootstrap build cmd? 
+wwbootstrap --config=/etc/warewulf/bootstrap-sl7.conf --chroot=/var/chroots/sl7-nvidia --name 3.10.0-1127.13.1.el7.x86_64-nvnew 3.10.0-1127.13.1.el7.x86_64
+
+</PRE>
+
+Notes/Ref<BR>
+
+<LI>
+VirtualBox iPXE ROM does not support bzImage, but required by some OS like CoreOS (and CentOS?) cuz initramfs is a cpio.bz image.  Thus generating ipxe err 23008001
+<A HREF="https://github.com/coreos/tectonic-installer/issues/932">
+https://github.com/coreos/tectonic-installer/issues/932</A>
+
+<LI>
+Have VBox use EFI instead of bios mode, see 
+<A HREF="https://www.makeuseof.com/set-up-efi-linux-virtual-machine-virtualbox/">
+https://www.makeuseof.com/set-up-efi-linux-virtual-machine-virtualbox/</A>
+
+<LI>
+<TT>virt manager</TT> would be closer to hardware, but a time sink to setup<BR>
+proxmox vm should also work fine. <BR>
+
+
+
+<H2>Files on boot server</H2>
+
+ensure these files are present.  UEFI may need additional config.
+
+<PRE>
+
+/var/lib/tftpboot/warewulf/
+/var/lib/tftpboot/warewulf/ipxe
+/var/lib/tftpboot/warewulf/ipxe/bin-i386-pcbios
+/var/lib/tftpboot/warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+/var/lib/tftpboot/warewulf/ipxe/bin-i386-pcbios/undionly.kpxe-old
+/var/lib/tftpboot/warewulf/ipxe/bin-x86_64-efi
+/var/lib/tftpboot/warewulf/ipxe/bin-x86_64-efi/snp.efi
+/var/lib/tftpboot/warewulf/ipxe/bin-i386-efi
+/var/lib/tftpboot/warewulf/ipxe/bin-i386-efi/snp.efi
+
+
+/srv/warewulf/initramfs/x86_64/capabilities/provision-adhoc
+/srv/warewulf/initramfs/x86_64/capabilities/provision-files
+/srv/warewulf/initramfs/x86_64/capabilities/provision-selinux
+/srv/warewulf/initramfs/x86_64/capabilities/provision-vnfs
+/srv/warewulf/initramfs/x86_64/capabilities/setup-filesystems
+/srv/warewulf/initramfs/x86_64/capabilities/transport-http
+/srv/warewulf/initramfs/x86_64/capabilities/setup-ipmi
+
+# wwsh bootstrap rebuild # should generate a series of files like:
+/srv/warewulf/bootstrap/x86_64/6/kernel
+/srv/warewulf/bootstrap/x86_64/6/cookie
+/srv/warewulf/bootstrap/x86_64/6/initfs.gz
+
+/srv/warewulf/ipxe/cfg/ac:1f:6b:a5:9c:f6
+
+</PRE>
+
+<H2>special object config</H2>
+
+custom object
+<PRE>
+
+
+wwsh object modify -s LASTOCTET=5   s00
+wwsh object modify -s LASTOCTET=100 n00
+wwsh object modify -s LASTOCTET=101 n01
+
+wwsh object print -p :all | egrep 'node|name|LASTOCTET'
+
+wwsh --debug file sync # debug mode pring lot of perl code state. eg grep ERROR or WARNING
 </PRE>
 
 <H2>config troubleshooting</H2>
-...
+
+<PRE>
+wwsh file sync barf like:
+WARNING in Warewulf::DataStore::SQL::BaseClass->persist()/861:  Unable to execute set lookup query: Data too long for column 'value' at row 1
+
+or
+
+wwsh file import  /etc/warewulf/files/node_exporter.service --mode=0644 --path=/etc/systemd/system/multi-user.target.wants/node_Exporter.service
+wwsh file set node_exporter.service --path=/etc/systemd/system/multi-user.target.wants/node_Exporter.service
+
+WARNING:  Unable to execute set lookup query: Data too long for column 'value' at row 1
+
+it is cuz Destination PATH is limited to at most 65 chars!  use a shorter PATH :-\
+
+</PRE>
+
 
 <H2>tftp troubleshooting</H2>
 
 tftp (and dhcpd) needs to be running on the warewulf server.
 see <A HREF="general_unix.html#tftp">general_unix.html#tftp</A> for troubleshooting info.
+
+<H2>PXE vs warewulf boot</H2>
+
+The first part of the boot is network pxe boot, where the bootstrap image is transferred and the machine booted from.
+Stage 2 is a swap to warewulf that utilize VNFS, where the OS is hybridized between ram and /var/chroots NFS mount.
+
 
 <H1>TBD int ref</H1>
 

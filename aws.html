@@ -192,6 +192,10 @@ Amazon Web Services.  The Cloud.  A real cloud. Not really just vapor anymore :)
 <li> </li>
 </UL>
 
+
+<A HREF="https://cloud.google.com/free/docs/aws-azure-gcp-service-comparison">GCP vs AWS vs Azure Name Translation</A> Think Rosetta Stone of cloud provider :P
+<BR>
+
 <PRE>
 </PRE>
 <BR><BR>
@@ -268,6 +272,8 @@ aws ec2 describe-subnets --output=table
 
 aws --region us-west-2 --output=table ec2 describe-instances | egrep  '(Value|PrivateIp|\ Name)'
 
+aws ec2 describe-instances |  egrep 'Instance|PublicDnsName|stop|terminate|running'
+aws ec2 describe-instances |  egrep 'InstanceId|InstanceType|PublicDnsName|stop|terminate|running'
 
 aws --region us-east-1 ec2 describe-subnets --query 'Subnets[*].[SubnetId,CidrBlock,AvailabilityZone,Tags[?Key==`Name`] | [0].Value]' --filters "Name=vpc-id,Values=vpc-abcd1234" "Name=tag-value,Values=\*HPC\*"
 
@@ -287,6 +293,12 @@ aws ec2 describe-instances	# list all instances and their info
 aws ec2 describe-instances --instance-id i-30d27590 --output=table
 aws ec2 stop-instances     --instance-id i-30d27590
 aws ec2 start-instances    --instance-id i-30d27590
+
+
+
+# finding interchangeable Architecture 
+aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=x86_64 --query "InstanceTypes[*].InstanceType" --output text
+aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=arm64  --query "InstanceTypes[*].InstanceType" --output text
 
 
 </PRE>
@@ -328,8 +340,51 @@ wget -q -O - http://169.254.169.254/latest/meta-data/instance-id	# 169.254.169.2
 <li>Look at free software in Amazon Marketplace is a easy way to see prices for all different types of instances.  eg.  <A HREF="https://aws.amazon.com/marketplace/pp/B00N44P7L6/ref=dtl_recsim_B00EQE493U_B00N44P7L6_2">NCBI Blast AMI</A></li>
 </ol>
 
-Source: 
-<A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A>
+<PRE>
+
+c5a
+c5ad - essentially same as C5a, but has nvme ephemeral instance storage (eg for use as swap, which need to be setup each time instance is powered on)
+
+ragd.12xlarge - the "g" is for gravitron, arm-based architecture, AMI not interchangeable with x86.
+
+some pricing info as of 2022.09 for some of the instance I was using:
+
+c5a.16xlarge  is $2.46/hour      no ephemeral NVME 
+c5ad.16xlarge is $2.75/hour      2 nvme ephemeral instance storage
+r6gd.12xlarge is $2.76/hour      the "g" is for gravitron arm based 
+r5ad.12xlarge is $3.14/hour      384G RAM 48 core.
+r6id.12xlarge is $3.63/hour                
+r6id.16xlarge is $4.84/hour
+
+API Name	Instance Memory		vCPUs	Instance Storage	Network Performance	Linux On Demand cost
+r5ad.16xlarge	512.0 GiB	64 vCPUs	2400 GB (4 * 600 GB NVMe SSD)	12 Gigabit	$4.192000 hourly
+m5ad.24xlarge	384.0 GiB	96 vCPUs	3600 GB (4 * 900 GB NVMe SSD)	20 Gigabit	$4.944000 hourly
+r5ad.24xlarge	768.0 GiB	96 vCPUs	3600 GB (4 * 900 GB NVMe SSD)	20 Gigabit	$6.288000 hourly
+m6id.32xlarge	512.0 GiB	128 vCPUs	7600 GB (4 * 1900 GB NVMe SSD)	50 Gigabit	$7.593600 hourly
+r6id.32xlarge	1024.0 GiB	128 vCPUs	7600 GB (4 * 1900 GB NVMe SSD)	50 Gigabit	$9.676800 hourly
+x2iedn.16xlarge	2048.0 GiB	64 vCPUs	1900 GB NVMe SSD		50 Gigabit	$13.338000 hourly
+x2iedn.32xlarge	4096.0 GiB	128 vCPUs	3800 GB (2 * 1900 GB NVMe SSD)	100 Gigabit	$26.676000 hourly
+
+
+  #instance_type = "t2.micro"   # $0.020/hr  1 vCPU  0.6G RAM
+  #instance_type = "t2.small"   # $0.023/hr  1 vCPU  2G
+  #instance_type = "t2.medium"  # $0.046     2 vCPU  4G                # tested work for us-west-2
+  #instance_type = "t3.large"   # $0.083     2 vCPU  8G
+  #instance_type = "t3.xlarge"   # $0.166     4 vCPU 16G
+  instance_type = "c5a.16xlarge"  # $2.464       64 vCPU 128G
+  #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
+  #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
+  #-instance_type = "x2gd.2xlarge"  # $0.668        8 vCPU 128G  arm64
+
+
+</PRE>
+
+Source and Ref: 
+<A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A> <BR>
+<A HREF="https://www.cloudzero.com/blog/aws-instance-types">instance type guide</A> (By cloud zero, mediocre) <BR>
+
+
+
 
 <BR><BR>
 
@@ -485,6 +540,32 @@ billing
 
 
 </PRE>
+<H1>AWS Region</H1>
+
+<PRE>
+us-east-1 = Virginia     ###
+us-east-2 = Ohio
+us-west-1 = California
+us-west-2 = Oregon       #
+
+</PRE>
+
+These resources are region specific:
+
+<UL>
+<LI>AMI-id.  ie, TF script that create EC2 instance must use ami-nnnnn from the same region, or get vague "resource unavailable" error.  Permission are also not copied when AMI is copied across region</LI>
+<LI>EC2 key pair.  These ssh key to login to machine (needed during instance creation) are listed under EC2, not under user security.  </LI>
+<LI>Security Groups.  But TF create them and will track them.</LI>
+<LI>EC2 instance.  the i-nnnn is region specific.</LI>
+<LI></LI>
+</UL>
+
+These are globally unique
+<UL>
+<LI>S3</LI>
+<LI>IAM user</LI>
+<LI></LI>
+</UL>
 
 <H1>Using S3 to serve static-content web site</H1>
 
@@ -514,6 +595,7 @@ Be forwarned that each little file retrieval add to the cost.  A web site may ha
 <LI>There are options to set a DNS domain to point to the S3 web site, see AWS Route 53 or even a DNS CNAME to the S3 endpoint, eg <A HREF="http://tiny.cc/TIN">tiny.cc/TIN</A>.
 </UL>
 
+<A ID="s3"></A>
 <A ID="s3_cli"></A>
 <A ID="s3_commands"></A>
 <H5>S3 commands</H5>
@@ -524,6 +606,8 @@ Be forwarned that each little file retrieval add to the cost.  A web site may ha
 # S3 buckets are accessible globally, so while hosted in a region, I/O commands can work w/o specifying any region.
 
 aws s3 ls					# list buckets
+aws s3 mb s3://sapsg				# make bucket (name has to be GLOBALLY unique)
+aws s3 rb ...					# remove bucket 
 aws s3 ls sn-s3-bucket-oregon-webhosting	# list content of bucket named "sn-s3-bucket-oregon-webhosting"		## cat@grumpy
 aws s3 ls sn-s3-bucket-oregon-webhosting/fig/	# it is more like "ls -ld", add tailing / to see content inside a dir
 aws s3 ls s3://sn-s3-bucket-oregon-webhosting	# prefixing bucket name with s3:// is req with older awscli
@@ -538,13 +622,55 @@ aws s3 sync . s3://sapsg    --acl public-read	# xfer-in is free, so okay to test
 
 aws s3 sync conf     s3://nibr/conf   --acl public-read		# conf is name of a dir in this eg
 aws s3 sync conf     s3://ask-margo   --acl public-read		# the dirname must be stated in the destination too, or all files in the script/* dir will be placed at one level higher!
-aws s3 sync conf/    s3://nibr        --acl public-read		# whether / is added to explicity state src is a dir.
+aws s3 sync conf/    s3://nibr        --acl public-read		# whether / is added to explicity state src is a dir.  This was likely aws cli 1.0 behavior
+
+aws s3 sync my_data_dir s3://bild-aq-tin6150-data/my_data_dir          # aws cli 2.0 need to specify a destination dir 
+aws s3 sync my_data_dir s3://bild-aq-tin6150-data/two-folder/deep-ok/  # and s3 will automagically do the "mkdir -p" for any necessary folder path
+
+
+aws s3 sync .   s3://tin6150     --acl public-read  --exclude ".git/*"  # exclude .git DB files
+aws s3 cp   fig s3://tin6150/    --acl public-read  --recursive         # cp -R  fig folder copied and folder created in dest bucket
+
+# note, it is possible to cp/sync between two s3 buckets
+
+# remove all files in bucket before removing the bucket.  It cannot be renamed nor change region.
+ aws s3 rm --recursive s3://old-junk
+ aws s3 rb             s3://old-junk
 
 </PRE>
 <BR>
 ref: <A HREF="http://docs.aws.amazon.com/cli/latest/userguide/using-s3-commands.html">S3 commands</A>
 <BR>
 <BR>
+
+<H1>Security Stuff</H1>
+
+ec2 key pair is the one that is related to ssh to ec2 instance, 
+the key that is injected when an instance is spun up.
+<BR>
+In GUI, under EC2 section, should see "key pair" on the left navigation pane.
+imported or create via GUI  (there maybe cli way to do this). 
+<BR>
+Anyway, EC2 key pairs can be listed by:
+
+<PRE>
+aws ec2 describe-key-pairs
+aws ec2 describe-key-pairs --key-names tin@aws2208blactam.withPass
+
+</PRE>
+
+
+the ssh key maybe is for some code checking stuff (aws' git?)
+so effing confusing!
+
+when key is imported/created under <BR>
+username, Security Credentials, AWS CodeCommit credentials.
+It is NOT usable as EC2 key-pair to ssh in to an instance.
+it shows up by:
+<PRE>
+aws iam list-ssh-public-keys
+</PRE>
+
 
 <H1>HPC in EC2</H1>
 
@@ -656,6 +782,33 @@ Other eg of NoSQL DB includes: Hadoop, MongoDB.  <BR>
 BigTable-based, rather than schema-less: Cassandra, HBase.
 <BR><BR>
 
+<H1>Terraform</H1>
+
+I am not a huge fan of terraform, it doesn't provide enough abstraction to be platform independent.
+The resulting .tf file is full of aws riddle (or gcp), as it is tied to the provider.
+No simple swapping (as Ansible can do for much function of the OSes).
+<BR><BR>
+
+but here are some commands anyway. <BR>
+example setup in github cloudseed4lbl
+
+<PRE>
+terraform init
+terraform fmt		# format all .tf files (for indentation), in place, so consider backup before running this.
+			# returned filenames are files that it changed.  none if no changes.
+
+terraform validate
+terraform plan
+terraform apply
+terraform destroy	# will terminate instance, remove any created security group.
+
+# terraform has no way to restart an instance, nor to just stop or start it.
+# use the aws cli tool for that
+
+aws ec2 stop-instances --region us-east-2 --instance-ids i-0123456789abcdef
+
+
+</PRE>
 
 <H1>Reference, see also...</H1>
 
@@ -669,6 +822,28 @@ BigTable-based, rather than schema-less: Cassandra, HBase.
 
 </UL>
 
+<H1>Useful links</H1>
+
+
+<UL>
+<LI><A HREF="https://instances.vantage.sh/?min_memory=384&min_storage=100&region=us-east-2&selected=r5ad.12xlarge">
+vantage.sh AWS EC2 pricing and instance comparison</A>
+<LI> <A HREF="https://www.instance-pricing.com/provider=aws-ec2/instance=c5ad.16xlarge/">instance-pricing.com</A> useful, but not as friendly as vantage.sh above.
+
+<LI>
+
+</UL>
+
+
+<H1>Random tidbits to be sorted</H1>
+
+<PRE>
+
+finding pricing info on ec2
+
+aws pricing get-products --service-code AmazonEC2 --filters "Type=TERM_MATCH,Field=instanceType,Value=c5ad.16xlarge" "Type=TERM_MATCH,Field=location,Value=US East (N. Virginia)" --region us-east-1 | jq -rc '.PriceList[]' | jq -r '[ .product.attributes.servicecode, .product.attributes.location, .product.attributes.instancesku?, .product.attributes.instanceType, .product.attributes.usagetype, .product.attributes.operatingSystem, .product.attributes.memory, .product.attributes.physicalProcessor, .product.attributes.processorArchitecture, .product.attributes.vcpu, .product.attributes.currentGeneration, .terms.OnDemand[].priceDimensions[].unit, .terms.OnDemand[].priceDimensions[].pricePerUnit.USD, .terms.OnDemand[].priceDimensions[].description] ' | less
+
+</PRE>
 
 <BR><BR>
 <HR>
@@ -786,4 +961,6 @@ http://tin6150.github.io/psg/psg.html
   
 </div> <!-- closes wrapper --> 
 </body>
+<!-- vim: tabstop=8 
+-->
 </html>

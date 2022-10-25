@@ -234,7 +234,7 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 ^P		pause		(disk scanning?)
 ^V		skip
 
-^H 		WebBIOS
+^H 		WebBIOS       -- ctrl-h load RAID sw to configure virtual drives
 ^Y		preboot CLI
 
 </PRE>
@@ -450,10 +450,12 @@ When CPU doesn't perform, check these params (racadm):
 Note: Lost of redundant power supply may cause system to clock down significantly, eg turbostat may report 800 MHz on a 2.1 GHz CascadeLake 6230.
 
 Checking the following may help to see if there is not enough power supplied to the system:
+<PRE>
 racadm get System.ChassisInfo 
-System.Power System.Power.RedundancyPolicy System.PowerHistorical System.ServerPwr iDRAC.Info iDRAC.WebServer iDRAC.VNCServer
+other get options: System.Power System.Power.RedundancyPolicy System.PowerHistorical System.ServerPwr iDRAC.Info iDRAC.WebServer iDRAC.VNCServer
 omreport may have data, if can get it to work
 dmidecde -t chassis
+</PRE>
 
 
 <!--
@@ -499,7 +501,9 @@ ProcConfigTdp=Nominal 		-- This field allows reconfiguration of TDP (Thermal Des
 
 AMD can't call Hyperthreading, they call it SMT, disabling it need to go to some obscure meny in BIOS, accept some waiver stuff, before can set thread per core.
 (at least in Asus)
-
+2021.11 bios has this under Advanced, AMD CBS, CPU Common options, Performance, SMT control.  no more accepting waiver.
+Can leave the SVM setting (under CPU config), that's for Virtual machine virtualization instruction.
+CBS = ??
 </PRE>
 
 
@@ -516,6 +520,22 @@ AMD can't call Hyperthreading, they call it SMT, disabling it need to go to some
 </PRE>
 
 More info, eg fetching Dell C6220 II chassis serial, see: <A HREF="ipmi.html#hexcode">ipmi</A>
+
+<H3>Enter F10 LifeCycle Controller</H3>
+
+https://serverfault.com/questions/866657/racadm-reboot-to-lifecycle-controller
+says that one time boot setting to do equiv of pressing F10 is to do:
+<PRE>
+# racadm set iDRAC.ServerBoot.BootOnce Enabled
+# racadm set iDRAC.ServerBoot.FirstBootDevice F10
+
+to get back to normal:
+
+# racadm set iDRAC.ServerBoot.FirstBootDevice Normal
+# racadm set iDRAC.ServerBoot.BootOnce Disabled
+</PRE>
+
+
 
 <H3>Misc</H3>
 
@@ -918,7 +938,6 @@ ref: https://www.thomas-krenn.com/de/wiki/IPMI_Netzwerkports_von_ASUS_Mainboards
 
 <H2>??</H2>
 tool to manipulate BIOS using cli tool...
-TBA
 
 
 <A NAME="dell_support_assist"></A>
@@ -926,7 +945,7 @@ TBA
 
 <PRE>
 
-singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  \
+singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  \
 /opt/dell/srvadmin/sbin/racadm  supportassist collect
 
 Job ID = JID_926261291256
@@ -947,18 +966,51 @@ Message=[SRV088: The SupportAssist Collection Operation is completed successfull
 Percent Complete=[100]
 ----------------------------------------------------------
 
+/opt/dell/srvadmin/sbin/racadm  supportassist  exportlastcollection -f tsr.zip
 
+# ftp server??!!
+racadm supportassist exportlastcollection -l ftp://192.168.10.24/share -u myuser -p mypass
+
+
+racadm supportassist accepteula
+
+# collect debug log, -f is filename , but tends to have problem saving, cuz of singularity?
+racadm  supportassist  collect -t Debug -f n0049_tsrd.zip
+
+this "file save" worked  savio4 icy lake 2022.10.21
+alias racadm="singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm"
+cd $HOME # cd /root  , cuz singularity bind mount HOME
+racadm techsupreport export -f tsr_report.zip
+
+
+</PRE>
+<!--
 
 	# this didn't work, not sure where file went:
   /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  supportassist  exportlastcollection -f tsr.zip
 
-# ftp server??!!
-  racadm supportassist exportlastcollection -l ftp://192.168.10.24/share -u myuser -p mypass
+-->
 
 
+<H2>Updte iDRAC</H2>
+Can also update chassis System Management Firmware via racadm running on the node.
+<!--
+[root@n0059.savio4 /global/home/users/tin/gs/Downloads/dell/sav4]# singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm 
+-->
 
+<PRE>
+# the EXE is a PE32 executable, ok from linux, just copy from local fs to the SP and let it update:
 
+racadm update -f iDRAC-with-Lifecycle-Controller_Firmware_RTTPH_WN64_5.10.50.00_A00.EXE
+racadm jobqueue view            # wait for download, start, etc.
+
+racadm update -f Chassis-System-Management_Firmware_N5WNX_WN64_3.51_A00.EXE
+racadm jobqueue view            # wait for download, start, etc.
+
+racadm get iDRAC.Info
+racadm get System.ChassisInfo 
 </PRE>
+
 
 <A NAME="dsa"></A>
 <H2>IBM/Lenovo DSA</H2>
@@ -983,6 +1035,7 @@ keep a stable binary version in a non-writable place...
 <PRE>
 wget https://download.lenovo.com/servers/mig/2017/05/17/6836/lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bi
 sudo ./lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bin
+!--
 </PRE>
 
 <!--
@@ -1103,6 +1156,46 @@ Please press ANY key to continue ...
 -->
 
 
+<H1>No keyboard?</H1>
+
+<div align="CENTER">
+<A HREF="http://comic.browserling.com/tag/bios">
+<IMG SRC="fig/keyboard.png"></A>
+</div>
+
+
+
+Dell iDrac serial over lan 
+<BR>
+ipmitool -I lanplus -U admin -P XXXXXXXXXXXX -H ipmi-ip sol activate
+<BR>
+
+<PRE>
+KEY MAPPING FOR CONSOLE REDIRECTION:
+
+Use the {ESC}{1} key sequence for {F1}
+Use the {ESC}{2} key sequence for {F2}
+Use the {ESC}{3} key sequence for {F3}
+Use the {ESC}{0} key sequence for {F10}
+Use the {ESC}{!} key sequence for {F11}
+Use the {ESC}{@} key sequence for {F12}
+
+Use the {ESC}{Ctrl}{M} key sequence for {Ctrl}{M}
+Use the {ESC}{Ctrl}{H} key sequence for {Ctrl}{H}
+Use the {ESC}{Ctrl}{I} key sequence for {Ctrl}{I}
+Use the {ESC}{Ctrl}{J} key sequence for {Ctrl}{J}
+
+Use the {ESC}{X}{X} key sequence for {Alt}{x}, where x is any letter
+key, and X is the upper case of that key
+
+Use the {ESC}{R}{ESC}{r}{ESC}{R} key sequence for {Ctrl}{Alt}{Del}
+
+Press the spacebar to pause...
+Initializing PCIe, USB, and Video... Done
+BIOS update has started.
+
+</PRE>
+
 <!-- ################################################################## -->
 <!-- ################################################################## -->
 <!-- ################################################################## -->
@@ -1113,12 +1206,6 @@ Please press ANY key to continue ...
 
 <BR>
 
-<H1> </H1>
-
-<div align="CENTER">
-<A HREF="http://comic.browserling.com/tag/bios">
-<IMG SRC="fig/keyboard.png"></A>
-</div>
   
 <div class="quote">
 </div>

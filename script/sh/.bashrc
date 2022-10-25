@@ -262,7 +262,10 @@ add_cmaq_module () {
 
 
 
-
+add_brc_module () {
+	# for now, just for notes, never activated
+	export MODULEPATH=$MODULEPATH:/global/software/vector/sl-7.x86_64/modfiles
+}
 
 
 add_hpcs_module () {
@@ -443,6 +446,7 @@ defineAlias () {
 	#alias ssh='ssh -o StrictHostKeyChecking=no' # already done by some default cluster cf
 	alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
 	alias lrc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151" # login node 1
+	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
@@ -468,7 +472,7 @@ defineAlias () {
 	alias ef='ps -ef'
 	alias lt="ls -latr"
 	alias ltr="ls -latr"
-	alias sq="squeue"          ##slurm
+	alias squ="squeue"          ##slurm
 	alias sqt="squeue -u tin"  ##slurm
 	alias assoc="sacctmgr show associations -p"                    ##slurm
 	alias sevents="sacctmgr show events start=2020-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
@@ -499,7 +503,15 @@ defineAlias () {
 	alias gvim="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list'" 		
 	alias gvis="gvim -c 'set shiftwidth=2 tabstop=4 formatoptions-=cro list nu expandtab'"  
 	alias lynx=elinks
+	alias lsRotational='ls -l /sys/block/*/queue/rotational'
+	alias catRotational='cat /sys/block/*/queue/rotational'
 	alias sanePaste='printf "\e[?2004l"'  # ie disable bracketed paste mode, do this before invoking tmux
+
+	###
+	### epiinfo, mostly brc
+	###
+ 	alias paup=/global/scratch/users/tin/cacheDir/image2/paup4.sif
+	#alias paup="singularity exec /global/scratch/users/tin/cacheDir/image2/paup4.sif paup4"
 
 	###
 	### stuff for ETA/CMAQ
@@ -580,9 +592,12 @@ defineAliasSge () {
 umask 0002      # i do want file default group writable
 
 # https://sylabs.io/guides/3.5/user-guide/appendix.html
-[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_CACHEDIR=/global/scratch/tin/cacheDir
-[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_TMPDIR=/global/scratch/tin/cacheDir
-[[ -d /global/scratch/tin/cacheDir ]] && export SINGULARITY_WORKDIR=/global/scratch/tin/cacheDir
+#// export cacheDir=/tmp  # keep it undefined if no need to redirecto to scratch in non quota controller env
+[[ -d /global/scratch/tin/cacheDir       ]] && export cacheDir=/global/scratch/users/cacheDir
+[[ -d /global/scratch/users/tin/cacheDir ]] && export cacheDir=/global/scratch/users/tin/cacheDir
+[[ -d $cacheDir ]] && export SINGULARITY_CACHEDIR=$cacheDir
+[[ -d $cacheDir ]] && export SINGULARITY_TMPDIR=$cacheDir
+[[ -d $cacheDir ]] && export SINGULARITY_WORKDIR=$cacheDir
 
 
 # the following will not save .bash_history when exit bash, so no xfer b/w sessions

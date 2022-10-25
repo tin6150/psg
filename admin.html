@@ -203,8 +203,28 @@ cp -p /usr/local/ssl/lib/libcrypto.so.0.9.7 $CHROOT_DIRECTORY/usr/local/ssl/lib
 
 <A HREF="https://docs.fedoraproject.org/en-US/fedora/rawhide/system-administrators-guide/monitoring-and-automation/Viewing_and_Managing_Log_Files/">rsyslog config</A> (Fedora doc) <BR>
 
+
+
+
+<BR>
+test with logger command.  eg <BR>
+
 <PRE>
+logger -p authpriv.warn "test from w0000. tin.  tcpdump show trafficic on port 514 udp"
+# -p priority in number   eg 
+# -p facility.level       eg local3.info  def is user.notice
+
+logger --udp # only use udp, port per /etc/services, typically 514
+logger --tcp # -T to use TCP only
+logger --port # -P to use port number other than that in /etc/services
+logger --udp -n server -port 80486
+</PRE>
+
+
+
 rsyslogd.conf
+
+<PRE>
 
 #### if acting as syslog server accepting logs, need:
 
@@ -220,6 +240,13 @@ $OmitLocalLogging off
 $ActionFileDefaultTemplate RSYSLOG_SyslogProtocol23Format
 # use ietf-syslog-protocol-23 : [pri]level 2021-02-09T13:19:43-08:00 prefix  
 
+# trying this on beagle
+*.*                                                   /var/log/syslog_all
+*.info,mail.!none,authpriv.!none,cron.!none           /var/log/syslog
+
+
+# Save news errors of level crit and higher in a special file.
+uucp,news.crit                                          /var/log/spooler
 
 </PRE>
 
@@ -229,12 +256,16 @@ faciliy.levels traps
 # facilities
 
 daemon.*  	# isc dhcpd send to this level by default, change eg 'log-facility local6;'
-authpriv.*	# sudo stuff goes here
-kern.*
+authpriv.*	# sudo stuff goes here, senstive stuff
+auth.*          # replaces old facility "security"
+kern.*          # user run of logger -p kern.anything will be converted to facility "user"
 mail.*
 cron.*
+syslog.*
+user.*          # user space 
 local0.*
 local7.*
+
 
 
 # levels, decreasing severity
@@ -259,6 +290,34 @@ local6.*                                                /var/log/dhcpd.log
 
 
 
+
+# Log anything (except mail) of level info or higher.
+# Don't log private authentication messages!
+*.info;mail.none;authpriv.none;cron.none                /var/log/messages
+#### that was advertised in https://www.rsyslog.com/discarding-unwanted-messages/
+#### but i don't think it actually works...  ; was for template, ! would be needed for exclude... ???
+
+## , separate multiple service to be logged ??
+## ; template
+## ! is for negate as per doc.  eg
+## To select all cron syslog messages except those with the info or debug priority
+cron.!info,!debug
+
+
+
+</PRE>
+
+rsyslogd that listen/accept syslog traffic from other hosts need these clause:
+
+<PRE>
+
+# Provides UDP syslog reception
+$ModLoad imudp.so
+$UDPServerRun 514
+
+# Provides TCP syslog reception
+$ModLoad imtcp.so
+$InputTCPServerRun 514
 </PRE>
 
 
@@ -351,7 +410,7 @@ limits.h:#define        NGROUPS_MAX     16      /* max number of groups for a us
 master server
 
 domainname NISdomainName
-ypinit -m
+ypinit -m			# /usr/lib64/yp/
 ypserv
 
 
