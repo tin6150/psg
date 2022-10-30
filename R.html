@@ -27,6 +27,9 @@
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
       <td align="center"><a accesskey="s" href="python.html">python</a>	</td>
       <td align="center"><a accesskey="p" href="perl.html">Perl</a>	</td>
+      <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>     </td>
+      <td align="center"><a accesskey="s" href="sci-app.html">Sci-App</a>       </td>
+
       <td align="center"><a accesskey="d" href="k8s.html">Kubernetes</a>                </td>
       <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>       </td>  <!--TBA-->
       <td align="center"><a accesskey="r" href="coreos.html">CoreOS</a> </td>
@@ -175,7 +178,7 @@ between()         # dplyr
 between(Year,2017,2020)         # Year is a column with numeric values, so it is a math <= and >= range
 near()
 
-# there is no build-in NOT in operator in R, so define one as (note the use of backtick around whole operator name):
+# there is no built-in NOT in operator in R, so define one as (note the use of backtick around whole operator name):
 # https://stackoverflow.com/questions/38351820/negation-of-in-in-r
 `%nin%` = Negate(`%in%`)
 
@@ -183,7 +186,7 @@ near()
 as.integer(7) == as.double(7) # returns TRUE, it is same as above.
 
 sqrt(2)^2 == 2                 # FALSE cuz float approx rounding error
-dplyr::near( sqrt(2)^2, 2  )   # TRUE, has build-in tolerance
+dplyr::near( sqrt(2)^2, 2  )   # TRUE, has built-in tolerance
 
 
 matrix1 == matrix2  	# is an element wise comparison, returning another matrix.  Somewhat unexpected!
@@ -227,7 +230,7 @@ total_na_count = sum( sapply( df, is.na ) )	# but no easy way to do per column c
 
 careful with %>% , especially when chaining... 
 
-</PRE>
+<PRE>
 %>% is awsome, like unix pipe, but sequentially chaining them
 if involving the same variable, may not be updated...
 don't specify the df (table) name again, 
@@ -1054,6 +1057,10 @@ with_tz(Sys.time(), tzone = "America/Los_Angeles")
 placebo_df = placebo_df %>%
   mutate( DATE_FIX = parse_date_time( DATE, c("mdy","dmy") ) )
 
+# get last date of the month
+# essentially, increment to next month, 
+# substract 1 day by using %m-% days(1)
+ceiling_date( as_date( "2020-02-01", "month" ) %m-% days(1)  
 
 as.numeric(var)
 as.character(var)
@@ -1588,6 +1595,37 @@ home_visit_wide = home_visit %>%
 
 </PRE>
 
+<!-- PHW251 wk10 reader p14 -->
+<H3>Joining tables</H3> 
+
+examples from r4ds ch13
+
+<PRE>
+library(nycflight13)
+flights %>% left_join( airlines, by="carrier" )
+# airlines is the "right" table
+# all records on "left" table (flights) are kept, 
+# with a mutate-join adding additional variables (cols) from right table to the left table
+# by="carrier" defines the KEY column to base the join  [ SQL USING(carrier) ]
+
+# in R base, equiv construct using mutate():
+flights %>% mutate( name=airlines$name[ match(carrier, airlines$carrier) ] )
+
+inner (equi) join  - think set intersection, only when row (key) is in BOTH tables
+
+outer joins (useful to think in venn diagrams):
+left join  - keep everything in left table
+right join - keep everything in right table
+full join  - keep all observations (many NA could result)
+
+dplyr		vs R's base::merge
+-------		-------------------
+inner_join(x,y)	merge( x,y )
+left_join(x,y)	merge( x,y, all.x=T )
+right_join(x,y)	merge( x,y, all.y=T )
+full_join(x,y)  merge( x,y, all.x=T, all.y=T )
+</PRE>
+
 
 <H3>Creating sample data for testing</H3>
 
@@ -1621,7 +1659,7 @@ testing = data.frame(
     check.rows = FALSE,
     check.names = TRUE,
     fix.empty.names = TRUE,
-    stringsAsFactors = default.stringsAsFactors()   # this seems to be FALSE for me, but TRUE for other system?
+    stringsAsFactors = default.stringsAsFactors()   # the default is FALSE for me, but TRUE for other system?
 )
 
 default.stringsAsFactors() can be used to query what's the default on how data.frame() treat strings, 
@@ -1639,9 +1677,18 @@ county_df2  = testing[1]
 #subset rows
 #using the row number - can be 1:2 or c(1,2)
 testing[1:2,]
+
 #based on a specified data elements
 testing[ which(testing$total_tests>500), ]                 # note sq bracket and tailing comma
+testing %>% filter( total_tests>500 ) 
+subset( testing, total_tests > 500 )
+
 stds_Ala = stds[ which(stds[["County"]] == "Alameda"), ] 
+
+subset( testing, county=="Ala" & total_tests > 500 )	                # AND condition 
+testing[ which(  testing$county=="Ala" & testing$total_tests>500), ]    # note sq bracket and tailing comma
+
+testing %>% filter( county %in% c("Ala","CCosta"), total_tests>500 )    # filter for county in a list AND ... 
 
 # unique() , though this eg only create a new vector, not preserving original df
 unique_counties = unique( stds[["County"]]) 
@@ -3460,10 +3507,22 @@ lake_data %>%
             standard_deviation_ph = sd(ph),
 	    length                = length(ph) )   # this count number of item in the group  # wk11 reader p8
 
-length()    # length( any_col_name ) to get number of rows, typically can provide count for sample size n.
-nrow( nhanes %>% filter( hs=='No' )   # this count number of rows, only those where hs=no.  $ Lab09wk12
+length()    	# length( any_col_name ) to get number of rows, typically can provide count for sample size n.
+length(df[[1]]) # eg count col 1 of any data frame to get num of rows in the df.
+nrow( nhanes %>% filter( hs=='No' )   # this count number of rows, only those where hs=no.  ## Lab09wk12
+
+
+# group_by + summarize create a new df, so many of the original col would not be present
+# but can add the list of col to keep
+# (there doesn't seems to be a KeepOrigCol=TRUE option)
+df %>%
+  group_by( oshpd_id, year ) %>%
+  summarize( total_encounter = sum( count ),                                    # new calculated col
+             count, type, facility_name, county_name, er_service_level_desc )   # (re)add col that is desired for final df
 
 </PRE>
+<!-- summarize with extra col was PHW251 exm -->
+
 <BR>
 
 Another group_by() example from PHW251 wk 6
