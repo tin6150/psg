@@ -851,6 +851,10 @@ nfsstat
 mpstat	10	: processor stats, repeat every 10 seconds
 		: In Solaris, it reports context switch, interrupt, mutex spin, xcal, etc
 		: see http://sunsite.uakom.sk/sunworldonline/swol-08-1998/swol-08-perf.html
+mpstat -A	= -u -I ALL -P ALL
+		  -u     = report cpu util
+		  -I ALL = interrupt stat
+		  -P ALL = all processor
 
 cpustat		: find out what cpu is doing...
 

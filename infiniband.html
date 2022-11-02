@@ -371,6 +371,28 @@ ibcheck -E -b         -O 10 -ddd
 
 <BR><HR><BR>
 
+<H5>Y-split cable switch port config</H5>
+
+The port on the HDR switch need to be configured to use Y-split cable, else one of the node get no connection.
+
+
+https://docs.nvidia.com/networking/display/MFTv421/Using+mlxconfig#Usingmlxconfig-splitcableUsingmlxconfigtoSplitaPortinaRemotelyManagedSwitch
+
+sudo mst start
+# which create /dev/mst device path
+
+
+# set (switch?) to suport SPLIT_MODE:
+# but my dev is for the local CX6 .... this didn't work:
+sudo mlxconfig -d /dev/mst/mt4123_pciconf0 set SPLIT_MODE=1
+
+
+# query for current settings:
+sudo mlxconfig -d /dev/mst/mt4123_pciconf0 q  | grep -i split
+
+# additional steps to setup each port to have split mode, sub-port.  eg, from x/y to x/y/1 and x/y/2
+...
+
 
 <H1>IBoIP</H1>
 

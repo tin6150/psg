@@ -930,14 +930,52 @@ ref: https://www.thomas-krenn.com/de/wiki/IPMI_Netzwerkports_von_ASUS_Mainboards
 <LI><A HREF="https://www.asus.com/Networking-IoT-Servers/Servers/GPU-Servers/ESC4000A-E10/HelpDesk_BIOS">ESC4000A E10</A>(AMD Epyc 7xx2 Rome) </LI>
 <LI><A HREF=""></A> </LI>
 
+<H5>Dell IPMI raw</H5>
 
+Dell sledge C6520 with ice lake processor, in C400-S chassis (4 nodes in 2U chassis, 2022, psu with C19 connectors).  <BR>
+Not sure what will happen if you use this on some other machines, so be warned!  Best to check with your support engineer. 
+
+<PRE>
+
+Query:
+ipmitool -I lanplus -H 100.74.7.117 -U root -P L3-C@lvin raw 0x30 0x1f
+Output will look similar to:  01 60 08 00 01 01 01dd 00 b8 00
+
+ 01 3a 08 00 01 01 01 6c 00 4f 00 = PSU in 1+1 redundancy, F1 warning on boot.
+
+ 01 73 08 00 01 01 01 34 01 4c 01 = PSU in 2+0, no F1 warning on boot.
+ 01 87 08 00 01 01 01 32 01 3a 01   
+ 01 87 08 00 00 02 00 40 01 2d 01 # n0057
+ 01 8e 08 00 01 01 01 3d 01 28 01 # n0009 none of these has no F1 warning
+ 01 99 08 00 01 01 01 1d 02 3b 02 # n0035
+             ^^ ^^ ??          ^^   ??  Dell did not explain how to read them.
+
+
+# Set psu redundancy to 2+0, 
+ipmitool raw 0x30 0xc7 0x11 0x02 0x00
+#                           ^^2^ ^^0^  for 2+0
+
+# This is changing back to 1+1 redundancy.  In this mode, sledge boot up will complain not enough power and ask F1 to ack before continue booting
+ipmitool raw 0x30 0xc7 0x11 0x01 0x01
+#                           ^^1^ ^^1^  for 1+1
+
+
+
+
+# Reboot Chassis Management
+ipmitool raw 0x06 0x34 0x45 0x70 0x18 0xc8 0x20 0x00 0x02 0xd8
+# probably equivalent to:
+racadm  cmreset
+
+</PRE>
 
 <BR>
 
 <H1>Service Processor</H1>
 
-<H2>??</H2>
-tool to manipulate BIOS using cli tool...
+<H2>
+tool to manipulate BIOS firmware using cli tool
+</H2>
 
 
 <A NAME="dell_support_assist"></A>
@@ -979,7 +1017,7 @@ racadm  supportassist  collect -t Debug -f n0049_tsrd.zip
 
 this "file save" worked  savio4 icy lake 2022.10.21
 alias racadm="singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm"
-cd $HOME # cd /root  , cuz singularity bind mount HOME
+cd $HOME # cd /root  , cuz singularity bind mount HOME, and lower dir tends to cause error!
 racadm techsupreport export -f tsr_report.zip
 
 

@@ -147,9 +147,11 @@ mb>  TBD
 <LI> ExaBayes
 <LI> PAUP*
 <PRE>
+paup      primate-mtDNA.nex # can invoke paup and load/execute nexus file as cli arg
 paup> exe primate-mtDNA.nex # to load file, it is "exe" cuz nexus file can contain command as to what to do.
 paup> log file=paup_primates.log
-paup> alltrees
+paup> hsearch                     # perform heuristic search, fast
+paup> alltrees                    # perform parsimony search, slow
 paup> showtrees all               # AllTree only retain (2) trees, show them
 paup> showtrees 1
 paup> showtree 2 / taxLabels=truncate semiGraph=yes userBrLens=yes showTaxNum=yes
@@ -160,15 +162,21 @@ paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex
 paup> exe paup_ggqrs9.nex
 </PRE>
 <!-- toNexus didnt produce loadable/exe-able file, error, see devNotes.paup.md -->
+<A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
+<BR><BR>
 
 <LI> BEAST (v1 and v2)  <BR>
      java -cp beast.jar dr.app.beast.BeastMain -seed 2020 -beagle_double -beagle_gpu -save_every 1000000 -save_state travelHist.checkpoint  ../files/Protocol3/282_GISAID_sarscov2_travelHist_masked.xml
 	<BR>
      java -cp beast.jar dr.app.tools.TaxaMarkovJumpHistoryAnalyzer -taxaToProcess "hCoV-19/Brazil/SP-02/2020/EPI_ISL_413016|2020-02-28" -stateAnnotation location -burnin 100 -mrsd 2020.174
 	<BR>
+	<BR>
 <LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
 <PRE>
 raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456  -T 28
+-m GTRCAT = model, GTRCAT argued to be one of the best/fast computationally
+-f a = perform the ML (Max Likelihood) in same run as bootstrap
+-N autoMRE = bootstrap criteria, autoMRE found to work best
 -x 123 is random number seed
 -p 456 is rnd seed for parsimony inference
 -T 28 # number of threads
@@ -178,6 +186,17 @@ figtree can open the RAxML_*Tree.*.tre file
 
 # 
 ## could input be .aln from roary? (skip snp-sites?)
+</PRE>
+Ref: 
+<A HREF="Evolution and Genomics tutorial on RAxML">https://evomics.org/learning/phylogenetics/raxml/</A>
+<A HREF="Evolutionary models ">https://isu-molphyl.github.io/EEOB563/computer_labs/lab4/models.html</A> <BR>
+<PRE>
+--model 
+(nucleotide): JC, K80, HKY, GTR, etc
+(portein):    Blosum62, Dayhoff (PAM),  etc
+(binary data): BIN
+(...)
+
 </PRE>
 
 <LI> RAxML-NG
