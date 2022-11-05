@@ -595,6 +595,7 @@ umask 0002      # i do want file default group writable
 #// export cacheDir=/tmp  # keep it undefined if no need to redirecto to scratch in non quota controller env
 [[ -d /global/scratch/tin/cacheDir       ]] && export cacheDir=/global/scratch/users/cacheDir
 [[ -d /global/scratch/users/tin/cacheDir ]] && export cacheDir=/global/scratch/users/tin/cacheDir
+[[ -d /local/users/tin/cacheDir ]]          && export cacheDir=/local/users/tin/cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_CACHEDIR=$cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_TMPDIR=$cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_WORKDIR=$cacheDir

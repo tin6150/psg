@@ -162,15 +162,14 @@ paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex
 paup> exe paup_ggqrs9.nex
 </PRE>
 <!-- toNexus didnt produce loadable/exe-able file, error, see devNotes.paup.md -->
-<A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
+Ref: <A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
 <BR><BR>
 
-<LI> BEAST (v1 and v2)  <BR>
+<LI> BEAST (v1 vs v2)  <BR>
+<PRE>
      java -cp beast.jar dr.app.beast.BeastMain -seed 2020 -beagle_double -beagle_gpu -save_every 1000000 -save_state travelHist.checkpoint  ../files/Protocol3/282_GISAID_sarscov2_travelHist_masked.xml
-	<BR>
      java -cp beast.jar dr.app.tools.TaxaMarkovJumpHistoryAnalyzer -taxaToProcess "hCoV-19/Brazil/SP-02/2020/EPI_ISL_413016|2020-02-28" -stateAnnotation location -burnin 100 -mrsd 2020.174
-	<BR>
-	<BR>
+</PRE>
 <LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
 <PRE>
 raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456  -T 28
@@ -213,8 +212,8 @@ Ref:
 
 <H2> Genomic characterization </H2>
 
-<LI> Abricate
-<LI> Abricate PlasmidFinder
+<LI> Abricate = AntiBiotics Resistance Finder.  database + extension to find antibiotics genes
+<LI> Abricate - PlasmidFinder 
 <LI> Mlsplasmids (web) 
 <LI> MOB-suite - annotate contig as chromosomal vs plasmid
 <LI> Abricate VR - find resistance genes

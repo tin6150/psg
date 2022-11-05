@@ -371,28 +371,59 @@ ibcheck -E -b         -O 10 -ddd
 
 <BR><HR><BR>
 
+<!-- nvidia case 00520909 [ref:_00D409E3I._5008Z1zbOwt:ref] -->
+<A ID="y-split">
+<A ID="ysplit">
+<A ID="split">
 <H5>Y-split cable switch port config</H5>
 
 The port on the HDR switch need to be configured to use Y-split cable, else one of the node get no connection.
-
+<BR>
+HDR Y-split cable, <BR>
+green pull tab is live usable in default (non-split) config on the switch port  <BR>
+blue  pull tab is not usable till switch port configured to SPLIT_MODE  <BR>
+  <BR>
 
 https://docs.nvidia.com/networking/display/MFTv421/Using+mlxconfig#Usingmlxconfig-splitcableUsingmlxconfigtoSplitaPortinaRemotelyManagedSwitch
+
+<PRE>
+# using switch lid worked, but need subnet manager active to assign lid-id to the switch
+
+ibswitches 	# scan fabric for switches and display their lid
+         	# lid 0 seems like default unconfigured lid that doesn't work
+
+mlxconfig -d lid-812 set SPLIT_MODE=1     # lid-812 as example , mlxconfig will prompt for confirmation
+    flint -d lid-812 swreset              # reboot switch, no password required! 
+
+</PRE>
+
+<PRE>
+
+other things to try:
 
 sudo mst start
 # which create /dev/mst device path
 
-
 # set (switch?) to suport SPLIT_MODE:
 # but my dev is for the local CX6 .... this didn't work:
-sudo mlxconfig -d /dev/mst/mt4123_pciconf0 set SPLIT_MODE=1
-
 
 # query for current settings:
-sudo mlxconfig -d /dev/mst/mt4123_pciconf0 q  | grep -i split
+sudo mlxconfig -d /dev/mst/mt4123_pciconf0 q | grep -i SPLIT_MODE     # q=query, but split_mode is on the swithc, not HBA
+
+# if /dev/mst/ has device for the switch, then in theory should be able to do:
+sudo mlxconfig -d /dev/mst/ q | grep -i SPLIT_MODE=1
+
+
 
 # additional steps to setup each port to have split mode, sub-port.  eg, from x/y to x/y/1 and x/y/2
 ...
 
+</PRE>
+
+
+configuring split port on managed switch (one with RJ45 serial console)
+<BR>
+MLNX=OS ...
 
 <H1>IBoIP</H1>
 
