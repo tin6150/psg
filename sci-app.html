@@ -145,12 +145,16 @@ mb>  TBD
 </PRE>
 <LI> RevBayes
 <LI> ExaBayes
+
 <LI> PAUP*
+Ref: <A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
+
 <PRE>
 paup      primate-mtDNA.nex # can invoke paup and load/execute nexus file as cli arg
 paup> exe primate-mtDNA.nex # to load file, it is "exe" cuz nexus file can contain command as to what to do.
 paup> log file=paup_primates.log
-paup> hsearch                     # perform heuristic search, fast
+paup> hsearch                     # perform heuristic search, fast, 
+paup> set maxtrees=1000 increase=no; hsearch addseq=random nreps=10 nchuck=100 chuckscore=1; # parsimony rachet  
 paup> alltrees                    # perform parsimony search, slow
 paup> showtrees all               # AllTree only retain (2) trees, show them
 paup> showtrees 1
@@ -163,10 +167,41 @@ paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex interle
 # header/name for each seq in MSA need to have same num of chars?  
 # else it remove chars from seq and err in processing the alignment
 paup> exe paup_ggqrs9.nex
+
+paup> SaveTrees  # store tree(s) to file
+paup> SaveTrees / format=Newick brLens=yes trees=firstOnly file=anim66.tree ; # figtree can render Newick 
+
+paup> GetTrees   # load trees inside .nex file
+
+paup> desc # describeTree 
+
+Note: tree scores are given in -ve log-likelihood, ie -ln(L).
+
+settings for:
+pset  parsimony
+dset  distance
+lset  likelihood 
+
+paup> GammaPlot 	# display gamma distribution plot in ascii terminal
+
 </PRE>
-<!-- toNexus didnt produce loadable/exe-able file, error, see devNotes.paup.md -->
-Ref: <A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
-<BR><BR>
+
+Paup ML search for tree - <A HREF="https://phylosolutions.com/paup-tutorial/">Tutorial</A>
+
+<PRE>
+paup> set crit=l   # set criterion=likelihood;
+paup> automodel 
+paup> hsearch		# single core, start ~2:30
+
+lset fixall ?
+
+paup> lset estall; 	# EstAllParams' specified; all model parameters will be estimated
+paup> runraxml; 	# could invoke raxmlHPC via shell to do ml tree generation
+			#  /usr/bin/raxmlHPC-PTHREADS-AVX -s /tmp/paup.XXQAhsCT/paupdata.txt -m GTRCAT -c 1 -V --HKY85 -T 2 -n paup -f d -N 1 -p 127526724
+paup> lscores;
+
+</PRE>
+
 
 <LI> BEAST (v1 vs v2)  <BR>
 <PRE>
@@ -1159,9 +1194,9 @@ sequences lined up horizontally.  simply columns?
 
 CDS = Coding Sequence  (exclude 5' and 3' UTR), include introns?
 
-UTR - UnTraslated Region
+UTR = UnTraslated Region
 
-
+TBR = tree-bisection-reconnection, a tree branch-swapping algorithm
 
 
 </PRE>
