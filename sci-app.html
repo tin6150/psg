@@ -158,7 +158,10 @@ paup> showtree 2 / taxLabels=truncate semiGraph=yes userBrLens=yes showTaxNum=ye
 #                / indicate options , cmds and options arent case sensitive
 
 paup> toNexus ?
-paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex 
+paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex interleaved=yes
+# MSA need to have interleaved=yes even when seq are continuous.
+# header/name for each seq in MSA need to have same num of chars?  
+# else it remove chars from seq and err in processing the alignment
 paup> exe paup_ggqrs9.nex
 </PRE>
 <!-- toNexus didnt produce loadable/exe-able file, error, see devNotes.paup.md -->
@@ -249,9 +252,11 @@ prokka --outdir PROKKA  --prefix genome_rabbit_R21 --centre _pilon --compliant -
 <H2> SNP </H2>
 
 <LI> snp-sites  <BR>
+
+<PRE>
 snp-sites -p  -o rabbit_K1_R21.phy core_gene_alignment.aln   <BR>
 input:   MSA alignment eg core_gene_alignment.aln from roary <BR>
-output:  phy  - phylip file, no gaps?  used by RAxML <BR>
+output:  phy  - phylip file, may have no gaps as -.  eg used as input by RAxML <BR>
 
 Usage: snp-sites [-mvph] [-o output_filename] {file}
 This program finds snp sites from a multi fasta alignment file.
@@ -265,6 +270,7 @@ This program finds snp sites from a multi fasta alignment file.
  {file} input alignment file which can optionally be gzipped
 
 snp-sites -cb -o outputfile.aln   inputfile.aln.gz
+</PRE>
 
 
 <LI> snippy - rapid haploid variant calling and core genome alignment <BR>
