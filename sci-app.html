@@ -140,9 +140,16 @@ MUGSY
 <H2>Phylogenetic Tree</H2>
 
 <LI> MrBayes (+ Beagle gpu lib)
+
+<A HREF="https://isu-molphyl.github.io/EEOB563/computer_labs/lab5/MrBayes.html">EEOB563 tutorial on MrBayes</A>
 <PRE>
-mb>  TBD
+mb> log start filename=mblog.txt
+mb> execute mb_anim66.nex		# didnt like .nex from paup :-\
+mb> lset nst=6 rates=gamma
+mb> prset shapper=exponential(0.05)	# setting priors
+mb> showmodel
 </PRE>
+
 <LI> RevBayes
 <LI> ExaBayes
 
