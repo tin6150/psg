@@ -671,7 +671,8 @@ It is spelled exactly as NA , both caps.
 > bar=na
 Error: object 'na' not found
 
-• is.na(): test if variable is NA
+•  is.na():   test if variable is NA
+• !is.na():   use this to check NOT NA.  ## is.nan() check for Not A Number, not same thing as missing value!
 
 each type of atomic vector has its own missing value:
 NA		# logical 
@@ -805,6 +806,9 @@ testing = readxl::read_excel(
 
 # drop rows with missing values
 df %>% drop_na( colName ) 			# evaluate colName, if NA, drop such row
+
+df %>% filter( !is.na( colName ) )		# there is no is.nna(), so negate is.na()
+df %>% filter(  is.na( colName ) )		# this pick rows where colName is NA
 
 # filter (keep/grep) rows meeting some logical comparisons, eg within a given date range
 df %>% 
@@ -1611,6 +1615,9 @@ flights %>% left_join( airlines, by="carrier" )
 # in R base, equiv construct using mutate():
 flights %>% mutate( name=airlines$name[ match(carrier, airlines$carrier) ] )
 
+# join where key have diff col names
+inner_join( x=leftTable, y=rightTable, by=c( "county_name" = "county ) )
+
 inner (equi) join  - think set intersection, only when row (key) is in BOTH tables
 
 outer joins (useful to think in venn diagrams):
@@ -1624,7 +1631,17 @@ inner_join(x,y)	merge( x,y )
 left_join(x,y)	merge( x,y, all.x=T )
 right_join(x,y)	merge( x,y, all.y=T )
 full_join(x,y)  merge( x,y, all.x=T, all.y=T )
+
+
+reduce_result = Reduce(function(...) left_join(..., by='county_name' ), list(df_2010,df_2011,df_2012))
+# Reduce() take a list of data, and apply a fn to it one at a time
+# it is reduced coding for repetitive apply-xyz kind of function
+# the (...) is place holder for where the dataset and fn name would be applied
 </PRE>
+<!-- Reduce in wk 10, last video, and at end of join.Rmd -->
+Ref for Reduce():
+<LI><A HREF="https://stackoverflow.com/questions/28545688/understand-the-reduce-function">SO</A>
+<LI><A HREF="https://www.rdocumentation.org/packages/base/versions/3.4.1/topics/funprog">R doc</A>
 
 
 <H3>Creating sample data for testing</H3>
@@ -1712,9 +1729,19 @@ testing$pos_tests = c(52,61,89)
 
 </PRE>
 
-rbind and cbind... use carefully to add rows and columns to df:
+rbind and cbind... use carefully to add rows and columns to df.  <BR>
+rbind = row bind = add row     <BR>
+cbind = col bind = add column  <BR>
+
+Remember, DF is concat of column vector.  rbind add rows to the end.  <BR>
+dplyr's version of row bind is bind_rows(), which can handle dataset with diff num of cols.  <BR>
 
 <PRE>
+
+rbind( existingVec, newRow )
+rbind( existingDF,  newRow )
+rbind( existingDF,  newRow1, newRow2 )
+
 #add a row using rbind()
 #create list that includes an element for each column - using a list is important since there 
 #are data of different types in the data frame
@@ -1939,6 +1966,12 @@ col.names( df_steps ) = c(new_name1, new_name2)		# PHW251 wk 5 reader page 18
 # Code with and without pipe operator, note placement of ~ operator: 
             dataframe %>% rename_with( ~ tolower( gsub(" ","_", .x, fixed=TRUE) ))
 rename_with(dataframe,                 ~ tolower( gsub(" ","_", .x, fixed=TRUE) ))
+
+# use of %>% inside a function parameter
+# rename_all is still just operating on the colunm names
+oshpd_payers = fread("data/inpatient_payer_ca.csv") %>%
+  rename_all(. %>% tolower %>% gsub(" ", "_", .) %>% gsub("/", "_", .))
+
 
 </PRE>
 
@@ -2934,6 +2967,34 @@ ggplot(data=std_gg3,aes(group=disease_f)) +
 
 </PRE>
 
+<A NAME="plotly"></A>
+<A NAME="plot_ly"></A>
+<H5>plot_ly</H5>
+
+Example from PHW251 week 11.
+<A HREF="https://github.com/PHW290/PHW251_Fall2022/blob/main/weekly%20material/week_11/Advanced%20Markdown%20Slides.Rmd">Advanced Markdown Slides.Rmd</A>
+Other interesting examples in the 
+<A HREF="https://github.com/PHW290/PHW251_Fall2022/tree/main/weekly%20material/week_11">week_11</A> dir.
+
+<PRE>
+library(pacman)
+p_load(plotly)
+covid_df = read_csv("https://data.chhs.ca.gov/dataset/f333528b-4d38-4814-bebb-12db1f10f535/resource/046cdd2b-31e5-4d34-9ed3-b48cdbc4be7a/download/covid19cases_test.csv") %>%
+  filter(area_type == "State") %>%
+  mutate(case_roll = frollsum(cases, 7, hasNA = T)/7,
+         test_roll = frollsum(total_tests, 7, hasNA = T)/7
+         )
+
+fig1 = plot_ly(data = covid_df) %>%
+  add_trace(x = ~date, y = ~cases, type = 'bar', name = 'Cases per day',
+                         marker = list(color = 'rgb(187, 216, 228)'),
+                         hoverinfo = "text",
+                         text = ~paste(round(cases, 0), ' cases')) %>%
+             ) %>%
+  layout(legend = list(x = 0.1, y = 0.9))
+
+fig1
+</PRE>
 
 <!--  #moveBegin from line 98-1579 2022.0703 -->
 <A NAME="EpiStat"></A>
@@ -4511,6 +4572,35 @@ chisq.test(two_way, correct = F) # correct = F means not using Yates' correction
 
 <!-- #MoveEnd -->
 
+<A NAME="color"></A>
+<A NAME="color_names"></A>
+<H1>color names</H1>
+
+Named colors, cuz not everyone want to be digital artist and render hex code in their brain :P <BR>
+
+Maybe only recognized in R?  would be nice if it works for Python and/or HTML as well.  <BR>
+Hopefully not library specific, eg plot_ly.  <BR>
+
+<PRE>
+
+color name	compatibility	approx hex code
+-----------	-------------	---------------
+red		r,p?,h?		0xFF0000 ?
+green		r,p?,h?		0x00FF00 ?
+blue		r,p?,h?		0x0000ff ?
+
+darkorange	r
+darkcyan	r
+darklateblue	r
+
+</PRE>
+
+Recommended color scheme for accessibility
+<UL>
+	<LI> tbd (see email from ETA meeting)</LI>
+	<LI> </LI>
+</UL>
+
 <A NAME="ascii"></A>
 <A NAME="symbols"></A>
 <A NAME="ascii_symbols"></A>
@@ -4598,13 +4688,19 @@ has an ascii table that is text based, can copy-n-paste, quite a bit of ads at t
 <UL>
   <LI><A HREF="https://rstudio.com/resources/cheatsheets/">Rstudio cheatsheets</A>
   <LI><A HREF="https://r4ds.had.co.nz/data-visualisation.html">R for Data Science</A> Free O'Reilly book</LI> (Textbook #1 for PHW251)
+  <LI><A HREF="https://bookdown.org/yihui/rmarkdown/">[The RMD Definitive Guide by Xie, Allaire, & Grolemund]</A>
+  <LI><A HREF="https://bookdown.org/yihui/rmarkdown-cookbook/">[The RMD Cookbook by Xie, Dervieux, & Riederer]</A>
+  <LI>
+
   <LI><A HREF=“http://happygitwithr.com">
 		  Happy Git with R”</A>: a user friendly introduction to Git and GitHub from R users, by Jenny Bryan. (Textbook #2 for PHW251)
   <LI><A HREF="http://r-pkgs.had.co.nz/git.html">
 		  The “Git and GitHub” chapter of R Packages</A>
 , by Hadley. 
-  <LI> <A HREF="https://github.com/PHW290/PHW251_Fall2022">PHW251 R for Public Health (Fall 2022 git repo)</A>]
+  <LI> <A HREF="https://github.com/PHW290/PHW251_Fall2022">PHW251 R for Public Health (Fall 2022 git repo)</A>
   <LI>
+  <LI> <A HREF="https://youtu.be/5Dnw46eC-0o?t=492">Stat without the Agonizing Pain</A> John Rauser keynote at Strata + Hadoop 2014.  Use computation method to stat (use "Radom Permutation Test" to create a sampling distribution under skeptics argument, compare againt result to see where it lie in the generated distribution).  I *LOVE* this youtube video!!
+  <LI> Bootstrapping... ?
 </UL>
 
 
