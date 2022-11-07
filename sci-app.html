@@ -140,17 +140,28 @@ MUGSY
 <H2>Phylogenetic Tree</H2>
 
 <LI> MrBayes (+ Beagle gpu lib)
+
+<A HREF="https://isu-molphyl.github.io/EEOB563/computer_labs/lab5/MrBayes.html">EEOB563 tutorial on MrBayes</A>
 <PRE>
-mb>  TBD
+mb> log start filename=mblog.txt
+mb> execute mb_anim66.nex		# didnt like .nex from paup :-\
+mb> lset nst=6 rates=gamma
+mb> prset shapper=exponential(0.05)	# setting priors
+mb> showmodel
 </PRE>
+
 <LI> RevBayes
 <LI> ExaBayes
+
 <LI> PAUP*
+Ref: <A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
+
 <PRE>
 paup      primate-mtDNA.nex # can invoke paup and load/execute nexus file as cli arg
 paup> exe primate-mtDNA.nex # to load file, it is "exe" cuz nexus file can contain command as to what to do.
 paup> log file=paup_primates.log
-paup> hsearch                     # perform heuristic search, fast
+paup> hsearch                     # perform heuristic search, fast, 
+paup> set maxtrees=1000 increase=no; hsearch addseq=random nreps=10 nchuck=100 chuckscore=1; # parsimony rachet  
 paup> alltrees                    # perform parsimony search, slow
 paup> showtrees all               # AllTree only retain (2) trees, show them
 paup> showtrees 1
@@ -158,19 +169,52 @@ paup> showtree 2 / taxLabels=truncate semiGraph=yes userBrLens=yes showTaxNum=ye
 #                / indicate options , cmds and options arent case sensitive
 
 paup> toNexus ?
-paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex 
+paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex interleaved=yes
+# MSA need to have interleaved=yes even when seq are continuous.
+# header/name for each seq in MSA need to have same num of chars?  
+# else it remove chars from seq and err in processing the alignment
 paup> exe paup_ggqrs9.nex
-</PRE>
-<!-- toNexus didnt produce loadable/exe-able file, error, see devNotes.paup.md -->
-<A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
-<BR><BR>
 
-<LI> BEAST (v1 and v2)  <BR>
+paup> SaveTrees  # store tree(s) to file
+paup> SaveTrees / format=Newick brLens=yes trees=firstOnly file=anim66.tree ; # figtree can render Newick 
+
+paup> GetTrees   # load trees inside .nex file
+
+paup> desc # describeTree 
+
+Note: tree scores are given in -ve log-likelihood, ie -ln(L).
+
+settings for:
+pset  parsimony
+dset  distance
+lset  likelihood 
+
+paup> GammaPlot 	# display gamma distribution plot in ascii terminal
+
+</PRE>
+
+Paup ML search for tree - <A HREF="https://phylosolutions.com/paup-tutorial/">Tutorial</A>
+
+<PRE>
+paup> set crit=l   # set criterion=likelihood;
+paup> automodel 
+paup> hsearch		# single core, start ~2:30
+
+lset fixall ?
+
+paup> lset estall; 	# EstAllParams' specified; all model parameters will be estimated
+paup> runraxml; 	# could invoke raxmlHPC via shell to do ml tree generation
+			#  /usr/bin/raxmlHPC-PTHREADS-AVX -s /tmp/paup.XXQAhsCT/paupdata.txt -m GTRCAT -c 1 -V --HKY85 -T 2 -n paup -f d -N 1 -p 127526724
+paup> lscores;
+
+</PRE>
+
+
+<LI> BEAST (v1 vs v2)  <BR>
+<PRE>
      java -cp beast.jar dr.app.beast.BeastMain -seed 2020 -beagle_double -beagle_gpu -save_every 1000000 -save_state travelHist.checkpoint  ../files/Protocol3/282_GISAID_sarscov2_travelHist_masked.xml
-	<BR>
      java -cp beast.jar dr.app.tools.TaxaMarkovJumpHistoryAnalyzer -taxaToProcess "hCoV-19/Brazil/SP-02/2020/EPI_ISL_413016|2020-02-28" -stateAnnotation location -burnin 100 -mrsd 2020.174
-	<BR>
-	<BR>
+</PRE>
 <LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
 <PRE>
 raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456  -T 28
@@ -213,8 +257,8 @@ Ref:
 
 <H2> Genomic characterization </H2>
 
-<LI> Abricate
-<LI> Abricate PlasmidFinder
+<LI> Abricate = AntiBiotics Resistance Finder.  database + extension to find antibiotics genes
+<LI> Abricate - PlasmidFinder 
 <LI> Mlsplasmids (web) 
 <LI> MOB-suite - annotate contig as chromosomal vs plasmid
 <LI> Abricate VR - find resistance genes
@@ -250,9 +294,11 @@ prokka --outdir PROKKA  --prefix genome_rabbit_R21 --centre _pilon --compliant -
 <H2> SNP </H2>
 
 <LI> snp-sites  <BR>
+
+<PRE>
 snp-sites -p  -o rabbit_K1_R21.phy core_gene_alignment.aln   <BR>
 input:   MSA alignment eg core_gene_alignment.aln from roary <BR>
-output:  phy  - phylip file, no gaps?  used by RAxML <BR>
+output:  phy  - phylip file, may have no gaps as -.  eg used as input by RAxML <BR>
 
 Usage: snp-sites [-mvph] [-o output_filename] {file}
 This program finds snp sites from a multi fasta alignment file.
@@ -266,6 +312,7 @@ This program finds snp sites from a multi fasta alignment file.
  {file} input alignment file which can optionally be gzipped
 
 snp-sites -cb -o outputfile.aln   inputfile.aln.gz
+</PRE>
 
 
 <LI> snippy - rapid haploid variant calling and core genome alignment <BR>
@@ -1154,9 +1201,9 @@ sequences lined up horizontally.  simply columns?
 
 CDS = Coding Sequence  (exclude 5' and 3' UTR), include introns?
 
-UTR - UnTraslated Region
+UTR = UnTraslated Region
 
-
+TBR = tree-bisection-reconnection, a tree branch-swapping algorithm
 
 
 </PRE>
