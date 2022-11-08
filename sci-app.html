@@ -176,9 +176,10 @@ paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex interle
 paup> exe paup_ggqrs9.nex
 
 paup> SaveTrees  # store tree(s) to file
-paup> SaveTrees / format=Newick brLens=yes trees=firstOnly file=anim66.tree ; # figtree can render Newick 
+paup> SaveTrees / format=Nexus brLens=yes trees=all file=anim66_paup_ml1.nex  # .nex is tree only, score in comment section, no seq data, figtree ok.  PREFER
+paup> SaveTrees / format=Newick brLens=yes trees=firstOnly file=anim66.tree ; # figtree can render Newick , but tab in taxa name trip it
 
-paup> GetTrees   # load trees inside .nex file
+paup> GetTrees file=anim66_paup_ml1.nex  # load trees from NEXUS or Newick format 
 
 paup> desc # describeTree 
 
