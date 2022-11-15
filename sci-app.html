@@ -211,11 +211,29 @@ paup> lscores;
 </PRE>
 
 
-<LI> BEAST (v1 vs v2)  <BR>
+<LI> BEAST (v1)  <BR>
+<!-- beast 1 cmd from sars-cov-2 paper, cmd ran on domingo 
+the first jar seems to be present in debian beast-mcmc, but not the second one...
+also see run_prisa_pipeline4_beast1.sh
+-->
 <PRE>
      java -cp beast.jar dr.app.beast.BeastMain -seed 2020 -beagle_double -beagle_gpu -save_every 1000000 -save_state travelHist.checkpoint  ../files/Protocol3/282_GISAID_sarscov2_travelHist_masked.xml
      java -cp beast.jar dr.app.tools.TaxaMarkovJumpHistoryAnalyzer -taxaToProcess "hCoV-19/Brazil/SP-02/2020/EPI_ISL_413016|2020-02-28" -stateAnnotation location -burnin 100 -mrsd 2020.174
 </PRE>
+
+<LI> BEAST (v2)  <BR>
+<!-- https://github.com/tin6150/psg/blob/master/script/hpc/slurm-job-gpu-beast.sh and INC1432103) -->
+<PRE>
+ImgDir=/global/home/groups/consultsw/sl-7.x86_64/modules/beast2/2.6.4/
+
+singularity exec --nv $ImgDir/beast2.6.4-beagle.sif \
+/usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_info
+
+singularity exec --nv $ImgDir/beast2.6.4-beagle.sif \
+/usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_GPU testHKY.xml
+
+</PRE>
+
 <LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
 <PRE>
 raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456  -T 28
