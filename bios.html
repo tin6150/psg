@@ -714,10 +714,21 @@ sum -c ChangeBiosCfg --file smBiosCf.txt --reboot	# update bios config, rebootin
 
 sum -h -c ChangeBiosCfg				# get help on how to make changes to bios
 
+sum -i ipmi-n0260.savio3 -U admin -P $PASS -c UpdateBIOS --file BIOS_X12DPG-OA6-1B88_20220823_1.4_STDsp.bin  ## --reboot, just do manual ipmi cycle afterwards
+## --preserve-config option wasn't operation for SUM 2.8, so have to redo bios changes like logical processor after the update :-\
+## very annoyingly, the xml from the GetBiosConfig has mac and IP in it
+## there are no commands to change specific setting
+## so have to manually edit the xml file for each machine before uploading them to bios to apply the changes.
+## SMC, please fix this anoying tedious mess!
+
 sum -c LoadDefaultBiosCfg		
 sum -c GetDmiInfo
 
 </PRE>
+
+<!--
+/global/home/groups/scs/bin/smc/sum -i ipmi-n0260.savio3 -U admin -P $PASS -c UpdateBIOS --file BIOS_X12DPG-OA6-1B88_20220823_1.4_STDsp.bin  ## --reboot, just do manual ipmi cycle afterwards
+-->
 
 Select GetCurrentBiosCfg entries 
 

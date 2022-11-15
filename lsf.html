@@ -636,10 +636,14 @@ Tracking RAM usage in addition to CPU (htc partition with per-core scheduling).
 <PRE>
 sacctmgr create qos       name=tintest_htc4_normal     priority=10      preempt=savio_lowprio preemptmode=cluster UsageFactor=1.000000 GrpTRES='cpu=224,Mem=2060480' MinTRES='cpu=1'
 
+# change exising QoS:
 sacctmgr modify qos where name=tintest_htc4_normal set priority=1000000 preempt=savio_lowprio preemptmode=cluster UsageFactor=1.000000 GrpTRES='cpu=224,Mem=2060480' MinTRES='cpu=1'
 sacctmgr remove qos where name=tintest_htc4_normal
 
 the Mem= should have value that is multiple of nodes * RealMemory clause in slurm.conf.  Value in MB.
+
+to remove any specific TRES from having a Min req, set its value to -1.  eg:
+sacctmgr modify qos where name=gpu3_normal set MinTRES='cpu=-1'
 
 </PRE>
 
@@ -667,8 +671,6 @@ sacctmgr add qos titanC_2080ti3_normal Preempt=savio_lowprio GrpTRES="cpu=32,gre
 
 sacctmgr modify user tin set qos+=titanC_2080ti3_normal
 
-how to change MinTRES?  this dont work:
-sacctmgr modify qos titan_2080ti3_normal  set MinTRES="cpu=2"
 
 test with (repeat to see if land elsewhere, may have to create congestion):
 srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal -n 2 --gres=gpu:GTX2080TI:1 --time=00:30:00 bash
