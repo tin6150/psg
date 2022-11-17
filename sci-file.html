@@ -14,7 +14,7 @@ vim: syntax=html tabstop=8 noexpandtab nosmarttab noautoindent nosmartindent
   <META NAME="Robots" CONTENT="all"/>
   <META NAME="Author" CONTENT="Tin Ho"/>
 
-  <title>Pocket Survival Guide - SCI</title>
+  <title>Pocket Survival Guide - SCI-FI</title>
 </head>
 
 <body> 
@@ -392,8 +392,15 @@ MrBayes: Format datatype=DNA        gap=- missing=? matchchar=.;
 
 does not like quote around 'taxaname' 
 s/'//g
+does not like tab, which paup adds between taxa and seq data
+s/\t/\ /g
+may need actual tab char, looking like ^I in list mode.
+ALSO, the header and footer section have indentation, replace tab with space seems ok, _ will not work there, so hand edit a few lines.
+MrBayes, the nchar= has to be exact.  unlike Paup, it can't be smaller (complain when it read extra stuff that it does not expect)
+Dimensions ntax=65 nchar=217746;
 
-MrBayes max allowed length of a token is 99990.  Not sure if it just need multi line or can't handle seq > 99990 chars?
+
+MrBayes handle max line length of 99_990, so if seq is longer than that, must use interleave format.
 </PRE>
 
 nexus file sketch, eg with tree at the end:
