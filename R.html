@@ -231,7 +231,7 @@ total_na_count = sum( sapply( df, is.na ) )	# but no easy way to do per column c
 careful with %>% , especially when chaining... 
 
 <PRE>
-%>% is awsome, like unix pipe, but sequentially chaining them
+%>% is awsome, like unix pipe, but sequentially chaining them have to pay attention to nuances.
 if involving the same variable, may not be updated...
 don't specify the df (table) name again, 
 this below is BAD!
@@ -806,6 +806,8 @@ testing = readxl::read_excel(
 
 # drop rows with missing values
 df %>% drop_na( colName ) 			# evaluate colName, if NA, drop such row
+df %>% drop_na( c(col1,col2) ) 			# use c() to give a list of column names
+df %>% drop_na( ) 				# if no colName specified, evaluate ALL cols, if NA in any, drop such row
 
 df %>% filter( !is.na( colName ) )		# there is no is.nna(), so negate is.na()
 df %>% filter(  is.na( colName ) )		# this pick rows where colName is NA
@@ -1616,7 +1618,7 @@ flights %>% left_join( airlines, by="carrier" )
 flights %>% mutate( name=airlines$name[ match(carrier, airlines$carrier) ] )
 
 # join where key have diff col names
-inner_join( x=leftTable, y=rightTable, by=c( "county_name" = "county ) )
+inner_join( x=leftTable, y=rightTable, by=c( "county_name" = "county" ) )
 
 inner (equi) join  - think set intersection, only when row (key) is in BOTH tables
 
@@ -1961,17 +1963,24 @@ ids_rename = rename(ids, disease=Dis, county=Cty) 	# rename multiple columns
 # base R
 col.names( df_steps ) = c(new_name1, new_name2)		# PHW251 wk 5 reader page 18
 
-#rename all - this line will rename all variables as lower and replace spaces with _
-#the .x is used as a placeholder for column names since this will be applied to all columns
+
 # Code with and without pipe operator, note placement of ~ operator: 
             dataframe %>% rename_with( ~ tolower( gsub(" ","_", .x, fixed=TRUE) ))
 rename_with(dataframe,                 ~ tolower( gsub(" ","_", .x, fixed=TRUE) ))
+# the .x is used as a placeholder for column names since this will be applied to all columns
+## does above replace the row values?
 
-# use of %>% inside a function parameter
+# rename all - this line will rename all variables (column names) 
+#   - with lowercase names
+#   - replace spaces with _
+#   - replace slash  with _
+# chained use of %>% inside a function parameter [wk10 join]
 # rename_all is still just operating on the colunm names
 oshpd_payers = fread("data/inpatient_payer_ca.csv") %>%
-  rename_all(. %>% tolower %>% gsub(" ", "_", .) %>% gsub("/", "_", .))
+  rename_all(  . %>% tolower %>% gsub(" ", "_", .) %>% gsub("/", "_", .)  )
 
+# to manipulate the cell values inside a column, use str_replace_all(), tolower(), 
+# perhaps along with mutate() , or simply reassign df$col = tolower( df$col )
 
 </PRE>
 
