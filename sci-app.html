@@ -9,7 +9,7 @@
   <META NAME="Robots" CONTENT="all"/>
   <META NAME="Author" CONTENT="Tin Ho"/>
 
-  <title>Pocket Survival Guide - SCI</title>
+  <title>Pocket Survival Guide - SCI Apps</title>
 </head>
 
 <body> 
@@ -141,14 +141,33 @@ MUGSY
 
 <LI> MrBayes (+ Beagle gpu lib)
 
+<A HREF="https://github.com/NBISweden/MrBayes/blob/develop/doc/manual/Manual_MrBayes_v3.2.pdf">Mr Bayes Manual</A> (pdf at their github).  <BR>
 <A HREF="https://isu-molphyl.github.io/EEOB563/computer_labs/lab5/MrBayes.html">EEOB563 tutorial on MrBayes</A>
+
 <PRE>
 mb> log start filename=mblog.txt
-mb> execute mb_anim66.nex		# didnt like .nex from paup :-\
-mb> lset nst=6 rates=gamma
-mb> prset shapper=exponential(0.05)	# setting priors
+mb> execute mb_anim66.nex		# didnt like .nex from paup, need some slight tweaks, see sci-file.html
+mb> lset nst=6 rates=gamma		# lset = likelihood model setting
+mb> prset shapepr=exponential(0.05)	# setting priors
 mb> showmodel
+mb> mcmcp ...                                     	# mcmcp = make settings, dont actually start
+mb> mcmcp ngen=300000 printfreq=100 samplefreq=100	# ? ~ chain lenght = 300k, for kicking tire maybe better ngen=20k
+mb> mcmcp nruns=2 nchains=4 savebrlens=yes		# MB def really: Metropolis-coupled MCMC 2 idp anal, 4 chains each
+mb> mcmcp diagnfreq=1000 diagnstat=maxstddev		# converge diag settings (these are def)
+mb> mcmcp filename=MB_anim66itv_uni			# filename prefix, _uni for uniform mcmc ??
+mb> mcmc						# actually start the analysis, only use 1 cpu
+mb> 
+mb> sumt						# save tree / show cladogram
+mb> sump 						# 
+mb> sump filename=
+mb> 
+mb> ssp							# stepping-stone sampling setting
+mb> ssp	...						# stepping-stone sampling setting
+mb> ss 							# atually start the stepping-stone analysis
+mb> 
 </PRE>
+
+MrBayes used single CPU core.  MrBayes MPI vs Beagle...
 
 <LI> RevBayes
 <LI> ExaBayes
@@ -173,6 +192,7 @@ paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex interle
 # MSA need to have interleaved=yes even when seq are continuous.
 # header/name for each seq in MSA need to have same num of chars?  
 # else it remove chars from seq and err in processing the alignment
+# or issue was that "header" need to be exactly 10 chars long? 
 paup> exe paup_ggqrs9.nex
 
 paup> SaveTrees  # store tree(s) to file
@@ -191,6 +211,12 @@ dset  distance
 lset  likelihood 
 
 paup> GammaPlot 	# display gamma distribution plot in ascii terminal
+
+paup> export / format=Nexus file=paup_anim66itv_tax.nex charsPerLine=100 nexusBlocks=taxaChar interleaved=yes
+paup> export / format=Nexus file=paup_anim66itv.nex     charsPerLine=100 nexusBlocks=data     interleaved=yes
+
+# essentially, the taxa "block" has an extra list of all the taxa/name from .phy header.
+# the data "block" format is thus marginally shorter.  used this for MrBayes 
 
 </PRE>
 
@@ -371,7 +397,7 @@ squizz -A core_gene_alignment_ggqrs9.nex   # check/validate named file
 
 <BR><HR><BR>
 
-<H1>Life Science Apps</H1>
+<H1>Data Wrangling Apps</H1>
 
 
 <H2>Pipeline tool</H2>
