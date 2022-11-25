@@ -1,0 +1,65 @@
+----
+title:    "Sn50 random notes on R"
+subtitle: "many while taking stat or epi classes"
+date:     '2022'
+output:   html_document
+----
+
+
+This is my notebook/scratchpad for R notes.
+The basic stuff was in 
+[psg/R.html](https://tin6150.github.io/psg/R.html)
+but as class uses more advance constructs, and the graphics, 
+it is just easier to have Rmd to play with the code in R studio as well.
+Knit to html and the result is still visible in the web :)
+
+
+
+```{r load library, message = FALSE, warning = FALSE}
+library(pacman)
+p_load(DT)
+
+```
+
+This example from wk 13 of PHW251 on epicurves by Manasa Susarla:
+[PHW251 R for Public Health--Fall 2022 git repo](https://github.com/PHW290/PHW251_Fall2022)
+
+
+```{r chunk-name-here, include=T, echo=T}
+
+# author: "Manasa Susarla"
+# epidemic curvee (wk 13 of PHW251 EpidemicCurves.Rmd)
+
+library(tidyverse)
+library(magrittr)
+library(pacman)
+pacman::p_load(rio)
+pacman::p_load(incidence2)
+
+Ebola_data <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.xlsx")
+head(Ebola_data)
+
+##First make sure that your date column is in Date Format
+Ebola_data$date_onset <- as.Date(Ebola_data$date_onset)
+
+#Step 1: Create an incidence object
+epi_day <- incidence(x = Ebola_data, date_index = date_onset, interval = "day")
+
+#Step 2: Plot
+plot(epi_day)
+
+
+# so much simpler than ggplot !
+
+```
+
+
+xref:
+
+
+- [PHW251 R for Public Health--Fall 2022 git repo](https://github.com/PHW290/PHW251_Fall2022)
+- [PHW251 project hostec by Github Pages](https://pages.github.com/) and is accessible at :
+[https://tin6150.github.io/phw251_group_z/milestone4_groupZ.html](https://tin6150.github.io/phw251_group_z/milestone4_groupZ.html) and
+[https://tin6150.github.io/phw251_group_z/milestone5_groupZ.html](https://tin6150.github.io/phw251_group_z/milestone5_groupZ.html)
+
+- <A HREF="https://www.rstudio.com/resources/cheatsheets/">list of R cheatsheets</A>

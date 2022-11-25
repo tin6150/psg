@@ -1,6 +1,13 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+	<!-- ========================================
+		========================================
+	      future  class note should go to Rnotes.Rmd and knit to Rnotes.html
+		========================================
+		========================================
+	-->
 <head>
+
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet" href="psg.css" type="text/css">
   <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
@@ -54,6 +61,14 @@
 
 
 
+	<!-- 	========================================
+		========================================
+		========================================
+	      	future  class notes should go to Rnote.Rmd and knit to Rnotes.html
+		========================================
+		========================================
+		========================================
+	-->
 
 <A NAME="101"></A>
 <H1>R 101</H1>
@@ -1162,6 +1177,7 @@ So, to match a literal | in a string, need to escape it (in R) with forward slas
 for	use
 |	/|
 /	//
+.       \\.      # literal period
 
 [[:punct:]]
 [[:alpha:]]
@@ -2904,6 +2920,10 @@ SNOW use PSOCK, easier to deal with than MPI.
 <H2>Kabble</H2>
 
 Kable provide nice formating of tables for Rmd, png, LaTeX.  Part of knitr.
+It can output to HTML as well, but for that DT (DataTable, also avail in Python), or
+formattable maybe better choice.
+(wk 11 of PHW251).
+
 <BR>
 Material from PHW251 week 7
 
@@ -2948,6 +2968,23 @@ knitr::include_graphics('data/question_1_table.png')
 
 </PRE>
 
+<H2>DT - DataTable</H2>
+
+
+
+(PHW251 wk 11)
+
+<PRE>
+library(DT)             # this one is the HTML interactive table 
+#xx library(data.table) # this one is an enhanced/replacement for R's native data.frame
+
+
+
+
+</PRE>
+
+<A HREF="https://res.cloudinary.com/dyd911kmh/image/upload/v1653830846/Marketing/Blog/data_table_cheat_sheet.pdf">DT cheatsheet from DataCamp</A> (the one that replaces data.frame)
+
 <H2>ggplot</H2>
 
 <A HREF="https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf">ggplot cheatsheet</A>
@@ -2980,6 +3017,8 @@ ggplot(data=std_gg3,aes(group=disease_f)) +
 <A NAME="plot_ly"></A>
 <H5>plot_ly</H5>
 
+plotly creates interactive graphs in HTML format, good when result is posted to the web. <BR>
+
 Example from PHW251 week 11.
 <A HREF="https://github.com/PHW290/PHW251_Fall2022/blob/main/weekly%20material/week_11/Advanced%20Markdown%20Slides.Rmd">Advanced Markdown Slides.Rmd</A>
 Other interesting examples in the 
@@ -2998,11 +3037,99 @@ fig1 = plot_ly(data = covid_df) %>%
   add_trace(x = ~date, y = ~cases, type = 'bar', name = 'Cases per day',
                          marker = list(color = 'rgb(187, 216, 228)'),
                          hoverinfo = "text",
-                         text = ~paste(round(cases, 0), ' cases')) %>%
-             ) %>%
-  layout(legend = list(x = 0.1, y = 0.9))
+                         text = ~paste(round(cases, 0), ' cases')         ) %>%
+  layout( legend = list(x = 0.1, y = 0.9) )
 
 fig1
+
+
+
+
+fig3 = plot_ly( data = chronic_focus_counties ,
+            text = ~paste(County, round(pct, 1), "%"     )  # add_trace overwrite this :-\
+            ) %>%
+    add_trace(
+            x = ~County,
+            y = ~pct,
+            name = 'Chronic Mortality Rates by Counties',
+            marker = list(color = ~ctyColor),
+            hoverinfo = "text",
+            text = ~paste(round(pct, 1), "%" ),
+            type = 'bar') %>%
+   layout(
+            title = "Chronic Mortality Rates For California's Rural Counties",
+            yaxis = list( title="% Mortality Rate"),
+            xaxis = list( title="County", categoryorder='total descending' )
+         )
+	# Arrange barchars by 'total descending' height (PHW251 prj)
+	# https://plotly.com/r/reference/layout/xaxis/#layout-xaxis-categoryorder
+
+fig3
+
+</PRE>
+
+<H5>incidence2</H5>
+
+ggplot is the grand-mommy of all plots, lots of bells and whishels, but also need lots of coding.
+
+several packages provide quick table and graphing need for the standard case, just plug in the data, and outcome the results, very little code needed.  eg:
+<LI> incidence2
+<LI> incidence  (this one is covered in "The Epidemiology Handbook")
+
+<PRE>
+eg epidemic curvee (wk 13 of PHW251 EpidemicCurves.Rmd)
+
+Ebola_data <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.xlsx")
+library(magrittr)
+library(pacman)
+pacman::p_load(rio)
+pacman::p_load(incidence2)
+
+Ebola_data$date_onset <- as.Date(Ebola_data$date_onset)
+epi_day <- incidence(x = Ebola_data, date_index = date_onset, interval = "day")
+plot(epi_day)			  
+
+</PRE>
+
+<A NAME="purrr"></A>
+<H1>purrr</H1>
+
+The purrr package is said way for R to functional programming.  It is part of tidyverse.  
+the map_* class of function should corresponds to map-reduce-gather?
+For now, I am just seeing  it to repeatedly apply code repeatedly in a stateless manner to steps that are repetitions.
+It is often said map* replaces for-loops and is easier to read, structure being more consistent.
+
+ref: 
+<LI> <A HREF="https://purrr.tidyverse.org/">purrr doc at tidyverse</A>
+<LI> <A HREF="https://r4ds.had.co.nz/iteration.html#the-map-functions">Ch 21 of R for Data Science</A>
+<LI> <A HREF="https://www.youtube.com/watch?v=bzUmK0Y07ck">YT video on purrr</A>
+
+<PRE>
+library(purrr)
+
+map() result in a list
+map_lgl() results in logical vector
+map_dbl() results in a double vector
+map_df()  results in a data frame
+
+note the use of ~ tilde 
+.x is stand-in for data
+
+(eg from  wk 13 of PHW251 purrr_example.Rmd)
+
+
+site_file     <- "data/test_sites.xlsx"
+import_sheets <- c("site_A", "site_B", "site_C")
+
+all_sites4 <- map_df(excel_sheets("data/test_sites.xlsx"),
+                     ~read_excel(site_file, sheet = .x) %>%
+                       select(uniqueid, age, gender, payer ) %>%
+                       mutate(age_cat = case_when(age %in% c(0:24) ~ "< 25",
+                                                  age %in% c(25:49) ~ "25-49",
+                                                  age %in% c(50:150) ~ "> 50"))
+)
+
+all_sites4 # is a df
 </PRE>
 
 <!--  #moveBegin from line 98-1579 2022.0703 -->
@@ -3010,6 +3137,14 @@ fig1
 <A NAME="epistat"></A>
 <H1>EpiStat </H1>
 Stat for Epidemiologist
+<BR>
+
+Good resources: 
+<LI><A HREF="https://argoshare.is.ed.ac.uk/healthyr_book/">R for Health Data Science</A>
+is an online book by Ewen Harrison and Riinu Pius. It's available online in its entirety, for free
+<LI><A HREF="https://epirhandbook.com/en/index.html">The Epidemiologist R Handbook</A>
+is by Neale Batra et al. and is also available on the web for free.
+
 
 <PRE>
 library("EpiStat")
@@ -4710,6 +4845,8 @@ has an ascii table that is text based, can copy-n-paste, quite a bit of ads at t
   <LI>
   <LI> <A HREF="https://youtu.be/5Dnw46eC-0o?t=492">Stat without the Agonizing Pain</A> John Rauser keynote at Strata + Hadoop 2014.  Use computation method to stat (use "Radom Permutation Test" to create a sampling distribution under skeptics argument, compare againt result to see where it lie in the generated distribution).  I *LOVE* this youtube video!!
   <LI> Bootstrapping... ?
+  <LI>
+  <LI> <A HREF="Rnote.html">html from knitting my Rnote.Rmd</A>
 </UL>
 
 
