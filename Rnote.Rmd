@@ -13,9 +13,9 @@ but as class uses more advance constructs, and the graphics,
 it is just easier to have Rmd to play with the code in R studio as well.
 Knit to html and the result is still visible in the web :)
 
+(gis class may need a Rgis.Rmd, dont put those here)
 
-
-```{r load library, message = FALSE, warning = FALSE}
+```{r load library, message = FALSE, warning = FALSE, include=F, echo=F}
 library(pacman)
 p_load(DT)
 
@@ -24,8 +24,34 @@ p_load(DT)
 This example from wk 13 of PHW251 on epicurves by Manasa Susarla:
 [PHW251 R for Public Health--Fall 2022 git repo](https://github.com/PHW290/PHW251_Fall2022)
 
+~~~~
 
-```{r chunk-name-here, include=T, echo=T}
+easystats produces nice plots and way less coding that ggplot!
+
+./weekly material/week_13/epi_R_handbook/epi_R_handbook.Rmd
+
+also discussed in
+<A HREF="https://epirhandbook.com/en/index.html">The Epidemiologist R Handbook</A>
+is by Neale Batra et al. and is also available on the web for free.
+
+(covered glm - generalized linear model, for multivariate?)
+
+
+```{r chunk name here, include=T, echo=T}
+p_load(easystats)
+
+model0 %>%
+  model_parameters(exponentiate = TRUE) %>%
+  plot()
+
+model1 <- glm(outcome ~ age_cat, family = "binomial", data = linelist)
+model2 <- glm(outcome ~ age_cat + gender, family = "binomial", data = linelist)
+
+lmtest::lrtest(model1, model2)
+
+```
+
+```{r chunk name cannot repeats or knit fails, include=T, echo=T}
 
 # author: "Manasa Susarla"
 # epidemic curvee (wk 13 of PHW251 EpidemicCurves.Rmd)
@@ -53,8 +79,39 @@ plot(epi_day)
 
 ```
 
+epiR and epitools
+(wk13 PHW251 Yifan)
 
-xref:
+```{r}
+dummy=1
+
+```
+
+## TBD
+
+- incidence
+- incidence2 (wk13 PHW251)
+- tableone     # format table for journal publication, compacting, etc.
+- maybe purrr map_df() ... 
+
+
+# Rmd/Rstudio quirkyness
+
+the triple-backticks r code block.
+either don't have name in them,
+but if there is, make sure they are unique, or knit will fail.
+I suppose if not knitting then don't matter.
+
+
+# Good resources
+
+<LI><A HREF="https://argoshare.is.ed.ac.uk/healthyr_book/">R for Health Data Science</A>
+is an online book by Ewen Harrison and Riinu Pius. It's available online in its entirety, for free
+<LI><A HREF="https://epirhandbook.com/en/index.html">The Epidemiologist R Handbook</A>
+is by Neale Batra et al. and is also available on the web for free.
+
+
+# xref
 
 
 - [PHW251 R for Public Health--Fall 2022 git repo](https://github.com/PHW290/PHW251_Fall2022)
