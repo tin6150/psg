@@ -80,13 +80,33 @@ funny/ugly/stupid chars when pasting?  See
 <UL>
 <LI> RedHat you have to pay.  CentOS is free.  Beyond that, both are largely identical.  Except...
 <LI> RedHat provides commercial tech support
+
 <LI> RedHat provides a yum-security plugin that allows machine to be patched with only security update via yum (and keep the OS at the same level).   See 
 <A HREF="https://access.redhat.com/solutions/10021">Solution 10021</A>.
 <LI> CentOS does not provide this info.  updateinfo.xml.gz is empty, thus commands like <BR>
 <TT> yum updateinfo list security all</TT> <BR>
 <TT> yum updateinfo RHSA-2014:0159</TT> <BR>
-does <EM>NOT</EM> work in CentOS.  They 
+in the past, this did <EM>NOT</EM> work in CentOS.  They 
 results in a noop on CentOS machines.  Lack of action in output does NOT mean security patches aren't needed!  See <A HREF="https://www.centos.org/forums/viewtopic.php?t=59369">CentOS forum</A>
+<BR>
+But... CentOS pivot to upstream, and Fedora marking some update as security... may not be comprehensive?
+but yum-cron with security only on CentOS and Rocky would be safer than without it.
+
+<PRE>
+update /etc/yum/yum-cron*conf
+updates should be logged to /var/log/yum.log
+
+yum updateinfo list security all
+yum --security upgrade		# install only rpm that are needed to fix security issues.  *just use this*
+
+yum info-sec			# list avail security update, with description.  somehow slightly diff result list than yum --security upgrade or yum list-sec
+yum --security check-update	# a very long list, include already installed fixes.
+yum list-sec			# list rpm with sec update avail, they may or may not have been applied already.
+yum list-security		
+
+</PRE>
+
+
 <LI> Oracle Linux (is it still around?) is essentially RHEL, but support is provided from Oracle directly.  Oracle DBAs probably like it.
 <LI> Scientific Linux has 'fastbugs' and 'security' updates.   Security updates are enabled by default.  
 See <A HREF="https://www.scientificlinux.org/documentation/faq/faq-updates/">SL FAQ from Fermilab</A> and 
