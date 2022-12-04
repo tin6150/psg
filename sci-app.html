@@ -130,8 +130,14 @@ MUGSY
 
 <H2>Sequence Alignment and Tree Viewer</H2>
 
-<LI> Aliview (alignment editor, GUI)
-<LI> Seaview (Unix/X)
+<LI> belvu (Linux X), has wrap long line for printing.  custom coloring scheme. <BR>
+     open the core_gene_alignment*aln from (Prokka?) <BR>
+
+<LI> aliview (alignment editor, GUI)  can open .phy (but this is not aligned?).  very large file is chunked to reduce load time (and memory footprint?).  no option to wrap long line
+<LI> seaview (Unix/X) <BR>
+     No option to wrap long line <BR>
+     sucks up lot of ram for large MSA, slow.  able to open the core_gene_alignment*aln from (Prokka?) <BR>
+     Menu to open Mase, Phylip, Clustal, MSF, Fasta, NEXUS.  but could not open .phy from (snp-sites?)
 <LI> IGB - Integrated Genomic Browser (Java)
 <LI> GenBeans (Java, NetBeans recast, 2000s?) 
 <LI> FigTree - open .tre from RAxML output (java GUI)
@@ -238,6 +244,37 @@ paup> lscores;
 
 </PRE>
 
+<BR>
+likelihood search & settings
+<BR>
+
+<PRE>
+using /global/software/vector/sl-7.x86_64/modules/paup/4.0a/paup4a168_ubuntu64
+singularity container version seems to hang with large taxa (of 65) ?
+
+Begin Paup;
+
+  log file=mytree.LOG;
+
+  set autoclose=yes warnreset=no increase=auto;
+  set crit=likelihood;
+
+  nj;         [! create a seed tree quickly ]
+
+  lset nst=2; [! HKY85+G ]
+  lset nst=6; [! GTR+G   ]
+  lset nthread=auto;   [! auto set num of threads to num of cores on machine ]
+  lset tratio=est;     [! estimate nucleotide transversion/translation ratio ]
+  lset basefreq=est rates=gamma shape=est;  [! estimate base frequency, use gamma dist for rate, estimate shape ]
+
+  lscores 1;  
+  lset tratio=prev basefreq=prev shape=prev;
+  hs start=1; [! start heuristic search, get 1 tree only ]
+
+  savetrees file=mytrees.tre replace=yes;   [! overwrite fille if exist ]
+  savetrees file=mytrees.tre  append=yes;   [! append tree to file, fig tree pick 1 only though, first or last? ]
+End;
+</PRE>
 
 <LI> BEAST (v1)  <BR>
 <!-- beast 1 cmd from sars-cov-2 paper, cmd ran on domingo 

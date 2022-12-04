@@ -1041,7 +1041,8 @@ racadm techsupreport export -f tsr_report.zip
 
 -->
 
-
+<A NAME="UpdateIDRAC"></A>
+<A NAME="updateIdrac"></A>
 <H2>Updte iDRAC</H2>
 Can also update chassis System Management Firmware via racadm running on the node.
 <!--
@@ -1054,11 +1055,13 @@ Can also update chassis System Management Firmware via racadm running on the nod
 racadm update -f iDRAC-with-Lifecycle-Controller_Firmware_RTTPH_WN64_5.10.50.00_A00.EXE
 racadm jobqueue view            # wait for download, start, etc.
 
+# run chassis firmware on 1 node/chassis only!
 racadm update -f Chassis-System-Management_Firmware_N5WNX_WN64_3.51_A00.EXE
 racadm jobqueue view            # wait for download, start, etc.
 
-racadm get iDRAC.Info
-racadm get System.ChassisInfo 
+racadm get iDRAC.Info.Version
+racadm get System.ChassisInfo.FirmwareVersion
+racadm get BIOS.SysInformation.SystemBiosVersion
 </PRE>
 
 

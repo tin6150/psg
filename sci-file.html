@@ -401,6 +401,7 @@ ALSO, the header and footer section have indentation, replace tab with space see
 MrBayes, the nchar= has to be exact.  unlike Paup, it can't be smaller (complain when it read extra stuff that it does not expect)
 Dimensions ntax=65 nchar=217746;
 
+PS. if .gff name dont have - in it (all the way from roary step), then taxa name in .nex wont have quotes around them.  paup toNexus added the quote, but mb dislike quote.
 
 MrBayes handle max line length of 99_990, so if seq is longer than that, must use interleave format.
 </PRE>
@@ -436,6 +437,50 @@ Begin trees;
 tree TREE1 = [&R] ((((4[&length_range={20.114391506501633,217.16984306215267},height_95%_HPD={55.99999999999977,56.00000000000023},rate_95%_HPD={2.0089799481037352E-4,6.327035462243147E-4},length_95%_HPD={38.79833130234596,169.78101583683446},rate=3.2336282842901544E-4,length=112.03265216906932,rate_median=2.660354276765452E-4,length_median=117.72025942197638,height_median=56.0,rate_range={1.8617778258136157E-4,0.001075846428088821},height_range={55.99...
 End;
 </PRE>
+
+.nex for paup with commands to execute
+
+<PRE class="code">
+#NEXUS
+
+[!
+	comment block 
+]
+
+Begin data;
+    Dimensions ntax=65 nchar=218039;
+    Format datatype=nucleotide gap=- missing=? matchchar=. interleave;
+    Matrix
+'chi__QQ14'  ACA
+'chi__QQ16'  ACAA
+[! more dta here ]
+    ;
+End;
+
+begin SKIP__paup;
+  log file=mytrees_jh.LOG2;
+  set autoclose=yes warnreset=no increase=auto;
+  set crit=likelihood;
+
+  nj;
+  lset nst=2 tratio=est basefreq=est rates=gamma shape=est;
+  lscores 1;  [! 1221  12min on E5, 10min on csl]
+  lset tratio=prev basefreq=prev shape=prev;
+  hs start=1;  [! 1250 ]
+  savetrees file=mytrees.tre replace=yes;
+
+  lset tratio=est basefreq=est shape=est;
+  lscores 1;
+  lset tratio=prev basefreq=prev shape=prev;
+  hs start=1;
+  savetrees file=mytrees.tre append=yes;
+
+  lset tratio=est basefreq=est shape=est;
+  lscores 1;
+  lset tratio=prev basefreq=prev shape=prev;
+  hs start=1;
+  savetrees file=mytrees.tre append=yes;
+end;
 
 
 <H1>ChemInformatics File Format</H1>
