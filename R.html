@@ -109,6 +109,10 @@ exp(1)             # expoent of natual log.  same as bc's e(), python math.exp()
 log(exp(1))        # identity
 exp(log(1))        # identity
 
+# R use log for natural log, but can redefine/alias ln as:
+`ln` = log
+
+
 Note, R doesn't treat dot differently.  it is often used as part of variable name or function name, like chisq.test() or p.hat.
 However, neither Python nor bc likes dot in the variable name, so cut-n-paste simple calculator lines with variables with dots in them result in error.  May try to avoid use of dot in variable names for code portability.  (eg pasting from R to jupyther notebook with python kernel)
 
@@ -358,6 +362,13 @@ print(system( 'uptime', intern=TRUE ))
 library(data.table)
 fread( "cat /proc/loadavg", check.names=TRUE ) ## run system command and read result into data.frame
 
+library(pacman)
+p_load(plot_ly)
+
+# the option 'style' conflicts when both plot_ly and XXX libraries are loaded
+# unload the library with:
+detach("package:plotly", unload=TRUE)
+
 </PRE>
 
 <H2>Setting dir for user package install</H2>
@@ -433,6 +444,51 @@ list from (not optimized)
 cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | grep library |  awk -F: '{print "\"" $2}' | sort -u  |  cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | grep library |  awk -F: '{print "\"" $2 "\""}' | sort -u  | xargs | sed 's/ /\", \"/g'
 
 -->
+
+<H2>Defining Function</H2>
+
+(PHW251 bonus problem set)
+
+<PRE>
+return_even = function(x){
+  if (x %% 2 == 0) {
+    return("I'm an even number!")
+  }
+}
+
+x = 4
+return_even( x )
+</PRE>
+
+dot-dot-dot in R fn, fn( ... ), 
+see <A HREF="https://r4ds.had.co.nz/functions.html#dot-dot-dot">ch19.5.3 of R4DS</A>
+
+<BR>
+
+Writting pipeable fn, need to worry about transformations vs side-effects.
+See
+<A HREF="https://r4ds.had.co.nz/functions.html#writing-pipeable-functions">ch 19.6.2 of R4DS</A>
+
+<BR>
+
+function that can be used in df %>% mutate()  ...
+ie pipeable...
+
+
+<PRE>
+Note:
+7 * c(2,3)                   # return a list
+7 * as.data.frame( c(2, 3) ) # return a df
+
+the math fn in R are "overloaded" to handle various data types natively... 
+fn to do the same need to ??
+
+even logical operators like == and >= would work on list, they return list of logical comparison.
+
+But IF-statement can't handle list...
+
+</PRE>
+
 
 <H2>CSV example</H2>
 
@@ -567,6 +623,11 @@ if( cond ) {
 print( "this is outside the if_statement_block" )
 
 # there is an elseif ...
+
+# note that if( height > 9 )  only handle scalars!
+# if the var could be vectorized, eg for use with df %>% mutate()
+# need to use ifelse( cond, true-case, false-case )
+# the dplyr if_else(...) version is stricter, but didnt work out for me to compare vectorVar > scalar 
 
 • for(var in vec) {expr}: 
 for-loop: the counter var runs through the vector vec 
@@ -1175,10 +1236,19 @@ The pipe symbols is special, cuz regex use it to mean OR.
 So, to match a literal | in a string, need to escape it (in R) with forward slash!  ie: /|
 
 <PRE>
-for	use
-|	/|
-/	//
+for	    use
+|	      /|
+/	      //
 .       \\.      # literal period
+!       \\!
+?       \\?
+\\      \\\\
+(       \\()
+)       \\)
+\t      \\t      # tab
+\n      \\n      # newline
+\d      \\d      # :digits:
+
 
 [[:punct:]]
 [[:alpha:]]
@@ -1684,6 +1754,14 @@ runif(5)  + 100		# same as above, just to make it obvious what R is doing.
 From PHW251 week 4
 
 <PRE>
+
+h1 = c( 123,  124)    # cm
+h2 = c(  5.6,   6.6)  # ft
+w1 = c( 71,    82)
+w2 = c(202,   176)
+df_Taiwan = data_frame( h1, w1 ) %>% rename( height=h1, weight=w1 )
+df_Colo   =  data_frame( h2, w2 ) %>% rename( height=h2, weight=w2 )
+df_both   = rbind( df_Taiwan, df_Colo ) # if col name mismatch then cant row bind
 	
 #defaults for data.frame() for reference
 
