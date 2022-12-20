@@ -15,6 +15,16 @@ Knit to html and the result is still visible in the web :)
 
 (gis class may need a Rgis.Rmd, dont put those here)
 
+
+
+xref:
+ - PHW251 wk11 has lot of visuals, plot_ly, DT data table, 
+ - [PHW251 bonus problem set](https://tin6150.github.io/psg/R_phw251_bonus_problem_set.html) 
+   practiced on some of them, as well as a gis choropleth.
+  
+
+
+
 ```{r load library, message = FALSE, warning = FALSE, include=F, echo=F}
 #### even include=F, code block is executed when knitting!
 #install.packages(pacman)
@@ -217,6 +227,9 @@ darkorange	  r
 darkcyan	    r
 darklateblue	r
 
+lightgreen    r
+
+compat: r = R, p = python, h = HTML
 
 ```{r named_colors}
 
@@ -389,6 +402,14 @@ qchisq( 0.95, df=0   )  # 0
 
 paup1 = -2*( ln(558162.2) - ln(605229.7) ) 
 paup2 = -2*( log(558162.2) - log(605229.7) ) 
+
+
+#-ln L  2909255.8  # nst=2
+#-ln L  2891898.8  # nst=6
+
+paup_hky = -2*( ln(2909255.8) - ln(2891898.8) )
+
+paup_hky # -0.011968
 
 
 ```
