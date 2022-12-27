@@ -712,6 +712,13 @@ Ref:
 
 <LI> <A HREF="https://photos.google.com/album/AF1QipMqkSucnOzq757nZCUzjGlM3u6Ul3HFqKLlheae">many screenshot of BIOS settings for Asus</A>
 
+<LI> <A HREF="https://ulhpc-tutorials.readthedocs.io/en/latest/parallel/mpi/HPL/">ULHPC tutorials</A> especially the very handy grid diagram deciphering NB, N, P, Q, under HPL main parameters.
+
+<LI> <A HREF="https://netlib.org/benchmark/hpl/tuning.html">tuning HPL.dat</A>, from the source (netlib).
+
+<LI> <A HREF="https://sites.google.com/site/rangsiman1993/comp-env/test-and-benchmarks/benchmark-hpc-intel-linpack">Ragisman benchmarks</A>
+<LI> <A HREF=""></A>
+
 <BR>
 
 <A NAME="amd"></A>
@@ -791,6 +798,34 @@ For NUMA=4 req all DIMM to be populated?
 But if use NUMA=2 or 1, how to run HPL with OpenMP?
 
 <BR><BR>
+
+<A NAME="GPU_Benchmark"></A>
+<H1>GPU Benchmark</H1>
+
+<PRE>
+
+docker login nvcr.io
+# Username: $oauthtoken
+# Password: cWR2az...   
+
+CONT='nvcr.io/nvidia/hpc-benchmarks:21.4-hpl'    	# linpack
+CONTcg='nvcr.io/nvidia/hpc-benchmarks:21.4-hpcg'   	# congutate gradient
+CONT_i='registry:443/tin/hpc-benchmarks:21.4-hpl'	# internally hoster registry
+
+docker pull $CONT
+docker tag  nvcr.io/nvidia/hpc-benchmarks:21.4-hpl   registry:443/tin/hpc-benchmarks:21.4-hpl
+docker image push registry:443/tin/hpc-benchmarks:21.4-hpl
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all $CONT_i \
+  mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2 \
+  hpl.sh             --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat/HPL-a10-Ns=20k.dat #HPL-a10.dat
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2   hpl.sh  --xhpl-ai  --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat --dat /mnt/hpl_dat/HPL-a10-Ns72k_1x2.dat
+
+
+</PRE>
 
 <A NAME="perf"></A>
 <A NAME="performance"></A>

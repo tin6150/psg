@@ -130,17 +130,19 @@ MUGSY
 
 <H2>Sequence Alignment and Tree Viewer</H2>
 
-<LI> belvu (Linux X), has wrap long line for printing.  custom coloring scheme. <BR>
+<LI> belvu (old school Unix X), has wrap long line for printing.  custom coloring scheme. <BR>
      open the core_gene_alignment*aln from (Prokka?) <BR>
 
 <LI> aliview (alignment editor, GUI)  can open .phy (but this is not aligned?).  very large file is chunked to reduce load time (and memory footprint?).  no option to wrap long line
 <LI> seaview (Unix/X) <BR>
      No option to wrap long line <BR>
      sucks up lot of ram for large MSA, slow.  able to open the core_gene_alignment*aln from (Prokka?) <BR>
-     Menu to open Mase, Phylip, Clustal, MSF, Fasta, NEXUS.  but could not open .phy from (snp-sites?)
+     Menu to open Mase, Phylip, Clustal, MSF, Fasta, NEXUS.  but could not open .phy from (snp-sites?) <BR>
+     has option to open nexus file, but - in taxa name is considered start of sequence, probably collapsed multiple --- into one, breaking the space-based alignment (.nex produced by paup). <BR>
 <LI> IGB - Integrated Genomic Browser (Java)
 <LI> GenBeans (Java, NetBeans recast, 2000s?) 
 <LI> FigTree - open .tre from RAxML output (java GUI)
+<LI> <A HREF="https://icytree.org/">IcyTree</A> Drop file into browser to view, but didn't handle .tre from Paup, worked from MrBayes output.  YMMV.  Can open fasta aln?
 <LI> DensiTree (cladogram)
 <LI> Other tree view sw: https://en.wikipedia.org/wiki/List_of_phylogenetic_tree_visualization_software
 <LI>
@@ -231,11 +233,9 @@ paup> export / format=Nexus file=paup_anim66itv.nex     charsPerLine=100 nexusBl
 Paup ML search for tree - <A HREF="https://phylosolutions.com/paup-tutorial/">Tutorial</A>
 
 <PRE>
-paup> set crit=l   # set criterion=likelihood;
-paup> automodel 
+paup> set crit=l   	# set criterion=likelihood;
+paup> automodel 	# if model param are estimated manually, use `lset fixall` to fix these est param into the model.
 paup> hsearch		# single core, start ~2:30
-
-lset fixall ?
 
 paup> lset estall; 	# EstAllParams' specified; all model parameters will be estimated
 paup> runraxml; 	# could invoke raxmlHPC via shell to do ml tree generation
@@ -248,9 +248,17 @@ paup> lscores;
 likelihood search & settings
 <BR>
 
+Per https://phylosolutions.com/paup-tutorial/ :
+Searches in PAUP* are extremely slow if model parameters are estimated during a tree search. It is almost always better to estimate model parameters on a fixed tree, and then fix those parameters prior to initiating the tree search.
+<BR>
+so, avoid using `lset estAllParams`
+<BR>
+
+
 <PRE>
+
 using /global/software/vector/sl-7.x86_64/modules/paup/4.0a/paup4a168_ubuntu64
-singularity container version seems to hang with large taxa (of 65) ?
+singularity container version has an issue where nthreads=[actual machine num of core] takes a long time.  use 1 fewer core is workaround.
 
 Begin Paup;
 
@@ -264,10 +272,12 @@ Begin Paup;
   lset nst=2; [! HKY85+G ]
   lset nst=6; [! GTR+G   ]
   lset nthread=auto;   [! auto set num of threads to num of cores on machine ]
+  lset nthread=55;     [! use 1 fewer core than avail for singularity container issue work around ]
   lset tratio=est;     [! estimate nucleotide transversion/translation ratio ]
   lset basefreq=est rates=gamma shape=est;  [! estimate base frequency, use gamma dist for rate, estimate shape ]
-
   lscores 1;  
+  [! lscores above estimate param #MLE  ]
+  [! lset below fix these estimated param as model param before running search.  in lieu of fixall ]
   lset tratio=prev basefreq=prev shape=prev;
   hs start=1; [! start heuristic search, get 1 tree only ]
 

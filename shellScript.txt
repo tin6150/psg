@@ -114,6 +114,38 @@ Since they are string, may as well use "Str" so account for undefined/empty stri
 -n Str # non-zero length string
 
 Str1 =~ regex   # true if regex matched (ie found in Str1)
+
+I think =~ is very much a perl-ism , so nice it work in bash too!
+
+echo {z..a}
+echo {f..k}
+echo {08..12}    # dont really need $(seq -w 08 1 12) for simple cases
+echo {3..-3}     # space inside {} isn't tolerated.  
+echo {03..-03}   # funny output
+
+
+assigning regex "chunk" to variable, ref:   https://www.networkworld.com/article/2693361/unix-tip-using-bash-s-regular-expressions.html
+
+read -p "Enter email: " email
+
+if [[ "$email" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$ ]]
+then
+    echo "This email address looks fine: $email"
+else
+    echo "This email address is flawed: $email"
+fi
+
+
+when basename isn't enough, use regex !  string1 contains the variable part of the filename ... cuz ${i%} ??
+
+for i in *_1.fq.gz
+do
+  string1="${i%_1.fq.gz}"
+  echo ${string1}
+  unicycler -1 ${string1}_1.fq.gz -2 ${string1}_2.fq.gz -o /Users/desktop/Fasta/${string1}.fasta --min_fasta_length 500
+done
+
+
 --------
 
 LD_PRELOAD_OPTS=...
