@@ -15,6 +15,11 @@ Knit to html and the result is still visible in the web :)
 
 (gis class may need a Rgis.Rmd, dont put those here)
 
+html is like 4M, trying to keep PSG from over growth, so moving this Rnote
+to 
+https://tin6150.github.io/covid19_care_capacity_map/Rnote.html
+
+other Rgis.html Rmd would follow.
 
 
 xref:
@@ -30,11 +35,15 @@ xref:
 #install.packages(pacman)
 library(pacman)
 p_load(DT)
+p_load(dplyr)
 
 ```
 
 This example from wk 13 of PHW251 on epicurves by Manasa Susarla:
 [PHW251 R for Public Health--Fall 2022 git repo](https://github.com/PHW290/PHW251_Fall2022)
+
+ref for Rmd, knit options, latex:
+[ds4ps](https://ds4ps.org/cpp-526-fall-2019/labs/r-markdown-files.html)
 
 ~~~~
 
@@ -49,12 +58,20 @@ is by Neale Batra et al. and is also available on the web for free.
 (covered glm - generalized linear model, for multivariate?)
 
 
-```{r chunk name here, include=T, echo=T}
+```{r chunk name here, include=F, echo=F, eval=F}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# eval=F will prevent knit from running this block
+# decent ref for Rmd https://ds4ps.org/cpp-526-fall-2019/labs/r-markdown-files.html
+
+
 p_load(easystats)
 
-model0 %>%
-  model_parameters(exponentiate = TRUE) %>%
-  plot()
+model_dummy = data.frame( c( 1,2,3) , c(2,4,6) )
+model0 = model_dummy
+# ++ go back to the source to see how model0 was defined
+
+#model0 %>%  model_parameters(exponentiate = TRUE) %>%  plot()
 
 model1 <- glm(outcome ~ age_cat, family = "binomial", data = linelist)
 model2 <- glm(outcome ~ age_cat + gender, family = "binomial", data = linelist)
@@ -363,6 +380,10 @@ https://www.bing.com/images/search?view=detailV2&ccid=0m5W4I7i&id=D280CB81A472BC
 
 ```{r stat table calculator}
 
+# R use log for natural log, but can redefine/alias ln as:
+`ln` = log
+
+
 qnorm( 0.05, lower.tail=F )  # 1.65
 # eg: got p-value of 0.0668 >= alpha of 0.05, do not reject (NULL)     ie not stat significant
 # test stat of 1.50 is below the 1.645 cut off, do not reject (NULL)
@@ -371,6 +392,8 @@ qnorm( 0.05, lower.tail=F )  # 1.65
 pnorm( q=.95, mean=0, sd=1, lower.tail=F )
 pnorm( q=.05, mean=0, sd=1, lower.tail=T )
 
+paup1 = 3.841
+paup1 = -2*( ln(558162.2) - ln(605229.7) ) 
 
 pchisq( q=paup1, df=2 )
 dchisq( x=.995, df=1 )
@@ -397,8 +420,6 @@ qchisq( 0.95, df=0.1 )  # 0.5318646
 qchisq( 0.95, df=0   )  # 0
 
 
-# R use log for natural log, but can redefine/alias ln as:
-`ln` = log
 
 paup1 = -2*( ln(558162.2) - ln(605229.7) ) 
 paup2 = -2*( log(558162.2) - log(605229.7) ) 

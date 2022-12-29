@@ -2,7 +2,7 @@
 <html>
 	<!-- ========================================
 		========================================
-	      future  class note should go to Rnotes.Rmd and knit to Rnotes.html
+	      future  class note should go to Rnotes.Rmd and knit to Rnotes.html  [now in covid19_care_capacity_map repo]
 		========================================
 		========================================
 	-->
@@ -873,7 +873,7 @@ ggplot(data=df, mapping=aes( x=col1, y=col2 )) + geom_count() + xlim(0,70)  # XY
 
 <PRE>
 na.rm=T   # many function take this as option to drop entries with missing data, ie, where data is "na"
-nhanes = read_csv("nhanes.csv")
+nhanes = read_csv("nhanes.csv")  # library(readr)
 nhanes = na.omit( nhanes )       # remove row that has missing values.
 
 testing = readxl::read_excel(
@@ -4930,9 +4930,12 @@ has an ascii table that is text based, can copy-n-paste, quite a bit of ads at t
 My other R notebooks:
 
 <UL>
-  <LI> <A HREF="Rnote.html">html from knitting my Rnote.Rmd</A>
+  <!-- <LI> <A HREF="Rnote.html">html from knitting my Rnote.Rmd</A> [moved to covid19 map repo] -->
+  <LI> <A HREF="https://tin6150.github.io/covid19_care_capacity_map/Rnote.html">html from knitting my Rnote.Rmd</A>
+
   <LI><A HREF="https://tin6150.github.io/psg/R_phw251_bonus_problem_set.html">PHW251 bonus problem set</A> with various plot_ly, DT data tables, gis choropleth, etc.
-  <LI><A HREF="https://github.com/tin6150/phw251_group_z">PHW251 project github</A>
+  <LI><A HREF="https://github.com/tin6150/phw251_group_z">PHW251 project github</A>, esp:
+      <A HREF="https://github.com/tin6150/phw251_group_z/milestone6_groupZ_verbose.html">PHW251 Milestone 6 verbose version</A>
   <LI><A HREF=""></A>
   <LI><A HREF=""></A>
 </UL>
