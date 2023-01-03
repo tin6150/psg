@@ -1198,6 +1198,19 @@ funding_data = funding_data %>%
 
 </PRE>
 
+# filter rows when col has exactly some string:
+taxaSubset = c( "goo", "gui", "qua", "rab", "she"  )
+wgs_with_loc_subset = wgs_with_loc %>%
+  filter( taxa_name %in% taxaSubset )
+
+
+# filter rows when col has substring pattern -- use grepl  ## make_metadata4phylo.Rmd
+taxaSubsetRE = "goo|gui|qua|rab|she"
+wgs_with_loc_subset = wgs_with_loc %>%
+  filter( grepl(taxaSubsetRE, taxa_name ) )
+
+
+
 tidyverse Stringr vs native 
 <BR>
 
@@ -4935,7 +4948,7 @@ My other R notebooks:
 
   <LI><A HREF="https://tin6150.github.io/psg/R_phw251_bonus_problem_set.html">PHW251 bonus problem set</A> with various plot_ly, DT data tables, gis choropleth, etc.
   <LI><A HREF="https://github.com/tin6150/phw251_group_z">PHW251 project github</A>, esp:
-      <A HREF="https://github.com/tin6150/phw251_group_z/milestone6_groupZ_verbose.html">PHW251 Milestone 6 verbose version</A>
+      <A HREF="https://tin6150.github.io/phw251_group_z/milestone6_groupZ_verbose.html">PHW251 Milestone 6 verbose version</A>
   <LI><A HREF=""></A>
   <LI><A HREF=""></A>
 </UL>
