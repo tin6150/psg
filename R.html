@@ -991,8 +991,9 @@ Ref: <BR>
 
 prefix: p, q, d, r ::
 
+pClass( q=…, mean=…, sd=…, lower.tail=T )
 p for "probability", the cumulative distribution function (c.d.f.)
-	return the AUC for X<=x, ie the probability  (when lower.tail=TRUE)
+	return the AUC for X≤x,  ie the probability  (when lower.tail=TRUE)
      	return the p-value                           (when lower.tail=FALSE)
 
 	F(x) = P(X ≤  x)
@@ -1012,6 +1013,7 @@ p for "probability", the cumulative distribution function (c.d.f.)
 	scipy.stats.norm.sf( 27.4, 50, 20 )     # sf = 1 - cdf
 
 
+qClass( p=…, lambda=…, lower.tail=T )
 q- for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha; )
 	Have AUC (ie probability or p-value, typically alpha=0.05), get value of x (aka q, quantile)
    	p = F(x)
@@ -1026,6 +1028,7 @@ q- for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha;
    	Excel: norm.inv( 0.95, 100, 15 ) .  Excel has a norm.s.inv(0.05), but only take mean=0 sd=1.
 
    	
+dClass( x=…, size=…, prob=… )
 d- for "density", the density function (p.f. or p.d.f.)
 	or more often discrete?  eg dbinom, dpois
   
@@ -1039,10 +1042,10 @@ r- for "random", a random variable having the specified distribution
 	If n or size > 1 get a vector.
 	Excel:  norm.s.inv( rand() )
 
-     [d- and p- are typically grouped as they are often for discrte vs continuous dist, ie X=exact vs X≤up-to a specific value ]
+[d- and p- are typically grouped as they are often for discrte vs continuous dist, ie X=exact vs X≤up-to a specific value ]
+for [dp]binom, at lowest range interval of 0, dbionom(0,…) == pbinom(0,…)
 
 pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution.  
-     
 
 pbinom  qbinom  dbinom  rbinom - for binomial distribution
 pchisq	qchisq	dchisq	rchisq - for Chi-Square   scipy.stats.chi2.cdf() etc
@@ -1460,14 +1463,12 @@ Naming vectors
 
 <PRE>
 # Naming vectors
-# ie, namving each of the element in a vector
-
+# ie, naming each of the element in a vector
 namedVect = c( x=1, y=2, z=4 )
 namedVect
 
-# or after the fact 
+# or after the fact using purrr::set_names() :
 myVect = c(1,2,4)         # results is [1] 1 2 4
-
 postNameingVect = purrr::set_names( myVect, c("x","y","z"))
 # result is (same for namedVect):
 x y z
@@ -1966,7 +1967,8 @@ myDF = my_tib %>% data.frame()	# convert tibble to df
 <BR>
 <BR>
 
-filter() is like unix grep, picking up only rows that match certain pattern.
+filter() is like unix grep, picking up only rows that match certain pattern, but has to be exact string match.
+grepl()  is true RegEx egrep.
 
 <PRE>
 ids_file_path = "https://data.chhs.ca.gov/dataset/03e61434-7db8-4a53-a3e2-1d4d36d6848d/resource/75019f89-b349-4d5e-825d-8b5960fc028c/download/idb_odp_2001-2018.csv"
@@ -3069,6 +3071,22 @@ library(DT)             # this one is the HTML interactive table
 <A HREF="https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf">ggplot cheatsheet</A>
 <BR>
 (much of ggplot notes is under EpiStat)
+<BR>
+
+Brief structure: <BR>
+
+<PRE>
+ggplot(data = ______, 
+       aes( x=var1, y=var2)
+      ) +
+   geom_point( aes( col=var3 ) ) +
+   facet_wrap( ~ var4 )          +        # facet_wrap creates grids of multiple graphs, based on an an extra var
+   labs(
+        title = “Main”, 
+        x     = “Type x-axis here”  , 
+        y     = “Type y-axis here”
+       )
+</PRE>
 
 <H5>ggplot - geom_ribbon </H5>
 
@@ -3311,24 +3329,26 @@ PH 142 stat class by Prof Dr Mi-Suk Kang Dufour</A>
 <PRE>
 in: x-axis value.  out: AUC, which is prob of event x
 	d- (density) and p- (distribution) class of function.  eg dnorm, dpois , pbinom,
+	
 in: AUC, a probability of event.  out: x-axis value.  eg, have 60% chance of event, what is the expected value.
 	q- (quantile) class of function.  eg qpois, qbinom,
+
 generate a list of possible values according to a distribution.
 	r- (random) class.  eg rnorm(n,mean,sd)
-eg: sim_01 = rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
+	eg: sim_01 = rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
 
 
-	• dnorm(x=…, mean = 0, sd = 1 )    density .  (in dbinom is exact value, but for Norm dist of continuous var, this does not usually make sense (?)
-	• pnorm(q = 1.2, mean = 0, sd = 2), to calculate the cumulative probability below a given x-axis value
-	• qnorm(p = 0.75, mean = 0, sd = 1) to calculate the x-value for which some percent of the data lies below it (ie input is AUC, a probability value, thus named p=… in first input argument)
+	• dnorm( x=…,   mean=0, sd=1 )    density .  (in dbinom is exact value, but for Norm dist of continuous var, this does not usually make sense (?)
+	• pnorm( q=1.2,  mean=0, sd=2), to calculate the cumulative probability below a given x-axis value
+	• qnorm( p=0.75, mean=0, sd=1) to calculate the x-value for which some percent of the data lies below it (ie input is AUC, a probability value, thus named p=… in first input argument)
 
-	• dbinom(x=#success,size,prob of success)    k=number of successful event desired, exact match.
-	• pbinom(q=k, size=10,prob=0.29) binomial, CUMULATIVE prob, X ≤ k. [Lect 16 slide 35]
-	• qbinom(p, size, prob, lower.tail=T)
-	• rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
+	• dbinom( x=k,   size=n,  prob=NumOfSuccess )    k=number of successful event desired, exact match.
+	• pbinom( q=k,   size=10, prob=0.29         )    binomial, CUMULATIVE prob, X ≤ k. [Lect 16 slide 35]
+	• qbinom( p,     size,    prob,     lower.tail=T)
+	• rbinom( n=200, size=1,  prob=0.3030       )  # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
 
-	• dpois(x=…, lambda=mu) : discrete prob, X=x exact value.
-ppois(q=k, lambda=mu)  : cumulative, up to X ≤ k
+	• dpois(  x=…,   lambda=mu ) : discrete prob, X=x exact value.
+	  ppois(  q=k,   lambda=mu ) : cumulative, up to X ≤ k
 
 
 calculating critical cut-off values of z.  [wk8 p119]
@@ -3482,7 +3502,8 @@ rename() 	# change col name
 
 row operation
 arrange() 	# sort
-filter()	# grep 
+filter()	# think grep , but need to match whole string exactly.
+grepl()         # is true RegEx egrep.
 
 think SQL summary operation
 group_by() 
@@ -4855,11 +4876,23 @@ better bullet for table▶yes?
 ≥  >=   useful when dont want to be parsed by HTML 
 ≠  !=   not equal, R Knit LaTeX barf at this symbol :-\
 ±
-¬    not
-∪ ∩  union intersect
-×    multiply
+¬    not negate         GrAlt \ 
+×    multiply           GrAlt +  ¬¬
 ÷    divide
 Ø    empty set
+∞    infinity
+∪ ∩  union intersect
+⊆    subset 
+⊂    proper subset    ⊂⊃⊆⊇
+∈    belongs to       ∋
+
+
+χ² - chi-squared
+σ² - sigma squared = variance
+μ  - mu mean average
+Γ  - Gamma (eg Distribution)
+Σ  - Sigma, summation
+Π  - Pi, products/multiplication
 
 λ - lambda - eigenvalue
 Λ - Lamda - eigenvector
@@ -4867,14 +4900,13 @@ better bullet for table▶yes?
 ε - epsilon
 Ε - Epsilon
 
-χ² - chi-squared
-σ² - sigma squared = variance
-μ  - mu mean average
+𝛉 - theta
 
-αβ∑Δ
 
-ΑΒΚΔΕΦΓΗΞΚΛΜΝΟΠΚΡΣΤΎΒΩΧΥΖ
-αβκδεφγηξκλμνοπκρστύβωχυζ
+αβ∑Δ alpha beta ... delta
+
+ΑΒΚΔΕΦΓΗΞΚΛΜΝΟΠΚΡΣΤΎΒΩΧΥΖ - Upper case Greek
+αβκδεφγηξκλμνοπκρστύβωχυζ - lower case greek
 
 Ñ  alt 0209  spanish n
 ñ  alt 0241  mac: option + n, n
@@ -4886,17 +4918,41 @@ Symbols
 ² square
 ³ cube
 ª primera
-º primero
+º primero, degree
 ‰ per mill
+♥ heart
 
 § section
 ¤ currency
-€
+€ Euro
+¥ Yuan
 ¢ cent
 Ð Latin Eth
-Ñ ñ
+Ñ ñ spanish n  GrAlt n
+Ç ç cedille portuguese c? GrAlt , ¿¡²³¤€¼½¾
+‘’ matched quotes  GrAlt ( ) ¥×
+
 ¡ ¿ 
 ¶ pi new paragraph
+
+⊢ proves, implies
+∫ integral
+
+
+∃∄   exist
+∀    for all
+℉
+℃
+∇
+∈∋∴↔⋮
+ℵℶ∎
+†‡ dart
+⨁⊕  circle +
+⨀⨂
+⊖⊗⊘⊙⊛
+⊿∠∡∢
+∥ parallel
+⊆↶∝∂
 
 
 </PRE>
