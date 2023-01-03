@@ -137,7 +137,11 @@ else
 fi
 
 
-when basename isn't enough, use regex !  string1 contains the variable part of the filename ... cuz ${i%} ??
+bash parameter expansion (substring matching, though not exactly regex).
+
+eg below is souped up "basename", matching arbitrary substring as "extension".
+cuz ${parameter%word} aka ${var%pattern} use bash's parameter expansion 
+(ref: https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion )
 
 for i in *_1.fq.gz
 do
@@ -317,7 +321,46 @@ $0	current command name
 $*	all args passed to script, as single string
 $@	all args passed to script, as array. ref: https://unix.stackexchange.com/questions/129072/whats-the-difference-between-and
 
+
 docker ENTRYPOINT use "$@" ??
+
+bash pattern matching, parameter/variable expansion of syntax like 
+${var%word}  
+${var%%substring}  
+${parameter#word}
+${parameter##word}
+${parameter/pattern/string}
+${parameter//pattern/string}
+${parameter/#pattern/string}
+${parameter/%pattern/string}
+${parameter^pattern}
+${parameter^^pattern}
+${parameter,pattern}
+${parameter,,pattern}
+and
+${parameter@operator}
+in: https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion 
+
+tutorial would be easier to learn these abstruce constructs:
+https://tldp.org/LDP/abs/html/string-manipulation.html
+
+eg: 
+# Rename all filenames in $PWD with "TXT" suffix to a "txt" suffix.
+# For example, "file1.TXT" becomes "file1.txt" . . .
+
+SUFF=TXT
+suff=txt
+
+for i in $(ls *.$SUFF)
+do
+  mv -f $i ${i%.$SUFF}.$suff
+  #  Leave unchanged everything *except* the shortest pattern match
+  #+ starting from the right-hand-side of the variable $i . . .
+done ### This could be condensed into a "one-liner" if desired.
+
+# Thank you, Rory Winston.
+
+
 
 ---
 
