@@ -312,9 +312,78 @@ If FQDN is needed, eg have multiple "domain"/cluster, use this setting:
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 </PRE>
 
+
+
+some help options I poked at
+
+<PRE>
+
+mpirun --help  bind-to
+   --bind-to {arg0}      Policy for binding processes. Allowed values: none,
+                         hwthread, core, l1cache, l2cache, l3cache, socket,
+                         numa, board, cpu-list ("none" is the default when
+                         oversubscribed, "core" is the default when np<=2,
+                         and "socket" is the default when np>2). Allowed
+                         qualifiers: overload-allowed, if-supported,
+                         ordered
+
+-d|-debug-devel|--debug-devel 
+                         Enable debugging of OpenRTE
+-v|--verbose             Be verbose
+-V|--version             Print version and exit
+</PRE>
+
+Example mpirun commands
+
+<PRE>
+
+# example mpi run with docker container (nvidia gpu test)
+
+CONT='nvcr.io/nvidia/hpc-benchmarks:21.4-hpl'    # linpack
+CONT='registry.local:443/hpc-benchmarks:21.4-hpl'    # linpack
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl \
+  mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2 \
+  hpl.sh  --xhpl-ai  --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat/abhi.hpl-a40.dat-2.norepeat  
+  # ran on c03 ==> run but poor perf.
+
+
+# adapted from https://www.pugetsystems.com/labs/hpc/Outstanding-Performance-of-NVIDIA-A100-PCIe-on-HPL-HPL-AI-HPCG-Benchmarks-2149/
+docker run     -v /global/home/users/tin:/mnt --gpus all \
+  registry.local:443/tin/hpc-benchmarks:21.4-hpl \
+  mpirun --mca btl smcuda,self -x MELLANOX_VISIBLE_DEVICES="none" -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc \
+  --bind-to none  --report-bindings --debug-devel \
+  -np 2 hpl.sh --xhpl-ai --dat /mnt/hpl_dat/abhi.hpl-a40.dat.norepeat.Ns20k --cpu-affinity 0:127 --cpu-cores-per-rank 4 --gpu-affinity 0:1 
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc -np 1   /bin/bash
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=all -np 1   ucx_info -f | grep DEVICES
+
+
+
+
+<PRE>
+
+
+mpirun arguments
+<PRE>
+--mca  		# specify modular Component Arch, 
+--mca btl	# byte transfer layer (P2P -- network stack)
+
+--mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc	
+	#  UCX = Unified Communication X [high bandwidth, low-latency network offload with RDMA for IB and RoCE, GPU, shared mem]
+
+
+
+
+    
+</PRE>
+
+
 ref: 
 <LI> https://docs.oracle.com/cd/E19708-01/821-1319-10/mca-params.html
 <LI> https://www.open-mpi.org/faq/?category=running
+<LI> <A HREF="https://openucx.readthedocs.io/en/master/running.html">https://openucx.readthedocs.io/en/master/running.html</A> has docker capabilities info.
 
 
 
