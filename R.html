@@ -445,7 +445,7 @@ cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | g
 
 -->
 
-<H2>Defining Function</H2>
+<H2>Define Function</H2>
 
 (PHW251 bonus problem set)
 
@@ -465,7 +465,7 @@ see <A HREF="https://r4ds.had.co.nz/functions.html#dot-dot-dot">ch19.5.3 of R4DS
 
 <BR>
 
-Writting pipeable fn, need to worry about transformations vs side-effects.
+When writting pipeable fn, need to worry about transformations vs side-effects.
 See
 <A HREF="https://r4ds.had.co.nz/functions.html#writing-pipeable-functions">ch 19.6.2 of R4DS</A>
 
@@ -485,7 +485,23 @@ fn to do the same need to ??
 
 even logical operators like == and >= would work on list, they return list of logical comparison.
 
-But IF-statement can't handle list...
+</PRE>
+
+Subtle things to keep in mind when defining functions in R:
+<BR>
+Lesson learned from 
+<A HREF="R_phw251_bonus_problem_set.html">PHW251 Bonus Problem Set</A> under Q4:
+<BR>
+
+</PRE>
+IF-statement can't handle list...
+
+# when used with mutate, R give this a whole vector
+# not element-wise with value from each cell
+# thus if-statment cannot be used
+# need a vector ready if_else
+# and dont use a RETURN clause with if_else!   ***
+# Avoid R-base ifelse(), it is less strict and may compute incorrect/unexpected result. 
 
 </PRE>
 
@@ -1200,6 +1216,19 @@ funding_data = funding_data %>%
   ))
 
 </PRE>
+
+# filter rows when col has exactly some string:
+taxaSubset = c( "goo", "gui", "qua", "rab", "she"  )
+wgs_with_loc_subset = wgs_with_loc %>%
+  filter( taxa_name %in% taxaSubset )
+
+
+# filter rows when col has substring pattern -- use grepl  ## make_metadata4phylo.Rmd
+taxaSubsetRE = "goo|gui|qua|rab|she"
+wgs_with_loc_subset = wgs_with_loc %>%
+  filter( grepl(taxaSubsetRE, taxa_name ) )
+
+
 
 tidyverse Stringr vs native 
 <BR>
@@ -4991,7 +5020,7 @@ My other R notebooks:
 
   <LI><A HREF="https://tin6150.github.io/psg/R_phw251_bonus_problem_set.html">PHW251 bonus problem set</A> with various plot_ly, DT data tables, gis choropleth, etc.
   <LI><A HREF="https://github.com/tin6150/phw251_group_z">PHW251 project github</A>, esp:
-      <A HREF="https://github.com/tin6150/phw251_group_z/milestone6_groupZ_verbose.html">PHW251 Milestone 6 verbose version</A>
+      <A HREF="https://tin6150.github.io/phw251_group_z/milestone6_groupZ_verbose.html">PHW251 Milestone 6 verbose version</A>
   <LI><A HREF=""></A>
   <LI><A HREF=""></A>
 </UL>
