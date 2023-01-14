@@ -82,6 +82,12 @@ Ref:
 R       # interactive cli
 Rstudio # gui
 
+# pacman is great for installing libraries automagically when needed
+# this clever pacman construct from Dr Jennifer Head of GIS 272a class would check for pacman itself 
+package_list = c("ggplot2", "dplyr", "sf", "rgdal", "raster", "here", "scales")
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(package_list, character.only=TRUE)
+
 # run single command in shell
 Rscript -e "print(system('hostname'))"   
 Rscript -e 'cat( "Hello \n World.  R print() does not take \\n, need to use cat() to parse \\n!" )'
@@ -92,10 +98,11 @@ Rscript --quiet -e 'install.packages("pacman",    repos = "http://cran.us.r-proj
 Rscript --quiet --no-readline --slave -e '{ library(pacman); p_load( ggplot2, scales ) }'
 
 
-Special symbols
+special symbols
 
 ^   power. 2^8 
 $   separate table name and column name, eg nhanes$gender, opt$indir
+@   subparts of "composite/nested" obj?  eg sp@data = df portion of sp  Spatial Polygon obj from rgdal::readOGR()   # wk1 gis272a   
 ~   tilde operator, 
 -   minus, substraction.  eg a-b . Just-dont-use-it-in-var-name, as it is treated as substraction of each terms listed!  
 
@@ -103,6 +110,7 @@ log(100)           # Think ln() here!  By default, R log has base e!  same as bc
 log(1000, base=10) # this is log with base 10
 log(1000, 10)      # same as above
 log10(1000)        # ok, it is used often enough they do have a fn name for log base 10!
+LN                 # maybe used as LogNormal (distribution)
 
 exp(1)             # expoent of natual log.  same as bc's e(), python math.exp()
 
@@ -212,6 +220,26 @@ dplyr::near( sqrt(2)^2, 2  )   # TRUE, has built-in tolerance
 matrix1 == matrix2  	# is an element wise comparison, returning another matrix.  Somewhat unexpected!
 c(1,2,3) == c(4,2,3)	# vector, list comparisons are also elementwise, it is said to be useful in the R world.
 
+# cannot add two strings, to concat them, need to use concat fn.  eg stringr::str_c
+beastTreeFilePath = str_c( beastTreeFileDir, beastTreeFileName )
+# above works for data frames.
+# there is a sprintf for simple string joining, see below.
+
+
+</PRE>
+
+<H1>Tips and Tricks for frequent R user</H1>
+
+<PRE>
+# this tip from Dr Jennifer Head of GIS 272a class
+# kinda like pushd of bash...
+
+The `here` package creates paths relative to the top-level directory. The package displays the top-level of the current project on load or any time you call `here()`. The function `i_am()` can be called at the top of the R script to set up the project root correctly. You can then build paths relative to the top-level directory in order to read or write a file.
+
+```{r}
+i_am("Lab1_blank.Rmd")
+here()
+```
 
 </PRE>
 
@@ -3913,14 +3941,19 @@ Typical ggplot layers use cases (PHW251)
 1 categorical, 1 continuous:
 - geom_freqpoly()
 - geom_boxplot()
-- geom_bar()        
+- geom_bar()        x-axis have discrete categories, thus have position= dodge, stack
 
 1 continuous:
 - geom_point()
 
 2 continuous:
-- geom_histogram
+- geom_histogram 
+- hist(df$xAxisVar)          # quicky alt to geom_histogram 
 
+
+histogram vs bar graph: 
+histogram for freq dist ... possibly could use  xy scatter plot, or line graph.
+bar graph for discrete/categorical var.  have space between bars.
 
 color() # return the color name that R has "build-in"
 
