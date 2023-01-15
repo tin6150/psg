@@ -473,7 +473,7 @@ cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | g
 
 -->
 
-<H2>Define Function</H2>
+<H2>Defining Function</H2>
 
 (PHW251 bonus problem set)
 
@@ -4911,9 +4911,9 @@ Recommended color scheme for accessibility
 <A NAME="symbols"></A>
 <A NAME="ascii_symbols"></A>
 
-<H1>ascii/unicode symbols</H1>
+<H1>ascii/unicode symbols and LaTeX</H1>
 
-for easy cut-n-paste
+for easy cut-n-paste.  may have to learn latex for GIS 272a !
 
 <PRE>
 
@@ -4933,30 +4933,37 @@ better bullet for table▶yes?
 
 
 √¯¯¯  sqrt
-≈  approx
-≤  <=   combined less than equal to.  
-≥  >=   useful when dont want to be parsed by HTML 
-≠  !=   not equal, R Knit LaTeX barf at this symbol :-\
+≈  \approx
+≤  <=   \leq  combined less than equal to.  
+≥  >=   \geq  useful when dont want to be parsed by HTML 
+≠  !=   \neq  not equal, R Knit LaTeX barf at this symbol :-\
 ±
 ¬    not negate         GrAlt \ 
 ×    multiply           GrAlt +  ¬¬
 ÷    divide
-Ø    empty set
-∞    infinity
-∪ ∩  union intersect
-⊆    subset 
-⊂    proper subset    ⊂⊃⊆⊇
-∈    belongs to       ∋
+Ø    \emptyset
+∞    \infty    infiinity
+∪    \cup         set union         in A OR  B
+∩    \cap         set intersection  in A AND B
+⊂    \subset     proper/strict subset  
+⊆    \subseteq   (not strict)				A <= B    # R library(sets), but may not be useful in practice   # rstFood>
+⊃    \superset   proper/strict
+⊇    \superseteq (not strict)
+∈    \in 	is member of, belongs to, is an element of   	%e%
+∋    	
 
 
 χ² - chi-squared
 σ² - sigma squared = variance
-μ  - mu mean average
+μ  - \mu mean average
+ν  - \nu   (not displaying with right font? kinda cursive v)
 Γ  - Gamma (eg Distribution)
 Σ  - Sigma, summation
 Π  - Pi, products/multiplication
+π  - \pi
+τ  - \tau
 
-λ - lambda - eigenvalue
+λ - \lambda - eigenvalue
 Λ - Lamda - eigenvector
 
 ε - epsilon
@@ -4969,6 +4976,7 @@ better bullet for table▶yes?
 
 ΑΒΚΔΕΦΓΗΞΚΛΜΝΟΠΚΡΣΤΎΒΩΧΥΖ - Upper case Greek
 αβκδεφγηξκλμνοπκρστύβωχυζ - lower case greek
+∂   \partial    (derivative, not lower case delta)
 
 Ñ  alt 0209  spanish n
 ñ  alt 0241  mac: option + n, n
@@ -4996,6 +5004,7 @@ Symbols
 
 ¡ ¿ 
 ¶ pi new paragraph
+π \pi
 
 ⊢ proves, implies
 ∫ integral
@@ -5022,6 +5031,22 @@ Symbols
 
 https://www.ascii-code.com/?msclkid=fada967ec20611ec82769a8bbf923192
 has an ascii table that is text based, can copy-n-paste, quite a bit of ads at top, but at least no pop ups
+
+
+<H1>latex stuff</H1>
+
+<A HREF="https://davidhamann.de/2017/06/12/latex-cheat-sheet/">latex cheat sheet</A> (cut-n-paste friendly)
+
+<PRE>
+
+command		description		example		Note
+^		superscript		x^2
+_		subscript		x_0		so me writting ascii in this notation is good!
+
+\hat{}		Estimator		^θ
+
+</PRE>
+
 
 
 <H1>References</H1>
