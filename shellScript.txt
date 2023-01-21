@@ -6,6 +6,7 @@ former shellScript.ref
 lot of work to convert to HTML as all > will need to be converted to &gt; etc
 even when inside <PRE> block.
 
+see also: https://tin6150.github.io/psg/scriptRosetta.word.html
 
 
 ================================================================================
@@ -114,6 +115,42 @@ Since they are string, may as well use "Str" so account for undefined/empty stri
 -n Str # non-zero length string
 
 Str1 =~ regex   # true if regex matched (ie found in Str1)
+
+I think =~ is very much a perl-ism , so nice it work in bash too!
+
+echo {z..a}
+echo {f..k}
+echo {08..12}    # dont really need $(seq -w 08 1 12) for simple cases
+echo {3..-3}     # space inside {} isn't tolerated.  
+echo {03..-03}   # funny output
+
+
+assigning regex "chunk" to variable, ref:   https://www.networkworld.com/article/2693361/unix-tip-using-bash-s-regular-expressions.html
+
+read -p "Enter email: " email
+
+if [[ "$email" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$ ]]
+then
+    echo "This email address looks fine: $email"
+else
+    echo "This email address is flawed: $email"
+fi
+
+
+bash parameter expansion (substring matching, though not exactly regex).
+
+eg below is souped up "basename", matching arbitrary substring as "extension".
+cuz ${parameter%word} aka ${var%pattern} use bash's parameter expansion 
+(ref: https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion )
+
+for i in *_1.fq.gz
+do
+  string1="${i%_1.fq.gz}"
+  echo ${string1}
+  unicycler -1 ${string1}_1.fq.gz -2 ${string1}_2.fq.gz -o /Users/desktop/Fasta/${string1}.fasta --min_fasta_length 500
+done
+
+
 --------
 
 LD_PRELOAD_OPTS=...
@@ -176,7 +213,7 @@ exec 0</dev/null
 
 -----
 
-if syntax:
+if-statement syntax:
 
 if [ cond ]; then
 	cmd
@@ -192,6 +229,32 @@ if [[ `echo $OUTPUT1 | wc -l` != 0 || `echo $OUTPUT2 | wc -l` != 0 ]]; then
 eg sh:
 if [ `echo $OUTPUT1 | wc -l` != 0 -o `echo $OUTPUT2 | wc -l` != 0 ]; then
 
+
+case-statement eg (from https://github.com/NVIDIA/nvidia-docker/blob/main/nvidia-docker):
+
+while [ $# -gt 0 ]; do
+    arg=$1
+    shift
+    DOCKER_ARGS+=("$arg")
+    case $arg in
+        run|create)
+            NV_DOCKER_ARGS+=("--runtime=nvidia")
+            if [ ! -z "${NV_GPU}" ]; then
+                NV_DOCKER_ARGS+=(-e NVIDIA_VISIBLE_DEVICES="${NV_GPU// /,}")
+            fi
+            break
+        ;;
+        version)
+            printf "NVIDIA Docker: 2.11.0\n"
+            break
+        ;;
+        --)
+            break
+        ;;
+    esac
+done
+
+# the break is probably not required.  ;; indicate end of case.
 
 ----
 
@@ -258,7 +321,46 @@ $0	current command name
 $*	all args passed to script, as single string
 $@	all args passed to script, as array. ref: https://unix.stackexchange.com/questions/129072/whats-the-difference-between-and
 
+
 docker ENTRYPOINT use "$@" ??
+
+bash pattern matching, parameter/variable expansion of syntax like 
+${var%word}  
+${var%%substring}  
+${parameter#word}
+${parameter##word}
+${parameter/pattern/string}
+${parameter//pattern/string}
+${parameter/#pattern/string}
+${parameter/%pattern/string}
+${parameter^pattern}
+${parameter^^pattern}
+${parameter,pattern}
+${parameter,,pattern}
+and
+${parameter@operator}
+in: https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion 
+
+tutorial would be easier to learn these abstruce constructs:
+https://tldp.org/LDP/abs/html/string-manipulation.html
+
+eg: 
+# Rename all filenames in $PWD with "TXT" suffix to a "txt" suffix.
+# For example, "file1.TXT" becomes "file1.txt" . . .
+
+SUFF=TXT
+suff=txt
+
+for i in $(ls *.$SUFF)
+do
+  mv -f $i ${i%.$SUFF}.$suff
+  #  Leave unchanged everything *except* the shortest pattern match
+  #+ starting from the right-hand-side of the variable $i . . .
+done ### This could be condensed into a "one-liner" if desired.
+
+# Thank you, Rory Winston.
+
+
 
 ---
 

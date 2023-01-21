@@ -199,6 +199,45 @@ This hopefully also means that if there is eth connected to the management port,
 (default, at least for the batch I am workihg on, is set to "mode 1 dedicated").
 -->
 
+<H2>HP Proliant (Compaq) Server</H2>
+
+<PRE>
+BIOS key combinations (At least for DL 760, but DL 580 should be same)
+
+
+1st prompt = memory
+F1 for memory config
+ESC to bypass
+
+
+2nd prompt = Smart Array (RAID controller, no software support at OS level?)
+F8 for config of logical drive.
+ESC to cancel.
+	If there are failures, F1 to continue w/ drive disabled, F2 (accept data loss and continue)
+	It will sit and wait till a choice is made in such cases.
+
+3rd prompt = BIOS
+
+F9 = Option ROM config
+F10 = enter setup mode of BIOS  (seems to be some DOS utility that gets run!)
+F12 = PXE boot
+
+The prompt seems to change slightly depending on boot time errors.
+Major thing is to have finger ready at the keyboard and know what to expect when.
+
+F8 for RAID config
+F10 for BIOS
+
+-------------
+
+
+HP DL 585 (AMD Opteron)
+
+F9 = BIOS setup.  it is diaplayed in bottom right corner while POST is going on during some period.
+
+Ctrl-E = Emulex HBA config
+
+</PRE>
 
 
 <H2>Lenovo Server</H2>
@@ -207,7 +246,20 @@ This hopefully also means that if there is eth connected to the management port,
 F1 		Setup
 F2		Diagnostics
 F12		Select Boot Device	# Need legacy mode to do PXE boot
+
+prompt 2:
+Ctrl-S :  Broadcom NIC NexXTreme Ethernet Boot Agent config
+
+prompt 3:
+Ctrl-I : MINI config for SERVER RAID 7x controller, only allow minimal logical drive config.
+presumably need to boot from CD for full hardware RAID config, such as setup RAID 5 or 1.
+
+
 </PRE>
+
+
+
+
 
 <H2>Lenovo Desktop/Laptop</H2>
 <PRE>
@@ -269,7 +321,28 @@ F10 = Lifecycle Controller (BIOS setup)
 F11 = Boot Manager
 F12 = PXE boot
 
-^A = Avago raid controller
+
+subsequent prompts sequence:
+Ctrl-S : Intel PXE Boot agent config
+
+Ctrl-M : LSI Logic RAID Controller config
+Ctrl-A = Avago raid controller
+
+Ctrl-D	: Dell Remote Access Controller Setup (build in kvm over IP)
+	  This run on dedicated NIC on service processor card.
+	  Machine does not have to be on, but must have power connected.
+	  Can be configured to use DHCP and register DDNS ('A' record only).
+	  IP will be displayed on boot message.
+	  ssh/http/https  (vnc port 5900 seems also open)
+	  There is no setup for username/password in the BIOS settings, default login = root/calvin
+	  DRAC 4 Firmware 1.33 req Java Plugin version 1.4.2. Firefox ok.
+
+
+Ctrl-E	: BMC software IPMI server management
+	  This need to run on one of the NIC on motherboard.
+	  Can be setup for DHCP, but DDNS doesn't work.
+	  IP will be displayed on boot message.
+	  but no ports seems to be open :(
 
 </PRE>
 
@@ -450,10 +523,12 @@ When CPU doesn't perform, check these params (racadm):
 Note: Lost of redundant power supply may cause system to clock down significantly, eg turbostat may report 800 MHz on a 2.1 GHz CascadeLake 6230.
 
 Checking the following may help to see if there is not enough power supplied to the system:
+<PRE>
 racadm get System.ChassisInfo 
-System.Power System.Power.RedundancyPolicy System.PowerHistorical System.ServerPwr iDRAC.Info iDRAC.WebServer iDRAC.VNCServer
+other get options: System.Power System.Power.RedundancyPolicy System.PowerHistorical System.ServerPwr iDRAC.Info iDRAC.WebServer iDRAC.VNCServer
 omreport may have data, if can get it to work
 dmidecde -t chassis
+</PRE>
 
 
 <!--
@@ -712,10 +787,21 @@ sum -c ChangeBiosCfg --file smBiosCf.txt --reboot	# update bios config, rebootin
 
 sum -h -c ChangeBiosCfg				# get help on how to make changes to bios
 
+sum -i ipmi-n0260.savio3 -U admin -P $PASS -c UpdateBIOS --file BIOS_X12DPG-OA6-1B88_20220823_1.4_STDsp.bin  ## --reboot, just do manual ipmi cycle afterwards
+## --preserve-config option wasn't operation for SUM 2.8, so have to redo bios changes like logical processor after the update :-\
+## very annoyingly, the xml from the GetBiosConfig has mac and IP in it
+## there are no commands to change specific setting
+## so have to manually edit the xml file for each machine before uploading them to bios to apply the changes.
+## SMC, please fix this anoying tedious mess!
+
 sum -c LoadDefaultBiosCfg		
 sum -c GetDmiInfo
 
 </PRE>
+
+<!--
+/global/home/groups/scs/bin/smc/sum -i ipmi-n0260.savio3 -U admin -P $PASS -c UpdateBIOS --file BIOS_X12DPG-OA6-1B88_20220823_1.4_STDsp.bin  ## --reboot, just do manual ipmi cycle afterwards
+-->
 
 Select GetCurrentBiosCfg entries 
 
@@ -928,15 +1014,53 @@ ref: https://www.thomas-krenn.com/de/wiki/IPMI_Netzwerkports_von_ASUS_Mainboards
 <LI><A HREF="https://www.asus.com/Networking-IoT-Servers/Servers/GPU-Servers/ESC4000A-E10/HelpDesk_BIOS">ESC4000A E10</A>(AMD Epyc 7xx2 Rome) </LI>
 <LI><A HREF=""></A> </LI>
 
+<H5>Dell IPMI raw</H5>
 
+Dell sledge C6520 with ice lake processor, in C400-S chassis (4 nodes in 2U chassis, 2022, psu with C19 connectors).  <BR>
+Not sure what will happen if you use this on some other machines, so be warned!  Best to check with your support engineer. 
+
+<PRE>
+
+Query:
+ipmitool -I lanplus -H 100.74.7.117 -U root -P L3-C@lvin raw 0x30 0x1f
+Output will look similar to:  01 60 08 00 01 01 01dd 00 b8 00
+
+ 01 3a 08 00 01 01 01 6c 00 4f 00 = PSU in 1+1 redundancy, F1 warning on boot.
+
+ 01 73 08 00 01 01 01 34 01 4c 01 = PSU in 2+0, no F1 warning on boot.
+ 01 87 08 00 01 01 01 32 01 3a 01   
+ 01 87 08 00 00 02 00 40 01 2d 01 # n0057
+ 01 8e 08 00 01 01 01 3d 01 28 01 # n0009 none of these has no F1 warning
+ 01 99 08 00 01 01 01 1d 02 3b 02 # n0035
+ #           ^^ ^^ ------------------ indicate whether is 1+1 or 2+0 mode
+
+
+# Set psu redundancy to 2+0, 
+ipmitool raw 0x30 0xc7 0x11 0x02 0x00
+#                           ^^2^ ^^0^  for 2+0
+
+# This is changing back to 1+1 redundancy.  In this mode, sledge boot up will complain not enough power and ask F1 to ack before continue booting
+ipmitool raw 0x30 0xc7 0x11 0x01 0x01
+#                           ^^1^ ^^1^  for 1+1
+
+
+
+
+# Reboot Chassis Management
+ipmitool raw 0x06 0x34 0x45 0x70 0x18 0xc8 0x20 0x00 0x02 0xd8   ## old cmd, didn't quite work
+ipmitool raw  0x6 0x34 0x45 0x70 0x18 0xc8 0x20 0x0 0x2 0xd8     ## new cmd, reset chassis, pwr off all nodes.
+# probably equivalent to:
+racadm  cmreset
+
+</PRE>
 
 <BR>
 
 <H1>Service Processor</H1>
 
-<H2>??</H2>
-tool to manipulate BIOS using cli tool...
-TBA
+<H2>
+tool to manipulate BIOS firmware using cli tool
+</H2>
 
 
 <A NAME="dell_support_assist"></A>
@@ -944,7 +1068,7 @@ TBA
 
 <PRE>
 
-singularity exec -B /var/run  /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  \
+singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  \
 /opt/dell/srvadmin/sbin/racadm  supportassist collect
 
 Job ID = JID_926261291256
@@ -965,18 +1089,54 @@ Message=[SRV088: The SupportAssist Collection Operation is completed successfull
 Percent Complete=[100]
 ----------------------------------------------------------
 
+/opt/dell/srvadmin/sbin/racadm  supportassist  exportlastcollection -f tsr.zip
 
+# ftp server??!!
+racadm supportassist exportlastcollection -l ftp://192.168.10.24/share -u myuser -p mypass
+
+
+racadm supportassist accepteula
+
+# collect debug log, -f is filename , but tends to have problem saving, cuz of singularity?
+racadm  supportassist  collect -t Debug -f n0049_tsrd.zip
+
+this "file save" worked  savio4 icy lake 2022.10.21
+alias racadm="singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm"
+cd $HOME # cd /root  , cuz singularity bind mount HOME, and lower dir tends to cause error!
+racadm techsupreport export -f tsr_report.zip
+
+
+</PRE>
+<!--
 
 	# this didn't work, not sure where file went:
   /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  supportassist  exportlastcollection -f tsr.zip
 
-# ftp server??!!
-  racadm supportassist exportlastcollection -l ftp://192.168.10.24/share -u myuser -p mypass
+-->
 
+<A NAME="UpdateIDRAC"></A>
+<A NAME="updateIdrac"></A>
+<H2>Updte iDRAC</H2>
+Can also update chassis System Management Firmware via racadm running on the node.
+<!--
+[root@n0059.savio4 /global/home/users/tin/gs/Downloads/dell/sav4]# singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm 
+-->
 
+<PRE>
+# the EXE is a PE32 executable, ok from linux, just copy from local fs to the SP and let it update:
 
+racadm update -f iDRAC-with-Lifecycle-Controller_Firmware_RTTPH_WN64_5.10.50.00_A00.EXE
+racadm jobqueue view            # wait for download, start, etc.
 
+# run chassis firmware on 1 node/chassis only!
+racadm update -f Chassis-System-Management_Firmware_N5WNX_WN64_3.51_A00.EXE
+racadm jobqueue view            # wait for download, start, etc.
+
+racadm get iDRAC.Info.Version
+racadm get System.ChassisInfo.FirmwareVersion
+racadm get BIOS.SysInformation.SystemBiosVersion
 </PRE>
+
 
 <A NAME="dsa"></A>
 <H2>IBM/Lenovo DSA</H2>
@@ -1001,6 +1161,7 @@ keep a stable binary version in a non-writable place...
 <PRE>
 wget https://download.lenovo.com/servers/mig/2017/05/17/6836/lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bi
 sudo ./lnvgy_utl_dsa_dsala7d-10.3_portable_rhel7_x86-64.bin
+!--
 </PRE>
 
 <!--
@@ -1121,6 +1282,46 @@ Please press ANY key to continue ...
 -->
 
 
+<H1>No keyboard?</H1>
+
+<div align="CENTER">
+<A HREF="http://comic.browserling.com/tag/bios">
+<IMG SRC="fig/keyboard.png"></A>
+</div>
+
+
+
+Dell iDrac serial over lan 
+<BR>
+ipmitool -I lanplus -U admin -P XXXXXXXXXXXX -H ipmi-ip sol activate
+<BR>
+
+<PRE>
+KEY MAPPING FOR CONSOLE REDIRECTION:
+
+Use the {ESC}{1} key sequence for {F1}
+Use the {ESC}{2} key sequence for {F2}
+Use the {ESC}{3} key sequence for {F3}
+Use the {ESC}{0} key sequence for {F10}
+Use the {ESC}{!} key sequence for {F11}
+Use the {ESC}{@} key sequence for {F12}
+
+Use the {ESC}{Ctrl}{M} key sequence for {Ctrl}{M}
+Use the {ESC}{Ctrl}{H} key sequence for {Ctrl}{H}
+Use the {ESC}{Ctrl}{I} key sequence for {Ctrl}{I}
+Use the {ESC}{Ctrl}{J} key sequence for {Ctrl}{J}
+
+Use the {ESC}{X}{X} key sequence for {Alt}{x}, where x is any letter
+key, and X is the upper case of that key
+
+Use the {ESC}{R}{ESC}{r}{ESC}{R} key sequence for {Ctrl}{Alt}{Del}
+
+Press the spacebar to pause...
+Initializing PCIe, USB, and Video... Done
+BIOS update has started.
+
+</PRE>
+
 <!-- ################################################################## -->
 <!-- ################################################################## -->
 <!-- ################################################################## -->
@@ -1131,12 +1332,6 @@ Please press ANY key to continue ...
 
 <BR>
 
-<H1> </H1>
-
-<div align="CENTER">
-<A HREF="http://comic.browserling.com/tag/bios">
-<IMG SRC="fig/keyboard.png"></A>
-</div>
   
 <div class="quote">
 </div>

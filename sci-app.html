@@ -9,7 +9,7 @@
   <META NAME="Robots" CONTENT="all"/>
   <META NAME="Author" CONTENT="Tin Ho"/>
 
-  <title>Pocket Survival Guide - SCI</title>
+  <title>Pocket Survival Guide - SCI Apps</title>
 </head>
 
 <body> 
@@ -27,6 +27,11 @@
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>		</td>
       <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>	</td>
       <td align="center"><a accesskey="s" href="sci-app.html">Sci-App</a>	</td>
+      <td align="center"><a accesskey="R" href="R.html">R</a> </td>
+      <td align="center"><a accesskey="n" href="Rnote.html">Rnote</a> </td>
+      <td align="center"><a accesskey="y" href="python.html">python</a> </td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a>     </td>
+
       <td align="right"><a accesskey="n" href="lsf.html">lsf</a>		</td>
     </tr>
   </tbody>
@@ -49,81 +54,394 @@
 <LI> FastQC - Quality Control 
 <LI> Trimmomatic (Input: FastQ)
 <LI> Unicycler
+<PRE>
+
+for i in *_1.fq.gz   # dir contain list of paired fastq files, gz'ed
+do
+    string1="${i%_1.fq.gz}"  
+    echo $string1 >> task.lst
+done 
+
+parallel -j 8 -a task.lst  unicycler -1 {}_1.fq.gz -2 {}_2.fq.gz -o ./assembled-seq/{}.fasta --min_fasta_length 500
+# each unicycler instance would take 4? cores by default
+
+
+</PRE>
 <LI> Price - Fast De novo assembly - UCSF Peter Skewes-Cox 
 <LI> ablab/spades: SPAdes Genome Assembler (github.com, maybe old)
 <LI> 
+<LI>  Roary is a high speed stand alone pan genome pipeline, which takes annotated assemblies in GFF3 format (produced by Prokka). <BR>
+         128 samples with 1GB RAM desktop computer <BR>
+https://sanger-pathogens.github.io/Roary/ 
+<PRE>
+assemble gff into single MSA alignment file (fasta format):
+roary -e -mafft -p 28 *.gff
+# -p 28 = 28 threads
+# input: *.gff file, 1 per taxa, from prokka
+# output: 
+#  - core_gene_alignment.aln    # aln for gff above, msa?
+#  - pan_genome_reference.fa    # non core genome eg e.coli
+
+# plot for viz
+roary_plots.py name_of_your_newick_tree_file.tre gene_presence_absence.csv
+
+</PRE>
+
 
 <H2>Sequence Alignment </H2>
 
 <LI> Clustal, ClustalW  (serial)
 <LI> MAFFT (C) <BR>
      mafft --thread -1 --nomemsave gisaid_selection.fasta > gisaid_aln.fasta
-<LI> ROARY ?
+<LI> Lagan?  http://lagan.stanford.edu/lagan_web/index.shtml  MSA for WGS of human? 2006.
 <LI> RC Edgar, MUSCLE: Multiple sequence alignment with high accuracy and high throughput. Nucleic Acids Res 32, 1792–1797 (2004).
 <LI> Muscle 
 <A HREF="https://petrov.stanford.edu/software/src/muscle3.6/muscle3.6.html">User Guide</A> <BR>
      muscle -in seqs.fa -out seqs.afa
+	<BR>
+	cant handle long sequences (eg whole e.coli genome) 3 seq
+
 <LI> Muscle Parallel
+<LI> Mauve.  Simple to use, but may have some compatibility problem?
+<LI> LastZ = improved version of blastz
+<LI> MUMmer http://mummer.sourceforge.net/ version 3.20 from 2007
 <LI>
 
-<H2>Sequence Alignment and Tree Viewer GUI </H2>
+<H2>Whole Genome Alignment (WGA)</H2>
 
-<LI> Aliview (alignment editor)
-<LI> FigTree
+<LI> Local vs global genomic alignment, Ortholgy mapping, Hierarchical WGA
+<LI> Homology, Orthology, Toporthology, paralogy, colinear homology.
+
+<LI> MUMmer 
+<LI> UCSC Genome Browser
+
+<LI>
+<LI> Phylo
+<LI> Cactus
+<LI>
+
+
+<A HREF="https://link.springer.com/protocol/10.1007/978-1-61779-582-4_8">Evolutionary Genomics book, a chapter covers WGA (2012) [Springer paywall]</A>
+<BR>
+<A HREF="https://link.springer.com/protocol/10.1007/978-1-61779-582-4_8/tables/1">Table 1 - List of WGA methods [Spinter paywall]</A>
+<BR>
+
+<PRE>
+Global Genomic alignment:
+MAVID
+LAGAN/Multi-LAGAN
+DIALIGN
+SeqAn::T-Coffee
+FSA
+Pecan
+
+Hirarchical WGA:
+progressiveMauve
+MUGSY
+
+</PRE>
+
+<H2>Sequence Alignment and Tree Viewer</H2>
+
+<LI> belvu (old school Unix X), has wrap long line for printing.  custom coloring scheme. <BR>
+     open the core_gene_alignment*aln from (Prokka?) <BR>
+
+<LI> aliview (alignment editor, GUI)  can open .phy (but this is not aligned?).  very large file is chunked to reduce load time (and memory footprint?).  no option to wrap long line
+<LI> seaview (Unix/X) <BR>
+     No option to wrap long line <BR>
+     sucks up lot of ram for large MSA, slow.  able to open the core_gene_alignment*aln from (Prokka?) <BR>
+     Menu to open Mase, Phylip, Clustal, MSF, Fasta, NEXUS.  but could not open .phy from (snp-sites?) <BR>
+     has option to open nexus file, but - in taxa name is considered start of sequence, probably collapsed multiple --- into one, breaking the space-based alignment (.nex produced by paup). <BR>
+<LI> IGB - Integrated Genomic Browser (Java)
+<LI> GenBeans (Java, NetBeans recast, 2000s?) 
+<LI> FigTree - open .tre from RAxML output (java GUI)
+<LI> <A HREF="https://icytree.org/">IcyTree</A> Drop file into browser to view, but didn't handle .tre from Paup, worked from MrBayes output.  YMMV.  Can open fasta aln?
 <LI> DensiTree (cladogram)
+<LI> Other tree view sw: https://en.wikipedia.org/wiki/List_of_phylogenetic_tree_visualization_software
 <LI>
 
 <H2>Phylogenetic Tree</H2>
 
 <LI> MrBayes (+ Beagle gpu lib)
+
+<A HREF="https://github.com/NBISweden/MrBayes/blob/develop/doc/manual/Manual_MrBayes_v3.2.pdf">Mr Bayes Manual</A> (pdf at their github).  <BR>
+<A HREF="https://isu-molphyl.github.io/EEOB563/computer_labs/lab5/MrBayes.html">EEOB563 tutorial on MrBayes</A>
+
+<PRE>
+mb> log start filename=mblog.txt
+mb> execute mb_anim66.nex		# didnt like .nex from paup, need some slight tweaks, see sci-file.html
+mb> lset nst=6 rates=gamma		# lset = likelihood model setting
+mb> prset shapepr=exponential(0.05)	# setting priors
+mb> showmodel
+mb> mcmcp ...                                     	# mcmcp = make settings, dont actually start
+mb> mcmcp ngen=300000 printfreq=100 samplefreq=100	# ? ~ chain lenght = 300k, for kicking tire maybe better ngen=20k
+mb> mcmcp nruns=2 nchains=4 savebrlens=yes		# MB def really: Metropolis-coupled MCMC 2 idp anal, 4 chains each
+mb> mcmcp diagnfreq=1000 diagnstat=maxstddev		# converge diag settings (these are def)
+mb> mcmcp filename=MB_anim66itv_uni			# filename prefix, _uni for uniform mcmc ??
+mb> mcmc						# actually start the analysis, only use 1 cpu
+mb> 
+mb> sumt						# save tree / show cladogram
+mb> sump 						# 
+mb> sump filename=
+mb> 
+mb> ssp							# stepping-stone sampling setting
+mb> ssp	...						# stepping-stone sampling setting
+mb> ss 							# atually start the stepping-stone analysis
+mb> 
+</PRE>
+
+MrBayes used single CPU core.  MrBayes MPI vs Beagle...
+
 <LI> RevBayes
 <LI> ExaBayes
+
 <LI> PAUP*
-<LI> BEAST (v1 and v2)  <BR>
+Ref: <A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
+
+<PRE>
+paup      primate-mtDNA.nex # can invoke paup and load/execute nexus file as cli arg
+paup> exe primate-mtDNA.nex # to load file, it is "exe" cuz nexus file can contain command as to what to do.
+paup> log file=paup_primates.log
+paup> hsearch                     # perform heuristic search, fast, 
+paup> set maxtrees=1000 increase=no; hsearch addseq=random nreps=10 nchuck=100 chuckscore=1; # parsimony rachet  
+paup> alltrees                    # perform parsimony search, slow
+paup> showtrees all               # AllTree only retain (2) trees, show them
+paup> showtrees 1
+paup> showtree 2 / taxLabels=truncate semiGraph=yes userBrLens=yes showTaxNum=yes
+#                / indicate options , cmds and options arent case sensitive
+
+paup> toNexus ?
+paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex interleaved=yes
+# MSA need to have interleaved=yes even when seq are continuous.
+# header/name for each seq in MSA need to have same num of chars?  
+# else it remove chars from seq and err in processing the alignment
+# or issue was that "header" need to be exactly 10 chars long? 
+paup> exe paup_ggqrs9.nex
+
+paup> SaveTrees  # store tree(s) to file
+paup> SaveTrees / format=Nexus brLens=yes trees=all file=anim66_paup_ml1.nex  # .nex is tree only, score in comment section, no seq data, figtree ok.  PREFER
+paup> SaveTrees / format=Newick brLens=yes trees=firstOnly file=anim66.tree ; # figtree can render Newick , but tab in taxa name trip it
+
+paup> GetTrees file=anim66_paup_ml1.nex  # load trees from NEXUS or Newick format 
+
+paup> desc # describeTree 
+
+Note: tree scores are given in -ve log-likelihood, ie -ln(L).
+
+settings for:
+pset  parsimony
+dset  distance
+lset  likelihood 
+
+paup> GammaPlot 	# display gamma distribution plot in ascii terminal
+
+paup> export / format=Nexus file=paup_anim66itv_tax.nex charsPerLine=100 nexusBlocks=taxaChar interleaved=yes
+paup> export / format=Nexus file=paup_anim66itv.nex     charsPerLine=100 nexusBlocks=data     interleaved=yes
+
+# essentially, the taxa "block" has an extra list of all the taxa/name from .phy header.
+# the data "block" format is thus marginally shorter.  used this for MrBayes 
+
+</PRE>
+
+Paup ML search for tree - <A HREF="https://phylosolutions.com/paup-tutorial/">Tutorial</A>
+
+<PRE>
+paup> set crit=l   	# set criterion=likelihood;
+paup> automodel 	# if model param are estimated manually, use `lset fixall` to fix these est param into the model.
+paup> hsearch		# single core, start ~2:30
+
+paup> lset estall; 	# EstAllParams' specified; all model parameters will be estimated
+paup> runraxml; 	# could invoke raxmlHPC via shell to do ml tree generation
+			#  /usr/bin/raxmlHPC-PTHREADS-AVX -s /tmp/paup.XXQAhsCT/paupdata.txt -m GTRCAT -c 1 -V --HKY85 -T 2 -n paup -f d -N 1 -p 127526724
+paup> lscores;
+
+</PRE>
+
+<BR>
+likelihood search & settings
+<BR>
+
+Per https://phylosolutions.com/paup-tutorial/ :
+Searches in PAUP* are extremely slow if model parameters are estimated during a tree search. It is almost always better to estimate model parameters on a fixed tree, and then fix those parameters prior to initiating the tree search.
+<BR>
+so, avoid using `lset estAllParams`
+<BR>
+
+
+<PRE>
+
+using /global/software/vector/sl-7.x86_64/modules/paup/4.0a/paup4a168_ubuntu64
+singularity container version has an issue where nthreads=[actual machine num of core] takes a long time.  use 1 fewer core is workaround.
+
+Begin Paup;
+
+  log file=mytree.LOG;
+
+  set autoclose=yes warnreset=no increase=auto;
+  set crit=likelihood;
+
+  nj;         [! create a seed tree quickly ]
+
+  lset nst=2; [! HKY85+G ]
+  lset nst=6; [! GTR+G   ]
+  lset nthread=auto;   [! auto set num of threads to num of cores on machine ]
+  lset nthread=55;     [! use 1 fewer core than avail for singularity container issue work around ]
+  lset tratio=est;     [! estimate nucleotide transversion/translation ratio ]
+  lset basefreq=est rates=gamma shape=est;  [! estimate base frequency, use gamma dist for rate, estimate shape ]
+  lscores 1;  
+  [! lscores above estimate param #MLE  ]
+  [! lset below fix these estimated param as model param before running search.  in lieu of fixall ]
+  lset tratio=prev basefreq=prev shape=prev;
+  hs start=1; [! start heuristic search, get 1 tree only ]
+
+  savetrees file=mytrees.tre replace=yes;   [! overwrite fille if exist ]
+  savetrees file=mytrees.tre  append=yes;   [! append tree to file, fig tree pick 1 only though, first or last? ]
+End;
+</PRE>
+
+<LI> BEAST (v1)  <BR>
+<!-- beast 1 cmd from sars-cov-2 paper, cmd ran on domingo 
+the first jar seems to be present in debian beast-mcmc, but not the second one...
+also see run_prisa_pipeline4_beast1.sh
+-->
+<PRE>
      java -cp beast.jar dr.app.beast.BeastMain -seed 2020 -beagle_double -beagle_gpu -save_every 1000000 -save_state travelHist.checkpoint  ../files/Protocol3/282_GISAID_sarscov2_travelHist_masked.xml
-	<BR>
      java -cp beast.jar dr.app.tools.TaxaMarkovJumpHistoryAnalyzer -taxaToProcess "hCoV-19/Brazil/SP-02/2020/EPI_ISL_413016|2020-02-28" -stateAnnotation location -burnin 100 -mrsd 2020.174
-	<BR>
-<LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.
+</PRE>
+
+<LI> BEAST (v2)  <BR>
+<!-- https://github.com/tin6150/psg/blob/master/script/hpc/slurm-job-gpu-beast.sh and INC1432103) -->
+<PRE>
+ImgDir=/global/home/groups/consultsw/sl-7.x86_64/modules/beast2/2.6.4/
+
+singularity exec --nv $ImgDir/beast2.6.4-beagle.sif \
+/usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_info
+
+singularity exec --nv $ImgDir/beast2.6.4-beagle.sif \
+/usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_GPU testHKY.xml
+
+</PRE>
+
+<LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
+<PRE>
+raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456  -T 28
+-m GTRCAT = model, GTRCAT argued to be one of the best/fast computationally
+-f a = perform the ML (Max Likelihood) in same run as bootstrap
+-N autoMRE = bootstrap criteria, autoMRE found to work best
+-x 123 is random number seed
+-p 456 is rnd seed for parsimony inference
+-T 28 # number of threads
+-s input.phy #  .phy  get from snp-sites -p
+-n output fileS actually series prefixed with RAxML_
+figtree can open the RAxML_*Tree.*.tre file
+
+# 
+## could input be .aln from roary? (skip snp-sites?)
+</PRE>
+Ref: 
+<A HREF="Evolution and Genomics tutorial on RAxML">https://evomics.org/learning/phylogenetics/raxml/</A>
+<A HREF="Evolutionary models ">https://isu-molphyl.github.io/EEOB563/computer_labs/lab4/models.html</A> <BR>
+<PRE>
+--model 
+(nucleotide): JC, K80, HKY, GTR, etc
+(portein):    Blosum62, Dayhoff (PAM),  etc
+(binary data): BIN
+(...)
+
+</PRE>
+
 <LI> RAxML-NG
 <LI> Dendogram/cladogram
 <LI> K Tamura, et al., MEGA5: Molecular evolutionary genetics analysis using maximum likelihood, evolutionary distance, and maximum parsimony methods. Mol Biol Evol 28, 2731–2739 (2011).
 <LI> BAli-Phy
 <LI> FastTree
 <LI>
-<LI>
+<LI> GUBBINS - Genealogies Unbiased By recomBinations In Nucleotide Sequences - alignment and tree generation.  <BR>
+     https://github.com/nickjcroucher/gubbins
+<LI> iqtree
+<LI> rapidNJ - RapidNJ is an algorithmic engineered implementation of canonical neighbour-joinin - (needed by Gubbins)  https://github.com/johnlees/rapidnj
 <LI>
 
 <H2> Genomic characterization </H2>
 
-<LI> Abricate
-<LI> Abricate PlasmidFinder
+<LI> Abricate = AntiBiotics Resistance Finder.  database + extension to find antibiotics genes
+<LI> Abricate - PlasmidFinder 
 <LI> Mlsplasmids (web) 
 <LI> MOB-suite - annotate contig as chromosomal vs plasmid
 <LI> Abricate VR - find resistance genes
 <LI> MLST - Multi-Locus sequence typing (for bacteria)
 <LI> PubMLST typing scheme
 <LI> cgMLST
-<LI>
+<LI> 
 
 <H2>Gene Annotation</H2>
 
-<LI> PROKKA
+<LI> prokka - https://github.com/tseemann/prokka - genome annotation (bacterial, archaeal and viral genomes), output std compliant files.  annotation = blast for gene info
+<PRE>
+prokka --outdir mydir      --prefix mygenome contigs.fa
+prokka --outdir prokka_K1  --prefix genome_K1 --centre _pilon --compliant K1.fasta
+# --centre [X]       Sequencing centre ID. (default '')
+# --centre NAME get stripped
+# --compliant        Force Genbank/ENA/DDJB compliance: --addgenes --mincontiglen 200 --centre XXX (default OFF)
+# --prefix           filename for result, get .gff, .tsv, etc.  so 1 prefix per isolate should be good for PRISA.
+# should give a better prefix name, it will be filename and FASTA header in .gff and other downstreap
+# but not too long, 37 chars limit
+# --force            prokka wants to create the output dir, but prefix will keep files apart.
+prokka --outdir PROKKA  --prefix genome_rabbit_R21 --centre _pilon --compliant --force R21.fasta
+## input:  fasta file with many fragments (contigs, nodes)
+## output: lot of stuff, .gff is suitable for downstream alignment and phy tree generation.  
+##         txt, tsv = table of annotated genes
+</PRE>
+
+
 <LI> blast, blastn, blastp
 <LI> 
 <LI> 
 
 <H2> SNP </H2>
 
-<LI> SNP-sites
+<LI> snp-sites  <BR>
+
+<PRE>
+snp-sites -p  -o rabbit_K1_R21.phy core_gene_alignment.aln   <BR>
+input:   MSA alignment eg core_gene_alignment.aln from roary <BR>
+output:  phy  - phylip file, may have no gaps as -.  eg used as input by RAxML <BR>
+
+Usage: snp-sites [-mvph] [-o output_filename] {file}
+This program finds snp sites from a multi fasta alignment file.
+ -r     output internal pseudo reference sequence
+ -m     output a multi fasta alignment file (default)
+ -v     output a VCF file                                           ##
+ -p     output a phylip file
+ -o STR specify an output filename [STDOUT]
+ -c     only output columns containing exclusively ACGT             ## removed gaps?!
+ -b     output monomorphic sites, used for BEAST                    ##
+ {file} input alignment file which can optionally be gzipped
+
+snp-sites -cb -o outputfile.aln   inputfile.aln.gz
+</PRE>
+
+
+<LI> snippy - rapid haploid variant calling and core genome alignment <BR>
+     https://github.com/tseemann/snippy
+<LI> snippy-vcf_report - look at variants from vcf -- text or html file output
 <LI>
 
 <H2> TBD </H2>
 
+<LI> Phylip - infer phylogenies.  methods: parsimony, distance matrix, likelihood
+<LI> squizz  - convert or check format
+<PRE>
+squizz -l # list supported format
+squizz     core_gene_alignment_ggqrs9.aln -c NEXUS        > core_gene_alignment_ggqrs9.nex
+# convert  ^^^^^input file aln FASTA^^^^^ ^^to format^^   ^^ output is to stdout
+squizz -A core_gene_alignment_ggqrs9.nex   # check/validate named file
+</PRE>
+
+
 <LI> SamTools 
 <LI> SantaCruz genomic browser
 <LI> BROAD ...
-<LI> IGI
 <LI> ParallelStructure (R)
 <LI> Migrate-N (C)
 <LI> ModelTest-NG
@@ -134,10 +452,14 @@
 <LI> ASTRAL (CPU, GPU) Java/C++ 
 <LI> MASCOT
 <LI>
+<LI> art (artemis) - view gff3 files (master genome annotation, eg from prokka)
+<LI> sequin 
+<LI> exonerate
+<LI>
 
 <BR><HR><BR>
 
-<H1>Life Science Apps</H1>
+<H1>Data Wrangling Apps</H1>
 
 
 <H2>Pipeline tool</H2>
@@ -975,6 +1297,23 @@ MOPAC
 
 <!-- end Dropbox/ref.gg/sciapp.html -->
 
+<H1>Terms</H1>
+
+<PRE>
+
+1800 1000 taxa = number of species, sample, isolate, etc.  
+(tends to be lined up vertically)
+
+sequences lined up horizontally.  simply columns?
+
+CDS = Coding Sequence  (exclude 5' and 3' UTR), include introns?
+
+UTR = UnTraslated Region
+
+TBR = tree-bisection-reconnection, a tree branch-swapping algorithm
+
+
+</PRE>
 <BR><HR><BR>
 <BR>
 

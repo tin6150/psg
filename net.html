@@ -673,6 +673,7 @@ show runing interface eth51/1	# sfp28 port (ib/100g) can be a break out into 4 p
 show runing interface eth1,7	# port list  1 and  7
 show runing interface eth1-7	# port range 1 thru 7
 
+clear couter eth 30 		# reset counter for specific port (eg eth/30)
 
 switchport access vlan   # ie not tagged
 
@@ -977,6 +978,8 @@ download image <tftp-svr-ip> file prim
 	ExtremeNet seems to support a secondary etc.  
 	i guess bootable via alternate cmd.
 
+clear couter eth 30
+	reset counter for specific port (eg eth/30)
 clear couter	
 	reset all counters (collision stats, etc)
 

@@ -80,13 +80,33 @@ funny/ugly/stupid chars when pasting?  See
 <UL>
 <LI> RedHat you have to pay.  CentOS is free.  Beyond that, both are largely identical.  Except...
 <LI> RedHat provides commercial tech support
+
 <LI> RedHat provides a yum-security plugin that allows machine to be patched with only security update via yum (and keep the OS at the same level).   See 
 <A HREF="https://access.redhat.com/solutions/10021">Solution 10021</A>.
 <LI> CentOS does not provide this info.  updateinfo.xml.gz is empty, thus commands like <BR>
 <TT> yum updateinfo list security all</TT> <BR>
 <TT> yum updateinfo RHSA-2014:0159</TT> <BR>
-does <EM>NOT</EM> work in CentOS.  They 
+in the past, this did <EM>NOT</EM> work in CentOS.  They 
 results in a noop on CentOS machines.  Lack of action in output does NOT mean security patches aren't needed!  See <A HREF="https://www.centos.org/forums/viewtopic.php?t=59369">CentOS forum</A>
+<BR>
+But... CentOS pivot to upstream, and Fedora marking some update as security... may not be comprehensive?
+but yum-cron with security only on CentOS and Rocky would be safer than without it.
+
+<PRE>
+update /etc/yum/yum-cron*conf
+updates should be logged to /var/log/yum.log
+
+yum updateinfo list security all
+yum --security upgrade		# install only rpm that are needed to fix security issues.  *just use this*
+
+yum info-sec			# list avail security update, with description.  somehow slightly diff result list than yum --security upgrade or yum list-sec
+yum --security check-update	# a very long list, include already installed fixes.
+yum list-sec			# list rpm with sec update avail, they may or may not have been applied already.
+yum list-security		
+
+</PRE>
+
+
 <LI> Oracle Linux (is it still around?) is essentially RHEL, but support is provided from Oracle directly.  Oracle DBAs probably like it.
 <LI> Scientific Linux has 'fastbugs' and 'security' updates.   Security updates are enabled by default.  
 See <A HREF="https://www.scientificlinux.org/documentation/faq/faq-updates/">SL FAQ from Fermilab</A> and 
@@ -3427,6 +3447,29 @@ https://wiki.gentoo.org/wiki/SELinux/Tutorials/How_SELinux_controls_file_and_dir
 
 </UL>
 
+Overall system state:
+
+<PRE>
+
+SELinux in RHEL 7 has 2 states
+- disabled
+- enabled        
+
+and 2 mode while enabled:
+- permissive
+- enforcing
+
+sestatus      # check status, 
+setenforce 0  # go into permissive mode
+setenforce 1  # go into enforcing  mode
+
+
+</PRE>
+
+
+SE Linux has quite a number of places where permissions are set...
+
+
 <PRE>
 
 useradd -Z user_u 	# when adding new user, also give it a default context. 
@@ -3494,21 +3537,50 @@ Ansible module:
 
 <H5>Allow binary to open tcp port</H5>
 
+<PRE>
 eg: change ssh to use port 2222 in rhel7
 denials noted in /varlog/audit/audit.log
 
 semanage port -a -t ssh_portt -p tcp 2222
+</PRE>
+
+<H5>SSHD to read sym link</H5>
+
+Say home dir got filled, and whatever reason LVM etc not used, and home dir was moved and sym linked, 
+users who ssh in may get a permission error bout not being able to cd to their home dir
+user get logged into / 
+but yet they can just run `cd` 
+and get back to their home dir.
+<BR>
+It is definately a SELinux problem if `setenforce 0` to go to permissive mode and problem goes away.
+<BR>
+Fix:
+<BR>
+
+<PRE>
+semanage fcontext -a -t ssh_home_t '/global/home/users'
+restorecon -v '/global/home/users'
+Relabeled /global/home/users from system_u:object_r:default_t:s0 to system_u:object_r:ssh_home_t:s0
+
+PS.
+chcon --type home_root_t /home/tin or the like wasn't likely needed
+drwxr-xr-x. 35 root root  system_u:object_r:home_root_t:s0         4096 Nov  1 17:18 /home
+drwx------. 16 bofh users unconfined_u:object_r:user_home_dir_t:s0 4096 May  6 10:52 /home/bofh
+
+</PRE>
+
+Ref:
+<LI>
+https://linuxfreelancer.com/could-not-chdir-to-home-directory-permission-denied
+<LI>
+CF_BK/sw/selinux.rst
 
 
 <H5>SELinux for RHEL 7 </H5>
 
-<PRE>
-sestatus # check status
-</PRE>
 
-
-Can only be disabled by editing config file and reboot.  <BR>
-ping in rhel7 does not rely on setuid big, but on selinux context to gain elevated priv to do the ping.  <BR>
+Can only be fully disabled by editing config file and reboot.  <BR>
+ping in rhel7 does not rely on setuid bit, but on selinux context to gain elevated priv to do the ping.  <BR>
 Seems like RHEL7 has SELinux enable by default, and it is very usable, don't tend to run into problem/restrictions with most generic sys admin config as desktop machine.
 <BR><BR>
 
@@ -4431,17 +4503,32 @@ Linux hardware sensor, limited use<BR><BR>
 http://www-128.ibm.com/developerworks/linux/library/l-hw1/</A><BR>
 IBM write up on hw troubleshooting<BR><BR>
 
+
+
+<H5>References</H5>
+<BR>
+
 <LI><A HREF="http://www.fedorafaq.org/">
 Fedora FAQ</A><BR>
 Very good step by step procedure on how to do many things in Fedora Linux
 <BR><BR>
 
-<LI><A HREF="www.rpmfind.net">
-Linux RPM</A>, many linux flavors, but no more RHEL rpms.
-<BR><BR>
-
 <LI><A HREF="www.freshrpms.net">
 FreshRPMs</A>, mostly for Fedora, for those not avail thru YUM.
+<BR><BR>
+
+<LI><A HREF="https://sourceforge.net/projects/linuxcommand/">The Linux Command Line by William Shotts</A> (PDF book version of 
+<LI><A HREF="https://www.linuxcommand.org/tlcl.php?utm_source=tldrnewsletter">linuxCommand.org</A> <BR>
+<BR><BR>
+
+<LI><A HREF="">
+</A><BR>
+<BR><BR>
+
+Other useful sites: <BR>
+
+<LI><A HREF="www.rpmfind.net">
+Linux RPM</A>, many linux flavors, but no more RHEL rpms.
 <BR><BR>
 
 <LI><A HREF="">

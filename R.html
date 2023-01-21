@@ -1,6 +1,13 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+	<!-- ========================================
+		========================================
+	      future  class note should go to Rnotes.Rmd and knit to Rnotes.html  [now in covid19_care_capacity_map repo]
+		========================================
+		========================================
+	-->
 <head>
+
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet" href="psg.css" type="text/css">
   <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
@@ -25,8 +32,12 @@
     </tr>
     <tr>
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
-      <td align="center"><a accesskey="s" href="python.html">python</a>	</td>
+      <td align="center"><a accesskey="R" href="Rnote.html">Rnote</a>	</td>
+      <td align="center"><a accesskey="y" href="python.html">python</a>	</td>
       <td align="center"><a accesskey="p" href="perl.html">Perl</a>	</td>
+      <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>     </td>
+      <td align="center"><a accesskey="s" href="sci-app.html">Sci-App</a>       </td>
+
       <td align="center"><a accesskey="d" href="k8s.html">Kubernetes</a>                </td>
       <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>       </td>  <!--TBA-->
       <td align="center"><a accesskey="r" href="coreos.html">CoreOS</a> </td>
@@ -51,12 +62,31 @@
 
 
 
+	<!-- 	========================================
+		========================================
+		========================================
+	      	future  class notes should go to Rnote.Rmd and knit to Rnotes.html
+		========================================
+		========================================
+		========================================
+	-->
 
 <A NAME="101"></A>
 <H1>R 101</H1>
+
+Ref: 
+<A HREF="https://www.rstudio.com/resources/cheatsheets/">list of R cheatsheets</A>
+
 <PRE>
+
 R       # interactive cli
 Rstudio # gui
+
+# pacman is great for installing libraries automagically when needed
+# this clever pacman construct from Dr Jennifer Head of GIS 272a class would check for pacman itself 
+package_list = c("ggplot2", "dplyr", "sf", "rgdal", "raster", "here", "scales")
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(package_list, character.only=TRUE)
 
 # run single command in shell
 Rscript -e "print(system('hostname'))"   
@@ -68,10 +98,11 @@ Rscript --quiet -e 'install.packages("pacman",    repos = "http://cran.us.r-proj
 Rscript --quiet --no-readline --slave -e '{ library(pacman); p_load( ggplot2, scales ) }'
 
 
-Special symbols
+special symbols
 
 ^   power. 2^8 
 $   separate table name and column name, eg nhanes$gender, opt$indir
+@   subparts of "composite/nested" obj?  eg sp@data = df portion of sp  Spatial Polygon obj from rgdal::readOGR()   # wk1 gis272a   
 ~   tilde operator, 
 -   minus, substraction.  eg a-b . Just-dont-use-it-in-var-name, as it is treated as substraction of each terms listed!  
 
@@ -79,14 +110,21 @@ log(100)           # Think ln() here!  By default, R log has base e!  same as bc
 log(1000, base=10) # this is log with base 10
 log(1000, 10)      # same as above
 log10(1000)        # ok, it is used often enough they do have a fn name for log base 10!
+LN                 # maybe used as LogNormal (distribution)
 
 exp(1)             # expoent of natual log.  same as bc's e(), python math.exp()
 
 log(exp(1))        # identity
 exp(log(1))        # identity
 
+# R use log for natural log, but can redefine/alias ln as:
+`ln` = log
+
+
 Note, R doesn't treat dot differently.  it is often used as part of variable name or function name, like chisq.test() or p.hat.
 However, neither Python nor bc likes dot in the variable name, so cut-n-paste simple calculator lines with variables with dots in them result in error.  May try to avoid use of dot in variable names for code portability.  (eg pasting from R to jupyther notebook with python kernel)
+
+options(scipen = 999) #turn off scientific notation
 
 </PRE>
 
@@ -164,25 +202,116 @@ week = c( "Mon", "Tue", "Wed" )
 "Tue" %in% week   # returns TRUE
 
  %in%             # in (think math set)
-!%in%             # NOT in 
 between()         # dplyr
 between(Year,2017,2020)         # Year is a column with numeric values, so it is a math <= and >= range
 near()
+
+# there is no built-in NOT in operator in R, so define one as (note the use of backtick around whole operator name):
+# https://stackoverflow.com/questions/38351820/negation-of-in-in-r
+`%nin%` = Negate(`%in%`)
 
            7L == as.double(7) # returns TRUE.  ie R will compare numbers across data type in a human desirable way.
 as.integer(7) == as.double(7) # returns TRUE, it is same as above.
 
 sqrt(2)^2 == 2                 # FALSE cuz float approx rounding error
-dplyr::near( sqrt(2)^2, 2  )   # TRUE, has build-in tolerance
+dplyr::near( sqrt(2)^2, 2  )   # TRUE, has built-in tolerance
 
 
 matrix1 == matrix2  	# is an element wise comparison, returning another matrix.  Somewhat unexpected!
 c(1,2,3) == c(4,2,3)	# vector, list comparisons are also elementwise, it is said to be useful in the R world.
 
+# cannot add two strings, to concat them, need to use concat fn.  eg stringr::str_c
+beastTreeFilePath = str_c( beastTreeFileDir, beastTreeFileName )
+# above works for data frames.
+# there is a sprintf for simple string joining, see below.
+
 
 </PRE>
 
+<H1>Tips and Tricks for frequent R user</H1>
 
+<PRE>
+# this tip from Dr Jennifer Head of GIS 272a class
+# kinda like pushd of bash...
+
+The `here` package creates paths relative to the top-level directory. The package displays the top-level of the current project on load or any time you call `here()`. The function `i_am()` can be called at the top of the R script to set up the project root correctly. You can then build paths relative to the top-level directory in order to read or write a file.
+
+```{r}
+i_am("Lab1_blank.Rmd")
+here()
+```
+
+</PRE>
+
+<H1>R Stuff that is weird</H1>
+
+aka: stuff that might bite you in the @$$ :-\
+
+<PRE>
+for-loop is uncommon in R.
+sapply() may do most of the things a for loop would, 
+but there is no way to specify the variable name.
+
+but for-loop has optimization, side-effect only may not be executed by R?
+eg need the following construct to work (coming from say python/C world of thinking):
+
+for( i in colnames(df) ) {
+  x = sum( is.na( df[i] ) )
+  msg = sprintf( "column %s has %d NAs", i, x )
+  print( msg )
+}
+
+## the for loop optimization in R is skipping execution for things that only produce "side effects"
+## sum( is.na( df[i] ))   by itself produce no output inside a for loop
+## ditto, sprintf() produce no output
+## thankfully print() does!
+
+
+## i wish could have used sapply for above, but no way to stand in for "i" in the is.na(df[i])
+
+sapply( df, is.na )   # apply is.na for each cell of df, not a column
+
+total_na_count = sum( sapply( df, is.na ) )	# but no easy way to do per column count of na using sapply (??)
+
+
+</PRE>
+
+careful with %>% , especially when chaining... 
+
+<PRE>
+%>% is awsome, like unix pipe, but sequentially chaining them have to pay attention to nuances.
+if involving the same variable, may not be updated...
+don't specify the df (table) name again, 
+this below is BAD!
+
+df_step2 = df %>%
+  mutate( state = str_remove_all( df$state, "[^[:alpha:]]" ) ) %>%   # remove space and _
+  mutate( state = str_to_upper( df$state ) )                   %>%   # convert state to upper case
+  mutate( orientation = na_if( df$orientation, -999 ))         %>%
+  mutate( orientation = na_if( df$orientation, -1   ))               # BAD! previous step overwritten, df$ has orig value!
+
+
+## if not creating new column, no need for mutate()
+## replacing them "in-place" has a cleaner syntax :D
+df$gender = na_if( df$gender, -999 )
+df$gender = na_if( df$gender, -1 )
+
+
+## but if creating new column, or really want to use mutate, then be sure NOT to specify the df name, just column name, ie
+## do this instead, then work as desired:
+
+df_step2 = df %>%
+  mutate( state = str_remove_all( state, "[^[:alpha:]]" ) ) %>%   # df$ not used
+  mutate( state = str_to_upper( state ) )                   %>%   # just use the colunm name, then chaining works 
+  mutate( orientation = na_if( orientation, -999 ))         %>%
+  mutate( orientation = na_if( orientation, -1   ))               # this chaining step works.
+
+</PRE>
+
+<UL>
+<LI> Try as much as possible make code-block idempotent, eg if action will permanently change things, give it a new name, or make a backup of the old table/data frame first.  So repeated run does not have result that depends on some intermediary code/variable state in the middle of some debugging session.
+<LI>
+</UL>
 
 <H1>R, Try before S :-P</H1>
 
@@ -261,6 +390,13 @@ print(system( 'uptime', intern=TRUE ))
 library(data.table)
 fread( "cat /proc/loadavg", check.names=TRUE ) ## run system command and read result into data.frame
 
+library(pacman)
+p_load(plot_ly)
+
+# the option 'style' conflicts when both plot_ly and XXX libraries are loaded
+# unload the library with:
+detach("package:plotly", unload=TRUE)
+
 </PRE>
 
 <H2>Setting dir for user package install</H2>
@@ -337,6 +473,67 @@ cat ~/Downloads/initialization*.R | grep library | tr ";" "\n" | tr "()" ":" | g
 
 -->
 
+<H2>Defining Function</H2>
+
+(PHW251 bonus problem set)
+
+<PRE>
+return_even = function(x){
+  if (x %% 2 == 0) {
+    return("I'm an even number!")
+  }
+}
+
+x = 4
+return_even( x )
+</PRE>
+
+dot-dot-dot in R fn, fn( ... ), 
+see <A HREF="https://r4ds.had.co.nz/functions.html#dot-dot-dot">ch19.5.3 of R4DS</A>
+
+<BR>
+
+When writting pipeable fn, need to worry about transformations vs side-effects.
+See
+<A HREF="https://r4ds.had.co.nz/functions.html#writing-pipeable-functions">ch 19.6.2 of R4DS</A>
+
+<BR>
+
+function that can be used in df %>% mutate()  ...
+ie pipeable...
+
+
+<PRE>
+Note:
+7 * c(2,3)                   # return a list
+7 * as.data.frame( c(2, 3) ) # return a df
+
+the math fn in R are "overloaded" to handle various data types natively... 
+fn to do the same need to ??
+
+even logical operators like == and >= would work on list, they return list of logical comparison.
+
+</PRE>
+
+Subtle things to keep in mind when defining functions in R:
+<BR>
+Lesson learned from 
+<A HREF="R_phw251_bonus_problem_set.html">PHW251 Bonus Problem Set</A> under Q4:
+<BR>
+
+</PRE>
+IF-statement can't handle list...
+
+# when used with mutate, R give this a whole vector
+# not element-wise with value from each cell
+# thus if-statment cannot be used
+# need a vector ready if_else
+# and dont use a RETURN clause with if_else!   ***
+# Avoid R-base ifelse(), it is less strict and may compute incorrect/unexpected result. 
+
+</PRE>
+
+
 <H2>CSV example</H2>
 
 Simple example reading csv file and getting summary info about it.
@@ -350,6 +547,10 @@ data %>% head() # like unix cat data | head
 data %>% summary()  # summary stat for each column of data, eg min,median,quartilers
 
 str( data ) # see list of variables (column headers) 
+
+typeof( df )		# this will just return list
+typeof( df$colname ) 	# this can determin data type of a specified col in a df.
+sapply( df, typeof ) 	# sequentially apply the typeof fn to the expansion of df
 
 </PRE>
 
@@ -467,6 +668,11 @@ print( "this is outside the if_statement_block" )
 
 # there is an elseif ...
 
+# note that if( height > 9 )  only handle scalars!
+# if the var could be vectorized, eg for use with df %>% mutate()
+# need to use ifelse( cond, true-case, false-case )
+# the dplyr if_else(...) version is stricter, but didnt work out for me to compare vectorVar > scalar 
+
 • for(var in vec) {expr}: 
 for-loop: the counter var runs through the vector vec 
 and does expr each run
@@ -557,16 +763,28 @@ comma(12345678) # pff, 8 digit still print as 1.2e+07 WTH!
 Basic data types 
 <PRE>
 numbers, don't check for them using ==, but instead use fn:
--Inf	negative infinity eg -1/0  is.finite()
- Inf	Infinity          eg  1/0  is.infinite()
- NaN 	Not a Number      eg  0/0  is.nan()
+ Inf	Infinity          eg  1/0  is.infinite(x)   is.finite(x)
+-Inf	negative infinity eg -1/0  
+ NaN 	Not a Number      eg  0/0  is.nan(x)  eg2 sqrt(-1)
+ NULL	undefined                  is.null(x)
+
+ NULL and NA are not the same thing
+
+what is NA:
+- NaN               but there are caviats, see myMessyVect3 below
+what is not NA:
+- Inf, -Inf
+
+
 
 Boolean: TRUE (T), FALSE (F), NA
   use is.na() to check for NA (when logical comparison fails)
 
+NA = Not A Number - logical vector of a length 1 and applies to numerical values only (not integer)
 NA is the token to indicate a value that is not availabe.  Kinda like UNDEF.  
 It is not a string, and it is not NULL.
 It is spelled exactly as NA , both caps.
+
 
 > foo=NA
 > foo
@@ -574,7 +792,8 @@ It is spelled exactly as NA , both caps.
 > bar=na
 Error: object 'na' not found
 
-• is.na(): test if variable is NA
+•  is.na():   test if variable is NA
+• !is.na():   use this to check NOT NA.  ## is.nan() check for Not A Number, not same thing as missing value!
 
 each type of atomic vector has its own missing value:
 NA		# logical 
@@ -591,12 +810,36 @@ add the argument na.rm=TRUE
 > max(j, na.rm=TRUE)
 [1] 2
 
+x = NA
+x==NA      	# result in NA, any computation with NA results in NA in R
+is.na(x)   	# return TRUE
+identical(x,NA)	# this also return TRUE
+is.nan(x)	# FALSE, ie NA is not consider NaN
+
+e = sqrt(-1)
+is.nan(e)
+is.na(e)	# TRUE ie NaN is considered NA
+		# maybe think of NA as superset encompassing NaN
+</PRE>
+
+NULL is somewhat strange in R.
+some of the behavior is likely for graceful handling/combination of vectors with NULL in them.
+<BR>
+
+<PRE>
+n = NULL
+m = n + 10	# this is NOT invalid operation!
+m		# get numeric(0)
+is.na(NULL)	# get logical(0)
+
 </PRE>
 
 NULL
-<PRE>
+<BR>
 Vector, elements, can be erased by assigning it as NULL.
 eg
+
+<PRE>
 
 > myMessyVect = c("apple", "banana", "cambur")
 > str(myMessyVect)
@@ -604,7 +847,68 @@ eg
 > myMessyVect = c("apple", NULL, "cambur")
 > str(myMessyVect)
  chr [1:2] "apple" "cambur"
-# note that NULL get dropped, no space preservation/hogging (at least when using this syntax)
+
+# note that NULL get dropped, no space preservation/hogging
+
+
+
+> myMessyVect3 = c("apple", NULL, 30, NA, 50, sqrt(-1), NA )
+> str(myMessyVect3)
+chr [1:6] "apple" "30" NA "50" "NaN" NA
+> length(myMessyVect3)
+6
+# Overall, note that while NULL got dropped, NA and NaN get a place holder, 
+# there are 6 elements in the vector (NOT 7!)
+
+
+> which(is.na(myMessyVect3))          
+[1] 3 6                                      # identify elements index in the vector that is NA
+> is.na(myMessyVect3)                        # results is a vector, an element comparison of whether each element is NA
+[1] FALSE FALSE  TRUE FALSE FALSE  TRUE
+
+
+> is.nan(myMessyVect3)				# however, is.nan() does not match the sqrt(-1) element
+[1] FALSE FALSE FALSE FALSE FALSE FALSE		# some strange way in how R compare NaN ??
+
+
+> sum(is.na(myMessyVect3))			# this count number of NA in a vector
+[1] 2
+> sum(is.nan(myMessyVect3))			# again, NaN comparison did not work as hoped and result in a count of 0
+[1] 0
+
+
+myNoNaVect = myMessyVect3[ !is.na(myMessyVect3) ]
+# this drops the NA, but preserve the NaN
+# Null never got stored to begin with in myMessyVect3
+
+mean( myMessyVect3 )		# this still does NOT work, cuz any manip with NaN result in NaN.
+# how to clean NaN?   hopefully hardly ever need to do this...
+
+mean( myMessyVect3, na.rm=TRUE )	# still DONT work, so much about is.NaN is.NA =\
+
+</PRE>
+
+<H5>Finding Missing Data</H5>
+
+Tricks to help data inspection to see if there are missing data, outliers, stuff that fails "validation".
+<BR>
+(PHW251 wk8)
+
+<PRE>
+summary(  as_date( df$dateCol ) ) 		# displays Mean,Median,IQR and Num of NA for a date column
+						# useful to find outliers and NA
+						# operate on any vector of data, including dates.
+
+sum( is.na( df$colName ) )			# count total number of NA in a column (ie operate on a vector)
+
+table( df$colName, useNA="always" )		# a freq table tallying each occurance of a value and how many times it appears
+table( df$colName, useNA="ifany" )		# useNA="ifany" will omit NA count result if there are NO NA.
+
+ggplot(data=df, mapping=aes( x=colName )) + geom_bar()   # bar graph version of table() eg above
+
+table( df$col1, df$col2, useNA="ifany" )	# produce a 2x2 freq table of freq/count based on the 2 vars (col names)
+
+ggplot(data=df, mapping=aes( x=col1, y=col2 )) + geom_count() + xlim(0,70)  # XY scatter plot with count size for 2D table() eg above
 
 </PRE>
 
@@ -613,12 +917,73 @@ eg
 
 <PRE>
 na.rm=T   # many function take this as option to drop entries with missing data, ie, where data is "na"
-nhanes = read_csv("nhanes.csv")
+nhanes = read_csv("nhanes.csv")  # library(readr)
 nhanes = na.omit( nhanes )       # remove row that has missing values.
 
+testing = readxl::read_excel(
+  file_path,
+  na="NA"				# this at least parse numeric col correctly, no more string, and mark NA
+)
+
+# drop rows with missing values
+df %>% drop_na( colName ) 			# evaluate colName, if NA, drop such row
+df %>% drop_na( c(col1,col2) ) 			# use c() to give a list of column names
+df %>% drop_na( ) 				# if no colName specified, evaluate ALL cols, if NA in any, drop such row
+
+df %>% filter( !is.na( colName ) )		# there is no is.nna(), so negate is.na()
+df %>% filter(  is.na( colName ) )		# this pick rows where colName is NA
+
+# filter (keep/grep) rows meeting some logical comparisons, eg within a given date range
+df %>% 
+filter( coll_date >= as_date( "2020-08-01" ) &
+        coll_date <= as_date( "2020-08-31" )
+<!-- htmlParserFood -->
+
+use if_else(), case_when() or recode() to locate and handle NA
+
+recode eg below does (PHW251 wk8 correction.Rmd reader p94):
+- replace (string?) Grp1 with "San Diego"
+-                   Grp2 with "Los Angeles"
+- `Grp1` can be replaced with "Grp1".  R handle 3 types of quotes?  " ' and ` 
+  `` vs "" is useful to have `LHS`="RHS" to help with readability
+mutate(group = recode(group, `Grp1`="San Diego", `Grp2`="Los Angeles"))
+
+</PRE>
+<!-- htmlfood -->
+
+grepl -- this is very much like unix grep !
+<BR>
+(PHW251 wk8 correction.Rmd reader p101):
+
+<PRE>
+
+egrep for "1" or "one", case insensitive, in the col named "group", and replace with string "San Diego"
+~ is the "map to" replacement action
+
+  mutate(group_cat = case_when(
+    grepl( "1|one", group, ignore.case=TRUE)    ~  "San Diego",
+    grepl( "2|two", group, ignore.case=TRUE)    ~  "Los Angeles",
+    TRUE ~ NA_character_    # map everything else to NA, but need to be specific as mutate expect char
+  )) %>%
+  drop_na(group_cat)        # drop NA
+</PRE>
+
+na_if
+
+<PRE>
+mutate(  colName = na_if( colName, Inf ) )	# here, if Inf appears in a cell at colName, replace Inf to NA
+mutate(  colName = na_if( colValid, False ))	# colValid is a pre-computed col indicating if some condition is met, eg cont <= max , if FALSE, replace value as NA  #>
 
 </PRE>
 
+replace_na
+<PRE>
+
+replace_na( list( var=value ) )
+replace_na( list( var1=value1, var2=value2 ) )
+
+row_number()==23	# select row 23  # though I don't like this approach, what if data get resorted?!
+</PRE>
 
 <H5>R stuff - stat stuff</H5>
 
@@ -670,8 +1035,9 @@ Ref: <BR>
 
 prefix: p, q, d, r ::
 
+pClass( q=…, mean=…, sd=…, lower.tail=T )
 p for "probability", the cumulative distribution function (c.d.f.)
-	return the AUC for X<=x, ie the probability  (when lower.tail=TRUE)
+	return the AUC for X≤x,  ie the probability  (when lower.tail=TRUE)
      	return the p-value                           (when lower.tail=FALSE)
 
 	F(x) = P(X ≤  x)
@@ -691,6 +1057,7 @@ p for "probability", the cumulative distribution function (c.d.f.)
 	scipy.stats.norm.sf( 27.4, 50, 20 )     # sf = 1 - cdf
 
 
+qClass( p=…, lambda=…, lower.tail=T )
 q- for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha; )
 	Have AUC (ie probability or p-value, typically alpha=0.05), get value of x (aka q, quantile)
    	p = F(x)
@@ -705,6 +1072,7 @@ q- for "quantile", the inverse c.d.f. - aka PPF(q) for probability ( 1 - &alpha;
    	Excel: norm.inv( 0.95, 100, 15 ) .  Excel has a norm.s.inv(0.05), but only take mean=0 sd=1.
 
    	
+dClass( x=…, size=…, prob=… )
 d- for "density", the density function (p.f. or p.d.f.)
 	or more often discrete?  eg dbinom, dpois
   
@@ -718,10 +1086,10 @@ r- for "random", a random variable having the specified distribution
 	If n or size > 1 get a vector.
 	Excel:  norm.s.inv( rand() )
 
-     [d- and p- are typically grouped as they are often for discrte vs continuous dist, ie X=exact vs X≤up-to a specific value ]
+[d- and p- are typically grouped as they are often for discrte vs continuous dist, ie X=exact vs X≤up-to a specific value ]
+for [dp]binom, at lowest range interval of 0, dbionom(0,…) == pbinom(0,…)
 
 pnorm,  qnorm,  dnorm,  and rnorm.  are the p-, q-, d-, r- fn for Normal Distribution.  
-     
 
 pbinom  qbinom  dbinom  rbinom - for binomial distribution
 pchisq	qchisq	dchisq	rchisq - for Chi-Square   scipy.stats.chi2.cdf() etc
@@ -795,6 +1163,8 @@ num4=as.integer(8); str(num4)   # num
 
 (as.character(1:4))   # get [1] "1" "2" "3" "4"
 
+as_date( "2020-08-01" )		# ?tidyverse date fn?
+
 
 # manipulating date, internally stored as number (double)
 # time, internally stored as number of seconds since unix epoch
@@ -813,7 +1183,23 @@ sn50dob + months(6) + 28	# months() do what's expected.  no years() ?
 ( Sys.Date() )			# get current date
 with_tz(Sys.time(), tzone = "America/Los_Angeles")
 
+# add a DATE_FIX column by parsing a variety of date input
+placebo_df = placebo_df %>%
+  mutate( DATE_FIX = parse_date_time( DATE, c("mdy","dmy") ) )
 
+# get last date of the month
+# essentially, increment to next month, 
+# substract 1 day by using %m-% days(1)
+ceiling_date( as_date( "2020-02-01", "month" ) %m-% days(1)  
+
+as.numeric(var)
+as.character(var)
+
+# string change case
+str_to_upper(var)	# var could be vector, so usable inside a mutate()
+str_to_title(var)
+
+round( x*100, 2)	# round to 2 digits, here used arithmatic expression, as in convert num to percent
 
 </PRE>
 
@@ -841,16 +1227,41 @@ length(myVector)
 aString="this is a string"
 start_position = 1  # R index start from 1
 end_position   = 4
-substr(aString, start_position, end_position)  # result is "this"
+substr(aString,  start_position, end_position)  # result is "this"
+
+str_sub(aString, start_position, end_position)  # same as above, in tidyverse's stringr str_ fn family 
+str_sub(aString,   14                        )  # no end position, match till end.  this result in ing
 
 # substitution, think unix s/patter/replace/g
 pattern="this"
 replace="that"
 gsub(pattern,replace, aString)  # result is "that is a string"
 
+# convert a column of human dollar formatted data eg  $1,234.56 to numeric
+funding_data = funding_data %>% 
+  mutate(Numeric_Cost = as.numeric(
+    gsub( '[$,]', '', funding_data[["Total Costs of OSHPD Projects"]] ) 
+  ))
+
 </PRE>
 
-tidyverse vs native 
+# filter rows when col has exactly some string:
+taxaSubset = c( "goo", "gui", "qua", "rab", "she"  )
+wgs_with_loc_subset = wgs_with_loc %>%
+  filter( taxa_name %in% taxaSubset )
+
+
+# filter rows when col has substring pattern -- use grepl  ## make_metadata4phylo.Rmd
+taxaSubsetRE = "goo|gui|qua|rab|she"
+wgs_with_loc_subset = wgs_with_loc %>%
+  filter( grepl(taxaSubsetRE, taxa_name ) )
+
+
+
+tidyverse Stringr vs native 
+<BR>
+
+Aside from a consisten family of functions, stringr interface with C lib and thus is noticeably faster when manipulating large data set.
 
 <PRE>
 library(stringr)      # tidyverse package
@@ -858,12 +1269,129 @@ str_to_upper(aString) # same as toupper(aString)
 str_to_lower(aString)
 str_to_title(aString) # result in "This Is A String"
 
-word_bag = c("apple", "mango", "pineapple")
+word_bag = c("apple", "mango", "pineapple")		# word_bag is a list
 str_detect( word_bag, "ap")  # get T F T (ie a vector of boolean)
+
+str_detect( word_bag, "a|e")  # search by regular expression syntax: a or e
+
+str_detect(word_bag, regex("APP", ignore_case=T) )	# case insensitive search, 
+# PATTERN need to spell out use of regex() fn, or coll(), fixed() dealing with end of line boundaries
+
+word_bag[ str_detect(word_bag, "ap") ]  	# return a list with matching elements from original list instead of vector of boolean
+
+# construct a new dataframe col called "fav", populated conditionally using ifelse() whether `e` appears on the fruit name:
+fruit_df =  data.frame( fruit_name = word_bag )
+fruit_df$fav =  ifelse(
+			str_detect( fruit_df$fruit_name, "e") == T, 
+								"Yes", 
+								"Not")
+
 
 </PRE>
 
-<A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R</A>
+matching |
+<BR>
+The pipe symbols is special, cuz regex use it to mean OR.
+<BR>
+So, to match a literal | in a string, need to escape it (in R) with forward slash!  ie: /|
+
+<PRE>
+for	    use
+|	      /|
+/	      //
+.       \\.      # literal period
+!       \\!
+?       \\?
+\\      \\\\
+(       \\()
+)       \\)
+\t      \\t      # tab
+\n      \\n      # newline
+\d      \\d      # :digits:
+
+
+[[:punct:]]
+[[:alpha:]]
+[[:ASCII:]]		# ascii chars (7 bit?, ie the 127 chars set)
+[^[:digit:]]		# everything but numerals  ^ means complement in reqgex, 
+
+\0 				NULL
+\nnn				octal code char, 1-3 digits
+\xnn				hex   code char, 1-2 digits
+\unnn		\u{nnnn}	unicode char, 1-4 digits
+\unnnnnnn	\u{nnnnnnnn}	unicode char, 1-8 digits
+
+r"(...)"			C++ syntax also usable (mostly)
+
+use ?"'" to see list of escape for quotes, non print and unicode sequences.
+
+R allows quotes with:
+""		# 
+''
+``		# backticks is (?preferred), essential when used in formula
+
+# a variable with space in it need to be enclosed in backticks!
+`x y` = 3
+
+# more likely, as column names in df from read_csv or the like
+d =  data.frame(`1st column`=3, check.names=FALSE)
+d$`1st column`
+
+
+# escape \" to treat it as literal, rather than as end of quote marker
+# R does not use paired quoting eg `string'
+identical('"It\'s alive!", he screamed.',
+          "\"It's alive!\", he screamed.") # same
+
+</PRE>
+
+
+
+<PRE>
+odd_list =  c("2394|Yes", "129390|No", "1986602|Sometimes", "99854229|Disagree", "12|Carrots")
+str_locate(odd_list, "[/|]")
+# locate the char index where the | pipe symbol is located in the string
+
+# pulls out only the starting location
+str_locate(odd_list, "[/|]")[,1]		# PHW251 wk8 stringer_toolbox.nb.Rmd
+</PRE>
+
+
+replacing string, instead of gsub() ...
+
+<PRE>
+
+# replace all space with underscore:
+str_replace_all("Lab test Result COLUMN", " ", "_")
+
+# replace multiple chars: space and hash,  with empty, ie remove them
+str_replace_all("Lab test Result COLUMN#5", "[ |#]", "")
+
+"[[:punct:]]|[[:alpha:]]"	# all punctiation symbols or alpha characters
+
+^ means complement in reqgex, 
+
+str_remove_all( data, "[^[:digit:]]" )		# remove everything but digits
+str_remove_all( data, "[^[:ASCII:]]" )		# everything but ascii chars (7 bit?, ie the 127 chars set)
+
+</PRE>
+
+
+<BR>
+
+Ref:
+<UL>
+<LI> Tidyverse's <A HREF="https://stringr.tidyverse.org/#compared-to-base-r">stringr vs base R</A>
+<LI> Tidyverse's <A HREF="https://github.com/rstudio/cheatsheets/blob/main/strings.pdf">stringr cheat sheet</A> 
+(include R's Regular Expression).
+<BR>
+
+
+</UL>
+
+<H3>R Data Structure</H3>
+
+Ref: <A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R Data Structure</A>
 
 <PRE>
 
@@ -897,6 +1425,29 @@ f2 = factor( c("apple", "orange", "apricot", "apple"), levels = c("apple","orang
 # this will help tremendously in identifying data join problems.
 [1] apple  orange {NA}   apple 
 Levels: apple orange
+
+
+myList1 = c( "low", "low", "high", "High" )
+myList2 = c( 1,3,4,2,1,1,5 ) 
+factor(myList1,  ordered=T, levels=c( "low", "middle", "high" ) )
+factor(myList1,  ordered=T, levels=c( "low", "middle", "high" ), labels=c( "l","m","h") )
+factor(myList2,  ordered=T, levels=c( 1,2,3 ) )
+factor(myList2,  ordered=T, levels=c( 1,2,3 ), labels=c( "l","m","h") )
+factor(myList2,  ordered=T, levels=c( 2,1,3 ), labels=c( "Dos","Uno","Tres") )  # levels can be in any arbitrary order (useful when they will be part of bar graph)
+
+# creating a new column of factor
+nyc_borough_id = c( 1:5 )
+nyc_borough_name = c( "Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island" )
+
+nyc_borough_fct_practice =
+  factor( bll_nyc$borough_id, levels=nyc_borough_id, labels=nyc_borough_name )
+
+bll_kab = bll_nyc %>%
+    mutate( borough_fac =
+              factor( bll_nyc$borough_id,
+                      levels=nyc_borough_id,
+                      labels=nyc_borough_name ) )
+
 
 
 For data set in 10-100 GB, may want to learn to use data.table .  
@@ -969,14 +1520,12 @@ Naming vectors
 
 <PRE>
 # Naming vectors
-# ie, namving each of the element in a vector
-
+# ie, naming each of the element in a vector
 namedVect = c( x=1, y=2, z=4 )
 namedVect
 
-# or after the fact 
+# or after the fact using purrr::set_names() :
 myVect = c(1,2,4)         # results is [1] 1 2 4
-
 postNameingVect = purrr::set_names( myVect, c("x","y","z"))
 # result is (same for namedVect):
 x y z
@@ -1082,7 +1631,8 @@ typeof(mat1)  # get "integer"
 
 names()
 rownames()
-colnames()
+colnames(df)    # this fetch names of the column
+colnames(df) = c( "newColName1", "newColName2" )  # this assignment overwrite the column name for the named df
 dimnames()
 t() - transpose
 
@@ -1177,9 +1727,68 @@ Ref:
 <BR>
 
 <PRE>
-pivot_longer( … names_to = "new_col_name", value_to = "col__with_data" )
-pivot_wider( names_from="col_that_becomes_header", value_from="col_with_data" )
+pivot_longer( c('oldCol1','oldCol2','oldCol3'), names_to = "new_col_forVarName", value_to = "col__with_data" )
+pivot_wider( names_from="col_that_becomes_new_header", values_from="col_with_data" )
+
+# pivot_longer need 3 parameters:
+rxn_long = rxn_time %>% 
+  pivot_longer( c('1','2','3'),                  # list of column names with data to pivot
+                names_to="cheese_count",         # new 1st column name containing name (of the new data field)
+		values_to="time"                 # new 2nd column containing the data values indicated by the field name above
+	      )
+
+
+home_visit_wide = home_visit %>%
+  pivot_wider(
+    names_from  = "action",  # "col_that_becomes_new_col_names" (would get as many new col as uniq values in the named col)
+    values_from = "count"    #"col_with_data"
+    )
+
 </PRE>
+
+<!-- PHW251 wk10 reader p14 -->
+<H3>Joining tables</H3> 
+
+examples from r4ds ch13
+
+<PRE>
+library(nycflight13)
+flights %>% left_join( airlines, by="carrier" )
+# airlines is the "right" table
+# all records on "left" table (flights) are kept, 
+# with a mutate-join adding additional variables (cols) from right table to the left table
+# by="carrier" defines the KEY column to base the join  [ SQL USING(carrier) ]
+
+# in R base, equiv construct using mutate():
+flights %>% mutate( name=airlines$name[ match(carrier, airlines$carrier) ] )
+
+# join where key have diff col names
+inner_join( x=leftTable, y=rightTable, by=c( "county_name" = "county" ) )
+
+inner (equi) join  - think set intersection, only when row (key) is in BOTH tables
+
+outer joins (useful to think in venn diagrams):
+left join  - keep everything in left table
+right join - keep everything in right table
+full join  - keep all observations (many NA could result)
+
+dplyr		vs R's base::merge
+-------		-------------------
+inner_join(x,y)	merge( x,y )
+left_join(x,y)	merge( x,y, all.x=T )
+right_join(x,y)	merge( x,y, all.y=T )
+full_join(x,y)  merge( x,y, all.x=T, all.y=T )
+
+
+reduce_result = Reduce(function(...) left_join(..., by='county_name' ), list(df_2010,df_2011,df_2012))
+# Reduce() take a list of data, and apply a fn to it one at a time
+# it is reduced coding for repetitive apply-xyz kind of function
+# the (...) is place holder for where the dataset and fn name would be applied
+</PRE>
+<!-- Reduce in wk 10, last video, and at end of join.Rmd -->
+Ref for Reduce():
+<LI><A HREF="https://stackoverflow.com/questions/28545688/understand-the-reduce-function">SO</A>
+<LI><A HREF="https://www.rdocumentation.org/packages/base/versions/3.4.1/topics/funprog">R doc</A>
 
 
 <H3>Creating sample data for testing</H3>
@@ -1203,6 +1812,14 @@ runif(5)  + 100		# same as above, just to make it obvious what R is doing.
 From PHW251 week 4
 
 <PRE>
+
+h1 = c( 123,  124)    # cm
+h2 = c(  5.6,   6.6)  # ft
+w1 = c( 71,    82)
+w2 = c(202,   176)
+df_Taiwan = data_frame( h1, w1 ) %>% rename( height=h1, weight=w1 )
+df_Colo   =  data_frame( h2, w2 ) %>% rename( height=h2, weight=w2 )
+df_both   = rbind( df_Taiwan, df_Colo ) # if col name mismatch then cant row bind
 	
 #defaults for data.frame() for reference
 
@@ -1214,7 +1831,7 @@ testing = data.frame(
     check.rows = FALSE,
     check.names = TRUE,
     fix.empty.names = TRUE,
-    stringsAsFactors = default.stringsAsFactors()   # this seems to be FALSE for me, but TRUE for other system?
+    stringsAsFactors = default.stringsAsFactors()   # the default is FALSE for me, but TRUE for other system?
 )
 
 default.stringsAsFactors() can be used to query what's the default on how data.frame() treat strings, 
@@ -1232,9 +1849,18 @@ county_df2  = testing[1]
 #subset rows
 #using the row number - can be 1:2 or c(1,2)
 testing[1:2,]
+
 #based on a specified data elements
 testing[ which(testing$total_tests>500), ]                 # note sq bracket and tailing comma
+testing %>% filter( total_tests>500 ) 
+subset( testing, total_tests > 500 )
+
 stds_Ala = stds[ which(stds[["County"]] == "Alameda"), ] 
+
+subset( testing, county=="Ala" & total_tests > 500 )	                # AND condition 
+testing[ which(  testing$county=="Ala" & testing$total_tests>500), ]    # note sq bracket and tailing comma
+
+testing %>% filter( county %in% c("Ala","CCosta"), total_tests>500 )    # filter for county in a list AND ... 
 
 # unique() , though this eg only create a new vector, not preserving original df
 unique_counties = unique( stds[["County"]]) 
@@ -1258,9 +1884,19 @@ testing$pos_tests = c(52,61,89)
 
 </PRE>
 
-rbind and cbind... use carefully to add rows and columns to df:
+rbind and cbind... use carefully to add rows and columns to df.  <BR>
+rbind = row bind = add row     <BR>
+cbind = col bind = add column  <BR>
+
+Remember, DF is concat of column vector.  rbind add rows to the end.  <BR>
+dplyr's version of row bind is bind_rows(), which can handle dataset with diff num of cols.  <BR>
 
 <PRE>
+
+rbind( existingVec, newRow )
+rbind( existingDF,  newRow )
+rbind( existingDF,  newRow1, newRow2 )
+
 #add a row using rbind()
 #create list that includes an element for each column - using a list is important since there 
 #are data of different types in the data frame
@@ -1377,6 +2013,8 @@ my_tib = tibble(
   z = x^2*y
 )
 
+myDF = my_tib %>% data.frame()	# convert tibble to df
+
 </PRE>
 
 
@@ -1386,7 +2024,8 @@ my_tib = tibble(
 <BR>
 <BR>
 
-filter() is like unix grep, picking up only rows that match certain pattern.
+filter() is like unix grep, picking up only rows that match certain pattern, but has to be exact string match.
+grepl()  is true RegEx egrep.
 
 <PRE>
 ids_file_path = "https://data.chhs.ca.gov/dataset/03e61434-7db8-4a53-a3e2-1d4d36d6848d/resource/75019f89-b349-4d5e-825d-8b5960fc028c/download/idb_odp_2001-2018.csv"
@@ -1478,9 +2117,25 @@ ids_rename = rename(ids, disease=Dis, county=Cty) 	# rename multiple columns
 # base R
 col.names( df_steps ) = c(new_name1, new_name2)		# PHW251 wk 5 reader page 18
 
-#rename all - this line will rename all variables as lower and replace spaces with _
-#the .x is used as a placeholder for column names since this will be applied to all columns
-ids_rename =  rename_with(ids, ~ tolower(gsub(" ","_",.x,fixed=TRUE)))
+
+# Code with and without pipe operator, note placement of ~ operator: 
+            dataframe %>% rename_with( ~ tolower( gsub(" ","_", .x, fixed=TRUE) ))
+rename_with(dataframe,                 ~ tolower( gsub(" ","_", .x, fixed=TRUE) ))
+# the .x is used as a placeholder for column names since this will be applied to all columns
+## does above replace the row values?
+
+# rename all - this line will rename all variables (column names) 
+#   - with lowercase names
+#   - replace spaces with _
+#   - replace slash  with _
+# chained use of %>% inside a function parameter [wk10 join]
+# rename_all is still just operating on the colunm names
+oshpd_payers = fread("data/inpatient_payer_ca.csv") %>%
+  rename_all(  . %>% tolower %>% gsub(" ", "_", .) %>% gsub("/", "_", .)  )
+
+# to manipulate the cell values inside a column, use str_replace_all(), tolower(), 
+# perhaps along with mutate() , or simply reassign df$col = tolower( df$col )
+
 </PRE>
 
 <BR>
@@ -1501,12 +2156,16 @@ id_campy_la = ids %>%
          county_cat = case_when(
            population<100000 ~ "small",
            population<1000000 ~ "med",
-           TRUE ~ "large"
+           TRUE ~ "large"                    # TRUE clause here is catch-all for everything else.  think *
          ),
          ci = paste0("(",`lower_95__ci`,", ",`upper_95__ci`,")")
          ) 
 
-#>>>"syntax-parser-food""
+#>>"syntax-parser-food"">>>
+
+TRUE ~ NA_character_ 	# often default case for handling unwanted values
+
+
 </PRE>
 
 <PRE>
@@ -2128,6 +2787,8 @@ foreach <BR>
 %do% <BR>
 %dopar% <BR>
 
+#ref for-loop <BR>
+
 <PRE>
 
 for is run for its side effect
@@ -2177,6 +2838,8 @@ per https://stackoverflow.com/questions/45767416/how-to-export-many-variables-an
 <H3>doParallel</H3>
 
 One way to do parallel processing in R
+
+<BR>#ref "for-loop" <BR>
 
 <PRE>
 NumThread=15
@@ -2386,11 +3049,256 @@ SNOW use PSOCK, easier to deal with than MPI.
 
 </PRE>
 
+<A NAME="viz"></A>
+<A NAME="dataviz"></A>
+<A NAME="data_viz"></A>
+<H1>Data Viz </H1>
+
+<!-- PHW251 week 7 -->
+<H2>Kabble</H2>
+
+Kable provide nice formating of tables for Rmd, png, LaTeX.  Part of knitr.
+It can output to HTML as well, but for that DT (DataTable, also avail in Python), or
+formattable maybe better choice.
+(wk 11 of PHW251).
+
+<BR>
+Material from PHW251 week 7
+
+<PRE>
+
+std_sf_m = some data fram from CA DPH
+
+# specify number of digits to display for numbers, 
+# as single value for every column
+kable(std_sf_m,booktabs=T, digits=0)
+
+# as a vector of numbers representing each col
+kable(std_sf_m,booktabs=T, digits=c(0,1,0,1))
+
+# #format args, large numbers are displayed as 1,234,567.1
+# year is displayed as plain 4 digits
+kable(std_sf_m,booktabs=T,format.args=list(big.mark=","))
+
+# changing how col names are displayed
+kable(std_sf_m,booktabs=T, col.names=str_to_title(gsub("[.]"," ",names(std_sf_m))))
+
+# change text display alignment (l=left, c=center, r=right)
+kable(std_sf_m,booktabs=T, align='lccr')
+
+#caption
+kable(std_sf_m,booktabs=T, caption="STD Rates among males in San Francisco, 2013-2018")
+
+
+# pick format, many more exist, most are for Rmd
+kable(std_sf_m, format="pipe")
+# kable(std_sf_m, format="latex") 
+
+</PRE>
+
+misc info
+<PRE>
+The table() fn is not for data viz
+it creates a contingency table of the counts at each combination of factor levels.
+
+# this include a graphics into Rmd
+knitr::include_graphics('data/question_1_table.png')
+
+</PRE>
+
+<H2>DT - DataTable</H2>
+
+
+
+(PHW251 wk 11)
+
+<PRE>
+library(DT)             # this one is the HTML interactive table 
+#xx library(data.table) # this one is an enhanced/replacement for R's native data.frame
+
+
+
+
+</PRE>
+
+<A HREF="https://res.cloudinary.com/dyd911kmh/image/upload/v1653830846/Marketing/Blog/data_table_cheat_sheet.pdf">DT cheatsheet from DataCamp</A> (the one that replaces data.frame)
+
+<H2>ggplot</H2>
+
+<A HREF="https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf">ggplot cheatsheet</A>
+<BR>
+(much of ggplot notes is under EpiStat)
+<BR>
+
+Brief structure: <BR>
+
+<PRE>
+ggplot(data = ______, 
+       aes( x=var1, y=var2)
+      ) +
+   geom_point( aes( col=var3 ) ) +
+   facet_wrap( ~ var4 )          +        # facet_wrap creates grids of multiple graphs, based on an an extra var
+   labs(
+        title = “Main”, 
+        x     = “Type x-axis here”  , 
+        y     = “Type y-axis here”
+       )
+</PRE>
+
+<H5>ggplot - geom_ribbon </H5>
+
+geom_ribbon add a thick bar to represent "error bar".
+it is overlay over geom_line
+or geom_line can be skipped, and only use geom_point or just ribbon by itself.
+<BR>
+
+
+<PRE>
+
+ggplot(data=std_gg3,aes(group=disease_f)) +
+  geom_ribbon( aes(x=year, ymin=lower_ci, ymax=upper_ci),fill="azure3") +
+  geom_line(   aes(x=year, y=rate), linetype="dashed") + #to set line type overall
+  geom_line(   aes(x=year, y=rate,  linetype=disease_f)) + #to set line by group
+  geom_point(  aes(x=year, y=rate,  shape   =disease_f)) + #to add points and choose shape by group
+  scale_linetype(name="STD") + #to change the title of the legend
+  # scale_shape_manual(values=c(15,17,19)) #to manually change shape types by group
+   labs(x="Year",y="Case rate per 100,000 population", title = "STD Case Rates in Alameda County",subtitle="2001-2018",caption="Data is from CDPH. The grey bars represent 95% confidence intervals.") +
+  theme_tufte()
+
+</PRE>
+
+<A NAME="plotly"></A>
+<A NAME="plot_ly"></A>
+<H5>plot_ly</H5>
+
+plotly creates interactive graphs in HTML format, good when result is posted to the web. <BR>
+
+Example from PHW251 week 11.
+<A HREF="https://github.com/PHW290/PHW251_Fall2022/blob/main/weekly%20material/week_11/Advanced%20Markdown%20Slides.Rmd">Advanced Markdown Slides.Rmd</A>
+Other interesting examples in the 
+<A HREF="https://github.com/PHW290/PHW251_Fall2022/tree/main/weekly%20material/week_11">week_11</A> dir.
+
+<PRE>
+library(pacman)
+p_load(plotly)
+covid_df = read_csv("https://data.chhs.ca.gov/dataset/f333528b-4d38-4814-bebb-12db1f10f535/resource/046cdd2b-31e5-4d34-9ed3-b48cdbc4be7a/download/covid19cases_test.csv") %>%
+  filter(area_type == "State") %>%
+  mutate(case_roll = frollsum(cases, 7, hasNA = T)/7,
+         test_roll = frollsum(total_tests, 7, hasNA = T)/7
+         )
+
+fig1 = plot_ly(data = covid_df) %>%
+  add_trace(x = ~date, y = ~cases, type = 'bar', name = 'Cases per day',
+                         marker = list(color = 'rgb(187, 216, 228)'),
+                         hoverinfo = "text",
+                         text = ~paste(round(cases, 0), ' cases')         ) %>%
+  layout( legend = list(x = 0.1, y = 0.9) )
+
+fig1
+
+
+
+
+fig3 = plot_ly( data = chronic_focus_counties ,
+            text = ~paste(County, round(pct, 1), "%"     )  # add_trace overwrite this :-\
+            ) %>%
+    add_trace(
+            x = ~County,
+            y = ~pct,
+            name = 'Chronic Mortality Rates by Counties',
+            marker = list(color = ~ctyColor),
+            hoverinfo = "text",
+            text = ~paste(round(pct, 1), "%" ),
+            type = 'bar') %>%
+   layout(
+            title = "Chronic Mortality Rates For California's Rural Counties",
+            yaxis = list( title="% Mortality Rate"),
+            xaxis = list( title="County", categoryorder='total descending' )
+         )
+	# Arrange barchars by 'total descending' height (PHW251 prj)
+	# https://plotly.com/r/reference/layout/xaxis/#layout-xaxis-categoryorder
+
+fig3
+
+</PRE>
+
+<H5>incidence2</H5>
+
+ggplot is the grand-mommy of all plots, lots of bells and whishels, but also need lots of coding.
+
+several packages provide quick table and graphing need for the standard case, just plug in the data, and outcome the results, very little code needed.  eg:
+<LI> incidence2
+<LI> incidence  (this one is covered in "The Epidemiology Handbook")
+
+<PRE>
+eg epidemic curvee (wk 13 of PHW251 EpidemicCurves.Rmd)
+
+Ebola_data <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.xlsx")
+library(magrittr)
+library(pacman)
+pacman::p_load(rio)
+pacman::p_load(incidence2)
+
+Ebola_data$date_onset <- as.Date(Ebola_data$date_onset)
+epi_day <- incidence(x = Ebola_data, date_index = date_onset, interval = "day")
+plot(epi_day)			  
+
+</PRE>
+
+<A NAME="purrr"></A>
+<H1>purrr</H1>
+
+The purrr package is said way for R to functional programming.  It is part of tidyverse.  
+the map_* class of function should corresponds to map-reduce-gather?
+For now, I am just seeing  it to repeatedly apply code repeatedly in a stateless manner to steps that are repetitions.
+It is often said map* replaces for-loops and is easier to read, structure being more consistent.
+
+ref: 
+<LI> <A HREF="https://purrr.tidyverse.org/">purrr doc at tidyverse</A>
+<LI> <A HREF="https://r4ds.had.co.nz/iteration.html#the-map-functions">Ch 21 of R for Data Science</A>
+<LI> <A HREF="https://www.youtube.com/watch?v=bzUmK0Y07ck">YT video on purrr</A>
+
+<PRE>
+library(purrr)
+
+map() result in a list
+map_lgl() results in logical vector
+map_dbl() results in a double vector
+map_df()  results in a data frame
+
+note the use of ~ tilde 
+.x is stand-in for data
+
+(eg from  wk 13 of PHW251 purrr_example.Rmd)
+
+
+site_file     <- "data/test_sites.xlsx"
+import_sheets <- c("site_A", "site_B", "site_C")
+
+all_sites4 <- map_df(excel_sheets("data/test_sites.xlsx"),
+                     ~read_excel(site_file, sheet = .x) %>%
+                       select(uniqueid, age, gender, payer ) %>%
+                       mutate(age_cat = case_when(age %in% c(0:24) ~ "< 25",
+                                                  age %in% c(25:49) ~ "25-49",
+                                                  age %in% c(50:150) ~ "> 50"))
+)
+
+all_sites4 # is a df
+</PRE>
+
 <!--  #moveBegin from line 98-1579 2022.0703 -->
 <A NAME="EpiStat"></A>
 <A NAME="epistat"></A>
 <H1>EpiStat </H1>
 Stat for Epidemiologist
+<BR>
+
+Good resources: 
+<LI><A HREF="https://argoshare.is.ed.ac.uk/healthyr_book/">R for Health Data Science</A>
+is an online book by Ewen Harrison and Riinu Pius. It's available online in its entirety, for free
+<LI><A HREF="https://epirhandbook.com/en/index.html">The Epidemiologist R Handbook</A>
+is by Neale Batra et al. and is also available on the web for free.
+
 
 <PRE>
 library("EpiStat")
@@ -2478,24 +3386,26 @@ PH 142 stat class by Prof Dr Mi-Suk Kang Dufour</A>
 <PRE>
 in: x-axis value.  out: AUC, which is prob of event x
 	d- (density) and p- (distribution) class of function.  eg dnorm, dpois , pbinom,
+	
 in: AUC, a probability of event.  out: x-axis value.  eg, have 60% chance of event, what is the expected value.
 	q- (quantile) class of function.  eg qpois, qbinom,
+
 generate a list of possible values according to a distribution.
 	r- (random) class.  eg rnorm(n,mean,sd)
-eg: sim_01 = rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
+	eg: sim_01 = rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
 
 
-	• dnorm(x=…, mean = 0, sd = 1 )    density .  (in dbinom is exact value, but for Norm dist of continuous var, this does not usually make sense (?)
-	• pnorm(q = 1.2, mean = 0, sd = 2), to calculate the cumulative probability below a given x-axis value
-	• qnorm(p = 0.75, mean = 0, sd = 1) to calculate the x-value for which some percent of the data lies below it (ie input is AUC, a probability value, thus named p=… in first input argument)
+	• dnorm( x=…,   mean=0, sd=1 )    density .  (in dbinom is exact value, but for Norm dist of continuous var, this does not usually make sense (?)
+	• pnorm( q=1.2,  mean=0, sd=2), to calculate the cumulative probability below a given x-axis value
+	• qnorm( p=0.75, mean=0, sd=1) to calculate the x-value for which some percent of the data lies below it (ie input is AUC, a probability value, thus named p=… in first input argument)
 
-	• dbinom(x=#success,size,prob of success)    k=number of successful event desired, exact match.
-	• pbinom(q=k, size=10,prob=0.29) binomial, CUMULATIVE prob, X ≤ k. [Lect 16 slide 35]
-	• qbinom(p, size, prob, lower.tail=T)
-	• rbinom(n=200,size=1,prob=0.3030) # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
+	• dbinom( x=k,   size=n,  prob=NumOfSuccess )    k=number of successful event desired, exact match.
+	• pbinom( q=k,   size=10, prob=0.29         )    binomial, CUMULATIVE prob, X ≤ k. [Lect 16 slide 35]
+	• qbinom( p,     size,    prob,     lower.tail=T)
+	• rbinom( n=200, size=1,  prob=0.3030       )  # think of the rbinom as "200 choose 1, with prob of 30.30%" but not quite?
 
-	• dpois(x=…, lambda=mu) : discrete prob, X=x exact value.
-ppois(q=k, lambda=mu)  : cumulative, up to X ≤ k
+	• dpois(  x=…,   lambda=mu ) : discrete prob, X=x exact value.
+	  ppois(  q=k,   lambda=mu ) : cumulative, up to X ≤ k
 
 
 calculating critical cut-off values of z.  [wk8 p119]
@@ -2649,7 +3559,8 @@ rename() 	# change col name
 
 row operation
 arrange() 	# sort
-filter()	# grep 
+filter()	# think grep , but need to match whole string exactly.
+grepl()         # is true RegEx egrep.
 
 think SQL summary operation
 group_by() 
@@ -2693,6 +3604,7 @@ labs(title = “Main”, x = “Type x-axis here”, y = “Type y-axis here”)
 
 facet_wrap(      ~ var1, nrow=3 )	# cretae series of ggplot based on single var1
 facet_grid( var1 ~ var2 )        	# create a n*m grids of graph for var1 vs var2  [review page 61]
+facet_grid( rows=vars( colName ) )	# 1x #rows where colName has data to group by
 
 stat="identity" # when y is specified  # arg of geom_histogram() (and geom_bar?)  
 # eg lab06 line 300
@@ -2957,10 +3869,22 @@ lake_data %>%
             standard_deviation_ph = sd(ph),
 	    length                = length(ph) )   # this count number of item in the group  # wk11 reader p8
 
-length()    # length( any_col_name ) to get number of rows, typically can provide count for sample size n.
-nrow( nhanes %>% filter( hs=='No' )   # this count number of rows, only those where hs=no.  $ Lab09wk12
+length()    	# length( any_col_name ) to get number of rows, typically can provide count for sample size n.
+length(df[[1]]) # eg count col 1 of any data frame to get num of rows in the df.
+nrow( nhanes %>% filter( hs=='No' )   # this count number of rows, only those where hs=no.  ## Lab09wk12
+
+
+# group_by + summarize create a new df, so many of the original col would not be present
+# but can add the list of col to keep
+# (there doesn't seems to be a KeepOrigCol=TRUE option)
+df %>%
+  group_by( oshpd_id, year ) %>%
+  summarize( total_encounter = sum( count ),                                    # new calculated col
+             count, type, facility_name, county_name, er_service_level_desc )   # (re)add col that is desired for final df
 
 </PRE>
+<!-- summarize with extra col was PHW251 exm -->
+
 <BR>
 
 Another group_by() example from PHW251 wk 6
@@ -2997,14 +3921,39 @@ Reference material: <BR>
 1. 'ggplot' to set up a canvas for graphics
 2. `geom_bar(stat = "identity")` to make a bar chart when you specify the y variable
 3. `geom_histogram()` to make a histogram for which ggplot needs to calculate the count
+     - use bidwidth=N to agregate a range of values into single bar
+     - use xlim( low,high ) to limit x-axis values (useful to remove outliers from graph)
 4. `fct_reorder(var1, var2)` to reorder a categorical variable (`var1`) by a numeric variable (`var2`)
     - from the `forcats` package
 4a.`fct_relevel( apgar5Cat, "Low", "Med")` to reorder a categorical variable by hand  # Lect 5, Prj 3
-5. `geom_point()` to make a plot with dots  (scatter plots also use this)
+5. `geom_point()` to make a plot with dots  (2 continuous var scatter plots also use this, but can also have categorical data)
+   `geom_count()` similar, but a legend with dot size indicating n/count
 6. `geom_line()` to make a plot with lines
-7. `geom_boxplot()` to make a box and whisker plot 
+7. `geom_boxplot()` to make a box and whisker plot  (one categorical var, another continuous)
 8. `geom_jitter(width=.1)` to add points with jittering to boxplot
 
+Typical ggplot layers use cases (PHW251)
+
+2 categorical:
+- geom_count()
+- geom_tile()
+
+1 categorical, 1 continuous:
+- geom_freqpoly()
+- geom_boxplot()
+- geom_bar()        x-axis have discrete categories, thus have position= dodge, stack
+
+1 continuous:
+- geom_point()
+
+2 continuous:
+- geom_histogram 
+- hist(df$xAxisVar)          # quicky alt to geom_histogram 
+
+
+histogram vs bar graph: 
+histogram for freq dist ... possibly could use  xy scatter plot, or line graph.
+bar graph for discrete/categorical var.  have space between bars.
 
 color() # return the color name that R has "build-in"
 
@@ -3599,6 +4548,9 @@ output_01 =            as.data.frame(sim_01)
 output_01 = sim_01 %>% as.data.frame()       %>% rename(birth_defect = sim_01)   # rename fails!
 output_01 =            as.data.frame(sim_01) %>% rename(birth_defect = sim_01)   # rename works
 
+
+myDF = myTibble %>% data.frame()	# convert tibble to df
+
 </PRE>
 
 ascii diagram , ascii arts =P
@@ -3926,13 +4878,42 @@ chisq.test(two_way, correct = F) # correct = F means not using Yates' correction
 
 <!-- #MoveEnd -->
 
+<A NAME="color"></A>
+<A NAME="color_names"></A>
+<H1>color names</H1>
+
+Named colors, cuz not everyone want to be digital artist and render hex code in their brain :P <BR>
+
+Maybe only recognized in R?  would be nice if it works for Python and/or HTML as well.  <BR>
+Hopefully not library specific, eg plot_ly.  <BR>
+
+<PRE>
+
+color name	compatibility	approx hex code
+-----------	-------------	---------------
+red		r,p?,h?		0xFF0000 ?
+green		r,p?,h?		0x00FF00 ?
+blue		r,p?,h?		0x0000ff ?
+
+darkorange	r
+darkcyan	r
+darklateblue	r
+
+</PRE>
+
+Recommended color scheme for accessibility
+<UL>
+	<LI> tbd (see email from ETA meeting)</LI>
+	<LI> </LI>
+</UL>
+
 <A NAME="ascii"></A>
 <A NAME="symbols"></A>
 <A NAME="ascii_symbols"></A>
 
-<H1>ascii/unicode symbols</H1>
+<H1>ascii/unicode symbols and LaTeX</H1>
 
-for easy cut-n-paste
+for easy cut-n-paste.  may have to learn latex for GIS 272a !
 
 <PRE>
 
@@ -3952,31 +4933,50 @@ better bullet for table▶yes?
 
 
 √¯¯¯  sqrt
-≈  approx
-≤  <=   combined less than equal to.  
-≥  >=   useful when dont want to be parsed by HTML 
-≠  !=   not equal, R Knit LaTeX barf at this symbol :-\
+≈  \approx
+≤  <=   \leq  combined less than equal to.  
+≥  >=   \geq  useful when dont want to be parsed by HTML 
+≠  !=   \neq  not equal, R Knit LaTeX barf at this symbol :-\
 ±
-¬    not
-∪ ∩  union intersect
-×    multiply
+¬    not negate         GrAlt \ 
+×    multiply           GrAlt +  ¬¬
 ÷    divide
-Ø    empty set
+Ø    \emptyset
+∞    \infty    infiinity
+∪    \cup         set union         in A OR  B
+∩    \cap         set intersection  in A AND B
+⊂    \subset     proper/strict subset  
+⊆    \subseteq   (not strict)				A <= B    # R library(sets), but may not be useful in practice   # rstFood>
+⊃    \superset   proper/strict
+⊇    \superseteq (not strict)
+∈    \in 	is member of, belongs to, is an element of   	%e%
+∋    	
 
-λ - lambda - eigenvalue
+
+χ² - chi-squared
+σ² - sigma squared = variance
+μ  - \mu mean average
+ν  - \nu   (not displaying with right font? kinda cursive v)
+Γ  - Gamma (eg Distribution)
+Σ  - Sigma, summation
+Π  - Pi, products/multiplication
+π  - \pi
+τ  - \tau
+
+λ - \lambda - eigenvalue
 Λ - Lamda - eigenvector
 
 ε - epsilon
 Ε - Epsilon
 
-χ² - chi-squared
-σ² - sigma squared = variance
-μ  - mu mean average
+𝛉 - theta
 
-αβ∑Δ
 
-ΑΒΚΔΕΦΓΗΞΚΛΜΝΟΠΚΡΣΤΎΒΩΧΥΖ
-αβκδεφγηξκλμνοπκρστύβωχυζ
+αβ∑Δ alpha beta ... delta
+
+ΑΒΚΔΕΦΓΗΞΚΛΜΝΟΠΚΡΣΤΎΒΩΧΥΖ - Upper case Greek
+αβκδεφγηξκλμνοπκρστύβωχυζ - lower case greek
+∂   \partial    (derivative, not lower case delta)
 
 Ñ  alt 0209  spanish n
 ñ  alt 0241  mac: option + n, n
@@ -3988,17 +4988,42 @@ Symbols
 ² square
 ³ cube
 ª primera
-º primero
+º primero, degree
 ‰ per mill
+♥ heart
 
 § section
 ¤ currency
-€
+€ Euro
+¥ Yuan
 ¢ cent
 Ð Latin Eth
-Ñ ñ
+Ñ ñ spanish n  GrAlt n
+Ç ç cedille portuguese c? GrAlt , ¿¡²³¤€¼½¾
+‘’ matched quotes  GrAlt ( ) ¥×
+
 ¡ ¿ 
 ¶ pi new paragraph
+π \pi
+
+⊢ proves, implies
+∫ integral
+
+
+∃∄   exist
+∀    for all
+℉
+℃
+∇
+∈∋∴↔⋮
+ℵℶ∎
+†‡ dart
+⨁⊕  circle +
+⨀⨂
+⊖⊗⊘⊙⊛
+⊿∠∡∢
+∥ parallel
+⊆↶∝∂
 
 
 </PRE>
@@ -4008,20 +5033,61 @@ https://www.ascii-code.com/?msclkid=fada967ec20611ec82769a8bbf923192
 has an ascii table that is text based, can copy-n-paste, quite a bit of ads at top, but at least no pop ups
 
 
+<H1>latex stuff</H1>
+
+<A HREF="https://davidhamann.de/2017/06/12/latex-cheat-sheet/">latex cheat sheet</A> (cut-n-paste friendly)
+
+<PRE>
+
+command		description		example		Unicode, Note, etc
+^		superscript		x^2
+_		subscript		x_0		so me writting ascii in this notation is good!
+
+\hat{}		Estimator		^θ
+
+\mathbb{R}	ℝ real number set	ℝ		U+211D Double Stroke Capital R
+\mathbb{N} ?	ℕ natural number set	ℕ		U+2115 Double Stroke Capital N
+\mathbb{Z} ?	ℤ [0,+inf) whole num?   ℤ		U+2124 Double Stroke Capital Z
+\mathbb{C} ?	ℂ complex number set	ℂ		U+2102 Double Stroke Capital C  
+
+
+</PRE>
+
+
+
 <H1>References</H1>
 
 <UL>
   <LI><A HREF="https://rstudio.com/resources/cheatsheets/">Rstudio cheatsheets</A>
   <LI><A HREF="https://r4ds.had.co.nz/data-visualisation.html">R for Data Science</A> Free O'Reilly book</LI> (Textbook #1 for PHW251)
+  <LI><A HREF="https://bookdown.org/yihui/rmarkdown/">[The RMD Definitive Guide by Xie, Allaire, & Grolemund]</A>
+  <LI><A HREF="https://bookdown.org/yihui/rmarkdown-cookbook/">[The RMD Cookbook by Xie, Dervieux, & Riederer]</A>
+  <LI>
+
   <LI><A HREF=“http://happygitwithr.com">
 		  Happy Git with R”</A>: a user friendly introduction to Git and GitHub from R users, by Jenny Bryan. (Textbook #2 for PHW251)
   <LI><A HREF="http://r-pkgs.had.co.nz/git.html">
 		  The “Git and GitHub” chapter of R Packages</A>
 , by Hadley. 
-  <LI> <A HREF="https://github.com/PHW290/PHW251_Fall2022">PHW251 R for Public Health (Fall 2022 git repo)</A>]
+  <LI> <A HREF="https://github.com/PHW290/PHW251_Fall2022">PHW251 R for Public Health (Fall 2022 git repo)</A>
+  <LI>
+  <LI> <A HREF="https://youtu.be/5Dnw46eC-0o?t=492">Stat without the Agonizing Pain</A> John Rauser keynote at Strata + Hadoop 2014.  Use computation method to stat (use "Radom Permutation Test" to create a sampling distribution under skeptics argument, compare againt result to see where it lie in the generated distribution).  I *LOVE* this youtube video!!
+  <LI> Bootstrapping... ?
   <LI>
 </UL>
 
+My other R notebooks:
+
+<UL>
+  <!-- <LI> <A HREF="Rnote.html">html from knitting my Rnote.Rmd</A> [moved to covid19 map repo] -->
+  <LI> <A HREF="https://tin6150.github.io/covid19_care_capacity_map/Rnote.html">html from knitting my Rnote.Rmd</A>
+
+  <LI><A HREF="https://tin6150.github.io/psg/R_phw251_bonus_problem_set.html">PHW251 bonus problem set</A> with various plot_ly, DT data tables, gis choropleth, etc.
+  <LI><A HREF="https://github.com/tin6150/phw251_group_z">PHW251 project github</A>, esp:
+      <A HREF="https://tin6150.github.io/phw251_group_z/milestone6_groupZ_verbose.html">PHW251 Milestone 6 verbose version</A>
+  <LI><A HREF=""></A>
+  <LI><A HREF=""></A>
+</UL>
 
 <!--  ----------------------------------------------------------------------  -->
 <!--  ----------------------------------------------------------------------  -->

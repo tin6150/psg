@@ -82,7 +82,7 @@ set autoindent          " auto indenting
 set smartindent         " smart indenting
 ""set expandtab           " spaces instead of tabs
 set noexpandtab           " i prefer tab damn it.  damn yaml.  damn python.  they should read up about whitepace programming lang!!
-set tabstop=2           " 2 spaces for tabs
+set tabstop=2           " 2 spaces for tabs   # cuz yaml darn it!
 "set shiftwidth=2        " 2 spaces for indentation
 
 " bells

@@ -446,6 +446,7 @@ defineAlias () {
 	#alias ssh='ssh -o StrictHostKeyChecking=no' # already done by some default cluster cf
 	alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
 	alias lrc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151" # login node 1
+	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
@@ -505,6 +506,12 @@ defineAlias () {
 	alias lsRotational='ls -l /sys/block/*/queue/rotational'
 	alias catRotational='cat /sys/block/*/queue/rotational'
 	alias sanePaste='printf "\e[?2004l"'  # ie disable bracketed paste mode, do this before invoking tmux
+
+	###
+	### epiinfo, mostly brc
+	###
+ 	alias paup=/global/scratch/users/tin/cacheDir/image2/paup4.sif
+	#alias paup="singularity exec /global/scratch/users/tin/cacheDir/image2/paup4.sif paup4"
 
 	###
 	### stuff for ETA/CMAQ
@@ -588,6 +595,7 @@ umask 0002      # i do want file default group writable
 #// export cacheDir=/tmp  # keep it undefined if no need to redirecto to scratch in non quota controller env
 [[ -d /global/scratch/tin/cacheDir       ]] && export cacheDir=/global/scratch/users/cacheDir
 [[ -d /global/scratch/users/tin/cacheDir ]] && export cacheDir=/global/scratch/users/tin/cacheDir
+[[ -d /local/users/tin/cacheDir ]]          && export cacheDir=/local/users/tin/cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_CACHEDIR=$cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_TMPDIR=$cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_WORKDIR=$cacheDir

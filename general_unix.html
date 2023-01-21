@@ -499,6 +499,9 @@ so would need to put such comand inside single quote, eg:
 parallel -j 56 -a task.lst  'wc {}.fasta > /global/scratch/users/tin/pub/TEST/result.{}.out'
 
 parallel -j 56 -a task.lst  'abricate --db ecoli_vf {}.fasta >  /global/scratch/users/tin/pub/TEST/vf_reads/vf.{}.txt'
+# prefix.{}.suffix works
+# prefix-{}.suffix works
+# prefix_{}.suffix does NOT work, ie _ cannot be used as separator!
 
 </PRE>
 

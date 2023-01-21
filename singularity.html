@@ -107,6 +107,12 @@ singularity exec  docker://ghcr.io/tin6150/r4eta:master  Rscript ./drJin.R      
 singularity exec  docker://ghcr.io/tin6150/r4eta:master  Rscript /opt/gitrepo/r4eta/drJin.R   # R script inside container
 
 
+
+running with gpu: --nv
+
+singularity pull --name beast2.6.4-beagle.sif  docker://ghcr.io/tin6150/beast2:dock264-beagle
+singularity exec --nv   beast2.6.4-beagle.sif /usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_info
+
 </PRE>
 
 

@@ -41,6 +41,8 @@
       <td align="center"><a accesskey="x" href="linux.html">linuX</a></td>
       <td align="center"><a accesskey="a" href="aws.html">Amazon AWS</a></td>
       <td align="center"><a accesskey="m" href="mpi.html">MPI</a></td>
+      <td align="center"><a accesskey="S" href="sci-app.html">sci-app</a></td>
+      <td align="center"><a accesskey="F" href="sci-file.html">sci-file</a></td>
       <td align="right"><a accesskey="g" href="git.html">Git</a></td>
     </tr>
   </tbody>
@@ -537,8 +539,17 @@ sacct -o job,user,jobname,NodeList,AllocNode,AllocTRES,DerivedExitCode,state,CPU
 
 
 
-# example of querying jobs ran in a certain time frame:
-sacct -p -X -a -r lr5  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2019-12-18T00:00:00 --end=2018-01-01T23:59:59
+# example of querying jobs ran in a certain time frame, in a specific partition (-r or --partition= )
+sacct -p -X -a -r savio3_gpu  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2021-12-28T23:59:59 --end=2023-01-01T23:59:59
+
+# find jobs on a specific node.   
+# -N == --nodelist   man page says can take node range, but n0[258-261] didn't work
+sacct -p  -a --nodelist=n0176.savio3  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2022-10-11T23:59:59 --end=2023-01-31T23:59:59
+
+# find jobs on a specific node with some sort of fail state
+sacct -p  -a -s F,NF,CA,S,PR,TO,BF --nodelist=n0176.savio3  -o job,start,end,partition,user,account,jobname,AllocNode,AllocTRES,DerivedExitCode,state --start=2022-10-11T23:59:59 --end=2023-01-31T23:59:59
+
+
 
 # all users, failure states, in a certain time frame (hung job not listed here; end time required or get no output):
 sacct -a -X -s F,NF -r lr5  -S 2019-12-16  -E 2019-12-18
@@ -619,6 +630,25 @@ sudo sacctmgr add user nat_ford account=co_dw partition=savio3_gpu QOS=dw_gpu3_n
 use sacctmgr command, not editing slurm.conf
 <BR>
 
+
+Tracking RAM usage in addition to CPU (htc partition with per-core scheduling).
+
+<PRE>
+sacctmgr create qos       name=tintest_htc4_normal     priority=10      preempt=savio_lowprio preemptmode=cluster UsageFactor=1.000000 GrpTRES='cpu=224,Mem=2060480' MinTRES='cpu=1'
+
+# change exising QoS:
+sacctmgr modify qos where name=tintest_htc4_normal set priority=1000000 preempt=savio_lowprio preemptmode=cluster UsageFactor=1.000000 GrpTRES='cpu=224,Mem=2060480' MinTRES='cpu=1'
+sacctmgr remove qos where name=tintest_htc4_normal
+
+the Mem= should have value that is multiple of nodes * RealMemory clause in slurm.conf.  Value in MB.
+
+to remove any specific TRES from having a Min req, set its value to -1.  eg:
+sacctmgr modify qos where name=gpu3_normal set MinTRES='cpu=-1'
+
+</PRE>
+
+Tracking GPU (GRES) is a bit tickier, especially when there are multiple types:
+
 <PRE>
 slurm.conf:
 change
@@ -641,8 +671,6 @@ sacctmgr add qos titanC_2080ti3_normal Preempt=savio_lowprio GrpTRES="cpu=32,gre
 
 sacctmgr modify user tin set qos+=titanC_2080ti3_normal
 
-how to change MinTRES?  this dont work:
-sacctmgr modify qos titan_2080ti3_normal  set MinTRES="cpu=2"
 
 test with (repeat to see if land elsewhere, may have to create congestion):
 srun --pty --partition=savio3_2080ti --account=scs --qos=geforce_2080ti3_normal -n 2 --gres=gpu:GTX2080TI:1 --time=00:30:00 bash
@@ -759,10 +787,13 @@ User = specific user account.
 They mention Hierarchical, does this means associations can be nested?  Never seen example of that, maybe not.
 
 </PRE>
+<BR>
 
 <A HREF="https://slurm.schedmd.com/slurm_ug_2012/SUG_Oct2012_DBD.pdf">Slurm Hierarchical bank example from SUG 2012 (page 7, 13)</A>
+<BR>
 
 <A HREF="https://slurm.schedmd.com/slurm_ug_2012/SUG_Oct2012_DBD.pdf"><IMG SRC="fig/slurm_hierarchical_bank.png" TITLE="SLURM Hierarchical Bank Example (from SchedMD youtube)" alt="Slurm Hierarchical bank example diagram"></A>
+<BR>
 
 The order in which limits are enforeced is:
 
@@ -823,6 +854,9 @@ slurmdUser 			# slurmd    user.
 </UL>
 
 
+Ref: 
+<A HREF="https://slurm.schedmd.com/big_sys.html">Large cluster admin guide</A>
+<BR>
 
 
 <A NAME="cgroup_and_slurm"></A>
