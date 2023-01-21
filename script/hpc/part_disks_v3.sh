@@ -290,8 +290,8 @@ make_dir_tree()
 # ++ parameters for partitions, tweak as desired
 #    essentially global vars used by run_fdisk_* functions
 # use lvm syntax
-##SWAP_SIZE="-L 8G"
-SWAP_SIZE="-L 1024G"
+SWAP_SIZE="-L 8G"
+#xx SWAP_SIZE="-L 1024G"   ## ?? largeSwap as feature ++CHANGEME++
 TMP_SIZE="-L 8G"
 LOCAL_SIZE="-l 100%FREE"  # % format need -l, thus embedding the flag as part of the argument
 

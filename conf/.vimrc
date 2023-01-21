@@ -61,7 +61,7 @@ set shiftwidth=2 tabstop=4 formatoptions-=cro nolist nu noexpandtab syntax-=on
 
 " settings from https://github.com/geerlingguy/dotfiles/blob/master/.vimrc
 set autoread            " watch for file changes
-set number              " show line numbers
+" set number              " show line numbers
 set showcmd             " show selection metadata
 set showmode            " show INSERT, VISUAL, etc. mode
 set showmatch           " show matching brackets
