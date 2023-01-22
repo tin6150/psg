@@ -439,3 +439,37 @@ is by Neale Batra et al. and is also available on the web for free.
 [https://tin6150.github.io/phw251_group_z/milestone5_groupZ.html](https://tin6150.github.io/phw251_group_z/milestone5_groupZ.html)
 
 - <A HREF="https://www.rstudio.com/resources/cheatsheets/">list of R cheatsheets</A>
+
+
+````{r, function_factory_stat241_lab1_q3}
+
+# pi  # predefined
+
+# this is what Xin had for the lab, screenshoted
+# yet doesn't work for me here.  
+
+Q3.5_Fac <- function( l , r ) {
+  res <- function( t ) {                      # define a new fun, assignment    ## syntax for R, a bit weired, but works
+      y <- l * sin( t * 2 * pi / r )
+     return( y )
+  }
+  return( res )      # return fn!
+}
+
+
+## i dunno, this just seems to be defining a function inside another function
+## nested fn def.  
+## oh, i guess "res" is not a value obj, but a fn (think of c pointer to fn?)
+
+Q3.6 <- Q3.5_Fac( 5, 12 )
+str( Q3.6 )
+## actually, R is subtle indeed
+## Q3.6 below is not a value, but a fn!  (look at env panel)
+
+
+t_val = seq(0, 12, 0.1)
+
+
+plot( t_val, Q3.6(t_val), type="l")
+
+```
