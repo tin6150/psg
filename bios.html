@@ -199,6 +199,45 @@ This hopefully also means that if there is eth connected to the management port,
 (default, at least for the batch I am workihg on, is set to "mode 1 dedicated").
 -->
 
+<H2>HP Proliant (Compaq) Server</H2>
+
+<PRE>
+BIOS key combinations (At least for DL 760, but DL 580 should be same)
+
+
+1st prompt = memory
+F1 for memory config
+ESC to bypass
+
+
+2nd prompt = Smart Array (RAID controller, no software support at OS level?)
+F8 for config of logical drive.
+ESC to cancel.
+	If there are failures, F1 to continue w/ drive disabled, F2 (accept data loss and continue)
+	It will sit and wait till a choice is made in such cases.
+
+3rd prompt = BIOS
+
+F9 = Option ROM config
+F10 = enter setup mode of BIOS  (seems to be some DOS utility that gets run!)
+F12 = PXE boot
+
+The prompt seems to change slightly depending on boot time errors.
+Major thing is to have finger ready at the keyboard and know what to expect when.
+
+F8 for RAID config
+F10 for BIOS
+
+-------------
+
+
+HP DL 585 (AMD Opteron)
+
+F9 = BIOS setup.  it is diaplayed in bottom right corner while POST is going on during some period.
+
+Ctrl-E = Emulex HBA config
+
+</PRE>
 
 
 <H2>Lenovo Server</H2>
@@ -207,7 +246,20 @@ This hopefully also means that if there is eth connected to the management port,
 F1 		Setup
 F2		Diagnostics
 F12		Select Boot Device	# Need legacy mode to do PXE boot
+
+prompt 2:
+Ctrl-S :  Broadcom NIC NexXTreme Ethernet Boot Agent config
+
+prompt 3:
+Ctrl-I : MINI config for SERVER RAID 7x controller, only allow minimal logical drive config.
+presumably need to boot from CD for full hardware RAID config, such as setup RAID 5 or 1.
+
+
 </PRE>
+
+
+
+
 
 <H2>Lenovo Desktop/Laptop</H2>
 <PRE>
@@ -269,7 +321,28 @@ F10 = Lifecycle Controller (BIOS setup)
 F11 = Boot Manager
 F12 = PXE boot
 
-^A = Avago raid controller
+
+subsequent prompts sequence:
+Ctrl-S : Intel PXE Boot agent config
+
+Ctrl-M : LSI Logic RAID Controller config
+Ctrl-A = Avago raid controller
+
+Ctrl-D	: Dell Remote Access Controller Setup (build in kvm over IP)
+	  This run on dedicated NIC on service processor card.
+	  Machine does not have to be on, but must have power connected.
+	  Can be configured to use DHCP and register DDNS ('A' record only).
+	  IP will be displayed on boot message.
+	  ssh/http/https  (vnc port 5900 seems also open)
+	  There is no setup for username/password in the BIOS settings, default login = root/calvin
+	  DRAC 4 Firmware 1.33 req Java Plugin version 1.4.2. Firefox ok.
+
+
+Ctrl-E	: BMC software IPMI server management
+	  This need to run on one of the NIC on motherboard.
+	  Can be setup for DHCP, but DDNS doesn't work.
+	  IP will be displayed on boot message.
+	  but no ports seems to be open :(
 
 </PRE>
 

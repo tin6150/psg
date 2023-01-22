@@ -697,6 +697,48 @@ aggr  create -aggregate aggr1 -node sysbase0 -raidtype raid_tec  -maxraidsize 23
 
 </PRE>
 
+<H2>"options" in dDot</H2>
+
+may of the options.* in 7-mode is now spread all over the places.
+<BR>
+here are a few
+<BR>
+
+<PRE>
+vserver services nis-domain show
+vserver services dns show
+
+system node autosupport show 
+system node autosupport invoke -node fs3-02 -type test -message "manual trigger fs3 netapp autosupport test" 
+system node autosupport history show 
+
+ntp server show
+
+snmp community
+
+smtp?
+
+system node autosupport modify -node nodename -transport {http|https|smtp}
+system node autosupport modify -node nodename -to
+
+mtu?
+
+
+system node run -node fs3-01 -command sysconfig -r	# disk info
+system node run -node fs3-01 -command sysconfig -a 	
+
+</PRE>
+ 
+
+Example autosupport with smtp server specification:
+<TT>
+system node autosupport modify -node fs3-01 -state enable -mail-hosts 35.8.33.79 -from bofh@bofh.com -to autosupport@netapp.com,bofh@bofh.com  -support enable -transport smtp -proxy-url "" -hostname-subj autosupport-email-test -nht true -perf false -retry-interval 4m -retry-count 15 -reminder true -max-http-size 50MB -max-smtp-size 5MB -remove-private-data false
+</TT>
+<!--
+-->
+
+
+
 <!-- ############################################################ -->
 <!-- ############################################################ -->
 <!-- ############################################################ -->
@@ -1270,6 +1312,10 @@ options nis.domain   new.nis.dom
 options nis.servers  10.0.91.44,10.0.91.82
 options nis.enable   on
 
+cdot:: 
+vserver services nis-domain show
+vserver services dns show
+
 </PRE>
 
 <H3>CIFS</H3>
@@ -1509,6 +1555,12 @@ options autosupport.doit case_number_or_name
 # autosupport via web  (but then local admin don't get emaiL?)
 options autosupport.support.transport https
 options autosupport.support.proxy     na-useh-proxy:2010
+
+
+cdot:: 
+system node autosupport show 
+system node autosupport invoke -node fs3-02 -type test -message "manual trigger fs3 netapp autosupport test" 
+system node autosupport history show
 
 
 #find out about ntp config:

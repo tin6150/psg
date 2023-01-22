@@ -312,9 +312,148 @@ If FQDN is needed, eg have multiple "domain"/cluster, use this setting:
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 </PRE>
 
+
+
+some help options I poked at
+
+<PRE>
+
+mpirun --help  bind-to
+   --bind-to {arg0}      Policy for binding processes. Allowed values: none,
+                         hwthread, core, l1cache, l2cache, l3cache, socket,
+                         numa, board, cpu-list ("none" is the default when
+                         oversubscribed, "core" is the default when np<=2,
+                         and "socket" is the default when np>2). Allowed
+                         qualifiers: overload-allowed, if-supported,
+                         ordered
+   AMD Epyc cpu seems to need --bind-to none, cuz of CCX structure?
+   https://developer.amd.com/spack/hpl-benchmark/
+
+-d|-debug-devel|--debug-devel 
+                         Enable debugging of OpenRTE
+-v|--verbose             Be verbose
+-V|--version             Print version and exit
+</PRE>
+
+Example mpirun commands
+
+<PRE>
+
+# example mpi run with docker container (nvidia gpu test)
+
+CONT='nvcr.io/nvidia/hpc-benchmarks:21.4-hpl'    # linpack
+CONT='registry.local:443/hpc-benchmarks:21.4-hpl'    # linpack
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl \
+  mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2 \
+  hpl.sh  --xhpl-ai  --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat/abhi.hpl-a40.dat-2.norepeat  
+  # ran on c03 ==> run but poor perf.
+
+
+# adapted from https://www.pugetsystems.com/labs/hpc/Outstanding-Performance-of-NVIDIA-A100-PCIe-on-HPL-HPL-AI-HPCG-Benchmarks-2149/
+docker run     -v /global/home/users/tin:/mnt --gpus all \
+  registry.local:443/tin/hpc-benchmarks:21.4-hpl \
+  mpirun --mca btl smcuda,self -x MELLANOX_VISIBLE_DEVICES="none" -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc \
+  --bind-to none  --report-bindings --debug-devel \
+  -np 2 hpl.sh --xhpl-ai --dat /mnt/hpl_dat/abhi.hpl-a40.dat.norepeat.Ns20k --cpu-affinity 0:127 --cpu-cores-per-rank 4 --gpu-affinity 0:1 
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc -np 1   /bin/bash
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=all -np 1   ucx_info -f | grep DEVICES
+
+
+<PRE>
+
+
+mpirun arguments
+<PRE>
+--mca  		# specify modular Component Arch, 
+--mca btl	# byte transfer layer (P2P -- network stack)
+
+--mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc	
+	#  UCX = Unified Communication X [high bandwidth, low-latency network offload with RDMA for IB and RoCE, GPU, shared mem]
+
+    
+</PRE>
+
+MPI stacked with  OpenMP  -- needed on AMD Epyc with CCX.
+See 
+<A HREF="https://developer.amd.com/spack/hpl-benchmark/">https://developer.amd.com/spack/hpl-benchmark/</A>
+and
+<A HREF="https://www.dell.com/support/kbdoc/en-in/000143393/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study">https://www.dell.com/support/kbdoc/en-in/000143393/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study</A>
+
+<PRE>
+sudo modprobe -v knem
+export OMP_NUM_THREADS=4
+# threads * PxQ of HPL.dat = total num of core
+# their eg was for 2 socket system
+# seems like should have 2 threads per socket
+
+
+mpi_options="--mca mpi_leave_pinned 1 --bind-to none --report-bindings --mca btl self,vader --allow-run-as-root"
+mpi_options="$mpi_options --map-by ppr:1:l3cache -x OMP_NUM_THREADS=4 -x OMP_PROC_BIND=TRUE -x OMP_PLACES=cores"
+mpirun $mpi_options -app ./appfile_ccx
+
+</PRE>
+
+
+<PRE>
+# appfile...
+# Bind memory to node $1 and four child threads to CPUs specified in $2
+# [last digit] 4 core per line, cuz NUM_THREADS=4.  
+# num of lines * (4 cores per line) = total cores in system
+# n02 is EPYC 7343 3.2GHz, 2x16c, so appfile have 8 lines * 4 cores.  
+
+# HPL.dat should have PxQ of 8.  eg 2x4
+
+# have many entries in appfile is ok... or i should say tolerable...
+# so -np 4 ... 8
+# change run script not to membind
+# some rank would fail
+# but as long as enough ranks start per need of HPL.DAT PxQ, 
+# then things will run
+# if need to eek out perf, then really fine tune
+
+# xref: CF_BK/greta/benchmark_epyc_ccx 
+</PRE>
+
+
+<PRE class="cf">
+-np 1 ./xhpl_ccx.sh 0 0-3 4
+-np 1 ./xhpl_ccx.sh 0 4-7 4
+-np 1 ./xhpl_ccx.sh 0 8-11 4
+-np 1 ./xhpl_ccx.sh 0 12-15 4
+-np 1 ./xhpl_ccx.sh 1 16-19 4
+-np 1 ./xhpl_ccx.sh 1 20-23 4
+-np 1 ./xhpl_ccx.sh 1 24-27 4
+-np 1 ./xhpl_ccx.sh 1 28-31 4
+</PRE>
+
+env var related to xhpl with MPI, OpenMP, the MKL one is 
+"undocumented"  and specific when intel icc compiler is used to create bin for amd...
+<BR>
+Once these were set, mpirun without OpenMP threads was performant enough (for hardware acceptance test).
+<BR>
+
+<PRE>
+export MKL_DEBUG_CPU_TYPE=5    # this is important to address the CCX of epycs and allow xhpl to run on all cores. OMP isn't really required.
+export HPL_HOST_ARCH=3  # to use AVX2 and get 16 DP OPS/cycle 
+</PRE>
+
+
+
+OSU IB microbenchmark on AMD Epyc 
+https://www.dell.com/support/kbdoc/en-in/000143393/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study
+
+<PRE>
+mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core -mca rmaps_dist_device mlx5_0 numactl cpunodebind=<numanode number> osu-micro-benchmarks-5.4.3/mpi/pt2pt/osu_mbw_mr
+</PRE>
+
+
 ref: 
 <LI> https://docs.oracle.com/cd/E19708-01/821-1319-10/mca-params.html
 <LI> https://www.open-mpi.org/faq/?category=running
+<LI> <A HREF="https://openucx.readthedocs.io/en/master/running.html">https://openucx.readthedocs.io/en/master/running.html</A> has docker capabilities info.
 
 
 

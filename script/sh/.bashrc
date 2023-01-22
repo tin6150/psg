@@ -614,6 +614,7 @@ export EDITOR=vi
 #set -o vi     # allow ESC, /string ENTER for searching command line history.
 # nah, better to use ^R to search bash history
 
+add_brc_module # CGRL/vector SMF
 
 ################################################################################
 ### some check for host specific stuff
