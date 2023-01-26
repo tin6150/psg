@@ -320,6 +320,12 @@ singularity exec --nv $ImgDir/beast2.6.4-beagle.sif \
 singularity exec --nv $ImgDir/beast2.6.4-beagle.sif \
 /usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_GPU testHKY.xml
 
+
+treeannotator -b 10 ..."dot"...trees > mcc.tree
+# -b 10 take first 10% as burn in (remove these trees)
+# BEAST log 2 version of the .trees file, "dash"(smaller file) and "dot"(larger file),  use the "dot" version.
+# need to hand edit to remove header line from resulting mcc.tree
+
 </PRE>
 
 <LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
