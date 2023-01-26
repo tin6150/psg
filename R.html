@@ -183,6 +183,9 @@ Boolean
 TRUE
 FALSE
 NA        # when logical comparison cannot be done (eg in vector pairwise comparison)
+
+as.integer( T )   # 1
+as.integer( F )   # 0
 </PRE>
 
 Logical Operator
@@ -521,7 +524,7 @@ Lesson learned from
 <A HREF="R_phw251_bonus_problem_set.html">PHW251 Bonus Problem Set</A> under Q4:
 <BR>
 
-</PRE>
+<PRE>
 IF-statement can't handle list...
 
 # when used with mutate, R give this a whole vector
@@ -4874,9 +4877,31 @@ chisq.test(two_way, correct = F) # correct = F means not using Yates' correction
 
 
 <!-- #end stat 142 notes -->
-
-
 <!-- #MoveEnd -->
+
+
+
+<A NAME="stat_241"></A>
+<A NAME="stat241"></A>
+<H1>Stat 241</H1>
+
+<!-- stat241 lab2 -->
+<PRE>
+c(1,2,3) %>% sample(1)   # take 1 sample out of source set (left of %>%).  it is a rnd fn.
+
+
+# set difference, too bad there isn't a binary operator for more natural syntax
+# below is setD = setUniv - setB 
+setUniv = c( "apple", "banana", "cambur" )
+setB = c( "cambur" )
+setD = setUniv %>% setdiff( setB )    
+setD
+
+
+as.integer( T )   # 1
+as.integer( F )   # 0
+</PRE>
+
 
 <A NAME="color"></A>
 <A NAME="color_names"></A>
@@ -5043,7 +5068,7 @@ _		subscript		x_0		so me writting ascii in this notation is good!
 \hat{}		Estimator		^θ
 
 \mathbb{R}	ℝ real number set	ℝ		U+211D Double Stroke Capital R
-\mathbb{N} ?	ℕ natural number set [1,2,...]	ℕ		U+2115 Double Stroke Capital N
+\mathbb{N} ?	ℕ natural number set [1,2,...)	ℕ		U+2115 Double Stroke Capital N
 \mathbb{Z} ?	ℤ (-inf, +inf) whole num?   ℤ		U+2124 Double Stroke Capital Z
 \mathbb{C} ?	ℂ complex number set	ℂ		U+2102 Double Stroke Capital C  
 
@@ -5058,7 +5083,8 @@ has an ascii table that is text based, can copy-n-paste, quite a bit of ads at t
 
 <BR><BR>
 
-<A HREF="http://xahlee.info/comp/unicode_circled_numbers.html">" xahlee unicode easy search and paste</A>
+<A HREF="http://xahlee.info/comp/unicode_circled_numbers.html">"xah lee unicode easy search and paste</A>
+circled numbers, lot of math symbols grouped together, very handy really!
 No ads, no cookies?
 
 <PRE>
@@ -5079,6 +5105,7 @@ No ads, no cookies?
 ㊀ ㊁ ㊂ ㊃ ㊄ ㊅ ㊆ ㊇ ㊈ ㊉
 
 
+🕷
 </PRE>
 
 <H1>References</H1>
