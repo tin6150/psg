@@ -1017,7 +1017,12 @@ ref: https://www.thomas-krenn.com/de/wiki/IPMI_Netzwerkports_von_ASUS_Mainboards
 <H5>Dell IPMI raw</H5>
 
 Dell sledge C6520 with ice lake processor, in C400-S chassis (4 nodes in 2U chassis, 2022, psu with C19 connectors).  <BR>
-Not sure what will happen if you use this on some other machines, so be warned!  Best to check with your support engineer. 
+Not sure what will happen if you use this on some other machines, so be warned!  Best to check with your support engineer(s). 
+<BR>
+thx to Dell Support Engineers for the these raw commands, eg RM, RS, 
+<!-- 2023-0210 152512273 6YL82N3 -->
+<BR>
+<BR>
 
 <PRE>
 
@@ -1027,9 +1032,9 @@ Output will look similar to:  01 60 08 00 01 01 01dd 00 b8 00
 
  01 3a 08 00 01 01 01 6c 00 4f 00 = PSU in 1+1 redundancy, F1 warning on boot.
 
- 01 73 08 00 01 01 01 34 01 4c 01 = PSU in 2+0, no F1 warning on boot.
+ 01 73 08 00 01 01 01 34 01 4c 01 
  01 87 08 00 01 01 01 32 01 3a 01   
- 01 87 08 00 00 02 00 40 01 2d 01 # n0057
+ 01 87 08 00 00 02 00 40 01 2d 01 # n0057  PSU in 2+0, no F1 warning on boot.
  01 8e 08 00 01 01 01 3d 01 28 01 # n0009 none of these has no F1 warning
  01 99 08 00 01 01 01 1d 02 3b 02 # n0035
  #           ^^ ^^ ------------------ indicate whether is 1+1 or 2+0 mode
@@ -1044,6 +1049,10 @@ ipmitool raw 0x30 0xc7 0x11 0x01 0x01
 #                           ^^1^ ^^1^  for 1+1
 
 
+# Enable FTR (so that node will re-calculate power requirements and negotiate with chassis, after cold power cycle)
+ipmitool -I lanplus -H ipmi-n0059 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa1 0x1 0x01 0x1a 0x01 0xd8
+# check FTR status
+ipmitool -I lanplus -H ipmi-n0059 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa0 0x0 0x01 0x1a 0xd8
 
 
 # Reboot Chassis Management
@@ -1051,6 +1060,7 @@ ipmitool raw 0x06 0x34 0x45 0x70 0x18 0xc8 0x20 0x00 0x02 0xd8   ## old cmd, did
 ipmitool raw  0x6 0x34 0x45 0x70 0x18 0xc8 0x20 0x0 0x2 0xd8     ## new cmd, reset chassis, pwr off all nodes.
 # probably equivalent to:
 racadm  cmreset
+
 
 </PRE>
 
