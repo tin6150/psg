@@ -323,6 +323,29 @@ http://www.howtogeek.com/197947/how-to-install-python-on-windows/ has a step-by-
 https://www.continuum.io/downloads is download page for Anaconda, include version for winsows (and os x, linux).
 
 
+<H1>conda</H1>
+
+need to have anaconda or miniconda installed, which typically setup some env in .bashrc
+then can do:
+
+<PRE>
+conda info --envs
+
+
+conda update -n base -c defaults conda		# but fails in centralized software NFS mounted env ?
+
+# conda create --name abricate
+conda create --name epi
+conda activate epi
+conda install -c bioconda abricate
+
+
+# tbd...
+conda install -c conda-forge -c bioconda -c defaults mlstn
+
+</PRE>
+
+
 <H1>PIP</H1>
 
 PyPI = Python Package Index - equiv of CPAN.

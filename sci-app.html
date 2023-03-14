@@ -54,6 +54,12 @@
 <LI> FastQC - Quality Control 
 <LI> Trimmomatic (Input: FastQ)
 <LI> Unicycler
+( via <A HREF="https://bioconda.github.io/recipes/unicycler/README.html">biocontainer</A> )
+<!-- Niko's conda? 
+2023.0303 trying equiv of 
+docker pull quay.io/biocontainers/unicycler
+-->
+
 <PRE>
 
 for i in *_1.fq.gz   # dir contain list of paired fastq files, gz'ed
@@ -64,7 +70,8 @@ done
 
 parallel -j 8 -a task.lst  unicycler -1 {}_1.fq.gz -2 {}_2.fq.gz -o ./assembled-seq/{}.fasta --min_fasta_length 500
 # each unicycler instance would take 4? cores by default
-
+# use -s instead of -1 -2 combo for unpaired fq.gz 
+# there is a -l for long read... RTFM https://github.com/rrwick/Unicycler#installation
 
 </PRE>
 <LI> Price - Fast De novo assembly - UCSF Peter Skewes-Cox 
@@ -385,11 +392,12 @@ Ref:
 <LI> prokka - https://github.com/tseemann/prokka - genome annotation (bacterial, archaeal and viral genomes), output std compliant files.  annotation = blast for gene info
 <PRE>
 prokka --outdir mydir      --prefix mygenome contigs.fa
-prokka --outdir prokka_K1  --prefix genome_K1 --centre _pilon --compliant K1.fasta
+prokka --outdir prokka_K1  --prefix gnm_K1 --centre _pilon --compliant K1.fasta
 # --centre [X]       Sequencing centre ID. (default '')
 # --centre NAME get stripped
 # --compliant        Force Genbank/ENA/DDJB compliance: --addgenes --mincontiglen 200 --centre XXX (default OFF)
 # --prefix           filename for result, get .gff, .tsv, etc.  so 1 prefix per isolate should be good for PRISA.
+#                    ## best if basename.gff is 9 chars max, allow 1 tab char added by paup, if need conversion to .nex
 # should give a better prefix name, it will be filename and FASTA header in .gff and other downstreap
 # but not too long, 37 chars limit
 # --force            prokka wants to create the output dir, but prefix will keep files apart.

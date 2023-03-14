@@ -2306,6 +2306,22 @@ using qsub script in cluster (mostly to generate random storage traffic):
 
 </PRE>
 
+<H1>unzip</H1>
+
+Google drive download create these multipart zip files, 
+extraction in linux:
+
+zip -s- KPC\ Klebsiella\ Outbreak-20230227T210405Z-00*zip -O zip_ver3-s-output.zip
+unzip zip-s-output.zip
+# but at least on dtn zip 3.0 didn't produce full result.
+
+end up having to do this on bofh:
+
+7z x KPC\ Klebsiella\ Outbreak-20230227T210405Z-001.zip
+# repeat for each file, 7z x *zip didn't seems to have worked 
+7z x KPC\ Klebsiella\ Outbreak-20230227T210405Z-005.zip
+
+
 <BR><HR>
 <div align="CENTER">
   [Doc URL]<BR>

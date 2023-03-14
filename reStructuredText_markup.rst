@@ -132,6 +132,8 @@ Pre-formatted code block (literal text)
 ::
 
         blank line and indent after :: to start a pre-formatted mono-space text block
+	seems like no way around the indent... which is sad cuz i was just hoping for a .txt with some highlight feature.  
+	think within code file...  create my own markup lol
         another line
         another line
 		github render the above into final text as well.  easier just have them at end of line

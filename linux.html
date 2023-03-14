@@ -4119,6 +4119,11 @@ ethtool eno1		# set duplex, etc of an interface
 /etc/NetworkManager/NetworkManager.conf		# NM config
 	dns=none				# tell it not to mangle /etc/resolv.conf
 
+DNS server change should not go to /etc/resolv.conf anymore if managed by NetworkManger
+instead, edit /etc/sysconfig/network-scripts/ifcfg* 
+DNS1=8.8.8.8
+
+
 -or-
 
 /etc/sysconfig/network-scripts/ifcfg-eno1
