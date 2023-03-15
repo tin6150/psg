@@ -246,6 +246,28 @@ here()
 
 </PRE>
 
+<H1>R 102... R stranger things... </H1>
+
+<PRE>
+
+?"%*%"  # get help on topic, quote it if it has "funny" symbols
+
+$>% 	# like unix pipe, pass data from one fn to the next.  can be chained.   library(dplyr)
+
+%$%	# mostly as shortcut to refer to $colName of a data.frame.  see stat241_ccc.Rmd wk6.  library(magrittr)
+
+%in%	# membership evaluation (may not need to be a true math set)
+
+%*% # matrix multiply
+%/% # ?? partitioning data into partition for shipping to different nodes 
+
+%:% # compose or nest foreach objects - https://ljdursi.github.io/beyond-single-core-R/#/84
+
+%%  # modulus, ie reminder.  eg 7%%3 is 1
+
+
+</PRE>
+
 <H1>R Stuff that is weird</H1>
 
 aka: stuff that might bite you in the @$$ :-\
@@ -320,11 +342,21 @@ df_step2 = df %>%
 ... dot dot dot
 <BR>
 <PRE>
+
+
+X = function() {
+    c(X = rnorm(1))
+}
+
 sample = function(dist, n, ...) {
   map_df(1:n, function(i) dist(...))
 }
 
 X %>% sample(10) 
+
+The ... maybe a tidyverse pipe operator thing?
+no...
+X get applied as "dist"? which us rnorm()
 
 </PRE>
 
@@ -742,19 +774,10 @@ ref: https://cran.r-project.org/web/packages/readxl/vignettes/cell-and-column-ty
 list, vector (which is a simple list)
 matrix
 
-
-?"%*%"  # get help on topic, quote it if it has "funny" symbols
-
 %*% # matrix multiply
-%/% # ?? partitioning data into partition for shipping to different nodes 
-
-%:% # compose or nest foreach objects - https://ljdursi.github.io/beyond-single-core-R/#/84
-
-$>% # like unix pipe, used a lot by dplyr.  can be chained.
-
-%in%	# membership evaluation (may not need to be a true math set)
 
 %%  # modulus, ie reminder.  eg 7%%3 is 1
+
 2^4 and 2**4 both seems to be power, get 16.  2^4 notation maybe preferred.
 
 </PRE>
@@ -1261,6 +1284,7 @@ funding_data = funding_data %>%
 
 </PRE>
 
+<PRE>
 # filter rows when col has exactly some string:
 taxaSubset = c( "goo", "gui", "qua", "rab", "she"  )
 wgs_with_loc_subset = wgs_with_loc %>%
@@ -1272,6 +1296,7 @@ taxaSubsetRE = "goo|gui|qua|rab|she"
 wgs_with_loc_subset = wgs_with_loc %>%
   filter( grepl(taxaSubsetRE, taxa_name ) )
 
+</PRE>
 
 
 tidyverse Stringr vs native 
