@@ -437,6 +437,14 @@ options per mounts
 <PRE>
 vasttest.greta.local:/greta on /global/userspace type nfs (rw,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.8.16.51,mountvers=3,mountport=20048,mountproto=udp,local_lock=none,addr=10.8.16.51,_netdev)
 
+NFSoRDMA 
+both client and server need to support it.
+Need NIC with RDMA support, eg Mellanox ConnectX-3.  Work in Ethernet mode, check on RoCEv2
+ref: http://www.unstructureddatatips.com/how-to-configure-nfs-over-rdma/
+https://infohub.delltechnologies.com/l/powerscale-onefs-nfs-over-rdma-for-media/what-is-nfs-over-rdma-1
+
+mount -t nfs -vo nfsvers=3,proto=rdma,port=20049 172.16.200.29:/ifs/export_rdma /mnt/export_rdma
+
 
 nfsclient kernel: lockd: server nfsserer not responding, still trying
 nfsclient kernel: xs_tcp_setup_socket: connect returned unhandled error -107
