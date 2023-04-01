@@ -435,6 +435,18 @@ sI
 system('env')	# this is running the env command via the shell and display that info
 system('id -a; hostname')
 
+Sys.getenv()  # R command to read system's environment variable
+Sys.setenv()  # set
+
+Sys.setenv( buffered = "no" )  # set env var, this one for Rstudio, seems to affect linux cli R as well. See 
+https://stackoverflow.com/questions/29426709/how-to-make-buffered-output-in-r-disabled-by-default
+
+For list of environment var that affect's R's behavior, such as LC_ALL, R_BATCH :
+https://stat.ethz.ch/R-manual/R-devel/library/base/html/EnvVar.html
+Have not been able to find way to turn off buffered output ...
+Not sure what's the equivalent of "PYTHONUNBUFFERED=1"
+
+
 # in jupyter notebook, the system() command output to console 
 # use combination of intern=TRUE and wrap with print() just to be sure
 print(system( 'uptime', intern=TRUE ))  

@@ -329,7 +329,7 @@ need to have anaconda or miniconda installed, which typically setup some env in 
 then can do:
 
 <PRE>
-conda info --envs
+conda info --envs	# my installed conda env available for activation
 
 
 conda update -n base -c defaults conda		# but fails in centralized software NFS mounted env ?
@@ -338,6 +338,7 @@ conda update -n base -c defaults conda		# but fails in centralized software NFS 
 conda create --name epi
 conda activate epi
 conda install -c bioconda abricate
+conda remove  abricate
 
 
 # tbd...

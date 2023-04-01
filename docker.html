@@ -1091,9 +1091,45 @@ docker push         docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION
 
 </PRE>
 
+<H1>SDK</H1>
+
+<A HREF="https://docker-py.readthedocs.io/en/stable/containers.html">python sdk</A>
 
 
-<H3>Reference</H3>
+<PRE>
+-e  argument of docker run command is likely under the client.containers.run() environment option, need a dict.
+
+PYTHONUNBUFFERED=1   # set to any value to tell python not to use buffered output
+buffered=no          # is for Rstudio, but seems to affect cli R in linux as well.
+
+import docker
+
+    atlas = client.containers.run(
+        atlas_image,
+        volumes=atlas_docker_vols,
+        command=atlas_cmd,
+        #stdout=docker_stdout,  ## this read settings from yaml
+        auto_remove=True,				## likely the --rm option of docker cli
+        stdout=True,
+        stderr=True,
+        #environment='PYTHONUNBUFFERED=1',
+        environment=["PYTHONUNBUFFERED=1","buffered=no"],
+        detach=True)
+        ##xxdetach=False)
+    for log in atlas.logs(
+            #stream=True, stderr=True, stdout=docker_stdout):
+            #stream=True, stderr=True, stdout=True):
+            #stream=True, stderr=True, stdout=docker_stdout, timestamps=True):
+            stream=True, stderr=True, stdout=True, timestamps=True):
+        print(log)
+
+    # 4. CLEAN UP
+    atlas.remove()
+
+</PRE>
+
+
+<H1>Reference</H1>
 
 <UL>
 <li><A HREF="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html">Docker basic from AWS</A></li>
