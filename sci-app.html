@@ -378,6 +378,20 @@ Ref:
 <H2> Genomic characterization </H2>
 
 <LI> Abricate = AntiBiotics Resistance Finder.  database + extension to find antibiotics genes
+<PRE>
+
+AbricateDB_list="vfdb resfinder ecoli_vf"
+abricate --db $AbricateDB ${Filename}.fasta/assembly.fasta > ${Filename}_${AbricateDB}.txt
+abricate --summary *_${AbricateDB}.txt  > ${AbricateDB}_summary.csv
+
+# https://github.com/tseemann/abricate
+# ABRicate can combine results into a simple matrix of gene presence/absence. 
+# An absent gene is denoted . and 
+# a present gene is represented by its '%COVERAGE`. 
+# This can be individual abricate reports, or a combined one.
+
+
+</PRE>
 <LI> Abricate - PlasmidFinder 
 <LI> Mlsplasmids (web) 
 <LI> MOB-suite - annotate contig as chromosomal vs plasmid
