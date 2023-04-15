@@ -612,6 +612,7 @@ data %>% head() # like unix cat data | head
 data %>% summary()  # summary stat for each column of data, eg min,median,quartilers
 
 str( data ) # see list of variables (column headers) 
+glimse( data )  # tidyverse?
 
 typeof( df )		# this will just return list
 typeof( df$colname ) 	# this can determin data type of a specified col in a df.
@@ -3475,6 +3476,11 @@ calculating critical cut-off values of z.  [wk8 p119]
 eg z* for 90 or 95% Confidence Intervarl
 z.star95 = qnorm(0.025, lower.tail=F)  #1.96
 z.star90 = qnorm(0.05,  lower.tail=F)  #1.64
+
+
+# lazy way to explore paired variable comparisons via wrap of many ggplots in large panel grid
+library(GGally)
+study_data %>% ggpairs
 
 
 </PRE>
