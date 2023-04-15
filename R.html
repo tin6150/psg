@@ -1046,8 +1046,13 @@ row_number()==23	# select row 23  # though I don't like this approach, what if d
 
 <PRE>
 
-• lm(v1∼v2): linear fit (regression line) between 
+• model = lm( v1∼v2 ): linear fit (regression line) between 
+• model = lm( y ∼ x ): linear fit (regression line) between 
 vector v1 on the y-axis and v2 on the x-axis
+• y.hat = predict( model, data )       # predict.lm
+  y.hat = estimates predicted using the lm model, data would be a df 
+
+
 
 • nls(v1∼a+b*v2, start=ls(a=1,b=0)): nonlinear fit. 
 Should contain equation with variables
