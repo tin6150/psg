@@ -252,9 +252,17 @@ here()
 
 ?"%*%"  # get help on topic, quote it if it has "funny" symbols
 
+%<-%    ## %<-% allow for assigning multiple things at the same time!  ## library(zeallot) ## stat241_Lect13.Rmd
+	## eg Extracting Coefficients
+	c(b0,b) %<-% coef(glm_model)
+	## equivalent to
+	b0 = as.numeric( glm_model$coefficients[1] )
+	b1 = as.numeric( glm_model$coefficients[2] )
+
 $>% 	# like unix pipe, pass data from one fn to the next.  can be chained.   library(dplyr)
 
 %$%	# mostly as shortcut to refer to $colName of a data.frame.  see stat241_ccc.Rmd wk6.  library(magrittr)
+
 
 %in%	# membership evaluation (may not need to be a true math set)
 
