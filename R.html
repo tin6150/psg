@@ -1487,6 +1487,7 @@ array:     homogeneous elements.  1-indexed.  array(), dim()
 attribute()
 structure()
 
+
 factor() to store categorical data -- ie predefined values.
     Stored as int, displays as char with fixed order (eg ggplot displays data according to order defined by Factor).  
     (? think Pascal's enum data structure for named element)
@@ -3439,6 +3440,12 @@ attributes( Result )
 Result$conf.int
 Result$p.value
 Result$parameter    # only df is returned as "parameter" 
+
+lm(), confint(), vcovHC() etc also return numeric with attributes.
+To change the attribute name, use names().  eg:
+m = lm( Outcome ~ Exposure, data=... )
+hat_ATE = m$coef['Exposure']
+names( hat_ATE ) = "ATE"
 
 </PRE>
 
