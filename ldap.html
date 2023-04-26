@@ -1472,9 +1472,10 @@ It provides Radius, MFA/OTP, DNS, certificate signing, all integrated into one.
 <BR>
 
 
-systemctl start ipa
-<BR>
-systemctl start radiusd
+<PRE>
+systemctl start ipa		# active (exited) status is normal	
+systemctl start radiusd		# active (running) is the normal state
+</PRE>
 <BR>
 <BR>
 
@@ -1521,7 +1522,7 @@ Logs:
 <LI>443, 80: hard coded RCP calls, dont change them.  firewall them (only allow localhost?)</LI>
 <LI>8443? </LI>
 <LI>53 tcp/udp: open if have DNS server running. firewall to allow desired clients to connect.</LI>
-<LI> </LI>
+<LI>88 tcp/udp: kerberos (listen by krb5kdc)</LI>
 <LI> </LI>
 <LI> </LI>
 </OL>
@@ -1554,6 +1555,7 @@ ipa user-show  sn50		# show info of specific user, exact spell, by userlogin
 ipa user-show      		# no argument will get a prompt
 ipa user-find 			# list all users in ipa db (think to getent passwd)
 ipa user-find  tin		# find any account containing specified patter "tin" in userlogin, first and last name.  case insensitive search
+ipa user-find  --all tin	# --all provide all radius info
 
 ipa user-find   --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
 [ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/pwd-expiration.html ]
@@ -1593,10 +1595,14 @@ ipa pwpolicy-add exampleGroup --minlife=7 --maxlife=49 --history= --priority=1
 
 # add/change user to ipa DB
      ipa help user-mod  # much better than the man page!
-sudo ipa user-add jsmith --first=John --last=Smith --manager=bjensen --email=johnls@example.com --homedir=/home/work/johns 
+sudo ipa user-add jsmith --first=John --last=Smith                   --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-add jsmith --first=John --last=Smith --uid=6667 --gidnumber=6667 --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-add jsmith --first=John --last=Smith --manager=bjensen --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-del jsmith  # delete/remove user account.  no confirmation asked!
+
+sudo ipa user-mod sn50 --password                    # prmopt to enter new password
 sudo ipa user-mod sn50 --uid=6666  --gidnumber=6666  # group entry for new gid is auto added
 sudo ipa user-mod sn50 --shell=/bin/bash 
-sudo ipa user-mod sn50 --password                    # prmopt to enter new password
 
  --user-auth-type=['password', 'radius', 'otp', 'pkinit', 'hardened']
                         Types of supported user authentication
@@ -1637,12 +1643,12 @@ kinit 	# initialize Kerberos system, restart timer
 sudo ipa user-disable User_LoginName
 sudo ipa user-enable  User_LoginName
 
-ipa user-mod --password alice
+ipa user-mod --password alice		# this apparently need the tomcat server to be operational to work
 
 
 ipa user-add	# interactive prompted user addition, but only ask for first, last, and username.  
 
-radsniff -X
+radsniff -X	# trace/sniff ipa connectivity request?
 
 
 ## How to remove the "change password on first login" ?    esp using cli
@@ -1661,8 +1667,27 @@ ipa group-del docker	# delete group named docker
 ipa-server-install 
 ipa-server-install --uninstall
 
+
+[root@freeipa]# systemctl list-unit-files | grep ipa
+ipa.service                                                            enabled
+ipa-ccache-sweep.service                                               disabled
+ipa-custodia.service                                                   disabled
+ipa-dnskeysyncd.service                                                disabled
+ipa-ods-exporter.service                                               disabled
+ipa-otpd@.service                                                      static
+multipathd.service                                                     enabled
+ipa-ods-exporter.socket                                                disabled
+ipa-otpd.socket                                                        disabled
+multipathd.socket                                                      enabled
+ipa-ccache-sweep.timer                                                 enabled
+
+# these are started by freeipa?? 
+krb5kdc.service                                                        disabled  
+radiusd.service                                                        disabled
+
 systemctl status really just call 
 /usr/sbin/ipactl 
+
 
 
 systemctl status reporting "active (exited)" is fine.
@@ -1676,7 +1701,15 @@ ipaapi     91878   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
 root       91887       1  0 12:45 ?        00:00:00 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
 ods        92359       1  1 12:45 ?        00:00:01 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-dnskeysyncd
 
+
+kdcproxy    7742    2844  0 Apr16 ?        00:00:04 (wsgi:kdcproxy) -DFOREGROUND
+root       15276       1  0 15:03 ?        00:00:00 /usr/sbin/krb5kdc -P /var/run/krb5kdc.pid
+
+radiusd    15198    1639  0 14:42 pts/0    00:00:00 radiusd -X    # debug session running here
+
+
 journalctl -u ipa
+
 
 </PRE>
 
@@ -1696,6 +1729,7 @@ ipa dnsrecord-find 16.8.10.in-addr.arpa.	# reverse PTR zone
 </PRE>
 
 <H5>Adding DNS zone</H5>
+
 <PRE>
 ipa dnszone-add 16.8.10.in-addr.arpa.
 </PRE>
@@ -1723,34 +1757,38 @@ ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.50
 ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.57
 
 # change TLS?
-
 </PRE>
 
 
-add missing reverse PTR records:
-<PRE>
+<H6>add missing reverse PTR records:</H6>
 
+<PRE>
 ipa dnsrecord-add 16.8.10.in-addr.arpa.  128  --ptr-rec c00.greta.local.   # ie add 10.8.16.128
 ipa dnsrecord-add 16.8.10.in-addr.arpa.  100  --ptr-rec n00.greta.local.  
 #                                        ^^^-------- last octet
-
 </PRE>
 
-modifying renaming record
-</PRE>
+
+<H6>modifying renaming record</H6>
+
+<PRE>
 ipa dnsrecord-mod example.com www --a-rec 10.1.1.1 --ip-address 10.1.1.2
 
 changing ttl
 ipa dnsrecord-mod greta.local vasttest --ttl=3600
-<PRE>
+</PRE>
 
 
 
+<H6>
 deleting record
+</H6>
+
 <PRE>
 ipa dnsrecord-del greta.local  vasttest --a-rec 10.8.16.50 
 ipa dnsrecord-del 16.8.10.in-addr.arpa.  58  --ptr-rec vasttest.greta.local.   # ie del 10.8.16.58 which has hostname vasttest.greta.local
 </PRE>
+
 
 
 <H5>
@@ -1792,6 +1830,41 @@ on freeipa server, edit
 
 systemctl restart named-pkcs11
 
+</PRE>
+
+<H5>Global Forwarder</H5>
+
+Configure a global forward on the IPA DNS server, so external names can be resolved (if desired).
+ref: 
+<LI> https://serverfault.com/questions/1081774/how-are-external-urls-resolved-by-freeipa
+<LI> https://www.freeipa.org/page/V4/Forward_zones
+<LI> https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_identity_management/assembly_troubleshooting-authentication-with-sssd-in-idm_configuring-and-managing-idm#doc-wrapper
+
+
+<PRE>
+# see existing config
+ipa dnsserver-find
+ipa dnsserver-show
+ipa dnsforwardzone-find
+
+
+# add global forwarder (for all external dns):
+ipa dnsconfig-show
+ipa dnsconfig-mod --forwarder=131.243.5.1
+ipa dnsconfig-mod --forwarder=8.8.8.8 
+ipa dnsconfig-mod --forwarder=8.8.8.8 --forward-policy=first  # alt: only|none
+#XX ipa dnsconfig-del --forwarder
+
+Server will check DNS forwarder(s).
+This may take some time, please wait ...
+ipa: WARNING: Forwarding policy conflicts with some automatic empty zones. Queries for zones specified by RFC 6303 will ignore forwarding and recursion and always result in NXDOMAIN answers. To override this behavior use forward policy 'only'.
+  Global forwarders: 8.8.8.8
+  Forward policy: first
+  IPA DNS servers: ...
+
+
+ipa dnsconfig-show
+ipa dns-server-show    # seems to use a diff forwarder
 </PRE>
 
 <A ID=cert></A>
@@ -1847,6 +1920,47 @@ ipa service-find  | grep Principal\ na
 
 
 </PRE>
+
+<A ID=kerberos></A>
+<A ID=kdc></A>
+<H1>kerberos</H1>
+
+<H5>KDC</H5>
+<PRE>
+
+ss -tulp | grep kdc
+/var/log/krb5kdc.log
+
+
+</PRE>
+
+<H5>Kerberos client</H5>
+eg client using FreeIPA/Radius/LDAP
+
+<PRE>
+kinit
+ipa user-find --all jshmith
+
+# each user that wants to run ipa command need to have a valid ticket, run kinit if tix expired
+# expired password may not login eg via ssh
+</PRE>
+
+<H5>Troubleshooting</H5>
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/trouble-general
+
+Set the KRB5_TRACE environment variable to the /dev/stdout file to send trace-logging output to /dev/stdout:
+KRB5_TRACE=/dev/stdout ipa cert-find
+KRB5_TRACE=/dev/stdout ipa user-find jsmith
+
+
+HISTCONTROL=ignorespace
+  # nas-port-number is essentially the outbound port number on localhost running the radtest cmd
+  # secret is the string in /etc/raddb/server used by client to connect to radius server
+  radtest [OPTIONS] user passwd radius-server[:port] nas-port-number secret [ppphint] [nasname]
+  radtest jsmith password123456 ipa.test.org 1812 radServerSecret
+radtest provided by freeradius-utils rpm
+ref: https://support.microfocus.com/kb/doc.php?id=7014552
 
 
 <A ID=link></A>

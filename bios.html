@@ -297,6 +297,9 @@ AVAGO MegaRAID SAS-MFI BIOS  v5.50.03.0  July 2015)
 del or F2		run setup (AMI BIOS)
 F12 boot from ...
 
+ipmitool lan set 8 cipher_privs XXXXXXXXXXXXXXX   # tried for Tyan nodes, but ipmi cipher problem persist
+ipmitool lan set 8 cipher_privs caaaaaaaaaaaXXX   # this might have been the default
+
 </PRE>
 
 <H2>Asus</H2>
@@ -957,6 +960,7 @@ But for that one machine had to issue this raw ipmi command to get things reset/
 
 ipmitool raw 0x32 0x71 0x00 0x01 0x01 # set ipmi/bmc to use shared nic
 ipmitool lan set 8 cipher_privs XaaaaaaaaaaaXXX   # reset cipher suite allowed for channel 8
+
 
 </PRE>
 

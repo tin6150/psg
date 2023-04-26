@@ -460,9 +460,25 @@ mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NE
 ref: 
 <LI> <A HREF="https://docs.oracle.com/cd/E19708-01/821-1319-10/mca-params.html">https://docs.oracle.com/cd/E19708-01/821-1319-10/mca-params.html</A>
 <LI> <A HREF="https://www.open-mpi.org/faq/?category=running" >open-mpi faq running</A>
+<PRE>
+18. What other options are available to mpirun?
+mpirun supports the "--help" option which provides a usage message and a summary of the options that it supports. It should be considered the definitive list of what options are provided.
+
+Several notable options are:
+
+--hostfile: Specify a hostfile for launchers (such as the rsh launcher) that need to be told on which hosts to start parallel applications. Note that for compatibility with other MPI implementations, --machinefile is a synonym for --hostfile.
+--host: Specify a host or list of hosts to run on (see this FAQ entry for more details)
+--np (or -np): Indicate the number of processes to start.
+--mca (or -mca): Set MCA parameters (see the Run-Time Tuning FAQ)
+--wdir <directory>: Set the working directory of the started applications. If not supplied, the current working directory is assumed (or $HOME, if the current working directory does not exist on all nodes).
+-x <env-variable-name>: The name of an environment variable to export to the parallel application. The -x option can be specified multiple times to export multiple environment variables to the parallel application.
+</PRE>
+
 <LI> <A HREF="https://www.open-mpi.org/faq/?category=tuning"  >open-mpi faq tuning</A> mca param btl mpl 
-<LI> <A HREF="https://www.open-mpi.org/faq/?category=sysadmin">open-mpi faq sysadmin</A> ompi_info --param btl all --level 9 # what network NOT to use 
+<LI> <A HREF="https://www.open-mpi.org/faq/?category=sysadmin#sysadmin-mca-params">open-mpi faq sysadmin</A> ompi_info --param btl all --level 9 # what network NOT to use 
 <LI> <A HREF="https://openucx.readthedocs.io/en/master/running.html">https://openucx.readthedocs.io/en/master/running.html</A> has docker capabilities info.
+
+impi_info # intel mpi info
 
 
 
@@ -487,7 +503,7 @@ $PVM_ROOT/lib/pvmd   pvmhost.conf
 # Can be started by any user   (what about more than one user??)
 
 
-kill -SIGTERM <PVMID>   can be used to kill the daemon
+kill -SIGTERM {PVMID}   can be used to kill the daemon
 if use kill -9 (or other non-catchable signal), be sure to clean up /tmp/pvmd.<uid>
 
 
@@ -600,10 +616,12 @@ google_ad_channel ="";
 
 <A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
 </div>
+
 <div class="sig"><BR>
   hoti1<BR>
   sn5050<BR>
-  tin6150 sn50</div>
+  tin6150 sn50
+</div>
 
 
 </body>

@@ -3037,6 +3037,33 @@ vm.swappiness = 0
 
 </PRE>
 
+<A NAME="ulimit"></A>
+<A NAME="sysctl"></A>
+<H5>ulimit/sysctl</H5>
+
+ref: 
+<A HREF="https://www.linuxtechi.com/set-ulimit-file-descriptors-limit-linux-servers/">https://www.linuxtechi.com/set-ulimit-file-descriptors-limit-linux-servers/</A>
+
+<PRE>
+
+ulimit -a 		# show all limits
+ulimit -n 		# open file limit
+ulimit -n 2048 		# set file limit to 2048, above that need provision in /etc/security/limits.conf
+
+
+sysctl -a | grep file   # system-wide limit
+sysctl -p ... 		# make changes live
+typically source /etc/sysctl.conf  # and sysctl.d/ 
+
+user or @group would still be limited by 
+/etc/security/limits.conf ::
+
+@crd             soft    nofile           804200
+@crd             hard    nofile           804270 # this is still ok.  1204270 caused user unable to login or run process!
+oracle           soft    nofile           131072 # dont remember why oracle has such number
+oracle           hard    nofile           131072
+
+</PRE>
 
 <H5>kargs</H5>
 
