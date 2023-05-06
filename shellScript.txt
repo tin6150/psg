@@ -6,7 +6,7 @@ former shellScript.ref
 lot of work to convert to HTML as all > will need to be converted to &gt; etc
 even when inside <PRE> block.
 
-see also: https://tin6150.github.io/psg/scriptRosetta.word.html
+see also: https://tin6150.github.io/psg/scriptRosetta.word.html#ulimit
 
 
 ================================================================================
@@ -25,6 +25,8 @@ ulimit -n 1024          # number of open file descriptor, sh need this separate
                         # somehow can't seems to go above 1024 on sh
         -H              # hard limit
         -S              # soft limit (default set both)
+
+CentOS 7 user limit set in /etc/security/limits.conf   see linux.html
 
 open file descriptor limit need to be reset in /etc/system as
         set rlim_fd_max=4096
