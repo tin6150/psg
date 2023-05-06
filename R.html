@@ -378,6 +378,19 @@ X get applied as "dist"? which us rnorm()
 
 </PRE>
 
+<H5>R Shorthands</H5>
+
+<PRE>
+logistic = \(x) { 1/(1+exp(-x)) }
+logistic = \(x)   1/(1+exp(-x))
+\() is a shortcut for function()
+if there is only a single statement after the function() declaration, it doesn't need to be enclosed by {}
+
+btw, R has plogis() 
+</PRE>
+
+
+
 
 <H1>R, Try before S :-P</H1>
 
@@ -1060,12 +1073,18 @@ row_number()==23	# select row 23  # though I don't like this approach, what if d
 
 <PRE>
 
-• model = lm( v1∼v2 ): linear fit (regression line) between 
-• model = lm( y ∼ x ): linear fit (regression line) between 
-vector v1 on the y-axis and v2 on the x-axis
+• model = lm( y ∼ x ): linear regression modeling
+• model = lm( v1∼v2 ): linear fit (regression line) between vector v1 on the y-axis and v2 on the x-axis
 • y.hat = predict( model, data )       # predict.lm
   y.hat = estimates predicted using the lm model, data would be a df 
 
+
+lm( Y ~ A + X1 + X2 ) # use + to separate terms of covariates, not comma!
+lm( Y ~ A*X )         # use * to say the two terms interact
+lm( Y ~ A + I(X^2) )  # need to wrap X^2 with the I() thing, it is NOT identity fn, just think of it as some R quirkyness!
+
+lin_model    =  lm( Y ~ X, data )	            # linear   regression Lect 11 stat241
+lg_reg_model = glm( Y ~ X, data, family=binomial )  # logistic regression Lect 13 stat241
 
 
 • nls(v1∼a+b*v2, start=ls(a=1,b=0)): nonlinear fit. 
@@ -1895,8 +1914,8 @@ h1 = c( 123,  124)    # cm
 h2 = c(  5.6,   6.6)  # ft
 w1 = c( 71,    82)
 w2 = c(202,   176)
-df_Taiwan = data_frame( h1, w1 ) %>% rename( height=h1, weight=w1 )
-df_Colo   =  data_frame( h2, w2 ) %>% rename( height=h2, weight=w2 )
+df_Taiwan = tibble( h1, w1 ) %>% rename( height=h1, weight=w1 )   # data_frame() is deprecated, tibble() does same thing
+df_Colo   = tibble( h2, w2 ) %>% rename( height=h2, weight=w2 )
 df_both   = rbind( df_Taiwan, df_Colo ) # if col name mismatch then cant row bind
 	
 #defaults for data.frame() for reference
@@ -5078,18 +5097,19 @@ better bullet for table▶yes?
 
 χ² - chi-squared
 σ² - sigma squared = variance
+σ  - sigma         = std dev
 μ  - \mu mean average
 ν  - \nu   (not displaying with right font? kinda cursive v)
 Γ  - Gamma (eg Distribution)
 Σ  - Sigma, summation
 Π  - Pi, products/multiplication
 π  - \pi
-τ  - \tau
+τ  - \tau - tree
 
-λ - \lambda - eigenvalue
+λ - \lambda - eigenvalue, rate param for poisson
 Λ - Lamda - eigenvector
 
-ε - epsilon
+ε - epsilon - erros, residuals
 Ε - Epsilon
 
 𝛉 - theta
