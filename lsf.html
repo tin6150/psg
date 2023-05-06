@@ -141,13 +141,17 @@ GUI									qmon			sview
 
 </PRE>
 
-<A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
+
+Other intro references:
+
+<LI><A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
 <BR>
-Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/flux-framework/flux-core</A>
+<LI>Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/flux-framework/flux-core</A>
 <BR>
 
-<A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018.
+<LI><A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018 by yours truly :).
 <BR>
+
 
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
@@ -156,6 +160,8 @@ Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/
 
 <A NAME="slurm"></A>
 <H1>SLURM</H1>
+
+<A HREF="http://www.physik.uni-leipzig.de/wiki/files/slurm_summary.pdf">Two page slurm cheat ssheet</A>
 
 <H4>Slurm 101</H4>
 
@@ -385,6 +391,8 @@ SBATCH_PARTITION=default_q	# specify the given partition as the default queue
 
 <A HREF="https://slurm.schedmd.com/squeue.html">squeue</A> 
 
+<H5>Node state code</H5>
+
 <PRE>
 
 State with asterisk (*) (eg idle*, draining*) means node is not reachable.
@@ -398,8 +406,26 @@ comp	completing??
 idle	online, waiting for action
 alloc	allocated, ie running job
 mix	some cpu running job, but has more resource avail to run more jobs (non exclusive mode).
+plnd ?? planned?  supposed to be transient?
 
+
+Node state code symbol suffix
+
+$   reserved, maintenance
+*   down, unreachable
+~   powered off
+!,% powering down
+#   being powered up
+@,^ rebooting
+-   backfilling by scheduler by higher priority job
+
+</PRE>
+
+
+<H5>
 JOB REASON CODES
+</H5>
+<PRE>
 Cleaning
 NodeDown 
 

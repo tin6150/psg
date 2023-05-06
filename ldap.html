@@ -1474,7 +1474,7 @@ It provides Radius, MFA/OTP, DNS, certificate signing, all integrated into one.
 
 <PRE>
 systemctl start ipa		# active (exited) status is normal	
-systemctl start radiusd		# active (running) is the normal state
+systemctl start radiusd		# active (running) is the normal state, listen on port 1812
 </PRE>
 <BR>
 <BR>
@@ -1517,14 +1517,19 @@ Logs:
 <OL>
 <LI>1812 udp is default : radius (if not running, rever to use ldap protocol?)  radtest command use this.  firewall to allow local network clients</LI>
 <LI>1813 udp is default : added by freeipa, firewall to allow local network clients only </LI>
-<LI>389:  ldap protocol </LI>
+<LI>389, 636:  ldap, ldaps protocol </LI>
 <LI>8080: there is a tomcat server running, block this from external access is ok</LI>
 <LI>443, 80: hard coded RCP calls, dont change them.  firewall them (only allow localhost?)</LI>
 <LI>8443? </LI>
 <LI>53 tcp/udp: open if have DNS server running. firewall to allow desired clients to connect.</LI>
 <LI>88 tcp/udp: kerberos (listen by krb5kdc)</LI>
+<LI>464 tcp/udp: kerberos </LI>
+<LI>123 udp for ntp </LI>
 <LI> </LI>
-<LI> </LI>
+
+
+
+
 </OL>
 
 <PRE>
@@ -1625,12 +1630,6 @@ ipa group-find --user=sn50    # find groups that user sn50 is a member of
 
 ipt user-mod --setattr=key=value?   # for custom ldap attributes? fuzzy about syntax.  POSIX attrib can just use build in support for --uid --gidnumber etc
 
-
-sss_cache -E  		# clear --everything  in sss cache
-getent passwd sn50
-id -a sn50
-
-radtest sn50 password freeipa.greta.local 1812 badsecret
 
 
 
@@ -1949,6 +1948,7 @@ ipa user-find --all jshmith
 
 https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/trouble-general
 
+<PRE>
 Set the KRB5_TRACE environment variable to the /dev/stdout file to send trace-logging output to /dev/stdout:
 KRB5_TRACE=/dev/stdout ipa cert-find
 KRB5_TRACE=/dev/stdout ipa user-find jsmith
@@ -1958,9 +1958,72 @@ HISTCONTROL=ignorespace
   # nas-port-number is essentially the outbound port number on localhost running the radtest cmd
   # secret is the string in /etc/raddb/server used by client to connect to radius server
   radtest [OPTIONS] user passwd radius-server[:port] nas-port-number secret [ppphint] [nasname]
-  radtest jsmith password123456 ipa.test.org 1812 radServerSecret
+  radtest jsmith jSmithPassword ipa.test.org:1812 2468 radServerSecret
+the nas-port-number 2468 is a dummy due to relic , it is NOT used as local port
 radtest provided by freeradius-utils rpm
 ref: https://support.microfocus.com/kb/doc.php?id=7014552
+
+
+sss_cache -E  		# clear --everything  in sss cache
+getent passwd sn50
+id -a sn50
+
+
+
+Sometime kerberos act up. 
+Ref: Unable to login as an AD or IPA user due to "4 (System error)" via SSSD on Red Hat Enterprise Linux. - Red Hat Customer Portal
+
+kdestroy -A
+kinit admin
+
+mv /etc/krb5.keytab /etc/krb5.keytab.bak2023-0427
+
+ipa-getkeytab -s freeipa.greta.local -p host/freeipa.greta.local -k /etc/krb5.keytab              
+Redirecting to /bin/systemctl start sssd.service
+
+
+Tmp workaround: 
+Disabling keytab validation in /etc/sssd/sssd.conf configuration file can also be used to work around the issue until it's fixed. This would allow AD/IPA users to login.
+krb5_validate = False
+
+
+
+ipa host-find  --all radiusClientHostname | grep enroll    # host should be enrolled (ie joined to the radius realm)
+?? host-modify unenroll ?  (then host has to go thru ipa client setup process to rejoin the realm.  think AD host joining domain)
+ipa host-add  ipa-client-hoostname.fqdn
+ipa service-add HTTP/ipa-client-hoostname.fqdn
+
+
+
+~~~~~
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/retrieve-existing-keytabs
+
+
+ipa-getkeytab -s freeipa.g.local -p host/vpn.g.local -k /tmp/client.keytab
+# gen new keytab, invalidate old one
+
+ipa-getkeytab -r -s freeipa.g.local -p host/vpn.g.local -k /tmp/client.keytab
+# check keytab, be sure to use -r to reuse, or get new one and old one is invalidated
+
+cp -pi /tmp/client.keytab  /etc/krb5.keytab
+
+
+
+klist -A
+klist -ek /etc/krb5.keytab	# list krb principal and tickets in keytab/cache file, but may not be valid?
+
+kinit -kt /etc/krb5.keytab      # authenticate a host
+
+log in IPA server: /var/log/dirsrv/slapd*/
+access
+error
+
+
+
+kvno ... verify key numbers
+
+</PRE>
 
 
 <A ID=link></A>

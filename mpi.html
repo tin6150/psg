@@ -449,11 +449,13 @@ export HPL_HOST_ARCH=3  # to use AVX2 and get 16 DP OPS/cycle
 
 
 
+<H5>
 OSU IB microbenchmark on AMD Epyc 
+</H5>
 https://www.dell.com/support/kbdoc/en-in/000143393/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study
 
 <PRE>
-mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core -mca rmaps_dist_device mlx5_0 numactl cpunodebind=<numanode number> osu-micro-benchmarks-5.4.3/mpi/pt2pt/osu_mbw_mr
+mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core -mca rmaps_dist_device mlx5_0 numactl cpunodebind=${numanode_number} osu-micro-benchmarks-5.4.3/mpi/pt2pt/osu_mbw_mr
 </PRE>
 
 
@@ -478,6 +480,48 @@ Several notable options are:
 <LI> <A HREF="https://www.open-mpi.org/faq/?category=sysadmin#sysadmin-mca-params">open-mpi faq sysadmin</A> ompi_info --param btl all --level 9 # what network NOT to use 
 <LI> <A HREF="https://openucx.readthedocs.io/en/master/running.html">https://openucx.readthedocs.io/en/master/running.html</A> has docker capabilities info.
 
+
+<H5>UCX</H5>
+
+<PRE>
+
+ucx_info -d | grep Device     # -d show device + transport
+ucx_info -f | grep DEVICE     # -f full decorated output
+
+ucx_info # show help by default
+  -b              Show build configuration
+  -y              Show type and structures information
+  -s              Show system information
+  -c              Show UCX configuration
+  -a              Show also hidden configuration
+  -f              Display fully decorated output
+
+mpi need to be compiled with --with-ucx
+
+add option 
+--mca pml ucx
+Framework: pml
+Component: ucx
+
+try:
+
+export OMPI_MCA_orte_base_help_aggregate=0; mpirun --mca pml ucx -np 2 -npernode 1 -H 10.0.44.59,10.0.44.60 -x LD_LIBRARY_PATH  osu_latency
+export OMPI_MCA_orte_base_help_aggregate=0; mpirun --mca pml ucx -np 2 -npernode 1 --host node1,node2 -x LD_LIBRARY_PATH  osu_latency
+# node1,node2 are map to IP address over TCP, not IPoIB.
+
+(Hmm... may need to add device info?)
+
+mpirun -np 2                -host n0000.lr7,n0001.lr7  --mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x --mca coll_fca_enable 0 --mca coll_hcoll_enable 0 --mca btl_openib_if_include mlx5_0:1  --report-bindings --bind-to core --mca rmaps_dist_device mlx5_0    -npernode 1   -x LD_LIBRARY_PATH  osu_latency
+
+mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core -mca rmaps_dist_device mlx5_0 numactl cpunodebind= osu-micro-benchmarks-5.4.3/mpi/pt2pt/osu_mbw_mr
+
+
+</PRE>
+
+ref: 
+<A HREF="OMPI v5.0.x Network Support">https://docs.open-mpi.org/en/v5.0.x/release-notes/networks.html</A>
+
+<H5>Intel MPI</H5>
 impi_info # intel mpi info
 
 

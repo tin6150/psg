@@ -4574,6 +4574,41 @@ Linux RPM</A>, many linux flavors, but no more RHEL rpms.
 
 <H1>TBD</H1>
 
+<H5>Locale/Language</H5>
+
+<PRE>
+Old system use:
+export LANG=C
+export LANGUAGE=C
+export LC_ALL=C
+
+
+Newer system may or may not set correctly, try:
+LANG=C.utf8
+LANGUAGE=C.UTF-8
+
+export LANG=en_US.UTF-8   # root@beagle, vnc :3 works, but still ugly
+
+LOCALE="en_US.utf8"
+
+LC_ALL
+
+LC_CTYPE
+LC_MESSAGES
+LC_COLLATE
+
+
+
+regenerate locale, arch only?
+edit /etc/locale.gen
+sudo locale-gen   
+
+
+
+</PRE>
+
+<H5>TBD</TBD>
+
 
 <!-- cmd.linuc.ref, 2006/04/04 -->
 <PRE>
@@ -4588,7 +4623,7 @@ Red Hat 4.0   (and not available in 3.0)
 ************************************************************
 /usr/sbin/system-config-kickstart	kickstart configurator.
 system-config-netboot			pxe, tftp boot setup
-system-config-language			GUI language config tooll for the machine
+system-config-language			GUI language config tool for the machine
 
 many of these system-config-* had been named redhat-config-* in RH 3.0
 
