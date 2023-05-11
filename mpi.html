@@ -462,16 +462,64 @@ mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NE
 
 
 # these works:
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl self,vader osu_latency
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   ucx_info
 mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -x LD_LIBRARY_PATH  -mca pml ucx osu_latency   
 mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx                                 osu_latency   
-mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   osu_latency
+mpirun -np 2 -npernode 1 -hostfile   node2          -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   osu_latency
 mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  osu_latency
 mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  -mca rmaps_dist_device mlx5_0  osu_latency
+mpirun -np 2 -npernode 1 -hostfile   node2          -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  -mca rmaps_dist_device mlx5_0  osu_latency
+
+mpirun -np 2 -npernode 1 -hostfile   node2    -mca btl ^openib osu_latency 	# still good perf in lr7, but slow in savio4
+mpirun -np 2 -npernode 1 -hostfile   node2    -mca pml ob1     osu_latency      # still good perf in lr7, but slow in savio4
+
+# ^ is negation in mpirun
+# ^tcp means DONT use tcp (not sure what it is using then... openib didn't work
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl ^tcp     osu_latency
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl ^openib  osu_latency  # -mca btl openib  DONT seems to work
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl ^foofoo  osu_latency  # negating non existing stuff get no errror, just no net changes.
+
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ^ucx  osu_latency   # no ucx then?  still works... using what?
+
+other -mca btl stuff
+-mca btl self,sm,gm
+
+
+/global/software/sl-7.x86_64/modules/gcc/11.3.0/openmpi/5.0.0-ucx/bin/ompi_info | grep pml 
+/global/software/sl-7.x86_64/modules/gcc/11.3.0/openmpi/5.0.0-ucx/bin/ompi_info  --param pml ucx --level 9
+ompi_info  --param all all --level 9
+
+
+# -x can be used to set environment variable
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -x OMPI_MCA_mpi_show_handle_leaks=1 osu_latency
+
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -x pml_ucx_verbose=1 osu_latency
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -x UCX_LOG= osu_latency
+
+pml_ucx_verbose
+pml_ucx_devices
+pml_ucx_opal_mem_hooks
+pml_ucx_tls
 
 # Nope:
 mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  -mca rmaps_dist_device mlx5_0  -x UCX_TLS=rc_x  osu_latency
 ie -x UCX_TLS=rc_x  cause issue
+# this seems to corresponds to pml_ucx_tls param
 
+</PRE>
+
+<H5>
+UCX tool
+</H5>
+
+since ucx need to be compiled/installed by itself, it has some binary tools:
+
+<PRE>
+ldd /global/software/sl-7.x86_64/modules/gcc/11.3.0/openmpi/5.0.0-ucx/ucx-1.14.0/bin/ucx_info 
+ucx_info -v
+ucx_info -c
+ucx_perftest  ...   need server and client
 </PRE>
 
 <!--
@@ -493,6 +541,8 @@ mpirun -np 2 -npernode 1 -hostfile node2   -mca pml ucx   -x UCX_NET_DEVICES=mlx
 Note, in lr7:
 UCX_NET_DEVICES=mlx5_0:1  works
 UCX_NET_DEVICES=mlx5_0    does not
+
+/global/software/sl-7.x86_64/modules/gcc/11.3.0/openmpi/5.0.0-ucx/bin/ompi_info  --param pml ucx --level 9
 
 -->
 
@@ -557,7 +607,7 @@ mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NE
 </PRE>
 
 ref: 
-<A HREF="OMPI v5.0.x Network Support">https://docs.open-mpi.org/en/v5.0.x/release-notes/networks.html</A>
+<A HREF="https://docs.open-mpi.org/en/v5.0.x/release-notes/networks.html">OMPI v5.0.x Network Support</A>
 
 <H5>Intel MPI</H5>
 impi_info # intel mpi info
