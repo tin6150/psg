@@ -1660,9 +1660,10 @@ ipa group-del docker	# delete group named docker
 
 </PRE>
 
-<H2>IPA install commands</H2>
+<H2>IPA Server install commands</H2>
 
 <PRE>
+# for IPA server, NOT client.  
 ipa-server-install 
 ipa-server-install --uninstall
 
@@ -1938,13 +1939,15 @@ eg client using FreeIPA/Radius/LDAP
 
 <PRE>
 kinit
-ipa user-find --all jshmith
+ipa user-find --all jsmith
 
 # each user that wants to run ipa command need to have a valid ticket, run kinit if tix expired
 # expired password may not login eg via ssh
 </PRE>
 
 <H5>Troubleshooting</H5>
+
+realm list
 
 https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/trouble-general
 

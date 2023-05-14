@@ -192,7 +192,7 @@ ssh -L 5911:localhost:5901  remoteVncSvr
 vncviewer localhost:11
    this connect to local port 5911, wrap by ssh, then into the remote vncserver port 5901, ie :1
 
-
+ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -L 5951:localhost:5911 tin@bofh  # 2400x1300 # **this vnc to localhost:51  which tunnel to bofh:11**
 
 ssh port forward tunnel chaining 
 
