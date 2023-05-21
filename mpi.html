@@ -459,8 +459,12 @@ https://www.dell.com/support/kbdoc/en-in/000143393/amd-epyc-stream-hpl-infiniban
 
 <PRE>
 mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core -mca rmaps_dist_device mlx5_0 numactl cpunodebind=${numanode_number} osu-micro-benchmarks-5.4.3/mpi/pt2pt/osu_mbw_mr
+</PRE>
 
+<A ID="ucx"></A>
+<H5>osu microbenchmark, mpirun with explicit req to ucx</H5>
 
+<PRE>
 # these works:
 mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl self,vader osu_latency
 mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   ucx_info
@@ -509,6 +513,7 @@ ie -x UCX_TLS=rc_x  cause issue
 
 </PRE>
 
+<A ID="ucx_tool"></A>
 <H5>
 UCX tool
 </H5>

@@ -1895,7 +1895,10 @@ vgdisplay				# display vol grp info such as lvm/lvm2.
            -v				# list all LV on the vol group, which PV it uses.
 vgcreate VolGroup00 /dev/sda2		# create a new VG, this is the def in RHEL 4 setup.
 vgextend  VolGroup00 /dev/sda5
-vgreduce				# reduce number of disks in vol grp
+vgreduce VG PV				# reduce number of disks in vol grp 
+vgreduce DataVG00 /dev/xvdh		# need to lvreduce to free up space till PV is free no extent alocated on it before reducing VG
+					# need to pvremove dev before removing it from say AWS
+
 vgremove  VolGroup00			# remove the whole volume group
 
 lvscan						# brief list of LV and their size.
@@ -1924,6 +1927,7 @@ resize2fs /dev/VolGroup00/LogVol00 	# RH 5, extend the FS to max space that the 
 					# op done online in RH5, no umount needed.
 
 resize2fs /dev/VolGroup00/lv101 1000000	# reduce ext2/ext3 FS to size to exactly 1,000,000 bytes. 
+resize2fs /dev/VolGroup00/lv101  90G    # can use G M k prefix for size
 					# UMOUNT+FSCK FIRST
 
 xfs_growfs /mount/point 		# expand xfs, to max space of eg LV

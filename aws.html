@@ -301,6 +301,9 @@ aws ec2 describe-instance-types --filters Name=processor-info.supported-architec
 aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=arm64  --query "InstanceTypes[*].InstanceType" --output text
 
 
+aws ec2 describe-volumes		# list all storage volumes, some may not be attached!
+aws ec2 describe-volumes --output=text	# wide format closer to web gui presentation
+
 </PRE>
 
 <H3>Finding instance info from within the VM</H3>
@@ -487,8 +490,21 @@ Elastic File System - in Beta as of 2015.11 <BR>
 <LI>EBS emulates a virtual hard drive, so it is mounted by a specific EC2 instance for use, but it lives independent of any given EC2 instance.  ie, it is NOT instance storage, and persist after an EC2 is terminated (deleted).
 <LI>Only mountable in the same availability region.  But then it has no replication delay.
 <LI>Has two tiers.  Standard IOPS, and Provisioned IOPS (PIOPS).  The latter allow extra payment to get dedicated performance.  It is not necessary faster, but will be more predictable (less variable, less likely to have bad performance because other instance is sharing the hardware and hitting it hard).
-<LI>
+<LI> gp2 (general purpose ssd storage) = 0.10 per GB-month of provisioned storage - ie $102/TB-month
+<LI> gp3 (general purpose ssd storage) = 0.08 per GB-month of provisioned storage - ie $ 82/TB-month + IOPS cost.  gp3 + 9000 IOPS = same perf but cheaper than gp2.  so use gp3!
+
+
 </OL>
+
+data volume management thoughts <BR>
+attach volume to OS, no partition, create PV on whole virtual disk eg xvdf.  <BR>
+expansion: create another volume in aws, attach to OS, eg xvdg, create PV, add to existing VG.  
+shrink: can then do pvremove if extra partition not needed.   (cuz don't think shrinking aws gp3 ssd will properly ensure fs data block is not removed).
+<BR>
+each  gp3 vol has 3000 IOPS free.  using LVM can spread IO over multiple gp3 PV :) <BR>
+(though IOPS aren't too expensive, extra volume in the list may be problematic for large cloud) <BR>
+
+
 
 <H3>S3</H3>
 
