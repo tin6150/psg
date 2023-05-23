@@ -104,6 +104,15 @@ RST header example probably breaks github rst parser/rendered...
 RST 
 ===
 
+RST quick reference that I like:
+https://docutils.sourceforge.io/docs/user/rst/quickref.html#tables
+
+Sphinx is the python doc generator, it is RST based, but also add extensions, so not all sphynx construct works
+for git* rendered web pages.
+
+
+
+
 Planning to swtich to reStructured Text and avoid MarkDown.
 
 .rst is adopted in python.  
@@ -119,6 +128,33 @@ hmm... maybe use // as comment, as JavaScript and GOlang do...
 Next should be a table of content.  the ``contents directive`` will read entries from the ``topic directive`` , as well as things that parsed are headers (those with underlines and stuff).  Thus, explicit ``topic`` or ``title`` directives are not really necessary.   (``sidebar directive`` not supported by github rendered)
 (the topic wasn't listed in contents:: , but the heading line was listed instead.  so, may have no use for ``topic``)
 
+
+dot_dot is command for rst parser.
+
+
+Inter-Document link
+see:
+https://stackoverflow.com/questions/37553750/how-can-i-link-reference-another-rest-file-in-the-documentation
+
+External URL is actually easy.  no markup is needed if just show whole link.
+There are other ways to add ref so whole ugly URL doesn't show up.  RTFM, but not hard.  
+
+But link to just another rst file within the same site, (so that say git backed doc can be rendered in multiple sites), seems rather difficult.
+at least i have not really figured out yet :-/ 
+
+Does this inter-document link work? 
+.. _sphynx_link: reStructuredText_sphynx.rst
+:ref:`phynx_link` 
+
+
+or this method:
+:doc:`./reStructuredText_sphynx.rst` : another rst, small, warning about sphynx extension
+
+or this 
+:doc:`sphynx rst <./reStructuredText_sphynx.rst>`
+
+
+==========================================================
 
 
 .. sidebar::
@@ -182,12 +218,28 @@ next ==== line is rendered as horizontal line:
 
 ==========================================================
 
+References
+----------
+
+- wikipedia on .rst: https://en.wikipedia.org/wiki/ReStructuredText#Examples_of_reST_markup
+- reStructuredText quick ref: http://docutils.sourceforge.net/docs/user/rst/quickref.html
+- reStructuredText primer: http://docutils.sourceforge.net/docs/user/rst/quickstart.html
+- preformatting samples, but not necessarily code syntax highlight: http://docutils.sourceforge.net/docs/user/rst/quickstart.html#preformatting-code-samples 
+
+
 
 .. topic:: Examples 1
 Examples that works  
 -------------------
 
 Note that single dash subline make this a subheader but no ruler line below it like the above does
+
+- use dash to start list
+- ``double backquotes``  highligt in reverse text and monospace font
+- *single asterist* to delimited *italic text* 
+- **double asterisks** became **bold**
+- nice thing is vim will highlight text specially from .rst syntax (mostly)
+
 
 
 .. topic:: Examples 2
@@ -260,6 +312,19 @@ to mean hard break of line?
 Nope.  RTFM!
 
 **> no good solution, see reStructuredText_hard_line_break.rst <**
+
+hard new line in rst need to be prefixed in an annoying way.
+
+| the pipe in the beginning indicate where line breaks are
+| another line
+
+another trick was to use raw HTML, but that's for web rendering only.  see
+https://stackoverflow.com/questions/51198270/how-do-i-create-a-new-line-with-restructuredtext/51199504
+
+.md allow use of \
+at end for hard line break
+or the double space at end, which works, except it is invisible and some text editor automatically stripe end white space.
+
 
 
 ----
@@ -516,6 +581,25 @@ still here?
 wow, apparently i wrote a lot before.  or pasted a lot... \
 a lot of stuff in middle are dealing with lists
 
+
+Files location
+==============
+
+location of .rst and .md files are in 2 places so that I can see how it got rendered
+  - psg/reStructuredText_markup.rst
+  - https://github.com/tin6150/inet-dev-class/rst_md
+
+  PSG version will be master.  inet-dev-class is a cache (and not really needed, as error in rst will cause github not to render in both places, so just need to fix the error!).  
+
+
+Example os .rst that I maintain
+====================================
+
+ones that I think has features I wondered how they would work out...
+
+* https://github.com/tin6150/covid19_care_capacity_map 
+   - glossary term, really just to force indent block of text.  messy, no way to do hard line break, so easier to just use lots of nested bullet lists
+   
 
 
 comments
