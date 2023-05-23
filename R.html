@@ -1011,7 +1011,7 @@ testing = readxl::read_excel(
 # drop rows with missing values
 df %>% drop_na( colName ) 			# evaluate colName, if NA, drop such row
 df %>% drop_na( c(col1,col2) ) 			# use c() to give a list of column names
-df %>% drop_na( ) 				# if no colName specified, evaluate ALL cols, if NA in any, drop such row
+df %>% tidyr::drop_na( ) 			# if no colName specified, evaluate ALL cols, if NA in any, drop such row
 
 df %>% filter( !is.na( colName ) )		# there is no is.nna(), so negate is.na()
 df %>% filter(  is.na( colName ) )		# this pick rows where colName is NA
