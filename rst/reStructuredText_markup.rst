@@ -147,21 +147,26 @@ But link to just another rst file within the same site, (so that say git backed 
 at least i have not really figured out yet :-/ 
 
 Does this inter-document link work? 
-.. # sphynx_link: reStructuredText_sphynx.rst
-.. # :ref:`sphynx_link` 
+
+sphynx_link: reStructuredText_sphynx.rst
+
+:ref:`sphynx_link` 
 
 (dash in front of sphynx_link may have broke the rst parser and github rendered this page as just plain code)
 
 or this method with just path:
-.. # :doc:`./reStructuredText_sphynx.rst` : another rst, small, warning about sphynx extension
+
+:doc:`./reStructuredText_sphynx.rst` : another rst, small, warning about sphynx extension
 
 or this with name and angle bracket
-.. # :doc:`sphynx rst <./reStructuredText_sphynx.rst>`
+
+:doc:`sphynx rst <./reStructuredText_sphynx.rst>`
 
 or this  with angle bracket
-.. # :doc:`<./reStructuredText_sphynx.rst>`
 
-.. # some of the above lines seems to have broken rst parser and causing page render to break, commenting them out using dot-dot hack
+:doc:`<./reStructuredText_sphynx.rst>`
+
+.. # hopefully none of the above lines broke the rst parser and causing page render to break, commenting them out using dot-dot hack to check ... at least rstcheck didn't split out SEVERE error on them
 
 
 ==========================================================
