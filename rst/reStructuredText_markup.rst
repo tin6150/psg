@@ -618,13 +618,15 @@ RST command marker
 ==================
 
 dot_dot is command for rst parser.  eg marking code block, specifying language
+
 undercore before text was also command, for linking doc, and if not done correctly seems to break parser and don't render page anymore
+
 colon-word-colon  can be delimiter for doc, ref, download, etc.
 
 comments
 --------
 
-.. dot-dot is actually command to rst parser, but if it is not understood, it is just skipped, so coaxed as also marker for comment #dot-dot-hack
+dot-dot is actually command to rst parser, but if it is not understood, it is just skipped, so coaxed as also marker for comment #dot-dot-hack
 .. this can be used as comment line in rst, ie, not displayed
 .. so vim modeline is set as rst comment
 
