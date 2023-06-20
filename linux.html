@@ -1740,6 +1740,15 @@ parted can manipulate some fs, should be able to resize FAT fs/partitions.
 
 <PRE>
 
+parted is annoying cuz have to specify start and end point, have to do math myself!
+it also can't specify partition, must create them sequentially
+
+# sequence below to partition a 32G thumb drive, leaving first 8 M as empty unused (MBR would use it?)
+parted /dev/sdb mkpart primary ext2     8 2056
+parted /dev/sdb mkpart primary ext2  2056 4104
+parted /dev/sdb mkpart primary fat32 4104 98%   
+
+
 sudo parted /dev/sdb print		# show partition table
 sudo parted /dev/sdb mklabel gpt	# initialize disk as gparted, erase all existing partition!  then add label
 sudo parted /dev/sdb mklabel msdos	# initialize partition using msdos mbr

@@ -99,7 +99,86 @@ ssh  192.8.21.50  -l vastdata
 
 <!-- gui method, see gmail socks5 proxy with video file link in gdrive -->
 
+<H2>New System Setup</H2>
 
+<PRE>
+
+vcli	# start the vast cli, to run vast config commands
+admin/...
+
+cnode list		# long table listing all controller nodes
+vippool create ?	# -h or --help
+vippool create --start-ip 10.8.16.50 --end-ip 10.8.16.57 --name primary_data --subnet-cidr 24 --gw-ip 10.8.16.1
+
+
+vippool modify ?
+vippool modify --id 2 --vlan 16		# set vippool to use vlan tagging (use 0 for no tag)
+
+
+</PRE>
+
+
+<H2>NFS exports config</H2>
+
+<PRE>
+# default root of the nvme pool is exported with default policy.
+
+view list		# show nfs export, policy
+
+viewpolicy list 	# export policy (root squash, etc)
+
+viewpolicy show --id 1	
+viewpolicy modify --id 1 --nfs-no-squash  10.8.21.22	# nfs management node IP
+# [ we may have a routing problem that vast cluster and wwulf cluster use same subnet IP range and may have route problem ]
+
+</PRE>
+
+<H2>Change passwords</H2>
+
+3 users passwords to change for the vast system 
+
+<PRE>
+vcli
+cluster set-password --vastdata {ENTER} # prompt for new password
+cluster set-password --root
+cluster set-password --ipmi
+
+</PRE>
+
+
+4 "managers" passwords to change
+<BR>
+Can change all these, system will work, just make sure save them in a safe place
+<BR>
+(but can just run the cmd, so long as can run vcli as "admin" ?)
+
+<PRE>
+vcli
+manager list
+manager modify --id 2 --password   NewPassOnCli		# will not prompt for password, must enter in cli as clear text
+
+# --id 2 # admin
+# --id 4 # S3_keys_manager, used internally by VAST
+# --id 1 # root
+# --id 3 # support
+
+</PRE>
+
+<H2>
+Vast internal cluster
+</H2>
+
+<PRE>
+clush -g cnodes /usr/sbin/ip a | grep 10.8.16	# check see if NFS traffic network link is up (vippool use this)
+
+# clush is like pdsh
+# enp59 is the 100G interface 
+
+ssh 172.16.128.1	# cnode internal ip
+ethtool enp59s0f0	# check link connection
+
+
+</PRE>
 
 <H2>internals</H2>
 

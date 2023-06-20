@@ -359,6 +359,10 @@ r5ad.12xlarge is $3.14/hour      384G RAM 48 core.
 r6id.12xlarge is $3.63/hour                
 r6id.16xlarge is $4.84/hour
 
+r5n.2xlarge	$0.596	8	64 GiB	EBS Only	Up to 25 Gigabit
+t3a.2xlarge	$0.3008	8	32 GiB	EBS Only	Up to 5 Gigabit
+
+
 API Name	Instance Memory		vCPUs	Instance Storage	Network Performance	Linux On Demand cost
 r5ad.16xlarge	512.0 GiB	64 vCPUs	2400 GB (4 * 600 GB NVMe SSD)	12 Gigabit	$4.192000 hourly
 m5ad.24xlarge	384.0 GiB	96 vCPUs	3600 GB (4 * 900 GB NVMe SSD)	20 Gigabit	$4.944000 hourly
@@ -374,15 +378,21 @@ x2iedn.32xlarge	4096.0 GiB	128 vCPUs	3800 GB (2 * 1900 GB NVMe SSD)	100 Gigabit	
   #instance_type = "t2.medium"  # $0.046     2 vCPU  4G                # tested work for us-west-2
   #instance_type = "t3.large"   # $0.083     2 vCPU  8G
   #instance_type = "t3.xlarge"   # $0.166     4 vCPU 16G
+  #instance_type = t4g.2xlarge	$0.2688		8	32 GiB	EBS Only	Up to 5 Gigabit
+  #instance_type = r5a.2xlarge	$0.452		8	64 GiB	EBS Only	Up to 10 Gigabit
+
+
   instance_type = "c5a.16xlarge"  # $2.464       64 vCPU 128G
   #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
   #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
   #-instance_type = "x2gd.2xlarge"  # $0.668        8 vCPU 128G  arm64
 
+If just added EBS storage to volume, cannot change instance type, probably for 6 hours, while the disk config changes are synced in the AWS region or something.  (Would get "unexpected error", but figure multiple EBS storage changes had this restrictions).
 
 </PRE>
 
 Source and Ref: 
+<A HREF="https://aws.amazon.com/ec2/pricing/on-demand/">EC2 On-Demand pricing </A> **With search** <BR>
 <A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A> <BR>
 <A HREF="https://www.cloudzero.com/blog/aws-instance-types">instance type guide</A> (By cloud zero, mediocre) <BR>
 

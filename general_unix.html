@@ -987,6 +987,14 @@ pushd \!*   jump b/w last pushed dir (aliased to xd)
 tar -zxvf file {-C dir}   untar and uncompress
 tar -zcvf file  *         tar and compress current dir, files still remain
 
+tar -h 	# supposed to dereference symlink, and copy the file.  
+	# but check output, sometime still get a hard link eg tar tvf show
+	#  hrw-r--r-- root/root         0 2023-05-11 16:04 pam.d/system-auth.fromSysUpdate link to pam.d/system-auth	  
+	# but extracted output seems to have created a normal file.  
+	# maybe just special marking in tar that such file was orig a link... 
+	# yet not sure why it was done for some sym link yet not other.  weird.
+	# final output was as desired.
+
 
 
 kill -9 -1 kill every single process i own w/in the server.

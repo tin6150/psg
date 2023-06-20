@@ -881,6 +881,12 @@ slurmdUser 			# slurmd    user.
 </UL>
 
 
+Can try this for rolling reboot:
+<PRE>
+scontrol reboot asap nextstate=resume reason=“reboot to upgrade node” n0052.hpc0,n0064.hpc0,n0065.hpc0,n0066.hpc0,n0067.hpc0,n0070.hpc0,n0071.hpc0,n0074.hpc0,n0076.hpc0,n0081.hpc0,n0083.hpc0,n0084.hpc0,n0085.hpc0,n0087.hpc0
+</PRE>
+
+
 Ref: 
 <A HREF="https://slurm.schedmd.com/big_sys.html">Large cluster admin guide</A>
 <BR>
