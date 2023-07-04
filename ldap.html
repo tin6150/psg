@@ -1514,19 +1514,29 @@ Logs:
 
 <H2>Ports and Firewall</H2>
 
+<A HREF="mit kerberros firewall">https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5/doc/krb5-admin/Configuring-Your-Firewall-to-Work-With-Kerberos-V5.html</A>
+
 <OL>
 <LI>1812 udp is default : radius (if not running, rever to use ldap protocol?)  radtest command use this.  firewall to allow local network clients</LI>
 <LI>1813 udp is default : added by freeipa, firewall to allow local network clients only </LI>
-<LI>389, 636:  ldap, ldaps protocol </LI>
 <LI>8080: there is a tomcat server running, block this from external access is ok</LI>
-<LI>443, 80: hard coded RCP calls, dont change them.  firewall them (only allow localhost?)</LI>
+<LI> 443, 80: hard coded RCP calls, dont change them.  firewall them (only allow localhost?)</LI>
 <LI>8443? </LI>
-<LI>53 tcp/udp: open if have DNS server running. firewall to allow desired clients to connect.</LI>
-<LI>88 tcp/udp: kerberos (listen by krb5kdc)</LI>
-<LI>464 tcp/udp: kerberos </LI>
-<LI>123 udp for ntp </LI>
+<LI>  88 tcp/udp: kerberos-sec (listen by krb5kdc)</LI>
+<LI> 389, 636:  ldap, ldapssl protocol </LI>
+<LI> 464 tcp/udp: kerberos </LI>
+<LI> 749 tcp    : kerberos-adm  (not mandatory?), udp? </LI>
+<LI> 754 tcp    : kprop requests needs to get through FW to the remote KDC </LI>
+<LI>  53 tcp/udp: open if have DNS server running. firewall to allow desired clients to connect.</LI>
+<LI> 123 udp for ntp </LI>
 <LI> </LI>
 
+
+<PRE>
+# check ports are reachable from a client machine.  
+# open|fitered is ok
+sudo nmap -e enp0s9 -sUT -p53,123,80,88,443,8443,8080,389,464,636,749,754,1812-1813 freeipa
+</PRE>
 
 
 
@@ -1916,7 +1926,7 @@ copy .crt and .key files to www/vpn server
 
 getcert stop-tracking -i 20220211224159	# remove if need to redo eg cuz typo
 
-ipa service-find  | grep Principal\ na
+ipa service-find  | grep "Principal name"
 
 
 </PRE>
@@ -2028,6 +2038,30 @@ kvno ... verify key numbers
 
 </PRE>
 
+<A ID=sssd></A>
+<H1>sssd</H1>
+
+<PRE>
+
+
+
+sssctl domain-list
+sssctl domain-status g.local		# if show offline, then problem!
+sssctl domain-status g.local --start
+
+
+sssctl user-checks  sn50
+
+sssctl user-show  -u 6666
+
+</PRE>
+
+log:
+<PRE>
+setting /etc/sssd.conf  with debug log would provide lot more info
+/var/log/sssd/
+
+</PRE>
 
 <A ID=link></A>
 <H1>Reference</H1>

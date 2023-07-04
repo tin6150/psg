@@ -825,7 +825,7 @@ terraform fmt		# format all .tf files (for indentation), in place, so consider b
 
 terraform validate
 terraform plan
-terraform apply
+terraform apply		# this is DESTRUCTIVE.  re-apply ami-id to the instance, previous data is erased!  even security group seems recreated.
 terraform destroy	# will terminate instance, remove any created security group.
 
 # terraform has no way to restart an instance, nor to just stop or start it.

@@ -1515,14 +1515,20 @@ tcpdump src  10.0.71.165 -w myfile.tcpdump	# -w write output to file
 tcpdump 'dst net 128.3'
 tcpdump 'src or dst port ftp-data'   
 tcpdump 'ether host 0:d0:b7:a9:c9:5a'
+tcpdump -v -i enp0s3 ether host 3c:ec:ef:bb:b5:bb or 90:e2:ba:c5:53:00   # verified will capture traffic for both mac
 tcpdump icmp -w myfile.tcpdump			# only icmp traffic, all hosts
 
 tcpdump -v -v host 10.0.71.165			# -v -v, increase verbosity.  
 						# usable in screen output for low amount of traffic
 
+tcpdump -vv -e -n -i enp0s3 port 67 or port 68  # these ports are arp req (bootps) and reply (bootpc) used by DHCP 
+
+
+
 tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump	
 		# -i eth2, only traffic flowing thru specified nic
 		# -s 64000, max packet capture size.  64k is probably bigger than needed, but works well
+		# -s 0 would have no limit on caputre size, ie capture as large as needed
 		# -w write output to file
 
 tcpdump -vv -i eno1  'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
@@ -1848,6 +1854,12 @@ nmap -sT -O -PI -PT 172.27.31.0/24	# scan whole class C vlan 31, with os identif
 
 sudo nmap -p1-62000 somehost		# scan port 1 to 62000 against machine named somehost
 sudo nmap -sU somehost -p8255		# check UDP port 8255 to see if it is open
+
+sudo nmap -e enp0s9     freeipa		# check all TCP ports to IPA server is reachable
+sudo nmap -e enp0s9 -sU    freeipa	# check all UDP ports to IPA server is reachable, takes ~18 min, another took 33 min
+sudo nmap -e enp0s9 -sU -F freeipa	# -sU = UDP scan.  -F = fast mode, scan fewer ports than default, still takes long time
+sudo nmap -e enp0s9 -sU -p53-1813 freeipa	# scan specified port range only 
+sudo nmap -e enp0s9 -sUT -p53,123,80,88,443,8443,8080,389,464,636,1812-1813 freeipa  # -sUT scan both UDP and TCP
 
 
 

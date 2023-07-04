@@ -75,7 +75,8 @@ lead-acid are the batteries that can't tolerate higher temperature...
 
 <PRE>
 
-ssh  192.8.21.50  -l vastdata
+ssh  vast-server-management-ip  -l vastdata
+ssh  192.8.21.50                -l vastdata
 
 
 
@@ -102,6 +103,8 @@ ssh  192.8.21.50  -l vastdata
 <H2>New System Setup</H2>
 
 <PRE>
+
+ssh  vast-server-management-ip  -l vastdata
 
 vcli	# start the vast cli, to run vast config commands
 admin/...
@@ -136,6 +139,8 @@ viewpolicy modify --id 1 --nfs-no-squash  10.8.21.22	# nfs management node IP
 <H2>Change passwords</H2>
 
 3 users passwords to change for the vast system 
+<BR>
+(these can ssh into the system)
 
 <PRE>
 vcli
@@ -146,7 +151,7 @@ cluster set-password --ipmi
 </PRE>
 
 
-4 "managers" passwords to change
+4 "managers" passwords to change. 
 <BR>
 Can change all these, system will work, just make sure save them in a safe place
 <BR>
@@ -157,7 +162,7 @@ vcli
 manager list
 manager modify --id 2 --password   NewPassOnCli		# will not prompt for password, must enter in cli as clear text
 
-# --id 2 # admin
+# --id 2 # admin - used for login thru the web gui or vcli
 # --id 4 # S3_keys_manager, used internally by VAST
 # --id 1 # root
 # --id 3 # support
@@ -177,6 +182,12 @@ clush -g cnodes /usr/sbin/ip a | grep 10.8.16	# check see if NFS traffic network
 ssh 172.16.128.1	# cnode internal ip
 ethtool enp59s0f0	# check link connection
 
+clush -a   uptime
+clush -a   hostname
+
+
+find-vms	# list all vms (run as docker containers)
+find-leader	# see which node is the "master"
 
 </PRE>
 
@@ -185,7 +196,27 @@ ethtool enp59s0f0	# check link connection
 not sure how much customer (sys admins) need to know about these
 
 <PRE>
+
+
+
+
 docker ps	# there are 3 containers running...
+docker ps | grep vms 	# vm that runs on cnodes.
+
+
+There is a cluster name of sort on display on the GUI and in email notifications.
+But probably nothing in the cli login.  
+(The primary IP is a virtual address assigned to 1 cnode at run time)
+
+So, to have some sort of idea of cluster name when logged into cli, 
+changed each cnode hostname so that "hostname" would return something meaningful.
+
+On each cnode, do:
+
+sudo vi /etc/vast-configure_network.py-params.ini
+sudo /usr/bin/configure_network.py --load-params-from-file
+
+
 </PRE>
 
 <BR><HR><BR>
