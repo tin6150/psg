@@ -312,9 +312,14 @@ vboxmanage showvminfo VMNAME
 
 /usr/bin/VBoxManage  startvm   "springer"           --type headless
 /usr/bin/VBoxManage  controlvm "springer"  poweroff --type headless
+/usr/bin/VBoxManage  controlvm "springer"  reset    --type headless
 /usr/bin/VBoxManage  startvm   "springer"  --type emergencystop      # sometime useful to get out of VBOX_E_INVALID_OBJECT_STATE
 
-
+/usr/bin/VBoxManage  showvminfo "springer" | grep State  # see if VM is paused (eg cuz ran out of space)
+/usr/bin/VBoxManage  controlvm "springer"  pause --type headless
+/usr/bin/VBoxManage  controlvm "springer"  resume --type headless
+See https://documentation.help/VirtualBox/ch08s13.html for other controls, like nic disconnect, etc.
+teleport is like vmotion of ESX, ie move VM to different host.
 
 vboxmanage snapshot VMNAME list
 vboxmanage snapshot VMNAME take SNAPSHOT_NAME --description="some text" --live 

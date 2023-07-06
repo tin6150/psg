@@ -54,6 +54,12 @@ There are two modes.
 - "ipmitool cmd" on the machine itself, which doesn't go thru the network, and always work.
 - "ipmitool -H bmc.ip.addr cmd"  to use the "lanplus" network interface, which will require working IP stack, and require for example for the bmc ip to be pingable and reachable via the IPMI protocol.  (port ??)
 
+If ipmitool doesn't work, returning with "Error in open session response message : no matching cipher suite"
+try 
+ipmitool -C 3  ... 
+to specify cipher to use.
+
+
 </PRE>
 
 

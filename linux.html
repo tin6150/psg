@@ -80,13 +80,33 @@ funny/ugly/stupid chars when pasting?  See
 <UL>
 <LI> RedHat you have to pay.  CentOS is free.  Beyond that, both are largely identical.  Except...
 <LI> RedHat provides commercial tech support
+
 <LI> RedHat provides a yum-security plugin that allows machine to be patched with only security update via yum (and keep the OS at the same level).   See 
 <A HREF="https://access.redhat.com/solutions/10021">Solution 10021</A>.
 <LI> CentOS does not provide this info.  updateinfo.xml.gz is empty, thus commands like <BR>
 <TT> yum updateinfo list security all</TT> <BR>
 <TT> yum updateinfo RHSA-2014:0159</TT> <BR>
-does <EM>NOT</EM> work in CentOS.  They 
+in the past, this did <EM>NOT</EM> work in CentOS.  They 
 results in a noop on CentOS machines.  Lack of action in output does NOT mean security patches aren't needed!  See <A HREF="https://www.centos.org/forums/viewtopic.php?t=59369">CentOS forum</A>
+<BR>
+But... CentOS pivot to upstream, and Fedora marking some update as security... may not be comprehensive?
+but yum-cron with security only on CentOS and Rocky would be safer than without it.
+
+<PRE>
+update /etc/yum/yum-cron*conf
+updates should be logged to /var/log/yum.log
+
+yum updateinfo list security all
+yum --security upgrade		# install only rpm that are needed to fix security issues.  *just use this*
+
+yum info-sec			# list avail security update, with description.  somehow slightly diff result list than yum --security upgrade or yum list-sec
+yum --security check-update	# a very long list, include already installed fixes.
+yum list-sec			# list rpm with sec update avail, they may or may not have been applied already.
+yum list-security		
+
+</PRE>
+
+
 <LI> Oracle Linux (is it still around?) is essentially RHEL, but support is provided from Oracle directly.  Oracle DBAs probably like it.
 <LI> Scientific Linux has 'fastbugs' and 'security' updates.   Security updates are enabled by default.  
 See <A HREF="https://www.scientificlinux.org/documentation/faq/faq-updates/">SL FAQ from Fermilab</A> and 
@@ -1720,6 +1740,15 @@ parted can manipulate some fs, should be able to resize FAT fs/partitions.
 
 <PRE>
 
+parted is annoying cuz have to specify start and end point, have to do math myself!
+it also can't specify partition, must create them sequentially
+
+# sequence below to partition a 32G thumb drive, leaving first 8 M as empty unused (MBR would use it?)
+parted /dev/sdb mkpart primary ext2     8 2056
+parted /dev/sdb mkpart primary ext2  2056 4104
+parted /dev/sdb mkpart primary fat32 4104 98%   
+
+
 sudo parted /dev/sdb print		# show partition table
 sudo parted /dev/sdb mklabel gpt	# initialize disk as gparted, erase all existing partition!  then add label
 sudo parted /dev/sdb mklabel msdos	# initialize partition using msdos mbr
@@ -1875,7 +1904,10 @@ vgdisplay				# display vol grp info such as lvm/lvm2.
            -v				# list all LV on the vol group, which PV it uses.
 vgcreate VolGroup00 /dev/sda2		# create a new VG, this is the def in RHEL 4 setup.
 vgextend  VolGroup00 /dev/sda5
-vgreduce				# reduce number of disks in vol grp
+vgreduce VG PV				# reduce number of disks in vol grp 
+vgreduce DataVG00 /dev/xvdh		# need to lvreduce to free up space till PV is free no extent alocated on it before reducing VG
+					# need to pvremove dev before removing it from say AWS
+
 vgremove  VolGroup00			# remove the whole volume group
 
 lvscan						# brief list of LV and their size.
@@ -1904,6 +1936,7 @@ resize2fs /dev/VolGroup00/LogVol00 	# RH 5, extend the FS to max space that the 
 					# op done online in RH5, no umount needed.
 
 resize2fs /dev/VolGroup00/lv101 1000000	# reduce ext2/ext3 FS to size to exactly 1,000,000 bytes. 
+resize2fs /dev/VolGroup00/lv101  90G    # can use G M k prefix for size
 					# UMOUNT+FSCK FIRST
 
 xfs_growfs /mount/point 		# expand xfs, to max space of eg LV
@@ -3021,6 +3054,33 @@ vm.swappiness = 0
 
 </PRE>
 
+<A NAME="ulimit"></A>
+<A NAME="sysctl"></A>
+<H5>ulimit/sysctl</H5>
+
+ref: 
+<A HREF="https://www.linuxtechi.com/set-ulimit-file-descriptors-limit-linux-servers/">https://www.linuxtechi.com/set-ulimit-file-descriptors-limit-linux-servers/</A>
+
+<PRE>
+
+ulimit -a 		# show all limits
+ulimit -n 		# open file limit
+ulimit -n 2048 		# set file limit to 2048, above that need provision in /etc/security/limits.conf
+
+
+sysctl -a | grep file   # system-wide limit
+sysctl -p ... 		# make changes live
+typically source /etc/sysctl.conf  # and sysctl.d/ 
+
+user or @group would still be limited by 
+/etc/security/limits.conf ::
+
+@crd             soft    nofile           804200
+@crd             hard    nofile           804270 # this is still ok.  1204270 caused user unable to login or run process!
+oracle           soft    nofile           131072 # dont remember why oracle has such number
+oracle           hard    nofile           131072
+
+</PRE>
 
 <H5>kargs</H5>
 
@@ -3431,6 +3491,29 @@ https://wiki.gentoo.org/wiki/SELinux/Tutorials/How_SELinux_controls_file_and_dir
 
 </UL>
 
+Overall system state:
+
+<PRE>
+
+SELinux in RHEL 7 has 2 states
+- disabled
+- enabled        
+
+and 2 mode while enabled:
+- permissive
+- enforcing
+
+sestatus      # check status, 
+setenforce 0  # go into permissive mode
+setenforce 1  # go into enforcing  mode
+
+
+</PRE>
+
+
+SE Linux has quite a number of places where permissions are set...
+
+
 <PRE>
 
 useradd -Z user_u 	# when adding new user, also give it a default context. 
@@ -3498,21 +3581,50 @@ Ansible module:
 
 <H5>Allow binary to open tcp port</H5>
 
+<PRE>
 eg: change ssh to use port 2222 in rhel7
 denials noted in /varlog/audit/audit.log
 
 semanage port -a -t ssh_portt -p tcp 2222
+</PRE>
+
+<H5>SSHD to read sym link</H5>
+
+Say home dir got filled, and whatever reason LVM etc not used, and home dir was moved and sym linked, 
+users who ssh in may get a permission error bout not being able to cd to their home dir
+user get logged into / 
+but yet they can just run `cd` 
+and get back to their home dir.
+<BR>
+It is definately a SELinux problem if `setenforce 0` to go to permissive mode and problem goes away.
+<BR>
+Fix:
+<BR>
+
+<PRE>
+semanage fcontext -a -t ssh_home_t '/global/home/users'
+restorecon -v '/global/home/users'
+Relabeled /global/home/users from system_u:object_r:default_t:s0 to system_u:object_r:ssh_home_t:s0
+
+PS.
+chcon --type home_root_t /home/tin or the like wasn't likely needed
+drwxr-xr-x. 35 root root  system_u:object_r:home_root_t:s0         4096 Nov  1 17:18 /home
+drwx------. 16 bofh users unconfined_u:object_r:user_home_dir_t:s0 4096 May  6 10:52 /home/bofh
+
+</PRE>
+
+Ref:
+<LI>
+https://linuxfreelancer.com/could-not-chdir-to-home-directory-permission-denied
+<LI>
+CF_BK/sw/selinux.rst
 
 
 <H5>SELinux for RHEL 7 </H5>
 
-<PRE>
-sestatus # check status
-</PRE>
 
-
-Can only be disabled by editing config file and reboot.  <BR>
-ping in rhel7 does not rely on setuid big, but on selinux context to gain elevated priv to do the ping.  <BR>
+Can only be fully disabled by editing config file and reboot.  <BR>
+ping in rhel7 does not rely on setuid bit, but on selinux context to gain elevated priv to do the ping.  <BR>
 Seems like RHEL7 has SELinux enable by default, and it is very usable, don't tend to run into problem/restrictions with most generic sys admin config as desktop machine.
 <BR><BR>
 
@@ -4051,6 +4163,11 @@ ethtool eno1		# set duplex, etc of an interface
 /etc/NetworkManager/NetworkManager.conf		# NM config
 	dns=none				# tell it not to mangle /etc/resolv.conf
 
+DNS server change should not go to /etc/resolv.conf anymore if managed by NetworkManger
+instead, edit /etc/sysconfig/network-scripts/ifcfg* 
+DNS1=8.8.8.8
+
+
 -or-
 
 /etc/sysconfig/network-scripts/ifcfg-eno1
@@ -4435,17 +4552,32 @@ Linux hardware sensor, limited use<BR><BR>
 http://www-128.ibm.com/developerworks/linux/library/l-hw1/</A><BR>
 IBM write up on hw troubleshooting<BR><BR>
 
+
+
+<H5>References</H5>
+<BR>
+
 <LI><A HREF="http://www.fedorafaq.org/">
 Fedora FAQ</A><BR>
 Very good step by step procedure on how to do many things in Fedora Linux
 <BR><BR>
 
-<LI><A HREF="www.rpmfind.net">
-Linux RPM</A>, many linux flavors, but no more RHEL rpms.
-<BR><BR>
-
 <LI><A HREF="www.freshrpms.net">
 FreshRPMs</A>, mostly for Fedora, for those not avail thru YUM.
+<BR><BR>
+
+<LI><A HREF="https://sourceforge.net/projects/linuxcommand/">The Linux Command Line by William Shotts</A> (PDF book version of 
+<LI><A HREF="https://www.linuxcommand.org/tlcl.php?utm_source=tldrnewsletter">linuxCommand.org</A> <BR>
+<BR><BR>
+
+<LI><A HREF="">
+</A><BR>
+<BR><BR>
+
+Other useful sites: <BR>
+
+<LI><A HREF="www.rpmfind.net">
+Linux RPM</A>, many linux flavors, but no more RHEL rpms.
 <BR><BR>
 
 <LI><A HREF="">
@@ -4458,6 +4590,41 @@ FreshRPMs</A>, mostly for Fedora, for those not avail thru YUM.
 <BR><HR><BR>
 
 <H1>TBD</H1>
+
+<H5>Locale/Language</H5>
+
+<PRE>
+Old system use:
+export LANG=C
+export LANGUAGE=C
+export LC_ALL=C
+
+
+Newer system may or may not set correctly, try:
+LANG=C.utf8
+LANGUAGE=C.UTF-8
+
+export LANG=en_US.UTF-8   # root@beagle, vnc :3 works, but still ugly
+
+LOCALE="en_US.utf8"
+
+LC_ALL
+
+LC_CTYPE
+LC_MESSAGES
+LC_COLLATE
+
+
+
+regenerate locale, arch only?
+edit /etc/locale.gen
+sudo locale-gen   
+
+
+
+</PRE>
+
+<H5>TBD</TBD>
 
 
 <!-- cmd.linuc.ref, 2006/04/04 -->
@@ -4473,7 +4640,7 @@ Red Hat 4.0   (and not available in 3.0)
 ************************************************************
 /usr/sbin/system-config-kickstart	kickstart configurator.
 system-config-netboot			pxe, tftp boot setup
-system-config-language			GUI language config tooll for the machine
+system-config-language			GUI language config tool for the machine
 
 many of these system-config-* had been named redhat-config-* in RH 3.0
 

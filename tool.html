@@ -139,7 +139,7 @@ mlx5_core # mellanox 100G Ethernet (and IB?)
 
 
 
-ss -tulp		# check socket status
+ss -tulp		# check socket status, see which port is open by what process.  add -n to show port by number
 
 </PRE>
 
@@ -712,6 +712,13 @@ Ref:
 
 <LI> <A HREF="https://photos.google.com/album/AF1QipMqkSucnOzq757nZCUzjGlM3u6Ul3HFqKLlheae">many screenshot of BIOS settings for Asus</A>
 
+<LI> <A HREF="https://ulhpc-tutorials.readthedocs.io/en/latest/parallel/mpi/HPL/">ULHPC tutorials</A> especially the very handy grid diagram deciphering NB, N, P, Q, under HPL main parameters.
+
+<LI> <A HREF="https://netlib.org/benchmark/hpl/tuning.html">tuning HPL.dat</A>, from the source (netlib).
+
+<LI> <A HREF="https://sites.google.com/site/rangsiman1993/comp-env/test-and-benchmarks/benchmark-hpc-intel-linpack">Ragisman benchmarks</A>
+<LI> <A HREF=""></A>
+
 <BR>
 
 <A NAME="amd"></A>
@@ -792,6 +799,34 @@ But if use NUMA=2 or 1, how to run HPL with OpenMP?
 
 <BR><BR>
 
+<A NAME="GPU_Benchmark"></A>
+<H1>GPU Benchmark</H1>
+
+<PRE>
+
+docker login nvcr.io
+# Username: $oauthtoken
+# Password: cWR2az...   
+
+CONT='nvcr.io/nvidia/hpc-benchmarks:21.4-hpl'    	# linpack
+CONTcg='nvcr.io/nvidia/hpc-benchmarks:21.4-hpcg'   	# congutate gradient
+CONT_i='registry:443/tin/hpc-benchmarks:21.4-hpl'	# internally hoster registry
+
+docker pull $CONT
+docker tag  nvcr.io/nvidia/hpc-benchmarks:21.4-hpl   registry:443/tin/hpc-benchmarks:21.4-hpl
+docker image push registry:443/tin/hpc-benchmarks:21.4-hpl
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all $CONT_i \
+  mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2 \
+  hpl.sh             --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat/HPL-a10-Ns=20k.dat #HPL-a10.dat
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2   hpl.sh  --xhpl-ai  --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat --dat /mnt/hpl_dat/HPL-a10-Ns72k_1x2.dat
+
+
+</PRE>
+
 <A NAME="perf"></A>
 <A NAME="performance"></A>
 <A NAME="performance_measurements_commands"></A>
@@ -851,6 +886,10 @@ nfsstat
 mpstat	10	: processor stats, repeat every 10 seconds
 		: In Solaris, it reports context switch, interrupt, mutex spin, xcal, etc
 		: see http://sunsite.uakom.sk/sunworldonline/swol-08-1998/swol-08-perf.html
+mpstat -A	= -u -I ALL -P ALL
+		  -u     = report cpu util
+		  -I ALL = interrupt stat
+		  -P ALL = all processor
 
 cpustat		: find out what cpu is doing...
 
@@ -1476,14 +1515,20 @@ tcpdump src  10.0.71.165 -w myfile.tcpdump	# -w write output to file
 tcpdump 'dst net 128.3'
 tcpdump 'src or dst port ftp-data'   
 tcpdump 'ether host 0:d0:b7:a9:c9:5a'
+tcpdump -v -i enp0s3 ether host 3c:ec:ef:bb:b5:bb or 90:e2:ba:c5:53:00   # verified will capture traffic for both mac
 tcpdump icmp -w myfile.tcpdump			# only icmp traffic, all hosts
 
 tcpdump -v -v host 10.0.71.165			# -v -v, increase verbosity.  
 						# usable in screen output for low amount of traffic
 
+tcpdump -vv -e -n -i enp0s3 port 67 or port 68  # these ports are arp req (bootps) and reply (bootpc) used by DHCP 
+
+
+
 tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump	
 		# -i eth2, only traffic flowing thru specified nic
 		# -s 64000, max packet capture size.  64k is probably bigger than needed, but works well
+		# -s 0 would have no limit on caputre size, ie capture as large as needed
 		# -w write output to file
 
 tcpdump -vv -i eno1  'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
@@ -1809,6 +1854,12 @@ nmap -sT -O -PI -PT 172.27.31.0/24	# scan whole class C vlan 31, with os identif
 
 sudo nmap -p1-62000 somehost		# scan port 1 to 62000 against machine named somehost
 sudo nmap -sU somehost -p8255		# check UDP port 8255 to see if it is open
+
+sudo nmap -e enp0s9     freeipa		# check all TCP ports to IPA server is reachable
+sudo nmap -e enp0s9 -sU    freeipa	# check all UDP ports to IPA server is reachable, takes ~18 min, another took 33 min
+sudo nmap -e enp0s9 -sU -F freeipa	# -sU = UDP scan.  -F = fast mode, scan fewer ports than default, still takes long time
+sudo nmap -e enp0s9 -sU -p53-1813 freeipa	# scan specified port range only 
+sudo nmap -e enp0s9 -sUT -p53,123,80,88,443,8443,8080,389,464,636,1812-1813 freeipa  # -sUT scan both UDP and TCP
 
 
 
@@ -2266,6 +2317,22 @@ using qsub script in cluster (mostly to generate random storage traffic):
 
 
 </PRE>
+
+<H1>unzip</H1>
+
+Google drive download create these multipart zip files, 
+extraction in linux:
+
+zip -s- KPC\ Klebsiella\ Outbreak-20230227T210405Z-00*zip -O zip_ver3-s-output.zip
+unzip zip-s-output.zip
+# but at least on dtn zip 3.0 didn't produce full result.
+
+end up having to do this on bofh:
+
+7z x KPC\ Klebsiella\ Outbreak-20230227T210405Z-001.zip
+# repeat for each file, 7z x *zip didn't seems to have worked 
+7z x KPC\ Klebsiella\ Outbreak-20230227T210405Z-005.zip
+
 
 <BR><HR>
 <div align="CENTER">

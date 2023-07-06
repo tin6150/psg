@@ -301,6 +301,9 @@ aws ec2 describe-instance-types --filters Name=processor-info.supported-architec
 aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=arm64  --query "InstanceTypes[*].InstanceType" --output text
 
 
+aws ec2 describe-volumes		# list all storage volumes, some may not be attached!
+aws ec2 describe-volumes --output=text	# wide format closer to web gui presentation
+
 </PRE>
 
 <H3>Finding instance info from within the VM</H3>
@@ -356,6 +359,10 @@ r5ad.12xlarge is $3.14/hour      384G RAM 48 core.
 r6id.12xlarge is $3.63/hour                
 r6id.16xlarge is $4.84/hour
 
+r5n.2xlarge	$0.596	8	64 GiB	EBS Only	Up to 25 Gigabit
+t3a.2xlarge	$0.3008	8	32 GiB	EBS Only	Up to 5 Gigabit
+
+
 API Name	Instance Memory		vCPUs	Instance Storage	Network Performance	Linux On Demand cost
 r5ad.16xlarge	512.0 GiB	64 vCPUs	2400 GB (4 * 600 GB NVMe SSD)	12 Gigabit	$4.192000 hourly
 m5ad.24xlarge	384.0 GiB	96 vCPUs	3600 GB (4 * 900 GB NVMe SSD)	20 Gigabit	$4.944000 hourly
@@ -371,15 +378,21 @@ x2iedn.32xlarge	4096.0 GiB	128 vCPUs	3800 GB (2 * 1900 GB NVMe SSD)	100 Gigabit	
   #instance_type = "t2.medium"  # $0.046     2 vCPU  4G                # tested work for us-west-2
   #instance_type = "t3.large"   # $0.083     2 vCPU  8G
   #instance_type = "t3.xlarge"   # $0.166     4 vCPU 16G
+  #instance_type = t4g.2xlarge	$0.2688		8	32 GiB	EBS Only	Up to 5 Gigabit
+  #instance_type = r5a.2xlarge	$0.452		8	64 GiB	EBS Only	Up to 10 Gigabit
+
+
   instance_type = "c5a.16xlarge"  # $2.464       64 vCPU 128G
   #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
   #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
   #-instance_type = "x2gd.2xlarge"  # $0.668        8 vCPU 128G  arm64
 
+If just added EBS storage to volume, cannot change instance type, probably for 6 hours, while the disk config changes are synced in the AWS region or something.  (Would get "unexpected error", but figure multiple EBS storage changes had this restrictions).
 
 </PRE>
 
 Source and Ref: 
+<A HREF="https://aws.amazon.com/ec2/pricing/on-demand/">EC2 On-Demand pricing </A> **With search** <BR>
 <A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A> <BR>
 <A HREF="https://www.cloudzero.com/blog/aws-instance-types">instance type guide</A> (By cloud zero, mediocre) <BR>
 
@@ -487,8 +500,21 @@ Elastic File System - in Beta as of 2015.11 <BR>
 <LI>EBS emulates a virtual hard drive, so it is mounted by a specific EC2 instance for use, but it lives independent of any given EC2 instance.  ie, it is NOT instance storage, and persist after an EC2 is terminated (deleted).
 <LI>Only mountable in the same availability region.  But then it has no replication delay.
 <LI>Has two tiers.  Standard IOPS, and Provisioned IOPS (PIOPS).  The latter allow extra payment to get dedicated performance.  It is not necessary faster, but will be more predictable (less variable, less likely to have bad performance because other instance is sharing the hardware and hitting it hard).
-<LI>
+<LI> gp2 (general purpose ssd storage) = 0.10 per GB-month of provisioned storage - ie $102/TB-month
+<LI> gp3 (general purpose ssd storage) = 0.08 per GB-month of provisioned storage - ie $ 82/TB-month + IOPS cost.  gp3 + 9000 IOPS = same perf but cheaper than gp2.  so use gp3!
+
+
 </OL>
+
+data volume management thoughts <BR>
+attach volume to OS, no partition, create PV on whole virtual disk eg xvdf.  <BR>
+expansion: create another volume in aws, attach to OS, eg xvdg, create PV, add to existing VG.  
+shrink: can then do pvremove if extra partition not needed.   (cuz don't think shrinking aws gp3 ssd will properly ensure fs data block is not removed).
+<BR>
+each  gp3 vol has 3000 IOPS free.  using LVM can spread IO over multiple gp3 PV :) <BR>
+(though IOPS aren't too expensive, extra volume in the list may be problematic for large cloud) <BR>
+
+
 
 <H3>S3</H3>
 
@@ -799,7 +825,7 @@ terraform fmt		# format all .tf files (for indentation), in place, so consider b
 
 terraform validate
 terraform plan
-terraform apply
+terraform apply		# this is DESTRUCTIVE.  re-apply ami-id to the instance, previous data is erased!  even security group seems recreated.
 terraform destroy	# will terminate instance, remove any created security group.
 
 # terraform has no way to restart an instance, nor to just stop or start it.

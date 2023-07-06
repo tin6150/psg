@@ -312,9 +312,310 @@ If FQDN is needed, eg have multiple "domain"/cluster, use this setting:
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 </PRE>
 
+
+
+some help options I poked at
+
+<PRE>
+
+mpirun --help  bind-to
+   --bind-to {arg0}      Policy for binding processes. Allowed values: none,
+                         hwthread, core, l1cache, l2cache, l3cache, socket,
+                         numa, board, cpu-list ("none" is the default when
+                         oversubscribed, "core" is the default when np<=2,
+                         and "socket" is the default when np>2). Allowed
+                         qualifiers: overload-allowed, if-supported,
+                         ordered
+   AMD Epyc cpu seems to need --bind-to none, cuz of CCX structure?
+   https://developer.amd.com/spack/hpl-benchmark/
+
+-d|-debug-devel|--debug-devel 
+                         Enable debugging of OpenRTE
+-v|--verbose             Be verbose
+-V|--version             Print version and exit
+</PRE>
+
+Example mpirun commands
+
+<PRE>
+
+# example mpi run with docker container (nvidia gpu test)
+
+CONT='nvcr.io/nvidia/hpc-benchmarks:21.4-hpl'    # linpack
+CONT='registry.local:443/hpc-benchmarks:21.4-hpl'    # linpack
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl \
+  mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2 \
+  hpl.sh  --xhpl-ai  --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat/abhi.hpl-a40.dat-2.norepeat  
+  # ran on c03 ==> run but poor perf.
+
+
+# adapted from https://www.pugetsystems.com/labs/hpc/Outstanding-Performance-of-NVIDIA-A100-PCIe-on-HPL-HPL-AI-HPCG-Benchmarks-2149/
+docker run     -v /global/home/users/tin:/mnt --gpus all \
+  registry.local:443/tin/hpc-benchmarks:21.4-hpl \
+  mpirun --mca btl smcuda,self -x MELLANOX_VISIBLE_DEVICES="none" -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc \
+  --bind-to none  --report-bindings --debug-devel \
+  -np 2 hpl.sh --xhpl-ai --dat /mnt/hpl_dat/abhi.hpl-a40.dat.norepeat.Ns20k --cpu-affinity 0:127 --cpu-cores-per-rank 4 --gpu-affinity 0:1 
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc -np 1   /bin/bash
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=all -np 1   ucx_info -f | grep DEVICES
+
+
+</PRE>
+
+
+mpirun arguments
+<PRE>
+--mca  		# specify modular Component Arch, 
+--mca btl	# byte transfer layer (P2P -- network stack)
+
+--mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc	
+	#  UCX = Unified Communication X [high bandwidth, low-latency network offload with RDMA for IB and RoCE, GPU, shared mem]
+
+    
+</PRE>
+
+MPI stacked with  OpenMP  -- needed on AMD Epyc with CCX.
+<PRE>
+Dell method  to test JGI node... binary compilation info ??
+/set_AMD_params.sh
+su - hpl
+mpirun -np 16 -x OMP_NUM_THREADS=4 --map-by ppr:1:l3cache:pe=4 --bind-to core -report-bindings -display-map numactl -l ~/amd-hpl/bin/xhpl.4
+
+</PRE>
+
+MPI stacked with  OpenMP  -- needed on AMD Epyc with CCX.
+See 
+<A HREF="https://developer.amd.com/spack/hpl-benchmark/">https://developer.amd.com/spack/hpl-benchmark/</A>
+and
+<A HREF="https://www.dell.com/support/kbdoc/en-in/000143393/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study">https://www.dell.com/support/kbdoc/en-in/000143393/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study</A>
+
+<PRE>
+sudo modprobe -v knem
+export OMP_NUM_THREADS=4
+# threads * PxQ of HPL.dat = total num of core
+# their eg was for 2 socket system
+# seems like should have 2 threads per socket
+
+
+mpi_options="--mca mpi_leave_pinned 1 --bind-to none --report-bindings --mca btl self,vader --allow-run-as-root"
+mpi_options="$mpi_options --map-by ppr:1:l3cache -x OMP_NUM_THREADS=4 -x OMP_PROC_BIND=TRUE -x OMP_PLACES=cores"
+mpirun $mpi_options -app ./appfile_ccx
+
+</PRE>
+
+appfile...
+
+<PRE>
+# appfile...
+# Bind memory to node $1 and four child threads to CPUs specified in $2
+# [last digit] 4 core per line, cuz NUM_THREADS=4.  
+# num of lines * (4 cores per line) = total cores in system
+# n02 is EPYC 7343 3.2GHz, 2x16c, so appfile have 8 lines * 4 cores.  
+
+# HPL.dat should have PxQ of 8.  eg 2x4
+
+# have many entries in appfile is ok... or i should say tolerable...
+# so -np 4 ... 8
+# change run script not to membind
+# some rank would fail
+# but as long as enough ranks start per need of HPL.DAT PxQ, 
+# then things will run
+# if need to eek out perf, then really fine tune
+
+# xref: CF_BK/greta/benchmark_epyc_ccx 
+</PRE>
+
+
+<PRE class="cf">
+-np 1 ./xhpl_ccx.sh 0 0-3 4
+-np 1 ./xhpl_ccx.sh 0 4-7 4
+-np 1 ./xhpl_ccx.sh 0 8-11 4
+-np 1 ./xhpl_ccx.sh 0 12-15 4
+-np 1 ./xhpl_ccx.sh 1 16-19 4
+-np 1 ./xhpl_ccx.sh 1 20-23 4
+-np 1 ./xhpl_ccx.sh 1 24-27 4
+-np 1 ./xhpl_ccx.sh 1 28-31 4
+</PRE>
+
+env var related to xhpl with MPI, OpenMP, the MKL one is 
+"undocumented"  and specific when intel icc compiler is used to create bin for amd...
+<BR>
+Once these were set, mpirun without OpenMP threads was performant enough (for hardware acceptance test).
+<BR>
+
+<PRE>
+export MKL_DEBUG_CPU_TYPE=5    # this is important to address the CCX of epycs and allow xhpl to run on all cores. OMP isn't really required.
+export HPL_HOST_ARCH=3  # to use AVX2 and get 16 DP OPS/cycle 
+</PRE>
+
+
+
+<H5>
+OSU IB microbenchmark on AMD Epyc 
+</H5>
+https://www.dell.com/support/kbdoc/en-in/000143393/amd-epyc-stream-hpl-infiniband-and-wrf-performance-study
+
+<PRE>
+mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core -mca rmaps_dist_device mlx5_0 numactl cpunodebind=${numanode_number} osu-micro-benchmarks-5.4.3/mpi/pt2pt/osu_mbw_mr
+</PRE>
+
+<A ID="ucx"></A>
+<H5>osu microbenchmark, mpirun with explicit req to ucx</H5>
+
+<PRE>
+# these works:
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl self,vader osu_latency
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   ucx_info
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -x LD_LIBRARY_PATH  -mca pml ucx osu_latency   
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx                                 osu_latency   
+mpirun -np 2 -npernode 1 -hostfile   node2          -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   osu_latency
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  osu_latency
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  -mca rmaps_dist_device mlx5_0  osu_latency
+mpirun -np 2 -npernode 1 -hostfile   node2          -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  -mca rmaps_dist_device mlx5_0  osu_latency
+
+mpirun -np 2 -npernode 1 -hostfile   node2    -mca btl ^openib osu_latency 	# still good perf in lr7, but slow in savio4
+mpirun -np 2 -npernode 1 -hostfile   node2    -mca pml ob1     osu_latency      # still good perf in lr7, but slow in savio4
+
+# ^ is negation in mpirun
+# ^tcp means DONT use tcp (not sure what it is using then... openib didn't work
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl ^tcp     osu_latency
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl ^openib  osu_latency  # -mca btl openib  DONT seems to work
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca btl ^foofoo  osu_latency  # negating non existing stuff get no errror, just no net changes.
+
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ^ucx  osu_latency   # no ucx then?  still works... using what?
+
+other -mca btl stuff
+-mca btl self,sm,gm
+
+
+/global/software/sl-7.x86_64/modules/gcc/11.3.0/openmpi/5.0.0-ucx/bin/ompi_info | grep pml 
+/global/software/sl-7.x86_64/modules/gcc/11.3.0/openmpi/5.0.0-ucx/bin/ompi_info  --param pml ucx --level 9
+ompi_info  --param all all --level 9
+
+
+# -x can be used to set environment variable
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -x OMPI_MCA_mpi_show_handle_leaks=1 osu_latency
+
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -x pml_ucx_verbose=1 osu_latency
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -x UCX_LOG= osu_latency
+
+pml_ucx_verbose
+pml_ucx_devices
+pml_ucx_opal_mem_hooks
+pml_ucx_tls
+
+# Nope:
+mpirun -np 2 -npernode 1 -host n0000.lr7,n0001.lr7  -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1   -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  -mca rmaps_dist_device mlx5_0  -x UCX_TLS=rc_x  osu_latency
+ie -x UCX_TLS=rc_x  cause issue
+# this seems to corresponds to pml_ucx_tls param
+
+</PRE>
+
+<A ID="ucx_tool"></A>
+<H5>
+UCX tool
+</H5>
+
+since ucx need to be compiled/installed by itself, it has some binary tools:
+
+<PRE>
+ldd /global/software/sl-7.x86_64/modules/gcc/11.3.0/openmpi/5.0.0-ucx/ucx-1.14.0/bin/ucx_info 
+ucx_info -v
+ucx_info -c
+ucx_perftest  ...   need server and client
+</PRE>
+
+<!--
+
+lr7:
+module load osu_benchmark/5.3
+  1) gcc/11.3.0          2) openmpi/5.0.0-ucx   3) osu_benchmark/5.3
+
+/global/software/sl-7.x86_64/modules/tools/osu-micro-benchmarks/5.3/pt2pt/osu_latency
+
+
+cat node2
+n0000.lr7
+n0001.lr7
+
+mpirun -np 2 -npernode 1 -hostfile node2   -mca pml ucx   -x UCX_NET_DEVICES=mlx5_0:1                  -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core  osu_latency
+
+
+Note, in lr7:
+UCX_NET_DEVICES=mlx5_0:1  works
+UCX_NET_DEVICES=mlx5_0    does not
+
+/global/software/sl-7.x86_64/modules/gcc/11.3.0/openmpi/5.0.0-ucx/bin/ompi_info  --param pml ucx --level 9
+
+-->
+
+
 ref: 
-<LI> https://docs.oracle.com/cd/E19708-01/821-1319-10/mca-params.html
-<LI> https://www.open-mpi.org/faq/?category=running
+<LI> <A HREF="https://docs.oracle.com/cd/E19708-01/821-1319-10/mca-params.html">https://docs.oracle.com/cd/E19708-01/821-1319-10/mca-params.html</A>
+<LI> <A HREF="https://www.open-mpi.org/faq/?category=running" >open-mpi faq running</A>
+<PRE>
+18. What other options are available to mpirun?
+mpirun supports the "--help" option which provides a usage message and a summary of the options that it supports. It should be considered the definitive list of what options are provided.
+
+Several notable options are:
+
+--hostfile: Specify a hostfile for launchers (such as the rsh launcher) that need to be told on which hosts to start parallel applications. Note that for compatibility with other MPI implementations, --machinefile is a synonym for --hostfile.
+--host: Specify a host or list of hosts to run on (see this FAQ entry for more details)
+--np (or -np): Indicate the number of processes to start.
+--mca (or -mca): Set MCA parameters (see the Run-Time Tuning FAQ)
+--wdir <directory>: Set the working directory of the started applications. If not supplied, the current working directory is assumed (or $HOME, if the current working directory does not exist on all nodes).
+-x <env-variable-name>: The name of an environment variable to export to the parallel application. The -x option can be specified multiple times to export multiple environment variables to the parallel application.
+</PRE>
+
+<LI> <A HREF="https://www.open-mpi.org/faq/?category=tuning"  >open-mpi faq tuning</A> mca param btl mpl 
+<LI> <A HREF="https://www.open-mpi.org/faq/?category=sysadmin#sysadmin-mca-params">open-mpi faq sysadmin</A> ompi_info --param btl all --level 9 # what network NOT to use 
+<LI> <A HREF="https://openucx.readthedocs.io/en/master/running.html">https://openucx.readthedocs.io/en/master/running.html</A> has docker capabilities info.
+
+
+<H5>UCX</H5>
+
+<PRE>
+
+ucx_info -d | grep Device     # -d show device + transport
+ucx_info -f | grep DEVICE     # -f full decorated output
+
+ucx_info # show help by default
+  -b              Show build configuration
+  -y              Show type and structures information
+  -s              Show system information
+  -c              Show UCX configuration
+  -a              Show also hidden configuration
+  -f              Display fully decorated output
+
+mpi need to be compiled with --with-ucx
+
+add option 
+--mca pml ucx
+Framework: pml
+Component: ucx
+
+try:
+
+export OMPI_MCA_orte_base_help_aggregate=0; mpirun --mca pml ucx -np 2 -npernode 1 -H 10.0.44.59,10.0.44.60 -x LD_LIBRARY_PATH  osu_latency
+export OMPI_MCA_orte_base_help_aggregate=0; mpirun --mca pml ucx -np 2 -npernode 1 --host node1,node2 -x LD_LIBRARY_PATH  osu_latency
+# node1,node2 are map to IP address over TCP, not IPoIB.
+
+(Hmm... may need to add device info?)
+
+mpirun -np 2                -host n0000.lr7,n0001.lr7  --mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x --mca coll_fca_enable 0 --mca coll_hcoll_enable 0 --mca btl_openib_if_include mlx5_0:1  --report-bindings --bind-to core --mca rmaps_dist_device mlx5_0    -npernode 1   -x LD_LIBRARY_PATH  osu_latency
+
+mpirun -np 16 --allow-run-as-root –host server1,server2 -mca pml ucx -x UCX_NET_DEVICES=mlx5_0:1 -x UCX_TLS=rc_x -mca coll_fca_enable 0 -mca coll_hcoll_enable 0 -mca btl_openib_if_include mlx5_0:1 --report-bindings --bind-to core -mca rmaps_dist_device mlx5_0 numactl cpunodebind= osu-micro-benchmarks-5.4.3/mpi/pt2pt/osu_mbw_mr
+
+
+</PRE>
+
+ref: 
+<A HREF="https://docs.open-mpi.org/en/v5.0.x/release-notes/networks.html">OMPI v5.0.x Network Support</A>
+
+<H5>Intel MPI</H5>
+impi_info # intel mpi info
 
 
 
@@ -339,7 +640,7 @@ $PVM_ROOT/lib/pvmd   pvmhost.conf
 # Can be started by any user   (what about more than one user??)
 
 
-kill -SIGTERM <PVMID>   can be used to kill the daemon
+kill -SIGTERM {PVMID}   can be used to kill the daemon
 if use kill -9 (or other non-catchable signal), be sure to clean up /tmp/pvmd.<uid>
 
 
@@ -452,10 +753,12 @@ google_ad_channel ="";
 
 <A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
 </div>
+
 <div class="sig"><BR>
   hoti1<BR>
   sn5050<BR>
-  tin6150 sn50</div>
+  tin6150 sn50
+</div>
 
 
 </body>

@@ -1472,9 +1472,10 @@ It provides Radius, MFA/OTP, DNS, certificate signing, all integrated into one.
 <BR>
 
 
-systemctl start ipa
-<BR>
-systemctl start radiusd
+<PRE>
+systemctl start ipa		# active (exited) status is normal	
+systemctl start radiusd		# active (running) is the normal state, listen on port 1812
+</PRE>
 <BR>
 <BR>
 
@@ -1513,17 +1514,32 @@ Logs:
 
 <H2>Ports and Firewall</H2>
 
+<A HREF="mit kerberros firewall">https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5/doc/krb5-admin/Configuring-Your-Firewall-to-Work-With-Kerberos-V5.html</A>
+
 <OL>
 <LI>1812 udp is default : radius (if not running, rever to use ldap protocol?)  radtest command use this.  firewall to allow local network clients</LI>
 <LI>1813 udp is default : added by freeipa, firewall to allow local network clients only </LI>
-<LI>389:  ldap protocol </LI>
 <LI>8080: there is a tomcat server running, block this from external access is ok</LI>
-<LI>443, 80: hard coded RCP calls, dont change them.  firewall them (only allow localhost?)</LI>
+<LI> 443, 80: hard coded RCP calls, dont change them.  firewall them (only allow localhost?)</LI>
 <LI>8443? </LI>
-<LI>53 tcp/udp: open if have DNS server running. firewall to allow desired clients to connect.</LI>
+<LI>  88 tcp/udp: kerberos-sec (listen by krb5kdc)</LI>
+<LI> 389, 636:  ldap, ldapssl protocol </LI>
+<LI> 464 tcp/udp: kerberos </LI>
+<LI> 749 tcp    : kerberos-adm  (not mandatory?), udp? </LI>
+<LI> 754 tcp    : kprop requests needs to get through FW to the remote KDC </LI>
+<LI>  53 tcp/udp: open if have DNS server running. firewall to allow desired clients to connect.</LI>
+<LI> 123 udp for ntp </LI>
 <LI> </LI>
-<LI> </LI>
-<LI> </LI>
+
+
+<PRE>
+# check ports are reachable from a client machine.  
+# open|fitered is ok
+sudo nmap -e enp0s9 -sUT -p53,123,80,88,443,8443,8080,389,464,636,749,754,1812-1813 freeipa
+</PRE>
+
+
+
 </OL>
 
 <PRE>
@@ -1554,6 +1570,7 @@ ipa user-show  sn50		# show info of specific user, exact spell, by userlogin
 ipa user-show      		# no argument will get a prompt
 ipa user-find 			# list all users in ipa db (think to getent passwd)
 ipa user-find  tin		# find any account containing specified patter "tin" in userlogin, first and last name.  case insensitive search
+ipa user-find  --all tin	# --all provide all radius info
 
 ipa user-find   --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
 [ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/pwd-expiration.html ]
@@ -1593,10 +1610,14 @@ ipa pwpolicy-add exampleGroup --minlife=7 --maxlife=49 --history= --priority=1
 
 # add/change user to ipa DB
      ipa help user-mod  # much better than the man page!
-sudo ipa user-add jsmith --first=John --last=Smith --manager=bjensen --email=johnls@example.com --homedir=/home/work/johns 
+sudo ipa user-add jsmith --first=John --last=Smith                   --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-add jsmith --first=John --last=Smith --uid=6667 --gidnumber=6667 --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-add jsmith --first=John --last=Smith --manager=bjensen --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-del jsmith  # delete/remove user account.  no confirmation asked!
+
+sudo ipa user-mod sn50 --password                    # prmopt to enter new password
 sudo ipa user-mod sn50 --uid=6666  --gidnumber=6666  # group entry for new gid is auto added
 sudo ipa user-mod sn50 --shell=/bin/bash 
-sudo ipa user-mod sn50 --password                    # prmopt to enter new password
 
  --user-auth-type=['password', 'radius', 'otp', 'pkinit', 'hardened']
                         Types of supported user authentication
@@ -1620,12 +1641,6 @@ ipa group-find --user=sn50    # find groups that user sn50 is a member of
 ipt user-mod --setattr=key=value?   # for custom ldap attributes? fuzzy about syntax.  POSIX attrib can just use build in support for --uid --gidnumber etc
 
 
-sss_cache -E  		# clear --everything  in sss cache
-getent passwd sn50
-id -a sn50
-
-radtest sn50 password freeipa.greta.local 1812 badsecret
-
 
 
 </PRE>
@@ -1637,12 +1652,12 @@ kinit 	# initialize Kerberos system, restart timer
 sudo ipa user-disable User_LoginName
 sudo ipa user-enable  User_LoginName
 
-ipa user-mod --password alice
+ipa user-mod --password alice		# this apparently need the tomcat server to be operational to work
 
 
 ipa user-add	# interactive prompted user addition, but only ask for first, last, and username.  
 
-radsniff -X
+radsniff -X	# trace/sniff ipa connectivity request?
 
 
 ## How to remove the "change password on first login" ?    esp using cli
@@ -1655,14 +1670,34 @@ ipa group-del docker	# delete group named docker
 
 </PRE>
 
-<H2>IPA install commands</H2>
+<H2>IPA Server install commands</H2>
 
 <PRE>
+# for IPA server, NOT client.  
 ipa-server-install 
 ipa-server-install --uninstall
 
+
+[root@freeipa]# systemctl list-unit-files | grep ipa
+ipa.service                                                            enabled
+ipa-ccache-sweep.service                                               disabled
+ipa-custodia.service                                                   disabled
+ipa-dnskeysyncd.service                                                disabled
+ipa-ods-exporter.service                                               disabled
+ipa-otpd@.service                                                      static
+multipathd.service                                                     enabled
+ipa-ods-exporter.socket                                                disabled
+ipa-otpd.socket                                                        disabled
+multipathd.socket                                                      enabled
+ipa-ccache-sweep.timer                                                 enabled
+
+# these are started by freeipa?? 
+krb5kdc.service                                                        disabled  
+radiusd.service                                                        disabled
+
 systemctl status really just call 
 /usr/sbin/ipactl 
+
 
 
 systemctl status reporting "active (exited)" is fine.
@@ -1676,7 +1711,15 @@ ipaapi     91878   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
 root       91887       1  0 12:45 ?        00:00:00 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
 ods        92359       1  1 12:45 ?        00:00:01 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-dnskeysyncd
 
+
+kdcproxy    7742    2844  0 Apr16 ?        00:00:04 (wsgi:kdcproxy) -DFOREGROUND
+root       15276       1  0 15:03 ?        00:00:00 /usr/sbin/krb5kdc -P /var/run/krb5kdc.pid
+
+radiusd    15198    1639  0 14:42 pts/0    00:00:00 radiusd -X    # debug session running here
+
+
 journalctl -u ipa
+
 
 </PRE>
 
@@ -1696,6 +1739,7 @@ ipa dnsrecord-find 16.8.10.in-addr.arpa.	# reverse PTR zone
 </PRE>
 
 <H5>Adding DNS zone</H5>
+
 <PRE>
 ipa dnszone-add 16.8.10.in-addr.arpa.
 </PRE>
@@ -1723,34 +1767,38 @@ ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.50
 ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.57
 
 # change TLS?
-
 </PRE>
 
 
-add missing reverse PTR records:
-<PRE>
+<H6>add missing reverse PTR records:</H6>
 
+<PRE>
 ipa dnsrecord-add 16.8.10.in-addr.arpa.  128  --ptr-rec c00.greta.local.   # ie add 10.8.16.128
 ipa dnsrecord-add 16.8.10.in-addr.arpa.  100  --ptr-rec n00.greta.local.  
 #                                        ^^^-------- last octet
-
 </PRE>
 
-modifying renaming record
-</PRE>
+
+<H6>modifying renaming record</H6>
+
+<PRE>
 ipa dnsrecord-mod example.com www --a-rec 10.1.1.1 --ip-address 10.1.1.2
 
 changing ttl
 ipa dnsrecord-mod greta.local vasttest --ttl=3600
-<PRE>
+</PRE>
 
 
 
+<H6>
 deleting record
+</H6>
+
 <PRE>
 ipa dnsrecord-del greta.local  vasttest --a-rec 10.8.16.50 
 ipa dnsrecord-del 16.8.10.in-addr.arpa.  58  --ptr-rec vasttest.greta.local.   # ie del 10.8.16.58 which has hostname vasttest.greta.local
 </PRE>
+
 
 
 <H5>
@@ -1792,6 +1840,41 @@ on freeipa server, edit
 
 systemctl restart named-pkcs11
 
+</PRE>
+
+<H5>Global Forwarder</H5>
+
+Configure a global forward on the IPA DNS server, so external names can be resolved (if desired).
+ref: 
+<LI> https://serverfault.com/questions/1081774/how-are-external-urls-resolved-by-freeipa
+<LI> https://www.freeipa.org/page/V4/Forward_zones
+<LI> https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_identity_management/assembly_troubleshooting-authentication-with-sssd-in-idm_configuring-and-managing-idm#doc-wrapper
+
+
+<PRE>
+# see existing config
+ipa dnsserver-find
+ipa dnsserver-show
+ipa dnsforwardzone-find
+
+
+# add global forwarder (for all external dns):
+ipa dnsconfig-show
+ipa dnsconfig-mod --forwarder=131.243.5.1
+ipa dnsconfig-mod --forwarder=8.8.8.8 
+ipa dnsconfig-mod --forwarder=8.8.8.8 --forward-policy=first  # alt: only|none
+#XX ipa dnsconfig-del --forwarder
+
+Server will check DNS forwarder(s).
+This may take some time, please wait ...
+ipa: WARNING: Forwarding policy conflicts with some automatic empty zones. Queries for zones specified by RFC 6303 will ignore forwarding and recursion and always result in NXDOMAIN answers. To override this behavior use forward policy 'only'.
+  Global forwarders: 8.8.8.8
+  Forward policy: first
+  IPA DNS servers: ...
+
+
+ipa dnsconfig-show
+ipa dns-server-show    # seems to use a diff forwarder
 </PRE>
 
 <A ID=cert></A>
@@ -1843,11 +1926,142 @@ copy .crt and .key files to www/vpn server
 
 getcert stop-tracking -i 20220211224159	# remove if need to redo eg cuz typo
 
-ipa service-find  | grep Principal\ na
+ipa service-find  | grep "Principal name"
 
 
 </PRE>
 
+<A ID=kerberos></A>
+<A ID=kdc></A>
+<H1>kerberos</H1>
+
+<H5>KDC</H5>
+<PRE>
+
+ss -tulp | grep kdc
+/var/log/krb5kdc.log
+
+
+</PRE>
+
+<H5>Kerberos client</H5>
+eg client using FreeIPA/Radius/LDAP
+
+<PRE>
+kinit
+ipa user-find --all jsmith
+
+# each user that wants to run ipa command need to have a valid ticket, run kinit if tix expired
+# expired password may not login eg via ssh
+</PRE>
+
+<H5>Troubleshooting</H5>
+
+realm list
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/trouble-general
+
+<PRE>
+Set the KRB5_TRACE environment variable to the /dev/stdout file to send trace-logging output to /dev/stdout:
+KRB5_TRACE=/dev/stdout ipa cert-find
+KRB5_TRACE=/dev/stdout ipa user-find jsmith
+
+
+HISTCONTROL=ignorespace
+  # nas-port-number is essentially the outbound port number on localhost running the radtest cmd
+  # secret is the string in /etc/raddb/server used by client to connect to radius server
+  radtest [OPTIONS] user passwd radius-server[:port] nas-port-number secret [ppphint] [nasname]
+  radtest jsmith jSmithPassword ipa.test.org:1812 2468 radServerSecret
+the nas-port-number 2468 is a dummy due to relic , it is NOT used as local port
+radtest provided by freeradius-utils rpm
+ref: https://support.microfocus.com/kb/doc.php?id=7014552
+
+
+sss_cache -E  		# clear --everything  in sss cache
+getent passwd sn50
+id -a sn50
+
+
+
+Sometime kerberos act up. 
+Ref: Unable to login as an AD or IPA user due to "4 (System error)" via SSSD on Red Hat Enterprise Linux. - Red Hat Customer Portal
+
+kdestroy -A
+kinit admin
+
+mv /etc/krb5.keytab /etc/krb5.keytab.bak2023-0427
+
+ipa-getkeytab -s freeipa.greta.local -p host/freeipa.greta.local -k /etc/krb5.keytab              
+Redirecting to /bin/systemctl start sssd.service
+
+
+Tmp workaround: 
+Disabling keytab validation in /etc/sssd/sssd.conf configuration file can also be used to work around the issue until it's fixed. This would allow AD/IPA users to login.
+krb5_validate = False
+
+
+
+ipa host-find  --all radiusClientHostname | grep enroll    # host should be enrolled (ie joined to the radius realm)
+?? host-modify unenroll ?  (then host has to go thru ipa client setup process to rejoin the realm.  think AD host joining domain)
+ipa host-add  ipa-client-hoostname.fqdn
+ipa service-add HTTP/ipa-client-hoostname.fqdn
+
+
+
+~~~~~
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/retrieve-existing-keytabs
+
+
+ipa-getkeytab -s freeipa.g.local -p host/vpn.g.local -k /tmp/client.keytab
+# gen new keytab, invalidate old one
+
+ipa-getkeytab -r -s freeipa.g.local -p host/vpn.g.local -k /tmp/client.keytab
+# check keytab, be sure to use -r to reuse, or get new one and old one is invalidated
+
+cp -pi /tmp/client.keytab  /etc/krb5.keytab
+
+
+
+klist -A
+klist -ek /etc/krb5.keytab	# list krb principal and tickets in keytab/cache file, but may not be valid?
+
+kinit -kt /etc/krb5.keytab      # authenticate a host
+
+log in IPA server: /var/log/dirsrv/slapd*/
+access
+error
+
+
+
+kvno ... verify key numbers
+
+</PRE>
+
+<A ID=sssd></A>
+<H1>sssd</H1>
+
+<PRE>
+
+
+
+sssctl domain-list
+sssctl domain-status g.local		# if show offline, then problem!
+sssctl domain-status g.local --start
+
+
+sssctl user-checks  sn50
+
+sssctl user-show  -u 6666
+
+</PRE>
+
+log:
+<PRE>
+setting /etc/sssd.conf  with debug log would provide lot more info
+/var/log/sssd/
+
+</PRE>
 
 <A ID=link></A>
 <H1>Reference</H1>

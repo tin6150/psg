@@ -499,6 +499,9 @@ so would need to put such comand inside single quote, eg:
 parallel -j 56 -a task.lst  'wc {}.fasta > /global/scratch/users/tin/pub/TEST/result.{}.out'
 
 parallel -j 56 -a task.lst  'abricate --db ecoli_vf {}.fasta >  /global/scratch/users/tin/pub/TEST/vf_reads/vf.{}.txt'
+# prefix.{}.suffix works
+# prefix-{}.suffix works
+# prefix_{}.suffix does NOT work, ie _ cannot be used as separator!
 
 </PRE>
 
@@ -983,6 +986,14 @@ pushd \!*   jump b/w last pushed dir (aliased to xd)
 
 tar -zxvf file {-C dir}   untar and uncompress
 tar -zcvf file  *         tar and compress current dir, files still remain
+
+tar -h 	# supposed to dereference symlink, and copy the file.  
+	# but check output, sometime still get a hard link eg tar tvf show
+	#  hrw-r--r-- root/root         0 2023-05-11 16:04 pam.d/system-auth.fromSysUpdate link to pam.d/system-auth	  
+	# but extracted output seems to have created a normal file.  
+	# maybe just special marking in tar that such file was orig a link... 
+	# yet not sure why it was done for some sym link yet not other.  weird.
+	# final output was as desired.
 
 
 

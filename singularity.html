@@ -107,6 +107,13 @@ singularity exec  docker://ghcr.io/tin6150/r4eta:master  Rscript ./drJin.R      
 singularity exec  docker://ghcr.io/tin6150/r4eta:master  Rscript /opt/gitrepo/r4eta/drJin.R   # R script inside container
 
 
+
+
+running with gpu: --nv
+
+singularity pull --name beast2.6.4-beagle.sif  docker://ghcr.io/tin6150/beast2:dock264-beagle
+singularity exec --nv   beast2.6.4-beagle.sif /usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_info
+
 </PRE>
 
 
@@ -119,9 +126,111 @@ singularity exec  docker://ghcr.io/tin6150/r4eta:master  Rscript /opt/gitrepo/r4
 	<LI>[DIR] - 3.x <TT>--sandbox ./DIRNAME</TT>, writable </LI>
 </OL>
 
-
 <PRE>
 </PRE>
+
+<H5>hpl on gpu linpack from nvidia container</H5>
+
+<!-- ~/CF_BK/greta/benchmark_gpu/nvidia_gpu_bench.rst -->
+<!-- /global/scratch/users/tin/cacheDir/nvidia-benchmark -->
+<!--
+   cpu dat ~/HPCS_toolkit/benchmark/hpl
+   ~/CF_BK/greta/benchmark_gpu/
+    ~/gs/CF_BK/greta/benchmark_gpu
+
+
+## -dat /mnt/hpl_dat/abhi.hpl-a40.dat.norepeat.Ns20k 
+
+##### singularity version tested on n0273.sav3 
+
+cd $cacheDir # where .sif is saved to
+-->
+
+ref: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/hpc-benchmarks
+
+<PRE>
+singularity pull --docker-login docker://nvcr.io/nvidia/hpc-benchmarks:21.4-hpl
+
+export SIMG=$cacheDir/nvidia-benchmark/hpc-benchmarks_21.4-hpl.sif  
+export DAT=~/gs/CF_BK/greta/benchmark_gpu/HPL-a10-Ns=20k.dat
+
+singularity exec --nv $SIMG \
+  mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2 \ 
+  hpl.sh  --xhpl-ai  --cpu-affinity "0-7:8:15" --gpu-affinity "0:1" --cpu-cores-per-rank 8 \
+  --dat $DAT
+
+## above run, seems loaded on both gpu, but load is 100% & 0%    need to adjust PxQ?
+
+</PRE>
+
+<!--
+
+(A10 c03.gret)   13.6 Gflops
+
+(A40,n276sav3)   13.47 GFlops  
+(there were warning HPL-AI didn't like PxQ of 2x1)
+
+ Prog= 99.99%   N_left= 800     Time= 455.46    Time_left= 0.03 iGF=     1.31   GF=    13.48    iGF_per= 0.65   GF_per= 6.74
+ Prog= 100.00%  N_left= 512     Time= 455.79    Time_left= 0.01 iGF=     0.76   GF=    13.47    iGF_per= 0.38   GF_per= 6.73
+ Prog= 100.00%  N_left= 224     Time= 455.79    Time_left= 0.00 iGF=    80.90   GF=    13.47    iGF_per= 40.45  GF_per= 6.73
+2023-02-01 13:43:00.563
+Convergence history: Classical Iterative Refinement
+Iteration      Residual
+        0           NAN
+        1           NAN
+        2           NAN
+        3           NAN
+        4           NAN
+        5           NAN
+        6           NAN
+        7           NAN
+        8           NAN
+        9           NAN
+       10           NAN
+       11           NAN
+       12           NAN
+       13           NAN
+       14           NAN
+       15           NAN
+       16           NAN
+       17           NAN
+       18           NAN
+       19           NAN
+       20           NAN
+================================================================================================================================================================
+         T/V                N    NB     P     Q               Time                 Gflops          Refine   iter        Gflops_wrefinement
+HPL_AI   WR03L2L2       20960   288     2     1             455.82              1.347e+01         2.18642     20          1.340e+01
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=                NAN ...... FAILED
+||Ax-b||_oo/((||A||_oo*||x||_oo+||b||_oo)*N)    =                NAN
+||Ax-b||_oo  . . . . . . . . . . . . . . . . .  =                NAN
+||A||_oo . . . . . . . . . . . . . . . . . . .  =       2.628209E+04
+||A||_1  . . . . . . . . . . . . . . . . . . .  =       2.628849E+04
+||x||_oo . . . . . . . . . . . . . . . . . . .  =                NAN
+||x||_1  . . . . . . . . . . . . . . . . . . .  =                NAN
+||b||_oo . . . . . . . . . . . . . . . . . . .  =       4.999641E-01
+||Ax-b||_F . . . . . . . . . . . . . . . . . .  =                NAN
+||b||_F  . . . . . . . . . . . . . . . . . . .  =       8.321229E+01
+||Ax-b||_F/||b||_F . . . . . . . . . . . . . .  =                NAN
+================================================================================
+
+Finished      1 tests with the following results:
+              0 tests completed and passed residual checks,
+              1 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+--------------------------------------------------------------------------------
+
+
+
+
+
+Abhi on v100?   11.82 GFlops
+
+     T/V        N  NB   P   Q        Time         Gflops     Refine  iter    Gflops_wrefinement
+HPL_AI  WR01C2R4   100000  288   2   1       11.82       5.642e+04    10.76975   2     2.952e+04
+test_loop: 21 of 60
+
+-->
 
 
 <BR><HR><BR>

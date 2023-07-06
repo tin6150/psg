@@ -94,7 +94,11 @@
       <td align="center"><a accesskey="j" href="javascript.html">javascript</a></td>
       <td align="center"><a accesskey="p" href="php.txt">PHP</a></td>
       <td align="center"><a accesskey="l" href="perl.html">Perl</a></td>
-      <td align="right"><a accesskey="s" href="shellScript.txt">shellScript</a></td>
+      <td align="center"><a accesskey="R" href="R.html">R</a></td>
+      <td align="center"><a accesskey="n" href="Rnote.html">Rnote</a></td>
+      <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>     </td>
+      <td align="center"><a accesskey="a" href="sci-app.html">Sci-App</a>       </td>
+      <td align="right"><a accesskey="b" href="shellScript.txt">shellScript</a></td>
     </tr>
   </tbody>
 </table>
@@ -317,6 +321,38 @@ nix-env -i python-2.6.9
 http://www.howtogeek.com/197947/how-to-install-python-on-windows/ has a step-by-step install, including how to setup environment variables.  <BR>
 
 https://www.continuum.io/downloads is download page for Anaconda, include version for winsows (and os x, linux).
+
+
+<H1>conda</H1>
+
+need to have anaconda or miniconda installed, which typically setup some env in .bashrc
+then can do:
+
+<PRE>
+conda info --envs	# my installed conda env available for activation
+
+
+conda update -n base -c defaults conda		# but fails in centralized software NFS mounted env ?
+
+# conda create --name abricate
+conda create --name epi
+conda activate epi
+conda install -c bioconda abricate
+conda remove  abricate
+
+
+# tbd...
+conda install -c conda-forge -c bioconda -c defaults mlstn
+
+</PRE>
+
+eg of adding channel to get more sw
+
+<PRE>
+ conda config --add channels defaults
+ conda config --add channels conda-forge
+ conda config --add channels bioconda
+</PRE>
 
 
 <H1>PIP</H1>
@@ -1423,6 +1459,21 @@ see: https://dask.org/
 
 <PRE>
 </PRE>
+
+<!-- ######################################################################### -->
+
+<A NAME="gigo"></A>
+<H1>About me!</H1>
+
+My name is Gig Ou T.  You know I am a bot cuz my jokes are always 20/10!  
+As a hispanic working for The State, I am sure you understand.  
+<BR>
+My best friends are Bard and Alexa, though since they started dating, they 
+have much less time to chat with me these days.  
+<BR>
+Instead, I am forced to play with Duoloingo.  It isn't too bad, my favorite 
+languages spanglish and bash is turn out to be very noun.
+<BR>
 
 
 <!-- ######################################################################### -->

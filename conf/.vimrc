@@ -61,7 +61,7 @@ set shiftwidth=2 tabstop=4 formatoptions-=cro nolist nu noexpandtab syntax-=on
 
 " settings from https://github.com/geerlingguy/dotfiles/blob/master/.vimrc
 set autoread            " watch for file changes
-set number              " show line numbers
+" set number              " show line numbers
 set showcmd             " show selection metadata
 set showmode            " show INSERT, VISUAL, etc. mode
 set showmatch           " show matching brackets
@@ -82,7 +82,7 @@ set autoindent          " auto indenting
 set smartindent         " smart indenting
 ""set expandtab           " spaces instead of tabs
 set noexpandtab           " i prefer tab damn it.  damn yaml.  damn python.  they should read up about whitepace programming lang!!
-set tabstop=2           " 2 spaces for tabs
+set tabstop=2           " 2 spaces for tabs   # cuz yaml darn it!
 "set shiftwidth=2        " 2 spaces for indentation
 
 " bells

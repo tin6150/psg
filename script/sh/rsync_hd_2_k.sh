@@ -8,6 +8,7 @@
 # 	remember:
 #              rsync -av /src/foo    /dest
 #              rsync -av /src/foo/   /dest/foo
+#              rsync -av /global/home/users/   /home/
 
 #              rsync -av /src/foo/   /dest/foo/ ???   recommended by jw/wf, works if destination foo/ already exist
 
