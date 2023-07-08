@@ -1065,6 +1065,9 @@ replace_na
 replace_na( list( var=value ) )
 replace_na( list( var1=value1, var2=value2 ) )
 
+mutate( ST = replace_na( as.numeric(SeqType), 0 ) )	# as part of df... parse text to number, replace NA with 0
+
+#### picking a row by id:
 row_number()==23	# select row 23  # though I don't like this approach, what if data get resorted?!
 </PRE>
 
@@ -1267,6 +1270,8 @@ sn50dob %>% as.integer()	# return 0 :D
 
 sn51dob = as.Date( "12/25/1969", "%m/%d/%Y" )	# specify format unless it is YYYY-mm-dd
 as.integer(sn51dob)		# return -7, dates before epoch stored as -ve
+
+
 
 
 library(lubridate)		# from tidyverse, but need explicit loading
@@ -1487,7 +1492,7 @@ Ref:
 
 <H3>R Data Structure</H3>
 
-Ref: <A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R Data Structure</A>
+Ref: <A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R Data Structure</A> 
 
 <PRE>
 
@@ -3272,6 +3277,8 @@ plotly creates interactive graphs in HTML format, good when result is posted to 
 
 Example from PHW251 week 11.
 <A HREF="https://github.com/PHW290/PHW251_Fall2022/blob/main/weekly%20material/week_11/Advanced%20Markdown%20Slides.Rmd">Advanced Markdown Slides.Rmd</A>
+<A HREF="https://github.com/tin6150/PHW251_Fall2022/blob/main/weekly%20material/week_11/Advanced%20Markdown%20Slides.Rmd">(fork/cache)</A>
+
 Other interesting examples in the 
 <A HREF="https://github.com/PHW290/PHW251_Fall2022/tree/main/weekly%20material/week_11">week_11</A> dir.
 
@@ -5005,6 +5012,8 @@ setD
 
 as.integer( T )   # 1
 as.integer( F )   # 0
+
+as.character( 404 )  # get text "404" ... so alt to sprintf() 
 </PRE>
 
 rstuff/ 

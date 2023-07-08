@@ -1536,6 +1536,17 @@ Logs:
 # check ports are reachable from a client machine.  
 # open|fitered is ok
 sudo nmap -e enp0s9 -sUT -p53,123,80,88,443,8443,8080,389,464,636,749,754,1812-1813 freeipa
+
+
+ipa-client-install  message about firewall requirement
+
+Please make sure the following ports are opened in the firewall settings:
+     TCP: 80, 88, 389
+     UDP: 88 (at least one of TCP/UDP ports 88 has to be open)
+Also note that following ports are necessary for ipa-client working properly after enrollment:
+     TCP: 464
+     UDP: 464, 123 (if NTP enabled)
+
 </PRE>
 
 
@@ -2002,9 +2013,20 @@ krb5_validate = False
 
 
 ipa host-find  --all radiusClientHostname | grep enroll    # host should be enrolled (ie joined to the radius realm)
-?? host-modify unenroll ?  (then host has to go thru ipa client setup process to rejoin the realm.  think AD host joining domain)
+?? host-mod unenroll ?  (then host has to go thru ipa client setup process to rejoin the realm.  think AD host joining domain)
 ipa host-add  ipa-client-hoostname.fqdn
 ipa service-add HTTP/ipa-client-hoostname.fqdn
+
+
+ipa host-find vpn --raw			# some host may have forced join auth method, eg krbprincipalauthind: otp
+ipa host-mod --auth-ind=""  myhostname  # remove the forced join auth method 
+
+
+ipa help host
+
+ipa host-show hostname
+
+re-enroll client, see ipa-client-install --help
 
 
 
