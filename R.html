@@ -924,7 +924,7 @@ eg
 
 <PRE>
 
-> myMessyVect = c("apple", "banana", "cambur")
+> myMessyVect = c("apple", "banana", "cambur")    # this is a character vector (not list), character means string in R
 > str(myMessyVect)
  chr [1:3] "apple" "banana" "cambur"
 > myMessyVect = c("apple", NULL, "cambur")
@@ -1292,13 +1292,18 @@ placebo_df = placebo_df %>%
 ceiling_date( as_date( "2020-02-01", "month" ) %m-% days(1)  
 
 as.numeric(var)
-as.character(var)
+as.character(var)   	# character in R means strings, not single ascii char byte.
+
+colnames_vfdb = tibble( colnames( vfdb_sum_tsv )  )
+str( colnames_vfdb[[1]] ) # char (ie string array), as needed for arg of pivot_longer
 
 # string change case
 str_to_upper(var)	# var could be vector, so usable inside a mutate()
 str_to_title(var)
 
 round( x*100, 2)	# round to 2 digits, here used arithmatic expression, as in convert num to percent
+
+
 
 </PRE>
 
