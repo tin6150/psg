@@ -2174,6 +2174,14 @@ ping -c 3 -s 8970 -M do 10.11.12.201
   #   -M dont failing does not necessarily means things wont work.
   #   PMTUD (Path MTU Discovery) protocol only works for TCP and UDP, and lots of ICMP traffic is dropped by many network
 
+
+windows ping to fine tune MTU in VPN 
+ping -f VPNserver -l 1500
+# reduce -l size till does not see DF error.
+MTU 1450 maybe a good size to set for both client and server side.
+One env I setup I had to use MTU 1398
+see: https://www.thegeekpub.com/271035/openvpn-mtu-finding-the-correct-settings/
+
 tracepath 10.11.12.201 
 	# use UDP to to traceroute, no root priv required
 	# discover MTU size between two hosts
@@ -2347,6 +2355,8 @@ zip -er9 filename.zip path/
 zip -T filename.zip
 # -T test integrity of file, ask for password if encrypted, and output whether OK or not
 # no trivial way to get list of files without extracting them?  no equiv of tar -tvfz ?
+
+windows 10 explorer will see filenames, and when clicked to open actual file is when it ask for password to decrypt, storing a file in some temp location (and hopefully deleted when file closed).
 
 
 <BR><HR>

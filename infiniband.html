@@ -89,6 +89,9 @@ Verbs - IB allow code to be run on the network.  Think optimizing calls for calc
 <BR>
 <BR>
 
+
+PS.  Mellanox ConnectX-5, 6  can take AI-branded QSFP modules (but not the other way around).
+
 <H2>InfiniBand Generations </H2>
 
 Modulation
@@ -441,6 +444,47 @@ mlxconfig -f ./tlv_file.conf -d /dev/mst/mt4115_pciconf1 set_raw
 configuring split port on managed switch (one with RJ45 serial console)
 <BR>
 MLNX=OS ...
+
+
+<H5>Split port mode for Y-cable support in managed switch</H5>
+
+<PRE>
+
+serial into switch
+admin/admin is def
+	will prompt for pass change, as well as set pass for "monitor"
+enable
+config term
+system profile ib split-ready
+(reboot)
+
+interface ib 1/1-1/36
+shutdown
+module-type qsfp-split-2
+(ports 1 to 36 will be in split mode and ready for use, existing 2nd port of Y-split would be online right away
+
+check status:
+
+show interface ib stats
+
+
+to set back to non split mode
+module-type qsfp
+
+</PRE>
+
+details , See 
+https://support.lenovo.com/us/en/solutions/ht508894-how-to-split-or-unsplit-ports-on-a-qm8700-using-mlnx-os-cli
+
+<PRE>
+
+How to split or unsplit ports on a QM8700 using MLNX-OS CLI - 
+This article introduces the procedure used to split the ports in two on a QM8700 switch. QM Series switches support split mode, which allows for the 200 Gb/s quad-lane ports to be divided into two 100 Gb/s dual-lane ports.
+
+
+need the mallanox cable for serial connectivity.
+
+</PRE>
 
 <H1>IBoIP</H1>
 
@@ -893,6 +937,23 @@ Some card can only do IB or only Eth, can't be changed?
 
 enp1s0f? are likely the onboard RJ45 ports.
 
+
+</PRE>
+
+<H1>MLNX-OS</H1>
+
+MLNX-OS CLI change password
+
+https://docs.nvidia.com/networking/display/MLNXOSv381206/User+Management+and+Security+Commands
+
+<PRE>
+show whoami
+
+show usernames		# show configured user.  default is admin monitor xmladmin xmluser  but most disabled, need to set password to enable
+
+username bofh  capability admin  password 0     # create user , 0 = clear text password
+username bofh  capability admin  password 7     # create user , 7 = encrypted text (which alg?)
+username admin nopassword   # erase password?
 
 </PRE>
 
