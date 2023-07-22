@@ -408,8 +408,7 @@ cgMLST V1 + HierCC V1,
 rMLST,
 wgMLST.
 <LI> <A HREF="https://github.com/nickp60/EzClermont">EzClermont</A> E coli phylotyping tool (A, B1, B2, C, D, E, F, G) 
-     <BR><TT>singularity pull --name ezclermont.sif docker://quay.io/biocontainers/ezclermont:0.7.0--pyhdfd78af_0</TT>
-     <BR><TT>dd
+     <BR><TT>singularity pull --name ezclermont     docker://quay.io/biocontainers/ezclermont:0.7.0--pyhdfd78af_0</TT>
 	<PRE>
 	ls *.fasta > ezc.input.lst
 	cat ezc.input.lst | parallel "ezclermont {} 1>> ezclermont.results.tsv  2>> ezclermont.results.log"
