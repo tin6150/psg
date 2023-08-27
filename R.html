@@ -993,6 +993,7 @@ table( df$col1, df$col2, useNA="ifany" )	# produce a 2x2 freq table of freq/coun
 
 ggplot(data=df, mapping=aes( x=col1, y=col2 )) + geom_count() + xlim(0,70)  # XY scatter plot with count size for 2D table() eg above
 
+ggsave("myplot.jpg")
 </PRE>
 
 <!-- Missing data #Rstat? Epi1? --> 
@@ -3232,7 +3233,8 @@ library(DT)             # this one is the HTML interactive table
 
 <H2>ggplot</H2>
 
-<A HREF="https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf">ggplot cheatsheet</A>
+<A HREF="https://learninginnovation.duke.edu/wp-content/uploads/2020/07/R_ggplot2_cheatsheet.pdf">ggplot2 cheat sheet</A>
+or <A HREF="https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf">ggplot cheatsheet</A>(download)
 <BR>
 (much of ggplot notes is under EpiStat)
 <BR>
@@ -3251,6 +3253,23 @@ ggplot(data = ______,
         y     = “Type y-axis here”
        )
 </PRE>
+
+Also check out:
+<BR>
+geom_rect +
+coord_polar(theta="y") +
+
+<BR>
+geom_count() 	# 2 discrete variable
+
+
+<BR>
+ballon plot can do 2 categorical vars for X, Y
+then gradient or bubble size for intensity/frequency/count thing
+ggballoonplot • ggpubr
+
+
+
 
 <H5>ggplot - geom_ribbon </H5>
 
@@ -3273,6 +3292,10 @@ ggplot(data=std_gg3,aes(group=disease_f)) +
   theme_tufte()
 
 </PRE>
+
+
+
+
 
 <A NAME="plotly"></A>
 <A NAME="plot_ly"></A>
@@ -3734,6 +3757,10 @@ geom_bar( ... ) params:
 position="dodge"	# side by side grouping in barchart
 position="stack"  	# on top of, less liked by stat wanting to do comparison.
 
+geom_col() 	# can be used instead of geom_bar( stat="identity" )
+
+coord_flip() 	# make horizontal bar graph
+
 </PRE>
 
 <H2>Exam 1: Review</H2>
@@ -4044,8 +4071,8 @@ Reference material: <BR>
      - use bidwidth=N to agregate a range of values into single bar
      - use xlim( low,high ) to limit x-axis values (useful to remove outliers from graph)
 4. `fct_reorder(var1, var2)` to reorder a categorical variable (`var1`) by a numeric variable (`var2`)
-    - from the `forcats` package
-4a.`fct_relevel( apgar5Cat, "Low", "Med")` to reorder a categorical variable by hand  # Lect 5, Prj 3
+    - from the `forcats` package  # stat142 Lect 5 
+4a.`fct_relevel( apgar5Cat, "Low", "Med")` to reorder a categorical variable by hand  # stat142 Lect 7, Prj 3
 5. `geom_point()` to make a plot with dots  (2 continuous var scatter plots also use this, but can also have categorical data)
    `geom_count()` similar, but a legend with dot size indicating n/count
 6. `geom_line()` to make a plot with lines
@@ -4178,6 +4205,13 @@ ggsave( "lab02_cs_plot.png", plot = last_plot())   # save plot to file
 
 ### add a vertical line to indicate median.  lty=1 is solid line, 2 is dashed line, 3 is dotted.
 geom_vline(aes(xintercept = median(GDP_2006)),  lty=2)
+
+
+## more to explore
+
+geom_violin()  # see https://www.sscc.wisc.edu/sscc/pubs/dvr/two-variables.html
+coord_flip()
+
 
 
 </PRE>
@@ -5121,7 +5155,7 @@ better bullet for table▶yes?
 τ  - \tau - tree
 
 λ - \lambda - eigenvalue, rate param for poisson
-Λ - Lamda - eigenvector
+Λ - Lambda - eigenvector
 
 ε - epsilon - erros, residuals
 Ε - Epsilon
@@ -5187,9 +5221,22 @@ Symbols
 </PRE>
 
 
-<H1>latex stuff</H1>
+<A NAME="latex"></A>
+<A NAME="LaTeX"></A>
+<H1>LaTeX stuff</H1>
 
 <A HREF="https://davidhamann.de/2017/06/12/latex-cheat-sheet/">latex cheat sheet</A> (cut-n-paste friendly)
+
+In R studio, need to enclose latex command inside $$ 
+no spaces!
+eg
+<PRE>
+$\Sigma$ for uppercase Sigma
+or
+$\sigma$ for lowercase sigma
+
+</PRE>
+
 
 <PRE>
 
@@ -5204,6 +5251,13 @@ _		subscript		x_0		so me writting ascii in this notation is good!
 \mathbb{Z} ?	ℤ (-inf, +inf) whole num?   ℤ		U+2124 Double Stroke Capital Z
 \mathbb{C} ?	ℂ complex number set	ℂ		U+2102 Double Stroke Capital C  
 
+use {} to group items.  eg
+
+$a \over {b+c}$
+$e^{5x}$  (use ^ for superscript, latex use e, not exp)
+$a_1$     (use _ for subscript)
+$a_{10}$  (use _ for subscript, enclose number in {} when more than single digit)
+$a_1^2$   (can use both _ and ^ at the same time)
 
 </PRE>
 
