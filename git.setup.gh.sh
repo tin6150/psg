@@ -1,9 +1,13 @@
 
 ################################################################################
-#### mkdir/cd ~/tin-gh, pre-run:
+#### mkdir-cd ~/tin-gh, pre-run:
 #### git clone https://tin6150@github.com/tin6150/psg
 #### bash psg/git.setup.gh.sh
 ################################################################################
+
+# 2023... windows, wsl... see precreate_ntfs_scheme() ... prefer to put tin-git-Doc in windows ntfs 
+
+
 
 #### old method, not liked anymore, cuz prompt for password get gabled from paste
 ##XX cat ~tin/PSG/git.setup.gh.sh | egrep -v "^$|^#"
@@ -11,7 +15,7 @@
 
 
 # check, now automatically detect, for wsl env:
-useC_tin=0
+useC_tin=0  # unlikely compatible with the presetup_ntfs_scheme() of 2023!
 useC_tin=$(uname -a  | grep -c Microsoft)  # this should be 1 in wsl ubuntu bash
 
 ##WslEnv=True
@@ -25,7 +29,8 @@ if [[ ${useC_tin} -eq 1 ]]; then
 	[[ -e tin-gh ]] || ln -s /mnt/c/tin/tin-gh .	# this cmd need to run in wsl bash prompt  NOT cygwin. (cyz of /mnt/c)
 	[[ -e C_tin  ]] || ln -s /mnt/c/tin ./C_tin
 fi
-MyGitDir=~/tin-gh	# could be a link (mostly in win/wsl)
+#MyGitDir=~/tin-gh		# could be a link (mostly in win/wsl)
+MyGitDir=~/tin-git-Doc	# untested with precreate_ntfs_scheme() of 2023.08
 [[ -e $MyGitDir ]] || mkdir $MyGitDir
 cd $MyGitDir
 
@@ -272,10 +277,25 @@ run_git_clone_extended()
 
 
 
+#### 2023 want git dir to be shared with windows
+precreate_ntfs_scheme()
+{
+	# untested, reverse eng from T55
+	ln -s /mnt/c/Users/tin61/              winHome
+	mkdir winHome/Documents/tin-git-Doc
+	ln -s winHome/Documents/tin-git-Doc    tin-git-Doc
+	cd tin-git-Doc
+	
+	# run wsl as user, ssh-agent; ssh-add 
+	# run wsl as root, hijack ssh-agent session, ssh-add -l
+	# run git clone as root, as need to do lock and stuff on the windows ntfs drive that can't be done as user
+	git clone https://github.com/tin6150/guatemala_amr.git
+}
 
 
 create_links() 
 {
+	# not sure if this still works with the precreate_ntfs_scheme of 2023 above 
 
 	############################################################
 	############################################################
@@ -379,11 +399,13 @@ npm_package_install()
 }
 
 
+precreate_ntfs_scheme #### 2023 want git dir to be shared with windows
+
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
 run_git_clone_core
 #+run_git_clone_extended
-create_links
+create_links	# this is link from ~/PSG to tin-gh/psg  CF_BK etc.  not sure if still work with the preset_ntfs_scheme of 2023
 #npm_package_install
 
 #macOS_setup ## cmd tried, but fn untested.
