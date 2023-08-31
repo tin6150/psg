@@ -30,13 +30,14 @@ if [[ ${useC_tin} -eq 1 ]]; then
 	[[ -e C_tin  ]] || ln -s /mnt/c/tin ./C_tin
 fi
 #MyGitDir=~/tin-gh		# could be a link (mostly in win/wsl)
-MyGitDir=~/tin-git-Doc	# untested with precreate_ntfs_scheme() of 2023.08
+MyGitDir=~/tin-git	# untested with precreate_ntfs_scheme() of 2023.08
 [[ -e $MyGitDir ]] || mkdir $MyGitDir
 cd $MyGitDir
 
 
 echo "current dir, where git clone(s) will take place is: (^C within 30 sec to cancel--or may need to press ENTER...)"
-ls -ld ~/tin-gh
+#ls -ld ~/tin-gh
+ls -ld ~/tin-git
 pwd
 pwd -P
 #sleep 15
@@ -289,7 +290,9 @@ precreate_ntfs_scheme()
 	# run wsl as user, ssh-agent; ssh-add 
 	# run wsl as root, hijack ssh-agent session, ssh-add -l
 	# run git clone as root, as need to do lock and stuff on the windows ntfs drive that can't be done as user
-	git clone https://github.com/tin6150/guatemala_amr.git
+	#git clone https://github.com/tin6150/guatemala_amr.git
+	git clone git@github.com:tin6150/guatemala_amr.git
+	git clone git@github.com:tin6150/mission2022.git
 }
 
 
