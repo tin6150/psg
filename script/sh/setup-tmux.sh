@@ -5,6 +5,9 @@
 
 # **** Best NOT to run this script inside a tmux session ****
 
+#++ need to enable one of the META_SESSION_LIST before running...
+#   commented out cuz don't want to accidentally rerun and overwrite sessions
+META_SESSION_LIST="m1 m2 m3 m4 m5 m6 m7 m8" # add more meta session if desired
 #++META_SESSION_LIST="m1 m2 m3 m4" # add more meta session if desired
 #++META_SESSION_LIST="m5 m6 m7 m8" # add more meta session if desired
 #--META_SESSION_LIST="m4" # add more meta session if desired

@@ -77,6 +77,20 @@ Sys Admin magazine articles:
 <BR>
 <BR>
 
+<H2>warewulf boot process</H2>
+<OL>
+<LI> hardware boot, BIOS to invoke network PXE boot or UEFI process </LI>
+<LI> mac broadcast, DHCPD on warewulf server responds with IP.  For this piece to work, the mac address is defined in wwsh node set</LI>
+<LI> PXE fetch linux image via TFTP, using mac address as identifier</LI>
+<LI> The fetched linux image is provided by warewulf.  The OS does a "swap" and pivot to this new image.</LI>
+<LI> It scan hardware and look for network devices.  NIC driver has to be baked into the wareulf image fetched via TFTP, else it can't find driver and things won't work.  If there is no workable nic driver at all, the warewulf boot process will reset. </LI>
+<LI> If there are nic driver (and it maybe for a secondary interface that one isn't expecting, wwulf assign that nic eth0 and contact the warewulf server via https, asking for an image with the mac address of this NIC. </LI>
+<LI> Here in this process, the IP and NIC config would be the one in the wwsh provision ifcfg-eth0.  tagged vlan probably not supported here. </LI>
+<LI> if there is a matching mac address image, it is served over https, and a slew of packages is then also downloaded via https</LI>
+<LI> Linux boots and eventually OS is ready, ssh login, maybe a login prompt on the tty :) </LI>
+
+</OL>
+ 
 <H2>warewulf backup</H2>
 
 
@@ -174,6 +188,54 @@ https://www.makeuseof.com/set-up-efi-linux-virtual-machine-virtualbox/</A>
 <TT>virt manager</TT> would be closer to hardware, but a time sink to setup<BR>
 proxmox vm should also work fine. <BR>
 
+
+
+<H2>File object </H2>
+
+
+<PRE>
+
+
+wwsh file list | grep apptainer
+apptainer.conf          :  rwxr-xr-x 1   root root            13094 /etc/apptainer/apptainer.conf
+apptainer.conf          :  rw-rw-r-- 1   root root            13094 /etc/apptainer/apptainer.conf
+
+# duplicate filename is allowed.  
+# would need object id to manipulate them
+
+wwsh file print apptainer.conf
+#### apptainer.conf ###########################################################
+apptainer.conf  : ID               = 839
+apptainer.conf  : NAME             = apptainer.conf
+apptainer.conf  : PATH             = /etc/apptainer/apptainer.conf
+apptainer.conf  : ORIGIN           = /etc/warewulf/files/apptainer.conf
+apptainer.conf  : FORMAT           = UNDEF
+apptainer.conf  : CHECKSUM         = 4d5e790be2ab6bebfa7cb75f19d902ea
+apptainer.conf  : INTERPRETER      = UNDEF
+apptainer.conf  : SIZE             = 13094
+apptainer.conf  : MODE             = 0755
+apptainer.conf  : UID              = 0
+apptainer.conf  : GID              = 0
+#### apptainer.conf ###########################################################
+apptainer.conf  : ID               = 1599
+apptainer.conf  : NAME             = apptainer.conf
+apptainer.conf  : PATH             = /etc/apptainer/apptainer.conf
+apptainer.conf  : ORIGIN           = /etc/warewulf/files/apptainer.conf
+apptainer.conf  : FORMAT           = UNDEF
+apptainer.conf  : CHECKSUM         = 4d5e790be2ab6bebfa7cb75f19d902ea
+apptainer.conf  : INTERPRETER      = UNDEF
+apptainer.conf  : SIZE             = 13094
+apptainer.conf  : MODE             = 0664
+apptainer.conf  : UID              = 0
+apptainer.conf  : GID              = 0
+
+
+
+
+wwsh file print  --lookup=id 839
+wwsh file delete --lookup=id 839
+
+</PRE>
 
 
 <H2>Files on boot server</H2>
@@ -354,6 +416,8 @@ these files are expected to be stored in:
 <font face=monospace>
 /srv/warewulf 
 </font>
+
+/var/log/httpd/ error_log could tell of potential problem, eg fetching file for mac address that isn't expected
 
 <BR><HR><BR>
 

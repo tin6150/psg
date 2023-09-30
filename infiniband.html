@@ -465,11 +465,15 @@ module-type qsfp-split-2
 
 check status:
 
-show interface ib stats
+show interface ib status
 
 
 to set back to non split mode
 module-type qsfp
+
+save config
+? copy running-config startup-config 
+? write mem
 
 </PRE>
 
@@ -531,6 +535,8 @@ module-type qsfp           ! revert, back to normal 1:1 cable
 
 
 show interfaces ib status
+
+# Note, QM8700 HDR switch has 40 ports.  
 </PRE>
 
 
@@ -809,6 +815,13 @@ https://www.mellanox.com/related-docs/prod_cables/PB_MCP1600-Cxxx_100GbE_QSFP28_
 https://www.mellanox.com/related-docs/prod_cables/PB_MCP1600-E0xxEyy_100Gbps_QSFP28_DAC.pdf - E0xxEyy = IB
 https://store.mellanox.com/products/nvidia-mc2207130-002-passive-copper-cable-vpi-up-to-56gb-s-qsfp-2m.html - FDR VPI
 
+HDR100 vs 100GbE cables (Y-split version):
+both cables have the same Model number:  MCP7H50
+but a single character differ in the part number:
+MCP7H50-V002R26 - 100GbE
+MCP7H50-H002R26 - HDR100  (presumably works in IB mode "only")
+(The 100GbE marking was on the cable connector, use of cable negotiated to 5 Gbps when used as IB.  ibnetdiscover reported it as SDR).
+
 </PRE>
 
 ref:
@@ -950,13 +963,63 @@ https://docs.nvidia.com/networking/display/MLNXOSv381206/User+Management+and+Sec
 show whoami
 
 show usernames		# show configured user.  default is admin monitor xmladmin xmluser  but most disabled, need to set password to enable
+			# Acc Status will indicate if password is set
 
-username bofh  capability admin  password 0     # create user , 0 = clear text password
-username bofh  capability admin  password 7     # create user , 7 = encrypted text (which alg?)
+enable
+config term
+
+username bofh  capability admin # create user , not usable till set a password
+username bofh  password 0       # 0 = use clear text password, will prompt for it
+# or use
+username bofh  password 7     	# 7 = encrypted text (which alg?)
+
+username admin   password 0     # change password for user admin
+username monitor password 0     # def pw is monitor for this acc
+
 username admin nopassword   # erase password?
 
 </PRE>
 
+saving config
+<BR>
+see: https://docs.nvidia.com/networking/display/MLNXOSv381206/Configuration+Management
+
+<PRE>
+enable
+config term
+
+show configuration files	# default one is called "initial"
+
+configuration write    		# save to default? current? config file.  disable zero touch config ZTC thing on first write.  Think Cisco copy run start
+
+configuration write to NewCfFilename		# create/save to a new config file and switch to it as active config file (used at boot?)
+configuration write to NewCfFilename no-switch	# save to a new config file , but don't make it the active config (ie good for creating backup)
+
+configuration switch-to NewCfFilename		# load a new config file
+
+show running
+
+
+reset factory keep-basic			# restore to factory default
+
+</PRE>
+
+Set management interface IP
+<BR>
+
+<PRE>
+enable
+config terminal
+
+show interfaces mgmt0
+
+# default is dhcp, manually disable it 
+no interface mgmt0 dhcp
+
+# setting static ip would disable dhcp 
+interface    mgmt0 ip address 10.6.1.10 255.255.0.0
+
+</PRE>
 
 <BR><HR>
 <div align="CENTER">

@@ -1581,9 +1581,11 @@ ipa user-show  sn50		# show info of specific user, exact spell, by userlogin
 ipa user-show      		# no argument will get a prompt
 ipa user-find 			# list all users in ipa db (think to getent passwd)
 ipa user-find  tin		# find any account containing specified patter "tin" in userlogin, first and last name.  case insensitive search
-ipa user-find  --all tin	# --all provide all radius info
+ipa user-find --all tin		# --all provide all radius info
 
-ipa user-find   --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
+ipa user-find --all | egrep login:\|expiration:		# list users and their password expiration date.
+ipa user-find --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
+
 [ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/pwd-expiration.html ]
 ipa group-find  --all | egrep name:\|GID:\|users:       # display groups
 
@@ -1743,8 +1745,9 @@ so, config and doc for bind would apply.
 <PRE>
 ipa dnszone-find 			# list all dns zones managed by this server
 
-ipa dnsrecord-find greta.local		# list all dns record for the dnsZone named greta.local
-ipa dnsrecord-find greta.local | grep "Record name"
+ipa dnsrecord-find g.local		# list all dns record for the dnsZone named g.local
+ipa dnsrecord-find g.local  n00		# get entries like n00.g.local, pxe-n00.greta.local (ie substring search on hostname n00)
+ipa dnsrecord-find g.local | grep "Record name"
 ipa dnsrecord-find 16.8.10.in-addr.arpa.	# reverse PTR zone
 
 </PRE>
@@ -1911,7 +1914,7 @@ list some useful relevant ipa commands
 <A HREF="https://gist.github.com/rechner/c6b9133b7816445b5850f8e22e16aa60">FreeIPA for OpenVPN gist</A>
 <BR><BR>
 
-<!-- CF_BK...vpn-greta -->
+<!-- CF_BK...vpn-g -->
 <PRE>
 
 kinit admin
@@ -2028,6 +2031,13 @@ ipa host-show hostname
 
 re-enroll client, see ipa-client-install --help
 
+# Note that a host entry is like windows AD host joined to the realm
+# DNS entry does NOT show up under host-find, use dnsrecord-find instead
+
+ipa dnsrecord-find g.local	#  # list all dns record for the dnsZone named g.local
+ipa dnsrecord-find 1.168.192.in-addr.arpa.        # reverse PTR zone
+
+ipa dnszone-find
 
 
 ~~~~~

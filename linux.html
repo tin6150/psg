@@ -28,7 +28,7 @@ browser render tab as 8 spaces for html PRE
       <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
       <td align="center"><a accesskey="g" href="git.html">git</a></td>
       <td align="center"><a accesskey="t" href="tool.html">tool</a></td>
-      <td align="center"><a accesskey="I" href="infiniband.html">Infiniband</a></td>
+      <td align="center"><a accesskey="I" href="infiniband.html">Infiniband</a></td> <!--alt-sh-i is chrome shortcut for feedback -->
       <td align="center"><a accesskey="l" href="lsf.html">lsf/slurm</a></td>
       <td align="center"><a accesskey="b" href="bios.html">BIOS</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
@@ -603,6 +603,9 @@ see also
 
 lspci			# list pci info
 lscpu
+hwclock			# date hw clock as seen by bios.  if wrong, system reboot will get wrong time.  there is NO timezone!
+date --set 0900		# HHMM (and HH:MM) is acceptable default format for setting time.  
+hwclock --systohc	# sync system "software" clock to the bios, so next reboot will have correct time!
 
 
 lsmod			# display all kernel loaded modules.  

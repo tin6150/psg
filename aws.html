@@ -808,6 +808,92 @@ Other eg of NoSQL DB includes: Hadoop, MongoDB.  <BR>
 BigTable-based, rather than schema-less: Cassandra, HBase.
 <BR><BR>
 
+<H1>GCP - Google Cloud</H1>
+
+<H2>GCP 101</H2>
+
+<H3>ssh access</H3>
+Easiest thing is to use the Web SSH on the VM detail page.  It does display this message:
+<BR>
+Please consider adding the IAP-secured Tunnel User IAM role (iap.tunnelInstances.accessViaIAP) to start using Cloud IAP for TCP forwarding for better performance.
+<BR>
+
+<H3>ssh keys - grumpy old sys admin way</H3>
+
+It seems that ~/.ssh/authorized_keys is updated each time the Web SSH is activate.
+When it says "copying ssh key to VM", that seems to be when it updates that.
+It updates entry followed by (or after) <BR>
+<TT># Added by Google</TT>
+<BR>
+so adding entries to the top of the authorized_keys 
+don't seems to be wiped out.  <BR>
+It still remains which user can login, other than the owner who created the instance...
+
+<H3>ssh keys - google way</H3>
+
+SSH keys are managed by the GCP environment.  
+<BR>
+~/.ssh/authorized_keys will be wiped when GCP need to push changes to the VM instance. <BR>
+Keys in /etc/ssh/ should just be host keys. <BR>
+
+Best is to 
+<A HREF="https://cloud.google.com/compute/docs/oslogin/set-up-oslogin#gcloud">Enable OS Login</A>
+<A HREF="https://cloud.google.com/compute/docs/instances/access-overview?hl=en">Choose an access method</A> (OS Login vs Managing SSH keys in metadata)
+<OL>
+(this seems to have been linked to some IAM , which might be pre-requisite)
+<LI><A HREF="https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role">Assign OS Login IAM roles - Project level</A>
+<LI><A HREF="https://cloud.google.com/compute/docs/access/managing-access-to-resources#bind-member">Assign OS Login IAM roles - Instance level</A>
+<LI>
+</OL>
+<BR>
+
+2nd best is to manage metadata (GCP) and add individual key.
+<A HREF="https://cloud.google.com/compute/docs/instances/access-overview?hl=en">Choose an access method</A> (See second section under "Managing SSH keys in metadata")
+<A HREF="https://cloud.google.com/compute/docs/metadata/setting-custom-metadata#update_metadata">Updating metadata on a running VM</A>
+ie.
+for single VM instance.
+edit the VM, ssh key should be listed and allow "add item".  
+it is a tiny box to edit ssh key and some descriptive data.  it is a PITA.  eg, broke into several line for easier reading:
+<PRE class="cf">
+ecdsa-sha2-nistp256 
+AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEbcqIe/lbynFItQAZpmwxr5mpecBeunOziOJgPiN18wEHx6jPZsS6ov+cjhpwiSxV6pMliZrfY3MgewtY5i6U0= 
+google-ssh {
+"userName":"tin@lbl.gov",
+"expireOn":"2023-08-29T21:27:33+0000"
+}
+</PRE>
+<PRE class="cf">
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCU6pjFRh+yAJ84AcKfD8xEUEyPzQoQhenPl47x9PL7bTOXK5qSdUyMtWk23T5AI+yFzdquWF8LyamH1qfFn2KKKIOeduSfgV+QmaBdIyjELbZ5SmxuiZ4k5PsXop9MxY65OULaJ1/LWXN4+/WURVvjTM0IrhtZayjpkarlItBvt/RxdBZSitI7STYLJCmCkQwJu5BRJM0fimxvAxFusER9JCwXZeVtiyJxne03+UP0vdy7K09ZQwbcS8nYWVQJuvMypAUsPECguDHgZnHmCbJ3O50Jt8LIjGbJJdId9j4UqOdqIwoofp5Fna1N1b3cbB8WF++w6/5RROO/VfEAngLt google-ssh {"userName":"tin@lbl.gov","expireOn":"2023-08-29T21:27:48+0000"}
+</PRE>
+
+Adding this manually, just plain id_ed25519.pub format, where hostname was slightly edited manually before, but w/o google formatting:
+<PRE class="cf">
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDmvqObMYMqJ0zuzxb60xjtZOObA8nZCrlvx1oR6p6+F tin@wombat_bangwu.clave
+</PRE>
+
+<BR>
+
+Web console can launch an ssh session to an instance even without the "enable OS login" setup above.
+The web console has user authenticated to GCP web site, and from there i guess add a user to the VM and pipe in some key via sshd config.
+maybe easiest for user, but then have to use the web ssh client.  at least cut-n-paste works.
+
+for better ssh integration, then do the "enable OS login" or "metadata" setup.
+
+<H3>sudoers</H3>
+
+Web ssh login seems to place the user in group "google-sudoers" automatically.  But something is managing /etc/group, and users added to that group get selectively cleaned out by some process.  
+
+<H2>GCP Getting Started</H2>
+Install gcloud toolkit - see 
+
+
+<PRE>
+gcloud compute instances list					# list all instances
+gcloud compute instances describe atlas-tin2023  | less		# get metadata of instance
+
+</PRE>
+
+
 <H1>Terraform</H1>
 
 I am not a huge fan of terraform, it doesn't provide enough abstraction to be platform independent.

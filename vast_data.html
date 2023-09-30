@@ -219,6 +219,39 @@ sudo /usr/bin/configure_network.py --load-params-from-file
 
 </PRE>
 
+<h1>Power Off</h1>
+
+<LI> Note down where vms is last run, power on would need to start on same node
+
+<PRE>
+
+ssh vastdata@10.8.21.50 
+find-vms   # make a note of this for power on!
+clush -g cnodes docker ps |grep vms
+# vms is the host of the cluster VIP and vcli works here (also host the web gui)
+
+
+vcli	# login as admin
+cluseter deactivate
+
+clush -g cnodes 'touch /vast/data/DONT_RUN_LEADER'
+clush -g cnodes 'ls -l /vast/data/DONT_RUN_LEADER'   # verify all flag files created correctly
+
+vtool suicide
+find-leader	# should not find
+
+
+
+</PRE>
+
+
+<h1>Power On</h1>
+
+see cluster_power_on.md
+greta gitlab 
+
+clush -g cnodes "ls -l /vast/data/vms-bringup.log"
+
 <BR><HR><BR>
 Testing area <BR>
 
