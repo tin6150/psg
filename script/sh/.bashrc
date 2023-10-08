@@ -6,6 +6,7 @@
 ## 2021.0521  .bashrc_bench version based on .bashrc @ 55625e3   # THIS version worked well for hpl on brc
 ## 2021.0329  check ~/.FLAG* to decide which function group to load, for easy task switching  (29afa20) 
 #- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
+#  2023.0901  weasel source .dot
 
 
 ####
@@ -49,7 +50,7 @@ MAQUINA=$(hostname)
 ####
 
 if [[ $- == *i* ]]; then
-	if [[ ${MAQUINA} == bofh ]]; then
+	if [[ ${MAQUINA} == bofh || ${MAQUINA} == "Weasel" ]]; then
 		# 2021 ... tmux
 		# for machine with X, should start ssh-agent stuff before starting tmux...
 		# else each screen need to source the agent config
