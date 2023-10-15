@@ -1595,12 +1595,19 @@ ipa user-mod --password 	# user can change password their own password
 ipa user-mod sn50 --setattr=krbPasswordExpiration=20121231011529Z
 
 ipa otptoken-add 		# add OTP/MFA. QR code can be displayed in most terminals these days.
-ipa otptoken-add --type=totp --owner=jansengr --desc="My soft token1"
+ipa otptoken-add --type=totp --owner=sn51 --desc="My soft token1"
+ipa otptoken-del  sn50 	# remove token
+# removing the token is not needed to change auth back to password
+ipa user-mod sn50 --user-auth-type=password
 
 # once OTP is added, ssh login prompt change from password to First Factor/Seconf Factor
 # and must use both password and token to login
 # User can run "otptoken-add" multiple times and have more than one token, can use either to login
 
+# sometime enforcement of otp still need root to run:
+ipa user-mod USERNAME --user-auth-type=otp
+# this clause need to show when doing   ipa user-show :
+#   User authentication types: otp
 
 
 
@@ -2021,6 +2028,7 @@ ipa host-add  ipa-client-hoostname.fqdn
 ipa service-add HTTP/ipa-client-hoostname.fqdn
 
 
+ipa host-find vpn --raw			# it is --raw , not --long or --full #searchfood
 ipa host-find vpn --raw			# some host may have forced join auth method, eg krbprincipalauthind: otp
 ipa host-mod --auth-ind=""  myhostname  # remove the forced join auth method 
 
