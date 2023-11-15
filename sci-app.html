@@ -51,7 +51,20 @@
 
 <H2>Contig Assembly </H2>
 
-<LI> FastQC - Quality Control 
+<LI> FastQC - Quality Control  <BR>
+<PRE>
+fastqc  --noextract --threads 52 *.fq.gz -o ./fastqc_output
+# --noextract should just means do not save the extracted file, and do not remove the original file.
+# there was  option to set TMP extract dir 
+# each thread takes like 8G of RAM, check --help for exact amount.  It is a java based program.
+</PRE>
+Perform initial check of raw reads (usually fastq files).
+Meaning of outputs:  <BR>
+<A HREF="https://dnacore.missouri.edu/PDF/FastQC_Manual.pdf">https://dnacore.missouri.edu/PDF/FastQC_Manual.pdf</A> <BR>
+<A HREF="https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/10%20Adapter%20Content.html">https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/10%20Adapter%20Content.html</A>
+
+
+
 <LI> Trimmomatic (Input: FastQ)
 <LI> Unicycler
 ( via <A HREF="https://bioconda.github.io/recipes/unicycler/README.html">biocontainer</A> )
@@ -502,6 +515,10 @@ squizz -A core_gene_alignment_ggqrs9.nex   # check/validate named file
 <LI> art (artemis) - view gff3 files (master genome annotation, eg from prokka)
 <LI> sequin 
 <LI> exonerate
+<LI>
+<LI> Bactopia - workflow for bacterial analysis.  Use Nextflow WML?
+<LI> Geneious - GUI app, $575/yr academic, $200/yr student.  
+     https://www.geneious.com/pricing/
 <LI>
 
 <BR><HR><BR>

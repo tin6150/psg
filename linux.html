@@ -1664,8 +1664,23 @@ MegaCli64 -AdpBbuCmd -aAll 						# Backup Battery Unit (BBU) state
 MegaCli64 -AdpBbuCmd -GetBbuStatus -a0
 MegaCli64 -AdpBbuCmd -GetBbuDesignInfo -a1
 
-
 </PRE>
+
+
+PS. 
+See <A HREF="https://pypi.org/project/cs.app.megacli/">https://pypi.org/project/cs.app.megacli/</A>
+for mcli python wrapper that is said to make MegaCli output more human friendly.
+
+<PRE>
+pip install cs.app.megacli
+mcli report
+mcli        # command by itself will list sub command options
+</PRE>
+
+https://gist.github.com/metajiji/cf859a7fc65a63690ecb208d11ea8407
+has a gist and says can get file as:
+wget https://docs.broadcom.com/docs-and-downloads/raid-controllers/raid-controllers-common-files/8-07-14_MegaCLI.zip
+
 
 <A HREF="https://blog.frehi.be/2011/09/12/megacli-useful-commands/">useful megacli cmd</A> blog by Frederik :
 <PRE class="quote">
@@ -3097,8 +3112,11 @@ the comma used in some args are specific to that one arg, eg "console=ttyS1,1152
 
 "iommu=pt net.ifnames=0 biosdevname=0 acpi_irq_nobalance console=tty0 console=ttyS1,115200n8"
 
-iommu=pt is used by AMD for nic 
 net.ifnames=0 biosdevname=0 	# tell rhel 7 to use eth1, eth2 etc nic name rather than enp196s0f1 
+
+iommu=pt
+# this is needed for Mellanox CX-5, CX-6 Ethernet to work with AMD processor due to memory management
+# https://nvcrm.lightning.force.com/lightning/r/Knowledge__kav/ka08Z000000Tm5GQAS/view?ws=%2Flightning%2Fr%2FCase%2F5008Z00002Fn4VSQAZ%2Fview 
 
 </PRE>
 
@@ -3405,6 +3423,13 @@ echo "250     32000 100 128" > /proc/sys/kernel/sem
 
 smartctl	# tool to read hd SMART data.  gnome-disks is a GUI front end of this.
 		# ubuntu# apt-get install smartmontools
+
+lsblk -io KNAME,TYPE,SIZE,MODEL	# can show disk model info
+
+hdparm -i  /dev/sdb	# short info dump 
+hdparm -I  /dev/sdb	# long info dump
+# hdparam is usually to query and set/tune hd parameters, such as sleep, etc.  -i and -I have some info dump
+# RAID device output would be what RAID controller provides (and so no model info, just geometry)
 
 </PRE>
 
