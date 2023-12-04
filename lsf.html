@@ -252,7 +252,7 @@ what account I am in?  what partitions are there?  What QoS are there?
 
 sacctmgr show associations -p user=tin                  # see what associations a specified user has been granted, -p = "parsable"
 sacctmgr show assoc user=tin    format=acc,part,qos        # list account, partition, QoS for the specified USERNAME
-sacctmgr show assoc user=tin    format=qos%58,acc%16,user%12,part%18,share%5,priority%16 
+sacctmgr show assoc user=tin    format=qos%58,acc%16,user%12,part%18,share%5,priority%16    # share=1 just means fair share, it is a weight factor for job priority
 sacctmgr show assoc user=tin -p format=acc,user,part,share,priority,qos  | sed "s/|/\t/g"
 
 scontrol show partition					# list "queues"

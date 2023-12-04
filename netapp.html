@@ -336,6 +336,21 @@ statistics show object OBJ -instance INST -counter [TAB]
 
 </PRE>
 
+<H5>NTP</H5>
+<PRE>
+ntp server create -server 10.108.17.18   	# use internal server
+ntp server create -server 2.pool.ntp.org	# use public NTP pool
+ntp server show 
+ntp server show  -server 2.pool.ntp.org		# should see list of connected ntp server in use
+
+# check these if ntp problems:
+route show -vserver SVM_NAME
+firewall policy show -vserver SVM_NAME -policy mgmt ntp
+
+
+
+</PRE>
+
 <H5>Network</H5>
 LIF are assigned to SVM.  <BR>
 
