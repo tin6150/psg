@@ -79,7 +79,19 @@ That's what I used to think. But the more I learn about R, the more impressed I 
 When a hammer is the only tool one has, every problem has to look like a nail.  While R may not be the best tool for everything, it is really at home for much data analytics work.  Thus, learn how to use a screwdriver, and not every problem has to look like a nail 🙂
 <BR><BR>
 
-Below is a semi-categorized group of functions/programming constructs for doing stat analysis with R.  They serve mostly as a cheat-sheet for me to look up for possible functions to use when analyzing data.  For GIS based spatial analytics, please see [R_gis.html]
+Below is a semi-categorized group of functions/programming constructs for doing stat analysis with R.  They serve mostly as a cheat-sheet for me to look up for possible functions to use when analyzing data.  
+
+Example of plots can be seen in this 
+<A HREF="https://tin6150.github.io/covid19_care_capacity_map/Rnote.html">web notebook</A>
+.  
+
+For GIS based spatial analytics,
+my <A HREF="https://tin6150.github.io/covid19_care_capacity_map/Rgis.html">R GIS</A> has some example code from my couple of GIS analysis class.  
+
+<!-- not R
+the <A HREF="https://github.com/tin6150/covid19_care_capacity_map">COVID-19 care capacity map</A> has daily updated stat (till 2021) that is updated for display on an interactive map.
+-->
+
 <BR><BR>
 
 For more structured learning, these resources are recommended:
@@ -272,13 +284,16 @@ beastTreeFilePath = str_c( beastTreeFileDir, beastTreeFileName )
 
 </PRE>
 
-<H1>Tips and Tricks for frequent R user</H1>
+<H5>Tips and Tricks for frequent R user</H5>
 
 <PRE>
 # this tip from Dr Jennifer Head of GIS 272a class
-# kinda like pushd of bash...
+# kinda like the equivalent of pushd of bash...
 
-The `here` package creates paths relative to the top-level directory. The package displays the top-level of the current project on load or any time you call `here()`. The function `i_am()` can be called at the top of the R script to set up the project root correctly. You can then build paths relative to the top-level directory in order to read or write a file.
+The `here` package creates paths relative to the top-level directory. 
+The package displays the top-level of the current project on load or any time you call `here()`. 
+The function `i_am()` can be called at the top of the R script to set up the project root correctly. 
+You can then build paths relative to the top-level directory in order to read or write a file.
 
 ```{r}
 i_am("Lab1_blank.Rmd")

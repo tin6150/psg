@@ -1753,7 +1753,7 @@ so, config and doc for bind would apply.
 ipa dnszone-find 			# list all dns zones managed by this server
 
 ipa dnsrecord-find g.local		# list all dns record for the dnsZone named g.local
-ipa dnsrecord-find g.local  n00		# get entries like n00.g.local, pxe-n00.greta.local (ie substring search on hostname n00)
+ipa dnsrecord-find g.local  n00		# get entries like n00.g.local, pxe-n00.g.local (ie substring search on hostname n00)
 ipa dnsrecord-find g.local | grep "Record name"
 ipa dnsrecord-find 16.8.10.in-addr.arpa.	# reverse PTR zone
 
@@ -1777,15 +1777,15 @@ ref: <BR>
 Ensure reverse dnszone exist or reverse record addition will fail.  (but forward record still added)
 
 <PRE>
-ipa dnsrecord-add greta.local  n00 --a-rec 10.8.16.100 --a-create-reverse  # "forward" A record
-ipa dnsrecord-add greta.local  n01 --a-rec 10.8.16.101 --a-create-reverse 
+ipa dnsrecord-add g.local  n00 --a-rec 10.8.16.100 --a-create-reverse  # "forward" A record
+ipa dnsrecord-add g.local  n01 --a-rec 10.8.16.101 --a-create-reverse 
 
-ipa dnsrecord-add greta.local  alias00     --cname-rec=n00      # CNAME alias record
+ipa dnsrecord-add g.local  alias00     --cname-rec=n00      # CNAME alias record
 
 round-robin recods for load balancing
 
-ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.50
-ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.57
+ipa dnsrecord-add g.local  vasttest --a-create-reverse  --a-rec 10.8.16.50
+ipa dnsrecord-add g.local  vasttest --a-create-reverse  --a-rec 10.8.16.57
 
 # change TLS?
 </PRE>
@@ -1794,8 +1794,8 @@ ipa dnsrecord-add greta.local  vasttest --a-create-reverse  --a-rec 10.8.16.57
 <H6>add missing reverse PTR records:</H6>
 
 <PRE>
-ipa dnsrecord-add 16.8.10.in-addr.arpa.  128  --ptr-rec c00.greta.local.   # ie add 10.8.16.128
-ipa dnsrecord-add 16.8.10.in-addr.arpa.  100  --ptr-rec n00.greta.local.  
+ipa dnsrecord-add 16.8.10.in-addr.arpa.  128  --ptr-rec c00.g.local.   # ie add 10.8.16.128
+ipa dnsrecord-add 16.8.10.in-addr.arpa.  100  --ptr-rec n00.g.local.  
 #                                        ^^^-------- last octet
 </PRE>
 
@@ -1806,7 +1806,7 @@ ipa dnsrecord-add 16.8.10.in-addr.arpa.  100  --ptr-rec n00.greta.local.
 ipa dnsrecord-mod example.com www --a-rec 10.1.1.1 --ip-address 10.1.1.2
 
 changing ttl
-ipa dnsrecord-mod greta.local vasttest --ttl=3600
+ipa dnsrecord-mod g.local vasttest --ttl=3600
 </PRE>
 
 
@@ -1816,8 +1816,8 @@ deleting record
 </H6>
 
 <PRE>
-ipa dnsrecord-del greta.local  vasttest --a-rec 10.8.16.50 
-ipa dnsrecord-del 16.8.10.in-addr.arpa.  58  --ptr-rec vasttest.greta.local.   # ie del 10.8.16.58 which has hostname vasttest.greta.local
+ipa dnsrecord-del g.local  vasttest --a-rec 10.8.16.50 
+ipa dnsrecord-del 16.8.10.in-addr.arpa.  58  --ptr-rec vasttest.g.local.   # ie del 10.8.16.58 which has hostname vasttest.g.local
 </PRE>
 
 
@@ -2012,7 +2012,7 @@ kinit admin
 
 mv /etc/krb5.keytab /etc/krb5.keytab.bak2023-0427
 
-ipa-getkeytab -s freeipa.greta.local -p host/freeipa.greta.local -k /etc/krb5.keytab              
+ipa-getkeytab -s freeipa.g.local -p host/freeipa.g.local -k /etc/krb5.keytab              
 Redirecting to /bin/systemctl start sssd.service
 
 

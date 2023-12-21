@@ -1967,6 +1967,7 @@ lvreduce -L1G /dev/VolGroup00/LogVol00	# reduce the LV the FS is on
 					# ext2 somehow can't be re-expanded, use ext3 !!
 					# use tunefs -j to convert to ext3 :)
 	
+lvreduce --size 55G --autobackup y /dev/mapper/rl-var	# umount -l /var YMMV
 
 /etc/fstab				# typically list which LV dev used by which FS
 ??	 				# no cmd to display what LV is being used by which FS :(

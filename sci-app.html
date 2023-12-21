@@ -43,6 +43,71 @@
 </div>
 </div>
 
+<H1>Bioinformatic Pipeline</H1>
+
+
+Overview of sample workflows.
+
+<BR>
+<BR>
+
+creating fasta
+
+<PRE>
+App		IN			OUT		Note
+--------------	----------------	-------------	----------------------------------
+
+FastQC							Quality Control
+Trimmomatic						QC
+Unicycler	paired.fastq.gz		.fasta		de novo assembly (or unpaired)
+
+
+</PRE>
+
+Genomic analysis
+
+<PRE>
+App		IN			OUT		Note
+--------------	----------------	-------------	----------------------------------
+Abricate	.fasta			.tsv		resistance, virlenge gene match list as TAB-separated value files
+
+??							extract ST# E.coli Sequence Type
+ezClermont	.fa			.txt		MLST: extract phylogroup A, B1, B2, C, D...
+
+
+</PRE>
+
+
+Phylogenetics analysis
+
+<PRE>
+
+App		IN			OUT		Note
+--------------	----------------	-------------	----------------------------------
+Prokka		.fasta (contigs)	.gff		annotation of core genes (best when gff filenames are 9 chars long)
+Roary		.gff			core_gene.aln 	create aligned genome from contigs
+Snp-sites	core_gene.aln		alignment.phy		
+Paup		alignment.phy		tree		alt: Mr.Bayes, RAxML, Mascot
+
+
+</PRE>
+
+
+Finding duplicates.  Not much of a workflow here, more like list of programs to try.
+
+<PRE>
+App		IN			OUT		Note
+--------------	----------------	-------------	----------------------------------
+blastn		.fasta			txt		text, table of gene match.... 
+clustal omega
+muscle
+
+
+
+
+</PRE>
+
+
 <H1>Bioinformatic Apps</H1>
 
 <H2>Webified</H2>
@@ -166,7 +231,7 @@ MUGSY
 <LI> belvu (old school Unix X), has wrap long line for printing.  custom coloring scheme. <BR>
      open the core_gene_alignment*aln from (Prokka?) <BR>
 
-<LI> aliview (alignment editor, GUI)  can open .phy (but this is not aligned?).  very large file is chunked to reduce load time (and memory footprint?).  no option to wrap long line
+<LI> aliview (alignment editor, GUI)  can open core_gene_alignment.aln (from Roary), .phy (from snp-site, but this is not aligned?).  very large file is chunked to reduce load time (and memory footprint?).  no option to wrap long line
 <LI> seaview (Unix/X) <BR>
      No option to wrap long line <BR>
      sucks up lot of ram for large MSA, slow.  able to open the core_gene_alignment*aln from (Prokka?) <BR>
