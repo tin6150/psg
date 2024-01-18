@@ -3558,6 +3558,9 @@ sudo semanage login -a -s user_u tin
 semanage port -l | grep 514	# see if syslogd can use that port (@@ vs @ for tcp vs udp in rsyslog.conf)
 ps -eZ | grep syslog		# see process selinux context
 
+netstat -nlp | grep rsyslogd	# should list what port rsyslogd  -t would be tcp only, -u for udp only
+(see admin.html#syslog for daemon config)
+
 id -Z	# context of current user
 	# but not getting the info from $( semanage login -l ) ??!!
 	# user need to be in sysadm_t to be able to run sudo, su

@@ -1153,11 +1153,30 @@ Rxvt*font:                 Fixedsys
 !Rxvt*foreground:           LightGrey
 Rxvt*foreground:           Black
 
-
 </PRE>
 
 
 <BR><HR><BR>
+
+<H1>GPU</H1>
+
+<PRE>
+
+nvidia-smi		# gpu id, job, temperature, fan 
+nvidia-smi -L 		# gpu model and serial number, 
+
+# drain (disable) a GPU , use gpu id listed by nvidia-smi, truncate domain to 4 digits though.
+sudo nvidia-smi -i 00000000:C1:00.0 -pm 0
+sudo nvidia-smi drain -p 0000:C1:00.0  -q     # query drain state
+sudo nvidia-smi drain -p 0000:C1:00.0  -m 1   # set to draining state
+
+
+# determine pci bus id, sometime needed by xorg.conf
+nvidia-xconfig --query-gpu-info
+
+
+</PRE>
+
 
 <BR>
 <BR>
