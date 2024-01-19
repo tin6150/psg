@@ -78,7 +78,8 @@ Brendan Gregg on Linux Performance</A>
 <LI> slabtop            # realtime kernel slab cache utilization
                         # think of slab as block of kernel memory holding cache of identical objects
                         # instead of kmalloc, a block of memory is allocated at once for efficiency and reduced fragmentation
-<LI> smem
+<LI> smem -t -w -p	# report system memory usage by area, -t = total -w = whole sys -p = percentage.  can run as user
+# singularity exec /global/scratch/users/tin/singularity-repo/tin6150_perf_tools_2024_0118.sif smem -t -w -p
 <LI>
                       
 <LI>
