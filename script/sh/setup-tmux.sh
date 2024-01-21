@@ -20,16 +20,17 @@ for MS in $META_SESSION_LIST; do
 
 		tmux kill-session          -t $SESSION    # kill old config (used in dev)
 		tmux new-session -d        -s $SESSION   # -d for detache mode, just want to set them up in background 
-		tmux new-window -n lo      -t ${SESSION}:  -d  'echo "localhost"     ; date ; bash'
-		tmux new-window -n brc     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu"    ; ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu; bash'
-		tmux new-window -n scs-brc -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm.lbl.gov; sudo ssh -Y -o ServerAliveInterval=55 -o ServerAliveCountMax=2 master.brc"   ; /bin/bash'
+		tmux new-window -n loRt    -t ${SESSION}:  -d  'echo "localhost"     ; date ; bash'		#0
+		tmux new-window -n brc     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu"    ; ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu; bash'	#1
+		tmux new-window -n scs-brc -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm.lbl.gov;   sudo ssh -Y -o ServerAliveInterval=55 -o ServerAliveCountMax=2 master.brc"   ; /bin/bash'	#2
 		tmux new-window -n lrc1_128.3.7.151 -t ${SESSION}: -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151"    ; bash'  # 151=n0000.scs00; xfer has no squeue; lrc-viz can't login to node w/o password :/
-		tmux new-window -n perce   -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 lrc-viz"; sudo ssh -Y -o ServerAliveInterval=240 perceus-00.scs.lbl.gov"    ; bash'
-		tmux new-window -n scs     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"     ; bash'
-		tmux new-window -n beag    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 beagle"     ; ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no beagle.lbl.gov; bash'
-		tmux new-window -n ansi    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scg-ansible";    bash'
-		tmux new-window -n rt      -t ${SESSION}:  -d  'echo "sudo su -";             bash'
-		tmux new-window -n lo      -t ${SESSION}:  -d  'date; bash'
+		tmux new-window -n perce   -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 lrc-viz"; sudo ssh -Y -o ServerAliveInterval=240 perceus-00.scs.lbl.gov"    ; bash'	#4
+		tmux new-window -n scs     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"     ; bash'	#5
+		tmux new-window -n beag    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no beagle"; bash' 				#6
+		tmux new-window -n asbl    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o scg-ansible";    bash' #7
+		tmux new-window -n asblGtr -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o scg-ansible";    bash' #8
+		#tmux new-window -n rt      -t ${SESSION}:  -d  'echo "sudo su -";             bash'	# 8
+		tmux new-window -n loRt    -t ${SESSION}:  -d  'date; bash'	#9
 		tmux list-windows
 	done
 
