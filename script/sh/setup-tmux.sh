@@ -30,8 +30,8 @@ for MS in $META_SESSION_LIST; do
 		tmux new-window -n scs     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"     ; bash'	#s5 echo only
 		#                                                    V                                                                         .  echo ends here --V     V-- cmd just get shell.
 		tmux new-window -n beag    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no beagle";    bash' 	#s6 echo only
-		tmux new-window -n asbl    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o scg-ansible";    bash' #s7  echo only
-		tmux new-window -n asblGtr -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o scg-ansible";    bash' #s8
+		tmux new-window -n asbl    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o scg-ansible          ";    bash' #s7  echo only
+		tmux new-window -n asblGtr -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o scg-ansible  # asbl #2";    bash' #s8
 		tmux new-window -n loRt    -t ${SESSION}:  -d  'date; bash'								#s9  # run date and shell
 		#tmux new-window -n rt      -t ${SESSION}:  -d  'echo "sudo su -";             bash'	# no more
 		tmux list-windows
