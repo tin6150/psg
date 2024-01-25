@@ -22,12 +22,12 @@ for MS in $META_SESSION_LIST; do
 		tmux new-session -d        -s $SESSION   # -d for detache mode, just want to set them up in background 
 		tmux new-window -n loRt    -t ${SESSION}:  -d  'echo "localhost"     ; date ; bash'		#s1
 		#                                                    V                                                          echo ends here --V      V-- actual ssh
-		tmux new-window -n brc     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu"    ; ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu; bash'  	#s2  echo "" ; ssh
+		tmux new-window -n brc     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu #brc"    ; ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu; bash'  	#s2  echo "" ; ssh
 		#                                                    V                                                                                                                                     echo ends here --V     V-- cmd just get shell.
-		tmux new-window -n scs-brc -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm.lbl.gov;   sudo ssh -Y -o ServerAliveInterval=55 -o ServerAliveCountMax=2 master.brc"   ; /bin/bash'	#s3  echo only
+		tmux new-window -n scs-brc -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm.lbl.gov;   sudo ssh -Y -o ServerAliveInterval=55 -o ServerAliveCountMax=2 master.brc #scs"   ; /bin/bash'	#s3  echo only
 		tmux new-window -n lrc1_128.3.7.151 -t ${SESSION}: -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151"    ; bash'  # 151=n0000.scs00; xfer has no squeue; lrc-viz can't login to node w/o password :/
 		##tmux new-window -n perce   -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 lrc-viz"; sudo ssh -Y -o ServerAliveInterval=240 perceus-00.scs.lbl.gov"    ; bash'	# doesn't seems to run, commented out now
-		tmux new-window -n scs     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"     ; bash'	#s5 echo only
+		tmux new-window -n scs     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm #scs s5"     ; bash'	#s5 echo only
 		#                                                    V                                                                         .  echo ends here --V     V-- cmd just get shell.
 		tmux new-window -n beag    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no beagle";    bash' 	#s6 echo only
 		tmux new-window -n asbl    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o scg-ansible          ";    bash' #s7  echo only

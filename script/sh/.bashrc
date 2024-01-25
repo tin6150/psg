@@ -446,10 +446,13 @@ defineAlias () {
 	# overwrite default behaviour, keep command name
 	#alias ssh='ssh -o StrictHostKeyChecking=no' # already done by some default cluster cf
 	alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
-	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
 	alias lrc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151" # login node 1
+	alias xfr1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no lrc-xfer.lbl.gov" # globus dtn scp
+	alias viz1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no lrc-viz.lbl.gov"  # realvnc
 	alias asbl="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scg-ansible"
 	alias scm="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"
+	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
+	alias dtn="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no dtn.brc.berkeley.edu" # globus xfer scp
 	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
