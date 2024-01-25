@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+snipplet
+after updating public.xml, need to run 
+systemctl restart firewalld
+to load the rules
+log prefix is a hack so string show up as comment in 
+firewall-cmd   - -list-rich-rules
+and 
+iptables -nvL   # for firewalld with iptables backend
+
+ref: https://serverfault.com/questions/893112/migrating-from-iptables-to-firewalld-commenting-rules
+ref: CF_BK/dortsao
+
+
+example output :
+
+public (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: em1 em2               # specified elsewhere, not in this public.xml file
+  sources:
+  services:
+  ports:
+  protocols: icmp                  # the protocol clause
+  masquerade: no
+  forward-ports:
+  source-ports:
+  icmp-blocks:
+  rich rules:                     # bunch of rule clauses
+        rule family="ipv4" source address="192.168.0.0/24" service name="ssh" accept
+        rule family="ipv4" source address="169.229.240.209/32" service name="dicom" log prefix="domingo.dyn/25" accept
+
+
+-->
+
+<zone>
+  <short>Public</short>
+  <description>For use in public areas. You do not trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
+
+
+  <!-- this "odd" line seems to allow icmp -->
+  <protocol value="icmp" />
+
+  <!-- below create "rich rules" iptables chain within this zone of firewalld -->
+
+  <!-- domingo.dyn:  169.229.240.209/25 -->
+  <rule family="ipv4">
+    <source address="169.229.240.209/32" />
+    <service name="dicom" />
+    <log prefix="domingo.dyn/25" />
+    <accept/>
+  </rule>
+
+
+ <!-- attempt for port specific, but not sure how to do udp and tcp -->
+ <!--
+  <rule family="ipv4">
+    <source address="169.229.192.0/24" />
+    <to-port="11112" />
+    <accept/>
+  </rule>
+ -->
+
+  <rule family="ipv4">
+    <source address="192.168.0.0/24" />
+    <service name="ssh" />
+    <accept/>
+  </rule>
+
+
+</zone>

@@ -18,7 +18,7 @@
 <table summary="Navigation header" width="100%">
   <tbody>
     <tr>
-      <th colspan="4" align="center">
+      <th colspan="16" align="center">
 	<A HREF="http://tiny.cc/TOOL">Sys Admin Pocket Survival Guide</A>
       </th>
     </tr>
@@ -27,6 +27,7 @@
 	  <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
 	  <td align="center"><a accesskey="g" href="git.html">git</a></td>
 	  <td align="center"><a accesskey="f" href="firewall.html">firewall</a></td>
+      <td align="center"><a accesskey="l" href="linux.html">Solaris</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
       <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
@@ -77,6 +78,8 @@ Brendan Gregg on Linux Performance</A>
 <LI> slabtop            # realtime kernel slab cache utilization
                         # think of slab as block of kernel memory holding cache of identical objects
                         # instead of kmalloc, a block of memory is allocated at once for efficiency and reduced fragmentation
+<LI> smem -t -w -p	# report system memory usage by area, -t = total -w = whole sys -p = percentage.  can run as user
+# singularity exec /global/scratch/users/tin/singularity-repo/tin6150_perf_tools_2024_0118.sif smem -t -w -p
 <LI>
                       
 <LI>
@@ -138,7 +141,7 @@ mlx5_core # mellanox 100G Ethernet (and IB?)
 
 
 
-ss -tulp		# check socket status
+ss -tulp		# check socket status, see which port is open by what process.  add -n to show port by number
 
 </PRE>
 
@@ -147,6 +150,7 @@ ss -tulp		# check socket status
 <LI> iostat -xz 1	# -x = extended stats; -z = ommit zero / idle entries
 <LI> iostat -xn 1	# NFS stats only
 <LI> iotop		# iostat in top-like fashion, show top process using disk.  from iostat rpm
+<LI> nmon 		# d for disk util.  N for NFS system calls
 <LI> swapon -s
 <LI>
 <LI> hdparam
@@ -257,6 +261,18 @@ So, these things will help finding a decent number for memory request.
 
 <H2>Disks</H2>
 
+<A ID="sata_vs_sas_vs_nvme">
+<A ID="sata_sas_nvme">
+SATA vs SAS vs NVME, connector diagram: <BR>
+<IMG SRC=fig/nvme_09072704740l.jpg ALT="diagram of sata vs nvme">
+<BR>
+Source and more details: 
+<A HREF="https://overclock3d.net/">overclock3d.net</A> 
+<A HREF="https://overclock3d.net/news/storage/what_is_the_new_u_2_ssd_connection/1">SATA vs SAS vs NVME</A>
+<BR>
+<BR>
+
+
 <!-- :set tabstop=8 shiftwidth=8  # which is what browser render as -->
 <PRE>
 
@@ -265,17 +281,20 @@ SATA II  has 300 MB/s
 SAS is 6 Gbps = 768 MB/s
 PCIe 3.1 x4 NVMe = ...
 
-NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
+NVMe.  Replaces AHCI.  Needed support from OS/kernel, but widely available ~2015, show up as /dev/nvme*.  NVMe drives are often in NAND.  Avail format: M.2, U.2, AIC (Add-In card, ie pci card)
 
 
 M.2 = replaces mSATA 
+  * typically on mboard, internal to machine, 3.3V only
+  * NOT hot swappable--often on laptop, but number of servers use them too :-\
   * typically bare chips, gumstick format
 
 U.2 (SFF-8639)
   * The U.2 connector is mechanically identical to the SATA Express device plug, but provides four PCI Express lanes through a different usage of available pins (wikipedia)
-  *	ie not to to use SATA controller...
-  *	support hot swap.
-  *	typically inside an enclosure, like traditional 2.5" HDD
+  * Some nvme drive support sata as well for backward compatibility, but at reduced bandwidth.
+  * ie does not use SATA controller, straight to the PCIe bus
+  * support hot swap, 3.3V or 12V.
+  * typically inside an enclosure, mounted on a hot swap disk tray, like traditional 2.5" HDD
 
 AIC
   * Add-In card format.  ie pci card.
@@ -453,6 +472,7 @@ Below are high level summary info.  Diff CPU has diff numa arch and memory local
 
 
 
+<A NAME="cpupower"></A>
 <A NAME="cpu_tuning"></A>
 <H1>CPU tuning</H1>
 
@@ -513,12 +533,19 @@ cat /sys/module/intel_idle/parameters/max_cstate	# 9 is default.  0=disabled
 
 
 
+
 kargs not likely useful.  cmd should work, but need them installed and invoked on boot...
+	Intel Cascadelake, kargs="quiet nopti"                 ==> cpupower driver: intel_pstate  # n0229.sav3
+	Intel Cascadelake, kargs="nopti intel_pstate=disable"  ==> cpupower driver: no or unknown cpufreq driver is active on this CPU # n0138.sav3
+	AMD Epyc Rome,     kargs="quiet nopti"                 ==> cpupower driver: acpi-cpufreq  # n0209.sav3 Epyc 7302
+
+
 
 
 cpupower frequency-set -g performance
 # 800 or 1200 is low
 # 2600 would be more performant, though it does use more power.
+
 
 cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_min_freq
 cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq
@@ -595,6 +622,10 @@ but slurm epilog/prolog does not run as root, but as slurm, so may need to use s
 singularity exec /global/scratch/tin/singularity-repo/perf_tools7.simg cpupower frequency-info --policy <BR>
 # not really showing what policy is currently in use <BR>
 singularity exec /global/scratch/tin/singularity-repo/perf_tools7.simg cpupower frequency-set -g performance <BR>
+singularity exec /global/scratch/users/tin/singularity-repo/perf_tools7.simg cpupower frequency-info
+
+power utilization difference between performance vs powersave is not drastic (unlike intel_pstate=disable).  So wwulf object to set this at boot maybe good.  no need to mess with prolog/epilog.
+ <BR>
  <BR>
  <BR>
 
@@ -683,6 +714,13 @@ Ref:
 
 <LI> <A HREF="https://photos.google.com/album/AF1QipMqkSucnOzq757nZCUzjGlM3u6Ul3HFqKLlheae">many screenshot of BIOS settings for Asus</A>
 
+<LI> <A HREF="https://ulhpc-tutorials.readthedocs.io/en/latest/parallel/mpi/HPL/">ULHPC tutorials</A> especially the very handy grid diagram deciphering NB, N, P, Q, under HPL main parameters.
+
+<LI> <A HREF="https://netlib.org/benchmark/hpl/tuning.html">tuning HPL.dat</A>, from the source (netlib).
+
+<LI> <A HREF="https://sites.google.com/site/rangsiman1993/comp-env/test-and-benchmarks/benchmark-hpc-intel-linpack">Ragisman benchmarks</A>
+<LI> <A HREF=""></A>
+
 <BR>
 
 <A NAME="amd"></A>
@@ -745,9 +783,12 @@ Virtual Memory reclaim (good to run in epilog to free up cache)
 <PRE>
 /proc/sys/vm/zone_reclaim_mode
 
+sync
+
 echo 1 > /proc/sys/vm/drop_caches [frees page-cache]
 echo 2 > /proc/sys/vm/drop_caches [frees slab objects e.g. dentries, inodes]
 echo 3 > /proc/sys/vm/drop_caches [cleans page-cache and slab objects]
+
 
 </PRE>
 
@@ -759,6 +800,34 @@ For NUMA=4 req all DIMM to be populated?
 But if use NUMA=2 or 1, how to run HPL with OpenMP?
 
 <BR><BR>
+
+<A NAME="GPU_Benchmark"></A>
+<H1>GPU Benchmark</H1>
+
+<PRE>
+
+docker login nvcr.io
+# Username: $oauthtoken
+# Password: cWR2az...   
+
+CONT='nvcr.io/nvidia/hpc-benchmarks:21.4-hpl'    	# linpack
+CONTcg='nvcr.io/nvidia/hpc-benchmarks:21.4-hpcg'   	# congutate gradient
+CONT_i='registry:443/tin/hpc-benchmarks:21.4-hpl'	# internally hoster registry
+
+docker pull $CONT
+docker tag  nvcr.io/nvidia/hpc-benchmarks:21.4-hpl   registry:443/tin/hpc-benchmarks:21.4-hpl
+docker image push registry:443/tin/hpc-benchmarks:21.4-hpl
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all $CONT_i \
+  mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2 \
+  hpl.sh             --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat/HPL-a10-Ns=20k.dat #HPL-a10.dat
+
+
+docker run     -v /global/home/users/tin:/mnt --gpus all registry:443/tin/hpc-benchmarks:21.4-hpl   mpirun --mca btl smcuda,self -x UCX_TLS=sm,cuda,cuda_copy,cuda_ipc  --bind-to none -np 2   hpl.sh  --xhpl-ai  --cpu-affinity "0-7:120-127" --gpu-affinity "0:1" --cpu-cores-per-rank 8 --dat /mnt/hpl_dat --dat /mnt/hpl_dat/HPL-a10-Ns72k_1x2.dat
+
+
+</PRE>
 
 <A NAME="perf"></A>
 <A NAME="performance"></A>
@@ -800,12 +869,14 @@ netstat -ta     show current intenet services/connections
         -k ce0 : lot of interface specific info, ce NIC will have duplex stat.
 
 netstat -tulpn	# list LISTEN port and process 
+netstat -pan 	# list process and ports it has open
 
-netstat -p	: print ip to mac address table known to host
+netstat -p	: print ip to mac address table known to host  (solaris?)
 netstat -k 	: print lot of kernel stat, among it hme0 is for the sun's build in 
 		  happy meal ethernet nic (see sunsolve infodoc 17416 for explanation of these 
 		  undocumented stats, good for trobleshooting network latency, comare agaist cisco stat.)
 netstat -s	: show high level packet send/receive/fragment info
+
 vmstat -a   : all 
        -n   : 
        -p   : process owning port
@@ -817,6 +888,10 @@ nfsstat
 mpstat	10	: processor stats, repeat every 10 seconds
 		: In Solaris, it reports context switch, interrupt, mutex spin, xcal, etc
 		: see http://sunsite.uakom.sk/sunworldonline/swol-08-1998/swol-08-perf.html
+mpstat -A	= -u -I ALL -P ALL
+		  -u     = report cpu util
+		  -I ALL = interrupt stat
+		  -P ALL = all processor
 
 cpustat		: find out what cpu is doing...
 
@@ -853,6 +928,12 @@ performance problems would help.
 
 date; mkfile 1000m test; date			 	# create a 1 GB file (filled with 0)
 date; dd if=/dev/urandom of=test bs=1024 count=100000 	# same, file has random data.
+
+# encrypt /dev/zero, so that data will be kinda random.  
+# good speed for cpu with aes instruction 
+# eg could get 1.1 GB/s on a flash storage
+dd if=<(openssl enc -aes-256-ctr -pass pass:"Hello" -nosalt < /dev/zero) of=/dev/null bs=1M count=500000 iflag=fullblock
+
 </PRE>
 
 <H5>NIC tuning</H5>
@@ -1216,73 +1297,12 @@ pkgadd -d . RICHPse.331
 <H2>Solaris Build-In tools</H2>
                                                                                                       
 <!-- cmd.admin.ref.tr -->
+<!-- trimmer cuz much duplicated at top -->
 
 <PRE>
-netstat -ta     show current intenet services/connections
-        -a  : show (a)ll  (include listening port process)
-        -n  : ip (n)umber only (no dns lookup)
-        -r  : (r)outing table   (change with route cmd)
-        -i  : show stat for diff nic (i)nterfaces
-        -k ce0 : lot of interface specific info, ce NIC will have duplex stat.
-
-netstat -p	: print ip to mac address table known to host
-netstat -k 	: print lot of kernel stat, among it hme0 is for the sun's build in 
-		  happy meal ethernet nic (see sunsolve infodoc 17416 for explanation of these 
-		  undocumented stats, good for trobleshooting network latency, comare agaist cisco stat.)
-netstat -s	: show high level packet send/receive/fragment info
-
-
-
-vmstat -a   : all 
-       -n   : 
-       -p   : process owning port
-
-iostat -xn 30	: check for disk activity, anything more than 5% busy and avg resp time > 30 ms is bad.
-
-nfsstat
-
-mpstat	10	: processor stats, repeat every 10 seconds
-		: In Solaris, it reports context switch, interrupt, mutex spin, xcal, etc
-		: see http://sunsite.uakom.sk/sunworldonline/swol-08-1998/swol-08-perf.html
-
-cpustat		: find out what cpu is doing...
-
 lockstat sleep 5	: gather kernel lock stats during the sleep period (5 sec)
 			: solaris, run as root
 
-truss -c -p PID		: find number of system call and usr time for a process (sol).  ??
-
-top
-protocol
-sysmon
-
-trapstat, thread list, kmastat, kmausers
-
-
-GUDS
-
-Guds is a script to gather performance stats for Solaris.
-Sample usage is
-./guds_2.4.5
-./guds_2.4.5 -qX -H3 -s65040465
-
--qX is for quite mode
--H3 is for running it for 3 hours
--sNNNNN is the sun case number (info embeded in dirs created by guds to
-store the files).
-
-It collects lots of info in /var/tmp/CASEID/guds-DATE-TIME/...
-
-May need lot of know how to analyze data.
-Having a baseline when things is good and when there are 
-performance problems would help.
-
-
-
-
-
-date; mkfile 1000m test; date			 	# create a 1 GB file (filled with 0)
-date; dd if=/dev/urandom of=test bs=1024 count=100000 	# same, file has random data.
 </PRE>
 
 <H5>Performance Tunning</H5>
@@ -1456,12 +1476,14 @@ and support cpu, GPU OpenCL runtime from even AMD/ROCm.
 <!-- ttcp.ref -->
 <H1>Network Tracing</H1>
 
+<PRE>
 traceroute # some use icmp to trace, other use udp.
 
 traceroute --port=623 172.10.0.128   # potentially check rachability of ipmi udp port
 traceroute --port=33434 is the default, it is Destination UDP port that this pokes at.
 
 If host is reachable, even if destination udp port is not open/listen mode, traceroute will work.
+</PRE>
 <BR> <BR>
 
 
@@ -1495,15 +1517,28 @@ tcpdump src  10.0.71.165 -w myfile.tcpdump	# -w write output to file
 tcpdump 'dst net 128.3'
 tcpdump 'src or dst port ftp-data'   
 tcpdump 'ether host 0:d0:b7:a9:c9:5a'
+tcpdump -v -i enp0s3 ether host 3c:ec:ef:bb:b5:bb or 90:e2:ba:c5:53:00   # verified will capture traffic for both mac
 tcpdump icmp -w myfile.tcpdump			# only icmp traffic, all hosts
 
 tcpdump -v -v host 10.0.71.165			# -v -v, increase verbosity.  
 						# usable in screen output for low amount of traffic
 
+tcpdump -vv -e -n -i enp0s3 port 67 or port 68  # these ports are arp req (bootps) and reply (bootpc) used by DHCP 
+
+
+
 tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump	
 		# -i eth2, only traffic flowing thru specified nic
 		# -s 64000, max packet capture size.  64k is probably bigger than needed, but works well
+		# -s 0 would have no limit on caputre size, ie capture as large as needed
 		# -w write output to file
+
+tcpdump -vv -i eno1  'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
+tcpdump     -i eno1 'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
+tcpdump -e  -i eno1 'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00' 
+		# -e would capture eth frame instead of ip packet ?
+
+sudo tcpdump -i eno1 'dst 10.22.4.200 || dst 10.22.22.200 || dst 10.22.44.200'
 
 
 sudo tcpdump -v -n host 10.22.22.55 -i enp94s0f0
@@ -1514,6 +1549,16 @@ sudo tcpdump -e -v -n ether host ac:9e:17:2f:95:c0 or ether host ac:9e:17:2f:95:
 # -e add mac address to output
 
 sudo tcpdump  port 514 -i enp216s0f0 -S -X  # hex dump of syslog traffic on port 514, let it capture both tcp and udp (@@ vs @ in rsyslog.conf
+
+
+tcpdump  ip6 -i enp0s8                 # monitor IPv6 traffic only
+tcpdump  -i enp0s8 ip6 and port 25     # IPv6 and mail port  
+
+wireshark display filter
+
+tcp.port==25 
+ref: https://wiki.wireshark.org/DisplayFilters
+
 
 </PRE>
 
@@ -1812,6 +1857,12 @@ nmap -sT -O -PI -PT 172.27.31.0/24	# scan whole class C vlan 31, with os identif
 sudo nmap -p1-62000 somehost		# scan port 1 to 62000 against machine named somehost
 sudo nmap -sU somehost -p8255		# check UDP port 8255 to see if it is open
 
+sudo nmap -e enp0s9     freeipa		# check all TCP ports to IPA server is reachable
+sudo nmap -e enp0s9 -sU    freeipa	# check all UDP ports to IPA server is reachable, takes ~18 min, another took 33 min
+sudo nmap -e enp0s9 -sU -F freeipa	# -sU = UDP scan.  -F = fast mode, scan fewer ports than default, still takes long time
+sudo nmap -e enp0s9 -sU -p53-1813 freeipa	# scan specified port range only 
+sudo nmap -e enp0s9 -sUT -p53,123,80,88,443,8443,8080,389,464,636,1812-1813 freeipa  # -sUT scan both UDP and TCP
+
 
 
 nmap -6 ::1				# scan localhost
@@ -1861,9 +1912,9 @@ GET / HTTP 1.1
 
 
 telnet mta.server.com 25
-EHLO tin.example.com
-mail from:tin@lbl.gov
-rcpt to:tin@lbl.gov
+EHLO example.com
+MAIL FROM:<tin@eg.gov>
+RCPT TO:<tin@eg.gov>
 DATA
 Subject: manual telnet 25 smtp test
 additional body message here
@@ -2125,6 +2176,14 @@ ping -c 3 -s 8970 -M do 10.11.12.201
   #   -M dont failing does not necessarily means things wont work.
   #   PMTUD (Path MTU Discovery) protocol only works for TCP and UDP, and lots of ICMP traffic is dropped by many network
 
+
+windows ping to fine tune MTU in VPN 
+ping -f VPNserver -l 1500
+# reduce -l size till does not see DF error.
+MTU 1450 maybe a good size to set for both client and server side.
+One env I setup I had to use MTU 1398
+see: https://www.thegeekpub.com/271035/openvpn-mtu-finding-the-correct-settings/
+
 tracepath 10.11.12.201 
 	# use UDP to to traceroute, no root priv required
 	# discover MTU size between two hosts
@@ -2268,6 +2327,39 @@ using qsub script in cluster (mostly to generate random storage traffic):
 
 
 </PRE>
+
+<H1>unzip multipart</H1>
+
+<PRE>
+Google drive download create these multipart zip files, 
+extraction in linux:
+
+zip -s- KPC\ Klebsiella\ Outbreak-20230227T210405Z-00*zip -O zip_ver3-s-output.zip
+unzip zip-s-output.zip
+# but at least on dtn zip 3.0 didn't produce full result.
+
+end up having to do this on bofh:
+
+7z x KPC\ Klebsiella\ Outbreak-20230227T210405Z-001.zip
+# repeat for each file, 7z x *zip didn't seems to have worked 
+7z x KPC\ Klebsiella\ Outbreak-20230227T210405Z-005.zip
+</PRE>
+
+zip with encryption/password
+
+zip -er9 filename.zip path/ 
+# -e encrypt
+# -r recurse
+# -9  best compression
+# it will prompt for password for the encryption
+# default sym linked file get refered-to file copied.
+
+zip -T filename.zip
+# -T test integrity of file, ask for password if encrypted, and output whether OK or not
+# no trivial way to get list of files without extracting them?  no equiv of tar -tvfz ?
+
+windows 10 explorer will see filenames, and when clicked to open actual file is when it ask for password to decrypt, storing a file in some temp location (and hopefully deleted when file closed).
+
 
 <BR><HR>
 <div align="CENTER">

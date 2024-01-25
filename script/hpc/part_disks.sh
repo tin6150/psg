@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "expect part_disks_v3.sh for single disk to work as well, use that.  Sn 2022.04.27"
+exit 008 
 
 ## script to fdisk sda of a node 
 ## when it is first installed (or when hd has been replaced)
@@ -9,8 +11,13 @@
 ## 1st loc: psg/script/hpc/
 ## 2nd loc: tin-bb/blpriv/hpcs_toolkit
 
-### slightly updated 2019.0916 
+### slightly updated 2022.0426
 ### from perceus:/global/home/groups/scs/disks/part_disks.sh 
+### 2021.1105 added test for SD_NAME cuz cut-n-paste may miss it 
+### 2020.1027 slightly updated mkdir /local/log
+### 2022.0328 slightly updated mkdir /local/log/slurm 
+### 2022.0426 for greta vnfs has /var/lib/docker -> /local/docker
+### 2022.0606 found bug; added mount /local in line 144
 
 #### 2020.0810
 #### run as:
@@ -40,6 +47,9 @@ run_sanity_check()
 		#run_fdisk_cmd  # no () in bash fn call!
 		#echo "Completed FDisk"
 		#exit 0
+	elif [[ x$MAQUINA =~ x[ncswbdt][0-9][0-9] ]]; then
+		# greta prod is n00, d00 2 digits only
+		echo "hostname pattern passes sanity test, continuting..." # ie not causing an abort/exit
 	else
 		echo "hostname pattern sanity test FAILED. NOT running fdisk!  Exiting."
 		exit 007
@@ -61,6 +71,10 @@ run_fdisk_cmd_single()
 			;;
 		ssd)
 			SD_NAME="/dev/nvme0n1"
+			;;
+		mirror)
+			echo "use part_disks_v3.sh nvme01 ...  exiting"
+			exit 007
 			;;
 		*)
 			echo "must specify one of sda or ssd.  exiting"
@@ -97,6 +111,14 @@ run_fdisk_cmd_single()
 	### I had this at top, may not need to do that again here.
 	echo "" > /proc/sys/kernel/hotplug
 
+	#### ####
+	#### #### test added mostly cuz often cut-n-paste.  but be careful with the exit and not dd'ing another host!
+	#### ####
+	if [[ x"$SD_NAME" == x ]]; then 
+		echo "SD_NAME disk dev path not defined, exiting" 
+		exit -1
+	fi
+
 	#wipe the partition table (and then some)
 	/bin/dd if=/dev/zero of=$SD_NAME bs=1024k count=10
 
@@ -129,8 +151,30 @@ run_fdisk_cmd_single()
 	swapon -a
 	swapon -s
 	df -h /tmp
+	sleep 5 # n00 machines in greta didn't get these created... adding a sleep delay to see if it help... actually likely just need to mount it
+  mount /local
+  mkdir /local/log
+  ls -ld /var/log /local/log
 	echo "Fdisk on single disk ends.  Should reboot after fdisk partition disk..."
 
+	## tin addition 2022.0426  - cuz greta vnfs has /var/lib/docker -> /local/docker
+	mkdir     /local/docker
+	chmod 755 /local/docker
+	ls -ld    /local/docker  /var/lib/docker
+	mkdir     /local/rsyslog  # apparently new config in /etc/rsyslog.conf write here, no sym link in dir
+	chmod 755 /local/rsyslog
+
+	## tin addition 2021.1118
+	mkdir /local/log/munge
+	#chown munge:munge /local/log/munge
+	chown 998:998      /local/log/munge           # munge user not defined in greta, so hard coding it :P
+	ls -ld /var/log  # expect link to /local/log
+
+	## tin addition 2022.0328
+	mkdir /local/log/slurm
+	chown slurm:slurm /local/log/slurm
+	chmod g+w         /local/log/slurm
+    ls -ld /local/log/slurm 
 }
 
 

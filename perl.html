@@ -76,6 +76,38 @@ my $arrSize = @arr;
 print $arrSize; # third way to print array size
 </PRE>
 <BR>
+<H4>Tracing script</H4>
+
+There are a couple of ways to trace a perl script, kinda similar to how <TT>bash -x ./myscript.sh</TT> works.  
+See 
+<A HREF="https://stackoverflow.com/questions/3852395/is-there-a-way-to-turn-on-tracing-in-perl-equivalent-to-bash-x">this stackoverflow post</A> for discussion, and 
+<A HREF="https://perldoc.perl.org/perldebug#Configurable-Options">perldoc</A> for all the gory details details.
+<BR> 
+<BR> 
+
+Method 1, use one of:
+<BR> 
+<PRE>
+PERLDB_OPTS="NonStop AutoTrace" perl -d ./myscript.pl
+PERLDB_OPTS="NonStop AutoTrace         LineInfo=trace.txt" perl -d ./myscript.pl | tee stdout.txt
+PERLDB_OPTS="NonStop AutoTrace frame=1 LineInfo=trace.txt" perl -d ./myscript.pl | tee stdout.txt
+</PRE>
+I am not sure where the tracer write its output, trying to capture stream 2 with 2>&1 doesnt work.  
+<BR>
+The frame=1 clause add lots more output!
+
+<BR><BR>
+
+Method 2:
+<BR> 
+<PRE>
+cpan install "Devel::Trace"
+perl -d:Trace ./myscript.pl
+</PRE>
+
+<TT>
+</TT>
+<!-- PSG/script/perl/crypt.pl had example run -->
 
 <H4>Perl Variables</H4>
 <PRE>

@@ -1,0 +1,13 @@
+## ~/.ssh/config , ie client side config
+
+# Dynamic forward config used by Edison, ssh bofh-socks and use firefox SOCKS5 on the dyn port. ++FQDN update 
+# maybe better name as bofh-socks, cuz may need a infra1-socks for freeipa...
+Host bofh-socks
+  HostName bofh 
+  #DynamicForward 3125
+  DynamicForward 43143
+  #LogLevel DEBUG
+
+Host *
+        ServerAliveInterval 240
+        ServerAliveCountMax 4

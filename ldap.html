@@ -22,9 +22,10 @@
     </tr>
     <tr>
       <td align="left"><a accesskey="h" href="psg.html">Home</a></td>
-      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
+      <td align="center"><a accesskey="x" href="linux.html">Linux</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
       <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a></td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a></td>
       <td align="right"><a accesskey="a" href="aix.html">AIX</a></td>
     </tr>
   </tbody>
@@ -47,14 +48,31 @@ function googleTranslateElementInit() {
 
 
 
+<H1>LDAP, RADIUS, Diameter, FreeIPA, Free Beer?</H1>
+
+These are not exactly right, but think of them more or less this way :)
+<LI> LDAP is more the format to user user data.  So, a DB, and command/tools to query and manipulate the database.  Can be used as simple replacement to NIS for unix login and ssh.  </LI>
+<LI> RADIUS is a protocol that provies all the 3A's: authentication, authorization, and accounting.  LDAP , without extension, does not provide accounting, or support for One Time Password (OTP/MFA).  </LI>
+<LI> Diameter, it is the wacky world of unix, such a thing exist.  Google for it :D </LI>
+<LI> <A HREF="#FreeIPA">FreeIPA</A>: Integrated system that provides Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  </LI>
+<LI>  </LI>
+
+<BR><BR>
+
+See Also:
+<LI> <A HREF="linux.html#authconfig">Linux.html#authconfig</A> </LI>
+<LI>  </LI>
+
+
+<A NAME=LDAP></A>
 <H1>LDAP</H1>
 
 LDAP is a user database, and it does in Unix what MS Active Directory does in Windows.
-From Operating System Admin perspective, LDAP would typically be used to replace NIS (or NIS+ or scattered local passwd files).  If you are pondering if you should migrate to LDAP, you'll wish the answer was 'NO' :)  
+From Operating System Admin perspective, LDAP would typically be used to replace NIS (or NIS+ or scattered local passwd files).  If you are pondering if you should migrate to LDAP, you'll wish the answer was 'NO' :)    [cuz of the headache, but it is much better in term of security]
 <BR>
-LDAP is much more complex than NIS, and OS support is still not rock solid as in NIS [this was written back in 2006].  Automount maps retrieval from LDAP is quite complex and not well supported.  Older OS LDAP support is rather spotty, and forget about OS that have been EOL-ed by the vendor!
+LDAP is much more complex than NIS, and OS support wasn't rock solid as in NIS back in 2006, but it is used everywhere now.  Automount maps retrieval from LDAP is quite complex and not well supported.  Older OS LDAP support is rather spotty, and forget about OS that have been EOL-ed by the vendor!
 <BR>
-So, in short, unless you know you need LDAP, stay away from it :)  And if you do use it, hopefully this page has some useful info for you.
+LDAP itself is not too bad, but configuring system to use it, especially with automount maps, radius, kerberos, etc can get convoluted quickly :)  This cheatsheet doesn't covere everything, maybe not even 10% of it. but hopefully there is some useful info for you.
 <BR><BR>
 
 <div align="CENTER">
@@ -68,9 +86,9 @@ So, in short, unless you know you need LDAP, stay away from it :)  And if you do
 While LDAP is a user "database" repository, do not think of it as a Relational Database.  It has no resemblance to RDBMS.  The only thing that bear resemblance from RDBMS is the "key" and maybe "attributes", other than that, forget everything you learned about Relational DB when working with LDAP.  Definately forget about those Boyce-Codd Normal Form!!
 
 <H5>File Cabinet Numbering</H5>
-...
+TBD...
 <H5>Special File System Tree</H5>
-...
+TBD...
 
 <BR><BR>
 
@@ -177,8 +195,10 @@ smart referal automount maps.
 <BR>
 
 <H5>RSH vs REXEC</H5>
-The protocol definition for RSH vs REXEC and other similar command:
+[This was back in 2006] <BR>
 
+The protocol definition for RSH vs REXEC and other similar command:
+<BR>
 (a) rsh use the Berkeley rcmd(3) library,  and requires the binary to be setuid root 
     so that it run in priviledged ports and scan for .rhosts in remote server.<BR>
 (b) rexec use the rexec(3) library.  It does not scan .rhosts so no need to run as root.  Instead,
@@ -606,7 +626,7 @@ nsAccountLock: true
 
 
 
-  <PRE class=cf>
+<PRE class=cf>
 
 #
 # Change a group definition: add a user to its membership list
@@ -615,7 +635,8 @@ dn: cn=sysadmin,ou=Groups,ou=sc,ou=ca,ou=na,dc=hypbridauto,dc=com
 changetype: modify
 add: memberUid
 memberUid: tho
-memberUid: mlee</PRE>
+memberUid: mlee
+</PRE>
 
 
 <A ID="import"></A> 
@@ -1438,6 +1459,649 @@ perl -e "print crypt('clear-text-password','salt');"
 			# for password import into LDAP POSIX User account.
 </PRE>
 
+<A ID=freeipa></A>
+<A ID=FreeIPA></A>
+<H1>FreeIPA</H1>
+
+FreeIPA: An Integrated system that provides Directory Server (LDAP), MIT Kerberos, NTP, DNS, Dogtag Certificate System.  See 
+<A HREF="https://freeipa.org/page/About"</A>FreeIPA doc</A> for more details.
+<BR><BR> 
+
+FreeIPA comes with CentOS/Rocky etc, to the point it is branded together with the distro. <BR>
+It provides Radius, MFA/OTP, DNS, certificate signing, all integrated into one.
+<BR>
+
+
+<PRE>
+systemctl start ipa		# active (exited) status is normal	
+systemctl start radiusd		# active (running) is the normal state, listen on port 1812
+</PRE>
+<BR>
+<BR>
+
+It uses apache httpd to host the web site, and it does make self RCP calls via the hostname URL, 
+it is said cannot change port 443,80 to something else cuz such RCP calls will break.
+I suppose if they are encoded in the URI of the code then changing /etc/services won't cut it.
+<BR>
+ssh port forward for 443 only won't cut it either.
+Would need to setup a SOCKS proxy (eg in Firefox) and also update local /etc/hosts file to have IP of the FreeIPA server. 
+Maybe easier just use command line tool :)
+<BR>
+
+<BR>
+
+Allowed radius clients list configured in 
+/etc/radius?/ client.conf
+/etc/ipa ?
+<BR>
+<BR>
+
+
+<H2>config files</H2>
+<PRE>
+/etc/ipa/default.conf
+	enable_ra 	# this has to do with certification ops on IPA replica, see https://www.freeipa.org/page/Howto/Promoting_a_self-signed_FreeIPA_CA#:~:text=Enable
+</PRE>
+
+Logs:
+
+<PRE>
+/var/named/data/query.log
+/var/named/data/query_errors.log
+/var/named/data/named.log
+
+</PRE>
+
+<H2>Ports and Firewall</H2>
+
+<A HREF="mit kerberros firewall">https://web.mit.edu/kerberos/krb5-1.5/krb5-1.5/doc/krb5-admin/Configuring-Your-Firewall-to-Work-With-Kerberos-V5.html</A>
+
+<OL>
+<LI>1812 udp is default : radius (if not running, rever to use ldap protocol?)  radtest command use this.  firewall to allow local network clients</LI>
+<LI>1813 udp is default : added by freeipa, firewall to allow local network clients only </LI>
+<LI>8080: there is a tomcat server running, block this from external access is ok</LI>
+<LI> 443, 80: hard coded RCP calls, dont change them.  firewall them (only allow localhost?)</LI>
+<LI>8443? </LI>
+<LI>  88 tcp/udp: kerberos-sec (listen by krb5kdc)</LI>
+<LI> 389, 636:  ldap, ldapssl protocol </LI>
+<LI> 464 tcp/udp: kerberos </LI>
+<LI> 749 tcp    : kerberos-adm  (not mandatory?), udp? </LI>
+<LI> 754 tcp    : kprop requests needs to get through FW to the remote KDC </LI>
+<LI>  53 tcp/udp: open if have DNS server running. firewall to allow desired clients to connect.</LI>
+<LI> 123 udp for ntp </LI>
+<LI> </LI>
+
+
+<PRE>
+# check ports are reachable from a client machine.  
+# open|fitered is ok
+sudo nmap -e enp0s9 -sUT -p53,123,80,88,443,8443,8080,389,464,636,749,754,1812-1813 freeipa
+
+
+ipa-client-install  message about firewall requirement
+
+Please make sure the following ports are opened in the firewall settings:
+     TCP: 80, 88, 389
+     UDP: 88 (at least one of TCP/UDP ports 88 has to be open)
+Also note that following ports are necessary for ipa-client working properly after enrollment:
+     TCP: 464
+     UDP: 464, 123 (if NTP enabled)
+
+</PRE>
+
+
+
+</OL>
+
+<PRE>
+TBD
+/etc/krb5.conf has
+
+[realms]
+  G.LOCAL = {
+    kdc = freeipa.g.local:88
+    master_kdc = freeipa.g.local:88
+    admin_server = freeipa.g.local:749
+    kpasswd_server = freeipa.g.local:464
+    default_domain = g.local
+    pkinit_anchors = FILE:/var/lib/ipa-client/pki/kdc-ca-bundle.pem
+    pkinit_pool = FILE:/var/lib/ipa-client/pki/ca-bundle.pem
+  }
+
+</PRE>
+
+
+
+<H2>User commands</H2>
+<!-- most cmd tested on vpn-gr -->
+<PRE>
+# sn50 is an example LOGIN (username), think alice, bob, carol
+
+ipa user-show  sn50		# show info of specific user, exact spell, by userlogin 
+ipa user-show      		# no argument will get a prompt
+ipa user-find 			# list all users in ipa db (think to getent passwd)
+ipa user-find  tin		# find any account containing specified patter "tin" in userlogin, first and last name.  case insensitive search
+ipa user-find --all tin		# --all provide all radius info
+
+ipa user-find --all | egrep login:\|expiration:		# list users and their password expiration date.
+ipa user-find --all | egrep login\|authe\|disabled	# display username, whether otp created, and if account is disabled
+
+[ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/pwd-expiration.html ]
+ipa group-find  --all | egrep name:\|GID:\|users:       # display groups
+
+ipa user-mod --password 	# user can change password their own password
+
+# change when password expires                    yyyyMMddHHmm??Z  last few maybe timezone
+ipa user-mod sn50 --setattr=krbPasswordExpiration=20121231011529Z
+
+ipa otptoken-add 		# add OTP/MFA. QR code can be displayed in most terminals these days.
+ipa otptoken-add --type=totp --owner=sn51 --desc="My soft token1"
+ipa otptoken-del  sn50 	# remove token
+# removing the token is not needed to change auth back to password
+ipa user-mod sn50 --user-auth-type=password
+
+# once OTP is added, ssh login prompt change from password to First Factor/Seconf Factor
+# and must use both password and token to login
+# User can run "otptoken-add" multiple times and have more than one token, can use either to login
+
+# sometime enforcement of otp still need root to run:
+ipa user-mod USERNAME --user-auth-type=otp
+# this clause need to show when doing   ipa user-show :
+#   User authentication types: otp
+
+
+
+ipa group-find
+
+ipa pwpolicy-show                     # there is a default global policy if no group policy is defined
+ipa pwpolicy-show --user=sn50
+ipa pwpolicy-mod --minlife=1 --maxlife=90 --history=3	# modify system default pw policy, minlife=1 maybe bad, user can't change password if they set a bad one till a day later...
+ipa user-show sn50 --all | grep expiration 
+
+ipa pwpolicy-mod ... to have differing password complexity requirements (for everyone)  --minlength --charclasses
+
+ipa pwpolicy-add exampleGroup --minlife=7 --maxlife=49 --history= --priority=1 
+[ ref: https://docs.fedoraproject.org/en-US/Fedora/18/html/FreeIPA_Guide/Setting_Different_Password_Policies_for_Different_User_Groups.html ]
+
+# not sure about password complexity.  
+# especially if have OTP, then first token for password is acceptable to be a simple PIN.  
+# How to do this?  ++
+
+
+# add/change user to ipa DB
+     ipa help user-mod  # much better than the man page!
+sudo ipa user-add jsmith --first=John --last=Smith                   --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-add jsmith --first=John --last=Smith --uid=6667 --gidnumber=6667 --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-add jsmith --first=John --last=Smith --manager=bjensen --email=johnls@example.com --homedir=/home/work/jsmith
+sudo ipa user-del jsmith  # delete/remove user account.  no confirmation asked!
+
+sudo ipa user-mod sn50 --password                    # prmopt to enter new password
+sudo ipa user-mod sn50 --uid=6666  --gidnumber=6666  # group entry for new gid is auto added
+sudo ipa user-mod sn50 --shell=/bin/bash 
+
+ --user-auth-type=['password', 'radius', 'otp', 'pkinit', 'hardened']
+                        Types of supported user authentication
+
+
+ipa group-add  docker                  # create new group "docker", get assigned random gid
+ipa group-mod  docker     --gid=396
+ipa group-add  dockerroot --gid=397
+ipa group-show dockerroot 
+
+# add add as secondary group membership, ie
+# modify group entry, add user to group
+ipa help group-add-member
+ipa group-add-member    docker     --users=sn50 --users=tin   # add multiple users to existing group
+ipa group-add-member    dockerroot --group=docker             # support "indirect member", id -a seems to report things correctly.
+ipa group-remove-member dockerroot --users=sn50               # remove member, but not if it is from a nested/indirect group
+
+ipa group-find --user=sn50    # find groups that user sn50 is a member of
+
+
+ipt user-mod --setattr=key=value?   # for custom ldap attributes? fuzzy about syntax.  POSIX attrib can just use build in support for --uid --gidnumber etc
+
+
+
+
+</PRE>
+
+<H2>Admin commands</H2>
+<PRE>
+kinit 	# initialize Kerberos system, restart timer
+
+sudo ipa user-disable User_LoginName
+sudo ipa user-enable  User_LoginName
+
+ipa user-mod --password alice		# this apparently need the tomcat server to be operational to work
+
+
+ipa user-add	# interactive prompted user addition, but only ask for first, last, and username.  
+
+radsniff -X	# trace/sniff ipa connectivity request?
+
+
+## How to remove the "change password on first login" ?    esp using cli
+## How to remove password expiration ?  or change expiration in cli ?
+## how to change uid/gid ?   maybe ipa user-mod ... 
+
+
+ipa group-del docker	# delete group named docker
+
+
+</PRE>
+
+<H2>IPA Server install commands</H2>
+
+<PRE>
+# for IPA server, NOT client.  
+ipa-server-install 
+ipa-server-install --uninstall
+
+
+[root@freeipa]# systemctl list-unit-files | grep ipa
+ipa.service                                                            enabled
+ipa-ccache-sweep.service                                               disabled
+ipa-custodia.service                                                   disabled
+ipa-dnskeysyncd.service                                                disabled
+ipa-ods-exporter.service                                               disabled
+ipa-otpd@.service                                                      static
+multipathd.service                                                     enabled
+ipa-ods-exporter.socket                                                disabled
+ipa-otpd.socket                                                        disabled
+multipathd.socket                                                      enabled
+ipa-ccache-sweep.timer                                                 enabled
+
+# these are started by freeipa?? 
+krb5kdc.service                                                        disabled  
+radiusd.service                                                        disabled
+
+systemctl status really just call 
+/usr/sbin/ipactl 
+
+
+
+systemctl status reporting "active (exited)" is fine.
+running processes:
+
+[root@freeipa data]# ps -ef | grep ipa
+ipaapi     91875   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91876   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91877   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+ipaapi     91878   91868  1 12:45 ?        00:00:01 (wsgi:ipa)      -DFOREGROUND
+root       91887       1  0 12:45 ?        00:00:00 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
+ods        92359       1  1 12:45 ?        00:00:01 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-dnskeysyncd
+
+
+kdcproxy    7742    2844  0 Apr16 ?        00:00:04 (wsgi:kdcproxy) -DFOREGROUND
+root       15276       1  0 15:03 ?        00:00:00 /usr/sbin/krb5kdc -P /var/run/krb5kdc.pid
+
+radiusd    15198    1639  0 14:42 pts/0    00:00:00 radiusd -X    # debug session running here
+
+
+journalctl -u ipa
+
+
+</PRE>
+
+<A ID=dns></A>
+<H1>FreeIPA DNS server</H1>
+
+The DNS in FreeIPA is wrapper around bind-dyndb-ldap, which is based on bind.
+so, config and doc for bind would apply.
+
+<PRE>
+ipa dnszone-find 			# list all dns zones managed by this server
+
+ipa dnsrecord-find g.local		# list all dns record for the dnsZone named g.local
+ipa dnsrecord-find g.local  n00		# get entries like n00.g.local, pxe-n00.g.local (ie substring search on hostname n00)
+ipa dnsrecord-find g.local | grep "Record name"
+ipa dnsrecord-find 16.8.10.in-addr.arpa.	# reverse PTR zone
+
+</PRE>
+
+<H5>Adding DNS zone</H5>
+
+<PRE>
+ipa dnszone-add 16.8.10.in-addr.arpa.
+</PRE>
+
+<H5>Adding DNS host record</H5>
+
+ref: <BR>
+
+<LI> https://www.freeipa.org/page/Howto/DNS_classless_IN-ADDR.ARPA_delegation#
+<LI> https://blog.khmersite.net/2020/12/freeipa-adding-new-dns-record/?msclkid=234a796acfcc11ec9a6b232e7b9ac9bf
+
+<BR>
+
+Ensure reverse dnszone exist or reverse record addition will fail.  (but forward record still added)
+
+<PRE>
+ipa dnsrecord-add g.local  n00 --a-rec 10.8.16.100 --a-create-reverse  # "forward" A record
+ipa dnsrecord-add g.local  n01 --a-rec 10.8.16.101 --a-create-reverse 
+
+ipa dnsrecord-add g.local  alias00     --cname-rec=n00      # CNAME alias record
+
+round-robin recods for load balancing
+
+ipa dnsrecord-add g.local  vasttest --a-create-reverse  --a-rec 10.8.16.50
+ipa dnsrecord-add g.local  vasttest --a-create-reverse  --a-rec 10.8.16.57
+
+# change TLS?
+</PRE>
+
+
+<H6>add missing reverse PTR records:</H6>
+
+<PRE>
+ipa dnsrecord-add 16.8.10.in-addr.arpa.  128  --ptr-rec c00.g.local.   # ie add 10.8.16.128
+ipa dnsrecord-add 16.8.10.in-addr.arpa.  100  --ptr-rec n00.g.local.  
+#                                        ^^^-------- last octet
+</PRE>
+
+
+<H6>modifying renaming record</H6>
+
+<PRE>
+ipa dnsrecord-mod example.com www --a-rec 10.1.1.1 --ip-address 10.1.1.2
+
+changing ttl
+ipa dnsrecord-mod g.local vasttest --ttl=3600
+</PRE>
+
+
+
+<H6>
+deleting record
+</H6>
+
+<PRE>
+ipa dnsrecord-del g.local  vasttest --a-rec 10.8.16.50 
+ipa dnsrecord-del 16.8.10.in-addr.arpa.  58  --ptr-rec vasttest.g.local.   # ie del 10.8.16.58 which has hostname vasttest.g.local
+</PRE>
+
+
+
+<H5>
+DNS forwarding, recursive query problem:
+</H5>
+
+see
+<A HREF="https://access.redhat.com/solutions/5753431">RH solution doc</A>
+
+<PRE>
+forwarding is not working, check as:
+dig @freeipa.local  google.com
+# WARNING: recursion requested but not available
+
+Fix:
+On webUI, Network Service, DNS Global Config, 
+Forward policy: 
+- Forward first (most permissive)
+- Forward only
+- Forwarding disabled (no outside name resolution then).
+
+Use ACL to restrict which client can query the local DNS server:
+</PRE>
+
+<PRE>
+on freeipa server, edit 
+/etc/named/ipa-options-ext.conf
+	// allow recursion per https://access.redhat.com/solutions/5753431
+	allow-recursion { trusted_network; };
+	allow-query-cache  { trusted_network; };
+
+/etc/named/ipa-options-ext.conf
+
+	acl "trusted_network" {
+	 localnets;
+	 localhost;
+	 192.168.0.0/16;
+	};
+
+systemctl restart named-pkcs11
+
+</PRE>
+
+<H5>Global Forwarder</H5>
+
+Configure a global forward on the IPA DNS server, so external names can be resolved (if desired).
+ref: 
+<LI> https://serverfault.com/questions/1081774/how-are-external-urls-resolved-by-freeipa
+<LI> https://www.freeipa.org/page/V4/Forward_zones
+<LI> https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_identity_management/assembly_troubleshooting-authentication-with-sssd-in-idm_configuring-and-managing-idm#doc-wrapper
+
+
+<PRE>
+# see existing config
+ipa dnsserver-find
+ipa dnsserver-show
+ipa dnsforwardzone-find
+
+
+# add global forwarder (for all external dns):
+ipa dnsconfig-show
+ipa dnsconfig-mod --forwarder=131.243.5.1
+ipa dnsconfig-mod --forwarder=8.8.8.8 
+ipa dnsconfig-mod --forwarder=8.8.8.8 --forward-policy=first  # alt: only|none
+#XX ipa dnsconfig-del --forwarder
+
+Server will check DNS forwarder(s).
+This may take some time, please wait ...
+ipa: WARNING: Forwarding policy conflicts with some automatic empty zones. Queries for zones specified by RFC 6303 will ignore forwarding and recursion and always result in NXDOMAIN answers. To override this behavior use forward policy 'only'.
+  Global forwarders: 8.8.8.8
+  Forward policy: first
+  IPA DNS servers: ...
+
+
+ipa dnsconfig-show
+ipa dns-server-show    # seems to use a diff forwarder
+</PRE>
+
+<A ID=cert></A>
+<H1>FreeIPA for signing certs</H1>
+
+The DogTag project for signing cert is bundled into FreeIPA, see 
+<A HREF="https://www.freeipa.org/page/PKI">FreeIPA PKI</A>
+<BR><BR>
+
+This post on 
+<A HREF="https://blog.christophersmart.com/2014/08/24/creating-certs-and-keys-for-services-using-freeipa-dogtag/">
+Creating certs and keys for services using FreeIPA (Dogtag)</A> 
+ has a good overview of the process. 
+<BR><BR>
+
+And 
+<A HREF="https://rcritten.wordpress.com/2018/11/26/how-do-i-get-a-certificate-for-my-web-site-with-ipa/">
+HOW DO I GET A CERTIFICATE FOR MY WEB SITE WITH IPA?</A> 
+list some useful relevant ipa commands
+
+<BR><BR>
+
+<A HREF="https://gist.github.com/rechner/c6b9133b7816445b5850f8e22e16aa60">FreeIPA for OpenVPN gist</A>
+<BR><BR>
+
+<!-- CF_BK...vpn-g -->
+<PRE>
+
+kinit admin
+ipa dnsrecord-find  hulk.local		# list all dns record for the named zone hulk.local
+ipa dnsrecord-add   domain      hostname
+ipa dnsrecord-add   hulk.local  www
+ipa dnsrecord-add   hulk.local  vpn
+
+ipa dnsrecord-add hulk.local  vpn  --a-rec 192.8.17.19
+ipa dnsrecord-add 17.8.192.in-addr.arpa. 19 --ptr-rec vpn
+
+ipa host-add  www.hulk.local
+ipa host-add  vpn.hulk.local
+
+ipa service-add    openvpn/vpn.hulk.local
+ipa service-add    HTTP/www.hulk.local
+
+ipa service-add-host --hosts=ipa-server.test.lan HTTP/www.test.lan
+
+ipa-getcert request -r -f /etc/pki/tls/certs/vpn.hulk.local.crt -k /etc/pki/tls/private/vpn.hulk.local.key -N CN=vpn.hulk.local -D vpn.hulk.local -K openvpn/vpn.hulk.local
+
+copy .crt and .key files to www/vpn server
+
+getcert stop-tracking -i 20220211224159	# remove if need to redo eg cuz typo
+
+ipa service-find  | grep "Principal name"
+
+
+</PRE>
+
+<A ID=kerberos></A>
+<A ID=kdc></A>
+<H1>kerberos</H1>
+
+<H5>KDC</H5>
+<PRE>
+
+ss -tulp | grep kdc
+/var/log/krb5kdc.log
+
+
+</PRE>
+
+<H5>Kerberos client</H5>
+eg client using FreeIPA/Radius/LDAP
+
+<PRE>
+kinit
+ipa user-find --all jsmith
+
+# each user that wants to run ipa command need to have a valid ticket, run kinit if tix expired
+# expired password may not login eg via ssh
+</PRE>
+
+<H5>Troubleshooting</H5>
+
+realm list
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/trouble-general
+
+<PRE>
+Set the KRB5_TRACE environment variable to the /dev/stdout file to send trace-logging output to /dev/stdout:
+KRB5_TRACE=/dev/stdout ipa cert-find
+KRB5_TRACE=/dev/stdout ipa user-find jsmith
+
+
+HISTCONTROL=ignorespace
+  # nas-port-number is essentially the outbound port number on localhost running the radtest cmd
+  # secret is the string in /etc/raddb/server used by client to connect to radius server
+  radtest [OPTIONS] user passwd radius-server[:port] nas-port-number secret [ppphint] [nasname]
+  radtest jsmith jSmithPassword ipa.test.org:1812 2468 radServerSecret
+the nas-port-number 2468 is a dummy due to relic , it is NOT used as local port
+radtest provided by freeradius-utils rpm
+ref: https://support.microfocus.com/kb/doc.php?id=7014552
+
+
+sss_cache -E  		# clear --everything  in sss cache
+getent passwd sn50
+id -a sn50
+
+
+
+Sometime kerberos act up. 
+Ref: Unable to login as an AD or IPA user due to "4 (System error)" via SSSD on Red Hat Enterprise Linux. - Red Hat Customer Portal
+
+kdestroy -A
+kinit admin
+
+mv /etc/krb5.keytab /etc/krb5.keytab.bak2023-0427
+
+ipa-getkeytab -s freeipa.g.local -p host/freeipa.g.local -k /etc/krb5.keytab              
+Redirecting to /bin/systemctl start sssd.service
+
+
+Tmp workaround: 
+Disabling keytab validation in /etc/sssd/sssd.conf configuration file can also be used to work around the issue until it's fixed. This would allow AD/IPA users to login.
+krb5_validate = False
+
+
+
+ipa host-find  --all radiusClientHostname | grep enroll    # host should be enrolled (ie joined to the radius realm)
+?? host-mod unenroll ?  (then host has to go thru ipa client setup process to rejoin the realm.  think AD host joining domain)
+ipa host-add  ipa-client-hoostname.fqdn
+ipa service-add HTTP/ipa-client-hoostname.fqdn
+
+
+ipa host-find vpn --raw			# it is --raw , not --long or --full #searchfood
+ipa host-find vpn --raw			# some host may have forced join auth method, eg krbprincipalauthind: otp
+ipa host-mod --auth-ind=""  myhostname  # remove the forced join auth method 
+
+
+ipa help host
+
+ipa host-show hostname
+
+re-enroll client, see ipa-client-install --help
+
+# Note that a host entry is like windows AD host joined to the realm
+# DNS entry does NOT show up under host-find, use dnsrecord-find instead
+
+ipa dnsrecord-find g.local	#  # list all dns record for the dnsZone named g.local
+ipa dnsrecord-find 1.168.192.in-addr.arpa.        # reverse PTR zone
+
+ipa dnszone-find
+
+
+~~~~~
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/linux_domain_identity_authentication_and_policy_guide/retrieve-existing-keytabs
+
+
+ipa-getkeytab -s freeipa.g.local -p host/vpn.g.local -k /tmp/client.keytab
+# gen new keytab, invalidate old one
+
+ipa-getkeytab -r -s freeipa.g.local -p host/vpn.g.local -k /tmp/client.keytab
+# check keytab, be sure to use -r to reuse, or get new one and old one is invalidated
+
+cp -pi /tmp/client.keytab  /etc/krb5.keytab
+
+
+
+klist -A
+klist -ek /etc/krb5.keytab	# list krb principal and tickets in keytab/cache file, but may not be valid?
+
+kinit -kt /etc/krb5.keytab      # authenticate a host
+
+log in IPA server: /var/log/dirsrv/slapd*/
+access
+error
+
+
+
+kvno ... verify key numbers
+
+</PRE>
+
+<A ID=sssd></A>
+<H1>sssd</H1>
+
+<PRE>
+
+
+
+sssctl domain-list
+sssctl domain-status g.local		# if show offline, then problem!
+sssctl domain-status g.local --start
+
+
+sssctl user-checks  sn50
+
+sssctl user-show  -u 6666
+
+</PRE>
+
+log:
+<PRE>
+setting /etc/sssd.conf  with debug log would provide lot more info
+/var/log/sssd/
+
+</PRE>
 
 <A ID=link></A>
 <H1>Reference</H1>
@@ -1550,6 +2214,7 @@ of intricacies used by itself.
 (cc) Tin Ho. See 
 <A HREF=psg.html#CreativeCommon>main page</A>
  for copyright info. <BR>
+Last updated: 2022-07-06 <BR>
 <HR>
 <!-- Just for fun. this google ad is actually from unixguide.net -->
 <script type="text/javascript">

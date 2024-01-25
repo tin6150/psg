@@ -3,7 +3,13 @@
 # setup tmux 3 sessions, each with a standard set of windows (what I think of tabs)
 # http://man7.org/linux/man-pages/man1/tmux.1.html
 
-META_SESSION_LIST="m1 m2 m3 m4" # add more meta session if desired
+# **** Best NOT to run this script inside a tmux session ****
+
+#++ need to enable one of the META_SESSION_LIST before running...
+#   commented out cuz don't want to accidentally rerun and overwrite sessions
+META_SESSION_LIST="m1 m2 m3 m4 m5 m6 m7 m8" # add more meta session if desired
+#++META_SESSION_LIST="m1 m2 m3 m4" # add more meta session if desired
+#++META_SESSION_LIST="m5 m6 m7 m8" # add more meta session if desired
 #--META_SESSION_LIST="m4" # add more meta session if desired
 for MS in $META_SESSION_LIST; do
 
@@ -14,14 +20,14 @@ for MS in $META_SESSION_LIST; do
 
 		tmux kill-session          -t $SESSION    # kill old config (used in dev)
 		tmux new-session -d        -s $SESSION   # -d for detache mode, just want to set them up in background 
-		tmux new-window -n lo      -t ${SESSION}:  -d  'echo "localhost";  date;      bash'
-		tmux new-window -n brc     -t ${SESSION}:  -d  'echo "ssh -Y brc.berkeley.edu"; ssh -Y brc.berkeley.edu; bash'
-		tmux new-window -n scs-brc -t ${SESSION}:  -d  'echo "ssh -Y scs-cm.lbl.gov; sudo ssh -Y -o ServerAliveInterval=55 -o ServerAliveCountMax=2 master.brc" ; /bin/bash'
-		tmux new-window -n lrc1_128.3.7.151 -t ${SESSION}: -d  'echo "ssh -Y 128.3.7.151";        bash'  # 151=n0000.scs00; xfer has no squeue; lrc-viz can't login to node w/o password :/
-		tmux new-window -n perce   -t ${SESSION}:  -d  'echo "ssh -Y lrc-viz"; sudo ssh -Y -o ServerAliveInterval=240 perceus-00.scs.lbl.gov" ; bash'
-		tmux new-window -n scs     -t ${SESSION}:  -d  'echo "ssh -Y scs-cm";         bash'
-		tmux new-window -n beag    -t ${SESSION}:  -d  'echo "ssh -Y beagle";  ssh -Y -o StrictHostKeyChecking=no beagle.lbl.gov;  bash'
-		tmux new-window -n ansi    -t ${SESSION}:  -d  'echo "ssh -Y scg-ansible";    bash'
+		tmux new-window -n lo      -t ${SESSION}:  -d  'echo "localhost"     ; date ; bash'
+		tmux new-window -n brc     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu"    ; ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu; bash'
+		tmux new-window -n scs-brc -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm.lbl.gov; sudo ssh -Y -o ServerAliveInterval=55 -o ServerAliveCountMax=2 master.brc"   ; /bin/bash'
+		tmux new-window -n lrc1_128.3.7.151 -t ${SESSION}: -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151"    ; bash'  # 151=n0000.scs00; xfer has no squeue; lrc-viz can't login to node w/o password :/
+		tmux new-window -n perce   -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 lrc-viz"; sudo ssh -Y -o ServerAliveInterval=240 perceus-00.scs.lbl.gov"    ; bash'
+		tmux new-window -n scs     -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"     ; bash'
+		tmux new-window -n beag    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 beagle"     ; ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no beagle.lbl.gov; bash'
+		tmux new-window -n ansi    -t ${SESSION}:  -d  'echo "ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scg-ansible";    bash'
 		tmux new-window -n rt      -t ${SESSION}:  -d  'echo "sudo su -";             bash'
 		tmux new-window -n lo      -t ${SESSION}:  -d  'date; bash'
 		tmux list-windows

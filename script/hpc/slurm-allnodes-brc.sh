@@ -145,9 +145,9 @@ echo ---------------------------------------
 
 echo "==== 7z benchmark next (7za b)======================================================="
 #echo "7za b skipped"
-singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
+singularity exec /global/scratch/users/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b
 #--echo "==== 7z benchmark next (7za b -mmt1 -md26) ========================================="
-#--singularity exec /global/scratch/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b -mmt1 -md26
+#--singularity exec /global/scratch/users/tin/singularity-repo/perf_tools_latest.sif /usr/bin/7za b -mmt1 -md26
 
 ) > $OUTFILE   # capture all cmd list into a file name I prefer, slurm -o is too limitig
 

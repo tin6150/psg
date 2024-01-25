@@ -26,6 +26,7 @@
     <tr>
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
       <td align="center"><a accesskey="x" href="linux.html">linux</a>	</td>
+      <td align="center"><a accesskey="S" href="lsf.html">lsf/slurm/pbs</a>	</td>
       <td align="center"><a accesskey="l" href="lustre.html">lustre</a>	</td>
       <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
       <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
@@ -90,6 +91,96 @@ Verbs - IB allow code to be run on the network.  Think optimizing calls for calc
 <BR>
 
 
+PS.  Mellanox ConnectX-5, 6  can take AI-branded QSFP modules (but not the other way around).
+
+<H2>InfiniBand Generations </H2>
+
+Modulation
+
+
+<PRE>
+
+SDR - Single Data Rate              4x2.5 = 10 Gbps  (8 Gbps accounting for bit encoding overhead)
+DDR - Double Data Rate              4x 5  = 20 Gbps
+QDR - Quad Data Rate.       QSFP,   4x10 =  40 Gbps.  CX-2 ??
+FDR - Fith? Data Rate.      QSFP,   4x14 =  56 Gbps.  CX-3
+EDR - Enhanced Data Rate.   QSFP28, 4x25 = 100 Gbps.  CX-4 ?  CX-5?  NRZ modulation.    Backward compatible with FDR.
+HDR - High?/Hyper? DR.      QSFP56, 4x50 = 200 Gbps.  CX-6 can do HDR200 or Y-split 2x HDR100.  PAM4 modulation.  2018.  Backward compatible at 10/25/40/50/100/200G, but matching cables would be needed.
+NDR -  QSFP-DD?  8x50?
+XDR -  OSFP ?    8x50? 
+
+modulation (think encoding):
+NRZ:   Non-Return-to-Zero: traditional binary, on/off 1 bit per cycle.  Is this same as PAM-2? 
+PAM-4: Pulse Amplitude Modulation-4: 2 bits per PAM4 symbol, encoded via 4 mean voltages: VA, VB,VC, VD.
+
+Arista 7280R2 - 25 Gbps SERDES?  QSFP28 ports, Max out at 100Gbps?  only do NRZ?
+Arista 7280R3 - 50 Gbps SERDES?  QSFP56 ports, Capable of 200Gbps?  Capable of PAM4 ?
+
+ConnectX-6 can connect to slower equipment, but note that HDR cable will negotiage PAM4.  EDR cable would be needed to have it negotiate to NRZ.
+In practice, used ConnectX-6 HBA, HDR100 cable, connected to EDR switch, and it worked.  ibstat reports Rate: 100, so presumably did negotiate NRZ cuz of the EDR switch and use 4x25.
+Still don't understand why HDR cables have IB version vs Ethernet version (they are not interchangeable).
+
+
+</PRE>
+
+Ref:
+<OL>
+<LI><A HREF="https://en.wikipedia.org/wiki/InfiniBand#Performance">wikipedia EDR vs HDR table</A><BR>
+<LI><A HREF="https://www.servethehome.com/mellanox-connectx-5-vpi-100gbe-and-edr-ib-review/">Review of ConnectX-5 by STH</A><BR>
+<LI><A HREF="https://www.nvidia.com/content/dam/en-zz/Solutions/networking/ethernet-adapters/connectX-6-dx-datasheet.pdf">Mellanox CX-6 spec sheet</A></LI>
+<LI></LI>
+</OL>
+
+<PRE>
+MCX556A-EDAT -- decyphering this model number:
+First 5 = CX-5
+The 6   = dual port
+The D   = PCIe 4.0
+
+Note: Model with Lx designation run at lower speed than the max allowed by the protocol.  eg 50 Gbps instead of 100. (cuz not using all the lanes?)
+</PRE>
+
+
+<H2>Generation cross compatibility</H2>
+
+The following note is from wonderful colleage Chris from Mellanox/Nvidia:
+<BR><BR>
+
+Each product (Adapters/Eth Switches/IB switches) has its own firmware compatibility lists.
+The firmware notes for each product will have compatibility cross maps.
+<BR><BR>
+
+FDR Adapters and Switches using FDR cables are compatible with QDR/FDR/FDR10/EDR/HDR*  (*HDR firmware has notes about specific ports)
+<BR><BR>
+
+EDR Adapters and Switches  using EDR cables  are compatible with EDR/HDR/FDR**  (** FDR does not officially support EDR cables due to the higher wattage and may not work in some cases)  
+<BR>
+[If a HDR cable is used in EDR environment, the HDR cable will try to negotiate PAM4, which EDR does NOT understand (it only supports NRZ modulelation)].  
+<BR><BR>
+
+HDR Adapters and Switches using HDR cables  are compatible with HDR only.  HDR – PAM4 encoding and will assume PAM4 when an HDR cable is used (EEPROM is read).
+<BR><BR>
+
+ConnextX-6 dual port adapters will support 1/10/40/25/50/100/200 FDR/EDR/HDR when the correct cables/port adapter is used, <EM>AND ONLY 1 port is used</EM>.
+<BR><BR>
+
+If both ports are enabled on the dual port card, some internal clocks will be limited to 25/50/100/200 EDR/HDR only   
+<BR><BR>
+
+
+<EM>
+The basic rule I tell customers is to always use the cable that is compatible with the lowest speed of the 2 devices. The higher speed cables require higher power at the port, and also have an EEPROM letting the port know what speed to start the negotiation.  
+</EM>
+<BR><BR>
+<BR><BR>
+ 
+
+Ethernet it gets very complicated, you will need to know if the Adapter or switch is PAM4, and make sure you are using the compatible cables. Mellanox/NVIDIA equipment will also use the EEPROM in the cables to establish the correct negotiation (PAM4 or NRZ). I would also reference the firmware notes of each product to determine cross compatibilities. When using 3rd party equipment it is not a guarantee they are backwards/forwards compatible.
+<BR><BR>
+
+
+<H2>InfiniBand 103 </H2>
+
 <PRE>
 opensm 	# open fabric subnet manager.  run on one of the host.  
 	# additional standy manager on other hosts can be setup.  
@@ -101,7 +192,7 @@ opensm 	# open fabric subnet manager.  run on one of the host.
 	# update /etc/init.d/opensm and start TWO instance of opensmd
 	# use -g GUID to specify which port each instance use.  this would overwrite config in /etc/opensm/opensm.conf. eg 
  	# /usr/sbin/opensm --daemon 
- 	# /usr/sbin/opensm --daemon -g 0x506b4b03007c00c2
+ 	# /usr/sbin/opensm --daemon -g 0x506b4b03007c00c2  --logfile /var/log/opensm_c2.log
 
 OFED has ib driver and opensm
 Mellanox compiled their own version and provide support for it, MLNX_OFED, aka MOFED.  has driver and opensm.  No more support for ConnectX-2 cards in 2018.
@@ -284,6 +375,121 @@ ibcheck -E -b         -O 10 -ddd
 
 <BR><HR><BR>
 
+<!-- nvidia case 00520909 [ref:_00D409E3I._5008Z1zbOwt:ref] -->
+<A ID="y-split"></A>
+<A ID="ysplit"></A>
+<A ID="split"></A>
+<H5>Y-split cable switch port config</H5>
+
+The port on the HDR switch need to be configured to use Y-split cable, else one of the node get no connection.
+<BR>
+HDR Y-split cable, <BR>
+green pull tab is live usable in default (non-split) config on the switch port  <BR>
+blue  pull tab is not usable till switch port configured to SPLIT_MODE  <BR>
+  <BR>
+
+Ref:
+<A HREF="https://docs.nvidia.com/networking/display/MFTv421/Using+mlxconfig#Usingmlxconfig-splitcableUsingmlxconfigtoSplitaPortinaRemotelyManagedSwitch">nvidia doc on y-split cconfig</A>
+
+<PRE>
+# using switch lid worked, but need subnet manager active to assign lid-id to the switch
+
+ibswitches 	# scan fabric for switches and display their lid
+         	# lid 0 seems like default unconfigured lid that doesn't work
+
+# q = query current setting
+mlxconfig -d lid-912 q
+mlxconfig -d lid-912 q SPLIT_MODE
+mlxconfig -d lid-$ID q SPLIT_PORT
+mlxconfig -d lid-999 q SPLIT_PORT[1..12]	# see config for ports 1 to 12, inclusive
+
+# enable split mode, all ports will be split
+# split port will go from x/y to have subports x/y/1 and x/y/2
+mlxconfig -d lid-912 set SPLIT_MODE=1     # lid-912 as example , mlxconfig will prompt for confirmation
+    flint -d lid-$ID swreset              # reboot switch, no password required! but only root can open dev path
+
+# set specific port as non split
+mlxconfig -d lid-912 set SPLIT_PORT[40]=0    # port 40 as non-split
+
+# set specific port as split (they get the extra x/y/z treatment)
+mlxconfig -d lid-912 set SPLIT_PORT[1..32]=1 # port 1 to 32 as split mode
+
+</PRE>
+
+<PRE>
+
+other things to try:
+
+sudo mst start
+# which create /dev/mst device path
+
+# set (switch?) to suport SPLIT_MODE:
+# but my dev is for the local CX6 .... this didn't work:
+
+# query for current settings:
+sudo mlxconfig -d /dev/mst/mt4123_pciconf0 q | grep -i SPLIT       # q=query, but split_mode is on the swithc, not HBA
+sudo mlxconfig -d /dev/mst/SW_MT54000_EVB-SX-1_L00_lid-0x0001 q    # doc says switch device path could exist under /dev/mst (not for me)
+
+</PRE>
+
+applying raw config file.  there is command to upload a raw config file (eg from support?) to 
+the (?switch/?HBA).  anyway, it looks like this, RTFM if really need to do this.
+
+<PRE>
+mlxconfig -f ./tlv_file.conf -d /dev/mst/mt4115_pciconf1 set_raw
+</PRE>
+
+<BR>
+
+
+configuring split port on managed switch (one with RJ45 serial console)
+<BR>
+MLNX=OS ...
+
+
+<H5>Split port mode for Y-cable support in managed switch</H5>
+
+<PRE>
+
+serial into switch
+admin/admin is def
+	will prompt for pass change, as well as set pass for "monitor"
+enable
+config term
+system profile ib split-ready
+(reboot)
+
+interface ib 1/1-1/36
+shutdown
+module-type qsfp-split-2
+(ports 1 to 36 will be in split mode and ready for use, existing 2nd port of Y-split would be online right away
+
+check status:
+
+show interface ib status
+
+
+to set back to non split mode
+module-type qsfp
+
+save config
+? copy running-config startup-config 
+? write mem
+
+</PRE>
+
+details , See 
+https://support.lenovo.com/us/en/solutions/ht508894-how-to-split-or-unsplit-ports-on-a-qm8700-using-mlnx-os-cli
+
+<PRE>
+
+How to split or unsplit ports on a QM8700 using MLNX-OS CLI - 
+This article introduces the procedure used to split the ports in two on a QM8700 switch. QM Series switches support split mode, which allows for the 200 Gb/s quad-lane ports to be divided into two 100 Gb/s dual-lane ports.
+
+
+need the mallanox cable for serial connectivity.
+
+</PRE>
 
 <H1>IBoIP</H1>
 
@@ -308,7 +514,34 @@ Ref:
 <LI>
 <A HREF="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/networking_guide/sec-Configuring_IPoIB#sec-Understanding_IPoIB_communication_modes">RH IPoIB</A>
 
+<H2>IB switch Config</H2>
 
+<PRE>
+
+docker login abcd 1234
+</PRE>
+
+TO use Y-split cable, the switch port has to set to split profile.
+p 387 of  nvidia mlnx-os user manual rev 6.6 for sw v 3.9.3124
+<BR>
+admin/admin
+<PRE>
+
+config
+interface ib 1/4
+shutdown   ! shutdown the specific switch port
+
+module-type qsfp-split-2   ! set to split mode for use with Y-split cable
+module-type qsfp           ! revert, back to normal 1:1 cable
+
+
+show interfaces ib status
+
+# Note, QM8700 HDR switch has 40 ports.  
+</PRE>
+
+
+<A name=iboip></A>
 <H2>IBoIP with Bonding Config</H2>
 
 
@@ -583,6 +816,13 @@ https://www.mellanox.com/related-docs/prod_cables/PB_MCP1600-Cxxx_100GbE_QSFP28_
 https://www.mellanox.com/related-docs/prod_cables/PB_MCP1600-E0xxEyy_100Gbps_QSFP28_DAC.pdf - E0xxEyy = IB
 https://store.mellanox.com/products/nvidia-mc2207130-002-passive-copper-cable-vpi-up-to-56gb-s-qsfp-2m.html - FDR VPI
 
+HDR100 vs 100GbE cables (Y-split version):
+both cables have the same Model number:  MCP7H50
+but a single character differ in the part number:
+MCP7H50-V002R26 - 100GbE
+MCP7H50-H002R26 - HDR100  (presumably works in IB mode "only")
+(The 100GbE marking was on the cable connector, use of cable negotiated to 5 Gbps when used as IB.  ibnetdiscover reported it as SDR).
+
 </PRE>
 
 ref:
@@ -714,6 +954,73 @@ enp1s0f? are likely the onboard RJ45 ports.
 
 </PRE>
 
+<H1>MLNX-OS</H1>
+
+MLNX-OS CLI change password
+
+https://docs.nvidia.com/networking/display/MLNXOSv381206/User+Management+and+Security+Commands
+
+<PRE>
+show whoami
+
+show usernames		# show configured user.  default is admin monitor xmladmin xmluser  but most disabled, need to set password to enable
+			# Acc Status will indicate if password is set
+
+enable
+config term
+
+username bofh  capability admin # create user , not usable till set a password
+username bofh  password 0       # 0 = use clear text password, will prompt for it
+# or use
+username bofh  password 7     	# 7 = encrypted text (which alg?)
+
+username admin   password 0     # change password for user admin
+username monitor password 0     # def pw is monitor for this acc
+
+username admin nopassword   # erase password?
+
+</PRE>
+
+saving config
+<BR>
+see: https://docs.nvidia.com/networking/display/MLNXOSv381206/Configuration+Management
+
+<PRE>
+enable
+config term
+
+show configuration files	# default one is called "initial"
+
+configuration write    		# save to default? current? config file.  disable zero touch config ZTC thing on first write.  Think Cisco copy run start
+
+configuration write to NewCfFilename		# create/save to a new config file and switch to it as active config file (used at boot?)
+configuration write to NewCfFilename no-switch	# save to a new config file , but don't make it the active config (ie good for creating backup)
+
+configuration switch-to NewCfFilename		# load a new config file
+
+show running
+
+
+reset factory keep-basic			# restore to factory default
+
+</PRE>
+
+Set management interface IP
+<BR>
+
+<PRE>
+enable
+config terminal
+
+show interfaces mgmt0
+
+# default is dhcp, manually disable it 
+no interface mgmt0 dhcp
+
+# setting static ip would disable dhcp 
+interface    mgmt0 ip address 10.6.1.10 255.255.0.0
+
+</PRE>
 
 <BR><HR>
 <div align="CENTER">

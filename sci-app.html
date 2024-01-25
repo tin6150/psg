@@ -9,7 +9,7 @@
   <META NAME="Robots" CONTENT="all"/>
   <META NAME="Author" CONTENT="Tin Ho"/>
 
-  <title>Pocket Survival Guide - SCI</title>
+  <title>Pocket Survival Guide - SCI Apps</title>
 </head>
 
 <body> 
@@ -27,6 +27,11 @@
       <td align="left">  <a accesskey="h" href="psg.html">Home</a>		</td>
       <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>	</td>
       <td align="center"><a accesskey="s" href="sci-app.html">Sci-App</a>	</td>
+      <td align="center"><a accesskey="R" href="R.html">R</a> </td>
+      <td align="center"><a accesskey="n" href="Rnote.html">Rnote</a> </td>
+      <td align="center"><a accesskey="y" href="python.html">python</a> </td>
+      <td align="center"><a accesskey="p" href="perl.html">Perl</a>     </td>
+
       <td align="right"><a accesskey="n" href="lsf.html">lsf</a>		</td>
     </tr>
   </tbody>
@@ -38,30 +43,1484 @@
 </div>
 </div>
 
+<H1>Bioinformatic 101</H1>
 
-<H1>Life Science Apps</H1>
+<LI><A HREF="https://biostar.myshopify.com/">Biostar Handbook</A> Cover getting started with Unix, scripting, many of the bioinformatics file format, what tools are available.
 
-See also: <A HREF="http://voivod/~tinh/ref/sciapp.html">voivod_sciapp</A>
+<LI><A HREF="https://biostar.org">Stack Overflow for bioinformatics :)</A>
+
+<LI><A HREF="https://usegalaxy.org">Galaxy</A>Web based bioinformatics toolkit.  They also have a lot of tutorial on how to use many of the toolkit available, eg <A HREF="https://training.galaxyproject.org/topics/variant-analysis/tutorials/microbial-variants/tutorial.html">Snippy Tutorial In Galaxy</A>
+
+<LI><A HREF="https://jbrowse.org/jb2/docs/quickstart_desktop/">JBrowse</A> bioinfo file viewer used by Galaxy, avail as downloadable desktop app, 
+
+<H1>Bioinformatic Pipeline</H1>
+
+
+Overview of sample workflows.
+
+<BR>
 <BR>
 
-
-<BR><HR><BR>
-
-<H1>OpenEye</H1>
+creating fasta
 
 <PRE>
-http://www.eyesopen.com
+App		IN			OUT		Note
+--------------	----------------	-------------	----------------------------------
+
+FastQC							Quality Control
+Trimmomatic						QC
+Unicycler	paired.fastq.gz		.fasta		de novo assembly (or unpaired)
 
 
-Omega - search thru smiles, can be done in parallel easily.
-OpenEye support PVM 3.4.4
+</PRE>
 
-PVM info, see lsf.html ...
+Genomic analysis
+
+<PRE>
+App		IN			OUT		Note
+--------------	----------------	-------------	----------------------------------
+Abricate	.fasta			.tsv		resistance, virlenge gene match list as TAB-separated value files
+
+??							extract ST# E.coli Sequence Type
+ezClermont	.fa			.txt		MLST: extract phylogroup A, B1, B2, C, D...
 
 
 </PRE>
 
 
+Phylogenetics analysis
+
+<PRE>
+
+App		IN			OUT		Note
+--------------	----------------	-------------	----------------------------------
+Prokka		.fasta (contigs)	.gff		annotation of core genes, assembled genome as .gff (best when gff filenames are 9 chars long)
+Roary		*.gff			core_gene.aln 	create multi-sequence alignment aligned genome from contigs
+Snp-sites	core_gene.aln		alignment.phy		
+Paup		alignment.phy		tree		alt: Mr.Bayes, RAxML, Mascot
+
+
+</PRE>
+
+
+Finding duplicates.  Not much of a workflow here, more like list of programs to try.
+
+<PRE>
+App		IN			OUT		Note
+--------------	----------------	-------------	----------------------------------
+blastn		.fasta			txt		text, table of gene match.... 
+clustal omega
+muscle
+cd-hit-est-2d	2 fasta			.txt.clstr	
+
+
+
+</PRE>
+
+
+<H1>Bioinformatic Apps</H1>
+
+<H2>Webified</H2>
+
+<A HREF="https://www.phylo.org/index.php/portal/codes/">Cipres Phylo tools</A>
+
+<H2>Contig Assembly </H2>
+
+<LI> FastQC - Quality Control  <BR>
+<PRE>
+fastqc  --noextract --threads 52 *.fq.gz -o ./fastqc_output
+# --noextract should just means do not save the extracted file, and do not remove the original file.
+# there was  option to set TMP extract dir 
+# each thread takes like 8G of RAM, check --help for exact amount.  It is a java based program.
+</PRE>
+Perform initial check of raw reads (usually fastq files).
+Meaning of outputs:  <BR>
+<A HREF="https://dnacore.missouri.edu/PDF/FastQC_Manual.pdf">https://dnacore.missouri.edu/PDF/FastQC_Manual.pdf</A> <BR>
+<A HREF="https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/10%20Adapter%20Content.html">https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/10%20Adapter%20Content.html</A>
+
+
+
+<LI> Trimmomatic (Input: FastQ)
+<LI> Unicycler
+( via <A HREF="https://bioconda.github.io/recipes/unicycler/README.html">biocontainer</A> )
+<!-- Niko's conda? 
+2023.0303 trying equiv of 
+docker pull quay.io/biocontainers/unicycler
+-->
+
+<PRE>
+
+for i in *_1.fq.gz   # dir contain list of paired fastq files, gz'ed
+do
+    string1="${i%_1.fq.gz}"  
+    echo $string1 >> task.lst
+done 
+
+parallel -j 8 -a task.lst  unicycler -1 {}_1.fq.gz -2 {}_2.fq.gz -o ./assembled-seq/{}.fasta --min_fasta_length 500
+# each unicycler instance would take 4? cores by default
+# use -s instead of -1 -2 combo for unpaired fq.gz 
+# there is a -l for long read... RTFM https://github.com/rrwick/Unicycler#installation
+
+</PRE>
+<LI> Price - Fast De novo assembly - UCSF Peter Skewes-Cox 
+<LI> ablab/spades: SPAdes Genome Assembler (github.com, maybe old)
+<LI> 
+<LI>  Roary is a high speed stand alone pan genome pipeline, which takes annotated assemblies in GFF3 format (produced by Prokka). <BR>
+         128 samples with 1GB RAM desktop computer <BR>
+https://sanger-pathogens.github.io/Roary/ 
+<PRE>
+assemble gff into single MSA alignment file (fasta format):
+roary -e -mafft -p 28 *.gff
+# -p 28 = 28 threads
+# input: *.gff file, 1 per taxa, from prokka
+# output: 
+#  - core_gene_alignment.aln    # aln for gff above, msa?
+#  - pan_genome_reference.fa    # non core genome eg e.coli
+
+# plot for viz
+roary_plots.py name_of_your_newick_tree_file.tre gene_presence_absence.csv
+
+</PRE>
+
+
+<H2>Sequence Alignment </H2>
+
+<LI> Clustal, ClustalW  (serial)
+<LI> MAFFT (C) <BR>
+     mafft --thread -1 --nomemsave gisaid_selection.fasta > gisaid_aln.fasta
+<LI> Lagan?  http://lagan.stanford.edu/lagan_web/index.shtml  MSA for WGS of human? 2006.
+<LI> RC Edgar, MUSCLE: Multiple sequence alignment with high accuracy and high throughput. Nucleic Acids Res 32, 1792–1797 (2004).
+<LI> Muscle 
+<A HREF="https://petrov.stanford.edu/software/src/muscle3.6/muscle3.6.html">User Guide</A> <BR>
+     muscle -in seqs.fa -out seqs.afa
+	<BR>
+	cant handle long sequences (eg whole e.coli genome) 3 seq
+
+<LI> Muscle Parallel
+<LI> Mauve.  Simple to use, but may have some compatibility problem?
+<LI> LastZ = improved version of blastz
+<LI> MUMmer http://mummer.sourceforge.net/ version 3.20 from 2007
+<LI>
+
+<H2>Whole Genome Alignment (WGA)</H2>
+
+<LI> Local vs global genomic alignment, Ortholgy mapping, Hierarchical WGA
+<LI> Homology, Orthology, Toporthology, paralogy, colinear homology.
+
+<LI> MUMmer 
+<LI> UCSC Genome Browser
+
+<LI>
+<LI> Phylo
+<LI> Cactus
+<LI>
+
+
+<A HREF="https://link.springer.com/protocol/10.1007/978-1-61779-582-4_8">Evolutionary Genomics book, a chapter covers WGA (2012) [Springer paywall]</A>
+<BR>
+<A HREF="https://link.springer.com/protocol/10.1007/978-1-61779-582-4_8/tables/1">Table 1 - List of WGA methods [Spinter paywall]</A>
+<BR>
+
+<PRE>
+Global Genomic alignment:
+MAVID
+LAGAN/Multi-LAGAN
+DIALIGN
+SeqAn::T-Coffee
+FSA
+Pecan
+
+Hirarchical WGA:
+progressiveMauve
+MUGSY
+
+</PRE>
+
+<H2>Sequence Alignment and Tree Viewer</H2>
+
+<LI> belvu (old school Unix X), has wrap long line for printing.  custom coloring scheme. <BR>
+     open the core_gene_alignment*aln from (Prokka?) <BR>
+
+<LI> aliview (alignment editor, GUI)  can open core_gene_alignment.aln (from Roary), .phy (from snp-site, but this is not aligned?).  very large file is chunked to reduce load time (and memory footprint?).  no option to wrap long line
+<LI> seaview (Unix/X) <BR>
+     No option to wrap long line <BR>
+     sucks up lot of ram for large MSA, slow.  able to open the core_gene_alignment*aln from (Prokka?) <BR>
+     Menu to open Mase, Phylip, Clustal, MSF, Fasta, NEXUS.  but could not open .phy from (snp-sites?) <BR>
+     has option to open nexus file, but - in taxa name is considered start of sequence, probably collapsed multiple --- into one, breaking the space-based alignment (.nex produced by paup). <BR>
+<LI> IGB - Integrated Genomic Browser (Java)
+<LI> GenBeans (Java, NetBeans recast, 2000s?) 
+<LI> FigTree - open .tre from RAxML output (java GUI)
+<LI> <A HREF="https://icytree.org/">IcyTree</A> Drop file into browser to view, but didn't handle .tre from Paup, worked from MrBayes output.  YMMV.  Can open fasta aln?
+<LI> DensiTree (cladogram)
+<LI> Other tree view sw: https://en.wikipedia.org/wiki/List_of_phylogenetic_tree_visualization_software
+<LI>
+
+<H2>Phylogenetic Tree</H2>
+
+<LI> MrBayes (+ Beagle gpu lib)
+
+<A HREF="https://github.com/NBISweden/MrBayes/blob/develop/doc/manual/Manual_MrBayes_v3.2.pdf">Mr Bayes Manual</A> (pdf at their github).  <BR>
+<A HREF="https://isu-molphyl.github.io/EEOB563/computer_labs/lab5/MrBayes.html">EEOB563 tutorial on MrBayes</A>
+
+<PRE>
+mb> log start filename=mblog.txt
+mb> execute mb_anim66.nex		# didnt like .nex from paup, need some slight tweaks, see sci-file.html
+mb> lset nst=6 rates=gamma		# lset = likelihood model setting
+mb> prset shapepr=exponential(0.05)	# setting priors
+mb> showmodel
+mb> mcmcp ...                                     	# mcmcp = make settings, dont actually start
+mb> mcmcp ngen=300000 printfreq=100 samplefreq=100	# ? ~ chain lenght = 300k, for kicking tire maybe better ngen=20k
+mb> mcmcp nruns=2 nchains=4 savebrlens=yes		# MB def really: Metropolis-coupled MCMC 2 idp anal, 4 chains each
+mb> mcmcp diagnfreq=1000 diagnstat=maxstddev		# converge diag settings (these are def)
+mb> mcmcp filename=MB_anim66itv_uni			# filename prefix, _uni for uniform mcmc ??
+mb> mcmc						# actually start the analysis, only use 1 cpu
+mb> 
+mb> sumt						# save tree / show cladogram
+mb> sump 						# 
+mb> sump filename=
+mb> 
+mb> ssp							# stepping-stone sampling setting
+mb> ssp	...						# stepping-stone sampling setting
+mb> ss 							# atually start the stepping-stone analysis
+mb> 
+</PRE>
+
+MrBayes used single CPU core.  MrBayes MPI vs Beagle...
+
+<LI> RevBayes
+<LI> ExaBayes
+
+<LI> PAUP*
+Ref: <A HREF="https://plewis.github.io/paup/">Paup tutorial by P Lewis</A>
+
+<PRE>
+paup      primate-mtDNA.nex # can invoke paup and load/execute nexus file as cli arg
+paup> exe primate-mtDNA.nex # to load file, it is "exe" cuz nexus file can contain command as to what to do.
+paup> log file=paup_primates.log
+paup> hsearch                     # perform heuristic search, fast, 
+paup> set maxtrees=1000 increase=no; hsearch addseq=random nreps=10 nchuck=100 chuckscore=1; # parsimony rachet  
+paup> alltrees                    # perform parsimony search, slow
+paup> showtrees all               # AllTree only retain (2) trees, show them
+paup> showtrees 1
+paup> showtree 2 / taxLabels=truncate semiGraph=yes userBrLens=yes showTaxNum=yes
+#                / indicate options , cmds and options arent case sensitive
+
+paup> toNexus ?
+paup> toNexus / format=PHYLIP fromFile=ggqrs9.phy toFile=paup_ggqrs9.nex interleaved=yes
+# MSA need to have interleaved=yes even when seq are continuous.
+# header/name for each seq in MSA need to have same num of chars?  
+# else it remove chars from seq and err in processing the alignment
+# or issue was that "header" need to be exactly 10 chars long? 
+paup> exe paup_ggqrs9.nex
+
+paup> SaveTrees  # store tree(s) to file
+paup> SaveTrees / format=Nexus brLens=yes trees=all file=anim66_paup_ml1.nex  # .nex is tree only, score in comment section, no seq data, figtree ok.  PREFER
+paup> SaveTrees / format=Newick brLens=yes trees=firstOnly file=anim66.tree ; # figtree can render Newick , but tab in taxa name trip it
+
+paup> GetTrees file=anim66_paup_ml1.nex  # load trees from NEXUS or Newick format 
+
+paup> desc # describeTree 
+
+Note: tree scores are given in -ve log-likelihood, ie -ln(L).
+
+settings for:
+pset  parsimony
+dset  distance
+lset  likelihood 
+
+paup> GammaPlot 	# display gamma distribution plot in ascii terminal
+
+paup> export / format=Nexus file=paup_anim66itv_tax.nex charsPerLine=100 nexusBlocks=taxaChar interleaved=yes
+paup> export / format=Nexus file=paup_anim66itv.nex     charsPerLine=100 nexusBlocks=data     interleaved=yes
+
+# essentially, the taxa "block" has an extra list of all the taxa/name from .phy header.
+# the data "block" format is thus marginally shorter.  used this for MrBayes 
+
+</PRE>
+
+Paup ML search for tree - <A HREF="https://phylosolutions.com/paup-tutorial/">Tutorial</A>
+
+<PRE>
+paup> set crit=l   	# set criterion=likelihood;
+paup> automodel 	# if model param are estimated manually, use `lset fixall` to fix these est param into the model.
+paup> hsearch		# single core, start ~2:30
+
+paup> lset estall; 	# EstAllParams' specified; all model parameters will be estimated
+paup> runraxml; 	# could invoke raxmlHPC via shell to do ml tree generation
+			#  /usr/bin/raxmlHPC-PTHREADS-AVX -s /tmp/paup.XXQAhsCT/paupdata.txt -m GTRCAT -c 1 -V --HKY85 -T 2 -n paup -f d -N 1 -p 127526724
+paup> lscores;
+
+</PRE>
+
+<BR>
+likelihood search & settings
+<BR>
+
+Per https://phylosolutions.com/paup-tutorial/ :
+Searches in PAUP* are extremely slow if model parameters are estimated during a tree search. It is almost always better to estimate model parameters on a fixed tree, and then fix those parameters prior to initiating the tree search.
+<BR>
+so, avoid using `lset estAllParams`
+<BR>
+
+
+<PRE>
+
+using /global/software/vector/sl-7.x86_64/modules/paup/4.0a/paup4a168_ubuntu64
+singularity container version has an issue where nthreads=[actual machine num of core] takes a long time.  use 1 fewer core is workaround.
+
+Begin Paup;
+
+  log file=mytree.LOG;
+
+  set autoclose=yes warnreset=no increase=auto;
+  set crit=likelihood;
+
+  nj;         [! create a seed tree quickly ]
+
+  lset nst=2; [! HKY85+G ]
+  lset nst=6; [! GTR+G   ]
+  lset nthread=auto;   [! auto set num of threads to num of cores on machine ]
+  lset nthread=55;     [! use 1 fewer core than avail for singularity container issue work around ]
+  lset tratio=est;     [! estimate nucleotide transversion/translation ratio ]
+  lset basefreq=est rates=gamma shape=est;  [! estimate base frequency, use gamma dist for rate, estimate shape ]
+  lscores 1;  
+  [! lscores above estimate param #MLE  ]
+  [! lset below fix these estimated param as model param before running search.  in lieu of fixall ]
+  lset tratio=prev basefreq=prev shape=prev;
+  hs start=1; [! start heuristic search, get 1 tree only ]
+
+  savetrees file=mytrees.tre replace=yes;   [! overwrite fille if exist ]
+  savetrees file=mytrees.tre  append=yes;   [! append tree to file, fig tree pick 1 only though, first or last? ]
+End;
+</PRE>
+
+<LI> BEAST (v1)  <BR>
+<!-- beast 1 cmd from sars-cov-2 paper, cmd ran on domingo 
+the first jar seems to be present in debian beast-mcmc, but not the second one...
+also see run_prisa_pipeline4_beast1.sh
+-->
+<PRE>
+     java -cp beast.jar dr.app.beast.BeastMain -seed 2020 -beagle_double -beagle_gpu -save_every 1000000 -save_state travelHist.checkpoint  ../files/Protocol3/282_GISAID_sarscov2_travelHist_masked.xml
+     java -cp beast.jar dr.app.tools.TaxaMarkovJumpHistoryAnalyzer -taxaToProcess "hCoV-19/Brazil/SP-02/2020/EPI_ISL_413016|2020-02-28" -stateAnnotation location -burnin 100 -mrsd 2020.174
+</PRE>
+
+<LI> BEAST (v2)  <BR>
+<!-- https://github.com/tin6150/psg/blob/master/script/hpc/slurm-job-gpu-beast.sh and INC1432103) -->
+<PRE>
+ImgDir=/global/home/groups/consultsw/sl-7.x86_64/modules/beast2/2.6.4/
+
+singularity exec --nv $ImgDir/beast2.6.4-beagle.sif \
+/usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_info
+
+singularity exec --nv $ImgDir/beast2.6.4-beagle.sif \
+/usr/bin/java -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_GPU testHKY.xml
+
+
+treeannotator -b 10 ..."dot"...trees > mcc.tree
+# -b 10 take first 10% as burn in (remove these trees)
+# BEAST log 2 version of the .trees file, "dash"(smaller file) and "dot"(larger file),  use the "dot" version.
+# need to hand edit to remove header line from resulting mcc.tree
+
+</PRE>
+
+<LI> RAxML - generate max likelyhood tree, fast, but careful with the stat.  <BR>
+<PRE>
+raxmlHPC-PTHREADS-AVX   -s duck.phy          -n duck.tree          -m GTRCAT -f a -x 123 -N autoMRE -p 456  -T 28
+-m GTRCAT = model, GTRCAT argued to be one of the best/fast computationally
+-f a = perform the ML (Max Likelihood) in same run as bootstrap
+-N autoMRE = bootstrap criteria, autoMRE found to work best
+-x 123 is random number seed
+-p 456 is rnd seed for parsimony inference
+-T 28 # number of threads
+-s input.phy #  .phy  get from snp-sites -p
+-n output fileS actually series prefixed with RAxML_
+figtree can open the RAxML_*Tree.*.tre file
+
+# 
+## could input be .aln from roary? (skip snp-sites?)
+</PRE>
+Ref: 
+<A HREF="Evolution and Genomics tutorial on RAxML">https://evomics.org/learning/phylogenetics/raxml/</A>
+<A HREF="Evolutionary models ">https://isu-molphyl.github.io/EEOB563/computer_labs/lab4/models.html</A> <BR>
+<PRE>
+--model 
+(nucleotide): JC, K80, HKY, GTR, etc
+(portein):    Blosum62, Dayhoff (PAM),  etc
+(binary data): BIN
+(...)
+
+</PRE>
+
+<LI> RAxML-NG
+<LI> Dendogram/cladogram
+<LI> K Tamura, et al., MEGA5: Molecular evolutionary genetics analysis using maximum likelihood, evolutionary distance, and maximum parsimony methods. Mol Biol Evol 28, 2731–2739 (2011).
+<LI> BAli-Phy
+<LI> FastTree
+<LI>
+<LI> GUBBINS - Genealogies Unbiased By recomBinations In Nucleotide Sequences - alignment and tree generation.  <BR>
+     https://github.com/nickjcroucher/gubbins
+<LI> iqtree
+<LI> rapidNJ - RapidNJ is an algorithmic engineered implementation of canonical neighbour-joinin - (needed by Gubbins)  https://github.com/johnlees/rapidnj
+<LI>
+
+<H2> Genomic characterization </H2>
+
+<LI> Abricate = AntiBiotics Resistance Finder.  database + extension to find antibiotics genes
+<PRE>
+
+AbricateDB_list="vfdb resfinder ecoli_vf"
+abricate --db $AbricateDB ${Filename}.fasta/assembly.fasta > ${Filename}_${AbricateDB}.txt
+abricate --summary *_${AbricateDB}.txt  > ${AbricateDB}_summary.csv
+
+# https://github.com/tseemann/abricate
+# ABRicate can combine results into a simple matrix of gene presence/absence. 
+# An absent gene is denoted . and 
+# a present gene is represented by its '%COVERAGE`. 
+# This can be individual abricate reports, or a combined one.
+
+
+</PRE>
+<LI> Abricate - PlasmidFinder 
+<LI> mlsplasmids (web)  eg find whether bla_CTX-M gene is plasmid-borne or chromosome bound.
+<LI> MOB-suite - annotate contig as chromosomal vs plasmid
+<LI> Abricate VR - find resistance genes
+<LI> MLST - Multi-Locus sequence typing (for bacteria)
+	<BR>
+	Default output columns are Filename        PubMLST_scheme_name     SeqType Allele_IDs
+	<BR>
+<LI> PubMLST typing scheme  (find ST?  eg ST131, ST69, etc?)
+<LI> cgMLST
+<LI> <A HREF="https://warwick.ac.uk/fac/sci/med/research/biomedical/mi/enterobase">EnteroBase</A> group ST into STc, Sequence Type complex.  Scheme used: 
+Achtman 7 Gene MLST, 
+cgMLST V1 + HierCC V1,
+rMLST,
+wgMLST.
+<LI> <A HREF=https://cge.food.dtu.dk/services/cgMLSTFinder/">cgMLST from The center for genomic epidemiology</A>
+web based, create auto alignment + categorization. <BR>
+
+<LI> <A HREF="https://github.com/nickp60/EzClermont">EzClermont</A> E coli phylotyping tool (A, B1, B2, C, D, E, F, G) 
+     <BR><TT>singularity pull --name ezclermont     docker://quay.io/biocontainers/ezclermont:0.7.0--pyhdfd78af_0</TT>
+	<PRE>
+	ls *.fasta > ezc.input.lst
+	cat ezc.input.lst | parallel "ezclermont {} 1>> ezclermont.results.tsv  2>> ezclermont.results.log"
+	</PRE>
+
+<LI>
+
+<H2>Gene Annotation</H2>
+
+<LI> prokka - https://github.com/tseemann/prokka - genome annotation (bacterial, archaeal and viral genomes), output std compliant files.  annotation = blast for gene info
+<PRE>
+prokka --outdir mydir      --prefix mygenome contigs.fa
+prokka --outdir prokka_K1  --prefix gnm_K1 --centre _pilon --compliant K1.fasta
+# --centre [X]       Sequencing centre ID. (default '')
+# --centre NAME get stripped
+# --compliant        Force Genbank/ENA/DDJB compliance: --addgenes --mincontiglen 200 --centre XXX (default OFF)
+# --prefix           filename for result, get .gff, .tsv, etc.  so 1 prefix per isolate should be good for PRISA.
+#                    ## best if basename.gff is 9 chars max, allow 1 tab char added by paup, if need conversion to .nex
+# should give a better prefix name, it will be filename and FASTA header in .gff and other downstreap
+# but not too long, 37 chars limit
+# --force            prokka wants to create the output dir, but prefix will keep files apart.
+prokka --outdir PROKKA  --prefix genome_rabbit_R21 --centre _pilon --compliant --force R21.fasta
+## input:  fasta file with many fragments (contigs, nodes)
+## output: lot of stuff, .gff is suitable for downstream alignment and phy tree generation.  
+##         txt, tsv = table of annotated genes
+</PRE>
+
+<LI> 
+<A HREF="https://sites.google.com/view/cd-hit">cd-hit</A>, 
+<A HREF="https://github.com/weizhongli/cdhit/wiki">wiki doc</A>
+<BR>
+<BR>
+cd-hit finds duplicate protein, or duplicate entries between 2 database.  I used it to find if sequnces of two isolate is actually the same, ie from same source bbacteria.
+
+<PRE>
+export MAX_SEQ=10000000  # build to support larger sequence length, 10M 
+make clean
+make
+
+
+ulimit -s unlimited
+/opt/cd-hit/cd-hit-MAX_SEQ-10M/cd-hit-est-2d -M 15000 -T 0 \
+-i  A62_CKDN220053932-1A_HK7Y3DSX5_L1.fasta   \
+-i2 A63_CKDN220053933-1A_HK77NDSX5_L2.fasta   \
+-o A62_A63_cd-hit-est-2d.TXT
+
+similarity scoring result in the .TXT.clstr file
+ 
+# arguments and defaults:
+-c 0.9  #  seq identity threshold
+-n 10   # word length
+-T 1    # num of threads, 0 = use all cpu
+-M 800  # ram, in MB.
+</PRE>
+
+Reading the .clstr output
+<BR>
+<A HREF="https://www.biostars.org/p/9491956/">biostars post on reading the .clstr output</A>
+<BR>
+<PRE>
+>Cluster 0                                     # cd-hit create 1 cluster per > entry in fasta from -i
+0       686065nt, >1... *     
+1       685859nt, >1... at -/100.00%           # - is match from reverse strand
+
+
+>Cluster 3
+0       403385nt, >4... *
+>Cluster 4                                     # these are cluster without matches (eg isolate A33 vs A34 in my data)
+0       321741nt, >5... *
+
+
+>Cluster 15
+0       59656nt, >16... *
+1       4688nt, >39... at -/96.37%
+2       4687nt, >40... at -/95.71%
+3       1746nt, >58... at -/99.03%
+4       1745nt, >59... at +/99.03%
+^       ^       └── the >id from inside the fasta file (often just contig chunk number)
+│       └──  representative seq (here just specify nucleotide seq length)
+└── col 1 = match num
+
+
+# easier eyeball for non match (ie seq that aren't duplicate)
+cat A62_A63_cd-hit-est-2d.TXT.clstr | egrep '^>|^1' 
+
+</PRE>
+
+<--
+└──  ext ascii box drawing character 
+https://theasciicode.com.ar/extended-ascii-code/box-drawing-character-single-line-lower-left-corner-ascii-code-192.html
+-->
+
+<BR>
+
+<LI> blast, blastn, blastp
+<LI> 
+<LI> 
+
+<H2> SNP </H2>
+
+<LI> snp-sites  <BR>
+<LI> GATK  <BR>
+
+<PRE>
+snp-sites -p  -o rabbit_K1_R21.phy core_gene_alignment.aln   <BR>
+input:   MSA alignment eg core_gene_alignment.aln from roary <BR>
+output:  phy  - phylip file, may have no gaps as -.  eg used as input by RAxML <BR>
+
+Usage: snp-sites [-mvph] [-o output_filename] {file}
+This program finds snp sites from a multi fasta alignment file.
+ -r     output internal pseudo reference sequence
+ -m     output a multi fasta alignment file (default)
+ -v     output a VCF file                                           ##
+ -p     output a phylip file
+ -o STR specify an output filename [STDOUT]
+ -c     only output columns containing exclusively ACGT             ## removed gaps?!
+ -b     output monomorphic sites, used for BEAST                    ##
+ {file} input alignment file which can optionally be gzipped
+
+snp-sites -cb -o outputfile.aln   inputfile.aln.gz
+</PRE>
+
+
+<LI> snippy - rapid haploid variant calling and core genome alignment <BR>
+     https://github.com/tseemann/snippy
+<LI> snippy-vcf_report - look at variants from vcf -- text or html file output
+<LI>
+
+<H2> TBD </H2>
+
+<LI> Phylip - infer phylogenies.  methods: parsimony, distance matrix, likelihood
+<LI> squizz  - convert or check format
+<PRE>
+squizz -l # list supported format
+squizz     core_gene_alignment_ggqrs9.aln -c NEXUS        > core_gene_alignment_ggqrs9.nex
+# convert  ^^^^^input file aln FASTA^^^^^ ^^to format^^   ^^ output is to stdout
+squizz -A core_gene_alignment_ggqrs9.nex   # check/validate named file
+</PRE>
+
+
+<LI> SamTools 
+<LI> SantaCruz genomic browser
+<LI> BROAD GATK
+<LI> <A HREF="https://usegalaxy.org/?tool_id=toolshed.g2.bx.psu.edu%2Frepos%2Fiuc%2Fsnippy%2Fsnippy%2F4.6.0%2Bgalaxy0&version=latest">Galaxy</A> Web browser based bioinformatics toolkit 
+<LI> InGenius? EnGenius?
+<LI> ParallelStructure (R)
+<LI> Migrate-N (C)
+<LI> ModelTest-NG
+<LI> IMA3
+<LI> GARLI
+<LI> G-PhoCS
+<LI> EPA-NG
+<LI> ASTRAL (CPU, GPU) Java/C++ 
+<LI> MASCOT
+<LI>
+<LI> art (artemis) - view gff3 files (master genome annotation, eg from prokka)
+<LI> sequin 
+<LI> exonerate
+<LI>
+<LI> Bactopia - workflow for bacterial analysis.  Use Nextflow WML?
+<LI> Geneious - GUI app, $575/yr academic, $200/yr student.  
+     https://www.geneious.com/pricing/
+<LI>
+
+<BR><HR><BR>
+
+<H1>Data Wrangling Apps</H1>
+
+
+<H2>Pipeline tool</H2>
+
+<LI> Pipeline Pilot
+<LI> Knime
+<LI> Orange lab
+<LI> tableau
+<LI> TIBCO Spotfire
+<LI>
+
+<H1>ChemInfo/StructBio Apps</H1>
+
+<LI> Schrdoginer: Jaguar ...
+<LI> Topspin
+<LI> Charm
+<LI>
+
+<!-- /home/tin/Dropbox/ref.gg/sciapp.html -->
+
+
+<A ID="oe"></A>
+<H1>OpenEye</H1>
+http://www.eyesopen.com
+
+<BR>
+Omega - search thru smiles, can be done in parallel easily.
+<BR>
+OpenEye support PVM 3.4.4
+<BR>
+
+PVM info, see lsf.html ...
+<BR>
+
+
+<PRE>
+
+Omega - For database.  Search thru smiles, can be done in parallel easily.
+Flipper - ??.
+OpenEye support PVM 3.4.4
+
+License file in /b/app/openeye/etc/oe_license.txt
+Just update with new version, unix or DOS format okay.
+
+</PRE>
+
+<H2>Omega2, PVM and LSF</H2>
+
+<PRE>
+
+The following will use lsf to submit a job to run PVM, using omega2 pvm features,
+it must be started from a 64-bit OS machine, eg phpc-mn001:
+
+bsub -o lsf.out -e lsf.err -q omega -n 12 pvmjob-openeye omega2 -in ./input.smi -out output.oeb.gz -fraglib /b/app/openeye/data/omega2/fraglib.oeb.gz -log omega2.log
+
+-o will capture standard ouptut to specified file
+-e will capture standard error
+-q omega is the queue we will use
+-n 12    is the number of cpu used.  For now, bsub only allows max of 12, 
+         which means spreading to 3 machines, 4 CPU each.
+	 Will investigate wayt to make this up to 32.
+
+pvmjob-openeye  is an adapted version of the pvmjob provided by LSF, 
+		so far only tested with omega2, but may work for flipper, rocs.
+
+Rest of the command line is omega2 specific parameter, and should be adjusted accordingly.
+More importantly, the fraglib may need to point to a user defined database.
+When LSF runs, the "-pvmconf" parameter will be appended to the end, with a config
+file generated by LSF on the fly.
+omega2 produces files like omega2_status.txt to keep user abreast of its progress.
+
+Each user that submit PVM job will have his/her own pvmd daemon running, 
+so they are independent.  
+However, for the same user, multiple PVM job that overlaps may cause conflict, 
+this is not tested yet, may want to run only one job at a time.
+
+</PRE>
+
+<BR><HR><BR>
+
+
+
+<H1>Schrodinger</H1>
+http://www.schrodinger.com
+
+<PRE>
+A series of software suite for molecular modeling.
+
+Maestro:
+Unified interface for all of schrodinger app, a modeling env for research work.
+Free for academic use.
+
+MacroModel: 	molecular modeling
+Prime: 		protein structure prediction
+Glide:  ligand-receptor docking (virtual screening from HTVS to SP to XP)
+Jaguar: ab initio (quantum mechanics) electronic structure package 
+
+Induced Fit:
+prediction of ligand induced conformational changes in receptor active sites.
+Utilize Prime and Glide
+
+$SCHRODINGER 	= /b/app/schrodinger
+
+
+</PRE>
+
+
+<H3>Schrodinger FlexLM license</H3>
+
+<PRE>
+process on lic svr:
+
+sbio     28647     1  0  2006 ?        00:03:49 /b/app/schrodinger/mmshare-v15113/bin/Linux-x86/lmgrd -c /b/app/schrodinger/license -l /b/app/schrodinger/lmgrd.log
+sbio     28648 28647  0  2006 ?        00:05:36 SCHROD -T pdir-nis01.geneusa.com 9.5 3 -c /b/app/schrodinger/license -lmgrd_port 6978 --lmgrd_start 4xxxc9c7
+
+
+su - sbio #uid 700
+# Update license file.  beta license can be appended to end of production license file.
+# schrodinger-beta/license file can be sym link to the production one.
+setenv SCHRODINGER /b/app/schrodinger
+$SCHRODINGER/licadmin REREAD
+
+lmutil - Copyright (c) 1989-2004 by Macrovision Corporation. All rights reserved.
+lmreread successful
+
+
+Some time licadmin REREAD on beta license seems to whine about errors, 
+but it actually worked, tail the log and in about a minute, it will say license 
+reread corretly.
+
+tail -f /b/app/schrodinger/lmgrd.log
+
+
+
+</PRE>
+
+
+<H3>Schrodinger Prime Multi-CPU work around</H3>
+(until Maestro can do ssh b/w different hosts w/o password, which work, but may have other problems.
+Need more investigation).
+
+<PRE>
+ So, for the multi-CPU prime problem, our scientist tried the work 
+ around  specified earlier as:
+ 
+ 
+  multirefine  -LOCAL -HOST prime:4   prime_chad6
+  -----------  -----  --------------  -----------
+        1	2	    3		   4
+ 
+  1 - prime command for running refine
+  2 - this is what will keep it from fizzling. 
+  3 - this is the queue and number of cpu to use
+  4 - input file name (.inp is optional)
+
+</PRE>
+
+<H3>General Schrodinger commands</H3>
+
+<PRE>
+$SCHRODINGER/jobcontrol -list -c volvoland-0-45b90452
+	See jobs submitted by Schrodinger
+	-c = see specific JobId, can be omitted to see all jobs
+$SCHRODINGER/jobcontrol -delete [jobid]
+	Delete a job
+
+$SCHRODINGER/hunt -rtest
+	Test ensure queue system listed in schrodinger.hosts  are reachable.
+	Only test entries that are hosts entries, not those that are batch queues.
+
+$SCHRODINGER/utilities/mpich status -d
+	Check status of mpich as known by Schrodinger.  -d = debug  (def port = 1234)
+
+</PRE>
+
+<A NAME="mpich"></A>
+<H3>Schrodinger and MPICH </H3>
+<PRE>
+(See config-backup/sw/mpi/mpich1.test.txt for more info)
+
+Schrodinger 2007 Install guide talks about basic MPICH req, setup.
+Jaguar ch 12 discusses Parallel Jaguar and MPICH installation (p294). 
+
+req
+- MPICH1
+- kernel compiled for SMP
+
+two special lib compiled for mpich1 (source included):
+- libcmp.so
+- libprun.so construct command to run mpirun.
+
+compile mpich with --with-device=ch_p4          
+RSHCOMMAND=ssh                                  (./configure ... -rsh=ssh)
+
+Even if using ssh, still need $HOME/.rhosts or /etc/hosts.equiv,
+serv_p4 needs it!   As per Dale Braden of Schrodinger.
+
+SCHRODINGER_MPI_FLAGS="-v" env pass -v (verbose/debug) option to mpirun.
+
+Consider update template and/or submit with path to MPIRUN (add to beginning), 
+but so far not needed (script in $SCHRODINGER/queues/{LSF|PBS}/.
+
+While Schrodinger use sh/bash for its script, user whose native shell is csh/tcsh
+does not need to create .profile/.bashrc.  The session to remote host will start with 
+user's shell and .cshrc, then create the bourne shell, inheriting all the environment 
+settings.
+
+
+If each user will have its own ring of MPICH damons, then set env as:
+	SCHRODINGER_MPI_START=yes
+	MPI_P4SSPORT=4644		# uniq port per user
+MPICH would be started automatically by Schrodinger on demand
+(they seems to be actually started by mpirun).
+
+
+Setting a per-user daemon is said to be the more fail-safe way of running parallel jaguar.  
+A shared ring of mpich daemon sometime breaks (security, etc).
+The most important thing is actually to start serv_p4 on each node of the MPICH ring 
+manually (as root), and DON'T use the $MPIHOME/sbin/serv_chp4 script, 
+which somehow don't pass
+all the req env for parallel jaguar to run!!  
+Schrodinger mpich utilities is okay, it does the right job.
+Set env as:
+	SCHRODINGER_MPI_START=no
+	MPI_P4SSPORT=1235		# static port to be used by all user.
+And start process as root (user process is not shareable):
+	$SCHRODINGER/utilities/mpich start -m $SCHRODINGER_NODES -p $MPI_P4SSPORT
+Having an rc script on the head node of a cluster to start this 
+is acceptable (instead of script on each node that starts serv_p4 individually, 
+but that may provide way to write to a central log dir).
+The $SCHRODINGER_NODES is essentially the machines.LINUX file needed by MPICH.
+Bear in mind Jaguar does not support shared memory so DON'T use host:n syntax!
+
+
+
+</PRE>
+
+<H4>$SCHRODINGER/utilities/mpich subcommands</H4>
+
+<PRE>
+start           Start servers, really just call MPICH serv_p4 -o -p PORT on each nodes.   # don't use!
+stop            Kill servers
+restart         Kill and restart servers
+status -d       Report server status, -d = debug
+pid             Report server PID, but only work if schrodinger started mpich
+config          Describe the MPICH configuration.
+
+sems            Report semaphore sets in use
+rmsems          Delete all semaphore sets
+shm             Report shared memory segments in use
+rmshm           Delete shared memory segments (see text below)
+rmipcs          Delete both semaphores and shared memory segments
+
+-m HOSTFILE     act on given list of nodes only.  def = $MPI_HOME/.../machines.LINUX
+-d              debug
+-p 4644         use specified port
+
+
+If just running MPICH for Schrodinger, mpich start would be good to use.
+But definately don't use chp4_servs script, which either don't start for root, 
+or create process that is not shareable with other users.
+If mpich daemon log is desired, then start serv_p4 manually on each node, 
+tell it where to log (see mpi page for details).
+
+
+
+
+</PRE>
+
+<H3>Testing Schrodinger Programs</H3>
+
+<PRE>
+
+$SCHRODINGER/multirefine -DDEBUG -HOST hpc prime_loop.inp
+	Run a prime_loop job with debug options
+	Job summited to LSF
+	Note that the .inp (and possibly .mae) files need to be unix format.
+
+$SCHRODINGER/bmin -HOST macromodel  tintest
+	# need tintest.com and tintest.mae
+	# see ~tin/sci/bmin3 for small job that run in ~ 10 min 
+	# omit "-HOST queuename" and it will run on local machine.
+
+</PRE>
+
+<H3>Schrodinger Jaguar commands</H3>
+<PRE>
+
+Jaguar "run" jobs will work with MPICH daemon started by user or a shared root process.
+
+$SCHRODINGER/jaguar run -PROCS 4 -HOST remotemachine waterTest
+	# command line version of jaguar to run against waterTest.mae
+	# -PROCS 4 tell it to run on 4 CPU, which automatically invokes mpirun
+	# -HOST "host1 host2" tell it to run on the specified named hosts
+	#       they don't need to be defined in schrodinger.hosts file
+	# see sci/jaguar_parallel for files
+
+$SCHRODINGER/jaguar run -HOST "node1 node2 node3 node4" -PROCS 4 piperidine
+	# (standard sample test file from $schrodinger/jaguar-v.../samples)
+
+$SCHRODINGER/jaguar run -HOST "vic2 vic3 vic4 vic5 vic6" -PROCS 6 parajag-test-feb6-2008-realpara
+	# parajag test, adapted from sample (?).  run up to 6 proc only, pjag dies in 8 proc.
+
+
+$SCHRODINGER/jaguar batch pjag07.bat
+	# run batch job defined in the .bat file
+	# see sci/jaguar_parallel_perf for files
+	# don't seems to run with root mpich daemon :(
+
+
+</PRE>
+
+<H2>Schrodinger Environmanet Vars</H2>
+
+<PRE>
+
+setenv SCHRODINGER_JOB_DEBUG 1		# or 2 for even more verbosity to std out.
+setenv SCHRODINGER_RETAIN_JOBDIR 1
+
+[MPI related]
+SCHRODINGER_MPI_START=yes
+SCHRODINGER_MPI_FLAGS="-v" 		# (verbose/debug) option to mpirun.
+MPI_HOME=/protos/package/linux/mpich
+MPI_USEP4SSPORT=yes			# yes means one mpich daemon per user,
+					# which require user to define their own port
+					# "no" would mean use a shared (root) process.
+MPI_P4SSPORT=1234			# def port is 1234 and would not need to be defined.
+
+
+needed?
+setenv RSHCOMMAND ssh
+setenv LM_LICENSE_FILE @flexlm-license
+
+
+</PRE>
+
+
+<BR><HR><BR>
+
+<H1>Accelrys</H1>
+http://www.accelrys.com/
+<PRE>
+
+Install location:
+/b/app/Accelrys
+/opt/Accelrys17beta/SciTegic/linux_bin
+
+1.7 beta key = q4xxxkk, k2xxx3x
+default port for scitegic server (installed by discovery studio) 
+9944, 9943 for http, https.
+change to 9844, 9843 on chris' windows desktop.
+
+
+
+pipeline pilot svr cn002
+
+Allegedly Pipeline Pilot server does not support 64-bit linux, but we got it to work, 
+albeit error in log.
+PP Server is aka Discovery Studio Server.
+Only when needing Pipeline Pilot client to modify protocol does the Pipeline Pilot
+package need to be installed (and purchased?) separately.
+
+
+Starting/Stopping server:
+
+cd /opt/Accelrys17beta/SciTegic/linux_bin
+./startserver
+./stopserver
+
+Logs:
+/opt/Accelrys17beta/SciTegic/logs/messages
+/opt/Accelrys17beta/SciTegic/apps/scitegic/core/packages_linux32/apache/httpd-2.0.55/logs
+
+</PRE>
+
+
+<H3>
+Updating FlexLM license:
+</H3>
+
+<PRE>
+login to license server (pdir) as user accelrys
+backup up old /b/app/Accelrys/LicensePack/Licenses/msi.lic
+update /path/to/new/msi.lic with correct port number (1715)
+and 2nd line should read:
+DAEMON msi /b/app/Accelrys/License_Pack/Linux_2_Intel_32/exe/msid
+
+
+source /b/app/Accelrys/LicensePack/msi_lic_cshrc
+lpver   # should say 7.0.2
+source /b/app/Accelrys/LicensePack/etc/lp_cshrc
+lp_install /path/to/new/msi.lic
+
+lp_admin	# gui to manipulate/view licenses.
+
+
+NOTE: don't have any files ending msi.lic in the License File Directory,
+or they will all be read as actual msi.lic license file!
+
+
+</PRE>
+
+<H3>
+Updating beta license:
+</H3>
+
+<PRE>
+
+1.  Replace feature file in <scitegicroot>\xml\objects\InstallInfo.xml
+(scitegicroot=/opt/Accelrys17beta/SciTegic/) 
+with a vendor provided file, eg geneusa.xml
+
+
+2.  Update /opt/Accelrys17beta/LicensePack/Licenses/msidemo.lic ::
+
+This file is created by Discovery Studio!  Do:
+source /opt/Accelrys17beta/LicensePack/etc/lp_cshrc 
+/opt/Accelrys17beta/LicensePack/linux/bin/lp_admin
+	# --> remove expired features
+	# step seems optional, probably remove nagging if new license has less features.
+cd /opt/Accelrys17beta/DiscoveryStudio17/bin
+	./install_temp_license
+	# use new temporary key for license eg E8632nX or /7n32mt
+	# provided by vendor.
+3.  All done.  No server restart is required.  
+
+There was some check for /opt/Accelrys17beta/LicensePack/... msi_server , 
+which was not found anywhere.  Alan Lopez said don't worry about it.
+
+
+
+
+
+
+</PRE>
+<BR><HR><BR>
+
+<H1>
+Tripos
+</H1>
+
+<H2>
+Overview
+</H2>
+
+Tripos Sybyl is a program to manipulate molecues.  Supports stereo hardware for 3D display.   It should be viewed as a user GUI program that runs on the user's computer.  Sybyl itself has no server/daemon process.  Orignially written for SGI for their good graphics support, but Linux linux port is available.  Some features like Multi-Processor is only supported in SGI (as of Sybyl 7.2).  SGI and most Unix are big endians, but Intel is little endians.  Not all file format has build in ability to swap byte orders, thus some of them are not cross platform compatible between SGI and Linux.
+<BR>
+Trigo is a wrapper tool to setup the environment and tie the various pieces together, including license check out settings.
+<BR>
+Unity is a database and search program to search molecules accordoing to some phamacophoric parameters, etc.  
+<BR>
+TPC, Tripos Property Service is a daemon (tpsd) that runs on one machine, typically the FlexLM server, so that it can cache and interface info between Sybyl and Unity.
+<BR>
+NetBatch is a batching processor, most Sybyl command has build in NetBatch  options, but some require special batching commands to process.  It is just a queing with the local host, no canned support for LSF.  Licensing in a multi-host cluster environment may prove tricky also.  There is probably no deamon process, but trigo may need to be running for job to be processed.
+<BR>
+Tripos use FlexLM to manage its license.  A nodelock license exist if no server is desired. 
+<BR>
+<BR>
+<BR>
+<BR>
+
+
+
+<H2>
+Sybyl
+</H2>
+
+<H3>
+Starting
+</H3>
+
+<PRE>
+trigo -shell sybyl7.3  	# source the enviroment config
+sybyl7.3		# start the program. Must be done from xterm; problem with gnome-term.
+
+
+</PRE>
+
+
+<H3>
+Environments
+</H3>
+
+<PRE>
+TA_LICENSE = /b/app/tripos-linux/AdminTools9.2	# old sybyl 7.2
+license    = /b/app/Tripos/AdminTools9.2/tables/license_file # (old SGI)
+
+TA_LICENSE = /b/app/tripos-linux/AdminTools10.8	# sybyl 7.3
+license    = /b/app/Tripos/AdminTools10.8/tables/license_file 	
+
+TA_ROOT	   = /b/app/tripos-linux/sybyl7.3
+
+netBatch   = $TA_ROOT/batch/bin/submit.sh
+		script define what to do in Solaris, AIX, but no LSF?
+
+</PRE>
+
+
+<H3>
+Trigo commands
+</H3>
+
+<PRE>
+$TA_LICENSE/bin/unix/ta_stat 	# show license info  (FlexLM)
+
+trigo -list		# show what program is avail, and their $TA_ROOT
+			# def in app/tripos-linux/trigo/tables/ta_config
+
+trigo -shell sybyl    	# alias, now points to sybyl7.3 also
+trigo -shell sybyl7.2	# specify version of the tool
+
+trigo -shell sybyl7.3  	# source the enviroment config
+sybyl7.3		# start the program. Must be done from xterm; problem with gnome-term.
+
+</PRE>
+
+
+<H3>
+NetBatch Config
+</H3>
+
+<PRE>
+cd $TA_ROOT	(eg /b/app/tripos-linux/sybyl7.2)
+./bin/linux/NetConfig
+NetConfig> load
+NetConfig> list machine
+NetConfig> list connection
+
+Config file is stored in 
+/b/app/tripos-linux/sybyl7.2/batch/admin/COMMUNICATION
+
+Some machines need FQDN, other just hostname,
+it really depends on how the machine reports $HOSTNAME
+Listing both may not be good, as it create too many choices when submitting netbatch jobs.
+
+</PRE>
+
+<H3>
+NetBatch Test
+</H3>
+
+<PRE>
+
+Test 1:
+open pdb file
+Compute, search, grid search, it should list of machines usable with netbatch.
+If it can't find the machine in the netbatch config, then this feature will complain.
+
+-----
+
+Test 2 from Mario using GASP:
+Go to Tools, Pharmacophore Alignment , GASP this will open the GASP window.
+Then put any Run Name. 
+In the input section choose Sybyl MultiMol2 and 
+click on the box with the 3 dots so to browse for the file. 
+eg use Tin_test.mol2
+Once the file loads it will create a MSS. 
+Just go to Batch session in GASP and 
+select run gasp in batch and pick a machine.
+It will be good to set NetBatch options to do logging, at the INFO level.
+
+Then run in Batch.  If machine is remote, right now fails with 
+"cannot communicate".  Probably rsh failing.
+Job will seems to run, but output get vaporized.
+
+</PRE>
+
+<H3>
+Tripos Galahad test
+</H3>
+
+<PRE>
+
+Need 3 mol2 files, open them into the molecule view window
+create a molecular spreadsheet (MSS)
+Then run Galahad using this MSS.  Can run in NetBatch if desired.
+
+Details:
+
+File, Read, (open first mol2 file), ok.
+Repeat File, Read and open two more mol2 file into separate layers.
+Use files from dir ~tinh/sci/galahad/tgr79_galah1_set2new_tinTest/
+
+File, Molecular Spreadsheet, New, Data Source = Molecutes in Mol Areas.
+Give it a MSS name and a DB name (db will be saved as file in the dir where sybyl is running).
+
+Tools, Pharmacophore alignment, galahad.
+For the MSS source, use the MSS spreadsheet created above.
+give it a run name and run it.
+
+If running in NetBatch mode, if successful, SYBYL text window would display message.
+Also see galahad_results dir, as well as scores.out file.
+log file would also not display any error.
+
+
+</PRE>
+
+
+<H3>
+Tripos Property Service (TPS)
+</H3>
+
+
+<PRE>
+TPS is used to store session data when working with UNITY DB.
+It starts as an xinetd.d service
+
+setup using a script:   $TA_ROOT/bin/unix/install_tps
+
+The service need to be run as root, with the following settings:
+2. Make sure the following line is in your /etc/services file:
+   tripos_tpsv41   4080/tcp     #TPS listens to this port
+3. Enter: cp /b/app/tripos-linux/tpsv41/tripos_tpsv41 /etc/xinetd.d/tripos_tpsv41
+4. Enter: chmod 644 /etc/xinetd.d/tripos_tpsv41
+5. Enter: /etc/init.d/xinetd restart
+
+(It is running on pdir-nis01, presumably for Sybyl 7.2 and older.
+Subsequent config didn't do anything.  No need to start a new one in 7380.
+</PRE>
+
+
+<H3>
+Licenses
+</H3>
+
+
+<PRE>
+feature should to apear only once, if renewing, comment out old ones.
+Last number in the FEATURE line is number of user, not version :)
+
+to specify which port license request will listen to, place the number
+at the end of the SERVER line, eg port 1717 for tripos :
+
+SERVER pdir-nis01.geneusa.com 00xxxxxx2b7c 1717
+DAEMON triposlm
+ 
+
+
+###      - If the SYBYL 7.0 license manager is currently running, 
+###        make the license manager reread the license file by 
+###        entering: 
+###             $TA_LICENSE/bin/unix/ta_reread 
+###        If the SYBYL 7.0 license manager is not running, start  
+###        the license manager by entering: 
+###             $TA_LICENSE/bin/unix/triposlm.sh -up 
+###      - If using Trigo, close the shell by entering: 
+###             exit 
+
+
+so, update update, su - triposl, 
+/b/app/tripos-linux/AdminTools9.2/bin/unix/ta_reread -c /b/app/tripos-linux/AdminTools9.2/tables/license_file
+
+FlexLM log file that track check out?
+/b/app/tripos-linux/AdminTools9.2/LicenseLog
+
+Then the environment will be set correctly for $TA_LICENSE, etc.
+and can run ta_reread w/o specifying license path.
+
+In pdir, the wrong license server was still running.
+(old sgi version, so ta
+/b/app/Tripos_SGI_to_be_removed/AdminTools9.2/bin/unix/triposlm.sh stop
+
+relogin as triposl  (l for linux).
+/b/app/tripos-linux/AdminTools9.2/bin/unix
+./triposlm.sh -up
+to start the flexlm vendor daemon.
+
+- fix startup script on pdir  -- done.
+- cross check licenses to make sure they are good.  -- old license files backed up, review if needed.
+- fix rollup.env whereby tripos path get mangled up by other intermediate script.
+
+- trigo is the program to start a GUI program for Tripos Sybyl 7.2
+- There is a bookshelf (html help files).
+
+
+</PRE>
+
+
+<PRE>
+-------- tripos license processes old triposl user, sybyl 7.2 -----------------
+
+[triposl@pdir-nis01 unix]$ ps -ef | grep tripos
+root     28651 28367  0 Sep14 ?        00:00:00 /bin/sh /etc/rc5.d/S98triposlm start
+root     28652 28651  0 Sep14 ?        00:00:00 /bin/sh ./triposlm.sh -up
+triposl  22601 22193  0 16:28 pts/6    00:00:00 /bin/sh /b/app/tripos-linux/trigo/trigo -shell sybyl7.2
+triposl  23400     1  0 16:32 pts/6    00:00:00 /b/app/tripos-linux/AdminTools9.2/bin/linux/lmgrd -c /b/app/tripos-linux/AdminTools9.2/tables/license_file -l /b/app/tripos-linux/AdminTools9.2/LicenseLog -local
+triposl  23402 23400  0 16:32 ?        00:00:00 triposlm -T pdir-nis01.geneusa.com 9.2 3 -c /b/app/tripos-linux/AdminTools9.2/tables/license_file --lmgrd_start 45xxxxx81
+
+
+license file changed to use port 1717 (or else it defaulted to 6979 (or random port?)
+somehow the bloody license under tripos-linux was 1717 for a while, then taken out again.
+
+
+-------- tripos license processes new tripos user LDAP UID 605, sybyl 7.3 -----------------
+
+USER = tripos !! UID 605, Ankur Gupta and Harold South said this UID is okay.
+
+/etc/rc5.d/S98tripos start
+
+
+bash-2.05b# ps -ef | grep tripos
+tripos   15157     1  0 11:24 pts/0    00:00:00 /b/app/tripos-linux/AdminTools10.8/bin/linux/lmgrd -c /b/app/tripos-linux/AdminTools10.8/tables/license_file -l /b/app/tripos-linux/AdminTools10.8/LicenseLog -local
+tripos   15161 15157  0 11:24 ?        00:00:00 triposlm -T pdir-nis01.geneusa.com 10.8 3 -c /b/app/tripos-linux/AdminTools10.8/tables/license_file --lmgrd_start 45xxxxdb
+root     15185 13335  0 11:24 pts/0    00:00:00 grep tripos
+bash-2.05b#
+
+
+
+</PRE>
+
+<BR>
+<BR>
+
+<H3>Tripos DVS, Concord</H3>
+
+<PRE>
+
+Session with Sam Pan (zhengp)
+
+
+/b/home/zgp
+run on mordant 
+
+trigo -shell sybyl7.2
+sybyl7.2
+menu: 
+tools, dvs
+dvs addons
+run diverse solution
+session, open
+browse to the gprs23.dvs file
+
+data dir for source and output:
+/appdata/assays/bioinformatics/ProjectManagement/HTS/computational_chemistry_analysis/
+gpr23_clustering.log
+                                                                                
+trigo, start sybyl7.2 
+use bin dir of:
+/b/app/tripos-linux/sybyl7.2
+
+ToDoList.txt has more info on environment req, etc.
+
+eg cp $TA_ROOT/partner/PipeComm/pipecomm.cshrc $HOME/.pipecomm_cshrc (dated 2006-040)
+
+
+env setup files:
+.pipecomm_cshrc		--> copied from /b/app/tripos-linux/...   needed by DVS addon in Tripos Sybyl7.2
+.concordrc		--> have definitions of the type %Outonerr  that is propietary to the SW, not case sensitive, may break DVS.
+
+
+</PRE>
+
+
+
+<H1>CCP4</H1>
+
+<H3>Install</H3>
+
+<PRE>
+on volvoland, created link /b/app/ccp4 to 
+/net/b/vol/vol2/asf-scratch2/t/tinh/ccpt_test_ins
+
+	ran install.sh ::
+Where do you want to install/extract the packages?
+	/b/app/ccp4
+Where do you want to install python?
+	/b/app/ccp4/python			# did not exist before 
+ Where do you want to install tcl, tk and blt
+	/b/app/ccp4/TclTkBlt		# ghaa had this dir already
+ Where do you want to install gsl and cgraph?
+	/b/app/ccp4/gsl			# did not exist before  
+					# probably not needed, also exist in
+					# chooch/lib
+ Where do you want to install chooch?
+	/b/app/ccp4/ccp4-6.0.2/		# default
+
+
+python, gsl, probably best left in usr_local or some such dir
+
+Then copy the files to the real /b/app/ccp4
+Not everything is needed, and some like setup need renamving from previous version.
+
+
+removing duplicate or unecessary files:
+rm $SCR/bin/Lin/TclTkBlt-bin.tar
+rm packages.tar tools.tar
+
+move to real unix drive before copying to /b/app
+asf-scratch2-tinh] 406) tar cf - ccp4_test_ins | (cd /net/b/vol/vol2/asf-scratch/user/tinh-old/ ; tar xf - )
+
+SCR=/mnt/b/asf-scratch/user/tinh-old//ccp4_test_ins	# on verso
+DST=/b/app/ccp4
+mv  $SCR/... $DST/... 
+
+(cd $SCR/ ; tar cf - ccp4-6.0.2 ) | (cd $DST ; tar xf - )
+(cd $SCR/ ; tar cf - Coot-0.1.2 ) | (cd $DST ; tar xf - )
+(cd $SCR/ ; tar cf - ccp4mg-1.0 ) | (cd $DST ; tar xf - )
+mv bin/Lin/Python-bin.tar $DST/bin/Lin
+
+(cd $SCR/ ; tar cf - python ) | (cd $DST ; tar xf - )
+
+sudo cp tmp_setup /b/app/ccp4/tmp_setup.602
+sudo cp setup-scripts/csh/ccp4.setup        /b/app/ccp4/setup-scripts/csh/ccp4.setup.602
+sudo cp setup-scripts/csh/ccp4-others.setup /b/app/ccp4/setup-scripts/csh/ccp4-others.setup.602
+sudo cp setup-scripts/sh/ccp4-others.setup  /b/app/ccp4/setup-scripts/sh/ccp4-others.setup.602 
+sudo cp setup-scripts/sh/ccp4.setup         /b/app/ccp4/setup-scripts/sh/ccp4.setup.602
+
+# gsl should not be needed, see above.
+
+created new /b/common/bin/ccp4i.602
+sourced updated setup script in /b/app/ccp4/.../setup-script/...
+
+
+</PRE>
+
+<BR><HR><BR>
+
+<H1>HKL2000</H1>
+
+<H3>Install</H3>
+
+<PRE>
+Need to create dir in /usr/local/hklint
+Copy all the files from D's computer sfo201838
+so that the list of detector shows up.
+</PRE>
+
+<H1></H1>
+<PRE>
+MOPAC
+
+</PRE>
+<BR><HR><BR>
+
+
+<!-- end Dropbox/ref.gg/sciapp.html -->
+
+<H1>Terms</H1>
+
+<PRE>
+
+1800 1000 taxa = number of species, sample, isolate, etc.  
+(tends to be lined up vertically)
+
+sequences lined up horizontally.  simply columns?
+
+CDS = Coding Sequence  (exclude 5' and 3' UTR), include introns?
+
+UTR = UnTraslated Region
+
+TBR = tree-bisection-reconnection, a tree branch-swapping algorithm
+
+
+</PRE>
 <BR><HR><BR>
 <BR>
 

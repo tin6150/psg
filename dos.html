@@ -442,10 +442,37 @@ echo.
 pause
 exit 0
 
+</PRE>
 
+<PRE>
+variables: 
+set foo=bar
+echo %foo%
 
+:: may need the /A flag to indicate numeric content?
+set /A num=123
+
+::  this is a comment
+REM this is another comment
 
 </PRE>
+
+
+eg beauti.bat script.  
+<PRE>
+:: this batch script successfully run beauti java gui on wombat.  run from dos prompt
+:: (but untested whether windows version of java can correctly save xml file yet)
+:: 2022.0803
+::
+:: BEAST_LIB="$BEAST/lib"
+:: #java -Xms64m -Xmx1024m -Djava.library.path="$BEAST_LIB" -jar "$BEAST_LIB/beauti.jar" $*
+set BEAST_LIB="C:\Users\tin61\tin-gh-inet-class-only\inet-dev-class\epi_info\BEASTv1.10.5pre_thorney_0.1.0\lib"
+:: set BEAST_LIB="BEASTv1.10.5pre_thorney_0.1.0\lib"
+java -Xms64m -Xmx1024m -Djava.library.path="%BEAST_LIB%" -jar "%BEAST_LIB%/beauti.jar"
+
+:: # batch file, hopefully run windows java, and don't get problem with beauti not being able to save xml at the end...
+</PRE>
+
 
 <H3>Alternate Data Stream</H3>
 

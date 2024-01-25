@@ -54,7 +54,32 @@
 <A HREF="http://www.explainxkcd.com/wiki/index.php/378"><IMG SRC="fig/xkcd_real_programmers.png"></A>
 </div>
 
+<H1>Bracketed Paste</H1>
 
+<PRE>
+Bracketed Paste is not solely a vim issue, but this is the hardest place to fix.
+where pasted content and wreck havoc to existing text.
+
+In theory brackete paste work in vim, and it works in a lot of places.
+But there are some places where it doesn't, not sure what chain of events lead it the problem.
+
+https://vimhelp.org/term.txt.html#xterm-bracketed-paste
+
+says 
+set t_BE=
+should disable bracketed paste, but even having it in .vimrc didn't cut it. :-\
+
+maybe it is a tmux issue also.
+bash the sanePaste alias tends to fix the problem, some say have the printf at the end of .bashrc
+	alias sanePaste='printf "\e[?2004l"'
+
+oh vim, how can i make you work?
+
+other readings:
+tmux:
+https://man7.org/linux/man-pages/man1/tmux.1.html
+
+</PRE>
 
 <H1>Text Editor</H1>
 

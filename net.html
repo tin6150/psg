@@ -122,6 +122,53 @@ so can't even telnet in (normally, start NIS so that telnet can authenticate NIS
 
 </PRE>
 <BR>
+<A ID="switch_port_tech"></A>
+<H1>Switch Port Tech</H1>
+
+
+<!-- set tabstop=8
+1-----------------------------------------------------------------------------80
+12345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 -->
+<PRE>
+
+Port	Speed	Technology	SERDES lane 	Cable plug type
+------	-------	--------------	-------------	---------------
+gbic?	1-10G	very old now			SC-SC
+sfp						
+sfp+	10G	10G ethernet			LC-LC
+
+	 	SDR
+	 	DDR
+qsfp+?	 40G	QDR		4x10 Gbps
+qsfp2?	 56G	FDR
+qsfp28	100G	HDR100, EDR	4x25 Gbps	MTP aka MPO
+qsfp56	200G	HDR200		4x50 Gbps
+
+qsfp are wider than sfp ports, but not 4x as wide, at least not physically :P
+
+
+NOTE:
+Each cycle at 1 GHz takes 1 ns
+It takes about 1 ns for light in vacum to travel 1 foot.
+
+
+MMF = MultiMode  Fiber -   only    for SR short range (distance), eg up to ~100m.  Cheaper optics and cables.  eg 850nm wavelegth.
+SMF = SingleMode Fiber - typically for LR long  range (distance). eg km.  LR4 carry multiple 4 wavelegths thus serve multiple SERDES lane on single fiber. eg 1310nm, 1305,1301,1296nm.
+
+fiber 	type	color	typical use
+----  	----	-------	--------------------
+OM2  	MMF?	orange	 56 Gbps? FDR 
+OM3 	MMF? 	aqua	100 Gbps  EDR
+OM4 	MMF? 	magenta	200 Gbps  HDR200
+
+OM4?	SMF?	orange	100 Gbps?
+
+</PRE>
+
+Ref:
+<LI><A HREF="https://community.fs.com/blog/understand-100g-transceivers-transmission-principles.html">Understanding 100G Transceiver Transmission Principles</A></LI>
+<LI><A HREF="https://www.cables-solutions.com/tag/qsfp-40g-lr4">Difference between QSFP+ SingleMode vs MultiMode</LI>
+<LI></LI>
 
 <A ID="cisco"></A>
 <H1>Cisco</H1>
@@ -261,9 +308,7 @@ download java program.
 
 
 <H5>
-    <A NAME="Sample_zoning"  HREF="#Sample_zoning">
-        Sample zoning addition command
-    </A>
+    <A NAME="Sample_zoning"  HREF="#Sample_zoning">Sample zoning addition command</A>
 </H5>
 <BR>
 
@@ -602,6 +647,12 @@ connector 2 would be 2041 to 2048, etc
 
 (TBD: cisco*config sample config files after clean up and masking)
 
+<A ID="Juniper"></A>
+<A ID="juniper"></A>
+<H1>Juniper</H1>
+
+<LI>Port starts at 0 ?</LI>
+<LI></LI>
 
 <A ID="Arista"></A>
 <A ID="arista"></A>
@@ -622,27 +673,69 @@ show runing interface eth51/1	# sfp28 port (ib/100g) can be a break out into 4 p
 show runing interface eth1,7	# port list  1 and  7
 show runing interface eth1-7	# port range 1 thru 7
 
+clear couter eth 30 		# reset counter for specific port (eg eth/30)
 
 switchport access vlan   # ie not tagged
 
-vs 
-trunk
+! example of "traditional" network port for host without vlan tagging
+interface Ethernet4
+   switchport access vlan 5
+   spanning-tree portfast
+!
+
+
+
+! example of network ports with vlan tag, also allow "untagged" as natively default to vlan 21
+interface Ethernet3
+   switchport trunk native vlan 21
+   switchport trunk allowed vlan 20-21
+   switchport mode trunk
+   spanning-tree portfast
+!
+
+# a switch to switch trunk would allow all vlan?
+
 ...
 
 
-show interface status  # brief table view of port, desc, link status, vlan
-show interface status  | egrep Et[23] 
+int eth 29/1
+  description "100G link to core switch"
+  swich port mode trunk
+  switchj port trunk allowed vlan add 1000
+end
 
-show mac address-table 				# arp table, vlan, mac, port 
-show mac address-table interface eth 24     # mac of remote host on that switch port
+
+# create static route
+ip route 10.21.0.0/16 10.8.23.1		
+ip route 10.22.0.0/16 10.8.23.1		
+
+vlan 1000
+  name bldg-A-to-bldg-B
+!
+end
+
+int vlan 1000
+  desc bldg-A-to-bldg-B
+  ip address 10.22.255.254/30
+end
 
 
-# cycle a port
-config term
-interface ethernet 4
-  shutdown
-  no shutdown
-  show active
+
+# brand new switch, disable zeroconfig
+zeroconf reset # or was it zeroconf clear ?  it reboots right away!
+
+
+# misc one time settings
+term length 50
+no log console		# disable sending log to the console
+
+# create admin acc so can ssh in
+username admin role network-admin secret sha512 $6$pl/qPWc8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.WI.kE.KXS5M7wsLubNZkBtC5nyj6ZF/S/LlUNeitL59I8KJ1
+
+
+
+
+
 
 
 </PRE>
@@ -656,9 +749,37 @@ show startup-config > scp:tin@10.2.22.2/tmp/startup-config.txt
 
 <<**>> #### mask out the username ... sha  password entry near the beginning of the config file #### <<**>>  
 
-copy run start
+copy run start	# or write mem
 </PRE>
 
+<H5>Troubleshooting commands</H5>
+
+<PRE>
+
+show interface status  # brief table view of port, desc, link status, vlan
+show interface status  | egrep Et[23] 
+
+show mac address-table 				# arp table, vlan, mac, port 
+show mac address-table interface eth 24     # mac of remote host on that switch port
+
+show mac  address-table | include Et3		# port 3
+show mac  address-table | include ac1f.6b	# search which port has a given mac
+
+# cycle a port
+config term
+interface ethernet 4
+  shutdown
+  no shutdown
+  show active
+end
+
+
+# remember branding has to match!  
+show int eth29/1 transceiver properties
+
+
+
+</PRE>
 
 <A ID="Foundry"></A>
 <A ID="foundry"></A>
@@ -857,6 +978,8 @@ download image <tftp-svr-ip> file prim
 	ExtremeNet seems to support a secondary etc.  
 	i guess bootable via alternate cmd.
 
+clear couter eth 30
+	reset counter for specific port (eg eth/30)
 clear couter	
 	reset all counters (collision stats, etc)
 

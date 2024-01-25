@@ -331,6 +331,22 @@ file warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
 warewulf/ipxe/bin-i386-pcbios/undionly.kpxe: pxelinux loader (version 3.70 or newer)
 
 
+If server side has this in log:
+tftpd: read(ack): No route to host
+
+or see this in "tcpdump -vvv -u port 69 -i enp0s3" 4 times:
+
+  11:29:21.908388 IP (tos 0x0, ttl 64, id 2717, offset 0, flags [DF], proto UDP (17), length 75)
+    infra1.greta.local.47125 > wwulf.greta.local.tftp: [udp sum ok]  47 RRQ "/warewulf/ipxe/bin-i386-efi/snp.efi" netascii
+
+
+Cuz: server send ACK to client, but client not responding.  
+Check that client side firewall is off (or allow tftp-client service, which use diff port than udp 69)
+
+
+netstat -an | grep 69\    # should show UDP port in listen state once it is activated (by xinetd)
+
+
 netcat test for udp/69 tftp port connectivity
 tftp use udp port 69
 nc -u 10.15.4.30 69
@@ -455,6 +471,46 @@ rsync -avl -e ssh  --rsync-path=/usr/local/bin/rsync remote-svr:/dir/* ./local/s
 
 </PRE>
 
+<A ID="parallel"></A>
+<A ID="gnuparallel"></A>
+<A ID="gnu-parallel"></A>
+<A ID="gnu_parallel"></A>
+<H1>gnu parallel</H1>
+
+ref: 
+<A HREF="https://docs-research-it.berkeley.edu/services/high-performance-computing/user-guide/running-your-jobs/gnu-parallel/">
+savio gnu parallel doc</A>
+
+<PRE>
+
+::: is parsed by gnu parallel
+
+parallel -j 2 wc file{}.in file{}.out ::: 1 2 3
+parallel -j 2 wc file{}.in file{}.out ::: `seq 1 3`
+parallel -j 2 cp file{}.in file{}.out ::: 1 2 3 :: a b c
+
+
+basename -s .fasta -a Z*.fasta > task.lst
+parallel -j 56 -a task.lst  echo  abricating {}.fasta to  result.{}.out
+
+but {} won't be expanded beyond shell redirect like | or >  
+so would need to put such comand inside single quote, eg:
+
+parallel -j 56 -a task.lst  'wc {}.fasta > /global/scratch/users/tin/pub/TEST/result.{}.out'
+
+parallel -j 56 -a task.lst  'abricate --db ecoli_vf {}.fasta >  /global/scratch/users/tin/pub/TEST/vf_reads/vf.{}.txt'
+# prefix.{}.suffix works
+# prefix-{}.suffix works
+# prefix_{}.suffix does NOT work, ie _ cannot be used as separator!
+
+</PRE>
+
+Tricks, but do remember to cite... they are vocal about this:
+<PRE>
+module load gnu-parallel/2019.03.22
+## mkdir -p ~/.parallel/
+## touch ~/.parallel/will-cite
+</PRE>
 
 <H1>text windows manager :)</H1>
 
@@ -517,6 +573,9 @@ ctrl-a,a  	= send ctrl-a to the terminal
 ctrl-a,b 	= send a break
 ctrl-a,ctrl-b	= send a break (ie, after ^a, can hit ^b or simply b to send break.  screen's help means or, not that need to hit three seq of ^a, ^b then b to send a break)
 
+ctrl-a,H 	= toggle logging to file screenlog.N   (capture output, so non print password wont be logged)
+
+screen /dev/ttyUSB0 115200 # like tip/minicom connection to serial device
 
 </PRE>
 
@@ -542,6 +601,19 @@ ref:
 tmux plugins like tmux-continuum, resurrect and sensible could be useful to at least recover the history and windows/panes layout and reopening some programs like vim.
 <BR>
 <BR>
+
+tmux clipboard copy-n-paste to file, see:
+https://unix.stackexchange.com/questions/26548/write-all-tmux-scrollback-to-a-file
+essentially, 
+^b ^[ # enter clipboard mode
+space # start selection
+gg	# go to top of buffer (like vi)
+enter	# actually copy
+
+^]	# paste eg, into a vim session in a different pane/tab
+
+
+<BR>
 <BR>
 Key bindings that need to memorized for effective use of tmux <BR>
 
@@ -565,6 +637,8 @@ Key bindings that need to memorized for effective use of tmux <BR>
 ^b :    # command
 ^b :set -g mouse on		# mouse mode, allow resize pane w/ tmux 2.1+
 ^b :set    allow-rename off  	# prevent automatic renaming of pane/tab eg when want to manually name via ^b ,
+^b :pine-pane "cat > tin.txt"   # capture new content onward of the current pane to file.
+
 
 </PRE>
 
@@ -912,6 +986,14 @@ pushd \!*   jump b/w last pushed dir (aliased to xd)
 
 tar -zxvf file {-C dir}   untar and uncompress
 tar -zcvf file  *         tar and compress current dir, files still remain
+
+tar -h 	# supposed to dereference symlink, and copy the file.  
+	# but check output, sometime still get a hard link eg tar tvf show
+	#  hrw-r--r-- root/root         0 2023-05-11 16:04 pam.d/system-auth.fromSysUpdate link to pam.d/system-auth	  
+	# but extracted output seems to have created a normal file.  
+	# maybe just special marking in tar that such file was orig a link... 
+	# yet not sure why it was done for some sym link yet not other.  weird.
+	# final output was as desired.
 
 
 

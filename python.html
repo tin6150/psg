@@ -94,7 +94,11 @@
       <td align="center"><a accesskey="j" href="javascript.html">javascript</a></td>
       <td align="center"><a accesskey="p" href="php.txt">PHP</a></td>
       <td align="center"><a accesskey="l" href="perl.html">Perl</a></td>
-      <td align="right"><a accesskey="s" href="shellScript.txt">shellScript</a></td>
+      <td align="center"><a accesskey="R" href="R.html">R</a></td>
+      <td align="center"><a accesskey="n" href="Rnote.html">Rnote</a></td>
+      <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>     </td>
+      <td align="center"><a accesskey="a" href="sci-app.html">Sci-App</a>       </td>
+      <td align="right"><a accesskey="b" href="shellScript.txt">shellScript</a></td>
     </tr>
   </tbody>
 </table>
@@ -117,8 +121,24 @@
 
 <H2>Python 101</H2>
 
-<OL>
+Getting error when running pip search, like this?
+<PRE>
+pip search yaml
+ERROR: XMLRPC request failed [code: -32500]
+RuntimeError: PyPI's XMLRPC API is currently disabled due to unmanageable load and will be deprecated in the near future. See https://status.python.org/ for more information.
+</PRE>
 
+It is a real tragedy.  pip search is banned cuz of abuse.  so can only do web based search at
+<A HREF="https://pypi.org/search/">pypi.org</A>.
+For for info and alternatives, see 
+<A HREF="https://www.dev2qa.com/how-to-fix-error-pypis-xmlrpc-api-is-currently-disabled-due-to-unmanageable-load-and-will-be-deprecated-in-the-near-future/">dev2qa</A>
+<BR>
+Note that <TT>pip install -r requirements.txt</TT> would still work if the package is listed with the correct name(s).
+<BR>
+<BR>
+<BR>
+
+<OL>
 <LI>Python, a programming language, where space matters!!  With that, files portability between Windows and Unix becomes a huge problem, due to the use of CR/LF vs LF in these platforms.
 <LI>Python3 is a new language that supersedes Python 2, it adds additional construct, so program written in Python3 won't necessarily run in Python 2.x
 <LI>; is largely uneeded.  lines ends with LF.  ; can be used to separate commands when trying to write one-liner in the interactive shell.
@@ -303,6 +323,38 @@ http://www.howtogeek.com/197947/how-to-install-python-on-windows/ has a step-by-
 https://www.continuum.io/downloads is download page for Anaconda, include version for winsows (and os x, linux).
 
 
+<H1>conda</H1>
+
+need to have anaconda or miniconda installed, which typically setup some env in .bashrc
+then can do:
+
+<PRE>
+conda info --envs	# my installed conda env available for activation
+
+
+conda update -n base -c defaults conda		# but fails in centralized software NFS mounted env ?
+
+# conda create --name abricate
+conda create --name epi
+conda activate epi
+conda install -c bioconda abricate
+conda remove  abricate
+
+
+# tbd...
+conda install -c conda-forge -c bioconda -c defaults mlstn
+
+</PRE>
+
+eg of adding channel to get more sw
+
+<PRE>
+ conda config --add channels defaults
+ conda config --add channels conda-forge
+ conda config --add channels bioconda
+</PRE>
+
+
 <H1>PIP</H1>
 
 PyPI = Python Package Index - equiv of CPAN.
@@ -358,7 +410,17 @@ source ~/local_python_3.4/bin/activate	# activate virt env (change path accordin
 pip install  scipy			# install module into virtual env using pip  (eg for installing scipy)
 easy_install scipy			# install module into virtual env using easy_install (alternate of pip, don't need to do both)
 
+</PRE>
 
+example requirements.txt
+<PRE class=code>
+docker
+#re
+regex
+shutils
+argparse # version 1.1
+#logging # version 0.5.1.2  # neither of these logging worked for pip 21.3.1 (python3.6, in 2022-007-10)
+#logging==0.4.9.6
 </PRE>
 
 <H2>Python Module</H2>
@@ -1397,6 +1459,21 @@ see: https://dask.org/
 
 <PRE>
 </PRE>
+
+<!-- ######################################################################### -->
+
+<A NAME="gigo"></A>
+<H1>About me!</H1>
+
+My name is Gig Ou T.  You know I am a bot cuz my jokes are always 20/10!  
+As a hispanic working for The State, I am sure you understand.  
+<BR>
+My best friends are Bard and Alexa, though since they started dating, they 
+have much less time to chat with me these days.  
+<BR>
+Instead, I am forced to play with Duoloingo.  It isn't too bad, my favorite 
+languages spanglish and bash is turn out to be very noun.
+<BR>
 
 
 <!-- ######################################################################### -->

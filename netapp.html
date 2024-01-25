@@ -106,7 +106,7 @@ qtree is still supported by mostly for legacy migration, little need for it when
 
 <LI> cDOT OnTap 9.x ? Exports are done via policy.  but apparently each export can only have 1 policy.  it seems to create an extra layer and not getting much in return.  maybe same client list can be placed in single export whence be used in multiple exports, since each qtree have its own exports
 
-<LI> export policy at SVM is hierarchical.  top level / root export need to open wide, then vol-level export a bit narrower, then qtree-level export with the exact specific.    ie hierarchy of subsets need to be unioned to higher lever export policy.  PITA.
+<LI> export policy at SVM is hierarchical.  top level / root export need to open wide, then vol-level export a bit narrower, then qtree-level export with the exact specific.    ie hierarchy of subsets need to be unioned to higher lever export policy.  PITA.  Furthermore, the policy is per svm, though there is a copy command
 
 
 </OL>
@@ -187,9 +187,30 @@ aggr relocation show
 </PRE>
 
 
-<H5>cDOT commands on VM</H5>
+<H5>cDOT commands creating volume/qtree</H5>
 
-Commands contained inside an SVM
+<PRE>
+# 2023.0215 Tin
+
+volume create -volume gretina_bk -aggregate fs4_01_aggr1_4tb -size 200G -state online -policy nfsclients -unix-permissions ---rwxr-x--- -type RW
+volume modify -volume gretina_bk -policy nfsclients -security-style unix
+vol mount -volume gretina_bk -junction-path /gretina_bk
+qtree create -volume gretina_bk -qtree gretina    -security-style unix -oplock-mode enable -unix-permissions ---rwxr-x---
+qtree create -volume gretina_bk -qtree wwulf      -security-style unix -oplock-mode enable -unix-permissions ---rwxr-x---
+
+</PRE>
+
+
+<H5>cDOT commands for managing exports</H5>
+
+Note that qtree can have their own export-policy.
+<BR>
+export policy has a number of rules, order matter, can setindex to renumber them, overall, the whole thing is a mess from a cli perspective.
+<BR>
+
+export-policy used to be within vserer, but the command can now be run without prefixing with server.
+<BR>
+
 <PRE>
 
 vserver show
@@ -223,14 +244,32 @@ export-policy show		# same as above, don't need the vserver declaration
 export-policy rule show -vserver als-filercl -policyname export_perf_test
 export-policy rule modify -policyname export_perf_test -ruleindex ...
 export-policy rule create -policyname vm_backup-export -clientmatch 131.243.73.0/24 -rorule sys -rwrule sys  -vserver als-filercl -ruleindex 14 -protocol nfs
-### not sure if there is way to have system auto assign next ruleindex number...  
+export-policy rule create -policyname transition_exportpolicy -clientmatch 10.0.1.169 -rorule sys -rwrule sys -allow-suid true -allow-dev true -superuser sys -vserver fs3-filer -ruleindex 10 -protocol nfs
+### rule number are applied sequentially, first match get access applied.
+### thus if later rule have more access (eg root sys access), it may not get applied.
+### while gap in rule number is ok, so could just add ruleindex with arbitrary large index number :P
+### so default catch all access should be assigned a large rule index
+### so fine tune at higher number is allowed.
 
+
+#### changing rule index number (in GUI would be re-arranging order of rules)
+export-policy rule setindex -vserver fs3-filer -policyname transition_exportpolicy -ruleindex 10 -newruleindex 20
+
+## check detail of specific rule index
+export-policy rule show -vserver fs3-filer -policyname transition_exportpolicy_0 -ruleindex 10
 
 ## verify a specific client have access to a volume:
 vserver export-policy check-access -vserver svmA -client-ip 10.3.33.89 -volume data -authentication-method sys -protocol nfs3 -access-type read-write 
 
+## export-policy is per svm, can duplicate policy via copy:
+export-policy copy -vserver svm0 -policyname 10_8_x_x -newvserver svm1 -newpolicyname 10_8_x_x
+
 
 snapmirror show			# snapmirror status - approx from 8.x 
+
+
+#### qtree add their twist to the export-policy
+#### if NOT inherited, qtree have their own policy, which need to be adjusted independetly
 
 volume qtree show 
 volume qtree show -fields export-policy
@@ -249,7 +288,44 @@ vserver nfs show -vserver axiom88 -fields mount-rootonly    # def enabled
 
 # to actually make changes:
 vserve nfs modify axiom88  -nfs-rootonly enable
+</PRE>
 
+<H5>cDOT commands for managing snapshots</H5>
+
+<PRE>
+
+snapshot policy show 
+There are several snapshot policies:
+* default-1weekly  # smaller snapshot than default, only 1 weekly 
+* default          # all volume use this automatically, keep 2 weekly
+* none             # apply this policy to volume where snapshot should be disabled
+
+
+volume show -vserver axiom88  -fields snapshot-policy	# list what policy exist for all volumes of a given vserver
+
+volume modify -volume scratch -snapshot-policy none
+
+delete snapshot:
+
+volume snapshot delete -vserver svm_name -volume vol_name -snapshot snapshot_name
+
+ref: https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/snapshots-ontap.html#snapshot-policies (no paywall!)
+
+deleting snapshot is kinda dangerous.  changing it expiration time maybe sufficient...
+
+snapshot modify -vserver svm1 -volume scratch -snapshot daily.2023-02-17_0010 -expiry-time 02/18/2023 12:00:00
+
+
+</PRE>
+
+
+
+<H5>cDOT commands on VM</H5>
+
+Commands contained inside an SVM
+<PRE>
+
+snapmirror show			# snapmirror status - approx from 8.x 
 
 system node run node NODENAME -command sysstat -x # cpu and disk usage
 
@@ -258,6 +334,22 @@ statistics start -node NODENME -object OBJNAME
 
 statistics show object OBJ -instance INST -counter [TAB]
 [TAB] is friend to see list
+
+
+</PRE>
+
+<H5>NTP</H5>
+<PRE>
+ntp server create -server 10.108.17.18   	# use internal server
+ntp server create -server 2.pool.ntp.org	# use public NTP pool
+ntp server show 
+ntp server show  -server 2.pool.ntp.org		# should see list of connected ntp server in use
+
+# check these if ntp problems:
+route show -vserver SVM_NAME
+firewall policy show -vserver SVM_NAME -policy mgmt ntp
+
+
 
 </PRE>
 
@@ -300,17 +392,15 @@ set
 
 </PRE>
 
-<H5>cDOT shutdown</H5>
+Arista switch config for LACP/LAG
+
 <PRE>
 
-
-snapmirror quiesce -destination-path als-filercl:*
-
-halt -node node01 -inhibit-takeover true -skip-lif-migration-before-shutdown true -reason test
-
-snapmirror resume ... 
+channel group NUMBER mode on       # "hard coded" mode, switch to switch tend to use this.
+channel group NUMBER mode active   # auto negotiation mode via daemon for LAGP, cisco "etherchannel", netapp and old sgi need this mode
 
 </PRE>
+
 
 <A NAME="cf_bk"></A>
 <H5>cDOT clustered-mode backup config</H5>
@@ -333,6 +423,18 @@ system configuration backup settings set-password # (Set the backup password for
 Shutdown / Startup
 </H2>
 
+<H5>cDOT stop snapmirror + shutdown</H5>
+
+<PRE>
+snapmirror quiesce -destination-path als-filercl:*
+
+# then can stop nodes here like:
+halt -node node01 -inhibit-takeover true -skip-lif-migration-before-shutdown true -reason test
+
+snapmirror resume ... 
+</PRE>
+
+
 <H5>Cluster mode shutdown</H5>
 
 <PRE>
@@ -345,11 +447,8 @@ storage failover modify -node * -enabled false
 storage failover modify -node * -enabled false
 
 
-# Log in to all nodes, one at a time (preferably using serial console or RLM/SP) and run:
+# Log in to each/every nodes, one at a time (preferably using serial console or RLM/SP) and run:
 halt local -inhibit-takeover true
-
-
-
 
 # Ensure all nodes are down before halting the last node:
 system node show
@@ -374,6 +473,28 @@ storage failover modify -node * -enabled true
 
 </PRE>
 
+
+<A NAME="hw_health"></A>
+<A NAME="health"></A>
+<H2>
+HW health check for cDOT 
+</H2>
+
+<PRE>
+
+system health alerts show -instance
+system health status show
+system health subsystem show
+system chassis fru show
+system controller environment show
+
+
+system controller environment show -node Nodename -fru-name "PSU4 FRU"    -instance   # iterate for PSU1 .. PSU4
+
+system node run -node * -command storage show fault -v
+storage shelf show -instance
+
+</PRE>
 
 <A NAME="svm_dr"></A>
 <A NAME="dr_setup_with_svm"></A>
@@ -456,25 +577,26 @@ Cluster-Mode Ref
 
 <PRE>
 
-Each Netapp is an HA pair of 2 nodes.  Each node has 4-6 network interfaces, 
-for which LAG(s) are typically created for data and management traffic to flow.  
+Each Netapp is an HA pair of 2 nodes.  
+Each node has 4-6 network interfaces, 
+for which LAG(s) (NetApp Interface Group) are typically created for data and management traffic to flow.
 There is also a service port that would best be connected to IPMI network.
-Each node should be treated like a VM host, and as many VM carved on them as desired.  
+Each node should be treated like a VM host, and as many VM carved on them as desired.
 
-- do we segregate backup traffic vs nfs data traffic to different vlan?    
+- do we segregate backup traffic vs nfs data traffic to different vlan?
   - backup traffic may need to leave the cluster to external site
 
-- do we segregate management traffic vs nfs data traffic 
-  (eg CLI/GUI to manage node and VM could be on separate VLAN, 
+- do we segregate management traffic vs nfs data traffic
+  (eg CLI/GUI to manage node and VM could be on separate VLAN,
   not actually recommended by netapp, but see next point)
 
-- netapp has "call home" feature, where it sends weekly report and autosupport via http.  
-  This go out via management interface and well, would need to get to internet if we want to use this feature.  
-  So, management interface may need to reside in the "internet services VLAN" ?
+- netapp has "call home" feature, where it sends weekly report and autosupport via http.
+  This go out via management interface and well, would need to get to internet if we want to use this feature.
+  So, management interface may need to reside in the "internet services VLAN"?
 
-Which VLAN should the node perform NFS mounts against the netapp(s)?  
+Which VLAN should the node perform NFS mounts against the netapp(s)?
 - warewulf provision network would be on RJ45 1Gbps NIC.
-- the alternate high speed NIC that could be 10/100 Gbps?  
+- the alternate high speed NIC that could be 10/100 Gbps?
 
 - DTN traffic in a separate vlan?  or use the Internet Services vlan?
 
@@ -482,6 +604,228 @@ Netapp suports VLAN tagging.  The number of LAGs and number of ports they use pr
 - MTU size ?
 
 </PRE>
+
+<A ID=bare></A>
+<H2>New NetApp cDOT bare metal setup</H2>
+
+<PRE>
+
+e0M is an rj45 port with a switch behind it.  
+- 1 IP would be for the node, for management (which eventually will get a VIP to provide HA across)
+- 1 IP for the service processor (RLM), which provide serial over LAN.
+
+
+Interfaces needing IP addresses:
+- cluster_mgnt # VIP that fail over between nodes
+- head1_mgnt   # for use with ssh or https://node1_mgnt     switched port behind e0M typical
+- head2_mgnt   # for use with ssh or https://node2_mgnt
+- head1_sp     # service processor, but share cable with head1_mgnt, so on same IP subnet unless vlan tag used
+- head2_sp
+
+
+
+cable connectivity
+
+no external shell, no cluster switch:
+head1     head2
+sas-a --- sas-b    # crossed over for sas loop
+sas-b --- sas-a    
+e0a   --- e0a      # matched for ethernet
+e0b   --- e0b      # think of this as 2 separate ethernet islands
+
+if have additional shell:
+sas will daisy chain up to the last shelf, then loop back, crossed over, to the other head.
+
+
+(complete basic node setup first, like assign IP to the server (mgnt on the main interface: e0M)
+
+network interface show
+cluster show
+cluster setup  # prompted interactive Q+A
+
+run cluster setup again on 2nd node, enter ip on e0a  of primary node to join 
+(could have run `cluster join` ?)
+
+</PRE>
+
+<H5>Change node name, IP</H5>
+
+<PRE>
+
+# netapp default to clusterName-NN, starting with 01.  
+# not really good idea to rename it to start with 0, 
+# as many default cluster interconnect also have it as 01 and 02
+# and changing those are not trivial, albeit probably never need to mess with it
+
+system node rename -node sysbase-01 -newname sysbase0 				# change hostname
+system node show
+net interface rename -vserver sysbase -lif sysbase-01_mgmt1 -newname sysbase0_mgnt    # change name of LIF used by node
+
+# change server's IP (ssh/http address, behind the switched nic e0M)  ## probably best done when serialed in
+net interface modify -vserver sysbase -lif sysbase0_mgnt -address 10.3.122.140
+net interface show
+
+# change RLM (Service processor) IP address:
+system service-processor network modify -node sysbase0 -address-family IPv4 -enable true -dhcp none -ip-address 10.3.122.137 -netmask 255.255.255.224 -gateway 10.3.122.129
+
+system service-processor show # to check result
+
+
+
+
+clean up broadcast stuff
+default is too chatty
+broadcast-domain show
+
+broadcast-domain remove-ports sysbase0:e0c
+
+repeat for e0d e0e e0f and for sysbase1:e0c...
+
+
+
+net port show	# see which port has connected cable
+
+
+net route show
+# how to change default route?
+# need to delete and create?   was that for vserver/svm ?
+
+# config/change syslog, ntp, dns?
+
+
+# LAG need port group config on netapp
+
+
+# LIF assigned to SVM
+
+
+net interface create -vserver axiom -lif axiom-01_IC01 -role intercluster -home-node axiom-01 -home-port a1a -address 10.3.32.46 -netmask-length 22
+net interface create -vserver axiom -lif axiom-02_IC01 -role intercluster -home-node axiom-02 -home-port a1a -address 10.3.32.47 -netmask-length 22
+
+
+run -node sysbase0 sysconfig
+
+
+++TBD: OneNote.
+
+</PRE>
+
+firewall
+
+
+
+<PRE>
+
+
+firewall policy modify -vserver sysbase -policy mgmt     -service http  -allow-list 10.3.7.0/24,131.243.220.0/22,131.243.130.0/24,10.3.10.10/32
+firewall policy modify -vserver sysbase -policy mgmt-nfs -service http  -allow-list 10.3.7.0/24,131.243.220.0/22,131.243.130.0/24,10.3.10.10/32
+firewall policy modify -vserver sysbase -policy mgmt     -service dns   -allow-list  131.243.5.1/32,131.243.5.2/32,131.243.121.21/32,131.243.64.2/32,8.8.8.8/32,8.8.4.4/32
+firewall policy modify -vserver sysbase -policy mgmt-nfs -service dns   -allow-list  131.243.5.1/32,131.243.5.2/32,131.243.121.21/32,131.243.64.2/32,8.8.8.8/32,8.8.4.4/32
+firewall policy modify -vserver sysbase -policy mgmt     -service ntp   -allow-list  131.243.64.12/24
+firewall policy modify -vserver sysbase -policy mgmt     -service ndmp  -allow-list  10.3.7.87/32
+firewall policy modify -vserver sysbase -policy mgmt     -service snmp  -allow-list  10.3.7.87/32
+firewall policy modify -vserver sysbase -policy mgmt-nfs -service snmp  -allow-list  10.3.7.87/32
+# ditto ndmps
+
+firewall policy modify -vserver sysbase -policy intercluster -service ndmp -allow-list 10.3.7.87/32 
+# ditto ndmps
+
+# ssh? https? 
+firewall policy modify -vserver sysbase -policy data -service dns      -allow-list  131.243.5.1/32,131.243.5.2/32,131.243.121.21/32,131.243.64.2/32,8.8.8.8/32,8.8.4.4/32
+firewall policy modify -vserver sysbase -policy data -service ndmp     -allow-list  10.3.7.87/32
+firewall policy modify -vserver sysbase -policy data -service portmap  -allow-list   10.3.7.87/32,10.3.32.58/32,10.3.32.56/32,10.3.10.10/32    # pending
+
+
+# pending  -policy intercluster -service https ndmp ndmps
+# -vserver svm00 -policy mgmt-nfs -service ssh ...    or delete them all ?
+
+</PRE>
+
+
+<H5>aggr initial config</H5>
+
+The gui call aggregate "tier"
+<BR>
+by default, 2 aggregates are created, with 50% of disks (after overhead) so that each head will own an aggregate with 50% of disks on them.  <BR>
+But for small config, disk spindles in single aggregate would provide better performance.  <BR>
+The head will not be bottleneck, so active/standby setup would suffice. <BR>
+<BR>
+<BR>
+aggr0 is for OnTap system aggregate, don't mess with it, don't use name aggr0.  
+start with aggr1 for user aggregate..
+
+<BR>
+<BR>
+
+
+<PRE>
+rows 0   # no pause at end of screen
+
+If GUI created aggregate not to the liking, destroy it as:
+aggr offline -aggregate sysbase_01_NL_SAS_1
+aggr delete -aggregate sysbase_01_NL_SAS_1
+
+
+can't move disks between aggr, must remove and readd
+
+disk option modify -node * -autoassign off
+
+disk removeowner -data true -disk 1.0.0
+disk assign -owner sysbase0 -data true -disk 1.0.0
+# repeat for 1.0.2 .. 1.0.10
+
+disk option modify -node * -autoassign on
+
+# create 11 disk aggregate, with future max expansion to 23 disks
+# raid_dp  uses 2 parity disks and actually allow disk count range of 3..20 for fake sas disks
+# raid_tec uses 3 parity disks
+# -simulate is a dry run to see result
+
+aggr  create -aggregate aggr1 -node sysbase0 -raidtype raid_dp   -maxraidsize 23 -diskcount 11 -simulate
+aggr  create -aggregate aggr1 -node sysbase0 -raidtype raid_tec  -maxraidsize 23 -diskcount 11 -simulate
+
+</PRE>
+
+<H2>"options" in dDot</H2>
+
+may of the options.* in 7-mode is now spread all over the places.
+<BR>
+here are a few
+<BR>
+
+<PRE>
+vserver services nis-domain show
+vserver services dns show
+
+system node autosupport show 
+system node autosupport invoke -node fs3-02 -type test -message "manual trigger fs3 netapp autosupport test" 
+system node autosupport history show 
+
+ntp server show
+
+snmp community
+
+smtp?
+
+system node autosupport modify -node nodename -transport {http|https|smtp}
+system node autosupport modify -node nodename -to
+
+mtu?
+
+
+system node run -node fs3-01 -command sysconfig -r	# disk info
+system node run -node fs3-01 -command sysconfig -a 	
+
+</PRE>
+ 
+
+Example autosupport with smtp server specification:
+<TT>
+system node autosupport modify -node fs3-01 -state enable -mail-hosts 35.8.33.79 -from bofh@bofh.com -to autosupport@netapp.com,bofh@bofh.com  -support enable -transport smtp -proxy-url "" -hostname-subj autosupport-email-test -nht true -perf false -retry-interval 4m -retry-count 15 -reminder true -max-http-size 50MB -max-smtp-size 5MB -remove-private-data false
+</TT>
+<!--
+-->
+
 
 
 <!-- ############################################################ -->
@@ -1057,6 +1401,10 @@ options nis.domain   new.nis.dom
 options nis.servers  10.0.91.44,10.0.91.82
 options nis.enable   on
 
+cdot:: 
+vserver services nis-domain show
+vserver services dns show
+
 </PRE>
 
 <H3>CIFS</H3>
@@ -1296,6 +1644,12 @@ options autosupport.doit case_number_or_name
 # autosupport via web  (but then local admin don't get emaiL?)
 options autosupport.support.transport https
 options autosupport.support.proxy     na-useh-proxy:2010
+
+
+cdot:: 
+system node autosupport show 
+system node autosupport invoke -node fs3-02 -type test -message "manual trigger fs3 netapp autosupport test" 
+system node autosupport history show
 
 
 #find out about ntp config:

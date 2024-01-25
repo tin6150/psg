@@ -192,6 +192,10 @@ Amazon Web Services.  The Cloud.  A real cloud. Not really just vapor anymore :)
 <li> </li>
 </UL>
 
+
+<A HREF="https://cloud.google.com/free/docs/aws-azure-gcp-service-comparison">GCP vs AWS vs Azure Name Translation</A> Think Rosetta Stone of cloud provider :P
+<BR>
+
 <PRE>
 </PRE>
 <BR><BR>
@@ -268,6 +272,8 @@ aws ec2 describe-subnets --output=table
 
 aws --region us-west-2 --output=table ec2 describe-instances | egrep  '(Value|PrivateIp|\ Name)'
 
+aws ec2 describe-instances |  egrep 'Instance|PublicDnsName|stop|terminate|running'
+aws ec2 describe-instances |  egrep 'InstanceId|InstanceType|PublicDnsName|stop|terminate|running'
 
 aws --region us-east-1 ec2 describe-subnets --query 'Subnets[*].[SubnetId,CidrBlock,AvailabilityZone,Tags[?Key==`Name`] | [0].Value]' --filters "Name=vpc-id,Values=vpc-abcd1234" "Name=tag-value,Values=\*HPC\*"
 
@@ -288,6 +294,15 @@ aws ec2 describe-instances --instance-id i-30d27590 --output=table
 aws ec2 stop-instances     --instance-id i-30d27590
 aws ec2 start-instances    --instance-id i-30d27590
 
+
+
+# finding interchangeable Architecture 
+aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=x86_64 --query "InstanceTypes[*].InstanceType" --output text
+aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=arm64  --query "InstanceTypes[*].InstanceType" --output text
+
+
+aws ec2 describe-volumes		# list all storage volumes, some may not be attached!
+aws ec2 describe-volumes --output=text	# wide format closer to web gui presentation
 
 </PRE>
 
@@ -328,17 +343,70 @@ wget -q -O - http://169.254.169.254/latest/meta-data/instance-id	# 169.254.169.2
 <li>Look at free software in Amazon Marketplace is a easy way to see prices for all different types of instances.  eg.  <A HREF="https://aws.amazon.com/marketplace/pp/B00N44P7L6/ref=dtl_recsim_B00EQE493U_B00N44P7L6_2">NCBI Blast AMI</A></li>
 </ol>
 
-Source: 
-<A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A>
+<PRE>
+
+c5a
+c5ad - essentially same as C5a, but has nvme ephemeral instance storage (eg for use as swap, which need to be setup each time instance is powered on)
+
+ragd.12xlarge - the "g" is for gravitron, arm-based architecture, AMI not interchangeable with x86.
+
+some pricing info as of 2022.09 for some of the instance I was using:
+
+c5a.16xlarge  is $2.46/hour      no ephemeral NVME 
+c5ad.16xlarge is $2.75/hour      2 nvme ephemeral instance storage
+r6gd.12xlarge is $2.76/hour      the "g" is for gravitron arm based 
+r5ad.12xlarge is $3.14/hour      384G RAM 48 core.
+r6id.12xlarge is $3.63/hour                
+r6id.16xlarge is $4.84/hour
+
+r5n.2xlarge	$0.596	8	64 GiB	EBS Only	Up to 25 Gigabit
+t3a.2xlarge	$0.3008	8	32 GiB	EBS Only	Up to 5 Gigabit
+
+
+API Name	Instance Memory		vCPUs	Instance Storage	Network Performance	Linux On Demand cost
+r5ad.16xlarge	512.0 GiB	64 vCPUs	2400 GB (4 * 600 GB NVMe SSD)	12 Gigabit	$4.192000 hourly
+m5ad.24xlarge	384.0 GiB	96 vCPUs	3600 GB (4 * 900 GB NVMe SSD)	20 Gigabit	$4.944000 hourly
+r5ad.24xlarge	768.0 GiB	96 vCPUs	3600 GB (4 * 900 GB NVMe SSD)	20 Gigabit	$6.288000 hourly
+m6id.32xlarge	512.0 GiB	128 vCPUs	7600 GB (4 * 1900 GB NVMe SSD)	50 Gigabit	$7.593600 hourly
+r6id.32xlarge	1024.0 GiB	128 vCPUs	7600 GB (4 * 1900 GB NVMe SSD)	50 Gigabit	$9.676800 hourly
+x2iedn.16xlarge	2048.0 GiB	64 vCPUs	1900 GB NVMe SSD		50 Gigabit	$13.338000 hourly
+x2iedn.32xlarge	4096.0 GiB	128 vCPUs	3800 GB (2 * 1900 GB NVMe SSD)	100 Gigabit	$26.676000 hourly
+
+
+  #instance_type = "t2.micro"   # $0.020/hr  1 vCPU  0.6G RAM
+  #instance_type = "t2.small"   # $0.023/hr  1 vCPU  2G
+  #instance_type = "t2.medium"  # $0.046     2 vCPU  4G                # tested work for us-west-2
+  #instance_type = "t3.large"   # $0.083     2 vCPU  8G
+  #instance_type = "t3.xlarge"   # $0.166     4 vCPU 16G
+  #instance_type = t4g.2xlarge	$0.2688		8	32 GiB	EBS Only	Up to 5 Gigabit
+  #instance_type = r5a.2xlarge	$0.452		8	64 GiB	EBS Only	Up to 10 Gigabit
+
+
+  instance_type = "c5a.16xlarge"  # $2.464       64 vCPU 128G
+  #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
+  #~~instance_type = "c5ad.16xlarge"  # $2.75       64 vCPU 128G , 2 TB NVME Ephemeral instance storage (for swap)
+  #-instance_type = "x2gd.2xlarge"  # $0.668        8 vCPU 128G  arm64
+
+If just added EBS storage to volume, cannot change instance type, probably for 6 hours, while the disk config changes are synced in the AWS region or something.  (Would get "unexpected error", but figure multiple EBS storage changes had this restrictions).
+
+</PRE>
+
+Source and Ref: 
+<A HREF="https://aws.amazon.com/ec2/pricing/on-demand/">EC2 On-Demand pricing </A> **With search** <BR>
+<A HREF="https://aws.amazon.com/ec2/pricing/">EC2 price list</A> <BR>
+<A HREF="https://www.cloudzero.com/blog/aws-instance-types">instance type guide</A> (By cloud zero, mediocre) <BR>
+
+
+
 
 <BR><BR>
 
 <H3>EC2 vs Google Compute Cloud pricing</H3>
 
 <PRE>
-Hard to do apple to apple comparison, especially if get into spot/preemptible instance prices.
+Hard to do apple to apple comparison, especially if get into spot/preemptible instance prices.  Info from pre historic era (ie pre COVID-19)
 
-AWS    bill in 1 hr  increment
+AWS    bill in 1 sec increment, min 10 sec.
 Google bill in 1 min increment, min 10 min.  automatic discount for sustained use (seesm to be 24%).
 
 prices are barebone VM, additional charges apply for OS needing license cost, app license, etc.
@@ -351,7 +419,7 @@ comparison done on Nov 8, 2015.
 1 cpu, 2.0/1.7 GB RAM, 				t2.small  $0.026/hr ($18.72/mo)		f1-small  $0.027/hr
 
 2 cpu, 8.0/7.5 GB RAM, 				m4.large   $0.126/hr ($  90/mo) 	n1-std-2  $0.100/hr ($  72/mo)
-32cpu, 108/120 GB RAM,				c3.8xlarge $1.680/hr ($1209/mo)	   	n1-std-32 $1.600/hr ($1152/mo)
+32cpu, 108/120 GB RAM,				c3.8xlarge $1.680/hr ($1209/mo)	  n1-std-32 $1.600/hr ($1152/mo)
 
 
 Additional charges:
@@ -432,8 +500,21 @@ Elastic File System - in Beta as of 2015.11 <BR>
 <LI>EBS emulates a virtual hard drive, so it is mounted by a specific EC2 instance for use, but it lives independent of any given EC2 instance.  ie, it is NOT instance storage, and persist after an EC2 is terminated (deleted).
 <LI>Only mountable in the same availability region.  But then it has no replication delay.
 <LI>Has two tiers.  Standard IOPS, and Provisioned IOPS (PIOPS).  The latter allow extra payment to get dedicated performance.  It is not necessary faster, but will be more predictable (less variable, less likely to have bad performance because other instance is sharing the hardware and hitting it hard).
-<LI>
+<LI> gp2 (general purpose ssd storage) = 0.10 per GB-month of provisioned storage - ie $102/TB-month
+<LI> gp3 (general purpose ssd storage) = 0.08 per GB-month of provisioned storage - ie $ 82/TB-month + IOPS cost.  gp3 + 9000 IOPS = same perf but cheaper than gp2.  so use gp3!
+
+
 </OL>
+
+data volume management thoughts <BR>
+attach volume to OS, no partition, create PV on whole virtual disk eg xvdf.  <BR>
+expansion: create another volume in aws, attach to OS, eg xvdg, create PV, add to existing VG.  
+shrink: can then do pvremove if extra partition not needed.   (cuz don't think shrinking aws gp3 ssd will properly ensure fs data block is not removed).
+<BR>
+each  gp3 vol has 3000 IOPS free.  using LVM can spread IO over multiple gp3 PV :) <BR>
+(though IOPS aren't too expensive, extra volume in the list may be problematic for large cloud) <BR>
+
+
 
 <H3>S3</H3>
 
@@ -452,6 +533,65 @@ Elastic File System - in Beta as of 2015.11 <BR>
 <LI>
 </OL>
 
+
+<H1>Cloud "VM"</H1>
+
+
+<!-- set tabstop=8
+1-----------------------------------------------------------------------------80
+12345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 -->
+<PRE>
+				aws		gcp		azure
+				---------------	---------------	----------------
+service name			ec2
+def username			ec2-user
+billing inc			1 sec
+billing min			10 sec ?
+
+</PRE>
+
+<H1>Cloud Container</H1>
+
+<!-- set tabstop=8
+1-----------------------------------------------------------------------------80
+12345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 2345678 -->
+<PRE>
+
+				aws		gcp		azure
+				---------------	---------------	----------------
+service name			eks
+def username			
+billing 
+
+
+
+</PRE>
+<H1>AWS Region</H1>
+
+<PRE>
+us-east-1 = Virginia     ###
+us-east-2 = Ohio
+us-west-1 = California
+us-west-2 = Oregon       #
+
+</PRE>
+
+These resources are region specific:
+
+<UL>
+<LI>AMI-id.  ie, TF script that create EC2 instance must use ami-nnnnn from the same region, or get vague "resource unavailable" error.  Permission are also not copied when AMI is copied across region</LI>
+<LI>EC2 key pair.  These ssh key to login to machine (needed during instance creation) are listed under EC2, not under user security.  </LI>
+<LI>Security Groups.  But TF create them and will track them.</LI>
+<LI>EC2 instance.  the i-nnnn is region specific.</LI>
+<LI></LI>
+</UL>
+
+These are globally unique
+<UL>
+<LI>S3</LI>
+<LI>IAM user</LI>
+<LI></LI>
+</UL>
 
 <H1>Using S3 to serve static-content web site</H1>
 
@@ -481,6 +621,7 @@ Be forwarned that each little file retrieval add to the cost.  A web site may ha
 <LI>There are options to set a DNS domain to point to the S3 web site, see AWS Route 53 or even a DNS CNAME to the S3 endpoint, eg <A HREF="http://tiny.cc/TIN">tiny.cc/TIN</A>.
 </UL>
 
+<A ID="s3"></A>
 <A ID="s3_cli"></A>
 <A ID="s3_commands"></A>
 <H5>S3 commands</H5>
@@ -491,6 +632,8 @@ Be forwarned that each little file retrieval add to the cost.  A web site may ha
 # S3 buckets are accessible globally, so while hosted in a region, I/O commands can work w/o specifying any region.
 
 aws s3 ls					# list buckets
+aws s3 mb s3://sapsg				# make bucket (name has to be GLOBALLY unique)
+aws s3 rb ...					# remove bucket 
 aws s3 ls sn-s3-bucket-oregon-webhosting	# list content of bucket named "sn-s3-bucket-oregon-webhosting"		## cat@grumpy
 aws s3 ls sn-s3-bucket-oregon-webhosting/fig/	# it is more like "ls -ld", add tailing / to see content inside a dir
 aws s3 ls s3://sn-s3-bucket-oregon-webhosting	# prefixing bucket name with s3:// is req with older awscli
@@ -505,13 +648,55 @@ aws s3 sync . s3://sapsg    --acl public-read	# xfer-in is free, so okay to test
 
 aws s3 sync conf     s3://nibr/conf   --acl public-read		# conf is name of a dir in this eg
 aws s3 sync conf     s3://ask-margo   --acl public-read		# the dirname must be stated in the destination too, or all files in the script/* dir will be placed at one level higher!
-aws s3 sync conf/    s3://nibr        --acl public-read		# whether / is added to explicity state src is a dir.
+aws s3 sync conf/    s3://nibr        --acl public-read		# whether / is added to explicity state src is a dir.  This was likely aws cli 1.0 behavior
+
+aws s3 sync my_data_dir s3://bild-aq-tin6150-data/my_data_dir          # aws cli 2.0 need to specify a destination dir 
+aws s3 sync my_data_dir s3://bild-aq-tin6150-data/two-folder/deep-ok/  # and s3 will automagically do the "mkdir -p" for any necessary folder path
+
+
+aws s3 sync .   s3://tin6150     --acl public-read  --exclude ".git/*"  # exclude .git DB files
+aws s3 cp   fig s3://tin6150/    --acl public-read  --recursive         # cp -R  fig folder copied and folder created in dest bucket
+
+# note, it is possible to cp/sync between two s3 buckets
+
+# remove all files in bucket before removing the bucket.  It cannot be renamed nor change region.
+ aws s3 rm --recursive s3://old-junk
+ aws s3 rb             s3://old-junk
 
 </PRE>
 <BR>
 ref: <A HREF="http://docs.aws.amazon.com/cli/latest/userguide/using-s3-commands.html">S3 commands</A>
 <BR>
 <BR>
+
+<H1>Security Stuff</H1>
+
+ec2 key pair is the one that is related to ssh to ec2 instance, 
+the key that is injected when an instance is spun up.
+<BR>
+In GUI, under EC2 section, should see "key pair" on the left navigation pane.
+imported or create via GUI  (there maybe cli way to do this). 
+<BR>
+Anyway, EC2 key pairs can be listed by:
+
+<PRE>
+aws ec2 describe-key-pairs
+aws ec2 describe-key-pairs --key-names tin@aws2208blactam.withPass
+
+</PRE>
+
+
+the ssh key maybe is for some code checking stuff (aws' git?)
+so effing confusing!
+
+when key is imported/created under <BR>
+username, Security Credentials, AWS CodeCommit credentials.
+It is NOT usable as EC2 key-pair to ssh in to an instance.
+it shows up by:
+<PRE>
+aws iam list-ssh-public-keys
+</PRE>
+
 
 <H1>HPC in EC2</H1>
 
@@ -623,6 +808,119 @@ Other eg of NoSQL DB includes: Hadoop, MongoDB.  <BR>
 BigTable-based, rather than schema-less: Cassandra, HBase.
 <BR><BR>
 
+<H1>GCP - Google Cloud</H1>
+
+<H2>GCP 101</H2>
+
+<H3>ssh access</H3>
+Easiest thing is to use the Web SSH on the VM detail page.  It does display this message:
+<BR>
+Please consider adding the IAP-secured Tunnel User IAM role (iap.tunnelInstances.accessViaIAP) to start using Cloud IAP for TCP forwarding for better performance.
+<BR>
+
+<H3>ssh keys - grumpy old sys admin way</H3>
+
+It seems that ~/.ssh/authorized_keys is updated each time the Web SSH is activate.
+When it says "copying ssh key to VM", that seems to be when it updates that.
+It updates entry followed by (or after) <BR>
+<TT># Added by Google</TT>
+<BR>
+so adding entries to the top of the authorized_keys 
+don't seems to be wiped out.  <BR>
+It still remains which user can login, other than the owner who created the instance...
+
+<H3>ssh keys - google way</H3>
+
+SSH keys are managed by the GCP environment.  
+<BR>
+~/.ssh/authorized_keys will be wiped when GCP need to push changes to the VM instance. <BR>
+Keys in /etc/ssh/ should just be host keys. <BR>
+
+Best is to 
+<A HREF="https://cloud.google.com/compute/docs/oslogin/set-up-oslogin#gcloud">Enable OS Login</A>
+<A HREF="https://cloud.google.com/compute/docs/instances/access-overview?hl=en">Choose an access method</A> (OS Login vs Managing SSH keys in metadata)
+<OL>
+(this seems to have been linked to some IAM , which might be pre-requisite)
+<LI><A HREF="https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role">Assign OS Login IAM roles - Project level</A>
+<LI><A HREF="https://cloud.google.com/compute/docs/access/managing-access-to-resources#bind-member">Assign OS Login IAM roles - Instance level</A>
+<LI>
+</OL>
+<BR>
+
+2nd best is to manage metadata (GCP) and add individual key.
+<A HREF="https://cloud.google.com/compute/docs/instances/access-overview?hl=en">Choose an access method</A> (See second section under "Managing SSH keys in metadata")
+<A HREF="https://cloud.google.com/compute/docs/metadata/setting-custom-metadata#update_metadata">Updating metadata on a running VM</A>
+ie.
+for single VM instance.
+edit the VM, ssh key should be listed and allow "add item".  
+it is a tiny box to edit ssh key and some descriptive data.  it is a PITA.  eg, broke into several line for easier reading:
+<PRE class="cf">
+ecdsa-sha2-nistp256 
+AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEbcqIe/lbynFItQAZpmwxr5mpecBeunOziOJgPiN18wEHx6jPZsS6ov+cjhpwiSxV6pMliZrfY3MgewtY5i6U0= 
+google-ssh {
+"userName":"tin@lbl.gov",
+"expireOn":"2023-08-29T21:27:33+0000"
+}
+</PRE>
+<PRE class="cf">
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCU6pjFRh+yAJ84AcKfD8xEUEyPzQoQhenPl47x9PL7bTOXK5qSdUyMtWk23T5AI+yFzdquWF8LyamH1qfFn2KKKIOeduSfgV+QmaBdIyjELbZ5SmxuiZ4k5PsXop9MxY65OULaJ1/LWXN4+/WURVvjTM0IrhtZayjpkarlItBvt/RxdBZSitI7STYLJCmCkQwJu5BRJM0fimxvAxFusER9JCwXZeVtiyJxne03+UP0vdy7K09ZQwbcS8nYWVQJuvMypAUsPECguDHgZnHmCbJ3O50Jt8LIjGbJJdId9j4UqOdqIwoofp5Fna1N1b3cbB8WF++w6/5RROO/VfEAngLt google-ssh {"userName":"tin@lbl.gov","expireOn":"2023-08-29T21:27:48+0000"}
+</PRE>
+
+Adding this manually, just plain id_ed25519.pub format, where hostname was slightly edited manually before, but w/o google formatting:
+<PRE class="cf">
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDmvqObMYMqJ0zuzxb60xjtZOObA8nZCrlvx1oR6p6+F tin@wombat_bangwu.clave
+</PRE>
+
+<BR>
+
+Web console can launch an ssh session to an instance even without the "enable OS login" setup above.
+The web console has user authenticated to GCP web site, and from there i guess add a user to the VM and pipe in some key via sshd config.
+maybe easiest for user, but then have to use the web ssh client.  at least cut-n-paste works.
+
+for better ssh integration, then do the "enable OS login" or "metadata" setup.
+
+<H3>sudoers</H3>
+
+Web ssh login seems to place the user in group "google-sudoers" automatically.  But something is managing /etc/group, and users added to that group get selectively cleaned out by some process.  
+
+<H2>GCP Getting Started</H2>
+Install gcloud toolkit - see 
+
+
+<PRE>
+gcloud compute instances list					# list all instances
+gcloud compute instances describe atlas-tin2023  | less		# get metadata of instance
+
+</PRE>
+
+
+<H1>Terraform</H1>
+
+I am not a huge fan of terraform, it doesn't provide enough abstraction to be platform independent.
+The resulting .tf file is full of aws riddle (or gcp), as it is tied to the provider.
+No simple swapping (as Ansible can do for much function of the OSes).
+<BR><BR>
+
+but here are some commands anyway. <BR>
+example setup in github cloudseed4lbl
+
+<PRE>
+terraform init
+terraform fmt		# format all .tf files (for indentation), in place, so consider backup before running this.
+			# returned filenames are files that it changed.  none if no changes.
+
+terraform validate
+terraform plan
+terraform apply		# this is DESTRUCTIVE.  re-apply ami-id to the instance, previous data is erased!  even security group seems recreated.
+terraform destroy	# will terminate instance, remove any created security group.
+
+# terraform has no way to restart an instance, nor to just stop or start it.
+# use the aws cli tool for that
+
+aws ec2 stop-instances --region us-east-2 --instance-ids i-0123456789abcdef
+
+
+</PRE>
 
 <H1>Reference, see also...</H1>
 
@@ -636,6 +934,28 @@ BigTable-based, rather than schema-less: Cassandra, HBase.
 
 </UL>
 
+<H1>Useful links</H1>
+
+
+<UL>
+<LI><A HREF="https://instances.vantage.sh/?min_memory=384&min_storage=100&region=us-east-2&selected=r5ad.12xlarge">
+vantage.sh AWS EC2 pricing and instance comparison</A>
+<LI> <A HREF="https://www.instance-pricing.com/provider=aws-ec2/instance=c5ad.16xlarge/">instance-pricing.com</A> useful, but not as friendly as vantage.sh above.
+
+<LI>
+
+</UL>
+
+
+<H1>Random tidbits to be sorted</H1>
+
+<PRE>
+
+finding pricing info on ec2
+
+aws pricing get-products --service-code AmazonEC2 --filters "Type=TERM_MATCH,Field=instanceType,Value=c5ad.16xlarge" "Type=TERM_MATCH,Field=location,Value=US East (N. Virginia)" --region us-east-1 | jq -rc '.PriceList[]' | jq -r '[ .product.attributes.servicecode, .product.attributes.location, .product.attributes.instancesku?, .product.attributes.instanceType, .product.attributes.usagetype, .product.attributes.operatingSystem, .product.attributes.memory, .product.attributes.physicalProcessor, .product.attributes.processorArchitecture, .product.attributes.vcpu, .product.attributes.currentGeneration, .terms.OnDemand[].priceDimensions[].unit, .terms.OnDemand[].priceDimensions[].pricePerUnit.USD, .terms.OnDemand[].priceDimensions[].description] ' | less
+
+</PRE>
 
 <BR><BR>
 <HR>
@@ -753,4 +1073,6 @@ http://tin6150.github.io/psg/psg.html
   
 </div> <!-- closes wrapper --> 
 </body>
+<!-- vim: tabstop=8 
+-->
 </html>

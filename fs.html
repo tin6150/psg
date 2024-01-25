@@ -40,7 +40,8 @@
       <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
       <td align="center"><a accesskey="e" href="emc.html">EMC</a>	</td>
       <td align="center"><a accesskey="n" href="emcCelerra.html">EMC(NAS)</a></td>
-      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+      <td align="right"> <a accesskey="l" href="linux.html">Linux</a>	</td>
+      <td align="right"> <a accesskey="d" href="ldap.html">LDAP</a>	</td>
     </tr>
   </tbody>
 </table>
@@ -51,6 +52,12 @@
 </div>
 </div>
 
+xref:  <BR>
+<A HREF="netapp.html">Netapp</A> <BR>
+<A HREF="isilon.html">Isilon</A> <BR>
+<A HREF="#synology">Synology</A> (see below) <BR>
+
+<BR>
 
 <H1>Files, ACL, security</H1>
 
@@ -195,8 +202,8 @@ share -F nfs -o ro -d "tin-sun vold /cdrom s1" /cdrom/sol_10_305_sparc/s1 # as t
 
 
 solaris :
-mount -F <fstype> servername:/exportName  /mount/point
-	<fstype> in solaris
+mount -F {fstype> servername:/exportName  /mount/point
+	{fstype> in solaris
 	nfs	
 	cdrom 	: hsfs	/dev/rdsk/c0t6d0s0 /cdrom
 	dos   	: pcfs
@@ -204,7 +211,7 @@ mount -F <fstype> servername:/exportName  /mount/point
 If not using vold to manage cdrom, add entry like this to the vfstab:
 /dev/dsk/c0t6d0s0       -     /mnt/cdrom    hsfs    -       no      -
 
-showmount -e <hostname>		: display the devices shared by a remote host that can be mounted
+showmount -e {hostname>		: display the devices shared by a remote host that can be mounted
 
 showmount -a			: list remote system that has mounted a export
 
@@ -290,6 +297,7 @@ Making ext2 floppy
 
 linux sample /etc/fstab:
 
+# {file system}         {mount point}           {type}  {options}       {dump}  {pass}
 /dev/hda1               /                       ext2    defaults        1 1
 /dev/cdrom              /mnt/cdrom              iso9660 noauto,owner,ro 0 0
 /dev/hda6               /var                    ext2    defaults        1 2
@@ -425,6 +433,68 @@ ml4hep1:/global/home/users /global/home/users nfs  rw,bg,soft,intr,_netdev  0 1
 /global/home/users         /home              none _netdev,bind,-systemd.requires-mounts-for=/global/home/users  0 2
 
 </PRE>
+
+options per mounts 
+<PRE>
+vasttest.greta.local:/greta on /global/userspace type nfs (rw,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.8.16.51,mountvers=3,mountport=20048,mountproto=udp,local_lock=none,addr=10.8.16.51,_netdev)
+
+NFSoRDMA 
+both client and server need to support it.
+Need NIC with RDMA support, eg Mellanox ConnectX-3.  Work in Ethernet mode, check on RoCEv2
+ref: http://www.unstructureddatatips.com/how-to-configure-nfs-over-rdma/
+https://infohub.delltechnologies.com/l/powerscale-onefs-nfs-over-rdma-for-media/what-is-nfs-over-rdma-1
+
+mount -t nfs -vo nfsvers=3,proto=rdma,port=20049 172.16.200.29:/ifs/export_rdma /mnt/export_rdma
+
+
+nfsclient kernel: lockd: server nfsserer not responding, still trying
+nfsclient kernel: xs_tcp_setup_socket: connect returned unhandled error -107
+
+turn off nfs lock... or configure firewall to let lockd ? to work 
+
+/etc/nfs.conf
+/etc/modprobe.d/lockd.conf
+
+
+nfs ports
+111   (TCP, UDP)   server
+2049  (TCP, UDP)   server
+20048	nfs mount
+20049	nfsrdma
+portmapper rpcinfo -p
+
+   program vers proto   port  service
+    100000    4   tcp    111  portmapper
+    100000    3   tcp    111  portmapper
+    100000    2   tcp    111  portmapper
+    100000    4   udp    111  portmapper
+    100000    3   udp    111  portmapper
+    100000    2   udp    111  portmapper
+    100005    1   udp  20048  mountd
+    100005    1   tcp  20048  mountd
+    100024    1   udp  35703  status
+    100024    1   tcp  46391  status
+    100005    2   udp  20048  mountd
+    100005    2   tcp  20048  mountd
+    100005    3   udp  20048  mountd
+    100005    3   tcp  20048  mountd
+    100003    3   tcp   2049  nfs
+    100003    4   tcp   2049  nfs
+    100227    3   tcp   2049  nfs_acl
+    100003    3   udp   2049  nfs
+    100003    4   udp   2049  nfs
+    100227    3   udp   2049  nfs_acl
+    100021    1   udp  35141  nlockmgr
+    100021    3   udp  35141  nlockmgr
+    100021    4   udp  35141  nlockmgr
+    100021    1   tcp  39794  nlockmgr
+    100021    3   tcp  39794  nlockmgr
+    100021    4   tcp  39794  nlockmgr
+
+-A INPUT -s 128.3.7.196         -p tcp -m multiport --dports 111,2049,20048,35141,35141834,835,836,837  -j ACCEPT  -m comment --comment "RPC and NFS"
+
+</PRE>
+
 
 <H4>Solaris vfstab eg</H4>
 <PRE>
@@ -889,6 +959,66 @@ the net idmap command operates locally and is covered in the UID to SID mapping 
 <BR><HR><BR>
 <BR>
 
+See also: <BR>
+<A HREF="netapp.html">Netapp</A> <BR>
+<A HREF="isilon.html">Isilon</A> <BR>
+<BR><BR>
+
+
+<A ID="synology"></A>
+<A ID="Synology"></A>
+<H2>Synology</H2>
+
+
+<A HREF="https://global.download.synology.com/download/Document/Software/DeveloperGuide/Firmware/DSM/All/enu/Synology_DiskStation_Administration_CLI_Guide.pdf">Synology NAS Admin cmd</A> CLI ref, 
+covers: synouser, synogroup, synoshare, synonet, synoservice, synowin (ADS domain settings).
+<BR><BR>
+
+<BR>
+GUI:
+<BR>
+
+DSM 6.2: Control panel, info, General.  See model and serial.  CPU, number of expansion unit attached, etc.
+<BR>
+<BR>
+
+
+
+<A HREF=https://kb.synology.com/en-global/DSM/help/DSM/StorageManager/storage_pool_repair?version=6">DSM 6 storage pool repair</A>.  When no hot spare is available, (but a disk is available as unused), go to Action, Repair, and drag an available drive/slot into the desired array that has a place holder "require disk", then the RAID rebuild process will kick on.    This allow specifiying which disk to use as replacement drive (hopefully fail back to the original source once the drive has been replaced, this is so all disks for a RAID group is in same enclosure, and not subceptable to the single link failure (1 IB-like cable is used between head and expansion shelf).
+<BR>
+<BR>
+
+
+<A HREF=https://kb.synology.com/en-global/DSM/help/DSM/StorageManager/hotspare?version=6">DSM 6 hotspare</A>.
+When a hotspare has been removed, after reinstall, it will no longer be hotspare anymore (just becomes an available drive, unused, in the system.  Reassign as hotspare is a manual process.  Once done, then drive failure in any RAID gropu in any shelf can use the hotspare automagically.
+
+<BR>
+<BR>
+
+<PRE>
+
+syno-letsencrypt
+syno_disk_ctl
+syno_disk_health_record  ... these are likely deamon process
+synoupgrade? synostorage 
+syno*  eg synocopy, synocrond, synocleaner
+syn_[tab][tab]
+
+</PRE>
+
+
+<A HREF=https://global.download.synology.com/download/Document/Hardware/HIG/RackStation/17-year/RS4017xs+/enu/Syno_HIG_RS4017xs_Plus_enu.pdf">RackStation RS4017xs+ HW Install Guide</A>
+page 8 has 
+drives are numbers horizontally first, then down.  <BR>
+<TT>
+[ 1][ 2][ 3][ 4]  <BR>
+[ 5][ 6][ 7][ 8]  <BR>
+[ 9][10][11][12]  <BR>
+[13][14][15][16]  <BR>
+</TT>
+<BR><BR>
+
+from support, it like /dev/sd* are assigned somewhat randomly, it scan order at system boot.
 
 <BR><HR>
 <div align="CENTER">

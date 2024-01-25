@@ -26,6 +26,7 @@
     <tr>
       <td align="left">  <a accesskey="h" href="psg2.html">Home</a>                     </td>
       <td align="center"><a accesskey="m" href="mrf.html">Modified RAID 5</a>           </td>
+      <td align="center"><a accesskey="x" href="linux.html">Linux</a>    	          </td>
       <td align="center"><a accesskey="d" href="docker.html">Docker</a>                 </td>
       <td align="center"><a accesskey="a" href="aws.html">AWS</a>                       </td>
       <td align="center"><a accesskey="l" href="lsf.html">HPC/Batch System</a>          </td>
@@ -51,14 +52,56 @@
 
 <!-- ######################################################################### -->
 
-
 <H1>SSH, Tunnel, Port Forward</H1>
+
+
+<H3>Ponder</H3>
+
+<LI>PermitTunnel is disabled by default on openssh, it poses lots of serucrity problems for TCP ports, cuz sshd runs as root</LI>
+<LI>Stunnel: create tunnel wrapper to secure otherwise non encrypted TCP traffic</LI>
+<LI>sshuttle: mount NFS from ssh connection.  NFS server should only allow priviledged ports to mounts to mitigate this problem.  <BR>
+	sShuttle is amazing, but it also creates lots of security complications <BR>
+	Ref: <A HREF="https://etherarp.net/sshuttle-a-vpn-for-the-lazy/">SSHUTTLE - A VPN for the Lazy</A><BR>
+</LI>
+<LI>ssh agent forwarding.  with git not allowing password, this is increasingly a necessity.  But there are security risks.  SSH_AUTH_SOCK can be read by root, and hijack the session to impersonate the user running the agent foward.  There are mitigations, see <BR>
+	<A HREF="https://smallstep.com/blog/ssh-agent-explained/#:~:text=Agent%20forwarding%20comes%20with%20a,other%20machines%20on%20the%20network.">SSH Agent Explained</A>  <BR>
+	In sshd.conf, AllowAgentForward is independent of AllowTcpForwarding (and X11Forwarding).  <BR>
+</LI>
+<LI></LI>
+<LI></LI>
+
+<H3>SSH with SOCKS5 </H3>
+
+</PRE>
+Host socks5-browser
+  HostName my_office_machine
+  IdentityFile /home/.ssh/my_ssh_key
+  DynamicForward 3125
+  # LogLevel DEBUG
+  # ^^ DEBUG will print lot of message on the terminal that ran the ssh cmd.
+
+ssh socks-browser # to open connection (ssh will use the HostNHame clause)
+on firefox, set the network settings to use a socks5 proxy using the dynamic port listed above
+</PRE>
+
 
 <H3>Scripting SSH Login</H3>
 
 Example Perl/Expect script to ssh to a host (eg iDRAC interface) with interactive password and issue command interactively: 
 <A HREF="https://github.com/tin6150/psg/blob/master/script/perl/sshExpect.pl">
 sshExpect.pl</A>
+This is obviously insecure since the script has clear text password in it.
+it would be better to have ssh key pair created so that the client can login without password so this scripting doesn't have to use clear text password.
+
+<H3>Legacy cipher</H3>
+
+to login to old netapp needing 3des-cbc (which is now disabled cuz it is subject to attack), try one of these:
+<BR>
+ssh -c 3des-cbc old-netapp-filer  
+<BR>
+ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 old-netapp-filer
+<BR>
+
 
 
 <H3>SSH Hostkey</H3>
@@ -164,6 +207,15 @@ ssh -L 5911:localhost:5901  remoteVncSvr
 vncviewer localhost:11
    this connect to local port 5911, wrap by ssh, then into the remote vncserver port 5901, ie :1
 
+ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -L 5951:localhost:5911 tin@bofh  # 2400x1300 # **this vnc to localhost:51  which tunnel to bofh:11**
+
+ssh port forward tunnel chaining 
+
+ssh chaining
+ssh -L 5907:localhost:5907 tin@gt1
+ssh -L 5907:localhost:5907 tin@a1
+vncserver -geometry 1280x800  :7
+vncviewer localhost:7
 
 ---
 
@@ -298,23 +350,159 @@ This is another line.
 </TT>
 -->
 
+<H1>sshfs</H1>
 
+<PRE>
+sshfs  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin   ~/mnt/brc-gs
+sshfs  -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
+
+works even in wsl :D
+
+if using vscode, there maybe some nuance, see
+https://askubuntu.com/questions/1385124/unable-to-open-visual-studio-code-when-inside-sshfs-mounted-drive-ubuntu-wsl
+</PRE>
+
+
+<A NAME="cert"></A>
+<A NAME="openssl"></A>
 <H1>OpenSSL</H1>
 
 certs, and stuff
+<BR>
+
+<H2>test/eyeball certs</H2>
 
 <PRE>
 
-# git only take .pem certs, convert .crt to .pem as:
+# human readable parse of a domain cert:
+openssl x509 -text -noout -in domain.crt 
 
+# check expiration date of a .pem file:
+openssl x509 -enddate -noout -in greyhound.pem
+
+# cli connect to a server (eg internal docker registry) and display cert it is using:
+openssl s_client -showcerts -connect registry:443
+
+# wget --no-cert-check ...
+
+</PRE>
+
+<H2>generating self-signed certs</H2>
+
+<PRE>
+
+openssl req -new -x509 -sha256 -newkey rsa:2048 -nodes -sha256 \
+    -keyout domain.key -out domain.crt  -days 4650 \
+    -subj "/C=US/ST=CA/L=Berkeley/O=LBNL/OU=GRETA/CN=registry.greta.local:443" \
+    -config self-signed.conf
+
+# -sha256 is for domain.crt domain.key format ?
+# omitting it generate pem format?
+</PRE>
+
+<H5>self-signed conf</H5>
+
+(haven't figure out how to do multiple DNS name SAN req in cli, so have to use this config file)
+<BR>
+the req is like "main"
+then it tell what other sections to parse
+
+<PRE>
+
+[ req ]
+x509_extensions = x509_ext
+distinguished_name = dn
+
+[dn]
+C = US
+ST = California
+L = Berkeley
+O = Lawrence Berkeley National Laboratory
+OU = GRETA
+CN = registry.greta.local:443
+
+
+[x509_ext]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1   = registry.greta.local
+DNS.2   = registry:443
+DNS.3   = registry
+DNS.4   = registry.greta.local:443
+
+</PRE>
+
+<H5>other commands to try if above dont work</H5>
+
+<PRE>
+# citrix method https://support.citrix.com/article/CTX135602
+openssl req -x509 -nodes -days 3285 -newkey rsa:2048 -keyout domain.key -out domain.crt -config san.conf -extensions 'v3_req'
+
+# human readable parse of a domain cert:
+openssl x509 -text -noout -in domain.crt 
+
+cp -pi      domain.crt /clusterfs/gretadev/data/registry_certs
+chmod 0400  domain.key                                           # secure private key
+mv -i       domain.key /clusterfs/gretadev/data/registry_certs   # secure private key
+chown 771              /clusterfs/gretadev/data/registry_certs/domain.key
+# docker registry seems to be internally using uid 771 in the container (v2.0)
+
+</PRE>
+
+<PRE>
+
+# docker registry cert for internally hosting ref: https://docs.docker.com/registry/insecure/#use-self-signed-certificates
+openssl req \
+  -newkey rsa:4096 -nodes -sha256 -keyout certs/domain.key \
+  -addext "subjectAltName = DNS:myregistry.domain.com" \
+  -x509 -days 365 -out certs/domain.crt
+
+# git only take .pem certs, convert .crt to .pem as:
 openssl x509 -in greyhound.crt -out greyhound.pem -outform PEM
 
 
-# check expiration date of a .pem file:
 
-openssl x509 -enddate -noout -in greyhound.pem
+
+Cert Request (for CA signing, eg lets encrypt)
+
+<PRE>
+
+# signing a new cert request with a SAN (Subject Alternate Name)
+openssl req -new -out greyhound_lbl_gov.csr -newkey rsa:2048 -nodes -sha256 -keyout greyhound_lbl_gov.key.temp -config san.cnf
 
 </PRE>
+
+<PRE class="cf">
+# cat san.conf 
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = v3_req
+prompt = no
+[ req_distinguished_name ]
+C = US
+ST = California
+L = Berkeley
+O = Lawrence Berkeley National Laboratory
+OU = GRETA
+CN = registry:443
+[ v3_req ]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1   = registry
+DNS.2   = registry:443
+DNS.3   = registry.gretadev
+DNS.4   = registry.gretadev:443
+DNS.5   = registry.gretadev.lbl.gov
+DNS.6   = registry.gretadev.lbl.gov:443
+</PRE>
+
+
 
 <H5>certs for grafana container w/ ssl</H5>
 
@@ -337,12 +525,22 @@ mkdir CERTS_PRIV
 
 </PRE>
 
+
+Other ssl cert testing commands
+
+<PRE>
+
+openssl s_client -connect freeipa.greta.gov:443 -showcerts
+</PRE>
+
 Ref:
 
 <LI>EasyRSA self-signed certs (used with openVPN) </LI>
 <LI>OpenSC ssh tunnel</LI>
 <LI></LI>
 
+
+ssh -o StrictHostKeyChecking=no   example.com
 
 <BR><HR>
 <div align="CENTER">

@@ -26,6 +26,8 @@ for I in $SRC_B_LIST; do
 	# -a =  -rlptgoD (no -H,-A,-X), not all of which avail for FAT
 	rsync -urltD $I $DST_B
 	
+	# -u to avoid overwritting destination file that might have changed
+	# -l is in -a, but i like to be explicit on how sym link should be preserved as link
 
 done
 
@@ -33,3 +35,8 @@ done
 #              rsync -av /src/foo    /dest
 #              rsync -av /src/foo/   /dest/foo
 
+
+# ref: https://unix.stackexchange.com/questions/2161/rsync-filter-copying-one-pattern-only
+# rsync --include   works only in context of --exclude
+# so to copy only *.Rdata  need to essentially exclude everything then redefine what to include
+rsync -a --include='*.Rdata' --include='*/' --exclude='*'  --dry-run remote:/atlas   .
