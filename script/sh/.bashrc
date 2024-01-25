@@ -74,7 +74,8 @@ fi
 #    check if interactive shell, other stuff that break scp need to go in this block  , eg newgrp
 if [[ $- == *i* ]]; then
 	if [[ ${MAQUINA} == *lbl || ${MAQUINA} == *lr* ]]; then
-		echo "lrc machine, interactive shell, setting newgrp"
+		echo "" > /dev/null 
+		#~ echo "lrc machine, interactive shell... setting newgrp... "
     	#~ [ "$GROUPS" = "40046" ] || newgrp pc_adjoint
 	fi
 fi
@@ -468,7 +469,7 @@ defineAlias () {
 	alias ef='ps -ef'
 	alias lt="ls -latr"
 	alias ltr="ls -latr"
-	alias sq="squeue"          ##slurm
+	#alias sq="squeue"          ##slurm
 	alias sqt="squeue -u tin"  ##slurm
 	alias assoc="sacctmgr show associations -p"                    ##slurm
 	alias sevents="sacctmgr show events start=2020-01-01T00:00"    # node=n0270.mako0 # history of sinfo events (added by scontrol) ##slurm
@@ -772,3 +773,5 @@ export OMPI_MCA_orte_keep_fqdn_hostnames=t
 # vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
 
 
+module purge
+module load osu_benchmark/5.3
