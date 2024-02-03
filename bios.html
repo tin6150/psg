@@ -896,7 +896,10 @@ To change which interface is used for IPMI:
 
 <PRE>
 sudo ipmiutil lan -e										# check config
-sudo ipmiutil smcoem lanport dedicated  # set to shared
+sudo ipmiutil smcoem lanport            # find current setting
+sudo ipmiutil smcoem lanport dedicated  # set to use dedicated lom port
+sudo ipmiutil smcoem lanport lan1       # set to shared
+sudo ipmiutil smcoem lanport failover   
 </PRE>
 
 instead of getting the util, can apparently just use raw commands via ipmitool.
