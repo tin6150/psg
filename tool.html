@@ -78,6 +78,8 @@ Brendan Gregg on Linux Performance</A>
 <LI> slabtop            # realtime kernel slab cache utilization
                         # think of slab as block of kernel memory holding cache of identical objects
                         # instead of kmalloc, a block of memory is allocated at once for efficiency and reduced fragmentation
+<LI> smem -t -w -p	# report system memory usage by area, -t = total -w = whole sys -p = percentage.  can run as user
+# singularity exec /global/scratch/users/tin/singularity-repo/tin6150_perf_tools_2024_0118.sif smem -t -w -p
 <LI>
                       
 <LI>
@@ -139,7 +141,7 @@ mlx5_core # mellanox 100G Ethernet (and IB?)
 
 
 
-ss -tulp		# check socket status
+ss -tulp		# check socket status, see which port is open by what process.  add -n to show port by number
 
 </PRE>
 
@@ -1515,14 +1517,20 @@ tcpdump src  10.0.71.165 -w myfile.tcpdump	# -w write output to file
 tcpdump 'dst net 128.3'
 tcpdump 'src or dst port ftp-data'   
 tcpdump 'ether host 0:d0:b7:a9:c9:5a'
+tcpdump -v -i enp0s3 ether host 3c:ec:ef:bb:b5:bb or 90:e2:ba:c5:53:00   # verified will capture traffic for both mac
 tcpdump icmp -w myfile.tcpdump			# only icmp traffic, all hosts
 
 tcpdump -v -v host 10.0.71.165			# -v -v, increase verbosity.  
 						# usable in screen output for low amount of traffic
 
+tcpdump -vv -e -n -i enp0s3 port 67 or port 68  # these ports are arp req (bootps) and reply (bootpc) used by DHCP 
+
+
+
 tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump	
 		# -i eth2, only traffic flowing thru specified nic
 		# -s 64000, max packet capture size.  64k is probably bigger than needed, but works well
+		# -s 0 would have no limit on caputre size, ie capture as large as needed
 		# -w write output to file
 
 tcpdump -vv -i eno1  'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
@@ -1849,6 +1857,12 @@ nmap -sT -O -PI -PT 172.27.31.0/24	# scan whole class C vlan 31, with os identif
 sudo nmap -p1-62000 somehost		# scan port 1 to 62000 against machine named somehost
 sudo nmap -sU somehost -p8255		# check UDP port 8255 to see if it is open
 
+sudo nmap -e enp0s9     freeipa		# check all TCP ports to IPA server is reachable
+sudo nmap -e enp0s9 -sU    freeipa	# check all UDP ports to IPA server is reachable, takes ~18 min, another took 33 min
+sudo nmap -e enp0s9 -sU -F freeipa	# -sU = UDP scan.  -F = fast mode, scan fewer ports than default, still takes long time
+sudo nmap -e enp0s9 -sU -p53-1813 freeipa	# scan specified port range only 
+sudo nmap -e enp0s9 -sUT -p53,123,80,88,443,8443,8080,389,464,636,1812-1813 freeipa  # -sUT scan both UDP and TCP
+
 
 
 nmap -6 ::1				# scan localhost
@@ -2162,6 +2176,14 @@ ping -c 3 -s 8970 -M do 10.11.12.201
   #   -M dont failing does not necessarily means things wont work.
   #   PMTUD (Path MTU Discovery) protocol only works for TCP and UDP, and lots of ICMP traffic is dropped by many network
 
+
+windows ping to fine tune MTU in VPN 
+ping -f VPNserver -l 1500
+# reduce -l size till does not see DF error.
+MTU 1450 maybe a good size to set for both client and server side.
+One env I setup I had to use MTU 1398
+see: https://www.thegeekpub.com/271035/openvpn-mtu-finding-the-correct-settings/
+
 tracepath 10.11.12.201 
 	# use UDP to to traceroute, no root priv required
 	# discover MTU size between two hosts
@@ -2305,6 +2327,39 @@ using qsub script in cluster (mostly to generate random storage traffic):
 
 
 </PRE>
+
+<H1>unzip multipart</H1>
+
+<PRE>
+Google drive download create these multipart zip files, 
+extraction in linux:
+
+zip -s- KPC\ Klebsiella\ Outbreak-20230227T210405Z-00*zip -O zip_ver3-s-output.zip
+unzip zip-s-output.zip
+# but at least on dtn zip 3.0 didn't produce full result.
+
+end up having to do this on bofh:
+
+7z x KPC\ Klebsiella\ Outbreak-20230227T210405Z-001.zip
+# repeat for each file, 7z x *zip didn't seems to have worked 
+7z x KPC\ Klebsiella\ Outbreak-20230227T210405Z-005.zip
+</PRE>
+
+zip with encryption/password
+
+zip -er9 filename.zip path/ 
+# -e encrypt
+# -r recurse
+# -9  best compression
+# it will prompt for password for the encryption
+# default sym linked file get refered-to file copied.
+
+zip -T filename.zip
+# -T test integrity of file, ask for password if encrypted, and output whether OK or not
+# no trivial way to get list of files without extracting them?  no equiv of tar -tvfz ?
+
+windows 10 explorer will see filenames, and when clicked to open actual file is when it ask for password to decrypt, storing a file in some temp location (and hopefully deleted when file closed).
+
 
 <BR><HR>
 <div align="CENTER">

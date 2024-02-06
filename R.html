@@ -35,16 +35,18 @@
       <td align="center"><a accesskey="R" href="Rnote.html">Rnote</a>	</td>
       <td align="center"><a accesskey="y" href="python.html">python</a>	</td>
       <td align="center"><a accesskey="p" href="perl.html">Perl</a>	</td>
-      <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>     </td>
-      <td align="center"><a accesskey="s" href="sci-app.html">Sci-App</a>       </td>
+      <td align="center"><a accesskey="a" href="shellScript.txt">shellScript</a></td>
+      <td align="center"><a accesskey="f" href="sci-file.html">Sci-File</a>     </td>
+      <td align="center"><a accesskey="a" href="sci-app.html">Sci-App</a>       </td>
+      <td align="center"><a accesskey="b" href="bigdata.html">BigData</a>       </td>
 
+<!--
       <td align="center"><a accesskey="d" href="k8s.html">Kubernetes</a>                </td>
       <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>       </td>  <!--TBA-->
-      <td align="center"><a accesskey="r" href="coreos.html">CoreOS</a> </td>
       <td align="center"><a accesskey="w" href="aws.html">AWS</a>       </td>
-      <td align="center"><a accesskey="b" href="bigdata.html">BigData</a>       </td>
-      <td align="center"><a accesskey="v" href="vagrant.html">Vagrant</a>       </td>
-      <td align="right"> <a accesskey="a" href="shellScript.txt">shellScript</a></td>
+-->
+
+      <td align="right"> <a accesskey="" href="https://github.com/tin6150/publication?tab=readme-ov-file">Publications</a></td>
     </tr>
   </tbody>
 </table>
@@ -56,9 +58,6 @@
 </div>
 
 
-<div align="CENTER">
-<A HREF="https://xkcd.com/539/"><IMG SRC="fig/xkcd_boyfriend.png"></A>
-</div>
 
 
 
@@ -72,6 +71,69 @@
 	-->
 
 <A NAME="101"></A>
+<H1>What is R?</H1>
+
+
+Since R was taught with stat classes, I had originally thought R was a glorified calculator.  Surely it can’t beat <A HREF="python.html">Python</A>, the de facto programming language of choice for Machine Learning and science in general.  
+That's what I used to think. But the more I learn about R, the more impressed I have become.   Many may still view R, especially when used as a Rmd notebook, not as a proper programming language to write code in, but many of the constructs and libraries such as DPLYR, PURRR, data frame, the tilde modelin operator, lends to a functional programming approach that may traditional programmers such as C/++ developers can’t dismiss offhand.
+<BR><BR>
+
+When a hammer is the only tool one has, every problem has to look like a nail.  While R may not be the best tool for everything, it is really at home for much data analytics work.  Thus, learn how to use a screwdriver, and not every problem has to look like a nail 🙂
+<BR><BR>
+
+Below is a semi-categorized group of functions/programming constructs for doing stat analysis with R.  They serve mostly as a cheat-sheet for me to look up for possible functions to use when analyzing data.  
+
+Example of plots can be seen in this 
+<A HREF="https://tin6150.github.io/covid19_care_capacity_map/Rnote.html">web notebook</A>
+.  
+
+For GIS based spatial analytics,
+my <A HREF="https://tin6150.github.io/covid19_care_capacity_map/Rgis.html">R GIS</A> has some example code from my couple of GIS analysis class, whereas 
+<A HREF="https://tin6150.github.io/publication/doc/From_CSV_to_Web_GIS-LabTech2020.pdf">this slide deck</A> has a presentation on converting CSV file with geolocation data into interactive heat map using Mapbox.  One can generate web interactive map with next to no programming.
+
+<!-- not R
+the <A HREF="https://github.com/tin6150/covid19_care_capacity_map">COVID-19 care capacity map</A> has daily updated stat (till 2021) that is updated for display on an interactive map.
+-->
+
+<BR><BR>
+
+For more structured learning, these resources are recommended:
+<BR>
+<UL>
+
+<LI>Hadley Wickham and Garrett Grolemund have written a helpful book about R that is freely available <A HREF="https://r4ds.had.co.nz/">r4ds</A>.
+<LI><A HREF="https://stats.idre.ucla.edu/r/">UCLA has a website with many helpful examples</A>
+
+</UL>
+
+
+Stat for Epidemiologist
+
+<UL>
+
+<LI><A HREF="https://argoshare.is.ed.ac.uk/healthyr_book/">R for Health Data Science</A>
+is an online book by Ewen Harrison and Riinu Pius. It's available online in its entirety, for free
+
+<LI><A HREF="https://epirhandbook.com/en/index.html">The Epidemiologist R Handbook</A>
+is by Neale Batra et al. and is also available on the web for free.
+
+</UL>
+
+
+Also, as you do more work in R, like all coding work, having a source control system like <A HREF="https://www.github.com">GitHub</A> is recommended.  My cheat-sheet for github is <A HREF="git.html">here</A>
+<BR><BR>
+
+I am dabbling into bioinformatics (again:D), and have some quick notes in 
+<A HREF="sci-app.html">sci-app</A>(bioinfo apps) and 
+<A HREF="sci-file.html">sci-file#bioinfo</A> (bioinfo related file formats).
+
+
+<BR><BR>
+
+<div align="CENTER">
+<A HREF="https://xkcd.com/539/"><IMG SRC="fig/xkcd_boyfriend.png"></A>
+</div>
+
 <H1>R 101</H1>
 
 Ref: 
@@ -183,6 +245,9 @@ Boolean
 TRUE
 FALSE
 NA        # when logical comparison cannot be done (eg in vector pairwise comparison)
+
+as.integer( T )   # 1
+as.integer( F )   # 0
 </PRE>
 
 Logical Operator
@@ -228,19 +293,62 @@ beastTreeFilePath = str_c( beastTreeFileDir, beastTreeFileName )
 
 </PRE>
 
-<H1>Tips and Tricks for frequent R user</H1>
+<H5>Tips and Tricks for frequent R user</H5>
 
 <PRE>
 # this tip from Dr Jennifer Head of GIS 272a class
-# kinda like pushd of bash...
+# kinda like the equivalent of pushd of bash...
 
-The `here` package creates paths relative to the top-level directory. The package displays the top-level of the current project on load or any time you call `here()`. The function `i_am()` can be called at the top of the R script to set up the project root correctly. You can then build paths relative to the top-level directory in order to read or write a file.
+The `here` package creates paths relative to the top-level directory. 
+The package displays the top-level of the current project on load or any time you call `here()`. 
+The function `i_am()` can be called at the top of the R script to set up the project root correctly. 
+You can then build paths relative to the top-level directory in order to read or write a file.
 
 ```{r}
 i_am("Lab1_blank.Rmd")
 here()
 ```
 
+</PRE>
+
+<H1>R 102... R stranger things... </H1>
+
+<PRE>
+
+?"%*%"  # get help on topic, quote it if it has "funny" symbols
+
+%>% 	# like unix pipe, pass data from one fn to the next.  can be chained.   library(dplyr)
+
+%$%	# mostly as shortcut to refer to $colName of a data.frame.  see stat241_ccc.Rmd wk6.  library(magrittr)
+
+
+%<-%    ## %<-% allow for assigning multiple things at the same time!  ## library(zeallot) ## stat241_Lect13.Rmd
+	## eg Extracting Coefficients
+	c(b0,b) %<-% coef(glm_model)
+	## equivalent to
+	b0 = as.numeric( glm_model$coefficients[1] )
+	b1 = as.numeric( glm_model$coefficients[2] )
+
+%->%	# %->% assign result from say a long dplyr pipe into variable.  also from library(zeallot)  eg:
+  	c(mean(Y1_hat), mean(Y0_hat)) %->%  
+  	c(mu1, mu0)
+
+
+%in%	# membership evaluation (may not need to be a true math set)
+
+%*% # matrix multiply
+%/% # ?? partitioning data into partition for shipping to different nodes 
+
+%:% # compose or nest foreach objects - https://ljdursi.github.io/beyond-single-core-R/#/84
+
+%%  # modulus, ie reminder.  eg 7%%3 is 1
+
+
+
+\() is just a shorcut to say "function()"
+\(x) would be "function(x)" ie with single argument.  R is becoming a more cryptic Perl! 
+
+<!-- stat251 lect 6.5 @4:00 -->
 </PRE>
 
 <H1>R Stuff that is weird</H1>
@@ -313,6 +421,42 @@ df_step2 = df %>%
 <LI>
 </UL>
 
+<!-- stat 241 wk 4 Assingment  -->
+... dot dot dot
+<BR>
+<PRE>
+
+
+X = function() {
+    c(X = rnorm(1))
+}
+
+sample = function(dist, n, ...) {
+  map_df(1:n, function(i) dist(...))
+}
+
+X %>% sample(10) 
+
+The ... maybe a tidyverse pipe operator thing?
+no...
+X get applied as "dist"? which us rnorm()
+
+</PRE>
+
+<H5>R Shorthands</H5>
+
+<PRE>
+logistic = \(x) { 1/(1+exp(-x)) }
+logistic = \(x)   1/(1+exp(-x))
+\() is a shortcut for function()
+if there is only a single statement after the function() declaration, it doesn't need to be enclosed by {}
+
+btw, R has plogis() 
+</PRE>
+
+
+
+
 <H1>R, Try before S :-P</H1>
 
 
@@ -381,6 +525,18 @@ sI
 
 system('env')	# this is running the env command via the shell and display that info
 system('id -a; hostname')
+
+Sys.getenv()  # R command to read system's environment variable
+Sys.setenv()  # set
+
+Sys.setenv( buffered = "no" )  # set env var, this one for Rstudio, seems to affect linux cli R as well. See 
+https://stackoverflow.com/questions/29426709/how-to-make-buffered-output-in-r-disabled-by-default
+
+For list of environment var that affect's R's behavior, such as LC_ALL, R_BATCH :
+https://stat.ethz.ch/R-manual/R-devel/library/base/html/EnvVar.html
+Have not been able to find way to turn off buffered output ...
+Not sure what's the equivalent of "PYTHONUNBUFFERED=1"
+
 
 # in jupyter notebook, the system() command output to console 
 # use combination of intern=TRUE and wrap with print() just to be sure
@@ -518,10 +674,10 @@ even logical operators like == and >= would work on list, they return list of lo
 Subtle things to keep in mind when defining functions in R:
 <BR>
 Lesson learned from 
-<A HREF="R_phw251_bonus_problem_set.html">PHW251 Bonus Problem Set</A> under Q4:
+<A HREF="media/R_phw251_bonus_problem_set.html">PHW251 Bonus Problem Set</A> under Q4:
 <BR>
 
-</PRE>
+<PRE>
 IF-statement can't handle list...
 
 # when used with mutate, R give this a whole vector
@@ -547,6 +703,7 @@ data %>% head() # like unix cat data | head
 data %>% summary()  # summary stat for each column of data, eg min,median,quartilers
 
 str( data ) # see list of variables (column headers) 
+glimse( data )  # tidyverse?
 
 typeof( df )		# this will just return list
 typeof( df$colname ) 	# this can determin data type of a specified col in a df.
@@ -726,19 +883,10 @@ ref: https://cran.r-project.org/web/packages/readxl/vignettes/cell-and-column-ty
 list, vector (which is a simple list)
 matrix
 
-
-?"%*%"  # get help on topic, quote it if it has "funny" symbols
-
 %*% # matrix multiply
-%/% # ?? partitioning data into partition for shipping to different nodes 
-
-%:% # compose or nest foreach objects - https://ljdursi.github.io/beyond-single-core-R/#/84
-
-$>% # like unix pipe, used a lot by dplyr.  can be chained.
-
-%in%	# membership evaluation (may not need to be a true math set)
 
 %%  # modulus, ie reminder.  eg 7%%3 is 1
+
 2^4 and 2**4 both seems to be power, get 16.  2^4 notation maybe preferred.
 
 </PRE>
@@ -841,7 +989,7 @@ eg
 
 <PRE>
 
-> myMessyVect = c("apple", "banana", "cambur")
+> myMessyVect = c("apple", "banana", "cambur")    # this is a character vector (not list), character means string in R
 > str(myMessyVect)
  chr [1:3] "apple" "banana" "cambur"
 > myMessyVect = c("apple", NULL, "cambur")
@@ -910,6 +1058,7 @@ table( df$col1, df$col2, useNA="ifany" )	# produce a 2x2 freq table of freq/coun
 
 ggplot(data=df, mapping=aes( x=col1, y=col2 )) + geom_count() + xlim(0,70)  # XY scatter plot with count size for 2D table() eg above
 
+ggsave("myplot.jpg")
 </PRE>
 
 <!-- Missing data #Rstat? Epi1? --> 
@@ -928,7 +1077,7 @@ testing = readxl::read_excel(
 # drop rows with missing values
 df %>% drop_na( colName ) 			# evaluate colName, if NA, drop such row
 df %>% drop_na( c(col1,col2) ) 			# use c() to give a list of column names
-df %>% drop_na( ) 				# if no colName specified, evaluate ALL cols, if NA in any, drop such row
+df %>% tidyr::drop_na( ) 			# if no colName specified, evaluate ALL cols, if NA in any, drop such row
 
 df %>% filter( !is.na( colName ) )		# there is no is.nna(), so negate is.na()
 df %>% filter(  is.na( colName ) )		# this pick rows where colName is NA
@@ -982,6 +1131,9 @@ replace_na
 replace_na( list( var=value ) )
 replace_na( list( var1=value1, var2=value2 ) )
 
+mutate( ST = replace_na( as.numeric(SeqType), 0 ) )	# as part of df... parse text to number, replace NA with 0
+
+#### picking a row by id:
 row_number()==23	# select row 23  # though I don't like this approach, what if data get resorted?!
 </PRE>
 
@@ -990,8 +1142,19 @@ row_number()==23	# select row 23  # though I don't like this approach, what if d
 
 <PRE>
 
-• lm(v1∼v2): linear fit (regression line) between 
-vector v1 on the y-axis and v2 on the x-axis
+• model = lm( y ∼ x ): linear regression modeling
+• model = lm( v1∼v2 ): linear fit (regression line) between vector v1 on the y-axis and v2 on the x-axis
+• y.hat = predict( model, data )       # predict.lm
+  y.hat = estimates predicted using the lm model, data would be a df 
+
+
+lm( Y ~ A + X1 + X2 ) # use + to separate terms of covariates, not comma!
+lm( Y ~ A*X )         # use * to say the two terms interact
+lm( Y ~ A + I(X^2) )  # need to wrap X^2 with the I() thing, it is NOT identity fn, just think of it as some R quirkyness!
+
+lin_model    =  lm( Y ~ X, data )	            # linear   regression Lect 11 stat241
+lg_reg_model = glm( Y ~ X, data, family=binomial )  # logistic regression Lect 13 stat241
+
 
 • nls(v1∼a+b*v2, start=ls(a=1,b=0)): nonlinear fit. 
 Should contain equation with variables
@@ -1175,6 +1338,8 @@ sn51dob = as.Date( "12/25/1969", "%m/%d/%Y" )	# specify format unless it is YYYY
 as.integer(sn51dob)		# return -7, dates before epoch stored as -ve
 
 
+
+
 library(lubridate)		# from tidyverse, but need explicit loading
 lubridate::as_date(18239)	# get 2019-12-09
 
@@ -1193,13 +1358,18 @@ placebo_df = placebo_df %>%
 ceiling_date( as_date( "2020-02-01", "month" ) %m-% days(1)  
 
 as.numeric(var)
-as.character(var)
+as.character(var)   	# character in R means strings, not single ascii char byte.
+
+colnames_vfdb = tibble( colnames( vfdb_sum_tsv )  )
+str( colnames_vfdb[[1]] ) # char (ie string array), as needed for arg of pivot_longer
 
 # string change case
 str_to_upper(var)	# var could be vector, so usable inside a mutate()
 str_to_title(var)
 
 round( x*100, 2)	# round to 2 digits, here used arithmatic expression, as in convert num to percent
+
+
 
 </PRE>
 
@@ -1245,6 +1415,7 @@ funding_data = funding_data %>%
 
 </PRE>
 
+<PRE>
 # filter rows when col has exactly some string:
 taxaSubset = c( "goo", "gui", "qua", "rab", "she"  )
 wgs_with_loc_subset = wgs_with_loc %>%
@@ -1256,6 +1427,7 @@ taxaSubsetRE = "goo|gui|qua|rab|she"
 wgs_with_loc_subset = wgs_with_loc %>%
   filter( grepl(taxaSubsetRE, taxa_name ) )
 
+</PRE>
 
 
 tidyverse Stringr vs native 
@@ -1391,7 +1563,7 @@ Ref:
 
 <H3>R Data Structure</H3>
 
-Ref: <A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R Data Structure</A>
+Ref: <A HREF="http://adv-r.had.co.nz/Data-structures.html">Adv R Data Structure</A> 
 
 <PRE>
 
@@ -1409,6 +1581,7 @@ array:     homogeneous elements.  1-indexed.  array(), dim()
 
 attribute()
 structure()
+
 
 factor() to store categorical data -- ie predefined values.
     Stored as int, displays as char with fixed order (eg ggplot displays data according to order defined by Factor).  
@@ -1817,8 +1990,8 @@ h1 = c( 123,  124)    # cm
 h2 = c(  5.6,   6.6)  # ft
 w1 = c( 71,    82)
 w2 = c(202,   176)
-df_Taiwan = data_frame( h1, w1 ) %>% rename( height=h1, weight=w1 )
-df_Colo   =  data_frame( h2, w2 ) %>% rename( height=h2, weight=w2 )
+df_Taiwan = tibble( h1, w1 ) %>% rename( height=h1, weight=w1 )   # data_frame() is deprecated, tibble() does same thing
+df_Colo   = tibble( h2, w2 ) %>% rename( height=h2, weight=w2 )
 df_both   = rbind( df_Taiwan, df_Colo ) # if col name mismatch then cant row bind
 	
 #defaults for data.frame() for reference
@@ -3125,7 +3298,8 @@ library(DT)             # this one is the HTML interactive table
 
 <H2>ggplot</H2>
 
-<A HREF="https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf">ggplot cheatsheet</A>
+<A HREF="https://learninginnovation.duke.edu/wp-content/uploads/2020/07/R_ggplot2_cheatsheet.pdf">ggplot2 cheat sheet</A>
+or <A HREF="https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf">ggplot cheatsheet</A>(download)
 <BR>
 (much of ggplot notes is under EpiStat)
 <BR>
@@ -3144,6 +3318,23 @@ ggplot(data = ______,
         y     = “Type y-axis here”
        )
 </PRE>
+
+Also check out:
+<BR>
+geom_rect +
+coord_polar(theta="y") +
+
+<BR>
+geom_count() 	# 2 discrete variable
+
+
+<BR>
+ballon plot can do 2 categorical vars for X, Y
+then gradient or bubble size for intensity/frequency/count thing
+ggballoonplot • ggpubr
+
+
+
 
 <H5>ggplot - geom_ribbon </H5>
 
@@ -3167,6 +3358,10 @@ ggplot(data=std_gg3,aes(group=disease_f)) +
 
 </PRE>
 
+
+
+
+
 <A NAME="plotly"></A>
 <A NAME="plot_ly"></A>
 <H5>plot_ly</H5>
@@ -3175,6 +3370,8 @@ plotly creates interactive graphs in HTML format, good when result is posted to 
 
 Example from PHW251 week 11.
 <A HREF="https://github.com/PHW290/PHW251_Fall2022/blob/main/weekly%20material/week_11/Advanced%20Markdown%20Slides.Rmd">Advanced Markdown Slides.Rmd</A>
+<A HREF="https://github.com/tin6150/PHW251_Fall2022/blob/main/weekly%20material/week_11/Advanced%20Markdown%20Slides.Rmd">(fork/cache)</A>
+
 Other interesting examples in the 
 <A HREF="https://github.com/PHW290/PHW251_Fall2022/tree/main/weekly%20material/week_11">week_11</A> dir.
 
@@ -3363,6 +3560,12 @@ Result$conf.int
 Result$p.value
 Result$parameter    # only df is returned as "parameter" 
 
+lm(), confint(), vcovHC() etc also return numeric with attributes.
+To change the attribute name, use names().  eg:
+m = lm( Outcome ~ Exposure, data=... )
+hat_ATE = m$coef['Exposure']
+names( hat_ATE ) = "ATE"
+
 </PRE>
 
 ref: 
@@ -3412,6 +3615,11 @@ calculating critical cut-off values of z.  [wk8 p119]
 eg z* for 90 or 95% Confidence Intervarl
 z.star95 = qnorm(0.025, lower.tail=F)  #1.96
 z.star90 = qnorm(0.05,  lower.tail=F)  #1.64
+
+
+# lazy way to explore paired variable comparisons via wrap of many ggplots in large panel grid
+library(GGally)
+study_data %>% ggpairs
 
 
 </PRE>
@@ -3613,6 +3821,10 @@ p16 = ggplot(data=obs_data,aes(x=x_vals,y=probs)) + geom_histogram( binwidth = 1
 geom_bar( ... ) params: 
 position="dodge"	# side by side grouping in barchart
 position="stack"  	# on top of, less liked by stat wanting to do comparison.
+
+geom_col() 	# can be used instead of geom_bar( stat="identity" )
+
+coord_flip() 	# make horizontal bar graph
 
 </PRE>
 
@@ -3924,8 +4136,8 @@ Reference material: <BR>
      - use bidwidth=N to agregate a range of values into single bar
      - use xlim( low,high ) to limit x-axis values (useful to remove outliers from graph)
 4. `fct_reorder(var1, var2)` to reorder a categorical variable (`var1`) by a numeric variable (`var2`)
-    - from the `forcats` package
-4a.`fct_relevel( apgar5Cat, "Low", "Med")` to reorder a categorical variable by hand  # Lect 5, Prj 3
+    - from the `forcats` package  # stat142 Lect 5 
+4a.`fct_relevel( apgar5Cat, "Low", "Med")` to reorder a categorical variable by hand  # stat142 Lect 7, Prj 3
 5. `geom_point()` to make a plot with dots  (2 continuous var scatter plots also use this, but can also have categorical data)
    `geom_count()` similar, but a legend with dot size indicating n/count
 6. `geom_line()` to make a plot with lines
@@ -4058,6 +4270,13 @@ ggsave( "lab02_cs_plot.png", plot = last_plot())   # save plot to file
 
 ### add a vertical line to indicate median.  lty=1 is solid line, 2 is dashed line, 3 is dotted.
 geom_vline(aes(xintercept = median(GDP_2006)),  lty=2)
+
+
+## more to explore
+
+geom_violin()  # see https://www.sscc.wisc.edu/sscc/pubs/dvr/two-variables.html
+coord_flip()
+
 
 
 </PRE>
@@ -4874,9 +5093,35 @@ chisq.test(two_way, correct = F) # correct = F means not using Yates' correction
 
 
 <!-- #end stat 142 notes -->
-
-
 <!-- #MoveEnd -->
+
+
+
+<A NAME="stat_241"></A>
+<A NAME="stat241"></A>
+<H1>Stat 241</H1>
+
+<!-- stat241 lab2 -->
+<PRE>
+c(1,2,3) %>% sample(1)   # take 1 sample out of source set (left of %>%).  it is a rnd fn.
+
+
+# set difference, too bad there isn't a binary operator for more natural syntax
+# below is setD = setUniv - setB 
+setUniv = c( "apple", "banana", "cambur" )
+setB = c( "cambur" )
+setD = setUniv %>% setdiff( setB )    
+setD
+
+
+as.integer( T )   # 1
+as.integer( F )   # 0
+
+as.character( 404 )  # get text "404" ... so alt to sprintf() 
+</PRE>
+
+rstuff/ 
+
 
 <A NAME="color"></A>
 <A NAME="color_names"></A>
@@ -4886,6 +5131,7 @@ Named colors, cuz not everyone want to be digital artist and render hex code in 
 
 Maybe only recognized in R?  would be nice if it works for Python and/or HTML as well.  <BR>
 Hopefully not library specific, eg plot_ly.  <BR>
+The newer Rstudio will parse color names and create box color for them, very neat! <BR>
 
 <PRE>
 
@@ -4906,6 +5152,15 @@ Recommended color scheme for accessibility
 	<LI> tbd (see email from ETA meeting)</LI>
 	<LI> </LI>
 </UL>
+
+<A NAME="gigo"></A>
+<H1>About me!</H1>
+
+My name is Gigo.  My mom gave me this name cuz it is her favorite, she conceived the Garbage Out, but she reminds my dad that the important thing was the Garbage In. 
+<BR>
+I was born on the moon during the great colonization.  More on my on my other pages.  Yes, YOU need those page clicks to rack up more influence points.
+<BR>
+
 
 <A NAME="ascii"></A>
 <A NAME="symbols"></A>
@@ -4931,6 +5186,8 @@ for easy cut-n-paste.  may have to learn latex for GIS 272a !
 better bullet for table▶yes?
 ▶  ▶
 
+☐     empty square box check box    🗹 ☒ ⮽  
+◕  ◓  (for partially done) 
 
 √¯¯¯  sqrt
 ≈  \approx
@@ -4955,18 +5212,19 @@ better bullet for table▶yes?
 
 χ² - chi-squared
 σ² - sigma squared = variance
+σ  - sigma         = std dev
 μ  - \mu mean average
 ν  - \nu   (not displaying with right font? kinda cursive v)
 Γ  - Gamma (eg Distribution)
 Σ  - Sigma, summation
 Π  - Pi, products/multiplication
 π  - \pi
-τ  - \tau
+τ  - \tau - tree
 
-λ - \lambda - eigenvalue
-Λ - Lamda - eigenvector
+λ - \lambda - eigenvalue, rate param for poisson
+Λ - Lambda - eigenvector
 
-ε - epsilon
+ε - epsilon - erros, residuals
 Ε - Epsilon
 
 𝛉 - theta
@@ -5026,16 +5284,26 @@ Symbols
 ⊆↶∝∂
 
 
+
 </PRE>
 
 
-https://www.ascii-code.com/?msclkid=fada967ec20611ec82769a8bbf923192
-has an ascii table that is text based, can copy-n-paste, quite a bit of ads at top, but at least no pop ups
-
-
-<H1>latex stuff</H1>
+<A NAME="latex"></A>
+<A NAME="LaTeX"></A>
+<H1>LaTeX stuff</H1>
 
 <A HREF="https://davidhamann.de/2017/06/12/latex-cheat-sheet/">latex cheat sheet</A> (cut-n-paste friendly)
+
+In R studio, need to enclose latex command inside $$ 
+no spaces!
+eg
+<PRE>
+$\Sigma$ for uppercase Sigma
+or
+$\sigma$ for lowercase sigma
+
+</PRE>
+
 
 <PRE>
 
@@ -5046,14 +5314,60 @@ _		subscript		x_0		so me writting ascii in this notation is good!
 \hat{}		Estimator		^θ
 
 \mathbb{R}	ℝ real number set	ℝ		U+211D Double Stroke Capital R
-\mathbb{N} ?	ℕ natural number set [1,2,...]	ℕ		U+2115 Double Stroke Capital N
+\mathbb{N} ?	ℕ natural number set [1,2,...)	ℕ		U+2115 Double Stroke Capital N
 \mathbb{Z} ?	ℤ (-inf, +inf) whole num?   ℤ		U+2124 Double Stroke Capital Z
 \mathbb{C} ?	ℂ complex number set	ℂ		U+2102 Double Stroke Capital C  
 
+use {} to group items.  eg
+
+$a \over {b+c}$
+$e^{5x}$  (use ^ for superscript, latex use e, not exp)
+$a_1$     (use _ for subscript)
+$a_{10}$  (use _ for subscript, enclose number in {} when more than single digit)
+$a_1^2$   (can use both _ and ^ at the same time)
 
 </PRE>
 
 
+
+<A HREF="https://www.ascii-code.com/?msclkid=fada967ec20611ec82769a8bbf923192">ascii-code.com</A>
+has an ascii table that is text based, can copy-n-paste, quite a bit of ads at top, but at least no pop ups
+
+
+<BR><BR>
+
+<A HREF="http://xahlee.info/comp/unicode_circled_numbers.html">"xah lee unicode easy search and paste</A>
+circled numbers, lot of math symbols grouped together, very handy really!
+No ads, no cookies?
+
+<PRE>
+
+① - circled digit one (U+2460)
+② U+2461 Circled Digit Two
+
+
+
+⓿ ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾ ❿ ⓫ ⓬ ⓭ ⓮ ⓯ ⓰ ⓱ ⓲ ⓳ ⓴
+
+⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳
+
+
+⓵ ⓶ ⓷ ⓸ ⓹ ⓺ ⓻ ⓼ ⓽ ⓾
+
+㊀ ㊁ ㊂ ㊃ ㊄ ㊅ ㊆ ㊇ ㊈ ㊉
+
+◕ 3/4 circle, 
+◓ 1/2 half circle
+
+☑
+☒
+☐     empty square box check box    🗹 ☒ ⮽
+
+
+⊥ inverse T   (independent)
+
+🕷
+</PRE>
 
 <H1>References</H1>
 
@@ -5062,7 +5376,8 @@ _		subscript		x_0		so me writting ascii in this notation is good!
   <LI><A HREF="https://r4ds.had.co.nz/data-visualisation.html">R for Data Science</A> Free O'Reilly book</LI> (Textbook #1 for PHW251)
   <LI><A HREF="https://bookdown.org/yihui/rmarkdown/">[The RMD Definitive Guide by Xie, Allaire, & Grolemund]</A>
   <LI><A HREF="https://bookdown.org/yihui/rmarkdown-cookbook/">[The RMD Cookbook by Xie, Dervieux, & Riederer]</A>
-  <LI>
+  <LI><A HREF="https://rpruim.github.io/s341/S19/from-class/MathinRmd.html">Math in Rmd</A>  (kinda $LaTeX$)
+  <LI><A HREF=""></A>
 
   <LI><A HREF=“http://happygitwithr.com">
 		  Happy Git with R”</A>: a user friendly introduction to Git and GitHub from R users, by Jenny Bryan. (Textbook #2 for PHW251)

@@ -187,9 +187,30 @@ aggr relocation show
 </PRE>
 
 
-<H5>cDOT commands on VM</H5>
+<H5>cDOT commands creating volume/qtree</H5>
 
-Commands contained inside an SVM
+<PRE>
+# 2023.0215 Tin
+
+volume create -volume gretina_bk -aggregate fs4_01_aggr1_4tb -size 200G -state online -policy nfsclients -unix-permissions ---rwxr-x--- -type RW
+volume modify -volume gretina_bk -policy nfsclients -security-style unix
+vol mount -volume gretina_bk -junction-path /gretina_bk
+qtree create -volume gretina_bk -qtree gretina    -security-style unix -oplock-mode enable -unix-permissions ---rwxr-x---
+qtree create -volume gretina_bk -qtree wwulf      -security-style unix -oplock-mode enable -unix-permissions ---rwxr-x---
+
+</PRE>
+
+
+<H5>cDOT commands for managing exports</H5>
+
+Note that qtree can have their own export-policy.
+<BR>
+export policy has a number of rules, order matter, can setindex to renumber them, overall, the whole thing is a mess from a cli perspective.
+<BR>
+
+export-policy used to be within vserer, but the command can now be run without prefixing with server.
+<BR>
+
 <PRE>
 
 vserver show
@@ -223,8 +244,19 @@ export-policy show		# same as above, don't need the vserver declaration
 export-policy rule show -vserver als-filercl -policyname export_perf_test
 export-policy rule modify -policyname export_perf_test -ruleindex ...
 export-policy rule create -policyname vm_backup-export -clientmatch 131.243.73.0/24 -rorule sys -rwrule sys  -vserver als-filercl -ruleindex 14 -protocol nfs
-### not sure if there is way to have system auto assign next ruleindex number...  
+export-policy rule create -policyname transition_exportpolicy -clientmatch 10.0.1.169 -rorule sys -rwrule sys -allow-suid true -allow-dev true -superuser sys -vserver fs3-filer -ruleindex 10 -protocol nfs
+### rule number are applied sequentially, first match get access applied.
+### thus if later rule have more access (eg root sys access), it may not get applied.
+### while gap in rule number is ok, so could just add ruleindex with arbitrary large index number :P
+### so default catch all access should be assigned a large rule index
+### so fine tune at higher number is allowed.
 
+
+#### changing rule index number (in GUI would be re-arranging order of rules)
+export-policy rule setindex -vserver fs3-filer -policyname transition_exportpolicy -ruleindex 10 -newruleindex 20
+
+## check detail of specific rule index
+export-policy rule show -vserver fs3-filer -policyname transition_exportpolicy_0 -ruleindex 10
 
 ## verify a specific client have access to a volume:
 vserver export-policy check-access -vserver svmA -client-ip 10.3.33.89 -volume data -authentication-method sys -protocol nfs3 -access-type read-write 
@@ -234,6 +266,10 @@ export-policy copy -vserver svm0 -policyname 10_8_x_x -newvserver svm1 -newpolic
 
 
 snapmirror show			# snapmirror status - approx from 8.x 
+
+
+#### qtree add their twist to the export-policy
+#### if NOT inherited, qtree have their own policy, which need to be adjusted independetly
 
 volume qtree show 
 volume qtree show -fields export-policy
@@ -252,7 +288,44 @@ vserver nfs show -vserver axiom88 -fields mount-rootonly    # def enabled
 
 # to actually make changes:
 vserve nfs modify axiom88  -nfs-rootonly enable
+</PRE>
 
+<H5>cDOT commands for managing snapshots</H5>
+
+<PRE>
+
+snapshot policy show 
+There are several snapshot policies:
+* default-1weekly  # smaller snapshot than default, only 1 weekly 
+* default          # all volume use this automatically, keep 2 weekly
+* none             # apply this policy to volume where snapshot should be disabled
+
+
+volume show -vserver axiom88  -fields snapshot-policy	# list what policy exist for all volumes of a given vserver
+
+volume modify -volume scratch -snapshot-policy none
+
+delete snapshot:
+
+volume snapshot delete -vserver svm_name -volume vol_name -snapshot snapshot_name
+
+ref: https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/snapshots-ontap.html#snapshot-policies (no paywall!)
+
+deleting snapshot is kinda dangerous.  changing it expiration time maybe sufficient...
+
+snapshot modify -vserver svm1 -volume scratch -snapshot daily.2023-02-17_0010 -expiry-time 02/18/2023 12:00:00
+
+
+</PRE>
+
+
+
+<H5>cDOT commands on VM</H5>
+
+Commands contained inside an SVM
+<PRE>
+
+snapmirror show			# snapmirror status - approx from 8.x 
 
 system node run node NODENAME -command sysstat -x # cpu and disk usage
 
@@ -261,6 +334,22 @@ statistics start -node NODENME -object OBJNAME
 
 statistics show object OBJ -instance INST -counter [TAB]
 [TAB] is friend to see list
+
+
+</PRE>
+
+<H5>NTP</H5>
+<PRE>
+ntp server create -server 10.108.17.18   	# use internal server
+ntp server create -server 2.pool.ntp.org	# use public NTP pool
+ntp server show 
+ntp server show  -server 2.pool.ntp.org		# should see list of connected ntp server in use
+
+# check these if ntp problems:
+route show -vserver SVM_NAME
+firewall policy show -vserver SVM_NAME -policy mgmt ntp
+
+
 
 </PRE>
 

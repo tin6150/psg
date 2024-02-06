@@ -6,7 +6,7 @@ former shellScript.ref
 lot of work to convert to HTML as all > will need to be converted to &gt; etc
 even when inside <PRE> block.
 
-see also: https://tin6150.github.io/psg/scriptRosetta.word.html
+see also: https://tin6150.github.io/psg/scriptRosetta.word.html#ulimit
 
 
 ================================================================================
@@ -25,6 +25,8 @@ ulimit -n 1024          # number of open file descriptor, sh need this separate
                         # somehow can't seems to go above 1024 on sh
         -H              # hard limit
         -S              # soft limit (default set both)
+
+CentOS 7 user limit set in /etc/security/limits.conf   see linux.html
 
 open file descriptor limit need to be reset in /etc/system as
         set rlim_fd_max=4096
@@ -138,10 +140,41 @@ fi
 
 
 bash parameter expansion (substring matching, though not exactly regex).
+https://tldp.org/LDP/abs/html/string-manipulation.html  under substring extraction
+
+${string%substring}		%  remove shorted substring from the end
+${string%%substring}	%% Deletes longest match of $substring from back of $string.
+
+stringZ=abcABC123ABCabc
+#                    ||     shortest
+#        |------------|     longest
+
+echo ${stringZ%b*c}      # abcABC123ABCa
+# Strip out shortest match between 'b' and 'c', from back of $stringZ.
+
+echo ${stringZ%%b*c}     # a
+# Strip out longest match between 'b' and 'c', from back of $stringZ.
+
+use # and ## for beginning of the string:
+
+${string#substring}		#  Deletes shortest match of $substring from front of $string.
+${string##substring}	## Deletes longest match of $substring from front of $string.
+
+${string/substring/replacement}		/  Replace first match of $substring with $replacement. 
+${string//substring/replacement}	// Replace all matches of $substring with $replacement.
+
+
+# next 3 are the same, show lenghth of the string.  expr has a length sub-command!  or can use the 3rd form cryptic syntax.  compare to C's strlen()
+${#string}
+expr length $string
+expr "$string" : '.*'
+
+There are many more, under this convoluted man page:
+https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion 
+
 
 eg below is souped up "basename", matching arbitrary substring as "extension".
 cuz ${parameter%word} aka ${var%pattern} use bash's parameter expansion 
-(ref: https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion )
 
 for i in *_1.fq.gz
 do

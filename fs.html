@@ -297,6 +297,7 @@ Making ext2 floppy
 
 linux sample /etc/fstab:
 
+# {file system}         {mount point}           {type}  {options}       {dump}  {pass}
 /dev/hda1               /                       ext2    defaults        1 1
 /dev/cdrom              /mnt/cdrom              iso9660 noauto,owner,ro 0 0
 /dev/hda6               /var                    ext2    defaults        1 2
@@ -436,6 +437,14 @@ ml4hep1:/global/home/users /global/home/users nfs  rw,bg,soft,intr,_netdev  0 1
 options per mounts 
 <PRE>
 vasttest.greta.local:/greta on /global/userspace type nfs (rw,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.8.16.51,mountvers=3,mountport=20048,mountproto=udp,local_lock=none,addr=10.8.16.51,_netdev)
+
+NFSoRDMA 
+both client and server need to support it.
+Need NIC with RDMA support, eg Mellanox ConnectX-3.  Work in Ethernet mode, check on RoCEv2
+ref: http://www.unstructureddatatips.com/how-to-configure-nfs-over-rdma/
+https://infohub.delltechnologies.com/l/powerscale-onefs-nfs-over-rdma-for-media/what-is-nfs-over-rdma-1
+
+mount -t nfs -vo nfsvers=3,proto=rdma,port=20049 172.16.200.29:/ifs/export_rdma /mnt/export_rdma
 
 
 nfsclient kernel: lockd: server nfsserer not responding, still trying
@@ -988,6 +997,11 @@ When a hotspare has been removed, after reinstall, it will no longer be hotspare
 
 <PRE>
 
+syno-letsencrypt
+syno_disk_ctl
+syno_disk_health_record  ... these are likely deamon process
+synoupgrade? synostorage 
+syno*  eg synocopy, synocrond, synocleaner
 syn_[tab][tab]
 
 </PRE>

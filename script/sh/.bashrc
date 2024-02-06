@@ -6,6 +6,7 @@
 ## 2021.0521  .bashrc_bench version based on .bashrc @ 55625e3   # THIS version worked well for hpl on brc
 ## 2021.0329  check ~/.FLAG* to decide which function group to load, for easy task switching  (29afa20) 
 #- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
+#  2023.0901  weasel source .dot
 
 
 ####
@@ -49,7 +50,7 @@ MAQUINA=$(hostname)
 ####
 
 if [[ $- == *i* ]]; then
-	if [[ ${MAQUINA} == bofh ]]; then
+	if [[ ${MAQUINA} == bofh || ${MAQUINA} == "Weasel" ]]; then
 		# 2021 ... tmux
 		# for machine with X, should start ssh-agent stuff before starting tmux...
 		# else each screen need to source the agent config
@@ -74,7 +75,8 @@ fi
 #    check if interactive shell, other stuff that break scp need to go in this block  , eg newgrp
 if [[ $- == *i* ]]; then
 	if [[ ${MAQUINA} == *lbl || ${MAQUINA} == *lr* ]]; then
-		echo "lrc machine, interactive shell, setting newgrp"
+		echo "" > /dev/null 
+		#~ echo "lrc machine, interactive shell... setting newgrp... "
     	#~ [ "$GROUPS" = "40046" ] || newgrp pc_adjoint
 	fi
 fi
@@ -446,6 +448,12 @@ defineAlias () {
 	#alias ssh='ssh -o StrictHostKeyChecking=no' # already done by some default cluster cf
 	alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
 	alias lrc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151" # login node 1
+	alias xfr1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no lrc-xfer.lbl.gov" # globus dtn scp
+	alias viz1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no lrc-viz.lbl.gov"  # realvnc
+	alias asbl="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scg-ansible"
+	alias scm="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"
+	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
+	alias dtn="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no dtn.brc.berkeley.edu" # globus xfer scp
 	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
@@ -472,6 +480,7 @@ defineAlias () {
 	alias ef='ps -ef'
 	alias lt="ls -latr"
 	alias ltr="ls -latr"
+	#alias sq="squeue"          ##slurm
 	alias squ="squeue"          ##slurm
 	alias sqt="squeue -u tin"  ##slurm
 	alias assoc="sacctmgr show associations -p"                    ##slurm
@@ -803,3 +812,11 @@ HISTCONTROL=ignorespace
 # vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
 
 
+module purge
+module load osu_benchmark/5.3
+
+PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;

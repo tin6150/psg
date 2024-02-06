@@ -203,6 +203,19 @@ cp -p /usr/local/ssl/lib/libcrypto.so.0.9.7 $CHROOT_DIRECTORY/usr/local/ssl/lib
 
 <A HREF="https://docs.fedoraproject.org/en-US/fedora/rawhide/system-administrators-guide/monitoring-and-automation/Viewing_and_Managing_Log_Files/">rsyslog config</A> (Fedora doc) <BR>
 
+/etc/rsyslogd.conf
+<PRE>
+$ModLoad imuxsock # provides support for local system logging (e.g. via logger command)
+
+# default only listen to unix socket, this add udp
+#module(load="imudp")
+#input(type="imudp" port="514")
+
+# default only listen to unix socket, this add tcp
+module(load="imtcp")
+input(type="imtcp" port="514")des support for local system logging
+
+</PRE>
 
 
 

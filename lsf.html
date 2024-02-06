@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="psg.css" type="text/css">
   <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
   <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
-  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, Warewulf, slurm, lsf, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP"/>
   <META NAME="Robots" CONTENT="all"/>
   <META NAME="Author" CONTENT="Tin Ho"/>
 
@@ -40,6 +40,8 @@
       <td align="center"><a accesskey="d" href="docker.html">Docker</a></td>
       <td align="center"><a accesskey="x" href="linux.html">linuX</a></td>
       <td align="center"><a accesskey="a" href="aws.html">Amazon AWS</a></td>
+      <td align="center"><a accesskey="w" href="warewulf.html">Warewulf</a></td>
+	<td align="center"><a accesskey="I" href="infiniband.html">Infiniband</a></td> <!--alt-sh-i is chrome shortcut for feedback -->
       <td align="center"><a accesskey="m" href="mpi.html">MPI</a></td>
       <td align="center"><a accesskey="S" href="sci-app.html">sci-app</a></td>
       <td align="center"><a accesskey="F" href="sci-file.html">sci-file</a></td>
@@ -141,13 +143,17 @@ GUI									qmon			sview
 
 </PRE>
 
-<A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
+
+Other intro references:
+
+<LI><A HREF="https://slurm.schedmd.com/rosetta.pdf">Rosetta Stone of workload manager/scheduler commands</A> (in pdf, cover PBS, Slurm, LSF, SGE, LoadLeveler) <BR>
 <BR>
-Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/flux-framework/flux-core</A>
+<LI>Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/flux-framework/flux-core</A>
 <BR>
 
-<A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018.
+<LI><A HREF="https://docs.google.com/presentation/d/142g7vr6GTzAKj9ZdhynSUdIVA0R-pN2oYkKbqznTPLU">Intro to Slurm</A> as presented in LBNL LabTech 2018 by yours truly :).
 <BR>
+
 
 <!-- --------------------------------------------------------- -->
 <!-- --------------------------------------------------------- -->
@@ -156,6 +162,9 @@ Flux - <A HREF="https://github.com/flux-framework/flux-core">https://github.com/
 
 <A NAME="slurm"></A>
 <H1>SLURM</H1>
+
+<A HREF="http://www.physik.uni-leipzig.de/wiki/files/slurm_summary.pdf">Two page slurm cheat ssheet</A>
+<A HREF="https://photos.app.goo.gl/nM97KDjE1HAuuYDe7">alt cache</A>
 
 <H4>Slurm 101</H4>
 
@@ -243,7 +252,7 @@ what account I am in?  what partitions are there?  What QoS are there?
 
 sacctmgr show associations -p user=tin                  # see what associations a specified user has been granted, -p = "parsable"
 sacctmgr show assoc user=tin    format=acc,part,qos        # list account, partition, QoS for the specified USERNAME
-sacctmgr show assoc user=tin    format=qos%58,acc%16,user%12,part%18,share%5,priority%16 
+sacctmgr show assoc user=tin    format=qos%58,acc%16,user%12,part%18,share%5,priority%16    # share=1 just means fair share, it is a weight factor for job priority
 sacctmgr show assoc user=tin -p format=acc,user,part,share,priority,qos  | sed "s/|/\t/g"
 
 scontrol show partition					# list "queues"
@@ -385,6 +394,8 @@ SBATCH_PARTITION=default_q	# specify the given partition as the default queue
 
 <A HREF="https://slurm.schedmd.com/squeue.html">squeue</A> 
 
+<H5>Node state code</H5>
+
 <PRE>
 
 State with asterisk (*) (eg idle*, draining*) means node is not reachable.
@@ -398,8 +409,26 @@ comp	completing??
 idle	online, waiting for action
 alloc	allocated, ie running job
 mix	some cpu running job, but has more resource avail to run more jobs (non exclusive mode).
+plnd ?? planned?  supposed to be transient?
 
+
+Node state code symbol suffix
+
+$   reserved, maintenance
+*   down, unreachable
+~   powered off
+!,% powering down
+#   being powered up
+@,^ rebooting
+-   backfilling by scheduler by higher priority job
+
+</PRE>
+
+
+<H5>
 JOB REASON CODES
+</H5>
+<PRE>
 Cleaning
 NodeDown 
 
@@ -852,6 +881,12 @@ slurmdUser 			# slurmd    user.
 	<LI>gres.conf needs to be configured for GPU.  use <TT>nvidia-smi topo -m</TT> to find out GPU:CPU binding</LI>
 	<LI></LI>
 </UL>
+
+
+Can try this for rolling reboot:
+<PRE>
+scontrol reboot asap nextstate=resume reason=“reboot to upgrade node” n0052.hpc0,n0064.hpc0,n0065.hpc0,n0066.hpc0,n0067.hpc0,n0070.hpc0,n0071.hpc0,n0074.hpc0,n0076.hpc0,n0081.hpc0,n0083.hpc0,n0084.hpc0,n0085.hpc0,n0087.hpc0
+</PRE>
 
 
 Ref: 

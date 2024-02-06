@@ -52,8 +52,8 @@
 
 <!-- ######################################################################### -->
 
-
 <H1>SSH, Tunnel, Port Forward</H1>
+
 
 <H3>Ponder</H3>
 
@@ -69,6 +69,21 @@
 </LI>
 <LI></LI>
 <LI></LI>
+
+<H3>SSH with SOCKS5 </H3>
+
+</PRE>
+Host socks5-browser
+  HostName my_office_machine
+  IdentityFile /home/.ssh/my_ssh_key
+  DynamicForward 3125
+  # LogLevel DEBUG
+  # ^^ DEBUG will print lot of message on the terminal that ran the ssh cmd.
+
+ssh socks-browser # to open connection (ssh will use the HostNHame clause)
+on firefox, set the network settings to use a socks5 proxy using the dynamic port listed above
+</PRE>
+
 
 <H3>Scripting SSH Login</H3>
 
@@ -192,7 +207,7 @@ ssh -L 5911:localhost:5901  remoteVncSvr
 vncviewer localhost:11
    this connect to local port 5911, wrap by ssh, then into the remote vncserver port 5901, ie :1
 
-
+ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -L 5951:localhost:5911 tin@bofh  # 2400x1300 # **this vnc to localhost:51  which tunnel to bofh:11**
 
 ssh port forward tunnel chaining 
 
@@ -524,6 +539,8 @@ Ref:
 <LI>OpenSC ssh tunnel</LI>
 <LI></LI>
 
+
+ssh -o StrictHostKeyChecking=no   example.com
 
 <BR><HR>
 <div align="CENTER">

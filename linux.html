@@ -28,7 +28,7 @@ browser render tab as 8 spaces for html PRE
       <td align="center"><a accesskey="s" href="sourceControl.html">sourceControl</a></td>
       <td align="center"><a accesskey="g" href="git.html">git</a></td>
       <td align="center"><a accesskey="t" href="tool.html">tool</a></td>
-      <td align="center"><a accesskey="I" href="infiniband.html">Infiniband</a></td>
+      <td align="center"><a accesskey="I" href="infiniband.html">Infiniband</a></td> <!--alt-sh-i is chrome shortcut for feedback -->
       <td align="center"><a accesskey="l" href="lsf.html">lsf/slurm</a></td>
       <td align="center"><a accesskey="b" href="bios.html">BIOS</a></td>
       <td align="center"><a accesskey="s" href="sol.html">Solaris</a></td>
@@ -603,6 +603,9 @@ see also
 
 lspci			# list pci info
 lscpu
+hwclock			# date hw clock as seen by bios.  if wrong, system reboot will get wrong time.  there is NO timezone!
+date --set 0900		# HHMM (and HH:MM) is acceptable default format for setting time.  
+hwclock --systohc	# sync system "software" clock to the bios, so next reboot will have correct time!
 
 
 lsmod			# display all kernel loaded modules.  
@@ -1669,8 +1672,23 @@ MegaCli64 -AdpBbuCmd -aAll 						# Backup Battery Unit (BBU) state
 MegaCli64 -AdpBbuCmd -GetBbuStatus -a0
 MegaCli64 -AdpBbuCmd -GetBbuDesignInfo -a1
 
-
 </PRE>
+
+
+PS. 
+See <A HREF="https://pypi.org/project/cs.app.megacli/">https://pypi.org/project/cs.app.megacli/</A>
+for mcli python wrapper that is said to make MegaCli output more human friendly.
+
+<PRE>
+pip install cs.app.megacli
+mcli report
+mcli        # command by itself will list sub command options
+</PRE>
+
+https://gist.github.com/metajiji/cf859a7fc65a63690ecb208d11ea8407
+has a gist and says can get file as:
+wget https://docs.broadcom.com/docs-and-downloads/raid-controllers/raid-controllers-common-files/8-07-14_MegaCLI.zip
+
 
 <A HREF="https://blog.frehi.be/2011/09/12/megacli-useful-commands/">useful megacli cmd</A> blog by Frederik :
 <PRE class="quote">
@@ -1747,6 +1765,15 @@ parted can manipulate some fs, should be able to resize FAT fs/partitions.
 <BR>
 
 <PRE>
+
+parted is annoying cuz have to specify start and end point, have to do math myself!
+it also can't specify partition, must create them sequentially
+
+# sequence below to partition a 32G thumb drive, leaving first 8 M as empty unused (MBR would use it?)
+parted /dev/sdb mkpart primary ext2     8 2056
+parted /dev/sdb mkpart primary ext2  2056 4104
+parted /dev/sdb mkpart primary fat32 4104 98%   
+
 
 sudo parted /dev/sdb print		# show partition table
 sudo parted /dev/sdb mklabel gpt	# initialize disk as gparted, erase all existing partition!  then add label
@@ -1903,7 +1930,10 @@ vgdisplay				# display vol grp info such as lvm/lvm2.
            -v				# list all LV on the vol group, which PV it uses.
 vgcreate VolGroup00 /dev/sda2		# create a new VG, this is the def in RHEL 4 setup.
 vgextend  VolGroup00 /dev/sda5
-vgreduce				# reduce number of disks in vol grp
+vgreduce VG PV				# reduce number of disks in vol grp 
+vgreduce DataVG00 /dev/xvdh		# need to lvreduce to free up space till PV is free no extent alocated on it before reducing VG
+					# need to pvremove dev before removing it from say AWS
+
 vgremove  VolGroup00			# remove the whole volume group
 
 lvscan						# brief list of LV and their size.
@@ -1932,6 +1962,7 @@ resize2fs /dev/VolGroup00/LogVol00 	# RH 5, extend the FS to max space that the 
 					# op done online in RH5, no umount needed.
 
 resize2fs /dev/VolGroup00/lv101 1000000	# reduce ext2/ext3 FS to size to exactly 1,000,000 bytes. 
+resize2fs /dev/VolGroup00/lv101  90G    # can use G M k prefix for size
 					# UMOUNT+FSCK FIRST
 
 xfs_growfs /mount/point 		# expand xfs, to max space of eg LV
@@ -1944,6 +1975,7 @@ lvreduce -L1G /dev/VolGroup00/LogVol00	# reduce the LV the FS is on
 					# ext2 somehow can't be re-expanded, use ext3 !!
 					# use tunefs -j to convert to ext3 :)
 	
+lvreduce --size 55G --autobackup y /dev/mapper/rl-var	# umount -l /var YMMV
 
 /etc/fstab				# typically list which LV dev used by which FS
 ??	 				# no cmd to display what LV is being used by which FS :(
@@ -2990,6 +3022,10 @@ sudo dmidecode -t processor | grep Speed	# but "Current Speed" is from ACPI and 
 						# show max speed for SL7 (ie match /proc/cpuinfo MHz info) 
 
 
+dmidecode --string system-serial-number
+
+ipmitool sel list # find if there are error on the bmc
+
 ulimit
 
 /etc/security/limits.conf ::
@@ -3045,6 +3081,33 @@ vm.swappiness = 0
 
 </PRE>
 
+<A NAME="ulimit"></A>
+<A NAME="sysctl"></A>
+<H5>ulimit/sysctl</H5>
+
+ref: 
+<A HREF="https://www.linuxtechi.com/set-ulimit-file-descriptors-limit-linux-servers/">https://www.linuxtechi.com/set-ulimit-file-descriptors-limit-linux-servers/</A>
+
+<PRE>
+
+ulimit -a 		# show all limits
+ulimit -n 		# open file limit
+ulimit -n 2048 		# set file limit to 2048, above that need provision in /etc/security/limits.conf
+
+
+sysctl -a | grep file   # system-wide limit
+sysctl -p ... 		# make changes live
+typically source /etc/sysctl.conf  # and sysctl.d/ 
+
+user or @group would still be limited by 
+/etc/security/limits.conf ::
+
+@crd             soft    nofile           804200
+@crd             hard    nofile           804270 # this is still ok.  1204270 caused user unable to login or run process!
+oracle           soft    nofile           131072 # dont remember why oracle has such number
+oracle           hard    nofile           131072
+
+</PRE>
 
 <H5>kargs</H5>
 
@@ -3058,8 +3121,11 @@ the comma used in some args are specific to that one arg, eg "console=ttyS1,1152
 
 "iommu=pt net.ifnames=0 biosdevname=0 acpi_irq_nobalance console=tty0 console=ttyS1,115200n8"
 
-iommu=pt is used by AMD for nic 
 net.ifnames=0 biosdevname=0 	# tell rhel 7 to use eth1, eth2 etc nic name rather than enp196s0f1 
+
+iommu=pt
+# this is needed for Mellanox CX-5, CX-6 Ethernet to work with AMD processor due to memory management
+# https://nvcrm.lightning.force.com/lightning/r/Knowledge__kav/ka08Z000000Tm5GQAS/view?ws=%2Flightning%2Fr%2FCase%2F5008Z00002Fn4VSQAZ%2Fview 
 
 </PRE>
 
@@ -3367,6 +3433,13 @@ echo "250     32000 100 128" > /proc/sys/kernel/sem
 smartctl	# tool to read hd SMART data.  gnome-disks is a GUI front end of this.
 		# ubuntu# apt-get install smartmontools
 
+lsblk -io KNAME,TYPE,SIZE,MODEL	# can show disk model info
+
+hdparm -i  /dev/sdb	# short info dump 
+hdparm -I  /dev/sdb	# long info dump
+# hdparam is usually to query and set/tune hd parameters, such as sleep, etc.  -i and -I have some info dump
+# RAID device output would be what RAID controller provides (and so no model info, just geometry)
+
 </PRE>
 
 <H4>Kernel Tuning Links</H4>
@@ -3492,6 +3565,9 @@ sudo semanage login -a -s user_u tin
 
 semanage port -l | grep 514	# see if syslogd can use that port (@@ vs @ for tcp vs udp in rsyslog.conf)
 ps -eZ | grep syslog		# see process selinux context
+
+netstat -nlp | grep rsyslogd	# should list what port rsyslogd  -t would be tcp only, -u for udp only
+(see admin.html#syslog for daemon config)
 
 id -Z	# context of current user
 	# but not getting the info from $( semanage login -l ) ??!!
@@ -4127,6 +4203,11 @@ ethtool eno1		# set duplex, etc of an interface
 /etc/NetworkManager/NetworkManager.conf		# NM config
 	dns=none				# tell it not to mangle /etc/resolv.conf
 
+DNS server change should not go to /etc/resolv.conf anymore if managed by NetworkManger
+instead, edit /etc/sysconfig/network-scripts/ifcfg* 
+DNS1=8.8.8.8
+
+
 -or-
 
 /etc/sysconfig/network-scripts/ifcfg-eno1
@@ -4550,6 +4631,41 @@ Linux RPM</A>, many linux flavors, but no more RHEL rpms.
 
 <H1>TBD</H1>
 
+<H5>Locale/Language</H5>
+
+<PRE>
+Old system use:
+export LANG=C
+export LANGUAGE=C
+export LC_ALL=C
+
+
+Newer system may or may not set correctly, try:
+LANG=C.utf8
+LANGUAGE=C.UTF-8
+
+export LANG=en_US.UTF-8   # root@beagle, vnc :3 works, but still ugly
+
+LOCALE="en_US.utf8"
+
+LC_ALL
+
+LC_CTYPE
+LC_MESSAGES
+LC_COLLATE
+
+
+
+regenerate locale, arch only?
+edit /etc/locale.gen
+sudo locale-gen   
+
+
+
+</PRE>
+
+<H5>TBD</TBD>
+
 
 <!-- cmd.linuc.ref, 2006/04/04 -->
 <PRE>
@@ -4564,7 +4680,7 @@ Red Hat 4.0   (and not available in 3.0)
 ************************************************************
 /usr/sbin/system-config-kickstart	kickstart configurator.
 system-config-netboot			pxe, tftp boot setup
-system-config-language			GUI language config tooll for the machine
+system-config-language			GUI language config tool for the machine
 
 many of these system-config-* had been named redhat-config-* in RH 3.0
 

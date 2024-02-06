@@ -66,6 +66,31 @@ google group eg:
 https://groups.google.com/a/lbl.gov/g/warewulf/c/Yx9OMqkyJKU
 <BR><BR>
 
+Sys Admin magazine articles:
+<BR>
+
+<A HREF="https://www.admin-magazine.com/HPC/Articles/Warewulf-Cluster-Manager-Master-and-Compute-Nodes">Wareulf Cluster Manager</A>
+<BR>
+
+<A HREF="https://www.admin-magazine.com/HPC/Articles/warewulf_cluster_manager_completing_the_environment">Wareulf Cluster Manager - Part 2</A>
+
+<BR>
+<BR>
+
+<H2>warewulf boot process</H2>
+<OL>
+<LI> hardware boot, BIOS to invoke network PXE boot or UEFI process </LI>
+<LI> mac broadcast, DHCPD on warewulf server responds with IP.  For this piece to work, the mac address is defined in wwsh node set</LI>
+<LI> PXE fetch linux image via TFTP, using mac address as identifier</LI>
+<LI> The fetched linux image is provided by warewulf.  The OS does a "swap" and pivot to this new image.</LI>
+<LI> It scan hardware and look for network devices.  NIC driver has to be baked into the wareulf image fetched via TFTP, else it can't find driver and things won't work.  If there is no workable nic driver at all, the warewulf boot process will reset. </LI>
+<LI> If there are nic driver (and it maybe for a secondary interface that one isn't expecting, wwulf assign that nic eth0 and contact the warewulf server via https, asking for an image with the mac address of this NIC. </LI>
+<LI> Here in this process, the IP and NIC config would be the one in the wwsh provision ifcfg-eth0.  tagged vlan probably not supported here. </LI>
+<LI> if there is a matching mac address image, it is served over https, and a slew of packages is then also downloaded via https</LI>
+<LI> Linux boots and eventually OS is ready, ssh login, maybe a login prompt on the tty :) </LI>
+
+</OL>
+ 
 <H2>warewulf backup</H2>
 
 
@@ -165,6 +190,54 @@ proxmox vm should also work fine. <BR>
 
 
 
+<H2>File object </H2>
+
+
+<PRE>
+
+
+wwsh file list | grep apptainer
+apptainer.conf          :  rwxr-xr-x 1   root root            13094 /etc/apptainer/apptainer.conf
+apptainer.conf          :  rw-rw-r-- 1   root root            13094 /etc/apptainer/apptainer.conf
+
+# duplicate filename is allowed.  
+# would need object id to manipulate them
+
+wwsh file print apptainer.conf
+#### apptainer.conf ###########################################################
+apptainer.conf  : ID               = 839
+apptainer.conf  : NAME             = apptainer.conf
+apptainer.conf  : PATH             = /etc/apptainer/apptainer.conf
+apptainer.conf  : ORIGIN           = /etc/warewulf/files/apptainer.conf
+apptainer.conf  : FORMAT           = UNDEF
+apptainer.conf  : CHECKSUM         = 4d5e790be2ab6bebfa7cb75f19d902ea
+apptainer.conf  : INTERPRETER      = UNDEF
+apptainer.conf  : SIZE             = 13094
+apptainer.conf  : MODE             = 0755
+apptainer.conf  : UID              = 0
+apptainer.conf  : GID              = 0
+#### apptainer.conf ###########################################################
+apptainer.conf  : ID               = 1599
+apptainer.conf  : NAME             = apptainer.conf
+apptainer.conf  : PATH             = /etc/apptainer/apptainer.conf
+apptainer.conf  : ORIGIN           = /etc/warewulf/files/apptainer.conf
+apptainer.conf  : FORMAT           = UNDEF
+apptainer.conf  : CHECKSUM         = 4d5e790be2ab6bebfa7cb75f19d902ea
+apptainer.conf  : INTERPRETER      = UNDEF
+apptainer.conf  : SIZE             = 13094
+apptainer.conf  : MODE             = 0664
+apptainer.conf  : UID              = 0
+apptainer.conf  : GID              = 0
+
+
+
+
+wwsh file print  --lookup=id 839
+wwsh file delete --lookup=id 839
+
+</PRE>
+
+
 <H2>Files on boot server</H2>
 
 ensure these files are present.  UEFI may need additional config.
@@ -198,6 +271,61 @@ ensure these files are present.  UEFI may need additional config.
 /srv/warewulf/ipxe/cfg/ac:1f:6b:a5:9c:f6
 
 </PRE>
+
+<H2>/var/chroot</H2>
+
+eg add link in form of /var/lib/docker -> /local/docker
+cd /var/chroot/VNFSNAME/var/lib
+ln -s /local/docker docker
+
+then need to update ?
+wwvnfs --chroot /var/chroots/NVFSNAME
+?
+there is this --hybridpath=/vnfs thing?
+
+ref: 
+https://www.admin-magazine.com/HPC/Articles/warewulf_cluster_manager_completing_the_environment
+https://warewulf3.readthedocs.io/en/latest/subprojects_components_plugins/vnfs/
+
+pullvnfs does this, without the hybrid option
+wwvnfs -y --chroot=$CHROOT_BASE/$DIST-$BRANCH $DIST-$BRANCH
+
+
+
+<!--
+
+test on wwulf-greta with older image.  no /var/lib/docker link
+
+before:
+wwsh vnfs list:
+sl7-nvidia2022may    1913.5     x86_64     /var/chroots/sl7-nvidia-may2022
+
+[root@wwulf bin]# cp -pR  /root/dell_tool/iDRACTools/ /var/chroots/sl7-nvidia-may2022/bin/  # 1.1G
+also var/lib/DOCKER as sym link to test.
+
+wwvnfs  --chroot /var/chroots/sl7-nvidia-may2022   #--html food
+_FORTIFY_SOURCE requires compiling with optimization (-O) at /usr/lib64/perl5/features.ph line 207.
+Using 'sl7-nvidia-may2022' as the VNFS name
+Creating VNFS image from sl7-nvidia-may2022
+Compiling hybridization link tree                           : 0.01 s
+Building file list                                          : 1.25 s
+Compiling and compressing VNFS                              : 810.83 s
+Adding image to datastore                                   : 62.24 s
+Wrote a new configuration file at: /etc/warewulf/vnfs/sl7-nvidia-may2022.conf
+Total elapsed time                                          : 874.33 s
+
+another run has slightly diff output...
+Compiling and compressing VNFS                              : 808.53 s
+Adding image to datastore                                   : 252.84 s
+
+
+tmp test
+
+wwsh provision set c19 --vnfs=sl7-nvidia-may2022	# works
+wwsh provision set c19 --vnfs=sl7-gretanewnv        	# restore 
+
+
+-->
 
 <H2>special object config</H2>
 
@@ -243,6 +371,32 @@ The first part of the boot is network pxe boot, where the bootstrap image is tra
 Stage 2 is a swap to warewulf that utilize VNFS, where the OS is hybridized between ram and /var/chroots NFS mount.
 
 
+<H2>kargs</H2>
+
+<PRE>
+
+--kargs=\'$KARGS\'
+with KARGS='"console=tty0 console=ttyS1,115200n8"'
+wwsh provision print for kargs sectino need to have "" in them if there is space in it.
+really old wwulf can't handle space even with the quotes.
+
+"console=tty0 console=ttyS1,115200n8"  # this maybe bad, VGA will not have rest of the boot message, and ipmi sol activate should obliviate the need for this.
+
+acpi_irq_nobalance
+
+"net.ifnames=0 biosdevname=0"
+net.ifnames=0  # use predictable name (eth0, eth1?)
+biosdevname=0  # set to 0 use traditional name.  "Dell method"
+# use old eth0 naming convention ? 
+# still in use by w0000 as of 2023.02.13
+
+
+iommu=pt
+# this is needed for Mellanox CX-5, CX-6 Ethernet to work with AMD processor due to memory management
+# https://nvcrm.lightning.force.com/lightning/r/Knowledge__kav/ka08Z000000Tm5GQAS/view?ws=%2Flightning%2Fr%2FCase%2F5008Z00002Fn4VSQAZ%2Fview
+
+</PRE>
+
 <H1>TBD int ref</H1>
 
 <!--
@@ -264,6 +418,8 @@ these files are expected to be stored in:
 <font face=monospace>
 /srv/warewulf 
 </font>
+
+/var/log/httpd/ error_log could tell of potential problem, eg fetching file for mac address that isn't expected
 
 <BR><HR><BR>
 
