@@ -1522,17 +1522,25 @@ storcli64 /c0/vall show migrate			# show add progress (eg take 3 days to add 4 d
 
 storcli64 /c0 show				# constroller info, new disks show as UGood.
 storcli64 /c0/v1 show all			# display VD/LUN info
+storcli64 /c0/v1/s7 show all			# display disk info
+
 storcli64 /c0/vall show init			# init is not always req.  will be done automatically in big for VD with ~5+ disks
 						# but before creating LVM/FS, may want to force it to start on small VD, just to be sure
 storcli64 /c0/vall show cc			# consistency check, seems to req that init have been done.  recommend 1+/month
 
-storcli64 /c0/v1 start cc			# cc (or init) can run in bg or fg, pause, resumed, etc.
+storcli64 /c0/v1 start cc			# cc (or init) can run in bg or fg, pause, resumed, etc. 
 storcli64 /c0/v1 pause cc
 storcli64 /c0/v1 resume cc
 storcli64 /c0/v1 stop cc
 
 storcli64 /c0/v2 set name=dev_sdc		# set name of VD, best to put linux path on it for easy mapping.
 						# hopefully os don't remap it after reboot...
+
+
+# https://serverfault.com/questions/877314/how-to-add-a-hotspare-with-storcli-to-a-lsi-megaraid-controller
+./storcli /c0/e32/s8 set good force		# force a new drive to be UGood ready for addition
+./storcli /c0/e32/s8 add hotsparedrive		# assign specific drive to specific virtual drive, as hot spare
+
 
 # lsblk
 

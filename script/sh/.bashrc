@@ -595,10 +595,13 @@ umask 0002      # i do want file default group writable
 #// export cacheDir=/tmp  # keep it undefined if no need to redirecto to scratch in non quota controller env
 [[ -d /global/scratch/tin/cacheDir       ]] && export cacheDir=/global/scratch/users/cacheDir
 [[ -d /global/scratch/users/tin/cacheDir ]] && export cacheDir=/global/scratch/users/tin/cacheDir
+#?? testing for scratch hangs login when scratch not avail :-\   not, at least not when scratch is outright not avail, maybe only when scratch is hanging?
 [[ -d /local/users/tin/cacheDir ]]          && export cacheDir=/local/users/tin/cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_CACHEDIR=$cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_TMPDIR=$cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_WORKDIR=$cacheDir
+[[ -d $cacheDir ]] && export APPTAINER_TMPDIR=$cacheDir     # else apptainer will make noise now
+[[ -d $cacheDir ]] && export APPTAINER_WORKDIR=$cacheDir
 
 
 # the following will not save .bash_history when exit bash, so no xfer b/w sessions
@@ -788,6 +791,12 @@ fi
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 HISTCONTROL=ignorespace 
+
+
+# enable these for ucx statck (by Wei ~2023.07)
+#module purge
+#module load osu_benchmark/5.3
+#module load  gcc/11.3.0   openmpi/5.0.0-ucx   osu_benchmark/5.3
 
 ################################################################################
 # vim modeline, also see alias `vit`

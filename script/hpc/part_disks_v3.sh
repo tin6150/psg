@@ -14,11 +14,12 @@
 
 ### update log (future)
 ### 2022.1010  SWAP=1024 cuz some bioinfo apps need it (OOM kicks in)
+### 2023.0816  SWAP=512  TMP=64  n0113..137.sav4
 
 #### 2022.0427
 #### run as, single disk config:
 #### ./part_disks_v3.sh sda       # single sda, traditional setup.  
-#### ./part_disks_v3.sh ssd       # single /dev/nvme0n1, rest is same setup as sda
+#### ./part_disks_v3.sh ssd       # single /dev/nvme0n1, rest is same setup as sda   n0122.savio4
 #### sudo pdsh -w n0[265-272].savio3 ls -l ~tin/PSG/script/hpc/part_disks_v3.sh
 ####
 #### run as, two disks mirror config:
@@ -290,9 +291,11 @@ make_dir_tree()
 # ++ parameters for partitions, tweak as desired
 #    essentially global vars used by run_fdisk_* functions
 # use lvm syntax
-SWAP_SIZE="-L 8G"
+#SWAP_SIZE="-L 8G"
+SWAP_SIZE="-L 512G" # 2T NVME... swap may wear drive anyway, later size spread wear...
 #xx SWAP_SIZE="-L 1024G"   ## ?? largeSwap as feature ++CHANGEME++
-TMP_SIZE="-L 8G"
+#TMP_SIZE="-L 8G"
+TMP_SIZE="-L 64G"
 LOCAL_SIZE="-l 100%FREE"  # % format need -l, thus embedding the flag as part of the argument
 
 #### don't expect to have to change these
