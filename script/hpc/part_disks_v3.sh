@@ -15,7 +15,7 @@
 ### update log (future)
 ### 2022.1010  SWAP=1024 cuz some bioinfo apps need it (OOM kicks in)
 ### 2023.0816  SWAP=512  TMP=64  n0113..137.sav4  due to typo
-### 2024.0206  SWAP=64   TMP=64  + /local/scratch
+### 2024.0213  SWAP=64   TMP=120 + /local/scratch
 
 #### 2022.0427
 #### run as, single disk config:
@@ -262,22 +262,24 @@ make_dir_tree()
 	## next 2 lines added 2021.1027
 	mkdir /local/log
 	ls -ld /var/log /local/log 
+	#-- ls -ld /var/log  # expect link to /local/log  (hmm... never did link, there are stuff in /var/log)  
 	echo "Fdisk on single disk ends.  Should reboot after fdisk partition disk..."
 
 	## tin addition 2022.0426  - cuz greta vnfs has /var/lib/docker -> /local/docker
 	mkdir     /local/docker
 	chmod 755 /local/docker
+	ln -s     /local/docker  /var/lib/docker
 	ls -ld    /local/docker  /var/lib/docker
 	mkdir     /local/rsyslog  # apparently new config in /etc/rsyslog.conf write here, no sym link in dir
 	chmod 755 /local/rsyslog
 	mkdir     /local/scratch  # added 2024.0205 in updated  fstab-base-sl7-ciscat
-	chmod 755 /local/scratch
+	chmod 777 /local/scratch
+	#chmod 1777 /local/scratch
 
 	## tin addition 2021.1118
 	mkdir /local/log/munge
 	#chown munge:munge /local/log/munge
 	chown 998:998      /local/log/munge           # munge user not defined in greta, so hard coding it :P
-	ls -ld /var/log  # expect link to /local/log
 
 }
 
@@ -299,7 +301,8 @@ SWAP_SIZE="-L 64G"
 #SWAP_SIZE="-L 512G" # 2T NVME that was never used swap may wear drive anyway, lager size spread wear...
 #xx SWAP_SIZE="-L 1024G"   ## ?? largeSwap as feature ++CHANGEME++
 #TMP_SIZE="-L 8G"
-TMP_SIZE="-L 64G"
+#TMP_SIZE="-L 64G"
+TMP_SIZE="-L 120G"
 LOCAL_SIZE="-l 100%FREE"  # % format need -l, thus embedding the flag as part of the argument
 
 #### don't expect to have to change these
