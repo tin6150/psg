@@ -112,6 +112,14 @@ warewulf
 (alt, tar up the existing chroot, xfer the file and untar) <BR>
 
 
+<H5>MySQL DB Space usage warning</H5>
+
+VNFS (pullvnfs.sh) DO get stored in MySQL, and to reduce overbloating DB footprint, 
+avoid having version in names, ie keep a test image, once tested, copy it back to main vnfs name.
+cuz MySQL do not erase/free up space.  new VNFS name would add to the DB footprint.  
+replacing with existing name would do overwrite so keep same DB size.
+
+
 <H5>db restore</H5>
 
 <PRE>
