@@ -1955,6 +1955,47 @@ ipa-getcert list 	# list all tracked cert.  it auto renew before expiration.  ju
 
 </PRE>
 
+<A ID=freeipa_troubleshooting></A>
+<H1>FreeIPA Troubleshooting</H1>
+
+<A HREF="https://www.freeipa.org/page/Troubleshooting/PrivilegeSeparation">FreeIPA Priviledge Separation</A>
+list the components, their config, and log
+
+
+<PRE>
+FreeIPA management framework   
+- /etc/ipa/default.conf
+  debug = True
+  write to /var/log/ipa/client.log
+  or just run ipa command and output will include debug.
+- /etc/ipa/server.conf
+
+Apache httpd
+file /var/lib/ipa/gssproxy/http.keytab
+
+GSS-Proxy
+/etc/gssproxy/gssproxy.conf
+journalctl -u gssproxy
+
+
+
+cache storage
+- /usr/lib/tmpfiles.d/ipa.conf
+
+KDC operations
+- /var/log/krb5kdc.log
+- klist -A
+- file  /etc/krb5.keytab 
+
+Other
+- /var/log/dirsrv/slapd*
+
+
+
+
+</PRE>
+
+
 <A ID=kerberos></A>
 <A ID=kdc></A>
 <H1>kerberos</H1>
@@ -2006,10 +2047,11 @@ getent passwd sn50
 id -a sn50
 
 
-
+</PRE>
 Sometime kerberos act up. 
-Ref: Unable to login as an AD or IPA user due to "4 (System error)" via SSSD on Red Hat Enterprise Linux. - Red Hat Customer Portal
+Ref: <A HREF="https://access.redhat.com/solutions/2210951">Unable to login as an AD or IPA user due to "4 (System error)" via SSSD on Red Hat Enterprise Linux. - Red Hat Customer Portal (paywalled)</A>
 
+<PRE>
 kdestroy -A
 kinit admin
 

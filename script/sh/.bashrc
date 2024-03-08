@@ -6,7 +6,8 @@
 ## 2021.0521  .bashrc_bench version based on .bashrc @ 55625e3   # THIS version worked well for hpl on brc
 ## 2021.0329  check ~/.FLAG* to decide which function group to load, for easy task switching  (29afa20) 
 #- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
-#  2023.0901  weasel source .dot
+#  2023.0901  weasel (sp9?) source .dot
+#  2024.0307  bofh HISTTIMEFORMAT 
 
 
 ####
@@ -642,7 +643,7 @@ if [[ x${MAQUINA} == x"zink" ]]; then
 	export DOCKER_HOST=unix:///run/user/43143/docker.sock
 	alias zoom='echo zoom messes up audio and/or video on zink'
 	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
-	alias reloj='xclock -digital' 
+	alias reloj='xclock -digital -brief' 
 fi
 
 if [[ x${MAQUINA} == x"c7" ]]; then
@@ -788,6 +789,7 @@ condaSetup4sn () {
 	##echo "done condaSetup4sn"
 }
 
+################################################################################
 
 if [[ x${MAQUINA} == x"bofh" ]]; then
 	if [[ $- == *i* ]]; then
@@ -796,10 +798,13 @@ if [[ x${MAQUINA} == x"bofh" ]]; then
 	#condaSetup4sn  # strange problem on bofh, disabled for now
 fi
 
+################################################################################
+################################################################################
 
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 HISTCONTROL=ignorespace 
+HISTTIMEFORMAT="%y/%d/%m %T "
 
 
 # enable these for ucx statck (by Wei ~2023.07)
@@ -807,9 +812,6 @@ HISTCONTROL=ignorespace
 #module load osu_benchmark/5.3
 #module load  gcc/11.3.0   openmpi/5.0.0-ucx   osu_benchmark/5.3
 
-################################################################################
-# vim modeline, also see alias `vit`
-# vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
 
 
 module purge
@@ -820,3 +822,7 @@ PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
+
+################################################################################
+# vim modeline, also see alias `vit`
+# vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
