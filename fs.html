@@ -461,7 +461,7 @@ nfs ports
 2049  (TCP, UDP)   server
 20048	nfs mount
 20049	nfsrdma
-portmapper rpcinfo -p
+portmapper rpcinfo -p   # -p w/o host is for local host portmapper
 
    program vers proto   port  service
     100000    4   tcp    111  portmapper
@@ -492,6 +492,31 @@ portmapper rpcinfo -p
     100021    4   tcp  39794  nlockmgr
 
 -A INPUT -s 128.3.7.196         -p tcp -m multiport --dports 111,2049,20048,35141,35141834,835,836,837  -j ACCEPT  -m comment --comment "RPC and NFS"
+
+# query against remote host, eg netapp filer
+rpcinfo -p NFS_SERVER 
+   program vers proto   port  service
+    100011    1   udp   4049  rquotad
+    100024    1   tcp   4047  status
+    100024    1   udp   4047  status
+    100021    4   tcp   4045  nlockmgr
+    100021    3   tcp   4045  nlockmgr
+    100021    1   tcp   4045  nlockmgr
+    100021    4   udp   4045  nlockmgr
+    100021    3   udp   4045  nlockmgr
+    100021    1   udp   4045  nlockmgr
+    100005    3   tcp   4046  mountd
+    100003    3   tcp   2049  nfs
+    100005    2   tcp   4046  mountd
+    100005    1   tcp   4046  mountd
+    100003    2   tcp   2049  nfs
+    100005    3   udp   4046  mountd
+    100003    3   udp   2049  nfs
+    100005    2   udp   4046  mountd
+    100005    1   udp   4046  mountd
+    100003    2   udp   2049  nfs
+    100000    2   tcp    111  portmapper
+    100000    2   udp    111  portmapper
 
 </PRE>
 
