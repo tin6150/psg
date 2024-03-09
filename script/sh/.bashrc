@@ -59,8 +59,9 @@ if [[ $- == *i* ]]; then
 			source ~/.agent
 		fi
 	fi
-    # non X machine, start agent manually
-	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == *l43826* ]]; then
+	# non X machine, start agent manually
+	# at this point, both block just do the same thing.
+	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == LL4*8*6 || ${MAQUINA} == L345 || ${MAQUINA} == wombat2  ]]; then
 		if [[ -f ~/.agent ]]; then
 			source ~/.agent
 		fi
