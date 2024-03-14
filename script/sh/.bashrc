@@ -456,6 +456,8 @@ defineAlias () {
 	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
 	alias dtn="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no dtn.brc.berkeley.edu" # globus xfer scp
 	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
+	alias sshfs_brc="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs"
+	alias sshfs_bofh="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@bofh.lbl.gov:/  ~/mnt/bofh"
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
@@ -813,9 +815,22 @@ HISTTIMEFORMAT="%y/%d/%m %T "
 #module load  gcc/11.3.0   openmpi/5.0.0-ucx   osu_benchmark/5.3
 
 
+####
+#### host and/or situation specific setup
+####
 
-module purge
-module load osu_benchmark/5.3
+# should really test for cluster, but not easy... 
+if [[ ${MAQUINA} != bofh ]]; then
+	module purge
+	module load osu_benchmark/5.3
+fi
+
+if [[ -d /home/tin/tin-gh/abricate/bin ]]; then
+		export PATH=$PATH:/home/tin/tin-gh/abricate/bin/
+fi
+
+########################################
+
 
 PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
