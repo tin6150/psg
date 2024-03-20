@@ -8,6 +8,7 @@
 #- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
 #  2023.0901  weasel (sp9?) source .dot
 #  2024.0307  bofh HISTTIMEFORMAT 
+#  2024.0319  =~ bash regex in MAQUINA partial hostname match
 
 
 ####
@@ -637,6 +638,9 @@ add_brc_module # CGRL/vector SMF
 
 ## MAQUINA=$(hostname)  ## now done at top
 
+if [[ x${MAQUINA} =~ x"wombat" || x${MAQUINA} == x"weasle" || x${MAQUINA} == x"LL486" ]]; then
+	alias reloj='xclock -digital -brief' 
+fi
 
 if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
@@ -816,11 +820,13 @@ HISTTIMEFORMAT="%y/%d/%m %T "
 
 
 ####
-#### host and/or situation specific setup
+#### host and/or situation specific setup should go to block higher up
+#### here for some last minute, temp stuff
 ####
 
 # should really test for cluster, but not easy... 
-if [[ ${MAQUINA} != bofh ]]; then
+# if [[ ${MAQUINA} != bofh ]]; then
+if [[ -f  /global/software/sl-7.x86_64/modfiles/tools/osu_benchmark/5.3 ]]; then 
 	module purge
 	module load osu_benchmark/5.3
 fi

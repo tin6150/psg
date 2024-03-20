@@ -782,6 +782,8 @@ for lowest latency.
 Virtual Memory reclaim (good to run in epilog to free up cache)
 <PRE>
 /proc/sys/vm/zone_reclaim_mode
+sysctl vm.zone_reclaim_mode=1	# default is 0
+sysctl vm.swappiness=10		# default is 60, lower number use less swap
 
 sync
 

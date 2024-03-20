@@ -2729,7 +2729,7 @@ rpm -Fvh *.rpm               # Freshen/update all rpm if an older version is ins
 -V [pkgname]                 # Verify integrity of installed package.
 
 
-rpm -qa --qf '%{NAME} \t\t %{VERSION} \t %{RELEASE} \t %{ARCH}\n' 	
+alias rpmf="rpm -qa --qf '%{NAME} \t\t %{VERSION} \t %{RELEASE} \t %{ARCH}\n'"
 	# display whether a given package is 32-bit i386 or x86_64.
 echo "%_query_all_fmt     %%{name}-%%{version}-%%{release}.%%{arch}" >> ~/.rpmmacros 
 	# to set the rpm query arch stuff permanently in the rpm query macro
