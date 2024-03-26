@@ -8,6 +8,7 @@
 #- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
 #  2023.0901  weasel (sp9?) source .dot
 #  2024.0307  bofh HISTTIMEFORMAT 
+#  2024.0319  =~ bash regex in MAQUINA partial hostname match
 
 
 ####
@@ -457,6 +458,8 @@ defineAlias () {
 	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
 	alias dtn="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no dtn.brc.berkeley.edu" # globus xfer scp
 	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
+	alias sshfs_brc="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs"
+	alias sshfs_bofh="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@bofh.lbl.gov:/  ~/mnt/bofh"
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
@@ -636,6 +639,9 @@ add_brc_module # CGRL/vector SMF
 
 ## MAQUINA=$(hostname)  ## now done at top
 
+if [[ x${MAQUINA} =~ x"wombat" || x${MAQUINA} == x"weasle" || x${MAQUINA} == x"LL486" ]]; then
+	alias reloj='xclock -digital -brief' 
+fi
 
 if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
@@ -814,9 +820,24 @@ HISTTIMEFORMAT="%y/%d/%m %T "
 #module load  gcc/11.3.0   openmpi/5.0.0-ucx   osu_benchmark/5.3
 
 
+####
+#### host and/or situation specific setup should go to block higher up
+#### here for some last minute, temp stuff
+####
 
-module purge
-module load osu_benchmark/5.3
+# should really test for cluster, but not easy... 
+# if [[ ${MAQUINA} != bofh ]]; then
+if [[ -f  /global/software/sl-7.x86_64/modfiles/tools/osu_benchmark/5.3 ]]; then 
+	module purge
+	module load osu_benchmark/5.3
+fi
+
+if [[ -d /home/tin/tin-gh/abricate/bin ]]; then
+		export PATH=$PATH:/home/tin/tin-gh/abricate/bin/
+fi
+
+########################################
+
 
 PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
