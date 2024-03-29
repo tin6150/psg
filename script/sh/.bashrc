@@ -470,7 +470,8 @@ defineAlias () {
 	alias vncsvr16='vncserver -geometry 1540x760 -depth 24'    #  1600x900  m42
 	alias vncsvr19='vncserver -geometry 1810x1010 -depth 24'   #  1920x1080 display mca
 	alias vncsvr24='vncserver -geometry 2400x1420 -depth 24'   # actual 2560x1600
-	alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
+	#alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
+	alias vncsvr4k='vncserver-virtual -geometry 3810x2064 -depth 24'   # 4k res 3840x2160, works well in win11
 	alias vncsvrTl='vncserver -geometry  900x1060 -depth 24'   # tall and narrowish window for single browser window
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
@@ -843,6 +844,14 @@ PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
+
+
+# seems like this bracked paste feature is also adding space to end of line and incorrectly joining lines, 
+# which make pasting indented line a real PITA
+# so forcing a disable everywhere and see if it help.  (there was alias defined above, sanePaste)
+printf "\e[?2004l"
+stty sane
+#reset
 
 ################################################################################
 # vim modeline, also see alias `vit`

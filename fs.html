@@ -434,8 +434,17 @@ ml4hep1:/global/home/users /global/home/users nfs  rw,bg,soft,intr,_netdev  0 1
 
 </PRE>
 
-options per mounts 
+<H5>options per mounts </H5>
+
 <PRE>
+
+
+# Next one works for NFSv3, not v4, can't specify mountport and mountproto.  much of v4 no longer use the rpc aux protocol stuff:
+rw,bg,hard,intr,_netdev,nosuid,vers=3,mountport=635,mountproto=tcp,local_lock=none,lock,clientaddr=10.229.192.134
+
+# NFSv4 mount options
+rw,bg,hard,intr,_netdev,nosuid,vers=4,local_lock=none,lock
+
 vasttest.greta.local:/greta on /global/userspace type nfs (rw,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.8.16.51,mountvers=3,mountport=20048,mountproto=udp,local_lock=none,addr=10.8.16.51,_netdev)
 
 NFSoRDMA 

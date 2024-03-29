@@ -75,7 +75,7 @@ funny/ugly/stupid chars when pasting?  See
 <H1>HOW-TO</H1>
 <p>&nbsp; </p>
 
-<H2>RHEL vs CentOS vs Scientific Linux</H2>
+<H2>RHEL vs CentOS vs Scientific Linux vs Rocky Linux</H2>
 
 <UL>
 <LI> RedHat you have to pay.  CentOS is free.  Beyond that, both are largely identical.  Except...
@@ -468,6 +468,38 @@ from
 
 <BR>
 <BR>
+
+<A NAME="upgradability"></A>
+<H2>Upgradability</H2>
+
+<PRE>
+RHEL 7.9 can use leapp to do in-place upgrade to RHEL 8.9 (so that content of FS is preserved).
+
+The process works, but some el7 packages won't be upgraded.  mostly those from EPEL.
+My experience was that epel has to be disabled after the upgrade.
+Mate, caja from el7 have rpm that remains in system, binary still work.
+
+/etc/yum.repos.d/epel.repo  has to be set to disable
+
+else yum update may have unresolvable dependencies:
+
+Error:
+ Problem 1: cannot install the best update candidate for package libidn2-2.2.0-1.el8.x86_64
+  - nothing provides libunistring.so.0()(64bit) needed by libidn2-2.3.7-1.el7.x86_64 from epel
+ Problem 2: cannot install the best update candidate for package lua-expat-1.3.0-12.el8.1.x86_64
+  - nothing provides lua(abi) = 5.1 needed by lua-expat-1.4.1-1.el7.x86_64 from epel
+
+ Problem 6: brotli-1.0.6-3.el8.i686 from @System  does not belong to a distupgrade repository
+  - cannot install both brotli-1.0.9-10.el7.x86_64 from epel and brotli-1.0.6-3.el8.x86_64 from @System
+  - cannot install both brotli-1.0.6-3.el8.x86_64 from rhel-8-for-x86_64-baseos-rpms and brotli-1.0.9-10.el7.x86_64 from epel
+  - cannot install the best update candidate for package brotli-1.0.6-3.el8.i686
+  - cannot install the best update candidate for package brotli-1.0.6-3.el8.x86_64
+
+ Problem 7: package fuse3-3.6.1-2.el7.x86_64 from epel conflicts with fuse-common < 3.4.2-4 provided by fuse-common-3.3.0-17.el8.x86_64 from @System
+  - cannot install the best update candidate for package fuse3-3.3.0-17.el8.x86_64
+  - cannot install the best update candidate for package fuse-common-3.3.0-17.el8.x86_64
+
+</PRE>
 
 <A NAME="setup"></A>
 <H2>Initial Setup</H2>
