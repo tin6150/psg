@@ -1883,6 +1883,8 @@ nmap -Pn -p1-10000 -6 fe80::ec4:7aff:fe75:c9b0%2 	# from remote, works after spe
 <PRE>
 
 
+nc = namp-ncat  netcat
+
 nc -v -l -n 8666			# create a "netcat server", listening on TCP port 8666
 					# -v verbose
 					# -l listen
@@ -1905,6 +1907,11 @@ dd if=/dev/zero bs=100M count=1 | nc -v -v -n NcServer 8666	# simple connectivit
 
 
 echo "hi" | nc -4u somehost 8255	# send string "hi" via netcat on IPv4 UDP port 8255 to a remote machine named somehost
+
+# udp port test, eg whether tftpd is listening, reachable.
+nc tftpServer -4u  69
+# if open, can press enter and type text.
+# if closed, typing anything get "Ncat: Connection refused."
 
 
 
