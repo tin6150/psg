@@ -295,6 +295,13 @@ sys.path.insert(1, os.path.join(PYTHONPATH, "/home/system_web/local_python_2.7.9
 ## not sure if insert will check for duplicates...
 ## it will certainly complain if it doesn't exist.
 
+
+# run linux os command from inside python:
+import os
+os.system( 'echo $PYTHONPATH' )		# this can run os command, but won't get the env var settings
+
+os.system( 'env | grep PYTHON' )
+
 </PRE>
 
 <H2>Setting up the program on NixOS </H2>

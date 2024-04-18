@@ -451,6 +451,17 @@ X get applied as "dist"? which us rnorm()
 
 </PRE>
 
+
+
+<H5>. dot</H5>
+
+<PRE>
+# single dot . as stand-in, place holder for variable, column (vector) ... tidyverse thing?
+# also used at time in select(.,  MY_COL_NAMES )   # ref guat_amr_analy.Rmd
+count( abricate_joined_sum_df %>% select( matches( "fyuA:" ) ) %>% filter( . >=1 ) )  # dot . is the var to stand in the column selected.  what if there are multiple columns?
+
+</PRE>
+
 <H5>R Shorthands</H5>
 
 <PRE>
@@ -2469,6 +2480,38 @@ write.csv(), write.xlsx()
 
 </PRE>
 
+
+<H5>data cleaning</H5>
+
+<PRE>
+
+Abricate produce a tsv of numbers, 
+but some numbers are convoluted, eg 98.75;99.00 
+to get just the first number before the ; and ignore the rest (check the data that it is okay to do this first!)
+did:
+
+getFirstNum = function( charStr ) {
+  firstStr = str_match(  charStr , "([:digit:]+\\.*[:digit:]*)")[,1]
+  if_else( 
+    as.numeric(  firstStr ) >= 80 , 1, 0, missing=0 
+  )
+}
+amnt_sum_df_Sn = amnt_sum_df %>% mutate( across( 3:50, getFirstNum ))   
+
+see also:
+pick()
+across() 
+they replaced the mutate_if()
+
+example from R doc:
+iris %>%
+  mutate(across(where(is.double) & !c(Petal.Length, Petal.Width), round))
+
+unfortunately, can only call fn (round), but not pass parameter with the fn, ie can't use round(1).
+
+xref: git log  a3ed902 of  https://github.com/tin6150/guatemala_amr/blob/a3ed902a4e5f15284058f49446c679672fc66ef1/guat_amr_analy.Rmd
+
+</PRE>
 
 
 <H3>reprex - reproducible example</H3>
