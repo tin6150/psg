@@ -2812,8 +2812,9 @@ yum search wireshark	# search for package... give more info than list | grep...
 
 yum --enablerepo=epel --enablerepo=dag ...	# tmp enable named repos for this run (they have to be in /etc/yum.repos.d but disabled)
 
-repoquery --whatprovides '*bin/yes'   # coreutils
-yum       --whatprovides '*bin/yes'   # coreutils
+repoquery --whatprovides '*bin/yes'   	# coreutils
+yum       --whatprovides '*bin/yes'   	# coreutils
+dnv provides *bin/ifup			# network-scripts needed in EL8 for legacy scripts.
 
 yum --setopt=tsflags=noscripts -y install boinc-client  # pass --noscripts to rpm when installing the boinc-client*rpm
 # it is like setting yum.conf tsflags option that make rpm install package without triggering execution of install script"

@@ -112,6 +112,9 @@ find . -user root  -exec chown weblogic:weblogic {} \;
 find . -ctime +30 -exec mv -t OLD_LOG {} \;	# move files (eg logs) more than 30 days (creation time) old to a target dir named OLD_LOG   
 						# (-t in mv puts destination dir first, then take args for files to be moved)
 
+
+find . -maxdepth 1 -type d -ctime +15 -exec RM -rf {} \;  # use with care, esp if RM is really rm!  recursively delete for DIR w/ date OLDER than 15 days.  depth 1 means find from current dir, w/o descending.  the -r in rm would remove the whole tree.
+
 find . -perm -o+w -exec ls -l {} \;
 	long listing of all files whose permission is world writable
 
@@ -625,9 +628,9 @@ Key bindings that need to memorized for effective use of tmux <BR>
 ^b n	# next window		???	# jump to next session?
 ^b l	# last active window
 
-^b " 	# top-bottom pane	^b %  	# side/side pane
-^b ^o	# rotate pane		^b alt-o # rotate pane backward
-^b q 0	# jump to pane 0
+^b " 	# top-bottom pane	^b %  	 # side/side pane
+^b ^o	# rotate panes	 	^b alt-o # rotate panes backward/counter-clockwise
+^b q 0	# jump to pane 0  # pane numbers start with 0
 ^b ;	# jump back to prev pane
 ^b SP   # cycle pane arrangement (alt-5 is good for quad)
 ^b z    # zoom/unzoom current pane

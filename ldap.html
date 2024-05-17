@@ -1883,9 +1883,10 @@ ipa dnsforwardzone-find
 # add global forwarder (for all external dns):
 ipa dnsconfig-show
 ipa dnsconfig-mod --forwarder=131.243.5.1
-ipa dnsconfig-mod --forwarder=8.8.8.8 
-ipa dnsconfig-mod --forwarder=8.8.8.8 --forward-policy=first  # alt: only|none
+#ipa dnsconfig-mod --forwarder=8.8.8.8 
+#ipa dnsconfig-mod --forwarder=8.8.8.8 --forward-policy=first  # alt: only|none
 #XX ipa dnsconfig-del --forwarder
+
 
 Server will check DNS forwarder(s).
 This may take some time, please wait ...
@@ -1897,6 +1898,15 @@ ipa: WARNING: Forwarding policy conflicts with some automatic empty zones. Queri
 
 ipa dnsconfig-show
 ipa dns-server-show    # seems to use a diff forwarder
+
+
+ipa dnsserver-find
+	Forwarders: 10.243.5.1
+	Forward policy: only
+	forward only config as referenced by https://www.freeipa.org/page/V4/Forward_zones#forward-policy 
+	allow for central DNS server to provide hostnae resolution filtering, eg prevent phising attack, etc.
+
+
 </PRE>
 
 <A ID=cert></A>
