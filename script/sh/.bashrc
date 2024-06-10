@@ -44,6 +44,8 @@
 
 HISTCONTROL=ignorespace 
 # https://unix.stackexchange.com/questions/10922/temporarily-suspend-bash-history-on-a-given-shell
+HISTTIMEFORMAT="%y/%d/%m %T "
+
 
 MAQUINA=$(hostname)  
 
@@ -801,7 +803,8 @@ condaSetup4sn () {
 
 if [[ x${MAQUINA} == x"bofh" ]]; then
 	if [[ $- == *i* ]]; then
-		echo "strange problem on bofh, disabled conda setup for now"
+		#echo "strange problem on bofh, disabled conda setup for now"
+		: # no-op
 	fi
 	#condaSetup4sn  # strange problem on bofh, disabled for now
 fi
@@ -811,8 +814,6 @@ fi
 
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
-HISTCONTROL=ignorespace 
-HISTTIMEFORMAT="%y/%d/%m %T "
 
 
 # enable these for ucx statck (by Wei ~2023.07)
@@ -840,16 +841,22 @@ fi
 ########################################
 
 
+# don't remember what this is for and where...
+if [[ -d /home/tin/perl5 ]]; then
 PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
+fi
+
 
 
 # seems like this bracked paste feature is also adding space to end of line and incorrectly joining lines, 
 # which make pasting indented line a real PITA
 # so forcing a disable everywhere and see if it help.  (there was alias defined above, sanePaste)
+# force disable bracketed paste, most annoying in vim, which this still doesn't help.
+# alias sanePaste doesn't help either :-\
 printf "\e[?2004l"
 stty sane
 #reset

@@ -118,3 +118,8 @@ set paste
 :nnoremap <F8> :setl noai nocin nosi inde=<CR>
 
 " maybe good to map some Fn key to :set paste  and :set nopaste
+
+
+" disable bracked mode paste  # copied from hima
+" https://vimhelp.org/term.txt.html#xterm-bracketed-paste
+set t_BE=
