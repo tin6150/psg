@@ -351,8 +351,8 @@ add_hpl_staging_module () {
 ## but module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel 
 ## is the one that works well for past couple of years. -2021.05
 add_alt_hpl_staging_module () {
-			echo "not currently implemented L299"
-			echo "a compact simple .bashrc maybe best for consistent benchmark"
+			echo "not currently implemented L299"  >&2
+			echo "a compact simple .bashrc maybe best for consistent benchmark"  >&2
 			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
 
 } # end add_alt_hpl_staging_module 

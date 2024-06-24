@@ -290,6 +290,33 @@ Under the hood</A>: <BR>
 
 <BR>
 
+<A NAME="102"></A>
+<H2><div class="azul">Cleaning up</div></H2>
+
+<PRE>
+
+
+docker image prune 
+docker image prune -a
+
+# if data is saved in the container, this would wipe it!
+
+# clear out container created before dec 31, 1:55pm 
+docker container prune --filter "until=2023-12-31T13:55:00"
+
+
+
+docker volume list | wc
+docker volume prune
+
+
+systemctl stop docker
+rm -rf /var/lib/docker
+# docker starting will recreate everything
+# but if data saved in local container, they would be gone!
+
+</PRE>
+
 
 
 <H3>Ecosystem, Competitor</H3>

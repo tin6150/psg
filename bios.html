@@ -163,6 +163,15 @@ In that sequence, to be completed within 3 seconds.
 Do you prefer UEFI?   Really??  <BR>
 Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <BR>
 
+<H2>IPMI support by NIC</H2>
+
+
+<PRE>
+Network-Controller Sideband Interface (NCSI) header:
+NC-SI for IPMI support  (header/connector, between NIC and mboard).
+CX-6 in AIOM/OCP3.0 module, in SMC, did work as shared cable for IPMI (ethernet mode).
+</PRE>
+
 <H2>nVidia DGX A100</H2>
 
 DEL or F2 = setup
@@ -636,6 +645,8 @@ racadm supportassist exportlastcollection -f tsr.zip  # via sl7-tools vnfs
 
 racadm racreset		# restart rac, like power cycling the service processor, but not the wipe config and restore to factory default kind of reset, which does have a separate cmd for
 
+
+
 </PRE>
 
 
@@ -649,6 +660,11 @@ eg: <BR>
 
 
 singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm get iDRAC.NIC
+
+# disable SNMP in idrac
+sudo apptainer exec -B /var/run  /local/home/tin//dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  set iDRAC.SNMP.AgentEnable Disabled
+
+sudo apptainer exec -B /var/run  /local/home/tin//dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  get iDRAC.SNMP.AgentEnable 
 </PRE>
 
 <!-- 
