@@ -663,6 +663,58 @@ I dont like it
 
 <PRE>
 
+show version
+
+show | compare
+show virtual-chassis
+show chassis alarms
+
+show config
+
+
+
+# see config of a port
+
+show config interface xe-0/2/1 | display set
+show config interface xe-0/2/1 | display inheritance no-commnents
+
+
+
+# get mac address of port:
+show ethernet-switching table interface xe-0/2/1   # specific port
+show ethernet-switching table                      # all mac
+
+ 
+# find which port a given mac is connected
+
+show ethernet-switching table | match 90:e2:ba:85:59:74
+ 
+# check shut status of a port, and way to shut, no shut the port
+
+show interfaces ge-0/0/18 detail
+
+
+# disable a port: it is updating the config file, then making it live
+# no simple/immediate port shut / no port shut?
+edit (private|exclusive)
+set interfaces ge-0/0/18 disable
+show | compare
+commit check
+commit
+
+# re-enable a port
+# essentially, delete the config like that says disable
+edit (private|exclusive)
+delete interfaces ge-0/0/18 disable
+show | compare
+commit check
+commit 
+
+</PRE>
+
+
+<PRE>
+
 show interface 				# long output with lots of details.
 show interface ge-0/0/18.0 		# specific interface info
 show interface xe-1/2/0    		# it will error if nothing plugged in?  ie when dont even sfp module plugged in
@@ -700,7 +752,9 @@ show interfaces media xe-0/2/1		# mac is Juniper's!  44:f4:77:...  pff!
 show interface statistics
 show interface brief
 show interface tearse | find xe-0	# shorter summary of port and link status, no mac.  and find seems to allow things that grep wouldnt.  not sure what's going on with JunOS.  
+</PRE>
 
+<PRE>
 sub commands for (in addition to just bunch of port names)
 show interface 
   controller           Show controller information
@@ -729,13 +783,24 @@ show interface
   statistics           Display statistics and detailed output
   terse                Display terse output
   transport            Show interface transport information
+</PRE>
 
+
+like tcpdump?
+
+<PRE>
 
 monitor interface xe-1/2/0
 
 monitor traffic interface xe-1/2/0	# this is like tcpdump on a port ?
 monitor traffic
 
+</PRE>
+
+rebooting switch, clear out possibly hanging edit session
+
+<PRE>
+request system reboot in 0     # reboot switch right away  (there is still a confirmation)
 </PRE>
 
 <A ID="Arista"></A>
