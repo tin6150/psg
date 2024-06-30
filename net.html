@@ -710,6 +710,18 @@ show | compare
 commit check
 commit 
 
+
+# no exact good way to get a compact port list of up/down, try these:
+show interfaces | match "interface|description" | except "index|flags|statistics"
+
+show interfaces terse
+
+
+# but port without explicit written description dont show up
+show interfaces descriptions
+
+
+
 </PRE>
 
 
@@ -790,10 +802,13 @@ like tcpdump?
 
 <PRE>
 
-monitor interface xe-1/2/0
 
-monitor traffic interface xe-1/2/0	# this is like tcpdump on a port ?
 monitor traffic
+# this is like tcpdump on a port, default to brief which is just a packet count?
+monitor traffic interface xe-1/2/0	
+monitor traffic interface xe-0/2/1 no-resolve size 1500 detail
+
+monitor interface xe-1/2/0
 
 </PRE>
 

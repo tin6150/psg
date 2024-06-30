@@ -1501,6 +1501,9 @@ mdadm --detail /dev/mdNNN
 mdadm --detail --scan 			# could redirect output to like /etc/mdadm.conf to save config
 
 mdadm --create --verbose /dev/md127 --level=linear --raid-devices=3  /dev/sda1 /dev/sdb1 /dev/sdc1 
+# linear is raid0 ie no redundancy
+
+
 
 
 have to assemble the device each time when running:
@@ -1509,10 +1512,23 @@ mdadm --assemble --scan
 
 mdadm --stop /dev/md127
 
+
+
+mdadm -E /dev/sd[ab]   # check ...
+
+
+# raid 1 mirror eg, using older format so that has more native grub support (rather than needing a `insmod mdraid1x`)
+mdadm --create --verbose /dev/md4 --level=mirror --metadata=0.90 --raid-devices=2  /dev/sda4 /dev/sdb4
+
+mdadm -E /dev/sd[ab]4  # check ...
+
+
+
 </PRE>
 
 Ref:
 <A HREF="https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing">Linux RAID</A>
+<A HREF="https://raid.wiki.kernel.org/index.php/Setting_up_a_(new)_system">raid for new system</A>, include lot of info on grub and mdadm
 <BR>
 
 <A NAME="storcli"></A>
@@ -2987,6 +3003,26 @@ systemctl status firewalld
 SYSTEMD_LOG_LEVEL=debug systemctl start lightdm   # as close as "verbose" mode for systemctl
 </PRE>
 
+
+<PRE>
+some service has @ in it, eg openvpn, vncserver, they are instance stuff?
+
+list-unit-files eg:
+openvpn-client@.service                       disabled
+openvpn-server@.service                       disabled
+openvpn@.service                              enabled
+
+to poke at service, use:
+systemctl status  openvpn@server
+systemctl restart openvpn@server
+
+try also:
+sudo systemctl start openvpn-server@server-tcp443
+sudo systemctl start openvpn-server@server-udp1194
+
+
+</PRE>
+
 <H4>SuSE</H4>
 
 
@@ -3276,7 +3312,54 @@ Warning: No support for locale: en_US.utf8
 
 -->
 
+<H3>grub rescue</H3>
 
+sometime machine won't boot correctly and get stuck in grub recovery prompt.
+here are some commands to use there.
+<BR>
+additional command scattered around this doc also.
+<BR>
+if possible, booting from a usb linux would be easiest, grub rescue env is clumpsy to use, 
+don't use linux commands either.
+Rocky 8 install usb has a good recovery mode, after getting prompt, can do 
+<TT>chroot /systemroot</TT> or something similar and path would be as if booted on the regular system.
+
+<BR>
+
+<!-- eg used on greyhound, a VM -->
+<PRE>
+set
+
+root=hd0,msdos1
+prefix=(hd0,msdos1)/grub2
+
+
+ls
+(hd0)
+
+
+okay ref:
+https://phoenixnap.com/kb/grub-rescue
+
+
+set pager=1
+
+ls (hd0,msdos)/   [use tab, will display things if fs is readable]
+(hd0,msdos1)/   probbly efi
+(hd0,msdos2)/boot
+
+~~~
+
+
+try 2
+
+
+set root=(hd0,msdos1)    # as see vmlinuz kernel here, at the top, not /boot ...
+
+linux /vmlinuz-3...
+:x
+boot
+</PRE>
 
 
 <A NAME="kernel-compile"></A>
