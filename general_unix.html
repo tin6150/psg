@@ -325,7 +325,17 @@ systemctl status tftp # should report active/running for rhel7,8
     rhel7 cf: /etc/xinetd.d/tftp  server_args clause
     rhel8 cf: /usr/lib/systemd/system/tftp.service  or /etc/systemd/system/tftp-server.service
 
-tftp 10.15.4.30 69 -c  get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+tftp 10.22.4.2 69 -c  get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+
+
+zorin 12 (bin seems compatible with centos 7, ie same libc), it must take input from prompt after it starts.
+tftp 
+get 10.22.4.2:warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+--or--
+tftp 10.22.4.2 69
+get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+--or--
+echo "get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe" | tftp   10.22.4.2 692 69
 
 
 should download file, relative to server's docroot , eg /var/lib/tftproot
@@ -428,6 +438,8 @@ example content of /srv/warewulf/ipxe/cfg/b0:7b:25:ba:4f:7e
 <BR>
 /WW maps to /srv/warewaulf 
 
+
+<!-- below, and much of above, probably move to wwulf.html in a troubleshooting section ++TODO++ -->
 
 <PRE>
 
@@ -661,6 +673,7 @@ ctrl-b, s		# list sessions [ tmux process instances ]
 ctrl-b, w		= list windows  [ those within the session ]
 ctrl-b, $		# rename sessions (instance) (name shows up in tmux -ls)
 ctrl-b, ,		= rename window   (tabs)     (name appears in bottom green status bar)
+        ^=comma         #    cd/pushd on some version change window/tab name
 
 
 

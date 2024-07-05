@@ -1063,11 +1063,18 @@ Spawn login session on serial port:
 echo "7:2345:respawn:/sbin/agetty -h 9600 ttyS0" >> /etc/inittab
 echo "8:2345:respawn:/sbin/agetty -h 9600 ttyS1" >> /etc/inittab
 
-above does NOT redirect VGA to console, to do that, use
+2001: above does NOT redirect VGA to console, to do that, use
 (nothing will show on VGA output at boot):
 	[check zambeel notes, TBA]
 
 
+~2010: Dell ANL 
+To test console for right device and speed for iDRAC/ipmi SOL :
+
+agetty -L 9600 ttyS0 vt100
+(instead of vt100, linux likely work, it is a type of terminal, nothing to do with login prompt)
+Seems like iDRAC will redirect VGA output to SOL Serial Over LAN.  no need to have the Serial COM2 redirect.
+2024-0702
 
 
 
@@ -3020,6 +3027,14 @@ try also:
 sudo systemctl start openvpn-server@server-tcp443
 sudo systemctl start openvpn-server@server-udp1194
 
+el8:
+#sudo systemctl start openvpn-server@{Server-config} 
+systemctl unmask openvpn-server@.servie
+systemctl enable openvpn-server@.servie
+systemctl enable openvpn-server@servie
+
+systemctl enable --now openvpn-server@server
+systemd need config file in /etc/openvpn/server/server.conf  
 
 </PRE>
 
@@ -3314,6 +3329,15 @@ Warning: No support for locale: en_US.utf8
 
 <H3>grub rescue</H3>
 
+<A HREF="https://wiki.centos.org/HowTos(2f)GrubInstallation.html">CentOS 6 grub Install HowTo</A>,
+it was much simpler then, at least get basic (hd0,0) [1st disk, 1st partition]
+
+<BR>
+
+~~~~~
+
+<BR>
+
 sometime machine won't boot correctly and get stuck in grub recovery prompt.
 here are some commands to use there.
 <BR>
@@ -3325,6 +3349,7 @@ Rocky 8 install usb has a good recovery mode, after getting prompt, can do
 <TT>chroot /systemroot</TT> or something similar and path would be as if booted on the regular system.
 
 <BR>
+
 
 <!-- eg used on greyhound, a VM -->
 <PRE>
@@ -4370,7 +4395,8 @@ alternatives --set python /usr/bin/python3
 journalctl -no-pager -f -u postfix    	# see systemctl output for (service) unit file "postfix"
 					# -no-pager is to rid the annoying def of no word wrapping 
 					# -f is follow, like tail -f
-journalctl -xe ...
+
+journalctl -xe 				# look at last systemd start failure?
 
 
 
