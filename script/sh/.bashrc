@@ -278,6 +278,11 @@ add_brc_module () {
 	#:   vector was where I placed many of my containers.   but commenting out so not to load them.  cp as needed, see ~/CF_BK/sw/smf.rst
 	:
 	# new stuff in el8 smf  /global/software/rocky-8.x86_64/modfiles/apps 
+	if [[ -d  /global/software/rocky-8.x86_64/modfiles/ ]]; then
+	AddtoString MODULEPATH /global/software/rocky-8.x86_64/modfiles/langs
+	AddtoString MODULEPATH /global/software/rocky-8.x86_64/modfiles/tools
+	AddtoString MODULEPATH /global/software/rocky-8.x86_64/modfiles/compilers
+	AddtoString MODULEPATH /global/software/rocky-8.x86_64/modfiles/apps
 	module load bio/abricate/1.0.1-jgrg
 	module load bio/integron_finder/2.0.2
 	module load bio/unicycler/0.5.0
@@ -285,6 +290,7 @@ add_brc_module () {
 	module load bio/mlst
 	module load bio/paup
 	module load bio/snippy
+	fi
 	# beast has no module now, use singularity exec --nv /clusterfs/vector/home/groups/software/sl-7.x86_64/modules/beast/2.6.4/beast2.6.4-beagle.sif /usr/bin/java   -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_CPU   # a java GUI window will pop up asking for input file (ssh -Y, inside single tmux)
 
  	# or time -p ~/gs/sw/beast2.7/bin/beast -resume anim66_paup_mascot_muller.xml 
