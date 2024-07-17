@@ -277,7 +277,10 @@ add_brc_module () {
 	#:export MODULEPATH=$MODULEPATH:/global/software/vector/sl-7.x86_64/modfiles
 	#:   vector was where I placed many of my containers.   but commenting out so not to load them.  cp as needed, see ~/CF_BK/sw/smf.rst
 	:
-	# may add new stuff here  2024.0717
+	# new stuff in el8 smf  /global/software/rocky-8.x86_64/modfiles/apps 
+	module load bio/abricate/1.0.1-jgrg
+	module load bio/integron_finder/2.0.2
+	module load bio/unicycler/0.5.0
 }
 
 
