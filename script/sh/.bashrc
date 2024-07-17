@@ -234,14 +234,14 @@ add_cmaq_module () {
 				module load tmux
 				#module load r
 				#module unload gcc
-				module load gcc
-				module load openmpi/3.0.1-gcc
-				module load netcdf
-				module load python/2.7
+				#~module load gcc
+				#~module load openmpi/3.0.1-gcc
+				#~module load netcdf
+				#~module load python/2.7
 				module unload emacs/24.1
-				module load ncl
-				module load nco
-				module load ncview
+				#~module load ncl
+				#~module load nco
+				#~module load ncview
 												
 				#>all the modules used by pghuy, may be needed to run cmaq
 				#>module purge
@@ -804,19 +804,22 @@ HISTCONTROL=ignorespace
 
 # enable these for ucx statck (by Wei ~2023.07)
 #module purge
-#module load osu_benchmark/5.3
+##module load osu_benchmark/5.3
 #module load  gcc/11.3.0   openmpi/5.0.0-ucx   osu_benchmark/5.3
 
-################################################################################
-# vim modeline, also see alias `vit`
-# vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
+# cf1 64core hpl... did not work in amd epyc
+#module purge
+#module load intel/2016.4.072 openmpi/2.0.2-intel mkl/2016.4.072  ##
+#export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_phi_7210/:$PATH       # intel 2016 compiler stack
 
 
-module purge
-module load osu_benchmark/5.3
 
 PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
+
+################################################################################
+# vim modeline, also see alias `vit`
+# vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
