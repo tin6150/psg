@@ -1879,6 +1879,7 @@ nmap -Pn -p1-10000 -6 fe80::ec4:7aff:fe75:c9b0%2 	# from remote, works after spe
 <H5>netcat</H5>
 <PRE>
 
+nc -vz -u realvncserver.example.edu  5988	# udp reachability test, verbose success output if connection works
 
 nc -v -l -n 8666			# create a "netcat server", listening on TCP port 8666
 					# -v verbose
