@@ -1,0 +1,30 @@
+c7
+centos7 machine en casa 
+for stock config file reference
+
+last use maybe 2020.
+was at centos 7.6.
+
+2024.0320
+using it to test leapp, upgrade util from RHEL 7 to RHEL 8, for use on beppic2_rhel7.
+seems to work for CentOS 7, likely upgrade to CentOS 8, which is now upstream of RHEL 8, but should be close enough to test this leapp util.
+
+https://www.thegeekdiary.com/upgrading-from-centos-rhel-7-to-centos-rhel-8-using-leapp/
+
+even CentOS 7 to Rocky 8!
+https://linuxiac.com/migrating-from-centos-7-to-rocky-linux-8/
+
+
+will add MATE to it first.
+sudo yum groupinstall "MATE Desktop"
+
+
+sudo yum install -y yum-plugin-copr                    # copr = collection of personal repository
+sudo yum copr enable -y @leapp/leapp-devel
+# above step need to have RH CDN access eg have subscription or satellite or rhui etc
+# subscription-manager enable # fails with rh username, did some other stuff, stuck again.  gave up.
+
+sudo yum install -y leapp
+
+## try from a rhel 7 system
+

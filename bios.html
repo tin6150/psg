@@ -163,6 +163,15 @@ In that sequence, to be completed within 3 seconds.
 Do you prefer UEFI?   Really??  <BR>
 Anyway, racadm, ipmitool, some stuff are probably common to BIOS and UEFI ;-)  <BR>
 
+<H2>IPMI support by NIC</H2>
+
+
+<PRE>
+Network-Controller Sideband Interface (NCSI) header:
+NC-SI for IPMI support  (header/connector, between NIC and mboard).
+CX-6 in AIOM/OCP3.0 module, in SMC, did work as shared cable for IPMI (ethernet mode).
+</PRE>
+
 <H2>nVidia DGX A100</H2>
 
 DEL or F2 = setup
@@ -299,6 +308,13 @@ F12 boot from ...
 
 ipmitool lan set 8 cipher_privs XXXXXXXXXXXXXXX   # tried for Tyan nodes, but ipmi cipher problem persist
 ipmitool lan set 8 cipher_privs caaaaaaaaaaaXXX   # this might have been the default
+
+to have shared IPMI, 
+go to bios (ie no ipmitool cli to configure this, PITA)
+BMC: "management 2" need to be enabled (was disabled by default).  
+enabling that restored config, including all the previous settings :)
+(had set a static IP+netmask in the bios, but presumably can use ipmitool to set a new IP as well).
+
 
 </PRE>
 
@@ -527,6 +543,12 @@ Note: Lost of redundant power supply may cause system to clock down significantl
 
 Checking the following may help to see if there is not enough power supplied to the system:
 <PRE>
+
+# enable IPMI/iDRAC:
+racadm  set iDRAC.IPMILan.Enable 1
+# [Key=iDRAC.Embedded.1#IPMILan.1]
+
+
 racadm get System.ChassisInfo 
 other get options: System.Power System.Power.RedundancyPolicy System.PowerHistorical System.ServerPwr iDRAC.Info iDRAC.WebServer iDRAC.VNCServer
 omreport may have data, if can get it to work
@@ -623,6 +645,8 @@ racadm supportassist exportlastcollection -f tsr.zip  # via sl7-tools vnfs
 
 racadm racreset		# restart rac, like power cycling the service processor, but not the wipe config and restore to factory default kind of reset, which does have a separate cmd for
 
+
+
 </PRE>
 
 
@@ -631,7 +655,18 @@ racadm racreset		# restart rac, like power cycling the service processor, but no
 Dell maintain their <A HREF="https://www.dell.com/support/home/en-us/drivers/driversdetails?driverid=0992n">own version of ipmi</A> that handles complex situation that RHEL7 ipmitool didn't.
 eg: <BR>
 <BR>
+<PRE>
 ./ipmitool delloem lan set shared with lom1
+
+
+singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm get iDRAC.NIC
+
+# disable SNMP in idrac
+sudo apptainer exec -B /var/run  /local/home/tin//dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  set iDRAC.SNMP.AgentEnable Disabled
+
+sudo apptainer exec -B /var/run  /local/home/tin//dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  get iDRAC.SNMP.AgentEnable 
+</PRE>
+
 <!-- 
 ~tin/sw/dell_ipmi/ipmitool delloem lan set shared with lom1
 c00: /local/tin/dell_tool/iDRACTools/ipmitool/usr/bin/ipmitool delloem lan set shared with lom1
@@ -1133,7 +1168,7 @@ racadm techsupreport export -f tsr_report.zip
 
 <A NAME="UpdateIDRAC"></A>
 <A NAME="updateIdrac"></A>
-<H2>Updte iDRAC</H2>
+<H2>Update iDRAC</H2>
 Can also update chassis System Management Firmware via racadm running on the node.
 <!--
 [root@n0059.savio4 /global/home/users/tin/gs/Downloads/dell/sav4]# singularity exec -B /var/run  /global/scratch/users/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm 
@@ -1338,6 +1373,31 @@ Initializing PCIe, USB, and Video... Done
 BIOS update has started.
 
 </PRE>
+
+<H1>UEFI</H1>
+
+
+<PRE>
+Tyan: F11 for pop up menu, choose UEFI Shell
+
+
+fd0:						# this pick the root device/dir for the UEFI shell.  after doing this, UEFI commands available.
+fs0:\7109V102		# pick a specific dir to the the root of the EFI shell?
+
+cd
+ls
+dir
+help
+tab completion works.  dir could be / or \  ?
+
+
+*nsf					# these are executable in EFI.  
+flash.nsh			# run the BIOS flash program
+
+
+</PRE>
+
+
 
 <!-- ################################################################## -->
 <!-- ################################################################## -->

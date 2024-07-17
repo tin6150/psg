@@ -75,7 +75,7 @@ funny/ugly/stupid chars when pasting?  See
 <H1>HOW-TO</H1>
 <p>&nbsp; </p>
 
-<H2>RHEL vs CentOS vs Scientific Linux</H2>
+<H2>RHEL vs CentOS vs Scientific Linux vs Rocky Linux</H2>
 
 <UL>
 <LI> RedHat you have to pay.  CentOS is free.  Beyond that, both are largely identical.  Except...
@@ -468,6 +468,38 @@ from
 
 <BR>
 <BR>
+
+<A NAME="upgradability"></A>
+<H2>Upgradability</H2>
+
+<PRE>
+RHEL 7.9 can use leapp to do in-place upgrade to RHEL 8.9 (so that content of FS is preserved).
+
+The process works, but some el7 packages won't be upgraded.  mostly those from EPEL.
+My experience was that epel has to be disabled after the upgrade.
+Mate, caja from el7 have rpm that remains in system, binary still work.
+
+/etc/yum.repos.d/epel.repo  has to be set to disable
+
+else yum update may have unresolvable dependencies:
+
+Error:
+ Problem 1: cannot install the best update candidate for package libidn2-2.2.0-1.el8.x86_64
+  - nothing provides libunistring.so.0()(64bit) needed by libidn2-2.3.7-1.el7.x86_64 from epel
+ Problem 2: cannot install the best update candidate for package lua-expat-1.3.0-12.el8.1.x86_64
+  - nothing provides lua(abi) = 5.1 needed by lua-expat-1.4.1-1.el7.x86_64 from epel
+
+ Problem 6: brotli-1.0.6-3.el8.i686 from @System  does not belong to a distupgrade repository
+  - cannot install both brotli-1.0.9-10.el7.x86_64 from epel and brotli-1.0.6-3.el8.x86_64 from @System
+  - cannot install both brotli-1.0.6-3.el8.x86_64 from rhel-8-for-x86_64-baseos-rpms and brotli-1.0.9-10.el7.x86_64 from epel
+  - cannot install the best update candidate for package brotli-1.0.6-3.el8.i686
+  - cannot install the best update candidate for package brotli-1.0.6-3.el8.x86_64
+
+ Problem 7: package fuse3-3.6.1-2.el7.x86_64 from epel conflicts with fuse-common < 3.4.2-4 provided by fuse-common-3.3.0-17.el8.x86_64 from @System
+  - cannot install the best update candidate for package fuse3-3.3.0-17.el8.x86_64
+  - cannot install the best update candidate for package fuse-common-3.3.0-17.el8.x86_64
+
+</PRE>
 
 <A NAME="setup"></A>
 <H2>Initial Setup</H2>
@@ -1031,11 +1063,18 @@ Spawn login session on serial port:
 echo "7:2345:respawn:/sbin/agetty -h 9600 ttyS0" >> /etc/inittab
 echo "8:2345:respawn:/sbin/agetty -h 9600 ttyS1" >> /etc/inittab
 
-above does NOT redirect VGA to console, to do that, use
+2001: above does NOT redirect VGA to console, to do that, use
 (nothing will show on VGA output at boot):
 	[check zambeel notes, TBA]
 
 
+~2010: Dell ANL 
+To test console for right device and speed for iDRAC/ipmi SOL :
+
+agetty -L 9600 ttyS0 vt100
+(instead of vt100, linux likely work, it is a type of terminal, nothing to do with login prompt)
+Seems like iDRAC will redirect VGA output to SOL Serial Over LAN.  no need to have the Serial COM2 redirect.
+2024-0702
 
 
 
@@ -1469,6 +1508,9 @@ mdadm --detail /dev/mdNNN
 mdadm --detail --scan 			# could redirect output to like /etc/mdadm.conf to save config
 
 mdadm --create --verbose /dev/md127 --level=linear --raid-devices=3  /dev/sda1 /dev/sdb1 /dev/sdc1 
+# linear is raid0 ie no redundancy
+
+
 
 
 have to assemble the device each time when running:
@@ -1477,10 +1519,23 @@ mdadm --assemble --scan
 
 mdadm --stop /dev/md127
 
+
+
+mdadm -E /dev/sd[ab]   # check ...
+
+
+# raid 1 mirror eg, using older format so that has more native grub support (rather than needing a `insmod mdraid1x`)
+mdadm --create --verbose /dev/md4 --level=mirror --metadata=0.90 --raid-devices=2  /dev/sda4 /dev/sdb4
+
+mdadm -E /dev/sd[ab]4  # check ...
+
+
+
 </PRE>
 
 Ref:
 <A HREF="https://raid.wiki.kernel.org/index.php/Detecting,_querying_and_testing">Linux RAID</A>
+<A HREF="https://raid.wiki.kernel.org/index.php/Setting_up_a_(new)_system">raid for new system</A>, include lot of info on grub and mdadm
 <BR>
 
 <A NAME="storcli"></A>
@@ -2729,7 +2784,7 @@ rpm -Fvh *.rpm               # Freshen/update all rpm if an older version is ins
 -V [pkgname]                 # Verify integrity of installed package.
 
 
-rpm -qa --qf '%{NAME} \t\t %{VERSION} \t %{RELEASE} \t %{ARCH}\n' 	
+alias rpmf="rpm -qa --qf '%{NAME} \t\t %{VERSION} \t %{RELEASE} \t %{ARCH}\n'"
 	# display whether a given package is 32-bit i386 or x86_64.
 echo "%_query_all_fmt     %%{name}-%%{version}-%%{release}.%%{arch}" >> ~/.rpmmacros 
 	# to set the rpm query arch stuff permanently in the rpm query macro
@@ -2780,8 +2835,9 @@ yum search wireshark	# search for package... give more info than list | grep...
 
 yum --enablerepo=epel --enablerepo=dag ...	# tmp enable named repos for this run (they have to be in /etc/yum.repos.d but disabled)
 
-repoquery --whatprovides '*bin/yes'   # coreutils
-yum       --whatprovides '*bin/yes'   # coreutils
+repoquery --whatprovides '*bin/yes'   	# coreutils
+yum       --whatprovides '*bin/yes'   	# coreutils
+dnv provides *bin/ifup			# network-scripts needed in EL8 for legacy scripts.
 
 yum --setopt=tsflags=noscripts -y install boinc-client  # pass --noscripts to rpm when installing the boinc-client*rpm
 # it is like setting yum.conf tsflags option that make rpm install package without triggering execution of install script"
@@ -2952,6 +3008,34 @@ RHEL7, some newer ubuntu?
 <PRE>
 systemctl status firewalld
 SYSTEMD_LOG_LEVEL=debug systemctl start lightdm   # as close as "verbose" mode for systemctl
+</PRE>
+
+
+<PRE>
+some service has @ in it, eg openvpn, vncserver, they are instance stuff?
+
+list-unit-files eg:
+openvpn-client@.service                       disabled
+openvpn-server@.service                       disabled
+openvpn@.service                              enabled
+
+to poke at service, use:
+systemctl status  openvpn@server
+systemctl restart openvpn@server
+
+try also:
+sudo systemctl start openvpn-server@server-tcp443
+sudo systemctl start openvpn-server@server-udp1194
+
+el8:
+#sudo systemctl start openvpn-server@{Server-config} 
+systemctl unmask openvpn-server@.servie
+systemctl enable openvpn-server@.servie
+systemctl enable openvpn-server@servie
+
+systemctl enable --now openvpn-server@server
+systemd need config file in /etc/openvpn/server/server.conf  
+
 </PRE>
 
 <H4>SuSE</H4>
@@ -3243,7 +3327,64 @@ Warning: No support for locale: en_US.utf8
 
 -->
 
+<H3>grub rescue</H3>
 
+<A HREF="https://wiki.centos.org/HowTos(2f)GrubInstallation.html">CentOS 6 grub Install HowTo</A>,
+it was much simpler then, at least get basic (hd0,0) [1st disk, 1st partition]
+
+<BR>
+
+~~~~~
+
+<BR>
+
+sometime machine won't boot correctly and get stuck in grub recovery prompt.
+here are some commands to use there.
+<BR>
+additional command scattered around this doc also.
+<BR>
+if possible, booting from a usb linux would be easiest, grub rescue env is clumpsy to use, 
+don't use linux commands either.
+Rocky 8 install usb has a good recovery mode, after getting prompt, can do 
+<TT>chroot /systemroot</TT> or something similar and path would be as if booted on the regular system.
+
+<BR>
+
+
+<!-- eg used on greyhound, a VM -->
+<PRE>
+set
+
+root=hd0,msdos1
+prefix=(hd0,msdos1)/grub2
+
+
+ls
+(hd0)
+
+
+okay ref:
+https://phoenixnap.com/kb/grub-rescue
+
+
+set pager=1
+
+ls (hd0,msdos)/   [use tab, will display things if fs is readable]
+(hd0,msdos1)/   probbly efi
+(hd0,msdos2)/boot
+
+~~~
+
+
+try 2
+
+
+set root=(hd0,msdos1)    # as see vmlinuz kernel here, at the top, not /boot ...
+
+linux /vmlinuz-3...
+:x
+boot
+</PRE>
 
 
 <A NAME="kernel-compile"></A>
@@ -4254,7 +4395,9 @@ alternatives --set python /usr/bin/python3
 journalctl -no-pager -f -u postfix    	# see systemctl output for (service) unit file "postfix"
 					# -no-pager is to rid the annoying def of no word wrapping 
 					# -f is follow, like tail -f
-journalctl -xe ...
+
+journalctl -xe 				# look at last systemd start failure?
+
 
 
 </PRE>
@@ -4303,6 +4446,7 @@ irssi		a newer text based irc client, some cmd same as BitchX
 iEvince/GPdf 	GNOME pdf viewer
 Okular/KPDF	KDE pdf viewer
 evince		Document viewer, PDF, PS, XPS, TIFF
+qpdfview	pdf viewer , (? Qt based?)  works in WSL2 Ubuntu 22.04
 xpdf		X Window pdf viewer
 PDFedit		GPL pdf internal structure editor
 CUPS-PDF	PDF generator extension to CUPS printing system, generate pdf file
@@ -4553,11 +4697,14 @@ livecd-iso-to-disk --overlay-size-mb 1024 SL-64-i386-2013-04-17-LiveCD.iso /dev/
 <BR> Download and run, no install needed.
   <A HREF="http://unetbootin.github.io/">http://unetbootin.github.io/</A>
   Cant work for Centos 7 iso.
-<LI> Rufus, referred by Ubuntu.  Actually has more features than UNetbootin.  Can format thumbdirve to FAT32 (harder to get these days in Win10).  <BR>
-Also allow for persistent partition.  <BR>
+<LI> Rufus, referred by Ubuntu.  Actually has more features than UNetbootin.
+ <BR>
+Rufus always format the thumbdrive, give option of Large FAT32 or NTFS (no exFAT yet, don't remember which tool wrote to existing FS)
+ <BR>
+Also allow for persistent partition (which is ext? and wwindows always prompt to format the device when first plugged in.) <BR>
 MBR, UEFI, BIOS.  It download Syslinux files during the burn process as needed.    
 <BR> Download and run, no install needed.
-<A HREF="https://rufus.ie/en/">https://rufus.ie/en/</A>
+<A HREF="https://rufus.ie/en/">https://rufus.ie/en/</A> (or avail in the Windows App Store!)
 <LI> PS.  DVD sizes are: 4.7, 8.5, 9.4, 17.08 GB.  So, maybe create a partition of 18GB for hosting such boot media.
 
 

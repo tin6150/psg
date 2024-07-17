@@ -51,7 +51,24 @@ for I in $SRC_LIST; do
 #   du -k  $DST | tee $DST/du-k-dst-$DST.out
 
 done
-
+exitCode=$?
 
 date | tee -a rsync_script_end.flag
+
+
+
+exit $exitCode
+
+####
+
+#if use -v arg of rsync, 
+#output line that start `rsync:`
+#seems to be where errors are.
+#so can check:                     
+#cat rsync_exa.TEEOUT.2024.0701 | grep rsync: | wc
+
+#default output line is what file it is syncing 
+#`deleting` would be things it remove   
+
+###
 

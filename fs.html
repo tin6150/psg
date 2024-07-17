@@ -434,8 +434,17 @@ ml4hep1:/global/home/users /global/home/users nfs  rw,bg,soft,intr,_netdev  0 1
 
 </PRE>
 
-options per mounts 
+<H5>options per mounts </H5>
+
 <PRE>
+
+
+# Next one works for NFSv3, not v4, can't specify mountport and mountproto.  much of v4 no longer use the rpc aux protocol stuff:
+rw,bg,hard,intr,_netdev,nosuid,vers=3,mountport=635,mountproto=tcp,local_lock=none,lock,clientaddr=10.229.192.134
+
+# NFSv4 mount options
+rw,bg,hard,intr,_netdev,nosuid,vers=4,local_lock=none,lock
+
 vasttest.greta.local:/greta on /global/userspace type nfs (rw,relatime,vers=3,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=10.8.16.51,mountvers=3,mountport=20048,mountproto=udp,local_lock=none,addr=10.8.16.51,_netdev)
 
 NFSoRDMA 
@@ -461,7 +470,7 @@ nfs ports
 2049  (TCP, UDP)   server
 20048	nfs mount
 20049	nfsrdma
-portmapper rpcinfo -p
+portmapper rpcinfo -p   # -p w/o host is for local host portmapper
 
    program vers proto   port  service
     100000    4   tcp    111  portmapper
@@ -492,6 +501,31 @@ portmapper rpcinfo -p
     100021    4   tcp  39794  nlockmgr
 
 -A INPUT -s 128.3.7.196         -p tcp -m multiport --dports 111,2049,20048,35141,35141834,835,836,837  -j ACCEPT  -m comment --comment "RPC and NFS"
+
+# query against remote host, eg netapp filer
+rpcinfo -p NFS_SERVER 
+   program vers proto   port  service
+    100011    1   udp   4049  rquotad
+    100024    1   tcp   4047  status
+    100024    1   udp   4047  status
+    100021    4   tcp   4045  nlockmgr
+    100021    3   tcp   4045  nlockmgr
+    100021    1   tcp   4045  nlockmgr
+    100021    4   udp   4045  nlockmgr
+    100021    3   udp   4045  nlockmgr
+    100021    1   udp   4045  nlockmgr
+    100005    3   tcp   4046  mountd
+    100003    3   tcp   2049  nfs
+    100005    2   tcp   4046  mountd
+    100005    1   tcp   4046  mountd
+    100003    2   tcp   2049  nfs
+    100005    3   udp   4046  mountd
+    100003    3   udp   2049  nfs
+    100005    2   udp   4046  mountd
+    100005    1   udp   4046  mountd
+    100003    2   udp   2049  nfs
+    100000    2   tcp    111  portmapper
+    100000    2   udp    111  portmapper
 
 </PRE>
 

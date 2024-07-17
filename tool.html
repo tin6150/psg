@@ -782,6 +782,8 @@ for lowest latency.
 Virtual Memory reclaim (good to run in epilog to free up cache)
 <PRE>
 /proc/sys/vm/zone_reclaim_mode
+sysctl vm.zone_reclaim_mode=1	# default is 0
+sysctl vm.swappiness=10		# default is 60, lower number use less swap
 
 sync
 
@@ -1503,6 +1505,7 @@ tcpdump parameters
 -s 16000		: set capture frame size to 16k 
 -w [FILE]		: write output to file (capture use, more info than redirect output)
 			  file can be opened by wireshark
+-r [FILE]		: read from to file , use -vv to add verbosity to parsed output
 host IP-or-NAME		: capture info only related to the specified host
 
 operators accepted:
@@ -1881,6 +1884,8 @@ nmap -Pn -p1-10000 -6 fe80::ec4:7aff:fe75:c9b0%2 	# from remote, works after spe
 
 nc -vz -u realvncserver.example.edu  5988	# udp reachability test, verbose success output if connection works
 
+nc = namp-ncat  netcat
+
 nc -v -l -n 8666			# create a "netcat server", listening on TCP port 8666
 					# -v verbose
 					# -l listen
@@ -1903,6 +1908,11 @@ dd if=/dev/zero bs=100M count=1 | nc -v -v -n NcServer 8666	# simple connectivit
 
 
 echo "hi" | nc -4u somehost 8255	# send string "hi" via netcat on IPv4 UDP port 8255 to a remote machine named somehost
+
+# udp port test, eg whether tftpd is listening, reachable.
+nc tftpServer -4u  69
+# if open, can press enter and type text.
+# if closed, typing anything get "Ncat: Connection refused."
 
 
 

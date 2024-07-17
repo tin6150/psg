@@ -6,7 +6,9 @@
 ## 2021.0521  .bashrc_bench version based on .bashrc @ 55625e3   # THIS version worked well for hpl on brc
 ## 2021.0329  check ~/.FLAG* to decide which function group to load, for easy task switching  (29afa20) 
 #- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
-#  2023.0901  weasel source .dot
+#  2023.0901  weasel (sp9?) source .dot
+#  2024.0307  bofh HISTTIMEFORMAT 
+#  2024.0319  =~ bash regex in MAQUINA partial hostname match
 
 
 ####
@@ -42,6 +44,8 @@
 
 HISTCONTROL=ignorespace 
 # https://unix.stackexchange.com/questions/10922/temporarily-suspend-bash-history-on-a-given-shell
+HISTTIMEFORMAT="%y/%d/%m %T "
+
 
 MAQUINA=$(hostname)  
 
@@ -59,8 +63,9 @@ if [[ $- == *i* ]]; then
 			source ~/.agent
 		fi
 	fi
-    # non X machine, start agent manually
-	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == *l43826* ]]; then
+	# non X machine, start agent manually
+	# at this point, both block just do the same thing.
+	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == LL4*8*6 || ${MAQUINA} == L345 || ${MAQUINA} == wombat2  ]]; then
 		if [[ -f ~/.agent ]]; then
 			source ~/.agent
 		fi
@@ -346,8 +351,8 @@ add_hpl_staging_module () {
 ## but module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel 
 ## is the one that works well for past couple of years. -2021.05
 add_alt_hpl_staging_module () {
-			echo "not currently implemented L299"
-			echo "a compact simple .bashrc maybe best for consistent benchmark"
+			echo "not currently implemented L299"  >&2
+			echo "a compact simple .bashrc maybe best for consistent benchmark"  >&2
 			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
 
 } # end add_alt_hpl_staging_module 
@@ -455,6 +460,8 @@ defineAlias () {
 	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
 	alias dtn="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no dtn.brc.berkeley.edu" # globus xfer scp
 	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
+	alias sshfs_brc="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs"
+	alias sshfs_bofh="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@bofh.lbl.gov:/  ~/mnt/bofh"
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
@@ -466,7 +473,8 @@ defineAlias () {
 	alias vncsvr16='vncserver -geometry 1540x760 -depth 24'    #  1600x900  m42
 	alias vncsvr19='vncserver -geometry 1810x1010 -depth 24'   #  1920x1080 display mca
 	alias vncsvr24='vncserver -geometry 2400x1420 -depth 24'   # actual 2560x1600
-	alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
+	#alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
+	alias vncsvr4k='vncserver-virtual -geometry 3810x2064 -depth 24'   # 4k res 3840x2160, works well in win11
 	alias vncsvrTl='vncserver -geometry  900x1060 -depth 24'   # tall and narrowish window for single browser window
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
@@ -634,6 +642,9 @@ add_brc_module # CGRL/vector SMF
 
 ## MAQUINA=$(hostname)  ## now done at top
 
+if [[ x${MAQUINA} =~ x"wombat" || x${MAQUINA} == x"weasle" || x${MAQUINA} == x"LL486" ]]; then
+	alias reloj='xclock -digital -brief' 
+fi
 
 if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
@@ -642,7 +653,7 @@ if [[ x${MAQUINA} == x"zink" ]]; then
 	export DOCKER_HOST=unix:///run/user/43143/docker.sock
 	alias zoom='echo zoom messes up audio and/or video on zink'
 	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
-	alias reloj='xclock -digital' 
+	alias reloj='xclock -digital -brief' 
 fi
 
 if [[ x${MAQUINA} == x"c7" ]]; then
@@ -788,18 +799,21 @@ condaSetup4sn () {
 	##echo "done condaSetup4sn"
 }
 
+################################################################################
 
 if [[ x${MAQUINA} == x"bofh" ]]; then
 	if [[ $- == *i* ]]; then
-		echo "strange problem on bofh, disabled conda setup for now"
+		#echo "strange problem on bofh, disabled conda setup for now"
+		: # no-op
 	fi
 	#condaSetup4sn  # strange problem on bofh, disabled for now
 fi
 
+################################################################################
+################################################################################
 
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
-HISTCONTROL=ignorespace 
 
 
 # enable these for ucx statck (by Wei ~2023.07)
@@ -814,11 +828,47 @@ HISTCONTROL=ignorespace
 
 
 
+
+####
+#### host and/or situation specific setup should go to block higher up
+#### here for some last minute, temp stuff
+####
+
+# should really test for cluster, but not easy... 
+# if [[ ${MAQUINA} != bofh ]]; then
+if [[ -f  /global/software/sl-7.x86_64/modfiles/tools/osu_benchmark/5.3 ]]; then 
+	module purge
+	module load osu_benchmark/5.3
+fi
+
+if [[ -d /home/tin/tin-gh/abricate/bin ]]; then
+		export PATH=$PATH:/home/tin/tin-gh/abricate/bin/
+fi
+
+########################################
+
+
+# don't remember what this is for and where...
+if [[ -d /home/tin/perl5 ]]; then
+
+
 PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
+fi
+
+
+
+# seems like this bracked paste feature is also adding space to end of line and incorrectly joining lines, 
+# which make pasting indented line a real PITA
+# so forcing a disable everywhere and see if it help.  (there was alias defined above, sanePaste)
+# force disable bracketed paste, most annoying in vim, which this still doesn't help.
+# alias sanePaste doesn't help either :-\
+printf "\e[?2004l"
+stty sane
+#reset
 
 ################################################################################
 # vim modeline, also see alias `vit`

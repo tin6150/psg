@@ -64,3 +64,12 @@ echo "---"
 tmux display-panes
 echo ""
 tmux ls
+
+
+# 2024.0505 trying tmux on demand on machines as needed
+# might be easier to pick up where left off, the nested pane thing take too much navigation
+# try fewer windows, leave at least one wide pane for copy-n-paste.  3 panes as T might be ideal.
+# ^b q 0 to jump to specific pane #0
+# give them name like these:
+# tmux new-session -s tmuxHW
+# tmux new-session -s tmuxETA

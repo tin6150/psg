@@ -651,8 +651,172 @@ connector 2 would be 2041 to 2048, etc
 <A ID="juniper"></A>
 <H1>Juniper</H1>
 
-<LI>Port starts at 0 ?</LI>
+JunOS
+<BR>
+this OS seems pretty weird.
+Trying to just find out if a machine is propertly connected to it was mission impossible.
+can't even find the mac address of the host as seen by the switch :(
+I dont like it 
+
+<LI>Port starts at 0</LI>
 <LI></LI>
+
+<PRE>
+
+show version
+
+show | compare
+show virtual-chassis
+show chassis alarms
+
+show config
+
+
+
+# see config of a port
+
+show config interface xe-0/2/1 | display set
+show config interface xe-0/2/1 | display inheritance no-commnents
+
+
+
+# get mac address of port:
+show ethernet-switching table interface xe-0/2/1   # specific port
+show ethernet-switching table                      # all mac
+
+ 
+# find which port a given mac is connected
+
+show ethernet-switching table | match 90:e2:ba:85:59:74
+ 
+# check shut status of a port, and way to shut, no shut the port
+
+show interfaces ge-0/0/18 detail
+
+
+# disable a port: it is updating the config file, then making it live
+# no simple/immediate port shut / no port shut?
+edit (private|exclusive)
+set interfaces ge-0/0/18 disable
+show | compare
+commit check
+commit
+
+# re-enable a port
+# essentially, delete the config like that says disable
+edit (private|exclusive)
+delete interfaces ge-0/0/18 disable
+show | compare
+commit check
+commit 
+
+
+# no exact good way to get a compact port list of up/down, try these:
+show interfaces | match "interface|description" | except "index|flags|statistics"
+
+show interfaces terse
+
+
+# but port without explicit written description dont show up
+show interfaces descriptions
+
+
+
+</PRE>
+
+
+<PRE>
+
+show interface 				# long output with lots of details.
+show interface ge-0/0/18.0 		# specific interface info
+show interface xe-1/2/0    		# it will error if nothing plugged in?  ie when dont even sfp module plugged in
+show interface xe-1/2/0 extensive	# but still doesn't seems to show mac of the connected host. (mac is that of the switch's own port??!)
+
+show interfaces mac-database ge-0/0/18	# I am getting "error: MAC accounting and policing not supported" 
+# https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/mac-accounting.html
+# have ways to enable global-mac-statistics, but not obvious how to edit/config, or doesn't work for my switch.
+# isnt mac basic element in L2 switch??!!  *sigh*
+
+show ethernet-switching table		# not that many entires, it is not full arp table known by switch dont think...
+
+show arp 					
+show arp expiration-time state no-resolve	# dont seems complete either.
+
+show ethernet-switching mac-learning-log | find xe-0/2/1		# find is grep in switch os world
+show ethernet-switching mac-learning-log | find 90:e2:ba:85:59:74	# n0169 p5p1's mac
+show ethernet-switching mac-learning-log | find c8:1f:66:ea:bc:b1	# n0169 em1's mac
+show ethernet-switching mac-learning-log | find ge-0/0/18		# ge=rj45 1g.  xe=10g 
+
+show ethernet-switching interface xe-0/2/1 extensive			# still no mac address of connected device  ??
+
+
+
+ping 10.0.1.171 record-route		# there are interface and mac clause, didn't work, or i don't know how to use it.
+
+
+show interface descriptions 		# only those with descriptions?
+show interfaces mac-database ge-0/0/18.0
+show interfaces detail ge-0/0/18
+
+show interfaces media xe-0/2/1		# mac is Juniper's!  44:f4:77:...  pff!
+
+
+show interface statistics
+show interface brief
+show interface tearse | find xe-0	# shorter summary of port and link status, no mac.  and find seems to allow things that grep wouldnt.  not sure what's going on with JunOS.  
+</PRE>
+
+<PRE>
+sub commands for (in addition to just bunch of port names)
+show interface 
+  controller           Show controller information
+  destination-class    Show statistics for destination class
+  detail               Display detailed output
+  diagnostics          Show interface diagnostics information
+  extensive            Display extensive output
+  far-end-interval     Show far end interval statistics
+  filters              Show interface filters information
+  ifl-class            IFL classification
+  interval             Show interval statistics
+  l2-routing-instance  Show l2 routing instance data structure
+  lib-clients          Show library clients of DCD
+  load-balancing       Show load-balancing status
+  mac-database         Show media access control database information
+  media                Display media information
+  policers             Show interface policers information
+  queue                Show queue statistics for this interface
+  redundancy           Show redundancy status
+  routing              Show routing status
+  routing-instance     Name of routing instance
+  smart-sfp-defects    Smart SFP defect status
+  smart-sfp-statistics  Smart SFP counters
+  snmp-index           SNMP index of interface
+  source-class         Show statistics for source class
+  statistics           Display statistics and detailed output
+  terse                Display terse output
+  transport            Show interface transport information
+</PRE>
+
+
+like tcpdump?
+
+<PRE>
+
+
+monitor traffic
+# this is like tcpdump on a port, default to brief which is just a packet count?
+monitor traffic interface xe-1/2/0	
+monitor traffic interface xe-0/2/1 no-resolve size 1500 detail
+
+monitor interface xe-1/2/0
+
+</PRE>
+
+rebooting switch, clear out possibly hanging edit session
+
+<PRE>
+request system reboot in 0     # reboot switch right away  (there is still a confirmation)
+</PRE>
 
 <A ID="Arista"></A>
 <A ID="arista"></A>
