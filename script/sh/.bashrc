@@ -215,7 +215,8 @@ add_personal_module () {
 		#module load langs/intel/2018.1.163_eval 
 		#module load intel/2018.1.163/mkl/2018.1.163_eval
 		#module load intel/2018.1.163/openmpi/2.0.4-intel_eval
-		module load  tools/cvs/1.11.23
+		#:module load  tools/cvs/1.11.23
+		:
 	fi
     if [[ -d /global/home/groups/scs/tin/rhel7/ ]]; then
            AddtoString PATH /global/home/groups/scs/tin/rhel7/
@@ -232,18 +233,19 @@ add_cmaq_module () {
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
 		echo "noop" > /dev/null
-		module load git vim/7.4  # 8.2 was for nano only.
+		#:module load git vim/7.4  # 8.2 was for nano only.
 		#if [[ -d /global/software/sl-7.x86_64/modules/gcc ]] ; then 
 		if [[ -d /global/software/sl-7.x86_64/modules/gcc && -d /global/software/sl-7.x86_64/modules/tools/tmux/ ]] ; then 
 				#> module list from pghuy
-				module load tmux
+				#:module load tmux
 				#module load r
 				#module unload gcc
 				#~module load gcc
 				#~module load openmpi/3.0.1-gcc
 				#~module load netcdf
 				#~module load python/2.7
-				module unload emacs/24.1
+				#:module unload emacs/24.1
+				:
 				#~module load ncl
 				#~module load nco
 				#~module load ncview
@@ -259,7 +261,8 @@ add_cmaq_module () {
 		fi
 		# python dir is empty at /global/software/sl-7.x86_64/modules/python/3.6
 		if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
-			module load python/3.6	# needed by bofhbot
+			#:module load python/3.6	# needed by bofhbot
+			:
 		fi
 
 	fi
@@ -271,7 +274,10 @@ add_cmaq_module () {
 
 add_brc_module () {
 	# for now, just for notes, never activated
-	export MODULEPATH=$MODULEPATH:/global/software/vector/sl-7.x86_64/modfiles
+	#:export MODULEPATH=$MODULEPATH:/global/software/vector/sl-7.x86_64/modfiles
+	#:   vector was where I placed many of my containers.   but commenting out so not to load them.  cp as needed, see ~/CF_BK/sw/smf.rst
+	:
+	# may add new stuff here  2024.0717
 }
 
 
@@ -280,21 +286,21 @@ add_hpcs_module () {
 	#--if [[ -d /global/software/sl-7.x86_64/modfiles/tools ]]; then   # mounted in sl6 as well :(
 		#module load vim  # only in sl7 module, throws err in sl6 :(
 	##fi
-	GLOBAL_MODULE_DIR=/global/software/sl-7.x86_64/modfiles
-	if [[ -d $GLOBAL_MODULE_DIR ]] ; then 
-		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/langs
-		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
-		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
+	#:GLOBAL_MODULE_DIR=/global/software/sl-7.x86_64/modfiles
+	#:if [[ -d $GLOBAL_MODULE_DIR ]] ; then 
+		#:AddtoString MODULEPATH $GLOBAL_MODULE_DIR/langs
+		#:AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
+		#:AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
 		# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
 		# MODULEPATH manual fix was needed in exalearn cuz still need to configure system-wide source of that  script...
-		echo "noop" > /dev/null
-		module load git 
-		module load vim/7.4
+		#:echo "noop" > /dev/null
+		#:module load git 
+		#:module load vim/7.4
 
 		# python dir is empty at /global/software/sl-7.x86_64/modules/python/3.6
-		if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
-			module load python/3.6	# needed by bofhbot
-		fi
+		#:if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
+			#:module load python/3.6	# needed by bofhbot
+		#:fi
 
 		## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 		## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
@@ -312,7 +318,7 @@ add_hpcs_module () {
 		#module load ml/superlearner/current-r-3.4.2
 		#export R_LIBS_USER='/global/scratch/tin/R_pkg/'
 
-	fi
+	#:fi
 
 	#--export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
 	export SIF=/global/home/groups/scs/tin/singularity-repo/perf_tools_latest.sif  # brc 2021.09
@@ -324,23 +330,23 @@ add_hpcs_module () {
 #### pulled from add_hpcs_module, may need to have that loaded before loading this.
 add_hpl_staging_module () {
 
-	    	if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
+	    	#:if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
 			#module load intel openmpi mkl
 			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300sav2 1080ti staging test
-			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3 # ~1600 GFlop/s
+			#:module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3 # ~1600 GFlop/s
 			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
 			### below path for Intel Parallel Studio XE Legacy is *might* affect hpl perf, best avoid (or maybe then dont use icc2018)  
 			### turned out to be ok after all, but don't remember why i needed it, so commenting out to avoid problem
 			### problem was really MKL_DEBUG_CPU_TYPE=5 and possibly OMP_NUM_THREADS=4
-			export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
+			#:export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
 			#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/compiler/lib/intel64_lin
 			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
 			#//brc has different version number for hdf5... not needed there... 
 
 		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
 			#module load intel/2018.1.163 mkl openmpi
-			export PATH=~tin/HPCS_toolkit/benchmark/staging_sl7:${PATH} # mpi_nxnlatbw
- 	    	fi
+			#:export PATH=~tin/HPCS_toolkit/benchmark/staging_sl7:${PATH} # mpi_nxnlatbw
+ 	    	#:fi
 
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpl_staging_module"
 } # end add_hpl_staging_module 
@@ -391,29 +397,6 @@ add_hpcs_bin () {
 	AddtoString PATH /global/scratch/tin/singularity-repo  # cvs via container
 } # end add_hpcs_bin 
 
-add_cosmic_module () {
-	## cluster specific stuff
-	if [[ -d /global/groups/cosmic ]]; then
-		# hope /global/groups/cosmic is only avail on cosmic.  if not, need something else...
-
-		# troubleshooting David Shapiro's problem
-		##module unload python
-		module load gcc/4.4.7
-		module load atlas/3.10.1-gcc
-		module load fftw/3.3.3-gcc
-		module load hdf5
-		module load openmpi/1.8.4-gcc
-		module load cuda
-		module load gsl
-		module load zeromq
-		module load cmake
-		module load boost
-		module load sharp
-
-		alias mpi='mpirun --hostfile /global/groups/cosmic/host_file'
-		COMMON_ENV_TRACE="$COMMON_ENV_TRACE cosmic_loaded"
-	fi
-} # end add_cosmic_module 
 
 ################################################################################
 ### define alias
@@ -699,7 +682,6 @@ elif [[ -f ~/.FLAG_hpl_staging_test_yes ]]; then
 	add_hpl_staging_module
 fi 
 add_personal_module 
-add_cosmic_module 
 
 
 # these should not be needed unless in interactive shell
@@ -836,10 +818,10 @@ export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 # should really test for cluster, but not easy... 
 # if [[ ${MAQUINA} != bofh ]]; then
-if [[ -f  /global/software/sl-7.x86_64/modfiles/tools/osu_benchmark/5.3 ]]; then 
-	module purge
-	module load osu_benchmark/5.3
-fi
+#:if [[ -f  /global/software/sl-7.x86_64/modfiles/tools/osu_benchmark/5.3 ]]; then 
+#:	module purge
+#:	module load osu_benchmark/5.3
+#:fi
 
 if [[ -d /home/tin/tin-gh/abricate/bin ]]; then
 		export PATH=$PATH:/home/tin/tin-gh/abricate/bin/
