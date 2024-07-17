@@ -281,6 +281,16 @@ add_brc_module () {
 	module load bio/abricate/1.0.1-jgrg
 	module load bio/integron_finder/2.0.2
 	module load bio/unicycler/0.5.0
+	module load bio/ezclermont
+	module load bio/mlst
+	module load bio/paup
+	module load bio/snippy
+	# beast has no module now, use singularity exec --nv /clusterfs/vector/home/groups/software/sl-7.x86_64/modules/beast/2.6.4/beast2.6.4-beagle.sif /usr/bin/java   -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_CPU   # a java GUI window will pop up asking for input file (ssh -Y, inside single tmux)
+
+ 	# or time -p ~/gs/sw/beast2.7/bin/beast -resume anim66_paup_mascot_muller.xml 
+	# above ~/gs/sw/beast2.7 was just download of beast, without container
+
+
 }
 
 
