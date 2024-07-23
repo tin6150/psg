@@ -817,8 +817,8 @@ export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 
 
-module purge
-module load osu_benchmark/5.3
+#module purge
+#module load osu_benchmark/5.3  # sl7 only?
 # enable these for ucx statck (by Wei ~2023.07)
 #module purge
 ##module load osu_benchmark/5.3
