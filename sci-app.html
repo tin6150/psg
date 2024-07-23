@@ -81,7 +81,7 @@ App		IN			OUT		Note
 --------------	----------------	-------------	----------------------------------
 Abricate	.fasta			.tsv		resistance, virlenge gene match list as TAB-separated value files
 
-??							extract ST# E.coli Sequence Type
+mlst		.fasta			.tsv		extract ST# E.coli Sequence Type
 ezClermont	.fa			.txt		MLST: extract phylogroup A, B1, B2, C, D...
 
 
@@ -161,7 +161,16 @@ parallel -j 8 -a task.lst  unicycler -1 {}_1.fq.gz -2 {}_2.fq.gz -o ./assembled-
 # use -s instead of -1 -2 combo for unpaired fq.gz 
 # there is a -l for long read... RTFM https://github.com/rrwick/Unicycler#installation
 
+# unicycler may fail to generate fasta file.  eg ecuador23 shrimp data
+# it is not obvious, there is some crash data in maybe the slurm std err... don't remember.
+# but one way to double check it generated fasta file is, well, count *fasta/assembly.fasta and see it is not size 0.
+# also,
+# egrep "Saving.*fasta$" *fasta/unicycler.log | wc
+# ie, look for the the last line in unicycler log that says eg
+# Saving /global/scratch/users/tin/fc_graham/ecuador_2023_.../ALL/assembled-sequences_par3/Z_CKDN230030153-1A_HGKHYDSX7_L2.fasta/assembly.fasta
+
 </PRE>
+
 <LI> Price - Fast De novo assembly - UCSF Peter Skewes-Cox 
 <LI> ablab/spades: SPAdes Genome Assembler (github.com, maybe old)
 <LI> 
@@ -484,7 +493,7 @@ abricate --summary *_${AbricateDB}.txt  > ${AbricateDB}_summary.csv
 <LI> mlsplasmids (web)  eg find whether bla_CTX-M gene is plasmid-borne or chromosome bound.
 <LI> MOB-suite - annotate contig as chromosomal vs plasmid
 <LI> Abricate VR - find resistance genes
-<LI> MLST - Multi-Locus sequence typing (for bacteria)
+<LI> MLST - Multi-Locus sequence typing (ST for bacteria)
 	<BR>
 	Default output columns are Filename        PubMLST_scheme_name     SeqType Allele_IDs
 	<BR>

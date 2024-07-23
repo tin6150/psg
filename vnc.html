@@ -442,6 +442,31 @@ Installing <TT>yum groupinstall "@MATE Desktop"</TT> in CentOS 7 should provide 
 But in VNC, may still need to do customization to force it.  Try these:
 
 <PRE>
+## works with realvnc 7.10 with EL8.9, MATE
+
+## vncserver-virtual -geometry 3810x2064 -depth 24 
+## vncserver-virtual -kill :1
+
+/etc/vnc/config.d/vncserver-virtual  :: SystemXorg=1
+
+/etc/X11/xinit/Xclients
+/etc/sysconfig/desktop    # set to start mate-session
+
+~/.vnc/xstartup ::
+#!/bin/sh
+DESKTOP_SESSION=MATE
+export DESKTOP_SESSION
+/bin/mate-session
+vncserver-virtual -kill $DISPLAY
+
+
+compiling realVNC custom dummy video driver - git repo
+https://help.realvnc.com/hc/en-us/articles/360016058212-How-do-I-adjust-the-screen-resolution-of-a-virtual-desktop-under-Linux#for-users-running-xvnc-0-0 :
+- support for 4K monitors 
+
+
+--older config--
+
 
 This seems to be startup sequence where customization could be "forced" :
 

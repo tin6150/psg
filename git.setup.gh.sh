@@ -96,6 +96,8 @@ run_git_clone_core()
 	#~~ cd ~/tin-gh
 	echo "may ask for password... run the following cut-n-paste:"
 	echo git clone https://tin6150@bitbucket.org/tin6150/blpriv
+	#
+	echo git clone git@github.com:tin6150/blpriv.git
 	#git clone https://tin6150@bitbucket.org/tin6150/spark
 	#git clone https://tin6150@bitbucket.org/tin6150/predpriv.git
 
@@ -402,11 +404,11 @@ npm_package_install()
 }
 
 
-precreate_ntfs_scheme #### 2023 want git dir to be shared with windows
+#precreate_ntfs_scheme #### 2023 want git dir to be shared with windows
 
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
-run_git_clone_core
+#run_git_clone_core
 #+run_git_clone_extended
 create_links	# this is link from ~/PSG to tin-gh/psg  CF_BK etc.  not sure if still work with the preset_ntfs_scheme of 2023
 #npm_package_install

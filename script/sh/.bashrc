@@ -6,7 +6,9 @@
 ## 2021.0521  .bashrc_bench version based on .bashrc @ 55625e3   # THIS version worked well for hpl on brc
 ## 2021.0329  check ~/.FLAG* to decide which function group to load, for easy task switching  (29afa20) 
 #- 2021.0706  trivial alias for zink:	alias reloj='xclock -digital' 
-#  2023.0901  weasel source .dot
+#  2023.0901  weasel (sp9?) source .dot
+#  2024.0307  bofh HISTTIMEFORMAT 
+#  2024.0319  =~ bash regex in MAQUINA partial hostname match
 
 
 ####
@@ -42,6 +44,8 @@
 
 HISTCONTROL=ignorespace 
 # https://unix.stackexchange.com/questions/10922/temporarily-suspend-bash-history-on-a-given-shell
+HISTTIMEFORMAT="%y/%d/%m %T "
+
 
 MAQUINA=$(hostname)  
 
@@ -59,8 +63,9 @@ if [[ $- == *i* ]]; then
 			source ~/.agent
 		fi
 	fi
-    # non X machine, start agent manually
-	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == *l43826* ]]; then
+	# non X machine, start agent manually
+	# at this point, both block just do the same thing.
+	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == LL4*8*6 || ${MAQUINA} == L345 || ${MAQUINA} == wombat2  ]]; then
 		if [[ -f ~/.agent ]]; then
 			source ~/.agent
 		fi
@@ -210,7 +215,8 @@ add_personal_module () {
 		#module load langs/intel/2018.1.163_eval 
 		#module load intel/2018.1.163/mkl/2018.1.163_eval
 		#module load intel/2018.1.163/openmpi/2.0.4-intel_eval
-		module load  tools/cvs/1.11.23
+		#:module load  tools/cvs/1.11.23
+		:
 	fi
     if [[ -d /global/home/groups/scs/tin/rhel7/ ]]; then
            AddtoString PATH /global/home/groups/scs/tin/rhel7/
@@ -227,21 +233,22 @@ add_cmaq_module () {
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
 		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
 		echo "noop" > /dev/null
-		module load git vim/7.4  # 8.2 was for nano only.
+		#:module load git vim/7.4  # 8.2 was for nano only.
 		#if [[ -d /global/software/sl-7.x86_64/modules/gcc ]] ; then 
 		if [[ -d /global/software/sl-7.x86_64/modules/gcc && -d /global/software/sl-7.x86_64/modules/tools/tmux/ ]] ; then 
 				#> module list from pghuy
-				module load tmux
+				#:module load tmux
 				#module load r
 				#module unload gcc
-				module load gcc
-				module load openmpi/3.0.1-gcc
-				module load netcdf
-				module load python/2.7
-				module unload emacs/24.1
-				module load ncl
-				module load nco
-				module load ncview
+				#~module load gcc
+				#~module load openmpi/3.0.1-gcc
+				#~module load netcdf
+				#~module load python/2.7
+				#:module unload emacs/24.1
+				:
+				#~module load ncl
+				#~module load nco
+				#~module load ncview
 												
 				#>all the modules used by pghuy, may be needed to run cmaq
 				#>module purge
@@ -254,7 +261,8 @@ add_cmaq_module () {
 		fi
 		# python dir is empty at /global/software/sl-7.x86_64/modules/python/3.6
 		if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
-			module load python/3.6	# needed by bofhbot
+			#:module load python/3.6	# needed by bofhbot
+			:
 		fi
 
 	fi
@@ -266,7 +274,29 @@ add_cmaq_module () {
 
 add_brc_module () {
 	# for now, just for notes, never activated
-	export MODULEPATH=$MODULEPATH:/global/software/vector/sl-7.x86_64/modfiles
+	#:export MODULEPATH=$MODULEPATH:/global/software/vector/sl-7.x86_64/modfiles
+	#:   vector was where I placed many of my containers.   but commenting out so not to load them.  cp as needed, see ~/CF_BK/sw/smf.rst
+	:
+	# new stuff in el8 smf  /global/software/rocky-8.x86_64/modfiles/apps 
+	if [[ -d  /global/software/rocky-8.x86_64/modfiles/ ]]; then
+	AddtoString MODULEPATH /global/software/rocky-8.x86_64/modfiles/langs
+	AddtoString MODULEPATH /global/software/rocky-8.x86_64/modfiles/tools
+	AddtoString MODULEPATH /global/software/rocky-8.x86_64/modfiles/compilers
+	AddtoString MODULEPATH /global/software/rocky-8.x86_64/modfiles/apps
+	module load bio/abricate/1.0.1-jgrg
+	module load bio/integron_finder/2.0.2
+	module load bio/unicycler/0.5.0
+	module load bio/ezclermont
+	module load bio/mlst
+	module load bio/paup
+	module load bio/snippy
+	fi
+	# beast has no module now, use singularity exec --nv /clusterfs/vector/home/groups/software/sl-7.x86_64/modules/beast/2.6.4/beast2.6.4-beagle.sif /usr/bin/java   -Dlauncher.wait.for.exit=true -Xms256m -Xmx8g -Duser.language=en -cp /opt/gitrepo/beast/lib/launcher.jar beast.app.beastapp.BeastLauncher -beagle_CPU   # a java GUI window will pop up asking for input file (ssh -Y, inside single tmux)
+
+ 	# or time -p ~/gs/sw/beast2.7/bin/beast -resume anim66_paup_mascot_muller.xml 
+	# above ~/gs/sw/beast2.7 was just download of beast, without container
+
+
 }
 
 
@@ -275,21 +305,21 @@ add_hpcs_module () {
 	#--if [[ -d /global/software/sl-7.x86_64/modfiles/tools ]]; then   # mounted in sl6 as well :(
 		#module load vim  # only in sl7 module, throws err in sl6 :(
 	##fi
-	GLOBAL_MODULE_DIR=/global/software/sl-7.x86_64/modfiles
-	if [[ -d $GLOBAL_MODULE_DIR ]] ; then 
-		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/langs
-		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
-		AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
+	#:GLOBAL_MODULE_DIR=/global/software/sl-7.x86_64/modfiles
+	#:if [[ -d $GLOBAL_MODULE_DIR ]] ; then 
+		#:AddtoString MODULEPATH $GLOBAL_MODULE_DIR/langs
+		#:AddtoString MODULEPATH $GLOBAL_MODULE_DIR/tools
+		#:AddtoString MODULEPATH $GLOBAL_MODULE_DIR/apps
 		# export MODULEPATH=/global/software/sl-7.x86_64/modfiles/langs:/global/software/sl-7.x86_64/modfiles/tools:/global/software/sl-7.x86_64/modfiles/apps
 		# MODULEPATH manual fix was needed in exalearn cuz still need to configure system-wide source of that  script...
-		echo "noop" > /dev/null
-		module load git 
-		module load vim/7.4
+		#:echo "noop" > /dev/null
+		#:module load git 
+		#:module load vim/7.4
 
 		# python dir is empty at /global/software/sl-7.x86_64/modules/python/3.6
-		if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
-			module load python/3.6	# needed by bofhbot
-		fi
+		#:if [[ -f /global/software/sl-7.x86_64/modfiles/python/3.6 ]] ; then
+			#:module load python/3.6	# needed by bofhbot
+		#:fi
 
 		## https://sites.google.com/a/lbl.gov/high-performance-computing-services-group/getting-started/sl6-module-farm-guide
 		## export MODULEPATH=$MODULEPATH:/location/to/my/modulefiles
@@ -307,7 +337,7 @@ add_hpcs_module () {
 		#module load ml/superlearner/current-r-3.4.2
 		#export R_LIBS_USER='/global/scratch/tin/R_pkg/'
 
-	fi
+	#:fi
 
 	#--export SIF=/global/home/users/tin-bofh/singularity-repo/perf_tools_latest.sif # see CF_BK/sw/sa_tool.rst
 	export SIF=/global/home/groups/scs/tin/singularity-repo/perf_tools_latest.sif  # brc 2021.09
@@ -319,23 +349,23 @@ add_hpcs_module () {
 #### pulled from add_hpcs_module, may need to have that loaded before loading this.
 add_hpl_staging_module () {
 
-	    	if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
+	    	#:if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
 			#module load intel openmpi mkl
 			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300sav2 1080ti staging test
-			module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3 # ~1600 GFlop/s
+			#:module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel # lr6/savio3 # ~1600 GFlop/s
 			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
 			### below path for Intel Parallel Studio XE Legacy is *might* affect hpl perf, best avoid (or maybe then dont use icc2018)  
 			### turned out to be ok after all, but don't remember why i needed it, so commenting out to avoid problem
 			### problem was really MKL_DEBUG_CPU_TYPE=5 and possibly OMP_NUM_THREADS=4
-			export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
+			#:export PATH=/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/mpi/intel64/bin/legacy:${PATH}
 			#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/software/sl-7.x86_64/modules/langs/intel/parallel_studio_xe_2019_update1_cluster_edition/compilers_and_libraries_2019.4.243/linux/compiler/lib/intel64_lin
 			#//module load  hdf5/1.8.20-intel-p netcdf/4.6.1-intel-p 
 			#//brc has different version number for hdf5... not needed there... 
 
 		    #module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # 2016 is still module's default for now (works for knl)
 			#module load intel/2018.1.163 mkl openmpi
-			export PATH=~tin/HPCS_toolkit/benchmark/staging_sl7:${PATH} # mpi_nxnlatbw
- 	    	fi
+			#:export PATH=~tin/HPCS_toolkit/benchmark/staging_sl7:${PATH} # mpi_nxnlatbw
+ 	    	#:fi
 
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpl_staging_module"
 } # end add_hpl_staging_module 
@@ -346,8 +376,8 @@ add_hpl_staging_module () {
 ## but module load  intel/2018.1.163 mkl/2018.1.163 openmpi/2.0.2-intel 
 ## is the one that works well for past couple of years. -2021.05
 add_alt_hpl_staging_module () {
-			echo "not currently implemented L299"
-			echo "a compact simple .bashrc maybe best for consistent benchmark"
+			echo "not currently implemented L299"  >&2
+			echo "a compact simple .bashrc maybe best for consistent benchmark"  >&2
 			#++ 2020.11: module load   intel/2019.4.0.par # trying for cm2/amd, should have intelmpi and mkl in it
 
 } # end add_alt_hpl_staging_module 
@@ -386,29 +416,6 @@ add_hpcs_bin () {
 	AddtoString PATH /global/scratch/tin/singularity-repo  # cvs via container
 } # end add_hpcs_bin 
 
-add_cosmic_module () {
-	## cluster specific stuff
-	if [[ -d /global/groups/cosmic ]]; then
-		# hope /global/groups/cosmic is only avail on cosmic.  if not, need something else...
-
-		# troubleshooting David Shapiro's problem
-		##module unload python
-		module load gcc/4.4.7
-		module load atlas/3.10.1-gcc
-		module load fftw/3.3.3-gcc
-		module load hdf5
-		module load openmpi/1.8.4-gcc
-		module load cuda
-		module load gsl
-		module load zeromq
-		module load cmake
-		module load boost
-		module load sharp
-
-		alias mpi='mpirun --hostfile /global/groups/cosmic/host_file'
-		COMMON_ENV_TRACE="$COMMON_ENV_TRACE cosmic_loaded"
-	fi
-} # end add_cosmic_module 
 
 ################################################################################
 ### define alias
@@ -447,11 +454,16 @@ defineAlias () {
 	# overwrite default behaviour, keep command name
 	#alias ssh='ssh -o StrictHostKeyChecking=no' # already done by some default cluster cf
 	alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
-	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
 	alias lrc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151" # login node 1
+	alias xfr1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no lrc-xfer.lbl.gov" # globus dtn scp
+	alias viz1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no lrc-viz.lbl.gov"  # realvnc
 	alias asbl="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scg-ansible"
 	alias scm="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"
+	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
+	alias dtn="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no dtn.brc.berkeley.edu" # globus xfer scp
 	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
+	alias sshfs_brc="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs"
+	alias sshfs_bofh="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@bofh.lbl.gov:/  ~/mnt/bofh"
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
 	alias aux="ps auxf"	# f for ascii forest
@@ -463,7 +475,8 @@ defineAlias () {
 	alias vncsvr16='vncserver -geometry 1540x760 -depth 24'    #  1600x900  m42
 	alias vncsvr19='vncserver -geometry 1810x1010 -depth 24'   #  1920x1080 display mca
 	alias vncsvr24='vncserver -geometry 2400x1420 -depth 24'   # actual 2560x1600
-	alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
+	#alias vncsvr4k='vncserver -geometry 3700x2040 -depth 24'   # 4k res 3840x2160
+	alias vncsvr4k='vncserver-virtual -geometry 3810x2064 -depth 24'   # 4k res 3840x2160, works well in win11
 	alias vncsvrTl='vncserver -geometry  900x1060 -depth 24'   # tall and narrowish window for single browser window
 	#alias rdp1='rdesktop -N -a 16 -g 1840x1000'
 
@@ -601,10 +614,13 @@ umask 0002      # i do want file default group writable
 #// export cacheDir=/tmp  # keep it undefined if no need to redirecto to scratch in non quota controller env
 [[ -d /global/scratch/tin/cacheDir       ]] && export cacheDir=/global/scratch/users/cacheDir
 [[ -d /global/scratch/users/tin/cacheDir ]] && export cacheDir=/global/scratch/users/tin/cacheDir
+#?? testing for scratch hangs login when scratch not avail :-\   not, at least not when scratch is outright not avail, maybe only when scratch is hanging?
 [[ -d /local/users/tin/cacheDir ]]          && export cacheDir=/local/users/tin/cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_CACHEDIR=$cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_TMPDIR=$cacheDir
 [[ -d $cacheDir ]] && export SINGULARITY_WORKDIR=$cacheDir
+[[ -d $cacheDir ]] && export APPTAINER_TMPDIR=$cacheDir     # else apptainer will make noise now
+[[ -d $cacheDir ]] && export APPTAINER_WORKDIR=$cacheDir
 
 
 # the following will not save .bash_history when exit bash, so no xfer b/w sessions
@@ -628,6 +644,9 @@ add_brc_module # CGRL/vector SMF
 
 ## MAQUINA=$(hostname)  ## now done at top
 
+if [[ x${MAQUINA} =~ x"wombat" || x${MAQUINA} == x"weasle" || x${MAQUINA} == x"LL486" ]]; then
+	alias reloj='xclock -digital -brief' 
+fi
 
 if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
@@ -636,7 +655,7 @@ if [[ x${MAQUINA} == x"zink" ]]; then
 	#export DOCKER_HOST=unix:///run/user/43143/docker.sock
 	alias zoom='echo zoom messes up audio and/or video on zink'
 	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
-	alias reloj='xclock -digital' 
+	alias reloj='xclock -digital -brief' 
 fi
 
 if [[ x${MAQUINA} == x"c7" ]]; then
@@ -682,7 +701,6 @@ elif [[ -f ~/.FLAG_hpl_staging_test_yes ]]; then
 	add_hpl_staging_module
 fi 
 add_personal_module 
-add_cosmic_module 
 
 
 # these should not be needed unless in interactive shell
@@ -782,30 +800,78 @@ condaSetup4sn () {
 	##echo "done condaSetup4sn"
 }
 
+################################################################################
 
 if [[ x${MAQUINA} == x"bofh" ]]; then
 	if [[ $- == *i* ]]; then
-		echo "strange problem on bofh, disabled conda setup for now"
+		#echo "strange problem on bofh, disabled conda setup for now"
+		: # no-op
 	fi
 	#condaSetup4sn  # strange problem on bofh, disabled for now
 fi
 
+################################################################################
+################################################################################
 
 export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
-HISTCONTROL=ignorespace 
-
-################################################################################
-# vim modeline, also see alias `vit`
-# vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
 
 
+module purge
+module load osu_benchmark/5.3
+# enable these for ucx statck (by Wei ~2023.07)
 #module purge
-#module load osu_benchmark/5.3
+##module load osu_benchmark/5.3
+#module load  gcc/11.3.0   openmpi/5.0.0-ucx   osu_benchmark/5.3
+
+# cf1 64core hpl... did not work in amd epyc
+#module purge
+#module load intel/2016.4.072 openmpi/2.0.2-intel mkl/2016.4.072  ##
+#export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_phi_7210/:$PATH       # intel 2016 compiler stack
+
+
+
+
+####
+#### host and/or situation specific setup should go to block higher up
+#### here for some last minute, temp stuff
+####
+
+# should really test for cluster, but not easy... 
+# if [[ ${MAQUINA} != bofh ]]; then
+#:if [[ -f  /global/software/sl-7.x86_64/modfiles/tools/osu_benchmark/5.3 ]]; then 
+#:	module purge
+#:	module load osu_benchmark/5.3
+#:fi
+
+if [[ -d /home/tin/tin-gh/abricate/bin ]]; then
+		export PATH=$PATH:/home/tin/tin-gh/abricate/bin/
+fi
+
+########################################
+
+
+# don't remember what this is for and where...
+if [[ -d /home/tin/perl5 ]]; then
 
 PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
-# >>>>>>> db940695820b27666ef8a375e31e45cc7b313e72
+fi
+
+
+
+# seems like this bracked paste feature is also adding space to end of line and incorrectly joining lines, 
+# which make pasting indented line a real PITA
+# so forcing a disable everywhere and see if it help.  (there was alias defined above, sanePaste)
+# force disable bracketed paste, most annoying in vim, which this still doesn't help.
+# alias sanePaste doesn't help either :-\
+printf "\e[?2004l"
+stty sane
+#reset
+
+################################################################################
+# vim modeline, also see alias `vit`
+# vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
