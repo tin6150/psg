@@ -633,7 +633,7 @@ if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
 	# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
 	export PATH=/home/tin/bin:$PATH
-	export DOCKER_HOST=unix:///run/user/43143/docker.sock
+	#export DOCKER_HOST=unix:///run/user/43143/docker.sock
 	alias zoom='echo zoom messes up audio and/or video on zink'
 	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
 	alias reloj='xclock -digital' 
@@ -800,15 +800,12 @@ HISTCONTROL=ignorespace
 # vim:  noexpandtab nosmarttab noautoindent nosmartindent tabstop=4 shiftwidth=4 paste formatoptions-=cro 
 
 
-<<<<<<< HEAD
-module purge
-module load osu_benchmark/5.3
-||||||| merged common ancestors
-=======
+#module purge
+#module load osu_benchmark/5.3
 
 PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
->>>>>>> db940695820b27666ef8a375e31e45cc7b313e72
+# >>>>>>> db940695820b27666ef8a375e31e45cc7b313e72
