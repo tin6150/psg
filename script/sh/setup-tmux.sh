@@ -97,7 +97,13 @@ tmux ls
 # cf  # CF_BK edits, another tab for psg?
 # 
 
-# oh place this in psg..   https://tin6150.github.io/psg/general_unix.html#tmux_screen
-# screen: ^A A
-# rename window
 
+# plan in 2024.0807.   
+# have many screen session, each single screen only, ssh to remote host eg asbl, then tmux inside.
+# so screen just to avoid typing password.
+# to switch, just detach and attach to new screen.
+#   maybe only use screen for things that I must hop 2x, like asbl,  but less for like brc,lrc1
+
+
+# renaming screen -ls result:   ^a :sessioname hw
+# screen: ^A A  # this rename specific tab
