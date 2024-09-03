@@ -569,6 +569,16 @@ wget http://apache/conf/yp.conf -O /etc/yp.conf
 # sed -i.bak -c "s/#Protocol 2,1/Protocol 2/" /etc/ssh/sshd_config
 
 
+## NFSv4 seems more friendly with firewall, streamlined the rpc port usage eg for file locking
+
+## test file lock
+
+flock -x ./local-lock-file echo 'cmd ran after obtaining file lock'
+echo $?
+# if lock doesn't work, the echo command should not run, exit code likely non zero
+
+
+
 </PRE>
 
 <H2>Updating OS</H2>
@@ -4244,6 +4254,14 @@ journalctl -no-pager -f -u postfix    	# see systemctl output for (service) unit
 					# -no-pager is to rid the annoying def of no word wrapping 
 					# -f is follow, like tail -f
 journalctl -xe ...
+
+
+systemd ExecStart vs ExecStartPre call to logger has different result for destination?  it is weird!
+logger -p kern.info   -- msg 		# only to syslog, eg /var/log/syslog
+logger -p local7.info -- msg 		# only to journalctl ?  
+
+
+shell script called by ExecStart ... logger -p local7.info   doesn't get to any place!  weird!  EL 8.8 days.
 
 
 </PRE>
