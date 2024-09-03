@@ -43,6 +43,16 @@
 </div>
 </div>
 
+<H1>Bioinformatic 101</H1>
+
+<LI><A HREF="https://biostar.myshopify.com/">Biostar Handbook</A> Cover getting started with Unix, scripting, many of the bioinformatics file format, what tools are available.
+
+<LI><A HREF="https://biostar.org">Stack Overflow for bioinformatics :)</A>
+
+<LI><A HREF="https://usegalaxy.org">Galaxy</A>Web based bioinformatics toolkit.  They also have a lot of tutorial on how to use many of the toolkit available, eg <A HREF="https://training.galaxyproject.org/topics/variant-analysis/tutorials/microbial-variants/tutorial.html">Snippy Tutorial In Galaxy</A>
+
+<LI><A HREF="https://jbrowse.org/jb2/docs/quickstart_desktop/">JBrowse</A> bioinfo file viewer used by Galaxy, avail as downloadable desktop app, 
+
 <H1>Bioinformatic Pipeline</H1>
 
 
@@ -71,7 +81,7 @@ App		IN			OUT		Note
 --------------	----------------	-------------	----------------------------------
 Abricate	.fasta			.tsv		resistance, virlenge gene match list as TAB-separated value files
 
-??							extract ST# E.coli Sequence Type
+mlst		.fasta			.tsv		extract ST# E.coli Sequence Type
 ezClermont	.fa			.txt		MLST: extract phylogroup A, B1, B2, C, D...
 
 
@@ -84,8 +94,8 @@ Phylogenetics analysis
 
 App		IN			OUT		Note
 --------------	----------------	-------------	----------------------------------
-Prokka		.fasta (contigs)	.gff		annotation of core genes (best when gff filenames are 9 chars long)
-Roary		.gff			core_gene.aln 	create aligned genome from contigs
+Prokka		.fasta (contigs)	.gff		annotation of core genes, assembled genome as .gff (best when gff filenames are 9 chars long)
+Roary		*.gff			core_gene.aln 	create multi-sequence alignment aligned genome from contigs
 Snp-sites	core_gene.aln		alignment.phy		
 Paup		alignment.phy		tree		alt: Mr.Bayes, RAxML, Mascot
 
@@ -101,7 +111,7 @@ App		IN			OUT		Note
 blastn		.fasta			txt		text, table of gene match.... 
 clustal omega
 muscle
-
+cd-hit-est-2d	2 fasta			.txt.clstr	
 
 
 
@@ -151,7 +161,16 @@ parallel -j 8 -a task.lst  unicycler -1 {}_1.fq.gz -2 {}_2.fq.gz -o ./assembled-
 # use -s instead of -1 -2 combo for unpaired fq.gz 
 # there is a -l for long read... RTFM https://github.com/rrwick/Unicycler#installation
 
+# unicycler may fail to generate fasta file.  eg ecuador23 shrimp data
+# it is not obvious, there is some crash data in maybe the slurm std err... don't remember.
+# but one way to double check it generated fasta file is, well, count *fasta/assembly.fasta and see it is not size 0.
+# also,
+# egrep "Saving.*fasta$" *fasta/unicycler.log | wc
+# ie, look for the the last line in unicycler log that says eg
+# Saving /global/scratch/users/tin/fc_graham/ecuador_2023_.../ALL/assembled-sequences_par3/Z_CKDN230030153-1A_HGKHYDSX7_L2.fasta/assembly.fasta
+
 </PRE>
+
 <LI> Price - Fast De novo assembly - UCSF Peter Skewes-Cox 
 <LI> ablab/spades: SPAdes Genome Assembler (github.com, maybe old)
 <LI> 
@@ -474,7 +493,7 @@ abricate --summary *_${AbricateDB}.txt  > ${AbricateDB}_summary.csv
 <LI> mlsplasmids (web)  eg find whether bla_CTX-M gene is plasmid-borne or chromosome bound.
 <LI> MOB-suite - annotate contig as chromosomal vs plasmid
 <LI> Abricate VR - find resistance genes
-<LI> MLST - Multi-Locus sequence typing (for bacteria)
+<LI> MLST - Multi-Locus sequence typing (ST for bacteria)
 	<BR>
 	Default output columns are Filename        PubMLST_scheme_name     SeqType Allele_IDs
 	<BR>
@@ -517,6 +536,72 @@ prokka --outdir PROKKA  --prefix genome_rabbit_R21 --centre _pilon --compliant -
 ##         txt, tsv = table of annotated genes
 </PRE>
 
+<LI> 
+<A HREF="https://sites.google.com/view/cd-hit">cd-hit</A>, 
+<A HREF="https://github.com/weizhongli/cdhit/wiki">wiki doc</A>
+<BR>
+<BR>
+cd-hit finds duplicate protein, or duplicate entries between 2 database.  I used it to find if sequnces of two isolate is actually the same, ie from same source bbacteria.
+
+<PRE>
+export MAX_SEQ=10000000  # build to support larger sequence length, 10M 
+make clean
+make
+
+
+ulimit -s unlimited
+/opt/cd-hit/cd-hit-MAX_SEQ-10M/cd-hit-est-2d -M 15000 -T 0 \
+-i  A62_CKDN220053932-1A_HK7Y3DSX5_L1.fasta   \
+-i2 A63_CKDN220053933-1A_HK77NDSX5_L2.fasta   \
+-o A62_A63_cd-hit-est-2d.TXT
+
+similarity scoring result in the .TXT.clstr file
+ 
+# arguments and defaults:
+-c 0.9  #  seq identity threshold
+-n 10   # word length
+-T 1    # num of threads, 0 = use all cpu
+-M 800  # ram, in MB.
+</PRE>
+
+Reading the .clstr output
+<BR>
+<A HREF="https://www.biostars.org/p/9491956/">biostars post on reading the .clstr output</A>
+<BR>
+<PRE>
+>Cluster 0                                     # cd-hit create 1 cluster per > entry in fasta from -i
+0       686065nt, >1... *     
+1       685859nt, >1... at -/100.00%           # - is match from reverse strand
+
+
+>Cluster 3
+0       403385nt, >4... *
+>Cluster 4                                     # these are cluster without matches (eg isolate A33 vs A34 in my data)
+0       321741nt, >5... *
+
+
+>Cluster 15
+0       59656nt, >16... *
+1       4688nt, >39... at -/96.37%
+2       4687nt, >40... at -/95.71%
+3       1746nt, >58... at -/99.03%
+4       1745nt, >59... at +/99.03%
+^       ^       └── the >id from inside the fasta file (often just contig chunk number)
+│       └──  representative seq (here just specify nucleotide seq length)
+└── col 1 = match num
+
+
+# easier eyeball for non match (ie seq that aren't duplicate)
+cat A62_A63_cd-hit-est-2d.TXT.clstr | egrep '^>|^1' 
+
+</PRE>
+
+<--
+└──  ext ascii box drawing character 
+https://theasciicode.com.ar/extended-ascii-code/box-drawing-character-single-line-lower-left-corner-ascii-code-192.html
+-->
+
+<BR>
 
 <LI> blast, blastn, blastp
 <LI> 
@@ -566,7 +651,9 @@ squizz -A core_gene_alignment_ggqrs9.nex   # check/validate named file
 
 <LI> SamTools 
 <LI> SantaCruz genomic browser
-<LI> BROAD ...
+<LI> BROAD GATK
+<LI> <A HREF="https://usegalaxy.org/?tool_id=toolshed.g2.bx.psu.edu%2Frepos%2Fiuc%2Fsnippy%2Fsnippy%2F4.6.0%2Bgalaxy0&version=latest">Galaxy</A> Web browser based bioinformatics toolkit 
+<LI> InGenius? EnGenius?
 <LI> ParallelStructure (R)
 <LI> Migrate-N (C)
 <LI> ModelTest-NG

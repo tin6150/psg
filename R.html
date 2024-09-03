@@ -35,16 +35,18 @@
       <td align="center"><a accesskey="R" href="Rnote.html">Rnote</a>	</td>
       <td align="center"><a accesskey="y" href="python.html">python</a>	</td>
       <td align="center"><a accesskey="p" href="perl.html">Perl</a>	</td>
-      <td align="center"><a accesskey="s" href="sci-file.html">Sci-File</a>     </td>
-      <td align="center"><a accesskey="s" href="sci-app.html">Sci-App</a>       </td>
+      <td align="center"><a accesskey="a" href="shellScript.txt">shellScript</a></td>
+      <td align="center"><a accesskey="f" href="sci-file.html">Sci-File</a>     </td>
+      <td align="center"><a accesskey="a" href="sci-app.html">Sci-App</a>       </td>
+      <td align="center"><a accesskey="b" href="bigdata.html">BigData</a>       </td>
 
+<!--
       <td align="center"><a accesskey="d" href="k8s.html">Kubernetes</a>                </td>
       <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>       </td>  <!--TBA-->
-      <td align="center"><a accesskey="r" href="coreos.html">CoreOS</a> </td>
       <td align="center"><a accesskey="w" href="aws.html">AWS</a>       </td>
-      <td align="center"><a accesskey="b" href="bigdata.html">BigData</a>       </td>
-      <td align="center"><a accesskey="v" href="vagrant.html">Vagrant</a>       </td>
-      <td align="right"> <a accesskey="a" href="shellScript.txt">shellScript</a></td>
+-->
+
+      <td align="right"> <a accesskey="" href="https://github.com/tin6150/publication?tab=readme-ov-file">Publications</a></td>
     </tr>
   </tbody>
 </table>
@@ -86,7 +88,8 @@ Example of plots can be seen in this
 .  
 
 For GIS based spatial analytics,
-my <A HREF="https://tin6150.github.io/covid19_care_capacity_map/Rgis.html">R GIS</A> has some example code from my couple of GIS analysis class.  
+my <A HREF="https://tin6150.github.io/covid19_care_capacity_map/Rgis.html">R GIS</A> has some example code from my couple of GIS analysis class, whereas 
+<A HREF="https://tin6150.github.io/publication/doc/From_CSV_to_Web_GIS-LabTech2020.pdf">this slide deck</A> has a presentation on converting CSV file with geolocation data into interactive heat map using Mapbox.  One can generate web interactive map with next to no programming.
 
 <!-- not R
 the <A HREF="https://github.com/tin6150/covid19_care_capacity_map">COVID-19 care capacity map</A> has daily updated stat (till 2021) that is updated for display on an interactive map.
@@ -117,7 +120,13 @@ is by Neale Batra et al. and is also available on the web for free.
 </UL>
 
 
-Finally, as you do more work in R, like all coding work, having a source control system like <A HREF="https://www.github.com">GitHub</A> is recommended.  My cheat-sheet for github is <A HREF="git.html">here</A>
+Also, as you do more work in R, like all coding work, having a source control system like <A HREF="https://www.github.com">GitHub</A> is recommended.  My cheat-sheet for github is <A HREF="git.html">here</A>
+<BR><BR>
+
+I am dabbling into bioinformatics (again:D), and have some quick notes in 
+<A HREF="sci-app.html">sci-app</A>(bioinfo apps) and 
+<A HREF="sci-file.html">sci-file#bioinfo</A> (bioinfo related file formats).
+
 
 <BR><BR>
 
@@ -405,6 +414,14 @@ df_step2 = df %>%
   mutate( orientation = na_if( orientation, -999 ))         %>%
   mutate( orientation = na_if( orientation, -1   ))               # this chaining step works.
 
+
+
+df2 = df %>% select( 1:10 ) %>% mutate( newColName = str_match( .[[10]] , "([:digit:]+\\.*[:digit:]*)")[,1] ) 
+# select( 1:10 ) pick column index position 1 thru 10
+# .[[10]] is for column number 10.  column name would work, but otherwise the first arg for str_match() is a string instead of a column identifier
+
+# ie .[[x]] pick column index number x (tibble thing?)  
+
 </PRE>
 
 <UL>
@@ -431,6 +448,17 @@ X %>% sample(10)
 The ... maybe a tidyverse pipe operator thing?
 no...
 X get applied as "dist"? which us rnorm()
+
+</PRE>
+
+
+
+<H5>. dot</H5>
+
+<PRE>
+# single dot . as stand-in, place holder for variable, column (vector) ... tidyverse thing?
+# also used at time in select(.,  MY_COL_NAMES )   # ref guat_amr_analy.Rmd
+count( abricate_joined_sum_df %>% select( matches( "fyuA:" ) ) %>% filter( . >=1 ) )  # dot . is the var to stand in the column selected.  what if there are multiple columns?
 
 </PRE>
 
@@ -677,6 +705,9 @@ IF-statement can't handle list...
 # need a vector ready if_else
 # and dont use a RETURN clause with if_else!   ***
 # Avoid R-base ifelse(), it is less strict and may compute incorrect/unexpected result. 
+# xref: df_Taiwan in (it points to Sn50_note branch)
+# https://github.com/tin6150/PHW251_Fall2022/blob/Sn50_note/problem%20sets/problem%20set%20bonus/problem_set_bonus_beforeCleanUp_lotsOfDetailsOfSubtleVectorization.Rmd
+
 
 </PRE>
 
@@ -2030,9 +2061,9 @@ testing %>% filter( county %in% c("Ala","CCosta"), total_tests>500 )    # filter
 unique_counties = unique( stds[["County"]]) 
 
 
-#subset columns based on column name or number
+#subset columns based on column name or number index
 testing[,c("total_tests","pos_tests")]
-testing[,c(2,3)]
+testing[,c(2,3)]	# pick only column numbers 2 thru 3
 
 #subset rows and columns
 testing[c(1,2),c("total_tests","pos_tests")]
@@ -2041,6 +2072,7 @@ testing[c(1,2),c("total_tests","pos_tests")]
 #Reassign a value of a cell
 testing[2,1] = "Yolo"         # row 2, column 1   ## maybe counter-intuitive, but first number is on thd col vector.
 # alt syntax should be testing[[1]][[2]]   # ie [[col_index]][[row_index]] cuz df is list of COL vect
+
 
 
 #Reassign column values
@@ -2246,14 +2278,19 @@ select() is like awk picking up desired columns only, ie working with select var
 
 select(df, county)			# df["county"]
 select(df, c(county,cases) )		# df[ c("county","cases") ]
+select(df, 2 )				# select column number 2 only      # xref: select column by index position
+select(df, c(2,5) )			# select column number 2 and 5 	   # xref: idx pos
+select(df,   2:5  )			# select column number 2 thru 5
 
 id_sub =  select( tbl,Disease:Population )	# take col from Disease to Population ## : is range operator!
 
 new_tbl = select( tbl, !Rate )		# both ! and - prefix remove column
 new_tbl = select( tbl, -Rate )		# df[ -c("Rate") ]
 
-id_sub =  select(tbl,-contains("CI"))	# remove column with string CI in it
-id_sub =  select(tbl,!ends_with("CI")) 	# remove column name end with CI
+id_sub = select(tbl,-contains("CI"))	# remove column with string CI in it
+id_sub = select(tbl,!ends_with("CI")) 	# remove column name end with CI
+
+id_sub = select(tbl,matches("pap|kps"))	# select column name Regular Expression match (pap or kps)
 
 </PRE>
 
@@ -2443,6 +2480,38 @@ write.csv(), write.xlsx()
 
 </PRE>
 
+
+<H5>data cleaning</H5>
+
+<PRE>
+
+Abricate produce a tsv of numbers, 
+but some numbers are convoluted, eg 98.75;99.00 
+to get just the first number before the ; and ignore the rest (check the data that it is okay to do this first!)
+did:
+
+getFirstNum = function( charStr ) {
+  firstStr = str_match(  charStr , "([:digit:]+\\.*[:digit:]*)")[,1]
+  if_else( 
+    as.numeric(  firstStr ) >= 80 , 1, 0, missing=0 
+  )
+}
+amnt_sum_df_Sn = amnt_sum_df %>% mutate( across( 3:50, getFirstNum ))   
+
+see also:
+pick()
+across() 
+they replaced the mutate_if()
+
+example from R doc:
+iris %>%
+  mutate(across(where(is.double) & !c(Petal.Length, Petal.Width), round))
+
+unfortunately, can only call fn (round), but not pass parameter with the fn, ie can't use round(1).
+
+xref: git log  a3ed902 of  https://github.com/tin6150/guatemala_amr/blob/a3ed902a4e5f15284058f49446c679672fc66ef1/guat_amr_analy.Rmd
+
+</PRE>
 
 
 <H3>reprex - reproducible example</H3>

@@ -160,7 +160,7 @@ Can change all these, system will work, just make sure save them in a safe place
 <PRE>
 vcli
 manager list
-manager modify --id 2 --password   NewPassOnCli		# will not prompt for password, must enter in cli as clear text
+manager modify --id 2 --prompt-password   # this will prompt for password so that it no longer show as clear text
 
 # --id 2 # admin - used for login thru the web gui or vcli
 # --id 4 # S3_keys_manager, used internally by VAST
@@ -239,6 +239,11 @@ clush -g cnodes 'ls -l /vast/data/DONT_RUN_LEADER'   # verify all flag files cre
 
 vtool suicide
 find-leader	# should not find
+
+
+clush -a hostname
+
+clush -g cnodes 'sudo /usr/sbin/shutdown -h +2' ; clush -g dnodes 'sudo /usr/sbin/shutdown -h +5'
 
 
 

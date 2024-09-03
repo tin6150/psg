@@ -112,6 +112,9 @@ find . -user root  -exec chown weblogic:weblogic {} \;
 find . -ctime +30 -exec mv -t OLD_LOG {} \;	# move files (eg logs) more than 30 days (creation time) old to a target dir named OLD_LOG   
 						# (-t in mv puts destination dir first, then take args for files to be moved)
 
+
+find . -maxdepth 1 -type d -ctime +15 -exec RM -rf {} \;  # use with care, esp if RM is really rm!  recursively delete for DIR w/ date OLDER than 15 days.  depth 1 means find from current dir, w/o descending.  the -r in rm would remove the whole tree.
+
 find . -perm -o+w -exec ls -l {} \;
 	long listing of all files whose permission is world writable
 
@@ -322,7 +325,17 @@ systemctl status tftp # should report active/running for rhel7,8
     rhel7 cf: /etc/xinetd.d/tftp  server_args clause
     rhel8 cf: /usr/lib/systemd/system/tftp.service  or /etc/systemd/system/tftp-server.service
 
-tftp 10.15.4.30 69 -c  get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+tftp 10.22.4.2 69 -c  get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+
+
+zorin 12 (bin seems compatible with centos 7, ie same libc), it must take input from prompt after it starts.
+tftp 
+get 10.22.4.2:warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+--or--
+tftp 10.22.4.2 69
+get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe
+--or--
+echo "get warewulf/ipxe/bin-i386-pcbios/undionly.kpxe" | tftp   10.22.4.2 692 69
 
 
 should download file, relative to server's docroot , eg /var/lib/tftproot
@@ -426,6 +439,8 @@ example content of /srv/warewulf/ipxe/cfg/b0:7b:25:ba:4f:7e
 /WW maps to /srv/warewaulf 
 
 
+<!-- below, and much of above, probably move to wwulf.html in a troubleshooting section ++TODO++ -->
+
 <PRE>
 
 #!ipxe
@@ -514,6 +529,62 @@ module load gnu-parallel/2019.03.22
 
 <H1>text windows manager :)</H1>
 
+<A name="tmux_vs_screen"></A>
+<A name="tmux_screen"></A>
+<H5>tmux vs screen</H5>
+
+<A HREF="http://hyperpolyglot.org/multiplexers">screen & tmux side-by-side</A> <BR>
+C-x = Control-x  <BR> 
+M-x = Meta-x, typically Alt-x <BR>
+
+<BR>
+here is how I think about them and command I need to use the most:
+<BR>
+<BR>
+
+concept names are unlikely what tmux or screen call them, but that's how my brain works.
+<LI>instance:   command to start a new process that show up in ps, most basic first step to start
+<LI>window:     things that all show up at same time, what multiple GUI window would look like
+<LI>tab:        think spreadhseet tabs/pages.  when too many, pick from a (dropdown) list.
+
+<PRE>
+
+
+task:				tmux 				screen
+
+instance, list			tmux ls				screen -ls
+instance, attach/resume		tmux a -dt foo			screen -rd foo
+instnace, detach		^b d				^a d
+instance, rename		^b $				^a :sessionname bar
+
+partial name match work, eg can use "fo" instead of spelling out "foo"
+
+instance new (show in ps)	tmux new -s foo 		screen -S foo
+intance rename 			^b $				^a 
+
+new  tab			^b c				^a c
+list tab			^b w				^a "
+next tab			^b n				^a n		# same
+prev tab			^b p				^a p		# same
+rename tab		 	^b ,  [rename window]		^a A
+
+window, split top/down  	^b "				^a S
+window, split side-by-side	^b %				^a ?
+window, close			^d (ie exit the shell)		?
+
+window, swtich			^b [arrow]
+window, rename
+
+
+split in tmux is inside the tab ie tab holds windows
+split in screen is persistent,  ie window is the parent of the tab
+
+
+maybe tricky to constantly remember them... which was why had nested tmux before...
+try to do fewer things with screen...
+
+<PRE>
+
 <A name="screen"></A>
 <H5>screen</H5>
 
@@ -581,10 +652,6 @@ screen /dev/ttyUSB0 115200 # like tip/minicom connection to serial device
 
 <A name="tmux"></A>
 
-<A HREF="http://hyperpolyglot.org/multiplexers">screen & tmux side-by-side</A> <BR>
-C-x = Control-x  <BR> 
-M-x = Meta-x, typically Alt-x <BR>
-
 <H5>tmux</H5>
 
 tmux use ctrl-b instead of ctrl-a that screen use, less keymap conflict
@@ -625,9 +692,9 @@ Key bindings that need to memorized for effective use of tmux <BR>
 ^b n	# next window		???	# jump to next session?
 ^b l	# last active window
 
-^b " 	# top-bottom pane	^b %  	# side/side pane
-^b ^o	# rotate pane		^b alt-o # rotate pane backward
-^b q 0	# jump to pane 0
+^b " 	# top-bottom pane	^b %  	 # side/side pane
+^b ^o	# rotate panes	 	^b alt-o # rotate panes backward/counter-clockwise
+^b q 0	# jump to pane 0  # pane numbers start with 0
 ^b ;	# jump back to prev pane
 ^b SP   # cycle pane arrangement (alt-5 is good for quad)
 ^b z    # zoom/unzoom current pane
@@ -658,6 +725,7 @@ ctrl-b, s		# list sessions [ tmux process instances ]
 ctrl-b, w		= list windows  [ those within the session ]
 ctrl-b, $		# rename sessions (instance) (name shows up in tmux -ls)
 ctrl-b, ,		= rename window   (tabs)     (name appears in bottom green status bar)
+        ^=comma         #    cd/pushd on some version change window/tab name
 
 
 
@@ -967,7 +1035,9 @@ edit-rcs vi {filename} = edit assignment files of past employees, must be in the
 #/disk/73/agonza24/envi_3.0/bin/envi  for new version of envi on sdb1
 envi run as aliased command now
 
-/usr/local/bin/pine
+/usr/local/bin/pine	# alpine, nano, 
+
+joe		wordstar keybind text editor
 
 gimp        image editor in Linux, avail for solaris
 sdtimage	image viewer in solaris CDE default setup, in /usr/dt/bin
@@ -975,6 +1045,8 @@ sdtimage	image viewer in solaris CDE default setup, in /usr/dt/bin
 last        see who last logged on to the sys (a long log)
 acroread    launch acrobat reader for .pdf file
 xpsview     adobe ps viewer that comes with irix 6.5
+evince		# from KDE?
+qpdfview	# Qt based?
 ghostview   view .ps file
 gs          view .ps file, command mode
 ghost       my script to launch gs in alex linux box
@@ -1002,6 +1074,11 @@ fold -w80    wrap long line to max 80 column
 
 fmt -w{72}   wrap long line to less than 72, keeping word together
 frontier
+
+column -t myfile.tsv	# align tab separated columns into for viewing on console.  don't always have to pull out Rstudio :)
+
+merge, join		# unix cmd to merge 2 files like db merge.  
+vimdiff, meld		# diff tools
 
 
 mail user &lt; filename

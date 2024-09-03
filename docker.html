@@ -290,6 +290,33 @@ Under the hood</A>: <BR>
 
 <BR>
 
+<A NAME="102"></A>
+<H2><div class="azul">Cleaning up</div></H2>
+
+<PRE>
+
+
+docker image prune 
+docker image prune -a
+
+# if data is saved in the container, this would wipe it!
+
+# clear out container created before dec 31, 1:55pm 
+docker container prune --filter "until=2023-12-31T13:55:00"
+
+
+
+docker volume list | wc
+docker volume prune
+
+
+systemctl stop docker
+rm -rf /var/lib/docker
+# docker starting will recreate everything
+# but if data saved in local container, they would be gone!
+
+</PRE>
+
 
 
 <H3>Ecosystem, Competitor</H3>
@@ -330,6 +357,27 @@ Account IS needed to post image to the hub.  <BR>
 	<LI>RHEL6.5 with kernel 2.6.32+ supported early docker implementation, but not recommended nowadays.
 	<LI>EPEL provides docker-io.rpm in RHEL 6, but it wants kernel 3.8.0 and above, so point to use RHEL7 again. (note the docker.rpm is is unrelated, it is for a GUI applet thingy).
 </UL>
+
+
+<H3>Docker and Windows wsl</H3>
+
+At least for WSL Ubuntu 22.04 , docker (without docker desktop) works for basic functionality.
+But I noticed piping will cause docker to spin, drive up CPU, and never exit (as of 2024.04.17), hopefully bug that will get work out soon.
+<PRE>
+eg:
+sudo docker run -it --rm  --entrypoint=/bin/pip  ghcr.io/tin6150/python:main list                 # this works
+sudo docker run -it --rm  --entrypoint=/bin/pip  ghcr.io/tin6150/python:main list | grep geopanda # this spins
+</PRE>
+
+Not exactly dind (docker-in-docker), but pass thru, but this works even in wsl
+docker run -it --rm --entrypoint=/bin/sh  -v /var/run/docker.sock:/var/run/docker.sock   docker:latest
+
+<H3>Docker and MacOS with Banana Silicon</H3>
+
+Stack Overflow says to use:
+<PRE>
+softwareupdate --install-rosetta
+</PRE>
 
 
 <H3>Docker and CoreOS</H3>
@@ -456,6 +504,8 @@ docker ps			# list running docker process, container id, name, port mappings, et
 docker ps -l			# list last continer that was started
 docker ps -a			# list all containers, including stopped one
 docker logs  c7f46acc532b	# get console output of the specified container id
+podman logs -tail 100 c7f46acc532b
+podman logs -f --since 5m c7f46acc532b   # --follow=true, last 5 min of console output
 docker stop  c7f46acc532b	# stop the specified container id (container nickname can be used instead)
 docker start c7f46acc532b	# restart the specified container id (assuming image hasn't deleted)
 
@@ -1088,6 +1138,42 @@ head -1 ~/.ssh/token | docker login https://docker.pkg.github.com -u tin6150 --p
 docker tag IMAGE_ID docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION
 docker build     -t docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION PATH
 docker push         docker.pkg.github.com/OWNER/REPOSITORY/IMAGE_NAME:VERSION
+
+</PRE>
+
+<H1>Podman, Docker-compose</H1>
+
+
+Podman 3.0 and up said to work with docker-compose, 
+
+see: 
+<A HREF="https://www.redhat.com/sysadmin/podman-docker-compose">RH Enable Sysadmin Using Podman and Docker Compose</A>
+(article from 2021.0107)
+
+Caveats: <BR>
+
+One known caveat is that Podman has not and will not implement the Swarm function. Therefore, if your Docker Compose instance uses Swarm, it will not work with Podman.
+
+<PRE>
+# trying on greyhound 
+
+
+Other than Podman and its dependencies, be sure the podman-docker and docker-compose packages are installed.
+(In addition to... )
+
+sudo systemctl start podman.socket
+
+test the socket:
+sudo curl -H "Content-Type: application/json" --unix-socket /var/run/docker.sock http://localhost/_ping
+
+# these should work with podman
+sudo docker-compose up
+
+sudo podman ps
+sudo podman network ls
+sudo podman volume ls
+
+
 
 </PRE>
 

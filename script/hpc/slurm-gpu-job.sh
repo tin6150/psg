@@ -2,7 +2,7 @@
 
 # -l in bash is SOMETIME important for login shell and getting the TF job to start
 
-#### this script run GPU jobs using 4 GPU at a time.
+#### this script run GPU jobs using 4 or 8 GPU at a time.
 #### it runs a TF CNN benchmark, but run on large batches (instead of epoch?)
 #### mostly to stress test/power load test a machine
 #### (it is a adaptation from  ~wfeinstein/test-gpu/test.sh)
@@ -36,7 +36,10 @@
 #	#SBATCH			--partition=cf1
 
 #### gpu gres request
-#SBATCH        		--partition=savio2_gpu
+#SBATCH        		--partition=savio4_gpu
+#SBATCH         	--gres=gpu:8				# this works for savio4_gpu when it was homegeneous A5000
+#	#SBATCH         	--gres=gpu:A5000:8
+#	#SBATCH      	--partition=savio2_gpu
 #   #SBATCH         --gres=gpu:2
 
 ## #SBATCH --constrain=savio2_1080ti   # feature in slurm.conf
@@ -113,13 +116,17 @@ PRECISION=fp32
 MODEL=inception3
 BATCH_SIZE=32 # --num_batches param, this  should take about 8 hours
 
-NUM_BATCHES=2500 # quick sanity test
+#NUM_BATCHES=250 # 1080ti n0299.sav2 ML@B, ~3 min to run
+NUM_BATCHES=2500 # 1080ti n0299.sav2 ML@B, ~14 min to run
+#kNUM_BATCHES=2500 # quick sanity test, still took 61m on 8x A5000 n0120.sav4
+#NUM_BATCHES=25000 # n0120 error out ~41min : InternalError (see above for traceback): Blas GEMM launch failed : a.shape=(32, 2048), b.shape=(32, 1001), m=2048, n=1001, k=32
 #NUM_BATCHES=250000 # for V100 or colefax, need to change.  # real    951m51.584s # user    6718m43.128s # sys     525m50.911s
 #NUM_BATCHES=2500001 # for V100 or colefax, need to change.
 #NUM_GPU=4							
 #NUM_GPU=2							
 #NUM_GPU=7 #8
 NUM_GPU=8
+#NUM_GPU=4
 
 echo "---about to start tf cnn benchmark  --------------------"
 
@@ -162,6 +169,11 @@ exit 0
 
 
 #### example submission
+#### sbatch                 --partition=savio4_gpu --exclusive=user --ntasks=4  -A scs --time=05:40:59 --mail-type=NONE --job-name=savio4_gpu_Test -o /global/scratch/users/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh
+#### sbatch                 --partition=savio4_gpu --exclusive=user --ntasks=16 --gres=gpu:A5000:8 -A scs --time=05:40:59 --mail-type=NONE --job-name=savio4_gpu_Test -o /global/scratch/users/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh
+#### sbatch -w n0141.savio4 --partition=savio4_gpu --exclusive=user --ntasks=8 -A scs --time=05:40:59 --mail-type=NONE --job-name=savio4_gpu_Test -o /global/scratch/users/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh
+####
+#### old path/script >>
 #### sbatch -w n0144.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:4 --time=05:40:59 --mail-type=NONE --job-name=n0144.savio3_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 
 #### sbatch -w n0145.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:8 --time=9-00:58:59 --mail-type=NONE --job-name=145savSlurmGpuTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh

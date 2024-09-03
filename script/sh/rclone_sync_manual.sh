@@ -8,7 +8,7 @@ module load rclone/1.58.1
 
 ##rclone lsd dchiang50gdrv:    # this ran out of space quickly
 ##rclone lsd tinberk:          # this was not authorized for dtn.brc, then also failed on bofh... *sigh* need to check...
-
+## shared family plan from t6 with dchiang50 to get more space, but more as needed, at least for now.
 
 
 ## rclone lsd dchiang50gdrv:/RCLONE_BK_via_SYNC
@@ -17,15 +17,15 @@ module load rclone/1.58.1
 
 
 ## ++CHANGE_ME++
+#LOCAL_BACKUP="/global/scratch/users/tin/fc_graham/PRISA/Assemblies"
 LOCAL_BACKUP_LIST="/global/scratch/users/tin/fc_graham/PRISA/Assemblies/animal"
 LOCAL_BACKUP_LIST="$LOCAL_BACKUP_LIST /global/scratch/users/tin/fc_graham/PRISA/Assemblies/anim66"
-#LOCAL_BACKUP="/global/scratch/users/tin/fc_graham/PRISA/Assemblies"
+LOCAL_BACKUP_LIST="$LOCAL_BACKUP_LIST /global/scratch/users/tin/fc_graham/PRISA/Assemblies/ggqrs9"
 
  
 RCLONE="rclone"
 REMOTE_NAME="dchiang50gdrv"
 ROOT_FOLDER="/RCLONE_BK_via_SYNC"
-#ROOT_FOLDER="rclone-crypt" # config file have this path embeded in it already
 
 LOGFILE="/global/scratch/users/tin/LOG/rclone_sync_manual.log"
 MAILTO="tin@berkeley.edu"
@@ -43,7 +43,8 @@ echo "====================  rclone_sync_manual - $CUR_DATE ============"
 	for LOCAL_BACKUP in $LOCAL_BACKUP_LIST; do
 		echo "-------- Processing $LOCAL_BACKUP at $(date) --------"
 		$RCLONE mkdir $REMOTE_NAME:$ROOT_FOLDER/$LOCAL_BACKUP ## > /dev/null 2>&1
-		$RCLONE --transfers=$TRANSFER_COUNT --checkers=$CHECKER_COUNT sync $LOCAL_BACKUP  ${REMOTE_NAME}:${ROOT_FOLDER}/${LOCAL_BACKUP} | tee -a $LOGFILE
+		#$RCLONE --transfers=$TRANSFER_COUNT --checkers=$CHECKER_COUNT sync $LOCAL_BACKUP  ${REMOTE_NAME}:${ROOT_FOLDER}/${LOCAL_BACKUP} 2>&1 | tee -a $LOGFILE
+		$RCLONE --transfers=$TRANSFER_COUNT --checkers=$CHECKER_COUNT sync $LOCAL_BACKUP  ${REMOTE_NAME}:${ROOT_FOLDER}${LOCAL_BACKUP} 2>&1 | tee -a $LOGFILE
 		EXIT_CODE=$?
 		echo "rclone of $LOCAL_BACKUP had exit code of $EXIT_CODE"
 		SUM_EXIT_CODE=$( expr $EXIT_CODE + $SUM_EXIT_CODE )				

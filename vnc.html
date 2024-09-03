@@ -442,6 +442,31 @@ Installing <TT>yum groupinstall "@MATE Desktop"</TT> in CentOS 7 should provide 
 But in VNC, may still need to do customization to force it.  Try these:
 
 <PRE>
+## works with realvnc 7.10 with EL8.9, MATE
+
+## vncserver-virtual -geometry 3810x2064 -depth 24 
+## vncserver-virtual -kill :1
+
+/etc/vnc/config.d/vncserver-virtual  :: SystemXorg=1
+
+/etc/X11/xinit/Xclients
+/etc/sysconfig/desktop    # set to start mate-session
+
+~/.vnc/xstartup ::
+#!/bin/sh
+DESKTOP_SESSION=MATE
+export DESKTOP_SESSION
+/bin/mate-session
+vncserver-virtual -kill $DISPLAY
+
+
+compiling realVNC custom dummy video driver - git repo
+https://help.realvnc.com/hc/en-us/articles/360016058212-How-do-I-adjust-the-screen-resolution-of-a-virtual-desktop-under-Linux#for-users-running-xvnc-0-0 :
+- support for 4K monitors 
+
+
+--older config--
+
 
 This seems to be startup sequence where customization could be "forced" :
 
@@ -1153,11 +1178,30 @@ Rxvt*font:                 Fixedsys
 !Rxvt*foreground:           LightGrey
 Rxvt*foreground:           Black
 
-
 </PRE>
 
 
 <BR><HR><BR>
+
+<H1>GPU</H1>
+
+<PRE>
+
+nvidia-smi		# gpu id, job, temperature, fan 
+nvidia-smi -L 		# gpu model and serial number, 
+
+# drain (disable) a GPU , use gpu id listed by nvidia-smi, truncate domain to 4 digits though.
+sudo nvidia-smi -i 00000000:C1:00.0 -pm 0
+sudo nvidia-smi drain -p 0000:C1:00.0  -q     # query drain state
+sudo nvidia-smi drain -p 0000:C1:00.0  -m 1   # set to draining state
+
+
+# determine pci bus id, sometime needed by xorg.conf
+nvidia-xconfig --query-gpu-info
+
+
+</PRE>
+
 
 <BR>
 <BR>
