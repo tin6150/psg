@@ -404,11 +404,11 @@ npm_package_install()
 }
 
 
-precreate_ntfs_scheme #### 2023 want git dir to be shared with windows
+#precreate_ntfs_scheme #### 2023 want git dir to be shared with windows
 
 #### sometime links creation breaks and don't need to run clone again.
 #### ++ FIXME, enable whatever fn that wants to be run
-run_git_clone_core
+#run_git_clone_core
 #+run_git_clone_extended
 create_links	# this is link from ~/PSG to tin-gh/psg  CF_BK etc.  not sure if still work with the preset_ntfs_scheme of 2023
 #npm_package_install

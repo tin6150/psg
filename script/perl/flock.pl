@@ -9,6 +9,7 @@ use Fcntl qw(:flock SEEK_END);  # import LOCK_* constatnts
 print( "opening file... \n" );
 #open( FH, ">> /home/chemist/vnmrsys/data/hoti1/DIR_INFO.text" );
 open( FH, ">> /home/chemist/vnmrsys/data/auto_2010.03.23/enterQ" );
+#open( FH, ">> ./currentDirLockTest.tmp" );
  
 print( "locking file... \n" );
 flock( FH, LOCK_EX ) or die "Cannot flock \n" ;

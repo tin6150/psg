@@ -7,8 +7,8 @@
 
 #++ need to enable one of the META_SESSION_LIST before running...
 #   commented out cuz don't want to accidentally rerun and overwrite sessions
-META_SESSION_LIST="m1 m2 m3 m4 m5 m6 m7 m8" # add more meta session if desired
-#++META_SESSION_LIST="m1 m2 m3 m4" # add more meta session if desired
+#//META_SESSION_LIST="m1 m2 m3 m4 m5 m6 m7 m8" # add more meta session if desired
+META_SESSION_LIST="m1 m2 m3 m4" # add more meta session if desired
 #++META_SESSION_LIST="m5 m6 m7 m8" # add more meta session if desired
 #--META_SESSION_LIST="m4" # add more meta session if desired
 for MS in $META_SESSION_LIST; do
@@ -51,6 +51,15 @@ for MS in $META_SESSION_LIST; do
 	tmux select-layout -t ${MS} even-vertical # ^b atl-2
 done
 
+
+# manual fix (sometime close sub tmux window, or 2024.0717 didn't seems fully setup)
+# tmux split-window -v -d -t "${MS}"  "unset TMUX; tmux attach -dt ${MS}_s2"
+# tmux split-window -v -d -t "m2"  "unset TMUX; tmux attach -dt $m2_s2"
+# oh, the new tmux in Mint 21.3 seems to behave differently than the old one on Zorin
+# have been forking tmux in many hosts lately.
+# have bofh24 run screen, use ^a " to list screens, and simple tmux nest inside that (after ssh as needed)
+# the old school m1..m8 windows.... m1 still ok.  the other might run them inside screen eg m2_s1 inside screen
+
 tmux set-option -g mouse off 
 ## ^b :set -g mouse on             # mouse mode, allow resize pane w/ tmux 2.1+
 ## ^b :set    allow-rename off     # prevent automatic renaming of pane/tab eg when want to manually name via ^b ,
@@ -73,3 +82,28 @@ tmux ls
 # give them name like these:
 # tmux new-session -s tmuxHW
 # tmux new-session -s tmuxETA
+
+
+#### ~~~~~~~~~~~~~~~~~~~~~
+
+
+# new workflow, more host centric tmux (like what most peep do)
+# but some could be hosted inside screen on bofh24, so resume them easier
+#  screen -S asbl_hw   # ssh  asbl +  brc,  tmux for asbl and hw there
+# hmm... don't know if nesting screen and tmux will have that paste with merged line problem...
+
+# desirable tmux session, to reduce constantly looking for new "tab" 
+# hw  # on brc, bofh24, cueball3_wombat17x, 
+# cf  # CF_BK edits, another tab for psg?
+# 
+
+
+# plan in 2024.0807.   
+# have many screen session, each single screen only, ssh to remote host eg asbl, then tmux inside.
+# so screen just to avoid typing password.
+# to switch, just detach and attach to new screen.
+#   maybe only use screen for things that I must hop 2x, like asbl,  but less for like brc,lrc1
+
+
+# renaming screen -ls result:   ^a :sessioname hw
+# screen: ^A A  # this rename specific tab

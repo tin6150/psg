@@ -529,6 +529,62 @@ module load gnu-parallel/2019.03.22
 
 <H1>text windows manager :)</H1>
 
+<A name="tmux_vs_screen"></A>
+<A name="tmux_screen"></A>
+<H5>tmux vs screen</H5>
+
+<A HREF="http://hyperpolyglot.org/multiplexers">screen & tmux side-by-side</A> <BR>
+C-x = Control-x  <BR> 
+M-x = Meta-x, typically Alt-x <BR>
+
+<BR>
+here is how I think about them and command I need to use the most:
+<BR>
+<BR>
+
+concept names are unlikely what tmux or screen call them, but that's how my brain works.
+<LI>instance:   command to start a new process that show up in ps, most basic first step to start
+<LI>window:     things that all show up at same time, what multiple GUI window would look like
+<LI>tab:        think spreadhseet tabs/pages.  when too many, pick from a (dropdown) list.
+
+<PRE>
+
+
+task:				tmux 				screen
+
+instance, list			tmux ls				screen -ls
+instance, attach/resume		tmux a -dt foo			screen -rd foo
+instnace, detach		^b d				^a d
+instance, rename		^b $				^a :sessionname bar
+
+partial name match work, eg can use "fo" instead of spelling out "foo"
+
+instance new (show in ps)	tmux new -s foo 		screen -S foo
+intance rename 			^b $				^a 
+
+new  tab			^b c				^a c
+list tab			^b w				^a "
+next tab			^b n				^a n		# same
+prev tab			^b p				^a p		# same
+rename tab		 	^b ,  [rename window]		^a A
+
+window, split top/down  	^b "				^a S
+window, split side-by-side	^b %				^a ?
+window, close			^d (ie exit the shell)		?
+
+window, swtich			^b [arrow]
+window, rename
+
+
+split in tmux is inside the tab ie tab holds windows
+split in screen is persistent,  ie window is the parent of the tab
+
+
+maybe tricky to constantly remember them... which was why had nested tmux before...
+try to do fewer things with screen...
+
+<PRE>
+
 <A name="screen"></A>
 <H5>screen</H5>
 
@@ -595,10 +651,6 @@ screen /dev/ttyUSB0 115200 # like tip/minicom connection to serial device
 </PRE>
 
 <A name="tmux"></A>
-
-<A HREF="http://hyperpolyglot.org/multiplexers">screen & tmux side-by-side</A> <BR>
-C-x = Control-x  <BR> 
-M-x = Meta-x, typically Alt-x <BR>
 
 <H5>tmux</H5>
 

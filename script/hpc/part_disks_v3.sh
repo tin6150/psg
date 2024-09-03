@@ -19,7 +19,7 @@
 
 #### 2022.0427
 #### run as, single disk config:
-#### ./part_disks_v3.sh sda       # single sda, traditional setup.  
+#### ./part_disks_v3.sh sda       # single sda, traditional setup.  # n0001.hep0 
 #### ./part_disks_v3.sh ssd       # single /dev/nvme0n1, rest is same setup as sda   n0122.savio4
 #### sudo pdsh -w n0[265-272].savio3 ls -l ~tin/PSG/script/hpc/part_disks_v3.sh
 ####

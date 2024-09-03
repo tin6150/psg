@@ -653,7 +653,7 @@ if [[ x${MAQUINA} == x"zink" ]]; then
 	# testing rootless docker in Zink
 	# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
 	export PATH=/home/tin/bin:$PATH
-	export DOCKER_HOST=unix:///run/user/43143/docker.sock
+	#export DOCKER_HOST=unix:///run/user/43143/docker.sock
 	alias zoom='echo zoom messes up audio and/or video on zink'
 	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
 	alias reloj='xclock -digital -brief' 
@@ -818,6 +818,8 @@ export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 
 
+#module purge
+#module load osu_benchmark/5.3  # sl7 only?
 # enable these for ucx statck (by Wei ~2023.07)
 #module purge
 ##module load osu_benchmark/5.3
@@ -852,7 +854,6 @@ fi
 
 # don't remember what this is for and where...
 if [[ -d /home/tin/perl5 ]]; then
-
 
 PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
