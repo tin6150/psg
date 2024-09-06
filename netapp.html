@@ -316,9 +316,83 @@ deleting snapshot is kinda dangerous.  changing it expiration time maybe suffici
 snapshot modify -vserver svm1 -volume scratch -snapshot daily.2023-02-17_0010 -expiry-time 02/18/2023 12:00:00
 
 
+
+~~~
+
+# change snapshot expiration time:
+snapshot modify -vserver fs4svm1  -expiry-time 08/20/2024 13:00:00 -volume data2b -snapshot weekly.2024-08-18_0015   
+
+# check expiration time:
+snapshot show -vserver fs4svm1 -volume data2a -snapshot weekly.2024-08-18_0015 -expiry-time *
+
+
+snapshot show  -fields expiry-time  
+snapshot show  -fields expiry-time -vserver fs4svm1 
+snapshot show  -fields expiry-time -vserver fs4svm1 -volume data2a
+
+snapshot show  -fields expiry-time,size  -vserver fs4svm1 -volume data2a
+snapshot show  -fields expiry-time,size,state  -vserver fs4svm1 -volume data2a
+
+
+# -fields doesn't show up in tab completion, so annoying!
+
+
+# expired snapshot may not get deleted.  it is mostly a lock to prevent accidental deletion??
+snapshot list
+
+
+
+</PRE>
+
+<H6>setting new custom policy for use with volume</H6>
+
+blog to setup custom schedule  
+<A HREF="https://www.storagefreak.net/2017/07/netapp-cdot-how-to-create-a-snapshot-schedule">
+https://www.storagefreak.net/2017/07/netapp-cdot-how-to-create-a-snapshot-schedule</A>
+
+<PRE>
+
+# first, check out existing policy in use 
+volume show -vserver fs4svm1 -fields snapshot-policy
+
+
+# show build-in snapshot schedule time.
+job schedule cron show
+
+# create a 4-hourly to take place 3 min after the marked hours
+job schedule cron create -name 4-hourly -minute 3 -hour 0,4,8,12,16,20
+
+
+# eg create a custom scheuld that is 4 hours apart, keep 6 of these "hourly" snapshot, 
+# and 4 daily 
+# NOTE: no weekly! (or monthly)
+# policy name is every4hr-policy
+# apply to data2a volume 
+
+snapshot policy create -vserver fs4svm1 -policy every4hr_policy \
+    -schedule1 daily     -count1 4 \
+    -schedule2 4-hourly  -count2 6     -enabled true
+
+# check policy
+snapshot policy show -vserver fs4svm1 -policy every4hr_policy
+
+# change existing volume to use this new policy
+volume modify -volume data2a -snapshot-policy every4hr_policy
+
 </PRE>
 
 
+# in addition to the 6 snapshots 4-hours apart at fixed time, 
+# also have hourly backup, kept for the rotating last 4 hours
+
+<PRE>
+snapshot policy add-schedule -vserver fs4svm1 -policy every4hr_policy -schedule hourly -count 4
+
+# also harmonize that the hourly and 4hour are taken at 5 min after the hour mark:
+job schedule cron modify -name 4-hourly -minute 5 -hour 0,4,8,12,16,20
+
+ 
+</PRE>
 
 <H5>cDOT commands on VM</H5>
 
