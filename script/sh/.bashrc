@@ -9,6 +9,7 @@
 #  2023.0901  weasel (sp9?) source .dot
 #  2024.0307  bofh HISTTIMEFORMAT 
 #  2024.0319  =~ bash regex in MAQUINA partial hostname match
+#  2024.0903  checked /etc/bashrc  of rocky 8 eg PS1 login_shell, didn't change anything meaningful
 
 
 ####
@@ -705,7 +706,7 @@ add_personal_module
 
 # these should not be needed unless in interactive shell
 if [[ $- == *i* ]]; then
-	setPrompt 
+	setPrompt     # rocky 8 /etc/bashrc has  PS1 setting but the screen/vte vm stuff isn't working for me, might need more surgery... postpone for another time
 	defineAlias
 	defineAliasMac
 	defineAliasWin 

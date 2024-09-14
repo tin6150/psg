@@ -601,6 +601,16 @@ wget http://apache/conf/yp.conf -O /etc/yp.conf
 # sed -i.bak -c "s/#Protocol 2,1/Protocol 2/" /etc/ssh/sshd_config
 
 
+## NFSv4 seems more friendly with firewall, streamlined the rpc port usage eg for file locking
+
+## test file lock
+
+flock -x ./local-lock-file echo 'cmd ran after obtaining file lock'
+echo $?
+# if lock doesn't work, the echo command should not run, exit code likely non zero
+
+
+
 </PRE>
 
 <H2>Updating OS</H2>
@@ -3038,6 +3048,48 @@ systemd need config file in /etc/openvpn/server/server.conf
 
 </PRE>
 
+<H5>journald</H5>
+
+I don't like journald.  have to use journalctl to look at its log, and it doesn't wrap long lines.  quite annoying.
+
+<PRE>
+systemd jours to the journal though.
+Not sure if syslog get all system + boot messages.
+Journal does not have support to central loggin.
+
+https://stackoverflow.com/questions/70382088/exporting-logs-using-journald-rsyslogd
+
+Seems like use of rsyslog with 
+module(load="imjournal")
+module(load="mmjsonparse")
+will grab journal messages and convert the json/bin to syslog text.
+
+module(load="imklog")
+to grab kernel messages.
+
+
+rsyslog forward to central server:
+legacy format:
+*.* @10.0.1.1:514        # UDP -> one @
+*.* @@10.0.1.1:514       # TCP -> two @s
+
+new format:
+*.* action(type="omfwd" target="10.0.2.1" port="514" protocol="udp")         # UDP
+*.* action(type="omfwd" target="10.0.2.1" port="10514" protocol="tcp")       # TCP
+
+
+to log to journal, use things like:
+
+echo 'hello' | systemd-cat -p info
+echo 'hello' | systemd-cat -p warning
+echo 'hello' | systemd-cat -p emerg
+
+
+ExecStart=/usr//bin/echo "[my_custom.service] start (systemd-cat)" | /usr/bin/systemd-cat -p info
+
+</PRE>
+
+
 <H4>SuSE</H4>
 
 
@@ -4398,6 +4450,14 @@ journalctl -no-pager -f -u postfix    	# see systemctl output for (service) unit
 
 journalctl -xe 				# look at last systemd start failure?
 
+
+
+systemd ExecStart vs ExecStartPre call to logger has different result for destination?  it is weird!
+logger -p kern.info   -- msg 		# only to syslog, eg /var/log/syslog
+logger -p local7.info -- msg 		# only to journalctl ?  
+
+
+shell script called by ExecStart ... logger -p local7.info   doesn't get to any place!  weird!  EL 8.8 days.
 
 
 </PRE>

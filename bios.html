@@ -365,6 +365,131 @@ Ctrl-E	: BMC software IPMI server management
 
 </PRE>
 
+<H3>iDRAC access</H3>
+
+<H5>https</H5>
+
+if there is a browser that can use the ipmi/idrac network, pointing it to the the IP of iDRAC would bring up the web interface.
+
+<H5>ssh</H5>
+
+<PRE>
+instead of relying on ipmitool to remotely query/control the service processor, can ssh to it.
+
+ssh ipmi-ip -l admin
+
+get racadm>> prompt
+
+from here, can issue commands (optional to have explicitly called with  racadm)
+racadm help cmd
+
+racadm techsupreport collect 
+racadm jobqueue view
+racadm techsupreport export -l 10.0.92:/users/users/tin/tmp/tsr_report.zip
+# above would work if NFS server allows the racadm network to mount ?
+# other protocols are tftp, ftp, cifs.  scp is not supported, nor rcp.
+
+
+racadm get  iDRAC.serverboot.firstbootdevice 
+racadm set  iDRAC.serverboot.firstbootdevice PXE
+# above is a  one time boot config
+# after that, it rever to previous setting , ie FirstBootDevice=Normal
+# but that's not the BootOnce setting, a bit strange.
+racadm get  iDRAC.ServerBoot.BootOnce
+
+racadm help iDRAC.serverboot.firstbootdevice 
+racadm set  iDRAC.serverboot.firstbootdevice F11
+#    F10 (Lifecycle Controller)
+#    F11 (BIOS Boot Manager);   
+#    no F2 here, but F11 will have menu leading to bios setup.
+
+
+
+racadm getsel   # get system event log
+
+getsvctag       # get service tag aka serial number
+
+
+other commands to try?
+
+
+ clrsel               -- clear the System Event Log (SEL)
+ cmreset              -- perform a Chassis Manager reset operation
+ coredump             -- display the RAC coredump files
+ coredumpexport       -- Export the RAC coredump files
+ coredumpdelete       -- Deletes the core files
+ driverpack           -- display driverpack info
+
+ debug                -- Field Service Debug Authorization facility commands
+
+ exposeisminstallertohost -- Support Assist operations.
+
+ gethostnetworkinterfaces -- Display host network interface details
+ getled               -- Get the state of the LED on a module.
+ getniccfg            -- display current network settings   # IP, subnetmask, gateway,  LOM1 
+ getraclog            -- display the RAC log
+ getractime           -- display the current RAC time       # internally is GMT?
+ getremoteservicesstatus -- display remote services status
+
+
+
+racadm>>getremoteservicesstatus
+Server status: Out of POST
+LC status    : Ready
+RT status    : Ready
+Status       : Ready
+TS status    : Ready
+SEKM status  : Ready
+racadm>>
+
+
+</PRE>
+
+
+<PRE>
+
+racadm cmd:
+
+get                  -- display RAC configuration properties
+get BIOS				# and many subcomponents
+# also get in these categories:
+
+ BIOS                -- Configuration of BIOS attributes
+ iDRAC               -- Configuration of iDRAC attributes
+ LifecycleController -- Configuration of LifecycleController attributes
+ Nic                 -- Configuration of NIC attributes
+ Storage             -- Configuration of Storage attributes
+ System              -- Configuration of System attributes
+ FC                  -- Configuration of Fiber Channel attributes
+ InfiniBand          -- Configuration of InfiniBand attributes
+
+
+racadm>>get System.UserDefinedString
+ERROR: SWC0244 : Invalid Fully Qualified Device Descriptor (FQDD).
+# somewhere, can likely set some custom info, for say PO, hostname, or asset tag.
+
+</PRE>
+
+<H5>usb</H5>
+
+connect a usb (micro) from a laptop, it will establish an IP network over this connection.
+<BR>
+<BR>
+details at: 
+<BR>
+https://www.dell.com/support/manuals/en-us/idrac9-lifecycle-controller-v3.1-series/idrac_3.15.15.15_ug/accessing-idrac-interface-over-direct-usb-connection?guid=guid-2c43a175-3dd3-4a12-b747-d17c08e5bef6&lang=en-us
+<BR>
+<BR>
+
+<PRE>
+essentially, server/laptop would need to be configured with
+169.254.0.3
+169.254.0.4
+</PRE>
+
+
+
+
 
 <H3>HT - Hyperthreading/Logical Processor</H3>
 <PRE>
