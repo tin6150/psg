@@ -1,3 +1,7 @@
+
+new favorit is asciiDoc  .adoc
+
+
 md to rst
 *********
 

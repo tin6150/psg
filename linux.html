@@ -3029,11 +3029,11 @@ sudo systemctl start openvpn-server@server-udp1194
 
 el8:
 #sudo systemctl start openvpn-server@{Server-config} 
-systemctl unmask openvpn-server@.servie
-systemctl enable openvpn-server@.servie
-systemctl enable openvpn-server@servie
+systemctl unmask openvpn-server@.service
+systemctl enable openvpn-server@.service
+systemctl enable openvpn-server@service
 
-systemctl enable --now openvpn-server@server
+systemctl enable --now openvpn-server@server                   # it is server after the @ (which match the name of the conf file?)
 systemd need config file in /etc/openvpn/server/server.conf  
 
 </PRE>

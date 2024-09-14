@@ -1,0 +1,138 @@
+(formerly asciiDoc.adoc at top of PSG repo)
+
+= asciiDoc, .adoc, my new favorite text markup.
+
+* asciiDoc, .adoc, is pretty old too, but i just learned about it.
+** simpler syntax, like MD, but still extensible.
+** use = as header rather than #, so solve my #1 gripe about .md
+** may become my new favorite!
+** https://asciidoc.org
+** .adoc  does not have good support for bullet that span multiple paragraph.  but maybe use sub bullets
+
+
+== 101
+
+adoc is a bit picky about space, not indentation, but space delimiter about token it need to parse. +
+a space and plus at the end of the line is a line break. +
+another empty line is paragraph break.  
+
+i think i can live with this kind of setup
+
+leading dot might be some command thing as well
+
+maybe what i really care is for vim to have some color in the text file to call attention.
+rendering to web site will likely be forced by use of .md  in much collaboration and rendering engine.
+
+
+== 102
+
+*bold*
+_italic_
+
+[red]#colored text#
+
+passthru, ie escaped
++++*bold*+++
+
+ie use triple plus sign before and after for verbatim text without asciiDoc parser interpreting it.
+
+but can have
+_+++*bold**+++_ 
+
+since _ _ for italic is outside the triple plus, the italic text stands.
+
+URL link is also decent.  https://photos.app.goo.gl/cAngzDKubfNcsBLu7[gFoto on adoc].
+
+
+
+
+== 103
+
+* https://gist.asciidoctor.org
+
+
+=== triple equals before only, which asciiDoc site say is accepted way
+
+github may not be rendering === as header?
+
+=== triple equals before and after ===
+
+
+bullets.  i kinda dont like that there are lot of space between bullet points 
+
+* 1-bullet line
+* 1-bullet line
+** 2-bullet line
+** 2-bullet line
+  * indented 1-bullet line, the indentation didnt matter, rendered same as above '1-bullet line'
+  * indented 1-bullet line
+
+
+
+=== playground
+
+
+=== adoc testing below
+
+cuz i tend to fiddle rather than RTFM :P
+
+----
+
+adoc after 4 dash
+text in vim appear blue
+GitHub render this block as pre-formatted, with a box around it, think code block
+
+another line after empty line
+
+* 1-bullet line
+* 1-bullet line
+** 2-bullet line
+** 2-bullet line
+  * indented 1-bullet line
+  * indented 1-bullet line
+
+----
+
+after another 4 dash text color return to normal
+
+* 1-bullet line
+* 1-bullet line
+** 2-bullet line
+** 2-bullet line
+  * indented 1-bullet line
+  * indented 1-bullet line
+
+
+~~~~
+
+after 4~ vim show text as green
+another line
+GitHub doesn't render this well, should avoid
+
+another line after empty line
+
+* 1-bullet line
+* 1-bullet line
+** 2-bullet line
+** 2-bullet line
+  * indented 1-bullet line
+  * indented 1-bullet line
+
+
+~~~~
+
+after another 4~, exit the block
+
+GitHub still continue to render this as same as above, like it didn't exit the block.
+
+* 1-bullet line
+* 1-bullet line
+** 2-bullet line
+** 2-bullet line
+  * indented 1-bullet line
+  * indented 1-bullet line
+
+
+probably easier if use VScode and use their preview
+or have a git repo for markup.... think have one... create series of dirs and files there to see how github render, 
+esp cuz "github flavored markdown".

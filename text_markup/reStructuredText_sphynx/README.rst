@@ -1,3 +1,4 @@
+(formerly reStructuredText_sphynx.rst)
 
 Sphinx is the python doc generator, it is RST based, but also add extensions, so not all sphynx construct works
 for git* rendered web pages.
