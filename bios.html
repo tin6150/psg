@@ -1216,10 +1216,19 @@ ipmitool raw 0x30 0xc7 0x11 0x01 0x01
 #                           ^^1^ ^^1^  for 1+1
 
 
+# check FTR status, must be done via lanplus.
+ipmitool -I lanplus -H ipmi-n0059 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa0 0x0 0x01 0x1a 0xd8
 # Enable FTR (so that node will re-calculate power requirements and negotiate with chassis, after cold power cycle)
 ipmitool -I lanplus -H ipmi-n0059 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa1 0x1 0x01 0x1a 0x01 0xd8
-# check FTR status
-ipmitool -I lanplus -H ipmi-n0059 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa0 0x0 0x01 0x1a 0xd8
+
+# check FTR status for (older bios?), still C6500
+ipmitool -I lanplus -H ipmi-n0004.savio4 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa1 0x1 0x1 0x1a 0x01 0xd8
+# Enable FTR, need to be done 1 per chassis.
+ipmitool -I lanplus -H ipmi-n0004.savio4 -U admin -P $IPMIP  raw 0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa0 0x0 0x01 0x1a 0xd8
+# eg result 20 c4 1c 70 00 a0 00 01 01 1a 01 d3
+#                                         ^^
+#                                         the 01 means it is now in FTR negotiation.
+
 
 
 # Reboot Chassis Management
@@ -1290,6 +1299,27 @@ racadm techsupreport export -f tsr_report.zip
   /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  supportassist  exportlastcollection -f tsr.zip
 
 -->
+
+<A NAME="UpdateDellBios"></A>
+<A NAME="updateDellBios"></A>
+<H2>Update Dell BIOS</H2>
+
+login to machine, cd to folder where .BIN of bios was downloaded, and just run it
+
+eg
+<PRE>
+cd ~/gs/Downloads/Dell_C6520_bios                           # /global/home/groups/scs/tin/Downloads/Dell/C6520
+./BIOS_719W1_LN64_1.6.5_01.BIN                              # BIOS_JRHTF_LN64_1.14.1.BIN    # 2024.0916
+</PRE>
+
+even linux will execute the BIN and install the bios.
+(ie, no need to use racadm cmd)
+<BR>
+interactively ack, say Y to update, Y to reboot.
+<BR>
+do for each node of a chassis.
+<BR>
+
 
 <A NAME="UpdateIDRAC"></A>
 <A NAME="updateIdrac"></A>

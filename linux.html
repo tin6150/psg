@@ -1182,6 +1182,13 @@ No need for "systemctl restart NetworkManger", though it doesn't hurt
 ipmi tag to vlan 20 (default is untagged):
 ipmitool lan set 1 vlan id 20
 
+
+If need 2 IP on a specific tag vlan (id 9 in example below), then would indeed need both vlan (.) and virtual interface (:) syntax:
+sudo ifconfig enp65s0f0      10.199.1.7 netmask 255.255.255.0 up   # native
+sudo ifconfig enp65s0f0.9    10.200.1.7 netmask 255.255.255.0 up   # vlan tag id 9
+sudo ifconfig enp65s0f0.9:1 192.168.1.7 netmask 255.255.255.0 up   # vlan tag id 9 2nd IP in a virtual interface
+
+
 </PRE>
 
 
