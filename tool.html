@@ -1355,6 +1355,7 @@ stress --io 32        --vm 128 --cpu  32 -t 120s
 stress --io 256 --hdd 2 --vm 256 --cpu  64 -t 120 ## 216W #didnt crash :P
 stress --io   6 --hdd 2 --vm  64           -t 120 ## 240W #dont need to hog cpu, vm will take care of it, io was matched to number of memory channel
 ## actually, just --vm matching number of cores pretty much reach peak power, --io, --hd don't add to power load once it is peaked.
+## yet on AMD having both --vm and --cpu flag drive energy usage up.  mprime -t got to similar level.
 
 ## linkpack likely only used 208W
 
