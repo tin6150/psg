@@ -464,9 +464,34 @@ get BIOS				# and many subcomponents
  InfiniBand          -- Configuration of InfiniBand attributes
 
 
+  BIOS.IntegratedDevices ... # F2|System BIOS|Integrated Devices :: User Accessible USB Port, internal SD card, iDRAC Direct USB Port, Embeded NIC1
+  BIOS.IntegratedDevices ... # Embeded NIC1 has setting of "(Disabled (OS)"
+
+
 racadm>>get System.UserDefinedString
 ERROR: SWC0244 : Invalid Fully Qualified Device Descriptor (FQDD).
 # somewhere, can likely set some custom info, for say PO, hostname, or asset tag.
+
+
+
+
+getniccfg # the "get" equivalent for nic portion of the menu
+
+Integrated vs Embeded ?  
+	Integrated is OCP 3.0 slot NIC?
+	Embeded is the staic shared NIC for iDRAC + OS 1g NIC?
+	Infiniband shows up separately by itself (Mezaline card, as plain PCI device?)
+
+set nic.nicconfig.1.legacybootproto PXE   # F2|Device Settings|(select NIC)|NIC Config|Legacy Boot Protocol (ie boot option to support PXE)
+# nicconfig.1 seems like "Integrated Nic" (OCP 3.0 slot?)
+# nicconfig.3 seems to corresponds to the embeded NIC (1g RJ45 shared with iDRAC)
+jobqueue create NIC.Integrated.1-1-1 -r pwrcycle -s TIME_NOW
+
+
+
+FYI:
+nic.DeviceLevelConfig.1 # is F2|Device Settings|(select NIC)|Device Level COnfig ## Virtualization mode, Link speed, stuff that likely seldom need changing.
+
 
 </PRE>
 
