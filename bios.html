@@ -443,12 +443,29 @@ SEKM status  : Ready
 racadm>>
 
 
+getniccfg # YMMV, but IP can hint what host is on.
+
+
+racadm# get bios.MiscSettings.AssetTag
+racadm# set bios.MiscSettings.AssetTag n0029
+jobqueue create BIOS.Setup.1-1
+
+
+# how did i not set this NetworkSettings before??  was looking for it for long time!
+get BIOS.NetworkSettings.PxeDev1EnDis           # F2 | Bios Settings | Network Settings
+set BIOS.NetworkSettings.PxeDev1EnDis Enabled
+jobqueue create BIOS.Setup.1-1
+
+
 </PRE>
 
+
+<A HREF="https://dl.dell.com/content/manual65464730-integrated-dell-remote-access-controller-9-racadm-cli-guide.pdf?language=en-us">racadm CLI guide</A> iDRAC 9, 2024-09.
 
 <PRE>
 
 racadm cmd:
+
 
 get                  -- display RAC configuration properties
 get BIOS				# and many subcomponents
