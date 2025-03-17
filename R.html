@@ -1958,7 +1958,8 @@ flights %>% left_join( airlines, by="carrier" )
 flights %>% mutate( name=airlines$name[ match(carrier, airlines$carrier) ] )
 
 # join where key have diff col names
-inner_join( x=leftTable, y=rightTable, by=c( "county_name" = "county" ) )
+# replaced county with corp, so search for count doesn't match :D  It seems some east coast state use corporation instead of county)
+inner_join( x=leftTable, y=rightTable, by=c( "corp_name" = "corp" ) )
 
 inner (equi) join  - think set intersection, only when row (key) is in BOTH tables
 
@@ -1975,7 +1976,7 @@ right_join(x,y)	merge( x,y, all.y=T )
 full_join(x,y)  merge( x,y, all.x=T, all.y=T )
 
 
-reduce_result = Reduce(function(...) left_join(..., by='county_name' ), list(df_2010,df_2011,df_2012))
+reduce_result = Reduce(function(...) left_join(..., by='corp_name' ), list(df_2010,df_2011,df_2012))
 # Reduce() take a list of data, and apply a fn to it one at a time
 # it is reduced coding for repetitive apply-xyz kind of function
 # the (...) is place holder for where the dataset and fn name would be applied
@@ -2019,7 +2020,7 @@ df_both   = rbind( df_Taiwan, df_Colo ) # if col name mismatch then cant row bin
 #defaults for data.frame() for reference
 
 testing = data.frame(
-  county 	= c("Ala","CCosta","Marin"),   ## this is column vector [[1]] aka testing[["county"]] aka testing$county
+  corp 	= c("Ala","CCosta","Marin"),   ## this is column vector [[1]] aka testing[["corp"]] aka testing$corp
   total_tests 	= c(500,745,832),              ## this is column vector [[2]]
   pos_tests 	= c(43, 32, 30),
     row.names = NULL,
@@ -2034,11 +2035,11 @@ it seems that the default is FALSE
 
 
 #assign the vector to an object
-county_vector = testing[["county"]]
+corp_vector = testing[["corp"]]
 
 #output a dataframe of the values in a column
-county_df   = testing["county"]
-county_df2  = testing[1]
+corp_df   = testing["corp"]
+corp_df2  = testing[1]
 
 
 #subset rows
@@ -2050,15 +2051,15 @@ testing[ which(testing$total_tests>500), ]                 # note sq bracket and
 testing %>% filter( total_tests>500 ) 
 subset( testing, total_tests > 500 )
 
-stds_Ala = stds[ which(stds[["County"]] == "Alameda"), ] 
+stds_Ala = stds[ which(stds[["Corp"]] == "Alameda"), ] 
 
-subset( testing, county=="Ala" & total_tests > 500 )	                # AND condition 
-testing[ which(  testing$county=="Ala" & testing$total_tests>500), ]    # note sq bracket and tailing comma
+subset( testing, corp=="Ala" & total_tests > 500 )	                # AND condition 
+testing[ which(  testing$corp=="Ala" & testing$total_tests>500), ]    # note sq bracket and tailing comma
 
-testing %>% filter( county %in% c("Ala","CCosta"), total_tests>500 )    # filter for county in a list AND ... 
+testing %>% filter( corp %in% c("Ala","CCosta"), total_tests>500 )    # filter for corp in a list AND ... 
 
 # unique() , though this eg only create a new vector, not preserving original df
-unique_counties = unique( stds[["County"]]) 
+unique_counties = unique( stds[["Corp"]]) 
 
 
 #subset columns based on column name or number index
@@ -2096,15 +2097,15 @@ rbind( existingDF,  newRow1, newRow2 )
 #add a row using rbind()
 #create list that includes an element for each column - using a list is important since there 
 #are data of different types in the data frame
-add_county <- list("San Diego", 1200, 73)
+add_corp <- list("San Diego", 1200, 73)
 
 #use row bind - will combine in the order given
-testing <- rbind(testing,add_county)
+testing <- rbind(testing,add_corp)
 
 #row bind can also be used to combine two compatible data frames 
 #(compatible meaning they have the same columns and data types)
 testing2 <- data.frame(
-  county = c("Imperial","Riverside"),
+  corp = c("Imperial","Riverside"),
   total_tests = c(410,760),
   pos_tests = c(84,57),
   stringsAsFactors = FALSE
@@ -2147,16 +2148,16 @@ testing_4_cols = testing[,1:4]                            ## get subset of colum
 
 
 #reorder rows based on values in a specified column
-testing_reordered_rows <- testing[order(testing$county),]  ## note position of comma!
+testing_reordered_rows <- testing[order(testing$corp),]  ## note position of comma!
 
-#create a new df without the county column
+#create a new df without the corp column
 #option 1: list columns by order or name
-testing_nocounty <- testing[,c(1,3,4,5)]
+testing_nocorp <- testing[,c(1,3,4,5)]
 
 #option 2: use the "-" to indicate which columns to exclude
-testing_nocounty2 <- testing[,c(-2)]
+testing_nocorp2 <- testing[,c(-2)]
 
-#testing_nocounty will be the same as testing_nocounty2
+#testing_nocorp will be the same as testing_nocorp2
 
 </PRE>
 
@@ -2167,10 +2168,10 @@ Note that it offset the column index!!
 
 #row names: create data frame which utilizes the row.names option and set the row name to
 testing_named_rows = data.frame(
-  county 	= c("Ala","CCosta","Marin"),   ## this WOULD have been col vector [[1]] if it wasn't cuz of row.names clause below.
+  corp 	= c("Ala","CCosta","Marin"),   ## this WOULD have been col vector [[1]] if it wasn't cuz of row.names clause below.
   total_tests 	= c(500,745,832),              ## this now becomes col vector [[1]]
   pos_tests 	= c(43, 32, 30),
-  row.names 	= "county"                     ## this no longer treated as a general column/variable
+  row.names 	= "corp"                     ## this no longer treated as a general column/variable
 )
 
 
@@ -2195,7 +2196,7 @@ Tibbles are a type of dataframe that are used within the tidyverse. They were es
 * Can create columns by calculating on others
 
 testing_tib = tibble(
-  county = c("Alameda","Contra Costa","Marin"),
+  corp = c("Alameda","Contra Costa","Marin"),
   state = "CA",
   total_tests = c(500,745,832),
   pos_tests = c(43, 32, 30),
@@ -2228,7 +2229,7 @@ ids_file_path = "https://data.chhs.ca.gov/dataset/03e61434-7db8-4a53-a3e2-1d4d36
 tbl = read_csv( ids_file_path )
 
 bay_area = c("ALAMEDA","CONTRA COSTA","SAN FRANCISCO", "MARIN", "SAN MATEO", "SONOMA", "NAPA", "SOLANO","SANTA CLARA")
-lister_2018 = filter( tbl, County %in% bay_area & !is.na(Rate) )
+lister_2018 = filter( tbl, Corp %in% bay_area & !is.na(Rate) )
 
 </PRE>
 
@@ -2258,14 +2259,14 @@ lister_min =  slice_min(lister_2018, order_by=Cases, n=3, with_ties = TRUE)
 <PRE>
 sample_frac(tbl, size=10,replace=F)	# randomly select fraction , exact count for size; replace=F means row cannot be used again
 sample_n(tbl, size=.1,replace=F)	# randomly select number of rows, 0.1 = 10%
-distint(tbl, County, Disease)		# select unique rows (dedup), keyed by the listed column(s)
+distint(tbl, Corp, Disease)		# select unique rows (dedup), keyed by the listed column(s)
 
 # base R way to add row:  ## is there way to add to existing object?
-new_row = list( Disease="E. Coli", County="San Diego" )
+new_row = list( Disease="E. Coli", Corp="San Diego" )
 id_add2 = rbind( tbl, new_row )
 
 tibble::add_row()	# add row to a tibble, na added automagically as needed, can append to existing object
-add_row(tbl, Disease = "E. Coli", County = "San Diego")
+add_row(tbl, Disease = "E. Coli", Corp = "San Diego")
 
 arrange(tbl, Disease, desc(Cases))	# arrange row in specific order -- i think it then affects the row number used by slice() 
 					# desc() meands descending order
@@ -2276,8 +2277,8 @@ select() is like awk picking up desired columns only, ie working with select var
 
 <PRE>
 
-select(df, county)			# df["county"]
-select(df, c(county,cases) )		# df[ c("county","cases") ]
+select(df, corp)			# df["corp"]
+select(df, c(corp,cases) )		# df[ c("corp","cases") ]
 select(df, 2 )				# select column number 2 only      # xref: select column by index position
 select(df, c(2,5) )			# select column number 2 and 5 	   # xref: idx pos
 select(df,   2:5  )			# select column number 2 thru 5
@@ -2313,7 +2314,7 @@ rename
 <PRE>
 
 ids_rename = rename(ids, disease=Disease)		# renaming column 
-ids_rename = rename(ids, disease=Dis, county=Cty) 	# rename multiple columns
+ids_rename = rename(ids, disease=Dis, corp=Cty) 	# rename multiple columns
 
 # base R
 col.names( df_steps ) = c(new_name1, new_name2)		# PHW251 wk 5 reader page 18
@@ -2351,10 +2352,10 @@ cbind( df_steps, ... )	# base R use cbind -- column bind
 mutate()		# create new column, could be calculated col
 
 id_campy_la = ids %>%
-  mutate(county=str_to_title(county),
+  mutate(corp=str_to_title(corp),
          state = "CA",
-         county_small = if_else(population<100000,"small","not small"),
-         county_cat = case_when(
+         corp_small = if_else(population<100000,"small","not small"),
+         corp_cat = case_when(
            population<100000 ~ "small",
            population<1000000 ~ "med",
            TRUE ~ "large"                    # TRUE clause here is catch-all for everything else.  think *
@@ -2421,10 +2422,10 @@ file_path_csv <- "https://data.chhs.ca.gov/dataset/8eb8839f-52a1-410b-8c4a-5b1c1
 
 esd_coltypes <- read_csv(
   file_path_csv,
-  col_names = c("county","yr","pct","ci_l","ci_u"),   # optional, force col name 
+  col_names = c("corp","yr","pct","ci_l","ci_u"),   # optional, force col name 
   skip = 1,   # since original csv had column name that we forced to something else, this skip that header line
   # col_types = cols(col_character(), col_double(), col_number(), col_number(), col_number()),
-  # col_types = cols_only(county = col_character(), yr = col_double(), pct = col_number()),
+  # col_types = cols_only(corp = col_character(), yr = col_double(), pct = col_number()),
   col_types = "cdnnn",   # oh, this is the abreviated char, double, num, num, num !
   na = c("", "NA","*","n/a"),   # handling 
 )
@@ -3413,7 +3414,7 @@ ggplot(data=std_gg3,aes(group=disease_f)) +
   geom_point(  aes(x=year, y=rate,  shape   =disease_f)) + #to add points and choose shape by group
   scale_linetype(name="STD") + #to change the title of the legend
   # scale_shape_manual(values=c(15,17,19)) #to manually change shape types by group
-   labs(x="Year",y="Case rate per 100,000 population", title = "STD Case Rates in Alameda County",subtitle="2001-2018",caption="Data is from CDPH. The grey bars represent 95% confidence intervals.") +
+   labs(x="Year",y="Case rate per 100,000 population", title = "STD Case Rates in Alameda Corp",subtitle="2001-2018",caption="Data is from CDPH. The grey bars represent 95% confidence intervals.") +
   theme_tufte()
 
 </PRE>
@@ -3457,10 +3458,10 @@ fig1
 
 
 fig3 = plot_ly( data = chronic_focus_counties ,
-            text = ~paste(County, round(pct, 1), "%"     )  # add_trace overwrite this :-\
+            text = ~paste(Corp, round(pct, 1), "%"     )  # add_trace overwrite this :-\
             ) %>%
     add_trace(
-            x = ~County,
+            x = ~Corp,
             y = ~pct,
             name = 'Chronic Mortality Rates by Counties',
             marker = list(color = ~ctyColor),
@@ -3470,7 +3471,7 @@ fig3 = plot_ly( data = chronic_focus_counties ,
    layout(
             title = "Chronic Mortality Rates For California's Rural Counties",
             yaxis = list( title="% Mortality Rate"),
-            xaxis = list( title="County", categoryorder='total descending' )
+            xaxis = list( title="Corp", categoryorder='total descending' )
          )
 	# Arrange barchars by 'total descending' height (PHW251 prj)
 	# https://plotly.com/r/reference/layout/xaxis/#layout-xaxis-categoryorder
@@ -4152,7 +4153,7 @@ nrow( nhanes %>% filter( hs=='No' )   # this count number of rows, only those wh
 df %>%
   group_by( oshpd_id, year ) %>%
   summarize( total_encounter = sum( count ),                                    # new calculated col
-             count, type, facility_name, county_name, er_service_level_desc )   # (re)add col that is desired for final df
+             count, type, facility_name, corp_name, er_service_level_desc )   # (re)add col that is desired for final df
 
 </PRE>
 <!-- summarize with extra col was PHW251 exm -->
@@ -5269,6 +5270,12 @@ better bullet for table▶yes?
 ∈    \in 	is member of, belongs to, is an element of   	%e%
 ∋    	
 
+≡	identical to 	(triple bars for triple bond in chemistry) 
+≣ 	strictly equivalent to	(four bars)
+≙	estimate (hat is for estimate)
+≗	ring equal to	(circle)
+≛	equal dot  (questioned equal to)
+≛	equal stars
 
 χ² - chi-squared
 σ² - sigma squared = variance

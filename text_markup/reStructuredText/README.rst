@@ -1,5 +1,8 @@
+(formerly reStructuredText_markup.rst)
+
 reStrcuturedText
 ****************
+
 
 github support .rst just as well as .md
 Can use README.rst as default rather than README.md.
