@@ -15,6 +15,7 @@
 # pre nasa move prep 2024.0809
 # sudo pdsh -w n0[000-119,146-181].savio4         ~tin/PSG/script/hpc/record_bios_settings.sh dell
 # sudo pdsh -w n0[179].savio4         ~tin/PSG/script/hpc/record_bios_settings.sh dell
+# sudo pdsh -w n0[178-180].savio4    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh  dell
 # sudo pdsh -w n0[120-145].savio4    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh smc  # not working 2024.08
 
 # -f 1 means serial, one node at a time.  for when racadm need to do lock.  

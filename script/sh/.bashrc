@@ -168,7 +168,8 @@ setPrompt () {
 	#PS1="${CYAN}__ ${WHITE}\u ${CYAN}\H ${YELLOW}\w ${CYAN}> ${NO_COLOUR} "
 	# the one below pretty good in Terminal app in mac with Homebrew and custom brown text on dark blue bg profile
 	##PS1="${LIGHT_CYAN}__ ${WHITE}\u ${CYAN}\H ${LIGHT_GRAY}\w ${LIGHT_CYAN}> ${NO_COLOUR} "       ## good prompt, but hacking it so .rst file highlight prompt :)
-	PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR} "		## for .rst highlight
+	##PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR} "		## for .rst highlight
+	PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR}"		## dont want 2 space after >
 	##PS1="${LIGHT_CYAN}[\u@\h]> ${NO_COLOUR}"	## tmp for slide prep
 	##PS1="${LIGHT_CYAN}\u${LIGHT_GRAY}@${CYAN}\h> ${NO_COLOUR}"		## TMP for presentation
 	[[ -n "$SINGULARITY_CONTAINER" ]] && PS1=${SINGULARITY_CONTAINER}" "${PS1}
@@ -851,6 +852,13 @@ fi
 
 ########################################
 
+# my bashrc somehow doesn't get the right module (lua, which still depends on tcl!)
+# which module should be an alias of 28 lines (not 4)
+# doing this at the end should fix this.  if not, source it from the shell.
+. /etc/bashrc 
+
+########################################
+
 
 # don't remember what this is for and where...
 if [[ -d /home/tin/perl5 ]]; then
@@ -872,6 +880,14 @@ fi
 printf "\e[?2004l"
 stty sane
 #reset
+
+
+# perl Expect CPAN 2025.03.17
+PATH="/global/home/users/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/global/home/users/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/global/home/users/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/global/home/users/tin/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/global/home/users/tin/perl5"; export PERL_MM_OPT;
 
 ################################################################################
 # vim modeline, also see alias `vit`
