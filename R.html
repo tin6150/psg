@@ -739,7 +739,7 @@ sapply( df, typeof ) 	# sequentially apply the typeof fn to the expansion of df
 
 <PRE>
 capabilities() 		# see if support X11, etc
-source("myFuncList.R")	# import function list from file
+source("myFuncList.R")	# import function list from file # C++ #include ; python import
 
 system("id;pwd")	# run OS commands
 setwd("dirname")	# cd to dirname, most useful in interactive R session.
@@ -3713,6 +3713,11 @@ What test to use?  Decision tree
 input:  continuous
 output: continuous
 Test:   lm(), scatter plot with linear fit.  [or convert to log scale first, or quadratic, etc]
+
+
+parametric:     means model based, have assumptions, eg that distribution fit Normal/Gausian curve, chi-sq distribution, binomial distribution, etc.
+non-parametric: means NOT based on a model.  Cannot assume a distribution.  It relies on the ranking of the data itself.  It is more robust (since does not depends on assumptions that data fit a model, which maybe wrong), but then less powerful (less tight), in that it may not find stat significance because "threw away" the knowledge that a model would bring to the data.
+parameter-free: this still rely on a model... 
 
 ~~~~~
 

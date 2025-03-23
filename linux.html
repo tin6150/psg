@@ -1583,9 +1583,10 @@ Virtual Disk should be the center of gravity for work to present a "LUN" from th
 /c0/e8/s7	# is controller 0, hd at EID:Slt of 8:7 (eg RAID 6 volume for data)
 
 
-storcli64 /c0/eall/sall | grep Model\ Num	# get all hard drives model on controller 0
+storcli64 /c0/eall/sall show | grep Model\ Num	# get all hard drives model on controller 0
 
 storcli64 /c0 add vd raid6 drives=8:0-3		# create a LUN with disk 8:0 thru 8:3 (SID:Slt)
+storcli64 /c0 add vd raid6 drives=251:0-14 WB RA	# enclosure 251, slot 1, (14 disks, or thru flot 14?) Write Back, Read Ahead (these are defaults anyway)	
 
 storcli64 /c0/v1 start migrate type=raid6 option=add drives=8:4-7	# add disks 8:4 thru 8:7 to existing /c0/v1 VD (via migrate process)
 									# raid type remains the same
@@ -1661,13 +1662,20 @@ lsscsi -w -i -d	#
 ### p190 has controller properties.
 /opt/storcli64 /c0 show alarm 		# whether controller alarm is enabled (probably whether alarm is usable, not whether it is beeping) [only for 9750 and 9690a)
 
-storcli64 /call show event		# display controller events, presumably fail drive, error status, etc would be listed here
+storcli64 /call show events		# display controller events, presumably fail drive, error status, etc would be listed here
+
+storcli /call show events | egrep "Event Description|Time"
 
 
 p210 drive locate command
 /opt/storcli64 /c0/e8/s1 start locate
 /opt/storcli64 /c0/e8/s1 stop  locate
 
+
+storcli /c0/fall show			# show all foreign disk
+storcli /c0/fall del			# delete all foreign config, ie take the disks and use em
+
+storcli /c0 delete config force		# erase config that may exist on the disk array (eg cuz previously used, mbr marked, etc)
 
 storcli64 /c0/cv show all   		# check battery backup
 storcli64 /call/dall show all 		# get disk detail
@@ -1723,8 +1731,20 @@ MegaCli64 -AdpAllInfo -aALL	| egrep --color "^Adapter|Physical Devices|Disks|Cri
 MegaCli64 -LDInfo -Lall -aALL | egrep  --color -i "virtual|state|adapter"
 
 
-MegaCli64 -PDInfo -PhysDrv [1:2] -aALL | more
+MegaCli64 -PDInfo -PhysDrv [32:2] -aALL | more    # [enclosureNum:slotNum] eg is for enclosure 32, slot 2 (slot and device number seems always the same)
+./MegaCli64 -PdList -aall  | egrep 'Slot Number|Device Id|[Ss]tate' 
+./MegaCli64 -PdList -aall  | egrep 'Slot Number|[Sa]tate|Attention'
+./MegaCli64 -PdList -aall  | egrep 'Enclosure|Slot Number|Enclosure position|Device Id|Raw Size|Foreign State|flagged|Raw Size'
+
+# foreign disk...
+./MegaCli64 -CfgForeign -Dsply -a0
+./MegaCli64 -CfgForeign -Clear  -a0         # clear foreign mark on all disk, not specific slot, but fine, live disk are not foreign.
+./MegaCli64 -PDMakeGood -PhysDrv[32:2] -a0
+
+
 MegaCli64 -Pdgetmissing -a2		# see if there are missing drive in adapter 2
+
+
 
 MegaCli64 -PdList -aall | grep --color -i firmware	# get firmware info
 MegaCli64 -LdPdInfo -aAll # logicak disk info
@@ -1732,6 +1752,11 @@ MegaCli64 -LdPdInfo -aAll # logicak disk info
 lsblk
 
 ## how to find out which linux /dev/sdX maps to which VirtualDisk (LUN) on the RAID controller ??
+
+## what disk go tinto which VD (Virtual Disk, aka LD).  Rely on DiskGroup:
+./MegaCli64 -LdPdInfo -aALL | egrep -i 'slot|DiskGroup'
+./MegaCli64 -CFgDsply -a0 | egrep -i 'Virtual Drive|Group|Slot'
+./MegaCli64 -CFgDsply -a0 | egrep -i 'Virtual Drive|Group|Slot|RAID Level|Size'
 
 
 MegaCli64 -ShowSummary -aAll

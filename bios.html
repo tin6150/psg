@@ -1542,7 +1542,8 @@ Please press ANY key to continue ...
 
 Dell iDrac serial over lan 
 <BR>
-ipmitool -I lanplus -U admin -P XXXXXXXXXXXX -H ipmi-ip sol activate
+ipmitool      -I lanplus -U admin -P XXXXXXXXXXXX -H ipmi-ip sol activate
+ipmitool -C 3 -I lanplus -U admin -P XXXXXXXXXXXX -H ipmi-ip sol activate   # cipher 3 needed with newer SMC BMC
 <BR>
 
 <PRE>
