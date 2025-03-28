@@ -35,11 +35,11 @@ echo '{
 
 
 # if get arm-base, thinking of calling it armageddon :)  well, maybe armadillo.
-# might need name for a desktop...  deskette3 if restore from zyzyxia3... 
+# might need name for a desktop...  deskette3 if restore from zyzyxia3...   deskette18 (after the year, 32G)
 
 # primary hostname = network id
 #      scutil --get HostName 
-# sudo scutil --set HostName zyzyxia3
+# sudo scutil --set HostName zyzyxia3  # 2015 16G
 
 # bonjour name (local net id), will get from above?
 #      scutil --get LocalHostName 
