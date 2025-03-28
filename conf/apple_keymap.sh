@@ -32,3 +32,25 @@ echo '{
 }' > $HOME/Library/KeyBindings/DefaultKeyBinding.dict
 
 
+
+
+# if get arm-base, thinking of calling it armageddon :)  well, maybe armadillo.
+# might need name for a desktop...  deskette3 if restore from zyzyxia3... 
+
+# primary hostname = network id
+#      scutil --get HostName 
+# sudo scutil --set HostName zyzyxia3
+
+# bonjour name (local net id), will get from above?
+#      scutil --get LocalHostName 
+# sudo scutil --set LocalHostName zyzyxia3
+
+# Computer Name -- displayed by Finder and other (mac?) app, eg google drive?)
+#      scutil --get ComputerName
+# sudo scutil --set ComputerName ZyZyXia3
+
+
+
+# flush DNS cache, opt
+dscacheutil -flushcache
+
