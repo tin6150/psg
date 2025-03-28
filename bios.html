@@ -365,6 +365,173 @@ Ctrl-E	: BMC software IPMI server management
 
 </PRE>
 
+<H3>iDRAC access</H3>
+
+<H5>https</H5>
+
+if there is a browser that can use the ipmi/idrac network, pointing it to the the IP of iDRAC would bring up the web interface.
+
+<H5>ssh</H5>
+
+<PRE>
+instead of relying on ipmitool to remotely query/control the service processor, can ssh to it.
+
+ssh ipmi-ip -l admin
+
+get racadm>> prompt
+
+from here, can issue commands (optional to have explicitly called with  racadm)
+racadm help cmd
+
+racadm techsupreport collect 
+racadm jobqueue view
+racadm techsupreport export -l 10.0.92:/users/users/tin/tmp/tsr_report.zip
+# above would work if NFS server allows the racadm network to mount ?
+# other protocols are tftp, ftp, cifs.  scp is not supported, nor rcp.
+
+
+racadm get  iDRAC.serverboot.firstbootdevice 
+racadm set  iDRAC.serverboot.firstbootdevice PXE
+# above is a  one time boot config
+# after that, it rever to previous setting , ie FirstBootDevice=Normal
+# but that's not the BootOnce setting, a bit strange.
+racadm get  iDRAC.ServerBoot.BootOnce
+
+racadm help iDRAC.serverboot.firstbootdevice 
+racadm set  iDRAC.serverboot.firstbootdevice F11
+#    F10 (Lifecycle Controller)
+#    F11 (BIOS Boot Manager);   
+#    no F2 here, but F11 will have menu leading to bios setup.
+
+
+
+racadm getsel   # get system event log
+
+getsvctag       # get service tag aka serial number
+
+
+other commands to try?
+
+
+ clrsel               -- clear the System Event Log (SEL)
+ cmreset              -- perform a Chassis Manager reset operation
+ coredump             -- display the RAC coredump files
+ coredumpexport       -- Export the RAC coredump files
+ coredumpdelete       -- Deletes the core files
+ driverpack           -- display driverpack info
+
+ debug                -- Field Service Debug Authorization facility commands
+
+ exposeisminstallertohost -- Support Assist operations.
+
+ gethostnetworkinterfaces -- Display host network interface details
+ getled               -- Get the state of the LED on a module.
+ getniccfg            -- display current network settings   # IP, subnetmask, gateway,  LOM1 
+ getraclog            -- display the RAC log
+ getractime           -- display the current RAC time       # internally is GMT?
+ getremoteservicesstatus -- display remote services status
+
+
+
+racadm>>getremoteservicesstatus
+Server status: Out of POST
+LC status    : Ready
+RT status    : Ready
+Status       : Ready
+TS status    : Ready
+SEKM status  : Ready
+racadm>>
+
+
+getniccfg # YMMV, but IP can hint what host is on.
+
+
+racadm# get bios.MiscSettings.AssetTag
+racadm# set bios.MiscSettings.AssetTag n0029
+jobqueue create BIOS.Setup.1-1
+
+
+# how did i not set this NetworkSettings before??  was looking for it for long time!
+get BIOS.NetworkSettings.PxeDev1EnDis           # F2 | Bios Settings | Network Settings
+set BIOS.NetworkSettings.PxeDev1EnDis Enabled
+jobqueue create BIOS.Setup.1-1
+
+
+</PRE>
+
+
+<A HREF="https://dl.dell.com/content/manual65464730-integrated-dell-remote-access-controller-9-racadm-cli-guide.pdf?language=en-us">racadm CLI guide</A> iDRAC 9, 2024-09.
+
+<PRE>
+
+racadm cmd:
+
+
+get                  -- display RAC configuration properties
+get BIOS				# and many subcomponents
+# also get in these categories:
+
+ BIOS                -- Configuration of BIOS attributes
+ iDRAC               -- Configuration of iDRAC attributes
+ LifecycleController -- Configuration of LifecycleController attributes
+ Nic                 -- Configuration of NIC attributes
+ Storage             -- Configuration of Storage attributes
+ System              -- Configuration of System attributes
+ FC                  -- Configuration of Fiber Channel attributes
+ InfiniBand          -- Configuration of InfiniBand attributes
+
+
+  BIOS.IntegratedDevices ... # F2|System BIOS|Integrated Devices :: User Accessible USB Port, internal SD card, iDRAC Direct USB Port, Embeded NIC1
+  BIOS.IntegratedDevices ... # Embeded NIC1 has setting of "(Disabled (OS)"
+
+
+racadm>>get System.UserDefinedString
+ERROR: SWC0244 : Invalid Fully Qualified Device Descriptor (FQDD).
+# somewhere, can likely set some custom info, for say PO, hostname, or asset tag.
+
+
+
+
+getniccfg # the "get" equivalent for nic portion of the menu
+
+Integrated vs Embeded ?  
+	Integrated is OCP 3.0 slot NIC?
+	Embeded is the staic shared NIC for iDRAC + OS 1g NIC?
+	Infiniband shows up separately by itself (Mezaline card, as plain PCI device?)
+
+set nic.nicconfig.1.legacybootproto PXE   # F2|Device Settings|(select NIC)|NIC Config|Legacy Boot Protocol (ie boot option to support PXE)
+# nicconfig.1 seems like "Integrated Nic" (OCP 3.0 slot?)
+# nicconfig.3 seems to corresponds to the embeded NIC (1g RJ45 shared with iDRAC)
+jobqueue create NIC.Integrated.1-1-1 -r pwrcycle -s TIME_NOW
+
+
+
+FYI:
+nic.DeviceLevelConfig.1 # is F2|Device Settings|(select NIC)|Device Level COnfig ## Virtualization mode, Link speed, stuff that likely seldom need changing.
+
+
+</PRE>
+
+<H5>usb</H5>
+
+connect a usb (micro) from a laptop, it will establish an IP network over this connection.
+<BR>
+<BR>
+details at: 
+<BR>
+https://www.dell.com/support/manuals/en-us/idrac9-lifecycle-controller-v3.1-series/idrac_3.15.15.15_ug/accessing-idrac-interface-over-direct-usb-connection?guid=guid-2c43a175-3dd3-4a12-b747-d17c08e5bef6&lang=en-us
+<BR>
+<BR>
+
+<PRE>
+essentially, server/laptop would need to be configured with
+169.254.0.3
+169.254.0.4
+</PRE>
+
+
+
+
 
 <H3>HT - Hyperthreading/Logical Processor</H3>
 <PRE>
@@ -1091,10 +1258,19 @@ ipmitool raw 0x30 0xc7 0x11 0x01 0x01
 #                           ^^1^ ^^1^  for 1+1
 
 
+# check FTR status, must be done via lanplus.
+ipmitool -I lanplus -H ipmi-n0059 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa0 0x0 0x01 0x1a 0xd8
 # Enable FTR (so that node will re-calculate power requirements and negotiate with chassis, after cold power cycle)
 ipmitool -I lanplus -H ipmi-n0059 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa1 0x1 0x01 0x1a 0x01 0xd8
-# check FTR status
-ipmitool -I lanplus -H ipmi-n0059 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa0 0x0 0x01 0x1a 0xd8
+
+# check FTR status for (older bios?), still C6500
+ipmitool -I lanplus -H ipmi-n0004.savio4 -U admin -P $IPMIP  raw  0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa1 0x1 0x1 0x1a 0x01 0xd8
+# Enable FTR, need to be done 1 per chassis.
+ipmitool -I lanplus -H ipmi-n0004.savio4 -U admin -P $IPMIP  raw 0x6 0x34 0x45 0x70 0xc0 0xc8 0x20 0x0 0xa0 0x0 0x01 0x1a 0xd8
+# eg result 20 c4 1c 70 00 a0 00 01 01 1a 01 d3
+#                                         ^^
+#                                         the 01 means it is now in FTR negotiation.
+
 
 
 # Reboot Chassis Management
@@ -1165,6 +1341,27 @@ racadm techsupreport export -f tsr_report.zip
   /global/scratch/tin/singularity-repo/dirac1_dell_idracadm.img  /opt/dell/srvadmin/sbin/racadm  supportassist  exportlastcollection -f tsr.zip
 
 -->
+
+<A NAME="UpdateDellBios"></A>
+<A NAME="updateDellBios"></A>
+<H2>Update Dell BIOS</H2>
+
+login to machine, cd to folder where .BIN of bios was downloaded, and just run it
+
+eg
+<PRE>
+cd ~/gs/Downloads/Dell_C6520_bios                           # /global/home/groups/scs/tin/Downloads/Dell/C6520
+./BIOS_719W1_LN64_1.6.5_01.BIN                              # BIOS_JRHTF_LN64_1.14.1.BIN    # 2024.0916
+</PRE>
+
+even linux will execute the BIN and install the bios.
+(ie, no need to use racadm cmd)
+<BR>
+interactively ack, say Y to update, Y to reboot.
+<BR>
+do for each node of a chassis.
+<BR>
+
 
 <A NAME="UpdateIDRAC"></A>
 <A NAME="updateIdrac"></A>
@@ -1345,7 +1542,8 @@ Please press ANY key to continue ...
 
 Dell iDrac serial over lan 
 <BR>
-ipmitool -I lanplus -U admin -P XXXXXXXXXXXX -H ipmi-ip sol activate
+ipmitool      -I lanplus -U admin -P XXXXXXXXXXXX -H ipmi-ip sol activate
+ipmitool -C 3 -I lanplus -U admin -P XXXXXXXXXXXX -H ipmi-ip sol activate   # cipher 3 needed with newer SMC BMC
 <BR>
 
 <PRE>

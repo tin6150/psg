@@ -51,6 +51,17 @@
 </div>
 
 <!-- ######################################################################### -->
+<!--
+Hosts *.example.local
+        ServerAliveInterval 600
+        ProxyCommahd ssh eddart@vpn-greta.example.com -W %h:%p
+
+# so can do:
+# ssh edddart@y00.example.local # this will prompt for password twice, as it hop vpn-greta then to the host on the cli (y00).  
+
+-->
+
+<!-- ######################################################################### -->
 
 <H1>SSH, Tunnel, Port Forward</H1>
 
@@ -100,6 +111,9 @@ to login to old netapp needing 3des-cbc (which is now disabled cuz it is subject
 ssh -c 3des-cbc old-netapp-filer  
 <BR>
 ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 old-netapp-filer
+<BR>
+ssh -Q kex
+# listed supported algorithms (on the local machine running the ssh)
 <BR>
 
 

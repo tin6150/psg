@@ -601,6 +601,16 @@ wget http://apache/conf/yp.conf -O /etc/yp.conf
 # sed -i.bak -c "s/#Protocol 2,1/Protocol 2/" /etc/ssh/sshd_config
 
 
+## NFSv4 seems more friendly with firewall, streamlined the rpc port usage eg for file locking
+
+## test file lock
+
+flock -x ./local-lock-file echo 'cmd ran after obtaining file lock'
+echo $?
+# if lock doesn't work, the echo command should not run, exit code likely non zero
+
+
+
 </PRE>
 
 <H2>Updating OS</H2>
@@ -1172,6 +1182,13 @@ No need for "systemctl restart NetworkManger", though it doesn't hurt
 ipmi tag to vlan 20 (default is untagged):
 ipmitool lan set 1 vlan id 20
 
+
+If need 2 IP on a specific tag vlan (id 9 in example below), then would indeed need both vlan (.) and virtual interface (:) syntax:
+sudo ifconfig enp65s0f0      10.199.1.7 netmask 255.255.255.0 up   # native
+sudo ifconfig enp65s0f0.9    10.200.1.7 netmask 255.255.255.0 up   # vlan tag id 9
+sudo ifconfig enp65s0f0.9:1 192.168.1.7 netmask 255.255.255.0 up   # vlan tag id 9 2nd IP in a virtual interface
+
+
 </PRE>
 
 
@@ -1566,9 +1583,10 @@ Virtual Disk should be the center of gravity for work to present a "LUN" from th
 /c0/e8/s7	# is controller 0, hd at EID:Slt of 8:7 (eg RAID 6 volume for data)
 
 
-storcli64 /c0/eall/sall | grep Model\ Num	# get all hard drives model on controller 0
+storcli64 /c0/eall/sall show | grep Model\ Num	# get all hard drives model on controller 0
 
 storcli64 /c0 add vd raid6 drives=8:0-3		# create a LUN with disk 8:0 thru 8:3 (SID:Slt)
+storcli64 /c0 add vd raid6 drives=251:0-14 WB RA	# enclosure 251, slot 1, (14 disks, or thru flot 14?) Write Back, Read Ahead (these are defaults anyway)	
 
 storcli64 /c0/v1 start migrate type=raid6 option=add drives=8:4-7	# add disks 8:4 thru 8:7 to existing /c0/v1 VD (via migrate process)
 									# raid type remains the same
@@ -1644,13 +1662,20 @@ lsscsi -w -i -d	#
 ### p190 has controller properties.
 /opt/storcli64 /c0 show alarm 		# whether controller alarm is enabled (probably whether alarm is usable, not whether it is beeping) [only for 9750 and 9690a)
 
-storcli64 /call show event		# display controller events, presumably fail drive, error status, etc would be listed here
+storcli64 /call show events		# display controller events, presumably fail drive, error status, etc would be listed here
+
+storcli /call show events | egrep "Event Description|Time"
 
 
 p210 drive locate command
 /opt/storcli64 /c0/e8/s1 start locate
 /opt/storcli64 /c0/e8/s1 stop  locate
 
+
+storcli /c0/fall show			# show all foreign disk
+storcli /c0/fall del			# delete all foreign config, ie take the disks and use em
+
+storcli /c0 delete config force		# erase config that may exist on the disk array (eg cuz previously used, mbr marked, etc)
 
 storcli64 /c0/cv show all   		# check battery backup
 storcli64 /call/dall show all 		# get disk detail
@@ -1706,8 +1731,20 @@ MegaCli64 -AdpAllInfo -aALL	| egrep --color "^Adapter|Physical Devices|Disks|Cri
 MegaCli64 -LDInfo -Lall -aALL | egrep  --color -i "virtual|state|adapter"
 
 
-MegaCli64 -PDInfo -PhysDrv [1:2] -aALL | more
+MegaCli64 -PDInfo -PhysDrv [32:2] -aALL | more    # [enclosureNum:slotNum] eg is for enclosure 32, slot 2 (slot and device number seems always the same)
+./MegaCli64 -PdList -aall  | egrep 'Slot Number|Device Id|[Ss]tate' 
+./MegaCli64 -PdList -aall  | egrep 'Slot Number|[Sa]tate|Attention'
+./MegaCli64 -PdList -aall  | egrep 'Enclosure|Slot Number|Enclosure position|Device Id|Raw Size|Foreign State|flagged|Raw Size'
+
+# foreign disk...
+./MegaCli64 -CfgForeign -Dsply -a0
+./MegaCli64 -CfgForeign -Clear  -a0         # clear foreign mark on all disk, not specific slot, but fine, live disk are not foreign.
+./MegaCli64 -PDMakeGood -PhysDrv[32:2] -a0
+
+
 MegaCli64 -Pdgetmissing -a2		# see if there are missing drive in adapter 2
+
+
 
 MegaCli64 -PdList -aall | grep --color -i firmware	# get firmware info
 MegaCli64 -LdPdInfo -aAll # logicak disk info
@@ -1715,6 +1752,11 @@ MegaCli64 -LdPdInfo -aAll # logicak disk info
 lsblk
 
 ## how to find out which linux /dev/sdX maps to which VirtualDisk (LUN) on the RAID controller ??
+
+## what disk go tinto which VD (Virtual Disk, aka LD).  Rely on DiskGroup:
+./MegaCli64 -LdPdInfo -aALL | egrep -i 'slot|DiskGroup'
+./MegaCli64 -CFgDsply -a0 | egrep -i 'Virtual Drive|Group|Slot'
+./MegaCli64 -CFgDsply -a0 | egrep -i 'Virtual Drive|Group|Slot|RAID Level|Size'
 
 
 MegaCli64 -ShowSummary -aAll
@@ -3029,14 +3071,56 @@ sudo systemctl start openvpn-server@server-udp1194
 
 el8:
 #sudo systemctl start openvpn-server@{Server-config} 
-systemctl unmask openvpn-server@.servie
-systemctl enable openvpn-server@.servie
-systemctl enable openvpn-server@servie
+systemctl unmask openvpn-server@.service
+systemctl enable openvpn-server@.service
+systemctl enable openvpn-server@service
 
-systemctl enable --now openvpn-server@server
+systemctl enable --now openvpn-server@server                   # it is server after the @ (which match the name of the conf file?)
 systemd need config file in /etc/openvpn/server/server.conf  
 
 </PRE>
+
+<H5>journald</H5>
+
+I don't like journald.  have to use journalctl to look at its log, and it doesn't wrap long lines.  quite annoying.
+
+<PRE>
+systemd jours to the journal though.
+Not sure if syslog get all system + boot messages.
+Journal does not have support to central loggin.
+
+https://stackoverflow.com/questions/70382088/exporting-logs-using-journald-rsyslogd
+
+Seems like use of rsyslog with 
+module(load="imjournal")
+module(load="mmjsonparse")
+will grab journal messages and convert the json/bin to syslog text.
+
+module(load="imklog")
+to grab kernel messages.
+
+
+rsyslog forward to central server:
+legacy format:
+*.* @10.0.1.1:514        # UDP -> one @
+*.* @@10.0.1.1:514       # TCP -> two @s
+
+new format:
+*.* action(type="omfwd" target="10.0.2.1" port="514" protocol="udp")         # UDP
+*.* action(type="omfwd" target="10.0.2.1" port="10514" protocol="tcp")       # TCP
+
+
+to log to journal, use things like:
+
+echo 'hello' | systemd-cat -p info
+echo 'hello' | systemd-cat -p warning
+echo 'hello' | systemd-cat -p emerg
+
+
+ExecStart=/usr//bin/echo "[my_custom.service] start (systemd-cat)" | /usr/bin/systemd-cat -p info
+
+</PRE>
+
 
 <H4>SuSE</H4>
 
@@ -4400,6 +4484,14 @@ journalctl -xe 				# look at last systemd start failure?
 
 
 
+systemd ExecStart vs ExecStartPre call to logger has different result for destination?  it is weird!
+logger -p kern.info   -- msg 		# only to syslog, eg /var/log/syslog
+logger -p local7.info -- msg 		# only to journalctl ?  
+
+
+shell script called by ExecStart ... logger -p local7.info   doesn't get to any place!  weird!  EL 8.8 days.
+
+
 </PRE>
 
 <A NAME="progies"></A>
@@ -4436,9 +4528,17 @@ xmms		winamp like mp3 player (GUI for mpg123?)
 
 kate		KDE editor w/ many extras, like CLI window, mgnt tabs, somewhat like Visual Studio editor
 
-lynx		text based web browser
-elinks		a much better text based browser
+lynx		text based web browser.  still can work with google search form.
+ links		
+ links2
+elinks		a much better text based browser.  2024 not working with google search form.
 		set proxy server http"//address:port thru env var http_proxy
+		el8: sudo yum --enablerepo=powertools install elinks
+w3m		text baed web broser, avail in el8
+browsr
+
+surf ?		not text based browser. sizable dependency!
+
 BitchX		a text based irc client 
 irssi		a newer text based irc client, some cmd same as BitchX
 

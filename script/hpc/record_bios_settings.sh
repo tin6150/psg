@@ -12,6 +12,11 @@
 # pdsh -w n0[230-256].savio3         /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2022.0201
 #  pdsh -w n00[16-19,28-35,40-59].savio4 ~tin/PSG/script/hpc/record_bios_settings.sh dell
 
+# pre nasa move prep 2024.0809
+# sudo pdsh -w n0[000-119,146-181].savio4         ~tin/PSG/script/hpc/record_bios_settings.sh dell
+# sudo pdsh -w n0[179].savio4         ~tin/PSG/script/hpc/record_bios_settings.sh dell
+# sudo pdsh -w n0[178-180].savio4    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh  dell
+# sudo pdsh -w n0[120-145].savio4    /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh smc  # not working 2024.08
 
 # -f 1 means serial, one node at a time.  for when racadm need to do lock.  
 # output in /tmp/bios.settings.* in each node
@@ -66,7 +71,9 @@ echo "" >> $BIOSOUT
 
 record_bios_settings_supermicro () {
 
-	SUM=/global/scratch/tin/sw/sum/sum_2.0.0_Linux_x86_64/sum
+	#SUM=/global/scratch/users/tin/sw/sum/sum_2.0.0_Linux_x86_64/sum		# probably too old for n0120.savio4 Levine GPU
+	SUM=/global/home/groups/scs//tin/smc/SMC_BIOS_n0120sav4/sum_2.13.0_Linux_x86_64/sum    # 2024
+
 	#SUM=/global/home/users/tin/sw/sum/sum_2.0.0_Linux_x86_64/sum
 
 	##$SUM -c GetCurrentBiosCfg  --file $BIOSOUT --overwrite
@@ -160,7 +167,10 @@ case "$1" in
 esac
 
 
-chown tin $BIOSOUT $BIOSHIGHLIGHT
+# chown tin $BIOSOUT $BIOSHIGHLIGHT
+# testing before chown to avoid error
+[[ -f $BIOSOUT        ]] && chown tin $BIOSOUT 
+[[ -f $BIOSHIGHLIGHT  ]] && chown tin $BIOSHIGHLIGHT    # SMC don't have this version
 
 
 ################################################################################

@@ -42,8 +42,18 @@
 <H1>Windows Services for Linux aka Ubuntu on Win10</H1>
 
 <PRE>
+wsl --user root			# launch a root session, no need to remember password :P
+wsl -d Ubuntu-22.04 --user root # specify a distribution to use
+wsl --list			# list installed distributions
+wsl --set-default Ubuntu-22.04	# set which distro get run for 
 
-WSL is official in Fall Creator Edition of Windows 10 (2017?), avail in Windoze App Store.  
+wsl --update			# update wsl... (does this NOT get done as part of windows update?)
+
+</PRE>
+
+<PRE>
+
+WSL is official in Fail Creator Edition of Windows 10 (2017?), avail in Windoze App Store.  
 It is a Comptatibility Layer, no VM (hardware emulation), no recompilation.
 It is like reverse of WINE.  
 Linux ELF binary is run directly on windows.  WSL handles what would normally be linux kernel API calls.

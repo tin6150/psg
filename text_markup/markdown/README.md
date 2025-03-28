@@ -1,3 +1,5 @@
+(formerly render_test.md)
+
 # *TEST* rendering of .md
 
 others can ignore this doc.

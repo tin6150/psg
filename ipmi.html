@@ -134,8 +134,8 @@ ipmitool -I lan -U root -P calvin -H 10.8.1.76 chassis bootdev pxe options=persi
 
 ipmitool fru		# list all fru (eg 4 node in 2U chassis would list service tag and board serial of each node)
 
-ipmitool dcmi set_asset_tag	# set asset tag, presumably for the whole chassis ...
-ipmitool dcmi asset_tag 	# retrieve asset tag info 
+ipmitool dcmi set_asset_tag abc123	# set asset tag, presumably for the whole chassis ...
+ipmitool dcmi     asset_tag 		# retrieve asset tag info 
 
 ipmitool dcmi get_temp_reading	# cpu temperature
 ipmitool sensor			# many sensor info, may include inlet temperature
@@ -342,7 +342,8 @@ Generic usage:
 # using serial over lan (sol, ipmi 2.0)
 ipmitool -H hostname -U username -P pw list 				# see list of user
 ipmitool -H hostname -U username -P pw sol activate			# initial sol connection
-ipmitool -I lan     -U $username -P $pass -H $nodename  sol activate		# activte serial over lan
+ipmitool -I lan     -U $username -P $pass -H $nodename  sol activate	# activte serial over lan
+ipmitool -I lanplus -U admin      -C 3    -H inodename  sol activate   	# cipher 3 needed with newer SMC BMC (prompt for password)
 # should drop into console.  escape seq to control IPMI session:
 # ~. = exit
 # ~ ^Z = suspend
