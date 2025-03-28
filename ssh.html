@@ -233,6 +233,13 @@ vncviewer localhost:7
 
 ---
 
+ssh tin@vpn-g  -fnNT -L 5988:y01.greta.local:5988    # -n or one of those does not leave a login prompt on the destination server, just put the whole thing in bg once connectected.
+vncserver-virtual -geometry 1600x900 :88
+# real vnc client to localhost:88
+
+---
+
+
 copy file from remote place, though only 1 file at a time
 
 ssh tho01@grads "cat file" > file.txt
