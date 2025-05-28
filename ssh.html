@@ -311,6 +311,14 @@ ssh-keygen -p -f ~/.ssh/id_rsa
 EXPECT that existing key stored in remote allowed_hosts can remain functional. 
 man page implies this is not generating a brand new key pair, just changing the passphrase needed to access it.
 
+
+# Rocky 8 with SELinux, this seems to allow sshd to read my ~/.ssh/authorized_keys.
+# how to generalize for all users?
+sudo semanage fcontext -a -t ssh_home_t "/global/home/tin/.ssh(/.*)?"
+sudo restorecon -FRv "/global/home/tin/.ssh"
+sudo systemctl restart sshd
+
+
 </PRE>
 
 <A ID="ssh-agent"></A>

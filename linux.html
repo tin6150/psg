@@ -4042,6 +4042,22 @@ are tools that tend to draw on screen and make for very annoying logs :/
 Vendor Specific Tools/Packages
 </H1>
 
+Rocky / RHEL 8:
+<BR>
+Ref: https://dnf.readthedocs.io/en/latest/automatic.html
+<BR>
+<TT>
+sudo yum install dnf-automatic  # not all system have it pre-installed
+
+vi /etc/dnf/automatic.conf
+	# change to use 
+	# upgrade_type = security
+systemctl enable --now dnf-automatic-install.timer
+
+# and system automatically applies update.  security update would not tend to include software update that could break things.
+</TT>
+
+
 <A NAME="hp"></A>
 <H2>HP (Intel Hardware)</H2>
 
