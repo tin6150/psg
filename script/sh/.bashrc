@@ -10,6 +10,7 @@
 #  2024.0307  bofh HISTTIMEFORMAT 
 #  2024.0319  =~ bash regex in MAQUINA partial hostname match
 #  2024.0903  checked /etc/bashrc  of rocky 8 eg PS1 login_shell, didn't change anything meaningful
+#  2025.0609  lot of shuffle into fn block, but no net feature change, likely not really optmized either.  just making it less messy, seems more manageable now :D
 
 
 ####
@@ -124,12 +125,9 @@ condaSetup4sn () {
 	##echo "done condaSetup4sn"
 }
 
-
-
 #### ######################################## ####
 #### hopefully the end of conda buggy AI mess
 #### ######################################## ####
-
 
 
 ####
@@ -143,14 +141,14 @@ if [[ $- == *i* ]]; then
 		# else each screen need to source the agent config
 		# but if forgot already, enabling this should auto source on new window...
 		if [[ -f ~/.agent ]]; then
-			source ~/.agent
+			source ~/.agent   2>&1 > /dev/null 
 		fi
 	fi
 	# non X machine, start agent manually
 	# at this point, both block just do the same thing.
 	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == LL4*8*6 || ${MAQUINA} == L345 || ${MAQUINA} == wombat2  ]]; then
 		if [[ -f ~/.agent ]]; then
-			source ~/.agent
+            source ~/.agent   2>&1 > /dev/null
 		fi
 	fi
 fi
@@ -314,6 +312,69 @@ add_personal_module () {
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
     export ANSIBLE_NOCOWS=1 # newline print just doesnt work in most places :/
 } # end add_personal_module
+
+
+################################################################################
+### some check for host specific stuff
+################################################################################
+
+set_maquina_env () {
+	## MAQUINA=$(hostname)  ## now done at top
+
+	# 
+	if [[ x${MAQUINA} == x"bofh" ]]; then
+		if [[ $- == *i* ]]; then
+			#echo "strange problem on bofh, disabled conda setup for now"
+			: # no-op
+		fi
+		#condaSetup4sn  # strange problem on bofh, disabled for now
+	fi
+
+
+	if [[ x${MAQUINA} =~ x"wombat" || x${MAQUINA} == x"weasle" || x${MAQUINA} == x"LL486" ]]; then
+		alias reloj='xclock -digital -brief' 
+	fi
+
+	if [[ x${MAQUINA} == x"zink" ]]; then
+		# testing rootless docker in Zink
+		# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
+		export PATH=/home/tin/bin:$PATH
+		#export DOCKER_HOST=unix:///run/user/43143/docker.sock
+		alias zoom='echo zoom messes up audio and/or video on zink'
+		alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
+		alias reloj='xclock -digital -brief' 
+	fi
+
+	if [[ x${MAQUINA} == x"c7" ]]; then
+		COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
+		#add_local_module
+		### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
+	fi	
+
+	if [[ x${MAQUINA} == x"backbay" ]]; then
+		COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_backbay"
+
+		# custom config in .bashrc of sn@backbay 
+		# before adopting .bashrc from github PSG
+		export SCALA_HOME=/opt/scala/scala-2.11.1
+		export PATH=$SCALA_HOME/bin:$PATH
+
+		export NVM_DIR="/home/sn/.nvm"
+		[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
+		alias xt=/usr/bin/xfce4-terminal
+		alias lxt=/usr/bin/lxterminal
+		alias reboot='echo R U sure U want to do that?'
+		#export ANDROID_HOME=/home/sn/app/android-studio
+		export ANDROID_HOME=/home/sn/app/android-sdk
+		export JAVA_HOME=/home/sn/app/jdk1.8.0_101
+		export PATH=/home/sn/app/node-v4.5.0-linux-x64/bin:$PATH
+		export PATH=/home/sn/app/jdk1.8.0_101/bin:$PATH
+		export PATH=$PATH:/home/sn/app/android-studio/bin
+		export EDITOR=vi
+	fi	
+
+} # end set_maquina_env () 
 
 ##-----------------------------
 
@@ -843,70 +904,20 @@ export EDITOR=vi
 ###=====================================================================###
 
 ################################################################################
-### some check for host specific stuff
-################################################################################
-
-## MAQUINA=$(hostname)  ## now done at top
-
-if [[ x${MAQUINA} =~ x"wombat" || x${MAQUINA} == x"weasle" || x${MAQUINA} == x"LL486" ]]; then
-	alias reloj='xclock -digital -brief' 
-fi
-
-if [[ x${MAQUINA} == x"zink" ]]; then
-	# testing rootless docker in Zink
-	# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
-	export PATH=/home/tin/bin:$PATH
-	#export DOCKER_HOST=unix:///run/user/43143/docker.sock
-	alias zoom='echo zoom messes up audio and/or video on zink'
-	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
-	alias reloj='xclock -digital -brief' 
-fi
-
-if [[ x${MAQUINA} == x"c7" ]]; then
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
-	#add_local_module
-	### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
-fi	
-
-if [[ x${MAQUINA} == x"backbay" ]]; then
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_backbay"
-
-	# custom config in .bashrc of sn@backbay 
-	# before adopting .bashrc from github PSG
-	export SCALA_HOME=/opt/scala/scala-2.11.1
-	export PATH=$SCALA_HOME/bin:$PATH
-
-	export NVM_DIR="/home/sn/.nvm"
-	[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
-	alias xt=/usr/bin/xfce4-terminal
-	alias lxt=/usr/bin/lxterminal
-	alias reboot='echo R U sure U want to do that?'
-	#export ANDROID_HOME=/home/sn/app/android-studio
-	export ANDROID_HOME=/home/sn/app/android-sdk
-	export JAVA_HOME=/home/sn/app/jdk1.8.0_101
-	export PATH=/home/sn/app/node-v4.5.0-linux-x64/bin:$PATH
-	export PATH=/home/sn/app/jdk1.8.0_101/bin:$PATH
-	export PATH=$PATH:/home/sn/app/android-studio/bin
-	export EDITOR=vi
-fi	
-
-
-################################################################################
 ### main calling fn
 ##### invoking fn()'s
 ################################################################################
 
-add_brc_module # CGRL/vector SMF
 
+add_brc_module 		# CGRL/vector SMF
 add_local_module	# runnable in c7, cueball, likely other, without presenting much problem hopefully
-
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
 add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
 add_path_that_exist # blunt check for dir, if exist, add path (ie run on all host)
 add_personal_module 
 set_old_mpi_env 
+set_maquina_env		# check for hostname and set machine specific settings, mostly various old laptop/VM
 
 if [[ -f ~/.FLAG_cmaq_test_yes ]]; then
 	add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
@@ -928,15 +939,7 @@ if [[ $- == *i* ]]; then
 	##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
 fi
 
-# 
-if [[ x${MAQUINA} == x"bofh" ]]; then
-	if [[ $- == *i* ]]; then
-		#echo "strange problem on bofh, disabled conda setup for now"
-		: # no-op
-	fi
-	#condaSetup4sn  # strange problem on bofh, disabled for now
-fi
-
+########################################
 
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
 export COMMON_ENV_TRACE
@@ -947,7 +950,6 @@ export COMMON_ENV_TRACE
 ################################################################################
 
 
-########################################
 
 # my bashrc somehow doesn't get the right module (lua, which still depends on tcl!)
 # which module should be an alias of 28 lines (not 4)
