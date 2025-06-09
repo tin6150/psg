@@ -119,7 +119,7 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
 ## still didn't work in SL6, so seed it manually
 ##--echo "Path before anything.  $PATH"
 PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
-[[ -f /etc/bashrc ]] && source /etc/bashrc
+[[ -f /etc/bashrc ]] && source /etc/bashrc				# have this toward the end as well Line 859... 
 ##--echo "Path after /etc/bashrc.  $PATH"
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 
@@ -638,7 +638,20 @@ export EDITOR=vi
 #set -o vi     # allow ESC, /string ENTER for searching command line history.
 # nah, better to use ^R to search bash history
 
+################################################################################
+### main calling fn
+################################################################################
+
 add_brc_module # CGRL/vector SMF
+
+###=====================================================================###
+###=====================================================================###
+### .bashrc has degraded to long code chunk in "main" 
+###   if rewrite, maybe put much of code below into task specific fn
+###   that host/group can run or not... 
+###   + check the conda fns below too.
+###=====================================================================###
+###=====================================================================###
 
 ################################################################################
 ### some check for host specific stuff
@@ -856,7 +869,7 @@ fi
 # my bashrc somehow doesn't get the right module (lua, which still depends on tcl!)
 # which module should be an alias of 28 lines (not 4)
 # doing this at the end should fix this.  if not, source it from the shell.
-. /etc/bashrc 
+[[ -f /etc/bashrc ]] && source /etc/bashrc 	# this was in Line 122 also.
 
 ########################################
 
