@@ -4052,9 +4052,20 @@ sudo yum install dnf-automatic  # not all system have it pre-installed
 vi /etc/dnf/automatic.conf
 	# change to use 
 	# upgrade_type = security
-systemctl enable --now dnf-automatic-install.timer
+sudo systemctl enable --now dnf-automatic-install.timer
+
 
 # and system automatically applies update.  security update would not tend to include software update that could break things.
+
+systemctl status dnf-automatic.timer	# should have a line "Trigger:" that tell when next run will be.
+
+dnf check-update
+dnf-automatic		# no output if there are no updates
+
+
+/var/log/dnf.log		# though manual yum update also write to this log.
+
+
 </TT>
 
 
