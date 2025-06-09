@@ -11,6 +11,7 @@
 # pdsh -w n0[218-229].savio3         /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2021.0519
 # pdsh -w n0[230-256].savio3         /global/home/users/tin/PSG/script/hpc/record_bios_settings.sh dell # 2022.0201
 #  pdsh -w n00[16-19,28-35,40-59].savio4 ~tin/PSG/script/hpc/record_bios_settings.sh dell
+#  pdsh -w n0[004-059,064-083,096-099,154-157,191-198,207-222,231-234].savio4 ~tin/PSG/script/hpc/record_bios_settings.sh dell
 
 # pre nasa move prep 2024.0809
 # sudo pdsh -w n0[000-119,146-181].savio4         ~tin/PSG/script/hpc/record_bios_settings.sh dell

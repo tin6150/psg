@@ -689,6 +689,7 @@ if [[ x${MAQUINA} == x"backbay" ]]; then
 	export EDITOR=vi
 fi	
 
+alias lfs_ost_fix="lfs setstripe -c -1 ." # -1 means to use all ost, rather than kept to single one, which might be out of space #lustre
 
 add_local_module	# runnable in c7, cueball, likely other, without presenting much problem hopefully
 
