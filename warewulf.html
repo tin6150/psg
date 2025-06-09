@@ -51,6 +51,10 @@ baremetal provision tool.
 common in hpc environment
 pxe boot machine, most often run stateless nodes.
 
+<BR>
+this doc is largely on warewulf 2 at this point.
+Warewulf 3 has lots of update and work significanly differently.
+
 
 <BR><HR><BR>
 
@@ -300,6 +304,18 @@ pullvnfs does this, without the hybrid option
 wwvnfs -y --chroot=$CHROOT_BASE/$DIST-$BRANCH $DIST-$BRANCH
 
 </PRE>
+
+Set password, or update existing image
+
+chroot /var/chroots/rocky8-greta 
+set password inside that /etc/shadow
+yum update if desired
+
+rebuild the image:
+wwvnfs rocky8-greta 
+
+reboot machine.
+
 
 
 <!--

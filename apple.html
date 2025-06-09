@@ -61,11 +61,15 @@ Fn UpArrow		PgUp
 Fn DownArrow		PdDw
 Fn LeftArrow		Home
 Fn RightArrow		End
+
+Fn Enter		Ins	# this can send Insert key trigger (to say remote machine?)
 Fn backspace		Del     # works in vi  
 ^D			Del	# does NOT work in vi!
 
-??			Ins	# No way to emulate an insert key on the laptop :( :( :( 
+Alt Left/Right			# move between words
 
+
+Alt-Tab				# brew install Alt-Tab !! God send!!
 </PRE>
 
 <H1>Keyboard shortcuts when running Mint</H1>
@@ -195,6 +199,17 @@ Run this cmd in terminal, then restart:
 <TT>defaults write com.apple.Terminal FocusFollowsMouse -boolean YES</TT>
 <BR>
 <BR>
+
+<!--Remember-->
+<!--remember-->
+<H3>Reminder</H3>
+
+<LI> Terminal app settings: Profiles, Keyboard, "Use Option as Meta Key".  so that TMUX ^b,alt-2 is parsed correctly.   Also so that alt+. is last parameter as normal linux terminal.  
+<LI> Terminal: Unselect "Scroll alternate screen.
+<LI> Terminal: change bold color to diff color than normal text, not just bold, so rst/adoc highlight stands out.
+<LI> Terminal: "Sollid Colors" scheme pick random color for each tab.  maybe useful, but ls --color maybe unreadable in places? (ditton vim syntax color?)
+
+
 
 <H1>Package managers for Mac OS/X</H1>
 
@@ -691,10 +706,10 @@ apparently touchpad is still very touchy feely, sleep is hit and mostly miss.
 <A ID="hate"></A>
 <A ID="ps"></A>
 <H3>PS</H3>
-Why I hate Mac OS X ?
+MacOS annoyances - Why I hate Mac OS X ?
 <UL>
 
-<LI> How do you switch between windows?!?!  I mean for example switching between 1 specific browser window and 1 terminal window.
+<LI> Solution: <TT>brew install Alt-Tab </TT><A HREF="https://github.com/lwouis/alt-tab-macos">Alt-Tab</A> (See, there are people who agagrees that way to selectively bring front specific window/doc is useful!<BR> WAS: How do you switch between windows?!?!  I mean for example switching between 1 specific browser window and 1 terminal window.
 I don't want to hit alt-tab and have all browser windows come to the foreground and cover all my terminal windows.  Alt-` to cycle between windows of the same app doesn't help once the paparrazi already covered what I wanted to see from the other app!  I don't think there is a solution to this other than to get a 80" 8k monitor.  Hard to fit that in a messenge bag though, no?
 
 
@@ -732,6 +747,7 @@ Update from High Sierra (2017.11)
 <UL>
 * There is finally a lock screen option under the apple menu (^Cmd-Q).  (I don't suppose this was added cuz linked an apple watch).
 * There is finally a sleep option.  while "closing the lid" is not explicity listed in the power setting, just don't let the computer go to sleep when the screen blanks.  push out the screen saver.  
+* Emulate Insert key ??  Fn+Enter ?
 </UL>
 
 <BR>
@@ -741,6 +757,7 @@ These are cultural, but they have been imprinted into my brain.
 <UL>
 <LI> Sloppy mouse.  Cuz I am a sloppy guy.
 <LI> I want Alt-Tab.  Not Cmd-Tab AND Cmd-` AND Cmd-Lf/Rg.  When I alt-tab between a browser and a terminal, i want ONE window to come to foreground, NOT ALL windows of the app to cover the other window I want to read things from!
+<LI> <TT>brew install Alt-Tab </TT><A HREF="https://github.com/lwouis/alt-tab-macos">Alt-Tab</A> (selectively bring front specific window/doc.)
 </UL>
 
 <BR><HR><BR>

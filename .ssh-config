@@ -4,9 +4,23 @@
 # maybe better name as bofh-socks, cuz may need a infra1-socks for freeipa...
 Host bofh-socks
   HostName bofh 
+  User tin
   #DynamicForward 3125
   DynamicForward 43143
   #LogLevel DEBUG
+
+Host bofh
+  HostName bofh
+  User tin
+
+Host hima
+  HostName hima
+  User tin
+
+# GitLab.com
+Host gitlab.com
+  Preferredauthentications publickey
+  IdentityFile ~/.ssh/id_rsa
 
 Host *
         ServerAliveInterval 240

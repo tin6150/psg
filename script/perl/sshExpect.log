@@ -1,0 +1,1260 @@
+Warning: Permanently added 'ipmi-n0069.savio4,10.2.9.69' (ECDSA) to the list of known hosts.
+Password: 
+Password: 
+Connection closed by 10.2.9.69 port 22
+Password: 
+Password: 
+Password: Password: 
+Password: 
+Password: 
+Password: 
+tin@ipmi-n0069.savio4: Permission denied (publickey,keyboard-interactive).
+Password: 
+Password: Password: 
+Password: 
+Password: 
+tin@ipmi-n0069.savio4: Permission denied (publickey,keyboard-interactive).
+OpenSSH_8.0p1, OpenSSL 1.1.1k  FIPS 25 Mar 2021
+debug1: Reading configuration data /global//home/users/tin/.ssh/config
+debug1: /global//home/users/tin/.ssh/config line 6: Applying options for *
+debug1: /global//home/users/tin/.ssh/config line 9: Applying options for *
+debug1: /global//home/users/tin/.ssh/config line 13: Applying options for *
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: Reading configuration data /etc/ssh/ssh_config.d/05-redhat.conf
+debug1: Reading configuration data /etc/crypto-policies/back-ends/openssh.config
+debug1: configuration requests final Match pass
+debug1: re-parsing configuration
+debug1: Reading configuration data /global//home/users/tin/.ssh/config
+debug1: /global//home/users/tin/.ssh/config line 6: Applying options for *
+debug1: /global//home/users/tin/.ssh/config line 9: Applying options for *
+debug1: /global//home/users/tin/.ssh/config line 13: Applying options for *
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: Reading configuration data /etc/ssh/ssh_config.d/05-redhat.conf
+debug1: Reading configuration data /etc/crypto-policies/back-ends/openssh.config
+debug1: Connecting to ipmi-n0069.savio4 [10.2.9.69] port 22.
+debug1: Connection established.
+debug1: identity file /global//home/users/tin/.ssh/id_ecdsa type 2
+debug1: identity file /global//home/users/tin/.ssh/id_ecdsa-cert type -1
+debug1: identity file /global//home/users/tin/.ssh/cluster type 1
+debug1: identity file /global//home/users/tin/.ssh/cluster-cert type -1
+debug1: identity file /global//home/users/tin/.ssh/perceus type 1
+debug1: identity file /global//home/users/tin/.ssh/perceus-cert type -1
+debug1: Local version string SSH-2.0-OpenSSH_8.0
+debug1: Remote protocol version 2.0, remote software version OpenSSH_8.6
+debug1: match: OpenSSH_8.6 pat OpenSSH* compat 0x04000000
+debug1: Authenticating to ipmi-n0069.savio4:22 as 'root'
+debug1: SSH2_MSG_KEXINIT sent
+debug1: SSH2_MSG_KEXINIT received
+debug1: kex: algorithm: curve25519-sha256
+debug1: kex: host key algorithm: ecdsa-sha2-nistp256
+debug1: kex: server->client cipher: aes256-gcm@openssh.com MAC: <implicit> compression: none
+debug1: kex: client->server cipher: aes256-gcm@openssh.com MAC: <implicit> compression: none
+debug1: kex: curve25519-sha256 need=32 dh_need=32
+debug1: kex: curve25519-sha256 need=32 dh_need=32
+debug1: expecting SSH2_MSG_KEX_ECDH_REPLY
+debug1: Server host key: ecdsa-sha2-nistp256 SHA256:FBkJtVMWYgZP1+jLeKbNmJTMJQMovTYlZ76+Gl394pk
+debug1: Host 'ipmi-n0069.savio4' is known and matches the ECDSA host key.
+debug1: Found key in /global//home/users/tin/.ssh/known_hosts:1389
+debug1: rekey out after 4294967296 blocks
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug1: SSH2_MSG_NEWKEYS received
+debug1: rekey in after 4294967296 blocks
+debug1: Skipping ssh-dss key /global//home/users/tin/.ssh/cluster - not in PubkeyAcceptedKeyTypes
+debug1: Skipping ssh-dss key /global//home/users/tin/.ssh/perceus - not in PubkeyAcceptedKeyTypes
+debug1: Will attempt key: /global//home/users/tin/.ssh/id_ecdsa ECDSA SHA256:RNB4UkVZ9wTpRLvyad3V42cwHNuxj6RMNcdWByAMjXg explicit
+debug1: SSH2_MSG_EXT_INFO received
+debug1: kex_input_ext_info: server-sig-algs=<ssh-ed25519,sk-ssh-ed25519@openssh.com,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,webauthn-sk-ecdsa-sha2-nistp256@openssh.com>
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug1: Authentications that can continue: publickey,keyboard-interactive
+debug1: Next authentication method: publickey
+debug1: Offering public key: /global//home/users/tin/.ssh/id_ecdsa ECDSA SHA256:RNB4UkVZ9wTpRLvyad3V42cwHNuxj6RMNcdWByAMjXg explicit
+debug1: Authentications that can continue: publickey,keyboard-interactive
+debug1: Next authentication method: keyboard-interactive
+Password: 
+debug1: Authentication succeeded (keyboard-interactive).
+Authenticated to ipmi-n0069.savio4 ([10.2.9.69]:22).
+debug1: channel 0: new [client-session]
+debug1: Requesting no-more-sessions@openssh.com
+debug1: Entering interactive session.
+debug1: pledge: network
+debug1: client_input_global_request: rtype hostkeys-00@openssh.com want_reply 0
+debug1: Sending environment.
+debug1: Sending env LANG = en_US.UTF-8
+racadm>>
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>
+racadm>>exit
+
+debug1: client_input_channel_req: channel 0 rtype exit-status reply 0
+debug1: client_input_channel_req: channel 0 rtype eow@openssh.com reply 0
+debug1: channel 0: free: client-session, nchannels 1
+Connection to ipmi-n0069.savio4 closed.
+Transferred: sent 2656, received 3352 bytes, in 5.6 seconds
+Bytes per second: sent 471.2, received 594.7
+debug1: Exit status 0
+OpenSSH_8.0p1, OpenSSL 1.1.1k  FIPS 25 Mar 2021
+debug1: Reading configuration data /global//home/users/tin/.ssh/config
+debug1: /global//home/users/tin/.ssh/config line 6: Applying options for *
+debug1: /global//home/users/tin/.ssh/config line 9: Applying options for *
+debug1: /global//home/users/tin/.ssh/config line 13: Applying options for *
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: Reading configuration data /etc/ssh/ssh_config.d/05-redhat.conf
+debug1: Reading configuration data /etc/crypto-policies/back-ends/openssh.config
+debug1: configuration requests final Match pass
+debug1: re-parsing configuration
+debug1: Reading configuration data /global//home/users/tin/.ssh/config
+debug1: /global//home/users/tin/.ssh/config line 6: Applying options for *
+debug1: /global//home/users/tin/.ssh/config line 9: Applying options for *
+debug1: /global//home/users/tin/.ssh/config line 13: Applying options for *
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: Reading configuration data /etc/ssh/ssh_config.d/05-redhat.conf
+debug1: Reading configuration data /etc/crypto-policies/back-ends/openssh.config
+debug1: Connecting to ipmi-n0069.savio4 [10.2.9.69] port 22.
+debug1: Connection established.
+debug1: identity file /global//home/users/tin/.ssh/id_ecdsa type 2
+debug1: identity file /global//home/users/tin/.ssh/id_ecdsa-cert type -1
+debug1: identity file /global//home/users/tin/.ssh/cluster type 1
+debug1: identity file /global//home/users/tin/.ssh/cluster-cert type -1
+debug1: identity file /global//home/users/tin/.ssh/perceus type 1
+debug1: identity file /global//home/users/tin/.ssh/perceus-cert type -1
+debug1: Local version string SSH-2.0-OpenSSH_8.0
+debug1: Remote protocol version 2.0, remote software version OpenSSH_8.6
+debug1: match: OpenSSH_8.6 pat OpenSSH* compat 0x04000000
+debug1: Authenticating to ipmi-n0069.savio4:22 as 'root'
+debug1: SSH2_MSG_KEXINIT sent
+debug1: SSH2_MSG_KEXINIT received
+debug1: kex: algorithm: curve25519-sha256
+debug1: kex: host key algorithm: ecdsa-sha2-nistp256
+debug1: kex: server->client cipher: aes256-gcm@openssh.com MAC: <implicit> compression: none
+debug1: kex: client->server cipher: aes256-gcm@openssh.com MAC: <implicit> compression: none
+debug1: kex: curve25519-sha256 need=32 dh_need=32
+debug1: kex: curve25519-sha256 need=32 dh_need=32
+debug1: expecting SSH2_MSG_KEX_ECDH_REPLY
+debug1: Server host key: ecdsa-sha2-nistp256 SHA256:FBkJtVMWYgZP1+jLeKbNmJTMJQMovTYlZ76+Gl394pk
+debug1: Host 'ipmi-n0069.savio4' is known and matches the ECDSA host key.
+debug1: Found key in /global//home/users/tin/.ssh/known_hosts:1389
+debug1: rekey out after 4294967296 blocks
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug1: SSH2_MSG_NEWKEYS received
+debug1: rekey in after 4294967296 blocks
+debug1: Skipping ssh-dss key /global//home/users/tin/.ssh/cluster - not in PubkeyAcceptedKeyTypes
+debug1: Skipping ssh-dss key /global//home/users/tin/.ssh/perceus - not in PubkeyAcceptedKeyTypes
+debug1: Will attempt key: /global//home/users/tin/.ssh/id_ecdsa ECDSA SHA256:RNB4UkVZ9wTpRLvyad3V42cwHNuxj6RMNcdWByAMjXg explicit
+debug1: SSH2_MSG_EXT_INFO received
+debug1: kex_input_ext_info: server-sig-algs=<ssh-ed25519,sk-ssh-ed25519@openssh.com,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,webauthn-sk-ecdsa-sha2-nistp256@openssh.com>
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug1: Authentications that can continue: publickey,keyboard-interactive
+debug1: Next authentication method: publickey
+debug1: Offering public key: /global//home/users/tin/.ssh/id_ecdsa ECDSA SHA256:RNB4UkVZ9wTpRLvyad3V42cwHNuxj6RMNcdWByAMjXg explicit
+debug1: Authentications that can continue: publickey,keyboard-interactive
+debug1: Next authentication method: keyboard-interactive
+Password: 
+debug1: Authentication succeeded (keyboard-interactive).
+Authenticated to ipmi-n0069.savio4 ([10.2.9.69]:22).
+debug1: channel 0: new [client-session]
+debug1: Requesting no-more-sessions@openssh.com
+debug1: Entering interactive session.
+debug1: pledge: network
+debug1: client_input_global_request: rtype hostkeys-00@openssh.com want_reply 0
+debug1: Sending environment.
+debug1: Sending env LANG = en_US.UTF-8
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+Warning: Permanently added 'ipmi-n0009.savio4,10.2.9.9' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422593722937
+Reboot JID = RID_422593723286
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0009.savio4 closed.
+ssh: Could not resolve hostname ipmi-n0010.savio4,: Name or service not known
+Warning: Permanently added 'ipmi-n0010.savio4,10.2.9.10' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422594579109
+Reboot JID = RID_422594579594
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0010.savio4 closed.
+Warning: Permanently added 'ipmi-n0011.savio4,10.2.9.11' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422594658639
+Reboot JID = RID_422594659183
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0011.savio4 closed.
+Warning: Permanently added 'ipmi-n0012.savio4,10.2.9.12' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422597863062
+Reboot JID = RID_422597863508
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0012.savio4 closed.
+Warning: Permanently added 'ipmi-n0013.savio4,10.2.9.13' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422597946427
+Reboot JID = RID_422597947460
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0013.savio4 closed.
+Warning: Permanently added 'ipmi-n0014.savio4,10.2.9.14' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422598024636
+Reboot JID = RID_422598025161
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0014.savio4 closed.
+Warning: Permanently added 'ipmi-n0015.savio4,10.2.9.15' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422598112070
+Reboot JID = RID_422598112497
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0015.savio4 closed.
+Warning: Permanently added 'ipmi-n0016.savio4,10.2.9.16' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422598197689
+Reboot JID = RID_422598197944
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0016.savio4 closed.
+Warning: Permanently added 'ipmi-n0017.savio4,10.2.9.17' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422598286278
+Reboot JID = RID_422598286631
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0017.savio4 closed.
+Warning: Permanently added 'ipmi-n0018.savio4,10.2.9.18' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422598377541
+Reboot JID = RID_422598378179
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0018.savio4 closed.
+Warning: Permanently added 'ipmi-n0019.savio4,10.2.9.19' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422598459304
+Reboot JID = RID_422598459774
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0019.savio4 closed.
+Warning: Permanently added 'ipmi-n0068.savio4,10.2.9.68' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422599639558
+Reboot JID = RID_422599639987
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0068.savio4 closed.
+Warning: Permanently added 'ipmi-n0040.savio4,10.2.9.40' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422600606936
+Reboot JID = RID_422600607352
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0040.savio4 closed.
+Warning: Permanently added 'ipmi-n0041.savio4,10.2.9.41' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422600717319
+Reboot JID = RID_422600718169
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0041.savio4 closed.
+Warning: Permanently added 'ipmi-n0042.savio4,10.2.9.42' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422600827247
+Reboot JID = RID_422600827651
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0042.savio4 closed.
+Warning: Permanently added 'ipmi-n0043.savio4,10.2.9.43' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422600936249
+Reboot JID = RID_422600936951
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0043.savio4 closed.
+Warning: Permanently added 'ipmi-n0044.savio4,10.2.9.44' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601041074
+Reboot JID = RID_422601042555
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0044.savio4 closed.
+Warning: Permanently added 'ipmi-n0045.savio4,10.2.9.45' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601142352
+Reboot JID = RID_422601142852
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0045.savio4 closed.
+Warning: Permanently added 'ipmi-n0046.savio4,10.2.9.46' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601248543
+Reboot JID = RID_422601249214
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0046.savio4 closed.
+Warning: Permanently added 'ipmi-n0047.savio4,10.2.9.47' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601353377
+Reboot JID = RID_422601353872
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0047.savio4 closed.
+Warning: Permanently added 'ipmi-n0048.savio4,10.2.9.48' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601424987
+Reboot JID = RID_422601425870
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0048.savio4 closed.
+Warning: Permanently added 'ipmi-n0049.savio4,10.2.9.49' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601536613
+Reboot JID = RID_422601537446
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0049.savio4 closed.
+Warning: Permanently added 'ipmi-n0050.savio4,10.2.9.50' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601626281
+Reboot JID = RID_422601626627
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0050.savio4 closed.
+Warning: Permanently added 'ipmi-n0051.savio4,10.2.9.51' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601701389
+Reboot JID = RID_422601701930
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0051.savio4 closed.
+Warning: Permanently added 'ipmi-n0052.savio4,10.2.9.52' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601779611
+Reboot JID = RID_422601780301
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0052.savio4 closed.
+Warning: Permanently added 'ipmi-n0053.savio4,10.2.9.53' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601864946
+Reboot JID = RID_422601865706
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0053.savio4 closed.
+Warning: Permanently added 'ipmi-n0054.savio4,10.2.9.54' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422601955771
+Reboot JID = RID_422601956128
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0054.savio4 closed.
+Warning: Permanently added 'ipmi-n0055.savio4,10.2.9.55' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422602040021
+Reboot JID = RID_422602040425
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0055.savio4 closed.
+Warning: Permanently added 'ipmi-n0056.savio4,10.2.9.56' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422602200852
+Reboot JID = RID_422602202638
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0056.savio4 closed.
+Warning: Permanently added 'ipmi-n0057.savio4,10.2.9.57' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422602294519
+Reboot JID = RID_422602295702
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0057.savio4 closed.
+Warning: Permanently added 'ipmi-n0058.savio4,10.2.9.58' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422602374900
+Reboot JID = RID_422602375648
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0058.savio4 closed.
+Warning: Permanently added 'ipmi-n0059.savio4,10.2.9.59' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422602469246
+Reboot JID = RID_422602469887
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0059.savio4 closed.
+Warning: Permanently added 'ipmi-n0070.savio4,10.2.9.70' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422603158694
+Reboot JID = RID_422603159776
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0070.savio4 closed.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604234541
+Reboot JID = RID_422604235269
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0072.savio4 closed.
+Warning: Permanently added 'ipmi-n0073.savio4,10.2.9.73' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604340905
+Reboot JID = RID_422604342084
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0073.savio4 closed.
+Warning: Permanently added 'ipmi-n0074.savio4,10.2.9.74' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604440661
+Reboot JID = RID_422604441972
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0074.savio4 closed.
+Warning: Permanently added 'ipmi-n0075.savio4,10.2.9.75' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604547812
+Reboot JID = RID_422604550490
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0075.savio4 closed.
+Warning: Permanently added 'ipmi-n0076.savio4,10.2.9.76' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604644764
+Reboot JID = RID_422604645469
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0076.savio4 closed.
+Warning: Permanently added 'ipmi-n0077.savio4,10.2.9.77' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604727906
+Reboot JID = RID_422604728472
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0077.savio4 closed.
+Warning: Permanently added 'ipmi-n0078.savio4,10.2.9.78' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604806455
+Reboot JID = RID_422604807088
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0078.savio4 closed.
+Warning: Permanently added 'ipmi-n0079.savio4,10.2.9.79' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604898926
+Reboot JID = RID_422604899358
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0079.savio4 closed.
+Warning: Permanently added 'ipmi-n0080.savio4,10.2.9.80' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422604997811
+Reboot JID = RID_422604998378
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0080.savio4 closed.
+Warning: Permanently added 'ipmi-n0081.savio4,10.2.9.81' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422605083708
+Reboot JID = RID_422605084323
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0081.savio4 closed.
+Warning: Permanently added 'ipmi-n0082.savio4,10.2.9.82' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422605160722
+Reboot JID = RID_422605161478
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0082.savio4 closed.
+Warning: Permanently added 'ipmi-n0083.savio4,10.2.9.83' (ECDSA) to the list of known hosts.
+Password: 
+racadm>>
+racadm>>
+racadm>>racadm get BIOS.IntegratedDevices.EmbNic1
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+EmbNic1=Enabled
+racadm>>racadm set BIOS.IntegratedDevices.EmbNic1 DisabledOs
+[Key=BIOS.Setup.1-1#IntegratedDevices]
+RAC1017: Successfully modified the object value and the change is in 
+       pending state.
+       To apply modified value, create a configuration job and reboot 
+       the system. To create the commit and reboot jobs, use "jobqueue" 
+       command. For more information about the "jobqueue" command, see RACADM 
+       help.
+racadm>>racadm jobqueue create BIOS.Setup.1-1    -r pwrcycle -s TIME_NOW
+RAC1024: Successfully scheduled a job.
+Verify the job status using "racadm jobqueue view -i JID_xxxxx" command.
+Commit JID = JID_422605240636
+Reboot JID = RID_422605240972
+racadm>>
+racadm>>exit
+
+Connection to ipmi-n0083.savio4 closed.

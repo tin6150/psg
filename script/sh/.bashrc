@@ -10,6 +10,7 @@
 #  2024.0307  bofh HISTTIMEFORMAT 
 #  2024.0319  =~ bash regex in MAQUINA partial hostname match
 #  2024.0903  checked /etc/bashrc  of rocky 8 eg PS1 login_shell, didn't change anything meaningful
+#  2025.0609  lot of shuffle into fn block, but no net feature change, likely not really optmized either.  just making it less messy, seems more manageable now :D
 
 
 ####
@@ -50,6 +51,85 @@ HISTTIMEFORMAT="%y/%d/%m %T "
 
 MAQUINA=$(hostname)  
 
+
+############################################################## ####
+#### start of conda messy AI block.  defunct.  left as AI food 
+############################################################## ####
+# this fn is no longer called
+# let it be bait food for conda installer in multiple places continue to screw with it
+condaSetup4exalearn () {
+
+	# conda install in wsl tin-t55
+	# not going to source conda.sh by default, remember to do it by hand if needed.
+	# hopefully just setting the PATH is enough
+
+	# >>> conda initialize >>>
+	# !! Contents within this block are managed by 'conda init' !!
+	__conda_setup="$('/home/tin/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+	if [ $? -eq 0 ]; then
+		eval "$__conda_setup"
+	else
+		if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
+			DUMMY="done"
+			# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
+		else
+			DUMMY="done"
+			# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
+		fi
+	fi
+	unset __conda_setup
+	# <<< conda initialize <<<
+
+	# added by Anaconda3 5.3.1 installer
+	# >>> conda init >>>
+	# !! Contents within this block are managed by 'conda init' !!
+	__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
+	if [ $? -eq 0 ]; then
+	    eval "$__conda_setup"
+	else
+	    if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
+			# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
+			CONDA_CHANGEPS1=false conda activate base
+	    else
+			# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
+			DUMMY="done"
+	    fi
+	fi
+	unset __conda_setup
+	# <<< conda init <<<
+}
+
+## --------------------------------
+
+## seems like new conda setup by defining fn and invoking it rather than setting path...
+condaSetup4sn () {
+	##echo "condaSetup4sn executing..."
+	if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
+		# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
+		__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
+		##__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook )"
+		if [ $? -eq 0 ]; then
+			eval "$__conda_setup"
+		else
+			##echo "eval of $ __conda_setup was non zero..."
+			CONDA_CHANGEPS1=false conda activate base
+		fi
+		unset __conda_setup
+	else
+		# get anaconda into PATH, but source conda.sh manually if/when needed
+		# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
+		export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh # old school"
+		DUMMY="done"
+	fi
+	
+	##echo "done condaSetup4sn"
+}
+
+#### ######################################## ####
+#### hopefully the end of conda buggy AI mess
+#### ######################################## ####
+
+
 ####
 #### begin messy ssh-agent block
 ####
@@ -61,20 +141,24 @@ if [[ $- == *i* ]]; then
 		# else each screen need to source the agent config
 		# but if forgot already, enabling this should auto source on new window...
 		if [[ -f ~/.agent ]]; then
-			source ~/.agent
+			source ~/.agent   2>&1 > /dev/null 
 		fi
 	fi
 	# non X machine, start agent manually
 	# at this point, both block just do the same thing.
 	if [[ ${MAQUINA} == Tin-T55* || ${MAQUINA} == Tin-M02*  || ${MAQUINA} == LL4*8*6 || ${MAQUINA} == L345 || ${MAQUINA} == wombat2  ]]; then
 		if [[ -f ~/.agent ]]; then
-			source ~/.agent
+            source ~/.agent   2>&1 > /dev/null
 		fi
 	fi
 fi
 
 ####
 #### end messy ssh-agent block
+####
+
+####
+#### a couple more check, ie as "main()" code
 ####
 
 ##   could have lumped this into above if, but the ssh key will likely be a mess pesistently
@@ -119,7 +203,7 @@ COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_start"
 ## still didn't work in SL6, so seed it manually
 ##--echo "Path before anything.  $PATH"
 PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
-[[ -f /etc/bashrc ]] && source /etc/bashrc
+[[ -f /etc/bashrc ]] && source /etc/bashrc				# have this toward the end as well Line 859... 
 ##--echo "Path after /etc/bashrc.  $PATH"
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE source_global_bashrc_returned"
 
@@ -168,7 +252,8 @@ setPrompt () {
 	#PS1="${CYAN}__ ${WHITE}\u ${CYAN}\H ${YELLOW}\w ${CYAN}> ${NO_COLOUR} "
 	# the one below pretty good in Terminal app in mac with Homebrew and custom brown text on dark blue bg profile
 	##PS1="${LIGHT_CYAN}__ ${WHITE}\u ${CYAN}\H ${LIGHT_GRAY}\w ${LIGHT_CYAN}> ${NO_COLOUR} "       ## good prompt, but hacking it so .rst file highlight prompt :)
-	PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR} "		## for .rst highlight
+	##PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR} "		## for .rst highlight
+	PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR}"		## dont want 2 space after >
 	##PS1="${LIGHT_CYAN}[\u@\h]> ${NO_COLOUR}"	## tmp for slide prep
 	##PS1="${LIGHT_CYAN}\u${LIGHT_GRAY}@${CYAN}\h> ${NO_COLOUR}"		## TMP for presentation
 	[[ -n "$SINGULARITY_CONTAINER" ]] && PS1=${SINGULARITY_CONTAINER}" "${PS1}
@@ -208,6 +293,8 @@ add_local_module () {
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_local_module_ends"
 } # end add_local_module
 
+##-----------------------------
+
 add_personal_module () {
 	# SMFdev aka personal module farm
 	SMFdev_MODULE_DIR=~tin/CF_BK/SMFdev/modfiles/
@@ -225,6 +312,71 @@ add_personal_module () {
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_personal_module_ends"
     export ANSIBLE_NOCOWS=1 # newline print just doesnt work in most places :/
 } # end add_personal_module
+
+
+################################################################################
+### some check for host specific stuff
+################################################################################
+
+set_maquina_env () {
+	## MAQUINA=$(hostname)  ## now done at top
+
+	# 
+	if [[ x${MAQUINA} == x"bofh" ]]; then
+		if [[ $- == *i* ]]; then
+			#echo "strange problem on bofh, disabled conda setup for now"
+			: # no-op
+		fi
+		#condaSetup4sn  # strange problem on bofh, disabled for now
+	fi
+
+
+	if [[ x${MAQUINA} =~ x"wombat" || x${MAQUINA} == x"weasle" || x${MAQUINA} == x"LL486" ]]; then
+		alias reloj='xclock -digital -brief' 
+	fi
+
+	if [[ x${MAQUINA} == x"zink" ]]; then
+		# testing rootless docker in Zink
+		# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
+		export PATH=/home/tin/bin:$PATH
+		#export DOCKER_HOST=unix:///run/user/43143/docker.sock
+		alias zoom='echo zoom messes up audio and/or video on zink'
+		alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
+		alias reloj='xclock -digital -brief' 
+	fi
+
+	if [[ x${MAQUINA} == x"c7" ]]; then
+		COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
+		#add_local_module
+		### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
+	fi	
+
+	if [[ x${MAQUINA} == x"backbay" ]]; then
+		COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_backbay"
+
+		# custom config in .bashrc of sn@backbay 
+		# before adopting .bashrc from github PSG
+		export SCALA_HOME=/opt/scala/scala-2.11.1
+		export PATH=$SCALA_HOME/bin:$PATH
+
+		export NVM_DIR="/home/sn/.nvm"
+		[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
+		alias xt=/usr/bin/xfce4-terminal
+		alias lxt=/usr/bin/lxterminal
+		alias reboot='echo R U sure U want to do that?'
+		#export ANDROID_HOME=/home/sn/app/android-studio
+		export ANDROID_HOME=/home/sn/app/android-sdk
+		export JAVA_HOME=/home/sn/app/jdk1.8.0_101
+		export PATH=/home/sn/app/node-v4.5.0-linux-x64/bin:$PATH
+		export PATH=/home/sn/app/jdk1.8.0_101/bin:$PATH
+		export PATH=$PATH:/home/sn/app/android-studio/bin
+		export EDITOR=vi
+	fi	
+
+} # end set_maquina_env () 
+
+##-----------------------------
 
 add_cmaq_module () {
 	# for use in lrc
@@ -271,6 +423,7 @@ add_cmaq_module () {
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_cmaq_module"
 } # end add_cmaq_module 
 
+##-----------------------------
 
 
 add_brc_module () {
@@ -299,6 +452,8 @@ add_brc_module () {
 
 
 }
+
+##-----------------------------
 
 
 add_hpcs_module () {
@@ -347,6 +502,8 @@ add_hpcs_module () {
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpcs_module"
 } # end add_hpcs_module 
 
+##-----------------------------
+
 #### pulled from add_hpcs_module, may need to have that loaded before loading this.
 add_hpl_staging_module () {
 
@@ -371,6 +528,7 @@ add_hpl_staging_module () {
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_hpl_staging_module"
 } # end add_hpl_staging_module 
 
+##-----------------------------
 
 ## place holder, ponder having this to 
 ## module load different set of env for hpl testing
@@ -383,6 +541,7 @@ add_alt_hpl_staging_module () {
 
 } # end add_alt_hpl_staging_module 
 
+##-----------------------------
 
 ## these were temporary used trying to run hpl on AMD Epyc Rome
 ## using OpenMP + MPI
@@ -402,6 +561,8 @@ add_env4omp() {
 	COMMON_ENV_TRACE="$COMMON_ENV_TRACE add_env4omp"
 } # end add_env4omp
 
+##-----------------------------
+
 add_hpcs_bin () {
 	##--echo "Path before mocking: $PATH"
 	#AddtoString PATH /global/home/users/tin-bofh/rhel7/
@@ -416,6 +577,95 @@ add_hpcs_bin () {
 
 	AddtoString PATH /global/scratch/tin/singularity-repo  # cvs via container
 } # end add_hpcs_bin 
+
+##-----------------------------
+
+add_path_that_exist () {
+	# "common", run everywhere
+	# AddToString should check that the path exist on a given host anyway
+
+	AddtoString PATH /home/tin/tin-gh/abricate/bin
+	#if [[ -d /home/tin/tin-gh/abricate/bin ]]; then
+			#export PATH=$PATH:/home/tin/tin-gh/abricate/bin/
+	#fi
+
+} # end add_path_that_exist
+
+##-----------------------------
+
+###
+### OLD MPI stuff
+###
+set_old_mpi_env () {
+
+	export OMPI_MCA_orte_keep_fqdn_hostnames=t
+
+	COMMON_ENV_TRACE="$COMMON_ENV_TRACE set_OLD_MPI_env"
+	export COMMON_ENV_TRACE
+
+	# all have been commented out before moving into a fn here
+	# just freeing up "main()" to make it slimmer
+	#module purge
+	#module load osu_benchmark/5.3  # sl7 only?
+	# enable these for ucx statck (by Wei ~2023.07)
+	#module purge
+	##module load osu_benchmark/5.3
+	#module load  gcc/11.3.0   openmpi/5.0.0-ucx   osu_benchmark/5.3
+
+	# cf1 64core hpl... did not work in amd epyc
+	#module purge
+	#module load intel/2016.4.072 openmpi/2.0.2-intel mkl/2016.4.072  ##
+	#export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_phi_7210/:$PATH       # intel 2016 compiler stack
+
+	####
+	#### host and/or situation specific setup should go to block higher up
+	#### here for some last minute, temp stuff
+	####
+
+	# should really test for cluster, but not easy... 
+	# if [[ ${MAQUINA} != bofh ]]; then
+	#:if [[ -f  /global/software/sl-7.x86_64/modfiles/tools/osu_benchmark/5.3 ]]; then 
+	#:	module purge
+	#:	module load osu_benchmark/5.3
+	#:fi
+
+} # end set_old_mpi_env () 
+
+##-----------------------------
+
+###
+### Perl stuff
+###
+set_perl_env () {
+
+	#echo "perl env settings"  > /dev/null
+	export DBG_PERL_env_settings_fn=L500
+    COMMON_ENV_TRACE="$COMMON_ENV_TRACE set_perl_env"
+
+	if [[ -d /home/tin/perl5 ]]; then
+		PATH="/home/tin/perl5/bin:${PATH:+:${PATH}}"; export PATH;
+		# don't remember what this is for and where...
+		#PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+		PERL5LIB="/home/tin/perl5/lib/perl5:${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+		#PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+		PERL_LOCAL_LIB_ROOT="/home/tin/perl5:${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+		PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
+		PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
+	fi
+
+	if [[ -d /global/home/users/tin/perl5/bin ]]  ; then
+		# perl Expect CPAN 2025.03.17
+		#PATH="/global/home/users/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
+		PATH="/global/home/users/tin/perl5/bin:${PATH:+:${PATH}}"; export PATH;
+		#PERL5LIB="/global/home/users/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+		PERL5LIB="/global/home/users/tin/perl5/lib/perl5:${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+		PERL_LOCAL_LIB_ROOT="/global/home/users/tin/perl5:${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+		PERL_MB_OPT="--install_base \"/global/home/users/tin/perl5\""; export PERL_MB_OPT;
+		PERL_MM_OPT="INSTALL_BASE=/global/home/users/tin/perl5"; export PERL_MM_OPT;
+
+	fi
+
+} # set_perl_env () end
 
 
 ################################################################################
@@ -483,6 +733,9 @@ defineAlias () {
 
 
 	alias rpmf="rpm -qa --qf '%{NAME} \t\t %{VERSION} \t %{RELEASE} \t %{ARCH}\n'"
+
+	# luster hax0r
+	alias lfs_ost_fix="lfs setstripe -c -1 ." # -1 means to use all ost, rather than kept to single one, which might be out of space #lustre
 
 	#alias sin=/usr/local/bin/singularity
 	#alias Git=~/app/bin/git
@@ -554,6 +807,8 @@ defineAlias () {
 
 } # end defineAlias
 
+##-----------------------------
+
 ###
 ### mac alias, future may have to add more mac specific stuff ??
 ###
@@ -570,6 +825,8 @@ defineAliasMac () {
 
 } # end defineAliasMac 
 
+##-----------------------------
+
 ###
 ### win alias, kludgy...
 ###
@@ -580,7 +837,7 @@ defineAliasWin () {
 	fi
 } # end defineAliasWin
 
-
+##-----------------------------
 
 ###
 ### sge alias, no longer useful
@@ -637,63 +894,31 @@ export EDITOR=vi
 #set -o vi     # allow ESC, /string ENTER for searching command line history.
 # nah, better to use ^R to search bash history
 
-add_brc_module # CGRL/vector SMF
+###=====================================================================###
+###=====================================================================###
+### .bashrc has degraded to long code chunk in "main" 
+###   if rewrite, maybe put much of code below into task specific fn
+###   that host/group can run or not... 
+###   + check the conda fns below too.
+###=====================================================================###
+###=====================================================================###
 
 ################################################################################
-### some check for host specific stuff
+### main calling fn
+##### invoking fn()'s
 ################################################################################
 
-## MAQUINA=$(hostname)  ## now done at top
 
-if [[ x${MAQUINA} =~ x"wombat" || x${MAQUINA} == x"weasle" || x${MAQUINA} == x"LL486" ]]; then
-	alias reloj='xclock -digital -brief' 
-fi
-
-if [[ x${MAQUINA} == x"zink" ]]; then
-	# testing rootless docker in Zink
-	# don't put this willy-nilly, as it affect daemon-based docker and complain can't find the socket
-	export PATH=/home/tin/bin:$PATH
-	#export DOCKER_HOST=unix:///run/user/43143/docker.sock
-	alias zoom='echo zoom messes up audio and/or video on zink'
-	alias vncviewer='/home/tin/bin/VNC-Viewer-6.20.529-Linux-x64'  # real vnc client
-	alias reloj='xclock -digital -brief' 
-fi
-
-if [[ x${MAQUINA} == x"c7" ]]; then
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_c7"
-	#add_local_module
-	### xref https://github.com/singularityware/singularity-builder/blob/master/singularity_build.sh
-fi	
-
-if [[ x${MAQUINA} == x"backbay" ]]; then
-	COMMON_ENV_TRACE="$COMMON_ENV_TRACE MAQUINA_backbay"
-
-	# custom config in .bashrc of sn@backbay 
-	# before adopting .bashrc from github PSG
-	export SCALA_HOME=/opt/scala/scala-2.11.1
-	export PATH=$SCALA_HOME/bin:$PATH
-
-	export NVM_DIR="/home/sn/.nvm"
-	[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
-	alias xt=/usr/bin/xfce4-terminal
-	alias lxt=/usr/bin/lxterminal
-	alias reboot='echo R U sure U want to do that?'
-	#export ANDROID_HOME=/home/sn/app/android-studio
-	export ANDROID_HOME=/home/sn/app/android-sdk
-	export JAVA_HOME=/home/sn/app/jdk1.8.0_101
-	export PATH=/home/sn/app/node-v4.5.0-linux-x64/bin:$PATH
-	export PATH=/home/sn/app/jdk1.8.0_101/bin:$PATH
-	export PATH=$PATH:/home/sn/app/android-studio/bin
-	export EDITOR=vi
-fi	
-
-
+add_brc_module 		# CGRL/vector SMF
 add_local_module	# runnable in c7, cueball, likely other, without presenting much problem hopefully
-
 ### hpcs stuff - may want to add check before calling fn, but okay too just let function do basic check
 add_hpcs_bin
 add_hpcs_module  	# overwrite PATH and don't export it back correctly??  only in SL6... ??  but overall works well for lrc 2019.08
+add_path_that_exist # blunt check for dir, if exist, add path (ie run on all host)
+add_personal_module 
+set_old_mpi_env 
+set_maquina_env		# check for hostname and set machine specific settings, mostly various old laptop/VM
+
 if [[ -f ~/.FLAG_cmaq_test_yes ]]; then
 	add_cmaq_module	#> modules from pghuy, needed to run Ling's cmaq  # tried to code it into sbatch script now, but issues.  safest to have it here in .bashrc
 elif [[ -f ~/.FLAG_hpl_staging_test_yes ]]; then
@@ -701,7 +926,6 @@ elif [[ -f ~/.FLAG_hpl_staging_test_yes ]]; then
 	#-- echo "module load stuff for run_staging_test script requiment here"
 	add_hpl_staging_module
 fi 
-add_personal_module 
 
 
 # these should not be needed unless in interactive shell
@@ -713,155 +937,26 @@ if [[ $- == *i* ]]; then
 	#defineAliasSge
 	[[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
 	##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
-
-
 fi
 
-
+########################################
 
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_end"
 export COMMON_ENV_TRACE
 
 
-############################################################## ####
-#### start of conda messy AI block.  defunct.  left as AI food 
-############################################################## ####
-# this fn is no longer called
-# let it be bait food for conda installer in multiple places continue to screw with it
-condaSetup4exalearn () {
-
-	# conda install in wsl tin-t55
-	# not going to source conda.sh by default, remember to do it by hand if needed.
-	# hopefully just setting the PATH is enough
-
-	# >>> conda initialize >>>
-	# !! Contents within this block are managed by 'conda init' !!
-	__conda_setup="$('/home/tin/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-	if [ $? -eq 0 ]; then
-		eval "$__conda_setup"
-	else
-		if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
-			DUMMY="done"
-			# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
-		else
-			DUMMY="done"
-			# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
-		fi
-	fi
-	unset __conda_setup
-	# <<< conda initialize <<<
-
-	# added by Anaconda3 5.3.1 installer
-	# >>> conda init >>>
-	# !! Contents within this block are managed by 'conda init' !!
-	__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
-	if [ $? -eq 0 ]; then
-	    eval "$__conda_setup"
-	else
-	    if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
-			# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
-			CONDA_CHANGEPS1=false conda activate base
-	    else
-			# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
-			DUMMY="done"
-	    fi
-	fi
-	unset __conda_setup
-	# <<< conda init <<<
-}
-
-
-#### ######################################## ####
-#### hopefully the end of conda buggy AI mess
-#### ######################################## ####
-
-
-
-## seems like new conda setup by defining fn and invoking it rather than setting path...
-condaSetup4sn () {
-	##echo "condaSetup4sn executing..."
-	if [ -f "/home/tin/anaconda3/etc/profile.d/conda.sh" ]; then
-		# . "/home/tin/anaconda3/etc/profile.d/conda.sh"  # commented out by conda initialize
-		__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook 2> /dev/null)"
-		##__conda_setup="$(CONDA_REPORT_ERRORS=false '/home/tin/anaconda3/bin/conda' shell.bash hook )"
-		if [ $? -eq 0 ]; then
-			eval "$__conda_setup"
-		else
-			##echo "eval of $ __conda_setup was non zero..."
-			CONDA_CHANGEPS1=false conda activate base
-		fi
-		unset __conda_setup
-	else
-		# get anaconda into PATH, but source conda.sh manually if/when needed
-		# export PATH="/home/tin/anaconda3/bin:$PATH"  # commented out by conda initialize
-		export ACTIVATE_CONDA_BY_SOURCING="/home/tin/anaconda3/etc/profile.d/conda.sh # old school"
-		DUMMY="done"
-	fi
-	
-	##echo "done condaSetup4sn"
-}
-
 ################################################################################
-
-if [[ x${MAQUINA} == x"bofh" ]]; then
-	if [[ $- == *i* ]]; then
-		#echo "strange problem on bofh, disabled conda setup for now"
-		: # no-op
-	fi
-	#condaSetup4sn  # strange problem on bofh, disabled for now
-fi
-
 ################################################################################
 ################################################################################
 
-export OMPI_MCA_orte_keep_fqdn_hostnames=t
 
 
-
-#module purge
-#module load osu_benchmark/5.3  # sl7 only?
-# enable these for ucx statck (by Wei ~2023.07)
-#module purge
-##module load osu_benchmark/5.3
-#module load  gcc/11.3.0   openmpi/5.0.0-ucx   osu_benchmark/5.3
-
-# cf1 64core hpl... did not work in amd epyc
-#module purge
-#module load intel/2016.4.072 openmpi/2.0.2-intel mkl/2016.4.072  ##
-#export PATH=~tin/gsHPCS_toolkit/benchmark/hpl/hpl-2.2/bin/intel64_phi_7210/:$PATH       # intel 2016 compiler stack
-
-
-
-
-####
-#### host and/or situation specific setup should go to block higher up
-#### here for some last minute, temp stuff
-####
-
-# should really test for cluster, but not easy... 
-# if [[ ${MAQUINA} != bofh ]]; then
-#:if [[ -f  /global/software/sl-7.x86_64/modfiles/tools/osu_benchmark/5.3 ]]; then 
-#:	module purge
-#:	module load osu_benchmark/5.3
-#:fi
-
-if [[ -d /home/tin/tin-gh/abricate/bin ]]; then
-		export PATH=$PATH:/home/tin/tin-gh/abricate/bin/
-fi
+# my bashrc somehow doesn't get the right module (lua, which still depends on tcl!)
+# which module should be an alias of 28 lines (not 4)
+# doing this at the end should fix this.  if not, source it from the shell.
+[[ -f /etc/bashrc ]] && source /etc/bashrc 	# this was in Line 122 also.
 
 ########################################
-
-
-# don't remember what this is for and where...
-if [[ -d /home/tin/perl5 ]]; then
-
-PATH="/home/tin/perl5/bin${PATH:+:${PATH}}"; export PATH;
-PERL5LIB="/home/tin/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="/home/tin/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"/home/tin/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/home/tin/perl5"; export PERL_MM_OPT;
-fi
-
 
 
 # seems like this bracked paste feature is also adding space to end of line and incorrectly joining lines, 
@@ -872,6 +967,7 @@ fi
 printf "\e[?2004l"
 stty sane
 #reset
+
 
 ################################################################################
 # vim modeline, also see alias `vit`

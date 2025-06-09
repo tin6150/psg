@@ -430,6 +430,7 @@ sudo mst start
 sudo mlxconfig -d /dev/mst/mt4123_pciconf0 q | grep -i SPLIT       # q=query, but split_mode is on the swithc, not HBA
 sudo mlxconfig -d /dev/mst/SW_MT54000_EVB-SX-1_L00_lid-0x0001 q    # doc says switch device path could exist under /dev/mst (not for me)
 
+
 </PRE>
 
 applying raw config file.  there is command to upload a raw config file (eg from support?) to 
@@ -844,10 +845,14 @@ ref:
 <PRE>
 
 mst start
-mlxconfig query | grep LINK_TY
+mlxconfig query | grep LINK_TYPE
 
 # 1 = IB
 # 2 = Eth/VPI
+
+# if no mst driver, can use address from `lspci | grep Mellanox`
+# mlxconfig -d 65:00.0 query | grep LINK_TYPE
+# mlxconfig --yes -d 65:00.0 set LINK_TYPE_P1=1 LINK_TYPE_P2=1
 
 </PRE>
 
