@@ -58,7 +58,59 @@ These are not exactly right, but think of them more or less this way :)
 <LI>  </LI>
 
 <BR><BR>
+Ports and Daemon for troubleshooting
 
+<BR><BR>
+
+<PRE cf="code">
+/etc/services ::
+
+ldap            389/tcp
+ldap            389/udp
+ldaps           636/tcp                         # LDAP over SSL
+ldaps           636/udp                         # LDAP over SSL
+
+radius          1812/tcp                        # Radius
+radius          1812/udp                        # Radius
+
+#radius-acct     1813/tcp        radacct         # Radius Accounting		
+#radius-acct     1813/udp        radacct         # Radius Accounting
+#radius-dynauth  3799/tcp                # RADIUS Dynamic Authorization		#commented line are service likely not in use by FreeIPA
+#radius-dynauth  3799/udp                # RADIUS Dynamic Authorization
+
+
+kpasswd         464/tcp         kpwd            # Kerberos "passwd"
+kpasswd         464/udp         kpwd            # Kerberos "passwd"
+
+kerberos        88/tcp          kerberos5 krb5  # Kerberos v5
+kerberos        88/udp          kerberos5 krb5  # Kerberos v5
+kerberos-adm    749/tcp                         # Kerberos `kadmin' (v5)
+kerberos-adm    749/udp                         # kerberos administration
+
+#kerberos-iv     750/udp         kerberos4 kerberos-sec kdc loadav
+#kerberos-iv     750/tcp         kerberos4 kerberos-sec kdc rfile
+#kerberos_master 751/udp         pump            # Kerberos authentication
+#kerberos_master 751/tcp         pump            # Kerberos authentication
+
+</PRE>
+
+
+<BR><BR>
+
+<PRE cf="code">
+ps -ef ::
+
+
+radiusd     2289       1  0 Jan22 ?        00:06:05 /usr/sbin/radiusd -d /etc/raddb
+
+root        1797       1  0 Jan22 ?        00:08:25 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-custodia /etc/ipa/custodia/custodia.conf
+ods         2271       1  0 Jan22 ?        00:00:01 /usr/libexec/platform-python -I /usr/libexec/ipa/ipa-dnskeysyncd
+ipaapi    194827    1779  0 Jun08 ?        00:00:03 (wsgi:ipa)      -DFOREGROUND
+# no ldap daemon
+
+</PRE>
+
+<BR><BR>
 See Also:
 <LI> <A HREF="linux.html#authconfig">Linux.html#authconfig</A> </LI>
 <LI>  </LI>
@@ -1493,6 +1545,13 @@ Maybe easier just use command line tool :)
 Allowed radius clients list configured in 
 /etc/radius?/ client.conf
 /etc/ipa ?
+<BR>
+<BR>
+
+radclient -d /etc/radius/ dictionary -f test.rad -h radius_server_ip
+telnet radius_server_ip 1812
+nc     radius_server_ip 1812
+
 <BR>
 <BR>
 

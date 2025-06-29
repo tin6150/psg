@@ -4046,13 +4046,16 @@ Rocky / RHEL 8:
 <BR>
 Ref: https://dnf.readthedocs.io/en/latest/automatic.html
 <BR>
-<TT>
+
+<PRE>
+
 sudo yum install dnf-automatic  # not all system have it pre-installed
 
 vi /etc/dnf/automatic.conf
 	# change to use 
 	# upgrade_type = security
 sudo systemctl enable --now dnf-automatic-install.timer
+sudo systemctl enable --now dnf-automatic.timer	           # Rocky 8.10 seems to need this as well
 
 
 # and system automatically applies update.  security update would not tend to include software update that could break things.
@@ -4066,7 +4069,7 @@ dnf-automatic		# no output if there are no updates
 /var/log/dnf.log		# though manual yum update also write to this log.
 
 
-</TT>
+</PRE>
 
 
 <A NAME="hp"></A>
@@ -4508,6 +4511,8 @@ journalctl -no-pager -f -u postfix    	# see systemctl output for (service) unit
 					# -f is follow, like tail -f
 
 journalctl -xe 				# look at last systemd start failure?
+
+journalctl -u network 			# log for network service (systectl restart network)
 
 
 
