@@ -24,26 +24,31 @@
 ##   0  1  2  *  *            /root/rclone_script/rclone_tar.sh 
 
 ## Tin 2025.05.19 setup for samoa, destination dir partly encoded in /root/.config/rclone...conf  with root_folder_id 
+## Tin 2025.07.24, add:
+## LOCAL_BACKUP_LIST for buddha ccosemis* that were missed out in prior backup
 
-##LOCAL_BACKUP_LIST="/home"       # beppic-filer
-##LOCAL_BACKUP_LIST="/home /eda"    # beppic-filer
-#LOCAL_BACKUP_LIST="/global/oldhome /eda"    # beppic-filer
-#++LOCAL_BACKUP_LIST="/home /global/oldhome /eda"    # beppic-filer
 
-##LOCAL_BACKUP_LIST="/opt/gitlab/backups"       # greyhound
-
-# LOCAL_BACKUP_LIST="/dbbackup/mysql_backups"  # beagle - rclone in cron.daily
 # /etc /srv are annoying as they create too many little files, so left that to the 7-day rotation script
-#++LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
 
-## list updated 2025.0519 for samoa
+## list updated 2025.0726 for samoa
 LOCAL_BACKUP_LIST="/etc /global/home \
-  /global/data/yuebinfan \
+  /global/data/buddha \
+  /global/data/ccosemis \
+  /global/data/ccosemis-off \
+  /global/data/goddess \
+  /global/data/home-gpanda \
   /global/data/jzhang9 \
-  /global/data/usbHdXfer \
-  /global/data/goddess /global/data/home-gpanda /global/data/mariah /global/data/mariahdata \
-  /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup \
-    /global/data/gpanda/pghuy /global/data/gpanda/wzhou /global/data/gpanda/yhanw \
+  /global/data/mariah \
+  /global/data/mariahdata \
+  /global/data/seasonal \
+  /global/data/seasonal2 \
+  /global/data/transportation \
+    /global/data/usrbackup \
+    /global/data/usbHdXfer \
+  /global/data/yuebinfan \
+  /global/data/gpanda/pghuy \
+  /global/data/gpanda/wzhou \
+  /global/data/gpanda/yhanw \
   /global/data/gpanda/lbastien \
   /global/data/gpanda/ljin \
   /global/data/gpanda/ljin_Shared/Shared \
@@ -52,8 +57,11 @@ LOCAL_BACKUP_LIST="/etc /global/home \
   /global/data/scratch_lrc/SFDomain \
     /global/data/scratch_lrc/SARMAP/LAY27_LingOpt \
     /global/data/scratch_lrc/SARMAP/LAY35_LingOpt"  
-#### above yield 21 .tgz by rcat/rclone.  2021-04 seems a complete backup, from 4/26 to 5/8
+## 
 
+##LOCAL_BACKUP_LIST="/etc /global/home \
+
+## did readd these back:
 ## list to be re-added once sizing work for rlcone   /global/data/scratch_lrc/SARMAP/ was too big for 2021Mar8 LAY35_LingOpt
 ## ~7 TB is largest so far, actually, that was dir with many files
 ## LAY35_LingOpt is 9.2 T... with dirs dizes 1.8T to 2.8T
@@ -90,7 +98,8 @@ REMOTE_NAME_NoCrypt="hpcs-backup"   # for logs only
 REMOTE_NAME="hpcs-backup"          # for machines not wanting encryption, eg hima
 #++REMOTE_NAME="crypt-hpcs-backup"
 #ROOT_FOLDER="/"						# config file store in "/rclone-crypt" folder
-ROOT_FOLDER="/samoa/"					# likely will end up in hpcs-backup-hima/rclone/hima/samoa   # cuz likely relative to config file root_folder_id
+#ROOT_FOLDER="/samoa/"					# likely will end up in hpcs-backup-hima/rclone/hima/samoa   # cuz likely relative to config file root_folder_id
+ROOT_FOLDER="/samoa"					# in  hpcs-backup-hima/rclone/hima/samoa// double slash create folder with no printable char, displayed as "New Folder", thus stripping tailing /   # cuz likely relative to config file root_folder_id
 
 TRANSFER_COUNT=16
 CHECKER_COUNT=16
@@ -100,12 +109,20 @@ RCLONE="/bin/rclone -v --transfers=$TRANSFER_COUNT --checkers=$CHECKER_COUNT"
 SUM_EXIT_CODE=0
 CUR_DATE=`date +%Y%m%d`
 LOGFILE=$LogPrefix.$CUR_DATE.txt
-Month=`date +%m`
+echo "LOGFILE is $LOGFILE"
+Month=`date +%-m`  # need the - in front of m to not print 09, which is violation in octal
 #### path Infix for Even or Odd depending on month
-if [[ $(( $Month % 2 )) -eq 0 ]]; then
+#if [[ $(( $Month % 2 )) -eq 0 ]]; then
+if [[ $(( $Month % 4 )) -eq 0 ]]; then
 	Mod="Even"
-else
+elif [[ $(( $Month % 4 )) -eq 1 ]]; then
 	Mod="Odd"
+elif [[ $(( $Month % 4 )) -eq 2 ]]; then
+	Mod="Even2"
+elif [[ $(( $Month % 4 )) -eq 3 ]]; then
+	Mod="Odd2"
+else
+	Mod="EvenOddMonthUndetermined_L125"
 fi
 
 #-- TMP manual modifier  ++ CHANGE_ME ++
