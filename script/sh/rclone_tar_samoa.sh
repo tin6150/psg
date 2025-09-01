@@ -23,6 +23,7 @@
 ## June: changing to use specific cronjob that starts on 2nd of the month, cron.monthly is too unpredictable
 ##   0  1  2  *  *            /root/rclone_script/rclone_tar.sh 
 
+## Tin 2025.05.19 setup for samoa, destination dir partly encoded in /root/.config/rclone...conf  with root_folder_id 
 
 ##LOCAL_BACKUP_LIST="/home"       # beppic-filer
 ##LOCAL_BACKUP_LIST="/home /eda"    # beppic-filer
@@ -35,8 +36,11 @@
 # /etc /srv are annoying as they create too many little files, so left that to the 7-day rotation script
 #++LOCAL_BACKUP_LIST="/global/home/users /clusterfs/gretadev/data /opt"  # beagle tar
 
-## list updated 2021.0322
+## list updated 2025.0519 for samoa
 LOCAL_BACKUP_LIST="/etc /global/home \
+  /global/data/yuebinfan \
+  /global/data/jzhang9 \
+  /global/data/usbHdXfer \
   /global/data/goddess /global/data/home-gpanda /global/data/mariah /global/data/mariahdata \
   /global/data/seasonal /global/data/seasonal2 /global/data/transportation /global/data/usrbackup \
     /global/data/gpanda/pghuy /global/data/gpanda/wzhou /global/data/gpanda/yhanw \
@@ -85,7 +89,8 @@ PidFile="/var/lock/$PROG"
 REMOTE_NAME_NoCrypt="hpcs-backup"   # for logs only
 REMOTE_NAME="hpcs-backup"          # for machines not wanting encryption, eg hima
 #++REMOTE_NAME="crypt-hpcs-backup"
-ROOT_FOLDER="/"						# config file store in "/rclone-crypt" folder
+#ROOT_FOLDER="/"						# config file store in "/rclone-crypt" folder
+ROOT_FOLDER="/samoa/"					# likely will end up in hpcs-backup-hima/rclone/hima/samoa   # cuz likely relative to config file root_folder_id
 
 TRANSFER_COUNT=16
 CHECKER_COUNT=16
