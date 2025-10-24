@@ -676,6 +676,8 @@ set_perl_env () {
 ################################################################################
 defineAlias () {
 
+	alias whatsMyIp='curl https://ipinfo.io/ip'
+	alias whatsMyIp2='curl ifconfig.me'         #  also https://checkip.amazonaws.com/    ip4.me is good as web page
 	alias reboot='echo R U sure U want to do that?'
 	alias fecha="date +%Y%m%d.%H%M.%S" # format Year.mmdd.HourMinute.Sec # %s is sec since 1970-0101
 	alias ls0="ls  -l | perl -lane 'if ($F[4] == 0 )    { print \$_ };' "   # can use $_ in shell, but need \$_ for sourced script

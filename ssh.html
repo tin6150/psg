@@ -199,7 +199,7 @@ voivod$  ssh -L 2022:localhost:443 tho01@sn -p 23
 	home router register IP as sn.is-a-geek.com, routing to floride
 	localhost:2022 tunnel to floride:443, it will ask for password thru ssh on port 23.
 
-Note that this double tunneling will connect, but need root access for port < 1024 :(
+Note that this double tunneling will connect, but need root access for port below 1024 :(
 each machine only open port in 127.0.0.1:* so cant remotely connect.
 
 
@@ -230,6 +230,16 @@ ssh -L 5907:localhost:5907 tin@gt1
 ssh -L 5907:localhost:5907 tin@a1
 vncserver -geometry 1280x800  :7
 vncviewer localhost:7
+
+# Use jump host (bofh) to connect to remote.gret, use port 2201 for ssh, and local bind port 5921 on localhost to remote 5901 (vnc)
+ssh -J bofh r@remote.gret -p 2201 -L 5921:localhost:5901
+
+ssh -D 6666 is to specify Dynamic port forward.  ie creates a socks5 proxy that FoxyProxy can use and route web traffic thru the ssh server:
+ssh -D 6666 bofh
+
+-D port forward and 2 jump host chaining, finally landing on perceus:
+ssh -D 3125 -J sls,scm perceus-00
+
 
 ---
 

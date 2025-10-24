@@ -127,6 +127,27 @@ RHEL3 - binary compatible with FC2  (but FC2 is EOL)
 RHEL4 - binary compatible with FC3  (and maybe FC4)
 <BR>
 
+<H2>The New Linux</H2>
+
+systemctl, journalctl, chrony... <BR>
+A sys admin who have been on cryo sleep for 40 years should not be able to wake up and still do sys admin, no? :P <BR>
+
+<PRE>
+
+systemctl status chronyd
+journalctl -xe
+
+datetimectl stuats	# verbose about system date/time and ntp sync
+
+chronyc sources -v	# -v is verbose, print an interesting aid to parse the output
+ntpstat 		# need yum install ntpstat in EL8
+ntpq -pn
+
+nc -uzv ntp-server 123	# -v would provide more verbose output.  if upd port isn't open, it would report with -ve result
+
+
+</PRE>
+
 <H4>Single User Mode RHEL 6</H4>
 
 <PRE>
@@ -448,7 +469,7 @@ Fedora 8                        2.6.23
 
 RHEL 7.9                        3.10.0-1160.49  2.17-325        4.8.5                  n/a?
 Amazon Linux 2.3                4.14.281-212    2.26-60		7.3.1
-RHEL 8.1                        4.18.0-147.3.1  2.28-72		8.3.1-4.5
+EL 8.1                          4.18.0-147.3.1  2.28-72		8.3.1-4.5
 
 
 
@@ -473,7 +494,7 @@ from
 <H2>Upgradability</H2>
 
 <PRE>
-RHEL 7.9 can use leapp to do in-place upgrade to RHEL 8.9 (so that content of FS is preserved).
+RHEL 7.9 can use leapp to do in-place upgrade to EL 8.9 (so that content of FS is preserved).
 
 The process works, but some el7 packages won't be upgraded.  mostly those from EPEL.
 My experience was that epel has to be disabled after the upgrade.
@@ -619,7 +640,7 @@ echo $?
 RHEL 4.x  - Use up2date
 RHEL 5.x  - Use yum
 	    rhn_register # automatically prompt for root password when run as user, X-based.
-RHEL 8.x  - Use did not finish, i mean dnf (yum alias to it)
+EL 8.x    - Use did not finish, i mean dnf (yum alias to it)
 SuSE      - Use rug
 
 </PRE>
@@ -1152,14 +1173,22 @@ eth0.20 eth0.911 are interfaces with VLAN TAQ as required by switch.
 
 
 adding virtual interface:
-ifcfg-eth0:1 
+create config file: ifcfg-enp0s3:1 
 
+or via cli:
+ifconfig enp0s3:1 10.22.5.190 netmask 255.255.255.0  up
 
 adding interface with vlan tag 
 ifcfg-eth0.20
 ifcfg-eth0.911
 (no need to make this virtual, it automatically allow for multiple tagged interface per physical NIC.
-ie, there is never a need for eth0:1.911 or eth0.911:1, eth0.911 will be an additional interface to eth0 with the vlan id set)
+ie, there is no need for 
+eth0.911:1 
+eth0.911  will be an additional interface to eth0 with the vlan id set)
+
+If additional virtual IP that is in a tagged vlan is needed, then can use:
+nin.vlan:virtual worked     eg eth0.22:1  (this is tested to work)
+(not sure if the alternate works: nic:virtual.vlan works, eg eth0:1.22)
 
 systemctl restart network
 -or-
@@ -1170,6 +1199,8 @@ modprobe --first-time 8021q
 # modinfo 8021q
 ip link add link enp0s3 name enp0s3.20 type vlan id 20
 ifconfig enp0s3.20 10.8.20.22 netmask 255.255.255.0 up
+
+ip -d addr show enp194s0.16
 
 ifcfg-enp0s3.20 , no need to be both virtual interface and vlan tag. it is already virtual.
 
@@ -4042,7 +4073,7 @@ are tools that tend to draw on screen and make for very annoying logs :/
 Vendor Specific Tools/Packages
 </H1>
 
-Rocky / RHEL 8:
+Rocky / RHEL 8 / EL 8  :
 <BR>
 Ref: https://dnf.readthedocs.io/en/latest/automatic.html
 <BR>
@@ -4330,6 +4361,8 @@ vi /etc/sysconfig/network-scripts/ifcfg-WhatEver
 	IPADDR=...
 
 nmcli device 			# should show the interface no longer managed by Network Manager
+nmcli dev stat   		# device status, may show disconnected, albeit ethtool says link connected.
+ip -d addr show enp194s0.16
 
 #systemctl enable network ??	# not enabled on system that use Network Manager exclusively?
 systemctl start  network 
@@ -4425,6 +4458,9 @@ ip [opt] [sub-cmd]
 ip addr			# show ip address, aka ip a, replaces ifconfig.  will show NO-CARRIER.  UP just indicate driver is loaded?
 ip ad  show wlp3s0	# show info for a specif ineterface only
 
+ip link set eno2 down	# offline the NIC eno2 == ifconfig eno2 down
+ip addr flush dev eno2	# make IP of eno2 go away, no IP at all would be associated to the device  (unplumb)
+
 ip route		# see routing table, replaces netstat -r
 ip route ...		# replaces route...
 
@@ -4499,8 +4535,10 @@ firewall-config		# GUI tool.  DONT use system-config-firewall
 </PRE>
 
 
+<A ID="EL8"></A>
+<A ID="Rocky8"></A>
 <A ID="RHEL8"></A>
-<H1>RHEL 8 New STuff</H1>
+<H1>EL 8 New STuff</H1>
 
 <PRE>
 default, no /usr/bin/python , which may break things like ansible (unless otherwise configured to explicityly use python3)
@@ -4521,7 +4559,7 @@ logger -p kern.info   -- msg 		# only to syslog, eg /var/log/syslog
 logger -p local7.info -- msg 		# only to journalctl ?  
 
 
-shell script called by ExecStart ... logger -p local7.info   doesn't get to any place!  weird!  EL 8.8 days.
+shell script called by ExecStart ... logger -p local7.info   doesn't get to any place!  weird!  EL 8.8 days.   cuz /dev/log doesnt exist!?!!
 
 
 </PRE>
@@ -4543,6 +4581,12 @@ Linux Desktop Progies
 sublime		text editor (not IDE, so light) good for python programming .  avail in Linux, Win, Mac.
 
 
+vlc		free, donationware
+xine		free video player (vcd, dvd, avi, but no mpeg?).  http://xinehq.de.
+totem		alternate front end UI for xine.
+
+makemkv		rip dvd, beta is free trial.  linux require compiling (lots of libs, ./configure && make)
+
 mtv  		mpegtv ($10 shareware req reg) for viewing mpeg video.   mpegtv.com
 mvtp		cli of mtv, free.  
 		-z = 2x2 zoom.  
@@ -4550,9 +4594,6 @@ mvtp		cli of mtv, free.
 mpeg_play	bmrc.berkeley.edu mpeg video player.  in old a.out (ZMAGIC) binary though.
 		avail for solaris, etc.
 mpegplay	mpeg video player found in Knoopix distro.
-
-xine		free video player (vcd, dvd, avi, but no mpeg?).  http://xinehq.de.
-totem		alternate front end UI for xine.
 
 mpg123		cli for playing mp3 audio
 mpg321		drop in replacement for mpg123
@@ -4571,8 +4612,12 @@ browsr
 
 surf ?		not text based browser. sizable dependency!
 
+transmission	torrent download (eg Rocky iso)
+pithos		pandora client, GUI
+
 BitchX		a text based irc client 
 irssi		a newer text based irc client, some cmd same as BitchX
+
 
 
 iEvince/GPdf 	GNOME pdf viewer
@@ -4583,6 +4628,8 @@ xpdf		X Window pdf viewer
 PDFedit		GPL pdf internal structure editor
 CUPS-PDF	PDF generator extension to CUPS printing system, generate pdf file
 		in /var/spool/cups-pdf, but somehow doesn't work in x86_64 
+
+Edgium		not sure if linux version can view pdf
 
 		http://localhost:631/	- cups web interface
 ---
@@ -4618,6 +4665,8 @@ nomacs
 XnViewMP
 GwenView
 
+
+Simple Scan		# scanner driver/software, capture to pdf.  apt install simple-scan.  might work in wsl.
 
 ethereal is replaced by wireshark
 but that only install text-based snooper called /usr/sbin/tshark
