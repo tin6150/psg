@@ -1,5 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+<!-- vim: tabstop=8 -->
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet" href="psg.css" type="text/css">
@@ -77,6 +78,7 @@
 </UL>
 
 
+<!-- tabstop=8 -->
 <PRE>
 			Docker/EE		k8s			Rancher
 			====================	======================	===================
@@ -101,6 +103,21 @@ Shell into container	docker exec -it 	kubectl exec -it	rancher exec -it 	# all d
 
 </PRE>
 
+<A NAME="tla"></A>
+<A ID="tla"></A>
+<H2>Terms/TLA</H2>
+
+
+<!-- tabstop=8 -->
+<PRE>
+
+CSI:		Container Storage Interface.  eg. Kubernetes driver that allocate storage directly from Proxmox VE.
+PV		Persistent Volume
+PVC:		Persistent Volume Claim.  Think of PVC as the backend volume that satisfy the PV request of a Pod. 
+PVE:		Proxmox VE (Virtual Environment)
+	
+</PRE>
+
 <!--
 			docker compose
 -->
@@ -111,6 +128,7 @@ Shell into container	docker exec -it 	kubectl exec -it	rancher exec -it 	# all d
 
 <PRE>
 minikube start			# single node for very simple dev, http://localhost:8080 
+systemctl start rke2-agent	# rke2 is another kubelet instead of minikube, good for production use
 
 kubectl version
 kubectl cluster-info
@@ -120,10 +138,14 @@ source <(kubectl completion bash)  	# enable bash autocompletion  #>#  maybe add
 
 kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.4 --port=8080
 kubectl expose deployment hello-minikube --type=NodePort
+kubectl delete pod  hello-minikube   # stop the pod
 
 kubectl get pod
 curl $(minikube service hello-minikube --url)
 
+
+kubectl get pods -A -o wide | grep Running
+kubectl get pods -A -o wide | grep -i nvidia-gpu-driver   
 
 # see docker process/container that is running inside the pod (eg VirtualBox)
 eval $(minikube docker-env)
@@ -141,6 +163,17 @@ minikube stop
 kubeadm
 
 </PRE>
+
+<H5>rancher cluster</H5>
+
+<PRE>
+kubectl get nodes
+kubectl describe node n0004
+kubectl get nodes -o go-template='{{range .items}}{{$node := . }}{{range .status.conditions}}{{$node.metadata.name}}{{": "}}{{.type}}{{":"}}{{.status}}{{"\n"}}{{end}}{{end}}' | grep -i network
+
+
+</PRE>
+
 
 <H5>kubeadm cluster</H5>
 
