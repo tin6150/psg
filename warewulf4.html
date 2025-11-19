@@ -66,6 +66,12 @@ Good intro/overview <BR>
 OHPC new stack doc
 <BR><BR>
 
+<LI><A HREF="https://www.admin-magazine.com/HPC/Articles/Warewulf-4">HPC Admin magazine article on ww4</A></LI>
+<LI><A HREF="https://warewulf.org/docs/main"></A>warewulf doc user guide</LI>
+<LI><A HREF=""></A></LI>
+<LI><A HREF=""></A></LI>
+
+
 google group eg:
 <BR>
 https://groups.google.com/a/lbl.gov/g/warewulf/c/Yx9OMqkyJKU
@@ -74,9 +80,73 @@ https://groups.google.com/a/lbl.gov/g/warewulf/c/Yx9OMqkyJKU
 <BR>
 <BR>
 
+<H2>Config</H2>
+
 
 <PRE>
+# add node
+
+wwctl node add --netdev ens19 --hwaddr  BC:24:11:61:87:6F --netmask 255.255.255.0 --ipaddr 192.168.0.40  n0000
+
+wwctl node list -a 
+
+# node build on set of profiles; 
+wwctl profile list -a
+# profiles are composed of overlays
+wwctl overlay list -a
+
+
+wwctl overlay build   # create per node imge in /var/lib/warewulf/provision/overlays/n00..
+
+
+wwctl container list -l
+
+
+# the overlay is where bunch of files need to be edited/added (contrast to  ww3 file object kind of edit)
+
 </PRE>
+
+<H2>Overlay</H2>
+
+https://warewulf.org/docs/main/overlays/overlays.html#creating-and-modifying-overlays
+
+<PRE>
+wwctl overlay create  banner
+wwctl overlay import --parents banner /etc/ssh-banner.txt     # or maybe still put files in /etc/warewulf/files ... 
+
+
+wwctl overlay build # rebuild files/templates into the overlay # contrast to wwsh file sync
+
+
+wwctl overlay show banner /etc/ssh-banner.txt 		# show make system render the file, especially useful if it is .ww template
+wwctl overlay show wwinit /etc/issue.ww -r n0000
+
+
+# tbd...
+wwctl overlay delete issue /etc/issue
+wwctl overlay import issue /etc/issue /etc/issue.ww
+wwctl overlay show issue /etc/issue.ww --render=n1
+
+
+wwctl container build rocky8-lrc
+
+</PRE>
+
+<H2>generate config files</H2>
+
+these commands create new files (mostly for systemctl to restart the service with new config that ww4 needs.
+
+
+<PRE>
+
+wwctl configure dhcp 		# Manage and initialize DHCP
+wwctl configure hostfile 	# update hostfile on master  - ie, create/update ww4 server's /etc/hosts file.
+wwctl configure nfs # Manage and initialize NFS
+wwctl configure ssh # Manage and initialize SSH
+wwctl configure tftp # Manage and initialize TFTP
+wwctl configure warewulfd # Enable and start warewulfd  -- systemctl stop warewulfd to stop, disable ?
+</PRE>
+
 
 Notes/Ref<BR>
 
