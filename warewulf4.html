@@ -80,6 +80,31 @@ https://groups.google.com/a/lbl.gov/g/warewulf/c/Yx9OMqkyJKU
 <BR>
 <BR>
 
+<H2>basic image from container</H2>
+
+<A HREF="https://warewulf.org/docs/main/getting-started/el-quickstart.html#add-a-base-node-image">warewulf doc add base node</A>
+
+
+<PRE>
+wwctl image import docker://ghcr.io/warewulf/warewulf-rockylinux:9 rockylinux-9 --build     
+wwctl profile set default --image rockylinux-9                 
+
+wwctl node edit
+# change   image name to: rockylinux-9          
+
+# all the node config is saved to /etc/warewulf/nodes.conf
+# howerver, manual edit that, changes may not always get to the build image
+# so manual edit may need to use `wwctl node edit` on affected node for changes to be fully effective
+
+
+
+wwctl overlay build    # should auto trigger even if not invoked manually
+
+# 
+
+</PRE>
+
+
 <H2>Config</H2>
 
 
@@ -111,6 +136,49 @@ wwctl container list -l
 https://warewulf.org/docs/main/overlays/overlays.html#creating-and-modifying-overlays
 
 <PRE>
+
+wwctl overlay list -l | grep auth
+PERM MODE   UID    GID    OVERLAY              FILE PATH                     SITE
+---------   ---    ---    -------              ---------                     ----
+-rwx------  0      0      ssh.authorized_keys  root/                         false
+-rwx------  0      0      ssh.authorized_keys  root/.ssh/                    false
+-rwx------  0      0      ssh.authorized_keys  root/.ssh/authorized_keys.ww  false
+-rw-r--r--  43143  43143  ceph                 etc/ceph/ceph.conf            true
+-rw-r--r--  43143  43143  kubernetes           etc/postfix/main.cf.ww        true
+
+for SITE=false, overlay is from 
+/usr/share/warewulf/overlays
+eg 
+ssh.authorized_keys  root/.ssh/authorized_keys.ww   is in /usr/share/warewulf/overlays/ssh.authorized_keys/rootfs/root/.ssh/authorized_keys.ww
+	(which has content:
+	{{Include "/root/.ssh/authorized_keys"}}
+	)
+
+backup /usr/share/warewulf ?  well not if they are just template that isn't changed...
+
+for SITE=true, overlya is from /var/lib/warewulf/overlays
+
+
+</PRE>
+
+custom ssh banner, crate an overlay called base_customize
+<PRE>
+wwctl overlay create  base_customize
+# above create dir /var/lib/warewulf/overlays/base_customize/rootfs/
+# create file      /var/lib/warewulf/overlays/base_customize/rootfs/etc/banner
+
+# does it automatically seen by 
+wwctl overlay list -l | grep base_customize
+
+wwctl node edit n00
+# add the base_customize to "runtime overlya" a/o "system overlay"
+# runtime synced if wwclient systemd service is running.  
+
+</PRE>
+
+
+<PRE>
+
 wwctl overlay create  banner
 wwctl overlay import --parents banner /etc/ssh-banner.txt     # or maybe still put files in /etc/warewulf/files ... 
 
