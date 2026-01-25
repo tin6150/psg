@@ -1,6 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- vim: tabstop=8 -->
+<!-- vim: tabstop=8 
+-->
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet" href="psg.css" type="text/css">
@@ -162,6 +163,196 @@ minikube stop
 
 kubeadm
 
+
+# equiv of docker exec into a container and get a shell
+kubectl exec -it -n gpu-operator nvidia-gpu-driver-ubuntu24.04-69c78df9cf-2fw48 -- /bin/bash
+
+
+</PRE>
+
+
+<H5>
+Random kubernetes command, sort/classification TBD </H5>
+
+<PRE>
+
+kubectl get cm	# ConfigMap
+kubectl get sc	# storage class
+
+
+
+kubectl edit cm -n gpu-operator kernel-module-params   # bring up EDITOR to edit config
+kubectl get certificates -A
+kubectl get certificaterequest -A  # 			# see automated request and if approved… 
+
+kubectl get pods -n kube-system
+
+kubectl logs -n gpu-operator nvidia-gpu-driver-ubuntu24.04-6cfdb6bc89-bwgcv   # nvidia-gpu-driver is the pod that actually build driver.  if fail, would see error here
+
+
+
+rke2 certificate check --output table
+
+	on a node
+journalctl -u rke2-agent -f     # this will follow startup procedure of a node.
+
+
+
+kubectl get cm -n csi-wekafs -o yaml   # output in yaml format, configMap, in this case has info on ca.crt in it
+
+</PRE>
+
+
+<H5>
+Storage Class
+</H5>
+
+<PRE>
+	helm list -A
+	helm get values -n csi-wekafs csi-wekafs
+	kubectl get cm -n csi-wekafs                                 # cert stuff under cm?
+	kubectl get sc -A
+	kubectl describe sc  storageclass-wekafs-dir-api
+	kubectl get sc  storageclass-wekafs-dir-api
+kubectl edit sc storageclass-wekafs-dir-api   # if don’t edit, will exit and save no changes detected and won't trigger anything   ##storageclass-wekafs-dir-api.yaml ?
+
+
+kubectl create -f tinho6-pvc-testonly-v2.yaml   # persistent volume claim only.  submitted, but not acted on till there is "user" of it?
+kubectl apply -f tinho6-pvc-testonly-v2.yaml    # apply is strange for me.  should have been smart way to avoid name conflict, but haven't gotten it to work.
+
+kubectl get pvc -n tinho
+
+
+kubectl create -f tinho5_nginx_weka_v6.yaml	# create pod using yaml, apply in theory work better "smartly" handling name conflict from already used name.
+kubectl get pod -n tinho
+
+</PRE>
+
+<H5>
+Weka helm, deployment changes on CA handling --allowinsecurehttps
+</H5>
+
+<!-- 2026.0125-->
+
+<PRE>
+
+helm show values csi-wekafs/csi-wekafsplugin   > helm_show_values_csi-wekafsplugin.yaml
+# ^^ these are "factory" values
+
+helm get values csi-wekafs -n csi-wekafs --all > helm_values_csi-wekafs--all.yaml
+# this should fetch current values for the csi, 
+# omitting --all would exclude what the default values are (9 fewer entries)
+
+
+kubectl describe -n csi-wekafs deployment/csi-wekafs-controller | grep -i insecure
+kubectl edit                   storageclass-wekafs-dir-api
+# check and change storageclass of weka (where --allowinsecurehttps was added)
+
+
+kubectl create -f tinho6-pvc-testonly-v4.yaml	
+# make request for a simple PersistentVolumeClaim
+# if this works, then https api call works
+
+
+
+kubectl get storageclass 				# list all csi
+kubectl get storageclass storageclass-wekafs-dir-api
+kubectl describe sc      storageclass-wekafs-dir-api    # details of the storage class
+
+kubectl get secret csi-wekafs-api-secret -n csi-wekafs  -o yaml --template={{.data.endpoints}}
+
+helm list -A
+helm repo list
+helm list -n csi-wekafs
+
+
+helm upgrade csi-wekafs csi-wekafs/csi-wekafsplugin \
+  -n csi-wekafs \
+  --reuse-values \
+  --set pluginConfig.allowInsecureHttps=true \
+  --set pluginConfig.encryption.allowEncryptionWithoutKms=false
+
+kubectl describe -n csi-wekafs deployment/csi-wekafs-controller |grep -i insecure
+kubectl edit  storageclass-wekafs-dir-api
+
+
+</PRE>
+
+
+ingress stuff, tbd
+
+<PRE>
+# bash_history
+joe /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx.yaml
+helm install rke2-ingress-nginx --values values.yaml --name ingress-metallb
+
+kubectl get ingress -A
+</PRE>
+
+
+<H5>
+ETCD
+</H5>
+
+<PRE>
+
+kubectl get pods -n kube-system -l component=etcd
+
+export ETCDCTL_ENDPOINTS='https://127.0.0.1:2379'
+export ETCDCTL_CACERT='/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt'
+export ETCDCTL_CERT='/var/lib/rancher/rke2/server/tls/etcd/server-client.crt'
+export ETCDCTL_KEY='/var/lib/rancher/rke2/server/tls/etcd/server-client.key'
+export ETCDCTL_API=3
+
+find /var/lib/rancher/rke2 -name etcdctl
+
+[root@control0 cert_csi-wekafs_fix]# /var/lib/rancher/rke2/agent/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/164/fs/usr/local/bin/etcdctl member list -w table
+
+[root@control0 cert_csi-wekafs_fix]# /var/lib/rancher/rke2/agent/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/164/fs/usr/local/bin/etcdctl endpoint health -w table
+
+/var/lib/rancher/rke2/bin/etcdctl endpoint status -w table
+
+</PRE>
+
+
+<H5>helm</H5>
+
+<!--
+[root@control0 kube_helm_values]# pwd
+/global/home/users/tin/kube_helm_values
+get_values.sh
+-->
+
+<PRE>
+# backup helm values.  should have kept the original files, but if prev admin didn't hand them over
+# fetch what can be from existing kube
+
+helm get values rke2-ingress-nginx -n kube-system > helm_get_values_rke2-ingress-nginx.yaml
+helm get values -n kube-system ingress-public     > helm_get_values_ingress-public.yaml
+helm get values -n kube-system ingress-metallb    > helm_get_values_ingress-metallb.yaml
+
+cp -pi /root/ingress-metallb/values.yaml ./ingress-metallb-values.yaml
+cp -pi /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx.yaml .
+
+
+kubectl describe sc      storageclass-wekafs-dir-api  > kubectl_desc_sc_storageclass-wekafs-dir-api.txt
+
+
+
+helm show values csi-wekafs/csi-wekafsplugin   > helm_show_values_csi-wekafsplugin.yaml
+# ^^ these are "factory" values
+
+helm get values csi-wekafs -n csi-wekafs --all > helm_values_csi-wekafs--all.yaml
+# this should fetch current values for the csi,
+# omitting --all would exclude what the default values are (9 fewer entries)
+
+</PRE>
+
+
+<PRE>
+helm install ...
+helm upgrade ...
+helm uninstal ...
 </PRE>
 
 <H5>rancher cluster</H5>

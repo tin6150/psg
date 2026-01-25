@@ -329,6 +329,30 @@ sudo restorecon -FRv "/global/home/tin/.ssh"
 sudo systemctl restart sshd
 
 
+
+things to try:
+
+sealert -l cc885af0-282b-4727-90f4-50ad040bb26a
+
+ausearch -c 'sshd' --raw | audit2why
+semanage fcontext -a -t FILE_TYPE 'authorized_keys' # where FILE_TYPE is ssh_home_t ?   scontext=system_u:system_r:sshd_
+ 
+
+ausearch -c 'sshd' --raw | audit2allow -M my-sshd
+semodule -X 300 -i my-sshd.pp
+
+
+sudo semanage fcontext -a -t ssh_home_t "/home-local/*/.ssh/authorized_keys"
+sudo semanage fcontext -a -t user_home_dir_t "/home-local/*/?"
+sudo restorecon -R -v "/home-local"
+
+CUSTOM_HOME="/home-local"
+sudo semanage fcontext -a -t user_home_dir_t "/home-local/*/?"
+sudo semanage fcontext -a -t ssh_home_t "/home-local/*/.ssh/authorized_keys"
+sudo restorecon -R -v "${CUSTOM_HOME}"
+
+ls -Z ~/.ssh/authorized_keys
+
 </PRE>
 
 <A ID="ssh-agent"></A>

@@ -1560,7 +1560,29 @@ nc     radius_server_ip 1812
 <PRE>
 /etc/ipa/default.conf
 	enable_ra 	# this has to do with certification ops on IPA replica, see https://www.freeipa.org/page/Howto/Promoting_a_self-signed_FreeIPA_CA#:~:text=Enable
+
 </PRE>
+
+
+Backup of DB:
+<PRE>
+/etc/dirsrv/slapd-INSTANCE-NAME
+
+-rw-r-----. 1 dirsrv dirsrv 209441 Dec  8 13:53 dse.ldif                        # live db
+-rw-r-----. 1 dirsrv dirsrv 209075 Dec  8 13:08 dse.ldif.startOK                # last one that started w/o problem
+, same as live dse.ldif if no change to DB since startup
+
+~~
+
+other cmd.
+
+ipactl status
+ipactl restart    # easier than figureing out which systemctl unit files are needed.
+
+ipa trustconfig-show    # see if IPA is trusting to other domain, eg windows AD
+
+</PRE>
+
 
 Logs:
 

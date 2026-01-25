@@ -3806,8 +3806,38 @@ setenforce 1  # go into enforcing  mode
 </PRE>
 
 
-SE Linux has quite a number of places where permissions are set...
 
+
+how to give openssh selinux access to authorized_keys for user home dir in non standard path?
+
+<PRE>
+What SELinux needs
+The home‑directory tree must be labeled as a user’s home (type user_home_dir_t or user_home_t).
+The .ssh directory and the authorized_keys file must be labeled ssh_home_t (the type sshd expects for public‑key material).
+
+
+CUSTOM_HOME="/home-local"
+
+# Tell SELinux the whole tree is a user home directory
+#    – this gives the user’s top‑level directory the correct type.
+#//sudo semanage fcontext -a -t user_home_dir_t "${CUSTOM_HOME}(/.*)?"
+sudo semanage fcontext -a -t user_home_dir_t "/home-local/*/?"
+
+# Give the .ssh subtree the ssh_home_t type
+#    (the pattern must match the .ssh directory *and everything under it*)
+#// sudo semanage fcontext -a -t ssh_home_t "${CUSTOM_HOME}/*/.ssh(/.*)?"
+# this seems to be sufficient:
+sudo semanage fcontext -a -t ssh_home_t "${CUSTOM_HOME}/*/.ssh/authorized_keys"
+
+sudo semanage fcontext -a -t ssh_home_t "/home-local/*/.ssh/authorized_keys"
+
+# Apply the new contexts
+sudo restorecon -R -v "${CUSTOM_HOME}"
+
+
+</PRE>
+
+SE Linux has quite a number of places where permissions are set...
 
 <PRE>
 
@@ -3871,6 +3901,15 @@ Ansible module:
 
 </PRE>
 
+
+ausearch
+
+<PRE>
+
+# search for sudo access that were dinied
+ausearch -m avc -c sudo --raw | audit2allow -w | grep -i denied
+
+</PRE>
 
 
 <A HREF="https://wiki.gentoo.org/wiki/SELinux/Tutorials/Controlling_file_contexts_yourself">Controlling file contexts yourself</A>
@@ -4083,6 +4122,11 @@ Ref: https://dnf.readthedocs.io/en/latest/automatic.html
 <PRE>
 
 sudo yum install dnf-automatic  # not all system have it pre-installed
+# by default, dnf-atuomati.timer check /etc/dnf/automatic.conf, and it only download, not install, unless set:
+# Recommend: change to security only, and let it install 
+# upgrade_type = security
+# apply_updates = True
+
 
 vi /etc/dnf/automatic.conf
 	# change to use 
