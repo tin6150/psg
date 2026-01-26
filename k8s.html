@@ -200,6 +200,12 @@ journalctl -u rke2-agent -f     # this will follow startup procedure of a node.
 
 kubectl get cm -n csi-wekafs -o yaml   # output in yaml format, configMap, in this case has info on ca.crt in it
 
+
+
+
+kubectl drain n0001 --ignore-daemonsets --delete-emptydir-data
+# rancher drain sometime still result pods running on a node.
+
 </PRE>
 
 
