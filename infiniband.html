@@ -232,6 +232,7 @@ iblinkinfo --node-name-map fabrics.node-name-map
 	# iblinkinfo provides link info for whole fabric, very quick 
 	# node-name-map converts GUID to human name
 	# 0xe41d2d03004f1b40 "ib000.cf0 (Mellanox SX6025, S54-21)"
+	# mostly whether link is up or down
 
 ibnetdiscover 
 ibnetdiscover --node-name-map fabrics.node-name-map > ibnet.topo
@@ -287,16 +288,37 @@ pdsh -g etna0 TERM=vt52 /usr/bin/hca_self_test.ofed | grep -i fail
 perfquery		# simple to read ib counters.  pay special attention to:
 			# SymbolErrorCounter
 			# LinkErrorRecover
+			# Verb error?   useful to find if fabric is saturated?
 			# infiniband-diags by Mellanox, install to /sbin
 
-ibqueryerrors -c -s XmWait
+# ibqueryerrors -c -s XmWait | tee ibqueryerrors-c-sXwWait.out.txt
+# this is like a follow?
+ibqueryerrors -c -s XmWait 
+	# “Show me how much this port was blocked from transmitting due to congestion, and then reset that counter.”
+	# this is like a follow on errors that are popping up.
+	-s XmWait (select / filter counter)
+	-c (clear)
 
 
 ibcheckerrors -b	# very noisy, from infiniband-diags rpm by Mellanox, /sbin
 
 
+ibnetdiscover --node-name-map ./fabrics.node-name-map > ibnetdiscover.wName.2022.0218.TXT
 
 ibdiagnet		# scan fabric, takes a long time
+        -m|--map <map-file>           : Specifies mapping file, that maps node guid
+                                        to name (format: 0x[0-9a-fA-F]+ "name").
+                                        Mapping file can also be specified by environment
+                                        variable "IBUTILS_NODE_NAME_MAP_FILE_PATH".
+                        fabrics.node-name-map should work
+mkdir ibdiagnet_mmdd ; cd...
+mkdir ibdiag_out
+ibdiagnet -m ../fabrics.node-name-map  --pc --reset_phy_info  --extended_speeds all --routing --r_opt drnc --enable_output fdbs --pm_per_lane --get_phy_info --get_cable_info
+-o ./ibdiag_out
+# if no -o, default to /var/tmp/ibdiagnet2 and may overwrite previous outputs.  a bunch of files
+
+
+
 
 wwibcheck by Yong Qin:
 ibcheck -f fabrics.conf -C etna -E  -dd -a -b -O 20 > now.out

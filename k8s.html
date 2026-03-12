@@ -309,6 +309,8 @@ export ETCDCTL_CACERT='/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt'
 export ETCDCTL_CERT='/var/lib/rancher/rke2/server/tls/etcd/server-client.crt'
 export ETCDCTL_KEY='/var/lib/rancher/rke2/server/tls/etcd/server-client.key'
 export ETCDCTL_API=3
+/var/lib/rancher/rke2/bin/etcdctl endpoint status -w table
+/var/lib/rancher/rke2/bin/etcdctl endpoint health -w table
 
 find /var/lib/rancher/rke2 -name etcdctl
 
@@ -316,7 +318,6 @@ find /var/lib/rancher/rke2 -name etcdctl
 
 [root@control0 cert_csi-wekafs_fix]# /var/lib/rancher/rke2/agent/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/164/fs/usr/local/bin/etcdctl endpoint health -w table
 
-/var/lib/rancher/rke2/bin/etcdctl endpoint status -w table
 
 </PRE>
 
@@ -359,6 +360,9 @@ helm get values csi-wekafs -n csi-wekafs --all > helm_values_csi-wekafs--all.yam
 helm install ...
 helm upgrade ...
 helm uninstal ...
+
+helm get values rancher-stable -n cattle-system
+
 </PRE>
 
 <H5>rancher cluster</H5>

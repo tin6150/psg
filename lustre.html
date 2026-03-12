@@ -160,6 +160,17 @@ A high performance file system that is guaranteed to make you buy Excedrin(TM) b
 -- high performance, if you can get it to work.
 </p>
 
+<PRE>
+Lustre backend a bunch of FS to create parallelization, but back end pieces need TLC, they are not visible to the user, so they make problem worse.  It is a management nightmare (TM).
+
+Some recommendations.
+
+"turn off write" to OST for OST that are 80%".  
+  lctl set_param osp.<fsname>-OSTNNNN*.max_create_count=0'
+It would still write for existing allocated stripes, but no new stripes will allocate to such OST.
+By 85% full, performance will start to degrade.  Running at 98% is asking for container-load of ibuprofen, or morphine... 
+</PRE>
+
 
 <H2>Overview</H2>
 
@@ -217,7 +228,7 @@ for i in /proc/fs/lustre/osc/*/max_rpc*; do echo 32 > $i; done
 
 <pre>
 lfs df -h		# df 
-lfs df -hi	# df with inode info
+lfs df -i	  # df on inode usage
 lfs osts		# list object stores
 lfs mdts		# list metadata stores
 lctl
@@ -230,6 +241,25 @@ lctl --net tcp interface_list
 
 </pre>
 
+<H3>tricks</H3>
+
+<pre>
+unalias ls
+
+
+# when under duress:
+# quickest way to delete a big dir structure 
+rsync -a --delete /tmp/empty/ /mnt/lustre/path/to/full_dir/
+
+# for system under duress:
+# (rm -rf, it sort files in memory and hangs):
+# use find & rm to remove files:
+#~~ lfs find /path/to/directory -type f -print0 | xargs -0 rm
+
+
+# munlink is luster specific, faster than rm
+
+</pre>
     
 <H3>Linux Performance Cmd</H3>
 
