@@ -507,6 +507,9 @@ add_hpcs_module () {
 #### pulled from add_hpcs_module, may need to have that loaded before loading this.
 add_hpl_staging_module () {
 
+	# 2025.1006 EL8
+	module load  gcc/13.2.0  openmpi/4.1.6 hpl
+
 	    	#:if [[ -d /global/software/sl-7.x86_64/modules/intel ]] ; then 
 			#module load intel openmpi mkl
 			#module load intel/2016.4.072 mkl/2016.4.072 openmpi/2.0.2-intel # n0300sav2 1080ti staging test
@@ -894,6 +897,13 @@ export EDITOR=vi
 #set -o vi     # allow ESC, /string ENTER for searching command line history.
 # nah, better to use ^R to search bash history
 
+
+# my bashrc somehow doesn't get the right module (lua, which still depends on tcl!)
+# which module should be an alias of 28 lines (not 4)
+# doing this at the end should fix this.  if not, source it from the shell.
+[[ -f /etc/bashrc ]] && source /etc/bashrc 	# this was in Line 122 also.
+
+
 ###=====================================================================###
 ###=====================================================================###
 ### .bashrc has degraded to long code chunk in "main" 
@@ -951,10 +961,6 @@ export COMMON_ENV_TRACE
 
 
 
-# my bashrc somehow doesn't get the right module (lua, which still depends on tcl!)
-# which module should be an alias of 28 lines (not 4)
-# doing this at the end should fix this.  if not, source it from the shell.
-[[ -f /etc/bashrc ]] && source /etc/bashrc 	# this was in Line 122 also.
 
 ########################################
 

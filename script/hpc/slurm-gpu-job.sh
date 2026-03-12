@@ -2,6 +2,8 @@
 
 # -l in bash is SOMETIME important for login shell and getting the TF job to start
 
+
+
 #### this script run GPU jobs using 4 or 8 GPU at a time.
 #### it runs a TF CNN benchmark, but run on large batches (instead of epoch?)
 #### mostly to stress test/power load test a machine
@@ -103,12 +105,34 @@ echo "==== ================= ===================================================
 #which module
 #define -F | grep module
 
+## module define was commented out prior to 2025.10... no longer works (lua vs lmod , bash vs lua thing)
+
+
 echo "---module list before purge ------------------------------------"
 module list    2>&1
 module purge   2>&1
 module load ml/tensorflow/1.12.0-py36 2>&1 
 echo "---module list after purge ------------------------------------"
 module list    2>&1
+
+echo "--------------------------------------------------------------"
+echo "--------------------------------------------------------------"
+echo "---module check/load EL8  ------------------------------------"
+module list 2>&1
+echo "---module avail... EL8  ------------------------------------"
+module avail python 2>&1
+#//not needed  module load python  2>&1
+module load ml/tensorflow/2.15.0-py3.10.0  2>&1
+# python/3.11.6-gcc-11.4.0
+#   ml/pytorch/2.3.1-py3.11.7    (D)    ml/tensorflow/2.15.0-py3.10.0 (D)
+echo "~~"
+echo "---module list... EL8  ------------------------------------"
+module list 2>&1
+which python
+echo "--- end module load/check EL8  ------------------------------------"
+echo "--------------------------------------------------------------"
+echo "--------------------------------------------------------------"
+date
 
 
 
@@ -142,14 +166,22 @@ echo "---about to start tf cnn benchmark  --------------------"
 
 # now using files under my dir
 #~echo time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
-echo time python /global/scratch/usrs/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
+#echo time python /global/scratch/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet 
 
 date > /global/scratch/users/tin/JUNK/test-gpu.start.LOG.$MAQ 
 date > /global/scratch/users/tin/JUNK/slurm-gpu-job.$TAG.begin
 #~time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.log
 #/time python /global/scratch/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.LOG.$MAQ  # es1 path
 #/time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/tin/JUNK/test-gpu.log
-time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/users/tin/JUNK/slurm-gpu-job.$TAG.log
+
+echo time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/users/tin/JUNK/slurm-gpu-job.$TAG.log
+#++ >>
+#++ time python /global/home/users/tin/gpu-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py --model ${MODEL} --batch_size ${BATCH_SIZE} --num_batches ${NUM_BATCHES} --num_gpus ${NUM_GPU} --data_name imagenet |tee /global/scratch/users/tin/JUNK/slurm-gpu-job.$TAG.log
+echo "this old script from EL7 days no longer work in the current el8 env"  # ++
+
+
+echo $?
+echo '----<<<<--exit code of python tf_cnn_benchmarks.py ended-----------------------------------'
 echo ----date-----------------------------------
 date | tee /global/scratch/users/tin/JUNK/test-gpu.end
 date >     /global/scratch/users/tin/JUNK/slurm-gpu-job.$TAG.end
@@ -165,6 +197,12 @@ echo $shell
 ) 2>&1 >> $OUTFILE   # append/capture the whole thing into a file name I prefer, slurm -o is too limitig
 
 
+echo '================== exit code next ============' 
+echo $?
+uptime
+date
+sleep 70   # dont want to end too quick, sq put up a warning.
+
 exit 0 
 
 
@@ -177,5 +215,7 @@ exit 0
 #### sbatch -w n0144.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:4 --time=05:40:59 --mail-type=NONE --job-name=n0144.savio3_allNodeTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-allnodes-brc.sh
 
 #### sbatch -w n0145.savio3 --partition=savio3_2080ti --exclusive=user --ntasks=8 --gres=gpu:8 --time=9-00:58:59 --mail-type=NONE --job-name=145savSlurmGpuTest -o /global/scratch/tin/JUNK/SLURM_OUT/sn_%N_%j.out /global/home/users/tin/tin-gh/psg/script/hpc/slurm-gpu-job.sh
+#### sbatch -w n0123.savio4 --reservation CheckJob --job-name=n0123savSlurmGpuTest ./slurm-gpu-job.sh
 ### or just invoke this script locally on a drained node!
+### ./slurm-gpu-job.sh | tee slurm-gpu-job.n0145-sav3.2021.0303.out
 ### ./slurm-gpu-job.sh | tee slurm-gpu-job.n0145-sav3.2021.0303.out

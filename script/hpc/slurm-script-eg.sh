@@ -34,5 +34,7 @@ echo ---------------------------------------
 #df -hlT
 echo ---------------------------------------
 #cat /proc/mounts
+
+check_usage.sh    # see used SU
 sleep 180
 

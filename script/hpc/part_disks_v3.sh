@@ -282,6 +282,15 @@ make_dir_tree()
 	#chown munge:munge /local/log/munge
 	chown 998:998      /local/log/munge           # munge user not defined in greta, so hard coding it :P
 
+	# mkdir /clusterfs/...   this wasn't in groups/scs script...
+	mkdir -p /clusterfs/vector/home/users
+	mkdir -p /clusterfs/vector/home/groups
+	mkdir -p /clusterfs/vector/software
+	mkdir -p /clusterfs/vector/scratch
+	mkdir -p /clusterfs/vector/referenceData
+	mkdir -p /clusterfs/vector/instrumentData
+
+
 }
 
 
