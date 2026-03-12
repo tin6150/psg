@@ -1,0 +1,123 @@
+
+
+found another email chain, 
+Edison has a doc:
+
+https://docs.google.com/document/d/1lHjg-9VYiFdaE0aCVkG3or3cLesvgpdeS37UYR51N1o/edit?tab=t.0#heading=h.v6w49i5k01y2
+
+
+User allowlisting
+We can control who is able to authenticate to a VNC Server connection by creating a custom configuration file. This is located by default in 
+
+/etc/vnc/config.d/common.custom
+
+
+As an example, here is the contents of appsdev’s common.custom file:
+
+
+Permissions=sjames:d,elam3:d,sjwong:d,scoggins:d,portmann:d,mdach:d,ericw:d,tford:d,sschofield:d,hjhuang:d,sannibal:d,tom_scarvie:d,scleemann:d,mike:d,sdesantis:d,mjchin:d,jmweber:d,baptiste:d,alsoper2-vo:v
+
+
+
+~~~
+
+
+i think susan pointed it out first, but can't find that file.
+
+
+
+
+maybe it was the permissions clause in vnc/common.custom.
+
+trying this for w000:
+
+Permissions='%vnc_user:f'                                                                                                                                  
+systemctl restart vncserver-x11-serviced.service  
+ 
+less /var/log/vncserver-x11.log
+
+<14> 2025-08-07T23:36:07.626Z eth0-w0000 vncserver-x11[38963]: Configuration: Permissions='%vnc_user:f' (Preference)
+
+https://help.realvnc.com/hc/en-us/articles/360002251297-RealVNC-Server-Parameter-Reference#password-0-79
+
+
+
+
+Register user accounts or groups with VNC Server so connecting VNC Viewer users are able to authenticate. In addition, grant session permissions to use remote control features while connections are in progress.
+
+*This parameter is ignored if Authentication is set to VncAuth. Note also that VNC Permissions Creator is freely available to help create a permissions string in the correct format for VNC Server.
+
+Certain user accounts/groups are pre-registered to provide connectivity out-of-the-box. More information on setting up domain accounts under Linux is available here.
+
+Specify a comma-separated list of users/groups and permissions, each of the form:
+
+<name>:<feature>
+
+where <name> is the name of a valid user account, preceded by % to distinguish a group, and <feature> is a string consisting of particular combinations of at least one of the following characters:
+
+s to allow connected users to view the desktop. Note that omitting this value means users see only a blank screen.
+v to give connected users a view-only set of permissions (equivalent to s in this release).
+k to allow connected users to exercise control using their keyboards (subject to AcceptKeyEvents).
+p to allow connected users to exercise control using their mice (subject to AcceptPointerEvents).
+c to allow connected users to copy and paste between computers (subject to SendCutText and AcceptCutText).
+z to allow connected users to blank the server screen while connected (subject to BlankScreen).
+l to allow connected users to hear audio from the desktop (subject to AudioEnable).
+t to allow connected users to transfer files between the computers (subject to ShareFiles).
+r to allow connected users to print to local printers (subject to EnableRemotePrinting).
+h to allow connected users to chat (subject to EnableChat).
+w to allow connected users to record sessions (subject to EnableScreenRecording).
+d to give connected users a normal set of permissions (equivalent to skpctrh).
+q to allow connected users to bypass accept/reject prompts (subject to QueryConnect).
+f to give connected users an administrative set of permissions (equivalent to dq).
+*Under Linux and Mac, you can omit <name> to infer the VNC Server process owner (User Mode and Virtual Mode) or the root user account (Service Mode). Under Windows, you can use the built-in CREATOR OWNER user to infer the VNC Server process owner (User Mode) or the currently-logged on user account (Service Mode).
+
+Specifying a character corresponds to turning the Allow checkbox on for that feature on VNC Server’s Options > Users & Permissions page. Other behaviors can be modelled as follows:
+
+Omit a character to disallow that feature, corresponding to turning the Allow checkbox off. Note that for a group, this can be overridden by individual members. Alternatively, specify -<feature> to disallow that feature from a set, so for example johndoe:d-t grants a normal set of permissions, with the exception of file transfer.
+! to explicitly deny a feature, corresponding to turning the Deny checkbox on. This cannot be overridden.
+*If you use - (to disallow) and ! (to deny) then the order of characters must be allow > disallow > deny.
+
+Consider the following example:
+
+superuser:f,%vncusers:d,johndoe:v,janedoe:skp-t!r
+
+The superuser user account grants an administrative set of permissions.
+The vncusers group grants a normal set of permissions.
+The johndoe user account grants view-only permissions (assuming johndoe is not a member of vncusers).
+The janedoe user account grants viewing (s) and controlling permissions (k and p), disallows file transfer, and explicitly denies printing. No position is taken on copy and paste (c) or chat (h). If janedoe is a member of vncusers, then any grant of these permissions is inherited, and those two features are allowed. If janedoe is not a member of vncusers, then these features are disallowed.
+
+
+
+
+
+
+
+https://help.realvnc.com/hc/en-us/articles/360002250097-Setting-up-System-Authentication#setting-up-system-authentication-0-1
+
+
+
+
+
+Setting up domain accounts under Linux
+When RealVNC Server is installed on Linux platforms, a suitable PAM library checking credentials against the local database store only is automatically referenced. 
+
+To configure RealVNC Server to allow authentication with domain accounts, the below steps will enable a basic configuration to achieve this:
+
+Create /etc/pam.d/vncserver.custom with the below contents, depending on your operating system:
+Ubuntu
+@include common-auth
+@include common-account
+@include common-session
+RHEL / CentOS
+
+auth include password-auth
+account include password-auth
+session include password-auth
+Create/edit /etc/vnc/config.d/common.custom and add the line:
+PamApplicationName=vncserver.custom
+Restart RealVNC Server.
+For Service Mode, run the command: sudo systemctl restart vncserver-x11-serviced
+Connect with RealVNC Viewer and try authenticating with domain credentials. Note: you may need to qualify usernames with the domain name, for example DEV.ACMECORP.COM\johndoe
+
+
+

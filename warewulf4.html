@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="stylesheet" href="psg.css" type="text/css">
+  <LINK REL="SHORTCUT ICON" HREF="favicon.ico" type="image/x-icon"/>
+  <META NAME="description" content="System Administrator Pocket Survival Guide -  A series of notes for Sys Admin"/>
+  <META NAME="keyword" content="Sys Admin, System Administrator, Solaris, HP-UX, AIX, Linux, Note, Notes, Pocket, Survival, Guide, psg, data center, power, electrical, plug, LYS, LKS, LAPPLAPP, PSG101, sn50, tin6150"/>
+  <META NAME="Robots" CONTENT="all"/>
+  <META NAME="Author" CONTENT="Tin Ho"/>
+
+  <title>Pocket Survival Guide - Warewulf 4</title>
+</head>
+
+<body> 
+<div class="navheader">
+<table summary="Navigation header" width="100%">
+  <tbody>
+    <tr>
+      <th colspan="9" align="center">
+	  
+<A HREF="http://tin6150.github.io/psg/">Sys Admin Pocket Survival Guide - Warewulf 4</A>
+
+      </th>
+    </tr>
+    <tr>
+      <td align="left">  <a accesskey="h" href="psg.html">Home</a>	</td>
+      <td align="center"><a accesskey="x" href="linux.html">linUx</a>	</td>
+      <td align="center"><a accesskey="s" href="sol.html">Solaris</a>	</td>
+      <td align="center"><a accesskey="p" href="hpux.html">HP-UX</a>	</td>
+      <td align="center"><a accesskey="a" href="aix.html">AIX</a>	</td>
+      <td align="center"><a accesskey="n" href="netapp.html">NetApp</a>	</td>
+      <td align="center"><a accesskey="e" href="emcCelerra.html">EMC(NAS)</a>	</td>
+      <td align="center"><a accesskey="E" href="emc.html">EMC(SAN)</a>	</td>
+      <td align="center"><a accesskey="v" href="veritas.html">Veritas</a>	</td>
+      <td align="right"> <a accesskey="l" href="ldap.html">LDAP</a>	</td>
+    </tr>
+  </tbody>
+</table>
+<hr></div>
+
+<div class="chapter" lang="en">
+<div class="titlepage">
+</div>
+</div>
+
+
+<H1>warewulf 4</H1>
+
+baremetal provision tool.
+common in hpc environment
+pxe boot machine, most often run stateless nodes.
+<BR>
+
+warewulf 4 is very different than <A HREF="warewulf.html">warewulf 3</A>, thus a new page for this.
+
+<BR>
+
+
+<BR><HR><BR>
+
+<H2>Ref</H2>
+
+
+Good intro/overview <BR>
+OHPC new stack doc
+<BR><BR>
+
+<LI><A HREF="https://www.admin-magazine.com/HPC/Articles/Warewulf-4">HPC Admin magazine article on ww4</A></LI>
+<LI><A HREF="https://warewulf.org/docs/main"></A>warewulf doc user guide</LI>
+<LI><A HREF=""></A></LI>
+<LI><A HREF=""></A></LI>
+
+
+google group eg:
+<BR>
+https://groups.google.com/a/lbl.gov/g/warewulf/c/Yx9OMqkyJKU
+<BR><BR>
+
+<BR>
+<BR>
+
+<H2>basic image from container</H2>
+
+<A HREF="https://warewulf.org/docs/main/getting-started/el-quickstart.html#add-a-base-node-image">warewulf doc add base node</A>
+
+
+<PRE>
+wwctl image import docker://ghcr.io/warewulf/warewulf-rockylinux:9 rockylinux-9 --build     
+wwctl profile set default --image rockylinux-9                 
+
+wwctl node edit
+# change   image name to: rockylinux-9          
+
+# all the node config is saved to /etc/warewulf/nodes.conf
+# howerver, manual edit that, changes may not always get to the build image
+# so manual edit may need to use `wwctl node edit` on affected node for changes to be fully effective
+
+
+
+wwctl overlay build    # should auto trigger even if not invoked manually
+
+# 
+
+</PRE>
+
+
+<H2>Config</H2>
+
+
+<PRE>
+# add node
+
+wwctl node add --netdev ens19 --hwaddr  BC:24:11:61:87:6F --netmask 255.255.255.0 --ipaddr 192.168.0.40  n0000
+
+wwctl node list -a 
+
+# node build on set of profiles; 
+wwctl profile list -a
+# profiles are composed of overlays
+wwctl overlay list -a
+
+
+wwctl overlay build   # create per node imge in /var/lib/warewulf/provision/overlays/n00..
+
+
+wwctl container list -l
+
+
+# the overlay is where bunch of files need to be edited/added (contrast to  ww3 file object kind of edit)
+
+</PRE>
+
+<H2>Overlay</H2>
+
+https://warewulf.org/docs/main/overlays/overlays.html#creating-and-modifying-overlays
+
+<PRE>
+
+wwctl overlay list -l | grep auth
+PERM MODE   UID    GID    OVERLAY              FILE PATH                     SITE
+---------   ---    ---    -------              ---------                     ----
+-rwx------  0      0      ssh.authorized_keys  root/                         false
+-rwx------  0      0      ssh.authorized_keys  root/.ssh/                    false
+-rwx------  0      0      ssh.authorized_keys  root/.ssh/authorized_keys.ww  false
+-rw-r--r--  43143  43143  ceph                 etc/ceph/ceph.conf            true
+-rw-r--r--  43143  43143  kubernetes           etc/postfix/main.cf.ww        true
+
+for SITE=false, overlay is from 
+/usr/share/warewulf/overlays
+eg 
+ssh.authorized_keys  root/.ssh/authorized_keys.ww   is in /usr/share/warewulf/overlays/ssh.authorized_keys/rootfs/root/.ssh/authorized_keys.ww
+	(which has content:
+	{{Include "/root/.ssh/authorized_keys"}}
+	)
+
+backup /usr/share/warewulf ?  well not if they are just template that isn't changed...
+
+for SITE=true, overlya is from /var/lib/warewulf/overlays
+
+
+</PRE>
+
+custom ssh banner, crate an overlay called base_customize
+<PRE>
+wwctl overlay create  base_customize
+# above create dir /var/lib/warewulf/overlays/base_customize/rootfs/
+# create file      /var/lib/warewulf/overlays/base_customize/rootfs/etc/banner
+
+# does it automatically seen by 
+wwctl overlay list -l | grep base_customize
+
+wwctl node edit n00
+# add the base_customize to "runtime overlya" a/o "system overlay"
+# runtime synced if wwclient systemd service is running.  
+
+</PRE>
+
+
+<PRE>
+
+wwctl overlay create  banner
+wwctl overlay import --parents banner /etc/ssh-banner.txt     # or maybe still put files in /etc/warewulf/files ... 
+
+
+wwctl overlay build # rebuild files/templates into the overlay # contrast to wwsh file sync
+
+
+wwctl overlay show banner /etc/ssh-banner.txt 		# show make system render the file, especially useful if it is .ww template
+wwctl overlay show wwinit /etc/issue.ww -r n0000
+
+
+# tbd...
+wwctl overlay delete issue /etc/issue
+wwctl overlay import issue /etc/issue /etc/issue.ww
+wwctl overlay show issue /etc/issue.ww --render=n1
+
+
+wwctl container build rocky8-lrc
+
+</PRE>
+
+<H2>generate config files</H2>
+
+these commands create new files (mostly for systemctl to restart the service with new config that ww4 needs.
+
+
+<PRE>
+
+wwctl configure dhcp 		# Manage and initialize DHCP
+wwctl configure hostfile 	# update hostfile on master  - ie, create/update ww4 server's /etc/hosts file.
+wwctl configure nfs # Manage and initialize NFS
+wwctl configure ssh # Manage and initialize SSH
+wwctl configure tftp # Manage and initialize TFTP
+wwctl configure warewulfd # Enable and start warewulfd  -- systemctl stop warewulfd to stop, disable ?
+</PRE>
+
+
+Notes/Ref<BR>
+
+<LI>
+
+
+
+<H2>Files on boot server</H2>
+
+ensure these files are present.  UEFI may need additional config.
+
+<PRE>
+
+/var/lib/tftpboot/warewulf/
+
+
+</PRE>
+
+<H2>/var/lib/warewulf/chroot</H2>
+
+<PRE>
+
+</PRE>
+
+
+
+<H2>config troubleshooting</H2>
+
+<PRE>
+
+</PRE>
+
+
+<H2>tftp troubleshooting</H2>
+
+tftp (and dhcpd) needs to be running on the warewulf server.
+see <A HREF="general_unix.html#tftp">general_unix.html#tftp</A> for troubleshooting info.
+
+
+
+
+<BR><HR><BR>
+
+
+<BR>
+<TT>
+Typewriter monospaced fonts in here.
+This is another line.
+</TT>
+
+
+<BR>
+<BR>
+<BR>
+
+
+<BR><HR>
+<div align="CENTER">
+  [Doc URL: <A HREF="http://tin6150.github.io/psg/warewulf.html">
+http://tin6150.github.io/psg/warewulf.html
+</A>] <BR>
+Last Updated: 2021-07-20
+  <!--[Doc URL: <A HREF="http://tin6150.github.io/psg/">http://tin6150.github.io/psg/</A>] <BR>-->
+<BR>
+(cc) Tin Ho. See 
+<A HREF=psg.html#cc>main page</A>
+ for copyright info. <BR>
+<HR>
+<A HREF="http://www.taos.com"><IMG SRC="banner/taos_banner1.gif" width="728" height="98"></A>
+</div>
+<div class="sig"><BR>
+  hoti1<BR>
+  sn5050<BR>
+  psg101 sn50 tin6150</div>
+
+
+</body>
+
+<!-- Google analytics new tracking code ga.js.   Will actually need to add this code to every page for full tracking!    (still the case in 2011?) Using my gmail login 2011.0617 updated with code for http://tin6150.github.io/psg/psg.html -->    <script type="text/javascript">    var _gaq = _gaq || [];   _gaq.push(['_setAccount', 'UA-4515095-4']);   _gaq.push(['_trackPageview']);    (function() {     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);   })();  </script>
+
+
+</html>

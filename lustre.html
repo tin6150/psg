@@ -217,6 +217,7 @@ for i in /proc/fs/lustre/osc/*/max_rpc*; do echo 32 > $i; done
 
 <pre>
 lfs df -h		# df 
+lfs df -hi	# df with inode info
 lfs osts		# list object stores
 lfs mdts		# list metadata stores
 lctl

@@ -1517,12 +1517,12 @@ operators accepted:
 eg cmd of tcpdump [expression]  :
 
 tcpdump host 10.0.71.165			# bi-directional traffic
-tcpdump src  10.0.71.165 -w myfile.tcpdump	# -w write output to file
+tcpdump src  10.0.71.165 -w myfile.pcap 	# -w write output to file
 tcpdump 'dst net 128.3'
 tcpdump 'src or dst port ftp-data'   
 tcpdump 'ether host 0:d0:b7:a9:c9:5a'
 tcpdump -v -i enp0s3 ether host 3c:ec:ef:bb:b5:bb or 90:e2:ba:c5:53:00   # verified will capture traffic for both mac
-tcpdump icmp -w myfile.tcpdump			# only icmp traffic, all hosts
+tcpdump icmp -w myfile.pcap			# only icmp traffic, all hosts
 
 tcpdump -v -v host 10.0.71.165			# -v -v, increase verbosity.  
 						# usable in screen output for low amount of traffic
@@ -1531,11 +1531,11 @@ tcpdump -vv -e -n -i enp0s3 port 67 or port 68  # these ports are arp req (bootp
 
 
 
-tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.tcpdump	
+tcpdump host 10.0.71.165 -i eth2 -s 64000 -w myfile.pcap
 		# -i eth2, only traffic flowing thru specified nic
 		# -s 64000, max packet capture size.  64k is probably bigger than needed, but works well
 		# -s 0 would have no limit on caputre size, ie capture as large as needed
-		# -w write output to file
+		# -w write output to file 
 
 tcpdump -vv -i eno1  'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
 tcpdump     -i eno1 'ether host f8:f2:1e:66:81:50 || ether host ac:1f:6b:bb:63:00'
@@ -1557,6 +1557,9 @@ sudo tcpdump  port 514 -i enp216s0f0 -S -X  # hex dump of syslog traffic on port
 
 tcpdump  ip6 -i enp0s8                 # monitor IPv6 traffic only
 tcpdump  -i enp0s8 ip6 and port 25     # IPv6 and mail port  
+
+
+tcpdump -r pre-captured.pcap  # read pcap file and display to stdout
 
 wireshark display filter
 
@@ -1883,9 +1886,15 @@ nmap -Pn -p1-10000 -6 fe80::ec4:7aff:fe75:c9b0%2 	# from remote, works after spe
 <H5>netcat</H5>
 <PRE>
 
+nc = namp-ncat  netcat
+
+nc -vz ssh-server 22			# check if sshd reachable.  -z for scan (so no need to manually type input) -v for verbose 
+
+nc -uvz ntp-server 123			# check ntpd reachanble (-u = udp, 123 is port number)
+					# no need for -p, which for nc is source port (NOT destination port)
+
 nc -vz -u realvncserver.example.edu  5988	# udp reachability test, verbose success output if connection works
 
-nc = namp-ncat  netcat
 
 nc -v -l -n 8666			# create a "netcat server", listening on TCP port 8666
 					# -v verbose

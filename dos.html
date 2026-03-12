@@ -48,6 +48,7 @@ wsl --list			# list installed distributions
 wsl --set-default Ubuntu-22.04	# set which distro get run for 
 
 wsl --update			# update wsl... (does this NOT get done as part of windows update?)
+wsl --shutdown			# kill the VM of wsl2.  It free up 0.3 to 1.7GB RAM.  Memory alloc is thinly provisioned, so idle WSL2 doesn't take up too much host's memory.  
 
 </PRE>
 
@@ -166,6 +167,60 @@ Notes
 <LI> apt-get install octave in wsl didn't work.  (there is a octave for windows, gui works, the .bat not yet).  On mac, "brew install octave" worked very well.  plots can launch GUI windows (cocoa? did not need to run X server).  
 <LI>
 </OL>
+
+<H5>.wslconf</H5>
+
+
+<PRE>
+windown's home (cd ~) 
+have a .wslconfig
+
+swapfile in theory configurable here, but i didn't get it to work ca 2025.08
+
+end up creating swapfile the traditional linux way, ie inside the VM.  might be less optimal than wsl allocating the swapfile...
+
+wsl2 allocate 25% of RAM as swapfile as default.  mean it swap to ram? 
+
+</PRE>
+
+<PRE cf=code>
+
+# %Temp% is sn h\AppData/Local\Temp  ie C:\Users\tin61\AppData\Local\Temp
+# %UserProfile% is c:\Users\tin61
+
+[wsl2]
+# size in GB
+swap=86GB
+
+## swapFile %Temp%\\swap.vhdx
+# pre created the file with "echo "" > swap.vhdx, then it doesn't complain, but still no swap
+# swapFile=C:\\Users\\tin61\\AppData\\Local\\Temp\\swap.vhdx
+# swapFile=C:\Users\tin61\AppData\Local\Temp\swap.vhdx
+# swapFile=C:\Users\tin61\AppData\Local\Temp\swap.vhdx   ## this version windows change to temp\{hash}\swap.vhdx
+
+# swapFile=C:\\temp\\wsl-swap.vhdx
+swapFile=%USERPROFILE%\\AppData\\Local\\Temp\\swap.vhdx
+
+# https://github.com/microsoft/WSL/issues/5476
+# didn't say need to precreate the file
+# also didn't use \\
+# but from the error, it complain about not recognized A or \w in other places, so
+# win 11 at least need it to be like c:\\foo\\bar
+
+# can't get it to work, abandoning.
+# gemini says can create swap file inside wsl like linux machine... will try that.
+
+# C:\\WSL\\wsl-swap.vhdx
+
+
+# swapFile=E:\\WSL\\wsl-swap.vhdx
+# wsl --shutdown
+# cat /proc/swaps
+# swapon -s
+# default to 25% of physical RAM, 4GB for Weasel.
+
+</PRE>
+
 
 <H5>Cygwin tweaks</H5>
 

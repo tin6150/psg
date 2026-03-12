@@ -670,14 +670,22 @@ tmux plugins like tmux-continuum, resurrect and sensible could be useful to at l
 <BR>
 
 tmux clipboard copy-n-paste to file, see:
-https://unix.stackexchange.com/questions/26548/write-all-tmux-scrollback-to-a-file
+<A HREF="https://unix.stackexchange.com/questions/26548/write-all-tmux-scrollback-to-a-file">https://unix.stackexchange.com/questions/26548/write-all-tmux-scrollback-to-a-file</A>.  
 essentially, 
-^b ^[ # enter clipboard mode
+
+<PRE>
+^b [ # enter clipboard mode
+navigate to start of copy position with arrow key
 space # start selection
 gg	# go to top of buffer (like vi)
 enter	# actually copy
 
-^]	# paste eg, into a vim session in a different pane/tab
+^b ]	# paste eg, into a vim session in a different pane/tab
+
+^b :setw -g mode-keys vi        # copy-paste mode use space+enter (vi) mode.  emacs need ^w which could close tab
+
+tmux show-options -g | grep status-keys   # see if emacs or vi mode
+</PRE>
 
 
 <BR>
