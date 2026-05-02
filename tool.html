@@ -1859,6 +1859,7 @@ https://askubuntu.com/questions/546405/ping-adress-ipv6
 nmap: network scanner
 nmapfe: w/ gui front end, supposed to need gtk, but worked anyway.
 
+nmap -sn 172.27.31.0/24 -oG -		# 1 line per IP to see which host is reachable (no port scan); -oG - is greppalbe output to stdout (-)
 nmap -sT -O -PI -PT 172.27.31.0/24	# scan whole class C vlan 31, with os identification.  long output.
 
 sudo nmap -p1-62000 somehost		# scan port 1 to 62000 against machine named somehost
