@@ -68,6 +68,8 @@ To collect SFA logs on EXAScaler systems, execute the following command:
 # 
 es-log-cli -t 01322116 -d /scratch -c sfa --autoupload
 
+es_mount --dry-run
+es_mount                    # running es_mount where no HA is running is safe.  exising mount would be skipped.
 
 
 
@@ -82,6 +84,7 @@ esctl showall
 esctl cluster --action stop
 
 es_tunefs --dry-run
+
 
 lctl ping 10.5.250.25@o2ib
 
