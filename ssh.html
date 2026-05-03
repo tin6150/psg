@@ -66,6 +66,33 @@ Hosts *.example.local
 <H1>SSH, Tunnel, Port Forward</H1>
 
 
+<H2>client side config</H2>
+(relocate elsewhere? 2025.10)
+<BR>
+jupyter notebook
+<BR>
+(source .venv/bin/activate) before starting jupyter notebook on port 7000
+<BR>
+
+<PRE>
+# .ssh/config  client side config
+ 
+Host bofh7k
+  HostName bofh
+        User tin
+  #LogLevel DEBUG
+  #DynamicForward 3125
+  #DynamicForward 7000
+        # DynamicFoward is for SOCKS5 port ?
+        # need a regular port tunnel
+        # ssh -L 7000:localhost:7000 bofh
+        # https://redsiege.com/blog/2024/02/better-living-through-openssh-config-files
+        LocalForward 127.0.0.1:7000 127.0.0.1:7000
+
+
+</PRE>
+
+
 <H3>Ponder</H3>
 
 <LI>PermitTunnel is disabled by default on openssh, it poses lots of serucrity problems for TCP ports, cuz sshd runs as root</LI>

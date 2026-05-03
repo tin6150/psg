@@ -705,7 +705,10 @@ defineAlias () {
 	# overwrite default behaviour, keep command name
 	#alias ssh='ssh -o StrictHostKeyChecking=no' # already done by some default cluster cf
 	alias ssh="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2"
-	alias lrc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151" # login node 1
+	alias lrc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.151" # login node 1  (till .154)
+	alias lrc2="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.152" # login node 2
+	alias lrc3="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.153" # login node 3
+	alias lrc4="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 128.3.7.154" # login node 4
 	alias xfr1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no lrc-xfer.lbl.gov" # globus dtn scp
 	alias viz1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no lrc-viz.lbl.gov"  # realvnc
 	alias asbl="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scg-ansible"
@@ -713,7 +716,9 @@ defineAlias () {
 	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
 	alias dtn="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no dtn.brc.berkeley.edu" # globus xfer scp
 	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
+	alias sshfs_brc0="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:  ~/mnt/brc0"
 	alias sshfs_brc="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs"
+	alias sshfs_lrc="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2      tin@lrc-xfer.lbl.gov:/global/scratch/users/tin  ~/mnt/lrc-gs"
 	alias sshfs_bofh="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@bofh.lbl.gov:/  ~/mnt/bofh"
 	alias PS="ps -eLFjlZ  --headers "
 	alias axms="ps axms"	# threads view with lots of hex
