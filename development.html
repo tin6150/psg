@@ -227,6 +227,25 @@ from
 <A HREF="linux.html#RHEL_vs_glibc">what glibc comes with various version of RedHat Linux</A>
 <BR>
 
+<H3>gcc-toolset</H3>
+
+<PRE>
+RHEL has things like
+gcc-toolset-12
+gcc-toolset-13
+gcc-toolset-14
+
+rpm that can be installed and help provide libraries for binaries compiled for other computer to work.
+it is used with 'scl' to manage the environment (LD_LIBRARY_PATH and the like)
+
+scl list
+scl enable toolset-12 
+scl enable gcc-toolset-12 bash
+scl enable gcc-toolset-12 'ldd ~/bin/someBin'
+scl enable gcc-toolset-12 'gcc --version'
+
+</PRE>
+
 
 <H2>Environment Variables</H2>
 

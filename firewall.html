@@ -970,6 +970,19 @@ iptables -t nat -A PREROUTING -p tcp -i eth1 -d 12.83.7.153 --dport 22 -j DNAT -
 <!-- -------------------------------------------------------------------------------------------- -->
 <!-- -------------------------------------------------------------------------------------------- -->
 
+<H1>fail2ban</H1>
+
+ref: https://bornoe.org/blog/2023/09/basic-fail2ban-commands/
+
+<PRE>
+
+fail2ban-client status					# list jails
+fail2ban-client status sshd				# summary num of ip banned in a jail
+
+fail2ban-client banned					# list banned ip
+fail2ban-client set sshd unbanip 98.45.17.8		# unblock specific IP unside the sshd jail
+fail2ban-client set sshd   banip 98.45.17.8		#   block specific IP unside the sshd jail
+</PRE>
 
 <A ID="mac"></A>
 <A ID="bsd"></A>

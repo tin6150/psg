@@ -42,7 +42,7 @@
 
 <!--
       <td align="center"><a accesskey="d" href="k8s.html">Kubernetes</a>                </td>
-      <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>       </td>  <!--TBA-->
+      <td align="center"><a accesskey="x" href="singularity.html">Singularity</a>       </td>  <! -- TBA-- >
       <td align="center"><a accesskey="w" href="aws.html">AWS</a>       </td>
 -->
 
@@ -725,7 +725,7 @@ data %>% head() # like unix cat data | head
 data %>% summary()  # summary stat for each column of data, eg min,median,quartilers
 
 str( data ) # see list of variables (column headers) 
-glimse( data )  # tidyverse?
+dplyr::glimpse( data )  # clerver peek fn!
 
 typeof( df )		# this will just return list
 typeof( df$colname ) 	# this can determin data type of a specified col in a df.

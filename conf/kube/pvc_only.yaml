@@ -1,0 +1,29 @@
+# [root@control0 test_pod]# vi tinho7-pvconly-testonly-v7.yaml
+
+# kubectl create -f ThisFile.yaml       # works when names are uniq
+# kubectl apply -f ThisFile.yaml        # works to create.  but if redo to reapply, change storage to larger capacity
+
+# test if API req to weka works.
+
+# error from Rancher GUI under Volume:
+# failed to provision volume with StorageClass "storageclass-wekafs-dir-api": rpc error: code = Internal desc = could not check if volume dir/v1/weka/csi-volumes/pvc-4e37b4c6-5d90-4b26-a134-aab25a1e9fe8-f1a23807677fadbd465476d9320491030e27d37d exists: get "https://weka02
+.bk.private.lbl.gov:14000/api/v2/filesystems?name=weka": tls: failed to verify certificate: x509: certificate signed by unknown authority
+# ^^ error when cert from weka wasn't trusted
+#    error goes away after changing storage class to --allowinsecurehttps
+
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tinho7-pvconly-testonly-v7
+  namespace: tinho
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 168Ki
+      #storage: 1200Mi
+  storageClassName: storageclass-wekafs-dir-api
+  volumeMode: Filesystem
+  #volumeName: pvc-tinho6-weka-testonly-v2  #dont  specify a name to let wekacsi assign/create it

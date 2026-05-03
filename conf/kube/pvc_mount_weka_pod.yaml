@@ -1,0 +1,53 @@
+
+# modeled after cborg-src.yaml -- pvc-188f8f90-21b9-4084-b191-34093b4401 e3
+# chunk 1 from v2 tested, pvc created, but never allocated, no "user" ?
+# chunk 2 https://github.com/weka/csi-wekafs/blob/main/examples/dynamic_directory/csi-app-on-dir-api.yaml#L1
+# v10 worked, got  this mount (was able to shell into pod to run df -hT):
+# weka                     wekafs   140K   16K  124K  12% /data
+
+# contorl0.bk ~tin/test_pod/tinho6-pvc-testonly-v11.yaml
+
+# kubectl create -f ThisFile.yaml  # all names need to be uniq (after submission to kube cluster, no clash allowed)
+# kubectl apply -f ... # smart way... auto rename... but probably not for most of the things I make request here...
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tinho6-pvc-testonly-v11
+  namespace: tinho
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      #storage: 1Gi
+      #storage: 101Mi
+      storage: 138Ki
+  storageClassName: storageclass-wekafs-dir-api
+  #volumeMode: Filesystem   # yaml still works when this is not specified
+  #volumeName: pvc-tinho6-weka-testonly-v3  # dont specify, let k8s csi allocate/create PV
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: tinho6-pod-pvc-testonly-v11
+  namespace: tinho
+spec:
+  # make sure that pod is scheduled only on node having weka CSI node running
+  nodeSelector:
+    topology.csi.weka.io/global: "true"
+  containers:
+    - name: tinho6-testonly-pvc-container-v11
+      #image: nginxdemos/hello
+      image: ubuntu:24.04
+      volumeMounts:
+      - mountPath: "/data_weka"
+        #name: my-csi-volume
+        name: tinho6-testonly-csi-volume-v11
+      command: ["/bin/sh"]
+      args: ["-c", "while true; do echo `date` hello `hostname` >> /data_weka/kube_weka_test_log.txt; sleep 300;done"]
+  volumes:
+    - name: tinho6-testonly-csi-volume-v11
+      persistentVolumeClaim:
+        #claimName: pvc-wekafs-dir-api # defined in pvc-wekafs-dir-api.yaml
+        claimName: tinho6-pvc-testonly-v11

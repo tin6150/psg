@@ -1576,13 +1576,32 @@ BIOS update has started.
 
 <H1>UEFI</H1>
 
+UEFI typically pair with GTP partition scheme.   Conflict with MBR.  
+<BR>
+UEFI goes on a FAT partition (cuz it is quite much like DOS).
+<BR>
+
 
 <PRE>
 Tyan: F11 for pop up menu, choose UEFI Shell
 
+some system only have UEFI GUI, no shell.
+(and some can just boot per UEFI protocol, but no UI?)
 
-fd0:						# this pick the root device/dir for the UEFI shell.  after doing this, UEFI commands available.
+
+map 					       # list device mappings, think lsblk.  eg what fs0 fs1 are
+
+bcfg                 # manage boot/driver options, persistently stored (nvrma?)
+bcfg boot dump -b    # list bootable devices
+bcfg boot mv 3 0     # move boot entry 3 to position 0, shifthing everything down
+bffg boot add 1 FS0:\EFI\GRUB\grubx64.efi "GRB" TARGET = 0007
+
+
+
+fd0:						# this pick the root device/dir for the UEFI shell.  think DOS C:  after doing this, UEFI commands available.
 fs0:\7109V102		# pick a specific dir to the the root of the EFI shell?
+
+
 
 cd
 ls
@@ -1590,13 +1609,31 @@ dir
 help
 tab completion works.  dir could be / or \  ?
 
+reset		# reboot the computer
+			
+example image location:
+FS1:\EFI\grub\grubx64.efi 
+
+fs1:\> bfcg boot add 0 fs1:\EFI\grubx64.efi grub
+
+bcfg boot dump -v -b
+# -v is verbose
+# -b is break for each page (like more)
+
 
 *nsf					# these are executable in EFI.  
 flash.nsh			# run the BIOS flash program
 
 
+
 </PRE>
 
+per freebsd forum [link] some flasher have this script that do:
+<BR>
+<TT>startup.nsh</TT>
+<PRE class=cf>
+storcli.efi /c0 download file=HBA_8i_Profile.bin
+</PRE>
 
 
 <!-- ################################################################## -->
