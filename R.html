@@ -3732,17 +3732,21 @@ parameter-free: this still rely on a model...
 
 What test to use?  By examples...
 
+					[num of rows]		[num of columns]
 situation				exposure(measurements)	Outcome				analysis method
 ----------------------------------	----------------------	----------------------------	----------------------------------------------------
+Is EMM present				                                                	chi-sq Test of HOMogeneity 
+
+juror race %				proportion (1 group)	counts in n categories		chi-sq Goodness of Fit  (Expected value from pop race %)
+
 2x2 contingency table D+/- vs E+/-	proportion in 2 groups	counts in 2 categories		chi-sq (test of independence), need Expected values, calc col,row totals
 Disease +/- vs 3 arms of exposure	proportion in 3 groups  counts in 3 groups 		chi-sq 
 Disease in 4 age groups			proportion in 4 groups  counts in 4 groups 		chi-sq 
 rxc contingency table 			proportion in r groups	counts in c categories		chi-sq (test of independence)
 
 means from 1 experiment (sample) 	1 category (univariate)	continuous			Gaussian based, eg 1-sample T
-means height men vs woman		2 categories(groups)	continuous, independent		2-sample T
-												Wilcoxon rank sum (non-param) aka Mann-Whiteney
-mean hrs sleep Freshman..Senior		4 categories		continuous			ANOVA 
+means height men vs woman		2 categories(groups)	continuous, independent		2-sample T ; Wilcoxon rank sum (non-param) aka Mann-Whiteney
+mean hrs sleep Freshman..Senior		3 or more categories	continuous			ANOVA 
 
 avg weight pre-, post-treatment		2 categories		continuous, dependent		paired-T (boils down to 1-sample diff of post - pre)
 						
@@ -3754,8 +3758,9 @@ A1c ~~> diabetic?			continuous		categorical			logistic regression:  1 / 1+exp(-x
 												Log-linear regression    ln(Y) = βX + intercept // RR
 												logit to calc log(odds)
 
-juror race %				univariate (1 group)	counts in n categories		chi-sq Test of HOMogeneity (Expected value from pop race %)
 
+num of COVID cases			univariate		proportions, no max		Poison
+num of btl of med contaminated		univariate		proportions, has max		Binomial
 
 
 
