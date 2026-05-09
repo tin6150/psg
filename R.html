@@ -3720,6 +3720,98 @@ non-parametric: means NOT based on a model.  Cannot assume a distribution.  It r
 parameter-free: this still rely on a model... 
 
 ~~~~~
+</PRE>
+
+
+<PRE>
+
+What test to use?  By examples...
+
+situation				exposure(measurements)	Outcome				analysis method
+----------------------------------	----------------------	----------------------------	----------------------------------------------------
+2x2 contingency table D+/- vs E+/-	proportion in 2 groups	counts in 2 categories		chi-sq (test of independence), need Expected values, calc col,row totals
+Disease +/- vs 3 arms of exposure	proportion in 3 groups  counts in 3 groups 		chi-sq 
+Disease in 4 age groups			proportion in 4 groups  counts in 4 groups 		chi-sq 
+rxc contingency table 			proportion in r groups	counts in c categories		chi-sq (test of independence)
+
+means from 1 experiment (sample) 	1 category (univariate)	continuous			Gaussian based, eg 1-sample T
+means height men vs woman		2 categories(groups)	continuous, independent		2-sample T
+												Wilcoxon rank sum (non-param) aka Mann-Whiteney
+mean hrs sleep Freshman..Senior		4 categories		continuous			ANOVA 
+
+avg weight pre-, post-treatment		2 categories		continuous, dependent		paired-T (boils down to 1-sample diff of post - pre)
+						
+
+mean vs height				continuous		continuous			pearson      correlation (param)      r^2?
+												spearman     correlation (non-param, rank based)
+A1c--> diabetic?			continuous		categorical			logistic regression:  1 / 1+exp(-x) 
+												Log-linear regression    ln(Y) = βX + intercept 
+												logit to calc log(odds)
+
+juror race %				univariate (1 group)	counts in n categories		chi-sq Test of HOMogeneity (Expected value from pop race %)
+
+
+
+
+
+
+
+</PRE>
+
+<HR>
+
+<!-- GGE review 2026.05 -->
+<PRE>
+What test to use?   Comparision tables
+
+
+
+OUTCOME is continuous (Y-axis)
+
+How many groups?	Independent			Dependent 
+(of input, 						(think paired)
+x-axis)           
+---------------------	---------------------------	----------------------------
+
+1			1-sample T			(NA, use mean, median)	
+			Z
+			eg: mean weight
+
+2			2-sample T			Paired T
+			Wilcoxon Rank Sum (non-param)	Wilcoxon Sign Rank
+			aka Mann-Whitney		(boils down to 1-sample T of the diff)
+			eg: avg weight men vs women
+
+3 or more		ANOVA
+			Kruskal Wallis (non-param)
+			eg: avg hrs sleep in 4 grps:
+			Freshman, Soph, Jr, Sr
+
+
+~~~~~
+
+OUTCOME is categorical (Y-axis)
+
+How many groups?	2 categorical out grp		3 or more cat grp
+(of input, 						
+x-axis)           
+---------------------	---------------------------	----------------------------	
+
+1			1-sample proportion (Z based)	chi-sq Goodness of Fit (non-param)
+							eg: juror race % (fit pop race % ?)
+
+2			2-sample proportion (Z-based)	
+			Chi-sq Test of Independence	chi-sq Test of Independence
+			eg: 2x2 epi contingency table
+
+3			- -> >				chi-sq Test of Independence
+							eg: c*r epi contingency table
+</PRE>
+
+
+<HR>
+ 
+<PRE>
 
 What test to use?  Decision tree: 
 
