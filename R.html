@@ -3751,14 +3751,14 @@ vv--- can present data in box and whisker plots for the number of categories  (t
 
 means from 1 experiment (sample) 	1 category (univariate)	continuous			Gaussian based, eg 1-sample T
 means height men vs woman		2 categories(groups)	continuous, independent		2-sample T ; Wilcoxon rank sum (non-param) aka Mann-Whiteney
-mean hrs sleep Freshman..Senior		3 or more categories	continuous			ANOVA 
+mean hrs sleep Freshman..Senior		3 or more categories	continuous			ANOVA   [ SST = SSR + SSE ]
 
 avg weight pre-, post-treatment		2 categories		continuous, dependent		paired-T (boils down to 1-sample diff of post - pre)
 						
 
 VV-- data can be presented in a scatter plot, ie both x,y are continuous num
 
-mean vs height				continuous		continuous			pearson      correlation (param)      r^2?
+mean vs height				continuous		continuous			pearson      correlation (param)      r^2?    F-stat = SSR/SSE
 												spearman     correlation (non-param, rank based)
 air Pb vs blood Pb			continuous		continuous			linear regression: slope ~~> determine mean diff.
 A1c ~~> diabetic?			continuous		categorical			logistic regression:  1 / 1+exp(-x) 
