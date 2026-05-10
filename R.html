@@ -3732,17 +3732,22 @@ parameter-free: this still rely on a model...
 
 What test to use?  By examples...
 
-					[num of rows]		[num of columns]
+					[num of rows]		[num of columns~~>categories]
 situation				exposure(measurements)	Outcome				analysis method
 ----------------------------------	----------------------	----------------------------	----------------------------------------------------
 Is EMM present				                                                	chi-sq Test of HOMogeneity 
 
-juror race %				proportion (1 group)	counts in n categories		chi-sq Goodness of Fit  (Expected value from pop race %)
+juror race %				data (1 group)		proportion|counts in n grp	chi-sq Goodness of Fit  (Expected value from pop race %)
 
-2x2 contingency table D+/- vs E+/-	proportion in 2 groups	counts in 2 categories		chi-sq (test of independence), need Expected values, calc col,row totals
-Disease +/- vs 3 arms of exposure	proportion in 3 groups  counts in 3 groups 		chi-sq 
-Disease in 4 age groups			proportion in 4 groups  counts in 4 groups 		chi-sq 
-rxc contingency table 			proportion in r groups	counts in c categories		chi-sq (test of independence)
+2x2 contingency table D+/- vs E+/-	data in 2 groups/cats	prop|counts in 2 categories	chi-sq (test of independence), need Expected values, calc col,row totals
+Disease +/- vs 3 arms of exposure	data in 3 groups  	prop|counts in 3 groups 	chi-sq 
+Disease in 4 age groups			data in 4 groups   	prop|counts in 4 groups 	chi-sq 
+rxc contingency table 			data in r groups	prop|counts in c categories	chi-sq (test of independence)
+
+^^ present data in table, plot is limited or no use.  maybe bar plots
+
+
+vv--- can present data in box and whisker plots for the number of categories  (think anova)
 
 means from 1 experiment (sample) 	1 category (univariate)	continuous			Gaussian based, eg 1-sample T
 means height men vs woman		2 categories(groups)	continuous, independent		2-sample T ; Wilcoxon rank sum (non-param) aka Mann-Whiteney
@@ -3750,6 +3755,8 @@ mean hrs sleep Freshman..Senior		3 or more categories	continuous			ANOVA
 
 avg weight pre-, post-treatment		2 categories		continuous, dependent		paired-T (boils down to 1-sample diff of post - pre)
 						
+
+VV-- data can be presented in a scatter plot, ie both x,y are continuous num
 
 mean vs height				continuous		continuous			pearson      correlation (param)      r^2?
 												spearman     correlation (non-param, rank based)
