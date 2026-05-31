@@ -58,6 +58,7 @@ read WaitForEnter
 [[ -d $MyGitDir/psg ]] || mkdir $MyGitDir/psg
 cd $MyGitDir/psg
 ## config need to write to some .git...   create a fn for this?
+## or just  cp conf/.gitconfig ~/
 
 git config --global user.email "sn+newbox@grumpyxmas.com"             # FIXME++ change this to machine specific settings to get better idea of where commits, 
                                                         # merges are done, but don't display well on bitbucket :(
