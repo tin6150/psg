@@ -244,6 +244,8 @@ setPrompt () {
 	#PS1='\[\e[1;37\]___ \[\e[1;33m\]\u \H\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \[\e[1;32m\]>\[\e[m\] '
 	# http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
 	CYAN="\[\033[0;36m\]"
+	RED="\[\033[0;31m\]"
+	MAGENTA="\[\033[0;35m\]"
 	LIGHT_CYAN="\[\033[1;36m\]"
 	YELLOW="\[\033[1;33m\]"
 	WHITE="\[\033[1;37m\]"
