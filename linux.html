@@ -3835,6 +3835,9 @@ sudo semanage fcontext -a -t ssh_home_t "/home-local/*/.ssh/authorized_keys"
 sudo restorecon -R -v "${CUSTOM_HOME}"
 
 
+# allow NFS home dir 
+setsebool -P use_nfs_home_dirs 1
+
 </PRE>
 
 SE Linux has quite a number of places where permissions are set...
