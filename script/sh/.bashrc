@@ -244,6 +244,8 @@ setPrompt () {
 	# http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
 	CYAN="\[\033[0;36m\]"
 	LIGHT_CYAN="\[\033[1;36m\]"
+	RED="\[\033[1;31m\]"
+	MAGENTA="\[\033[1;35m\]"
 	YELLOW="\[\033[1;33m\]"
 	WHITE="\[\033[1;37m\]"
 	GRAY="\[\033[1;30m\]"
@@ -254,6 +256,7 @@ setPrompt () {
 	##PS1="${LIGHT_CYAN}__ ${WHITE}\u ${CYAN}\H ${LIGHT_GRAY}\w ${LIGHT_CYAN}> ${NO_COLOUR} "       ## good prompt, but hacking it so .rst file highlight prompt :)
 	##PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR} "		## for .rst highlight
 	PS1="${CYAN}**^ ${WHITE}\u ${LIGHT_CYAN}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR}"		## dont want 2 space after >
+	#//PS1="${CYAN}**^ ${WHITE}\u ${MAGENTA}\H ${LIGHT_GRAY}\w ${CYAN}^**> ${NO_COLOUR}"		## dont want 2 space after >
 	##PS1="${LIGHT_CYAN}[\u@\h]> ${NO_COLOUR}"	## tmp for slide prep
 	##PS1="${LIGHT_CYAN}\u${LIGHT_GRAY}@${CYAN}\h> ${NO_COLOUR}"		## TMP for presentation
 	[[ -n "$SINGULARITY_CONTAINER" ]] && PS1=${SINGULARITY_CONTAINER}" "${PS1}
