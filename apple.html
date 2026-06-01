@@ -387,6 +387,11 @@ sudo launchctl limit maxfiles unlimited		# fix number of open file handles to un
 Below are example commands to make os x more hacker friendly, use cli to install .dmg., etc
 Run <BR>
 <PRE>
+2026...
+install AltTab!  
+homebrew
+</PRE>
+<PRE>
 wget -nc https://raw.githubusercontent.com/tin6150/psg/master/script/mac/installFavApp.sh -O installFavApp.sh
 # should check that downloaded the right thing before running it.  also, script use sudo.
 bash -x installFavApp.sh
@@ -407,7 +412,8 @@ sudo installer -package /Volumes/Vagrant/vagrant.pkg -target /
 # in this case, the app was installed to /opt/vagrant with link in /usr/local
 sudo hdiutil detach /Volumes/Vagrant
 
-# install Oracle VirtualBox
+# install Oracle VirtualBox, though VBox has been going downhill, regression to worse driver, etc :-\
+
 wget http://download.virtualbox.org/virtualbox/5.1.28/VirtualBox-5.1.28-117968-OSX.dmg
 sudo hdiutil attach VirtualBox-5.1.28-117968-OSX.dmg 
 sudo installer -package /Volumes/VirtualBox/VirtualBox.pkg -target /
@@ -529,6 +535,32 @@ dscacheutil -flushcache					# flush dns
 
 </PRE>
 ref: https://knowledge.autodesk.com/support/smoke/learn-explore/caas/sfdcarticles/sfdcarticles/Setting-the-Mac-hostname-or-computer-name-from-the-terminal.html
+
+
+
+
+<H2> unfortunate stuff from unix that is not well covered</H2>
+
+<PRE>
+
+new macos (ca 2026, maybe earlier).
+mark download files as insecure, this include old unix-style programs with lots of .so files, which will prompt endless security trust questions.  
+fix via cli:
+
+cd /path/to/your/library/folder
+xattr -dr com.apple.quarantine  .
+-or-
+xattr -dr com.apple.quarantine /path/to/your/library/folder
+
+
+not sure if pip3 installed app has the same quarantine flag, but the trusted developer workaround didn't fix the problem:
+
+mac, disable the block of running app from unknown developer.  (eg pip3 install grapetree, else it prompts a gaziilion times for each .so files needed, can't finish that list)
+(base) zyzyxia3:GrapeTree_2018 jr$ sudo spctl --master-disable
+
+# revert the changes
+(base) zyzyxia3:GrapeTree_2018 jr$ sudo spctl --master-enable
+</PRE>
 
 
 <!--mac.ref-->
@@ -720,13 +752,17 @@ MacOS annoyances - Why I hate Mac OS X ?
 <UL>
 
 <LI> Solution: <TT>brew install Alt-Tab </TT><A HREF="https://github.com/lwouis/alt-tab-macos">Alt-Tab</A> (See, there are people who agagrees that way to selectively bring front specific window/doc is useful!<BR> WAS: How do you switch between windows?!?!  I mean for example switching between 1 specific browser window and 1 terminal window.
-I don't want to hit alt-tab and have all browser windows come to the foreground and cover all my terminal windows.  Alt-` to cycle between windows of the same app doesn't help once the paparrazi already covered what I wanted to see from the other app!  I don't think there is a solution to this other than to get a 80" 8k monitor.  Hard to fit that in a messenge bag though, no?
+I don't want to hit alt-tab and have all browser windows come to the foreground and cover all my terminal windows.  Alt-` to cycle between windows of the same app doesn't help once the paparrazi already covered what I wanted to see from the other app!  I don't think there is a solution to this other than to get a 80" 8k monitor.  Hard to fit that in a messenge bag though, no?  #AltTab :D
+<BR>
+Solution: Alt-Tapp.app program for macOS.  I guess I am not the only one with such complain ^_^ <BR>
 
 
 <LI> The file system default to case insenstive.  which resulted in snafu into git repos, since unix case sensitive filenames will result in overwritten files on a mac os x.  spend some good amount of time to figure out what happened, lucky it was with git and able to restore from previous version.  but really, wtf apple?
 <LI> Linux terminal, highlight with mouse, paste with middle click.  Or Shift-Insert.  No middle click on any apple mouse/touchpad; or if there were, I have not been able to produce the paste behavior.  The Terminal app allows pasting with PC mouse middle click.  But the clipboard isn't shared with other app (eg chrome).  So it is still often stilll needing the cmd-c and cmd-v.  your hands has just to move between keyboard and mouse so much more often.
 
 <LI> How do you access the File menu with the keyboard?   In Google Docs, Ctrl-Alt-f.  Yeah yeah, on the mac it is called the option key.  I like the derailure and change track logo.  But that reminds me of Alternate path, not option.  So there.  Also, why need so many effing keys when it is just Alt-f on linux?
+
+<LI> Tmux.  Ctrl-b,alt-2 is ctrl-b,ESC,2 .  there is way to remap option key to alt, but didn't want to spend the time to read up what's the consequence/side effect of this.  
 
 <LI> Windows borders please.  I have *a lot* of terminals windows open.  
 

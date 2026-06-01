@@ -11,6 +11,7 @@
 #  2024.0319  =~ bash regex in MAQUINA partial hostname match
 #  2024.0903  checked /etc/bashrc  of rocky 8 eg PS1 login_shell, didn't change anything meaningful
 #  2025.0609  lot of shuffle into fn block, but no net feature change, likely not really optmized either.  just making it less messy, seems more manageable now :D
+#  2026.0531  add clause for Claude per cborg.html.  also need ~/.ssh/.claude_api 
 
 
 ####
@@ -243,6 +244,8 @@ setPrompt () {
 	#PS1='\[\e[1;37\]___ \[\e[1;33m\]\u \H\[\e[m\] \[\e[1;34m\]\w\[\e[m\] \[\e[1;32m\]>\[\e[m\] '
 	# http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
 	CYAN="\[\033[0;36m\]"
+	RED="\[\033[0;31m\]"
+	MAGENTA="\[\033[0;35m\]"
 	LIGHT_CYAN="\[\033[1;36m\]"
 	RED="\[\033[1;31m\]"
 	MAGENTA="\[\033[1;35m\]"
@@ -874,6 +877,99 @@ defineAliasSge () {
 
 
 ################################################################################
+### Claude config block, https://cborg.lbl.gov/tools_claudecode/
+################################################################################
+
+defineClaude () {
+
+# bigmac2 need: eval "$(/opt/homebrew/bin/brew shellenv bash)"
+[[ -f ~/.ssh/.api ]] && source ~/.ssh/.api    # this file not in git, but 1pwd
+
+# Set authorization and base URL
+export ANTHROPIC_AUTH_TOKEN=$CBORG_API_KEY
+export ANTHROPIC_BASE_URL=https://api.cborg.lbl.gov
+
+# Model selection -- set to latest version of each model
+# NOTE: You will need to update these each time a new model is released
+# NOTE: Other models can be used, but ClaudeCode will incorrectly calculate API costs
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5
+export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-4-6
+export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-6
+
+# Default conversation model
+export ANTHROPIC_MODEL=claude-sonnet-4-6
+
+# Default subagent model
+export CLAUDE_CODE_SUBAGENT_MODEL=claude-haiku-4-5
+
+# Recommended setting
+export DISABLE_NON_ESSENTIAL_MODEL_CALLS=1
+
+# Recommended setting
+export DISABLE_TELEMETRY=1
+
+# Recommended setting for compatibility
+export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
+
+# Recommended setting to reduce model throttling
+# Higher max output tokens can be used but may cause prompts to be rejected with "too many tokens" error
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192
+
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ClaudeFash"
+
+} # end defineAliasClaude
+
+################################################################################
+# this fn setup claude to use Gemine Flash backend, cheaper, we have Google plan for 2026
+
+defineClaudeFlash () {
+
+# bigmac2 need: eval "$(/opt/homebrew/bin/brew shellenv bash)"
+[[ -f ~/.ssh/.api ]] && source ~/.ssh/.api    # this file not in git, but 1pwd
+
+
+# cborg track by IP, VPN or explicitly go to API to allow it
+# but bigmac2 resulted in ipv6 being allowed
+# but claude seems to be using ipv4, so trying to set this:
+export NODE_OPTIONS="--dns-result-order=ipv6first"
+# then run claude, but still complain IPv4 not authorized
+# https://test-ipv6.com/ show ipv6 100% pass.  need vpn?  need way to allow v4?
+
+
+# Set authorization and base URL
+export ANTHROPIC_AUTH_TOKEN=$CBORG_API_KEY
+export ANTHROPIC_BASE_URL=https://api.cborg.lbl.gov
+
+
+# Model selection -- using aliases to latest version of each model
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=gemini-flash-lite
+export ANTHROPIC_DEFAULT_SONNET_MODEL=gemini-flash
+export ANTHROPIC_DEFAULT_OPUS_MODEL=gemini-flash-high
+
+# Default conversation model
+export ANTHROPIC_MODEL=gemini-flash
+
+# Default subagent model
+export CLAUDE_CODE_SUBAGENT_MODEL=gemini-flash-lite
+
+# Recommended setting
+export DISABLE_NON_ESSENTIAL_MODEL_CALLS=1
+
+# Recommended setting
+export DISABLE_TELEMETRY=1
+
+# Recommended setting for compatibility
+export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
+
+# Recommended setting to reduce model throttling
+# Higher max output tokens can be used but may cause prompts to be rejected with "too many tokens" error
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192
+
+COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ClaudeFash"
+
+} # end defineAliasClaude
+
+################################################################################
 ################################################################################
 ### "main" - script start point
 ################################################################################
@@ -913,6 +1009,7 @@ export EDITOR=vi
 # doing this at the end should fix this.  if not, source it from the shell.
 [[ -f /etc/bashrc ]] && source /etc/bashrc 	# this was in Line 122 also.
 
+[[ -f ~/.bash_profile ]] && source ~/.bash_profile 	# brew install for claude on bigmac2 used profile (may indeed not want to source every time)
 
 ###=====================================================================###
 ###=====================================================================###
@@ -954,6 +1051,8 @@ if [[ $- == *i* ]]; then
 	defineAlias
 	defineAliasMac
 	defineAliasWin 
+	#defineClaude
+	defineClaudeFlash
 	#defineAliasSge
 	[[ -f ~/.bashrc_cygwin ]] && source ~/.bashrc_cygwin && COMMON_ENV_TRACE="$COMMON_ENV_TRACE bashrc_cygwin"
 	##[[ -f ~/.alias_bashrc  ]] && source ~/.alias_bashrc  && COMMON_ENV_TRACE="$COMMON_ENV_TRACE alias_bashrc"  # using .bash_alias, sourced by .bashrc_cygwin
