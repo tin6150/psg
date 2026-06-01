@@ -917,7 +917,7 @@ export CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192
 
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ClaudeFash"
 
-} # end defineAliasClaude
+} # end defineClaude
 
 ################################################################################
 # this fn setup claude to use Gemine Flash backend, cheaper, we have Google plan for 2026
@@ -967,7 +967,9 @@ export CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192
 
 COMMON_ENV_TRACE="$COMMON_ENV_TRACE personal_bashrc_ClaudeFash"
 
-} # end defineAliasClaude
+} # end defineClaudeFlash
+
+
 
 ################################################################################
 ################################################################################
