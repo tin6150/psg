@@ -198,6 +198,11 @@ not sure how much customer (sys admins) need to know about these
 <PRE>
 
 
+vtool cnode_summary
+#  vms node is inactive, for management process, and is normal ?
+
+vtool system_status | grep -oE '(drive|nvram|cnode|dnode)_auto_revive_params=AutoReviveParams\([^)]*\)'
+
 
 
 docker ps	# there are 3 containers running...

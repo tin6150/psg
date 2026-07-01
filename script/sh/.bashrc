@@ -725,6 +725,10 @@ defineAlias () {
 	alias asbl="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scg-ansible"
 	alias scm="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 scs-cm"
 	alias brc="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 brc.berkeley.edu" # login node 1
+	alias brc0="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 ln000.brc.berkeley.edu" # login node 0, reactivated 2026.06, formerly n0060.sav4
+	alias brc1="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 ln001.brc.berkeley.edu" # login node 1.  my preferred, so i don't have to think if there was a node 0
+	alias brc2="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 ln002.brc.berkeley.edu" # 
+	alias brc3="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 ln003.brc.berkeley.edu" #
 	alias dtn="ssh -Y -o ServerAliveInterval=300 -o ServerAliveCountMax=2 -o StrictHostKeyChecking=no dtn.brc.berkeley.edu" # globus xfer scp
 	alias sshfs="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2"  # tin@dtn.brc.berkeley.edu:/global/scratch/users/tin  ~/mnt/brc-gs
 	alias sshfs_brc0="sshfs -o ServerAliveInterval=300 -o ServerAliveCountMax=2  tin@dtn.brc.berkeley.edu:  ~/mnt/brc0"
