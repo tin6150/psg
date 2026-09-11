@@ -7,13 +7,20 @@
 #FROM r-base:3.6.2
 #FROM tin6150/base4metabolic
 #FROM rockylinux:9.3
-FROM rockylinux:rockylinux:10
-#FROM alpinelinux:latest
-MAINTAINER Tin (at) LBL.gov
+#FROM rockylinux/rockylinux:10
+#FROM rockylinux/rockylinux:10-minimal
+FROM alpine:latest
+
+# alpine is ~5MB compressed, ~13MB installed
+# rockylinux:10-ubi-micro is ~7.3, ~25MB
+# rockylinux:10-minimal is ~49MB, 150MB
+# rockylinux:10 is ~61MB compressed
+
+MAINTAINER Tin (at) Berkeley.Edu
 
 ARG TZ="America/Los_Angeles"
 
-COPY . /perf_tools
+COPY . /psg/
 
 RUN touch    _TOP_DIR_OF_CONTAINER_                                                   ;\
     echo "====================================== " | tee -a _TOP_DIR_OF_CONTAINER_    ;\
@@ -22,7 +29,7 @@ RUN touch    _TOP_DIR_OF_CONTAINER_                                             
     hostname | tee -a       _TOP_DIR_OF_CONTAINER_                                    ;\
     date     | tee -a       _TOP_DIR_OF_CONTAINER_                                    ;\
     touch /THIS_IS_INSIDE_DOCKER_CONTAINER                                            ;\
-    bash /psg/install_tools.sh  | tee -a install_tools.log              ;\
+    bash /psg/install_tools_alpine.sh  | tee -a install_tools.log              ;\
     echo $? > install_tools.exit.code                                                 ;\
     cd      / 
 
@@ -34,10 +41,28 @@ RUN touch    _TOP_DIR_OF_CONTAINER_                                             
     #yum -y install mousepad  | tee -a yum_install.log  ;\
     cd      / 
 
+
+# Update repositories and install Nginx in a single layer
+# RUN apk add --no-cache nginx
+
+# Create a directory to run the Nginx PID file (required for Alpine)
+# RUN mkdir -p /run/nginx
+
+# (Optional) Copy your custom Nginx configuration if you have one
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose HTTP traffic port
+EXPOSE 80
+
+# Run Nginx in the foreground so the container doesn't immediately exit
+CMD ["nginx", "-g", "daemon off;"]
+
+
+
 RUN     cd / \
   && touch _TOP_DIR_OF_CONTAINER_  \
   && TZ=PST8PDT date  >> _TOP_DIR_OF_CONTAINER_  \
-  && echo  "Dockerfile. 2026.0910 rocky 9  "     >> _TOP_DIR_OF_CONTAINER_   \
+  && echo  "Dockerfile. 2026.0910 alpine"     >> _TOP_DIR_OF_CONTAINER_   \
   && echo  "Grand Finale"
 
 # ENV TZ America/Los_Angeles  
