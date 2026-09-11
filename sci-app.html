@@ -279,15 +279,16 @@ mb> lset nst=6 rates=gamma		# lset = likelihood model setting
 mb> prset shapepr=exponential(0.05)	# setting priors
 mb> showmodel
 mb> mcmcp ...                                     	# mcmcp = make settings, dont actually start
-mb> mcmcp ngen=300000 printfreq=100 samplefreq=100	# ? ~ chain lenght = 300k, for kicking tire maybe better ngen=20k
+mb> mcmcp ngen=300000 printfreq=100 samplefreq=100	# ? ~ chain lenght = 300k, for kicking tire maybe better ngen=20k.  def ngen=1M
 mb> mcmcp nruns=2 nchains=4 savebrlens=yes		# MB def really: Metropolis-coupled MCMC 2 idp anal, 4 chains each
 mb> mcmcp diagnfreq=1000 diagnstat=maxstddev		# converge diag settings (these are def)
 mb> mcmcp filename=MB_anim66itv_uni			# filename prefix, _uni for uniform mcmc ??
+mb> mcmcp filename=ee1352_mrbayes_0903_ngen250k_nrun3   #
 mb> mcmc						# actually start the analysis, only use 1 cpu
 mb> 
-mb> sumt						# save tree / show cladogram
-mb> sump 						# 
-mb> sump filename=
+mb> sumt						# save tree / show cladogram [ie ascii tree output]
+mb> sump 						# save tree as nexus file .con.tre
+mb> sump filename=					# if filename= is provided, it is for completed mcmc output saved to .t
 mb> 
 mb> ssp							# stepping-stone sampling setting
 mb> ssp	...						# stepping-stone sampling setting
@@ -295,7 +296,45 @@ mb> ss 							# atually start the stepping-stone analysis
 mb> 
 </PRE>
 
+<BR>
+when commands are placed in .nex file execute block end each line with semicolon;
+<BR>
+place block after taxa definition in the .nex file, ie at the end.
+<BR>
+mb -i ee1352_cmd7.nex 
+<BR>
+will load the nex file and execute the command immediately
+(normal for it to complain can't read stdin in and exit a slurm script, cuz by default when run in terminal, after executing the command block it stays in the prompt awaiting more user input)
+<BR>
+
+<!-- fc_graham/stec_usda_Env_EcO157/Fasta4Prokka_EE1394/fasta4tree_cgSTee1352/PROKKA/ee1352_cmd7.nex -->
+
+<PRE>
+begin mrbayes;
+    set autoclose=yes nowarn=yes;
+    lset nst=6 rates=gamma;
+     [ updatengen=250000 nruns=3 below ]
+     mcmcp ngen=250000 nruns=3 nchains=1;
+     mcmcp savebrlens=yes;
+     mcmcp printfreq=10000 samplefreq=10000;
+     mcmcp diagnfreq=5000 diagnstat=maxstddev;
+     mcmcp filename=ee1352_mrbayes_0903_ngen250k_nrun3;
+    mcmc;
+    sump;
+    sumt;
+    log stop;
+    [generate ascii cladogram by using sumt and read the existing .t file from completed mcmc run]
+    log start filename=ee1352_mrbayes_0903_ngen250k_nrun3_asciiTree.txt;
+    sumt filename=ee1352_mrbayes_0903_ngen250k_nrun3;
+    log stop;
+end;
+</PRE>
+
+
+
 MrBayes used single CPU core.  MrBayes MPI vs Beagle...
+<BR>
+
 
 <LI> RevBayes
 <LI> ExaBayes
