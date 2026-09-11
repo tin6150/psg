@@ -7,7 +7,7 @@
 #FROM r-base:3.6.2
 #FROM tin6150/base4metabolic
 #FROM rockylinux:9.3
-FROM rockylinux:latest
+FROM rockylinux:rockylinux:10
 #FROM alpinelinux:latest
 MAINTAINER Tin (at) LBL.gov
 
