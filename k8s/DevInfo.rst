@@ -73,3 +73,12 @@ kubectl -n sn delete service psg-site
 kubectl -n sn delete ingress psg-site
 
 
+
+"pause" the workflow, by setting to 0 replicas, change to 1 to restart
+kubectl -n sn scale deployment/psg-site --replicas=0
+kubectl -n sn get pods -l app=psg-site
+
+
+kubectl -n sn rollout pause deployment/psg-site
+kubectl -n sn rollout resume deployment/psg-site
+kubectl -n sn rollout restart deployment/psg-site # restart w/o delete
