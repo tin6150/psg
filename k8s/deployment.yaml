@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psg-site
+  labels:
+    app: psg-site
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: psg-site
+  template:
+    metadata:
+      labels:
+        app: psg-site
+    spec:
+      containers:
+        - name: psg-site
+          image: ghcr.io/tin6150/psg:master
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi

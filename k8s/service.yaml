@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: psg-site
+  labels:
+    app: psg-site
+spec:
+  type: LoadBalancer
+  selector:
+    app: psg-site
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
